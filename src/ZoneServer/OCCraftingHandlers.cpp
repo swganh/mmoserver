@@ -179,13 +179,13 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 	if(playerObject->isDead() || playerObject->isIncapacitated())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
 	}
 
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
 	}
 
@@ -199,11 +199,11 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 	if(tool->getAttribute<std::string>("craft_tool_status") == "@crafting:tool_status_working")
 	{
 		if(tool->getCurrentItem())
-			gMessageLib->sendSystemMessage(playerObject,L"","system_msg","crafting_tool_creating_prototype");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), playerObject);
 
 		// TODO: put the right message for practice
 		else
-			gMessageLib->sendSystemMessage(playerObject,L"","system_msg","crafting_tool_creating_prototype");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), playerObject);
 
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 

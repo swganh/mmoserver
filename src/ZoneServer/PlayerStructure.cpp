@@ -387,7 +387,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
 				else
 				{
 					SAFE_DELETE(asyncContainer);
-					gMessageLib->sendSystemMessage(player,L"","manf_station","schematic_not_added");
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_not_added"), player);
 					return;
 				}
 				
@@ -459,7 +459,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
 			if(inputStr.getLength() > 68)
 			{
 				//hmmm no answer - remain as it is?
-				gMessageLib->sendSystemMessage(player,L"","player_structure","not_valid_name"); 
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_valid_name"), player);
 				return;
 
 			}

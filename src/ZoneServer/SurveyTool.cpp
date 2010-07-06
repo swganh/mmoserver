@@ -94,21 +94,20 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 			if(playerObject->getPerformingState() != PlayerPerformance_None)
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_cant");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_cant"), playerObject);
 				return;
 			}
 
 			// verify we are able to use this
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"You lack the skill to use this tool.");
-
+				gMessageLib->SendSystemMessage(L"You lack the skill to use this tool.", playerObject);
 				return;
 			}
 
 			if(playerObject->getParentId())
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_in_structure");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
 				return;
 			}
 
@@ -131,7 +130,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"You lack the skill to use this tool.");
+				gMessageLib->SendSystemMessage(L"You lack the skill to use this tool.", playerObject);
 
 				return;
 			}

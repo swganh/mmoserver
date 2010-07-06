@@ -505,7 +505,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				Inventory* inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 				if(!inventory->checkSlots(1))
 				{
-					gMessageLib->sendSystemMessage(player,L"","player_structure","inventory_full");
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "inventory_full"), player);
 					it = objectList->erase(it);
 					continue;
 				}
@@ -515,11 +515,11 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				{
 					if (house->getCellContentCount() > 0)
 					{
-                        gMessageLib->SendSystemMessage(OutOfBand("player_structure", "clear_building_for_delete"), player);
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_building_for_delete"), player);
 						return false;
 					}
 				}
-				gMessageLib->sendSystemMessage(player,L"","player_structure","deed_reclaimed");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "deed_reclaimed"), player);
 
 				//update the deeds attributes and set the new owner id (owners inventory = characterid +1)
 				//enum INVENTORY_OFFSET
@@ -542,14 +542,14 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				{
 					if (house->getCellContentCount() > 0)
 					{
-                        gMessageLib->SendSystemMessage(OutOfBand("player_structure", "clear_building_for_delete"), player);
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_building_for_delete"), player);
 						return false;
 					}
 					house->prepareDestruction();
 				}
 
-
-				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_destroyed");
+                
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_destroyed"), player);
 				int8 sql[200];
 				sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
 				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
@@ -780,13 +780,13 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			{
 				mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
 				house->setPublic(false);
-				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_now_private");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_private"), player);
 				updateKownPlayerPermissions(house);
 				return;
 			}
 
 			house->setPublic(true);
-			gMessageLib->sendSystemMessage(player,L"","player_structure","structure_now_public");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_public"), player);
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
 			updateKownPlayerPermissions(house);
 		}
@@ -802,7 +802,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				return;
 			}
 
-			gMessageLib->sendSystemMessage(player,L"You stop manufacturing items");
+			gMessageLib->SendSystemMessage(L"You stop manufacturing items", player);
 			factory->setActive(false);
 
 			//now turn the factory on - in db and otherwise
@@ -824,12 +824,12 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			//is a schematic installed?
 			if(!factory->getManSchemID())
 			{
-				gMessageLib->sendSystemMessage(player,L"You need to add a schematic before you can start producing items.");
+				gMessageLib->SendSystemMessage(L"You need to add a schematic before you can start producing items.", player);
 				gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
 				return;
 			}
 
-			gMessageLib->sendSystemMessage(player,L"You start manufacturing items");
+			gMessageLib->SendSystemMessage(L"You start manufacturing items", player);
 			factory->setActive(true);
 
 			//now turn the factory on - in db and otherwise
@@ -956,7 +956,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			
 			if(!datapad->getCapacity())
 			{
-				gMessageLib->sendSystemMessage(player,L"","manf_station","schematic_not_removed");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_not_removed"), player);
 				return;
 			}
 			
@@ -966,7 +966,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			//finally reset the schem ID in the factory
 			factory->setManSchemID(0);
-			gMessageLib->sendSystemMessage(player,L"","manf_station","schematic_removed");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_removed"), player);
 			
 		}
 		break;
@@ -976,7 +976,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
 			if(!factory)
 			{
-				gMessageLib->sendSystemMessage(player,L"","manf_station","schematic_not_added");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_not_added"), player);
 				gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ");
 				return;
 			}
@@ -1007,7 +1007,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			TangibleObject* tO = dynamic_cast<TangibleObject*>(datapad->getManufacturingSchematicById(command.SchematicId));
 			if(!tO->hasInternalAttribute("craft_tool_typemask"))
 			{
-				gMessageLib->sendSystemMessage(player,L"old schematic it will be deprecated once factory schematic type checks are implemented");
+				gMessageLib->SendSystemMessage(L"old schematic it will be deprecated once factory schematic type checks are implemented", player);
 				tO->addInternalAttribute("craft_tool_typemask","0xffffffff");
 			}
 
@@ -1015,13 +1015,13 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			
 			if((mask&&factory->getMask())!=mask)
 			{
-					gMessageLib->sendSystemMessage(player,L"this schematic will not fit into the factory anymore as soon as schematictype checks are implemented");
+					gMessageLib->SendSystemMessage(L"this schematic will not fit into the factory anymore as soon as schematictype checks are implemented", player);
 					
 					int8 s[512];
 					sprintf(s,"schematic Mask %u vs factory Mask %u",mask,factory->getMask());
 					BString message(s);
 					message.convert(BSTRType_Unicode16);
-					gMessageLib->sendSystemMessage(player,message.getUnicode16());
+					gMessageLib->SendSystemMessage(message.getUnicode16(), player);
 			}
 
 			factory->setManSchemID(command.SchematicId);
@@ -1037,7 +1037,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			gMessageLib->sendDestroyObject(command.SchematicId,player);
 
 			
-            gMessageLib->SendSystemMessage(OutOfBand("player_structure", "clear_building_for_delete", 0, tO->getId(), 0), player);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_building_for_delete", 0, tO->getId(), 0), player);
 			//gMessageLib->sendSystemMessage(player,
 			
 			//remove the added Manufacturing schematic
@@ -1071,7 +1071,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			//the structure might have been deleted between the last and the current refresh
 			if(!structure)
 			{
-				gMessageLib->sendSystemMessage(player,L"","player_structure","no_valid_structurestatus");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "no_valid_structurestatus"), player);
 				return;
 			}
 			if(player->getTargetId() != structure->getId())
@@ -1079,7 +1079,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(gWorldManager->getObjectById(player->getTargetId()));
 				if(!terminal||(terminal->getStructure() != command.StructureId))
 				{
-					gMessageLib->sendSystemMessage(player,L"","player_structure","changed_structurestatus");
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "changed_structurestatus"), player);
 					return;
 				}
 			}
@@ -1208,7 +1208,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				createRenameStructureBox(player, structure);
 			}
 			else
-				gMessageLib->sendSystemMessage(player,L"","player_structure","rename_must_be_owner");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rename_must_be_owner"), player);
 
 			
 		}
@@ -1219,7 +1219,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			if(owner)
 				gStructureManager->TransferStructureOwnership(command);
 			else
-				gMessageLib->sendSystemMessage(player,L"","player_structure","not_owner");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_owner"), player);
 			
 		}
 		return;
@@ -1234,20 +1234,20 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				{
 					if(factory->getManSchemID())
 					{
-						gMessageLib->sendSystemMessage(player,L"You need to remove the manufacturing schematic before destroying the structure");
+						gMessageLib->SendSystemMessage(L"You need to remove the manufacturing schematic before destroying the structure", player);
 						return;
 					}
 
 					TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
 					if(hopper&&hopper->getObjects()->size())
 					{
-						gMessageLib->sendSystemMessage(player,L"","player_structure","clear_input_hopper_for_delete");
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_input_hopper_for_delete"), player);
 						return;
 					}
 					hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
 					if(hopper&&hopper->getObjects()->size())
 					{
-						gMessageLib->sendSystemMessage(player,L"","player_structure","clear_output_hopper_for_delete");
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_output_hopper_for_delete"), player);
 						return;
 					}
 				}
@@ -1255,7 +1255,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				gStructureManager->getDeleteStructureMaintenanceData(command.StructureId, command.PlayerId);
 			}
 			else
-				gMessageLib->sendSystemMessage(player,L"","player_structure","destroy_must_be_owner");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "destroy_must_be_owner"), player);
 			
 			
 		}

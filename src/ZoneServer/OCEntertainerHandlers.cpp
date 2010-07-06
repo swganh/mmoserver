@@ -92,7 +92,7 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
 	PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(message->getUint64()));
 	if(!targetPlayer)
 	{
-		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","dance_watch_npc");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_watch_npc"), targetPlayer);
 		gLogger->log(LogManager::DEBUG,"OC :: handle startwatch No entertainer");
 		return;
 	}
@@ -115,7 +115,7 @@ void ObjectController::_handlelisten(uint64 targetId,Message* message,ObjectCont
 
 	if(!targetPlayer)
 	{
-		gMessageLib->sendSystemMessage(targetPlayer,L"","performance","music_listen_npc");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_listen_npc"), targetPlayer);
 		return;
 	}
 
@@ -175,7 +175,7 @@ void ObjectController::_handlePauseDance(uint64 targetId,Message* message,Object
 
 	if(entertainer->getPerformingState() != PlayerPerformance_Dance)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","dance_fail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), entertainer);
 		return;
 	}
 
@@ -189,7 +189,7 @@ void ObjectController::_handlePauseMusic(uint64 targetId,Message* message,Object
 
 	if(entertainer->getPerformingState() != PlayerPerformance_Music)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), entertainer);
 		return;
 	}
 
@@ -205,7 +205,7 @@ void ObjectController::_handleflourish(uint64 targetId,Message* message,ObjectCo
 	//are we performing???
 	if(entertainer->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_not_performing"), entertainer);
 		return;
 	}
 	uint8 flourishMax = 8;
@@ -221,13 +221,12 @@ void ObjectController::_handleflourish(uint64 targetId,Message* message,ObjectCo
 
 	if((mFlourishId < 1)||(mFlourishId > flourishMax))
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_valid");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_not_valid"), entertainer);
 		return;
 	}
 
 	//give notice
-
-	gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_perform");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_perform"), entertainer);
 	gEntertainerManager->flourish(entertainer,mFlourishId);
 }
 
@@ -241,7 +240,7 @@ void ObjectController::_handleChangeDance(uint64 targetId,Message* message,Objec
 
 	if(entertainer->getPerformingState() != PlayerPerformance_Dance)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","dance_must_be_performing_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_must_be_performing_self"), entertainer);
 		return;
 	}
 
@@ -301,7 +300,7 @@ void ObjectController::_handleChangeDance(uint64 targetId,Message* message,Objec
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","dance_fail");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), entertainer);
 		}
 	}
 }
@@ -361,8 +360,7 @@ void ObjectController::_handleChangeMusic(uint64 targetId,Message* message,Objec
 
 	if(entertainer->getPerformingState() != PlayerPerformance_Music)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_be_performing_self");
-		return;
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_be_performing_self"), entertainer);
 	}
 
 	SkillCommandList*	entertainerSkillCommands = entertainer->getSkillCommands();
@@ -422,7 +420,7 @@ void ObjectController::_handleChangeMusic(uint64 targetId,Message* message,Objec
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), entertainer);
 		}
 	}
 	//no need for skillboxes we can do that directly
@@ -439,7 +437,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 	PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
 	if(performer->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","already_performing_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), performer);
 		return;
 	}
 
@@ -447,12 +445,12 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 	if(performer->getSamplingState())
 	{
 		performer->getSampleData()->mPendingSample = false;
-		gMessageLib->sendSystemMessage(performer,L"","survey","sample_cancel");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), performer);
 	}
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
 	{
-		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
 		return;
 	}
 
@@ -514,7 +512,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(performer,L"","performance","dance_fail");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), performer);
 		}
 	}
 
@@ -529,14 +527,14 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 	PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
 	if(performer->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","already_performing_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), performer);
 		return;
 
 	}
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
 		return;
 	}
 
@@ -599,7 +597,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(performer,L"","performance","music_fail");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), performer);
 		}
 	}
 }
@@ -614,7 +612,7 @@ void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectCo
 
 	if(performer->getGroupId() == 0)
 	{
-		gMessageLib->sendSystemMessage(performer,L"", "error_message", "not_grouped");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "not_grouped"), performer);
 		return;
 
 	}
@@ -623,7 +621,7 @@ void ObjectController::_handleStopBand(uint64 targetId,Message* message,ObjectCo
 	// should setup an enum for skills
 	if (!performer->checkSkill(11))
 	{
-		gMessageLib->sendSystemMessage(performer, L"","error_message", "prose_nsf_skill_cmd","","",L"stopband");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "prose_nsf_skill_cmd", L"", L"", L"stopband"), performer);
 		return;
 	}
 
@@ -640,22 +638,21 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 
 	if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
 	{
-		gMessageLib->sendSystemMessage(performer,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
 		return;
 	}
 
 	if(performer->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","already_performing_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), performer);
 		return;
 
 	}
 
 	if(performer->getGroupId() == 0)
 	{
-		gMessageLib->sendSystemMessage(performer,L"", "error_message", "not_grouped");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "not_grouped"), performer);
 		return;
-
 	}
 	//get song
 	BString dataStr;
@@ -676,7 +673,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 
 	if(entertainer->getGroupId() == 0)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"", "error_message", "not_grouped");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "not_grouped"), entertainer);
 		return;
 
 	}
@@ -685,7 +682,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 	//are we performing???
 	if(entertainer->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_not_performing"), entertainer);
 		return;
 	}
 	if(entertainer->getPerformingState() == PlayerPerformance_Dance)
@@ -707,11 +704,11 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 			if(entertainer->getAcceptBandFlourishes() == false)
 			{
 				entertainer->setAcceptBandFlourishes(true);
-
-				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_on");
+                
+                gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "band_flourish_on"), entertainer);
 			}
 			else
-				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_status_on");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "band_flourish_status_on"), entertainer);
 		}
 	}
 	else if(wcsncmp(temp, L"off", sizeof(temp)) == 0)
@@ -721,11 +718,11 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 			if(entertainer->getAcceptBandFlourishes() == true)
 			{
 				entertainer->setAcceptBandFlourishes(false);
-
-				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_off");
+                
+                gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "band_flourish_off"), entertainer);
 			}
 			else
-				gMessageLib->sendSystemMessage(entertainer,L"","performance","band_flourish_status_off");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "band_flourish_status_off"), entertainer);
 		}
 	}
 	else
@@ -735,7 +732,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
 
 		if((FlourishId < 1)||(FlourishId > flourishMax))
 		{
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_not_valid");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_not_valid"), entertainer);
 			return;
 		}
 
@@ -988,7 +985,7 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 	if(messageGenerator->getImageDesignSession() == IDSessionPREY)
 	{
 		gMessageLib->sendIDEndMessage(imageDesigner,customer,imageDesigner,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
-		gMessageLib->sendSystemMessage(imageDesigner,L"The Customer cancelled the session.");
+		gMessageLib->SendSystemMessage(L"The Customer cancelled the session.", imageDesigner);
 	}
 
 	if(messageGenerator->getImageDesignSession() == IDSessionID)
@@ -1142,13 +1139,13 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 	if(!myEmote)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","no_holoemote");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("image_designer", "no_holoemote"), we);
 		return;
 	}
 
 	if(we->getHoloCharge()<= 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("image_designer", "no_charges_holoemote"), we);
 		return;
 	}
 
@@ -1158,7 +1155,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 	if(!strcmp(cmdLine,"remove"))
 	{
 		//remove from playerObject
-		gMessageLib->sendSystemMessage(we,L"","image_designer","remove_holoemote");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("image_designer", "remove_holoemote"), we);
 		we->setHoloCharge(0);
 		we->setHoloEmote(0);
 		//dont forget to remove from db, too
@@ -1209,7 +1206,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 
 	if(!requestedEmote)
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("image_designer", "holoemote_help"), we);
 		return;
 	}
 
@@ -1227,13 +1224,13 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(we,L"","image_designer","no_charges_holoemote");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("image_designer", "no_charges_holoemote"), we);
 			return;
 		}
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(we,L"","image_designer","holoemote_help");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("image_designer", "holoemote_help"), we);
 		return;
 	}
 	
@@ -1260,7 +1257,7 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
 
 	if(we->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
 		return;
 	}
 
@@ -1289,16 +1286,16 @@ void ObjectController::_handleDistract(uint64 targetId,Message* message,ObjectCo
 
 	if (effect > highest)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_level_too_high","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_level_too_high"), we);
 		return;
 	}
 	if(highest == 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_lack_skill_self","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_lack_skill_self"), we);
 		return;
 	}
 	int8 effectStr[64];
-	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_distract");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_perform_distract"), we);
 	sprintf(effectStr,"clienteffect/entertainer_distract_level_%u.cef",effect);
 	gMessageLib->sendPlayClientEffectObjectMessage(effectStr,"",we);
 
@@ -1326,7 +1323,7 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
 
 	if(we->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
 		return;
 	}
 
@@ -1355,16 +1352,16 @@ void ObjectController::_handleFireJet(uint64 targetId,Message* message,ObjectCon
 
 	if (effect > highest)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_level_too_high","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_level_too_high"), we);
 		return;
 	}
 	if(highest == 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_lack_skill_self","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_lack_skill_self"), we);
 		return;
 	}
 	int8 effectStr[64];
-	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_fire_jets");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_perform_fire_jets"), we);
 	sprintf(effectStr,"clienteffect/entertainer_fire_jets_level_%u.cef",effect);
 	gMessageLib->sendPlayClientEffectObjectMessage(effectStr,"",we);
 
@@ -1390,7 +1387,7 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
 
 	if(we->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
 		return;
 	}
 
@@ -1419,16 +1416,16 @@ void ObjectController::_handleDazzle(uint64 targetId,Message* message,ObjectCont
 
 	if (effect > highest)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_level_too_high","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_level_too_high"), we);
 		return;
 	}
 	if(highest == 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_lack_skill_self","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_lack_skill_self"), we);
 		return;
 	}
 	int8 effectStr[64];
-	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_dazzle");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_perform_dazzle"), we);
 	sprintf(effectStr,"clienteffect/entertainer_Dazzle_level_%u.cef",effect);
 	gMessageLib->sendPlayClientEffectObjectMessage(effectStr,"",we);
 
@@ -1454,7 +1451,7 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
 
 	if(we->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
 		return;
 	}
 
@@ -1483,16 +1480,16 @@ void ObjectController::_handleColorLights(uint64 targetId,Message* message,Objec
 
 	if (effect > highest)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_level_too_high","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_level_too_high"), we);
 		return;
 	}
 	if(highest == 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_lack_skill_self","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_lack_skill_self"), we);
 		return;
 	}
 	int8 effectStr[64];
-	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_color_lights");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_perform_color_lights"), we);
 	sprintf(effectStr,"clienteffect/entertainer_color_lights_level_%u.cef",effect);
 	gMessageLib->sendPlayClientEffectObjectMessage(effectStr,"",we);
 
@@ -1518,7 +1515,7 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
 
 	if(we->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
 		return;
 	}
 
@@ -1547,16 +1544,16 @@ void ObjectController::_handleSmokeBomb(uint64 targetId,Message* message,ObjectC
 
 	if (effect > highest)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_level_too_high","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_level_too_high"), we);
 		return;
 	}
 	if(highest == 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_lack_skill_self","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_lack_skill_self"), we);
 		return;
 	}
 	int8 effectStr[64];
-	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_smoke_bomb");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_perform_smoke_bomb"), we);
 	sprintf(effectStr,"clienteffect/entertainer_smoke_bomb_level_%u.cef",effect);
 	gMessageLib->sendPlayClientEffectObjectMessage(effectStr,"",we);
 
@@ -1581,7 +1578,7 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
 
 	if(we->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
 		return;
 	}
 
@@ -1610,16 +1607,16 @@ void ObjectController::_handleSpotLight(uint64 targetId,Message* message,ObjectC
 
 	if (effect > highest)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_level_too_high","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_level_too_high"), we);
 		return;
 	}
 	if(highest == 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_lack_skill_self","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_lack_skill_self"), we);
 		return;
 	}
 	int8 effectStr[64];
-	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_spot_light");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_perform_spot_light"), we);
 	sprintf(effectStr,"clienteffect/entertainer_spot_light_level_%u.cef",effect);
 	gMessageLib->sendPlayClientEffectObjectMessage(effectStr,"",we);
 
@@ -1657,7 +1654,7 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 
 	if(we->getPerformingState() == PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_not_performing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_not_performing"), we);
 		return;
 	}
 
@@ -1686,19 +1683,19 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
 
 	if (effect > highest)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_level_too_high","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_level_too_high"), we);
 		return;
 	}
 
 	if(highest == 0)
 	{
-		gMessageLib->sendSystemMessage(we,L"","performance","effect_lack_skill_self","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_lack_skill_self"), we);
 		return;
 	}
 
 	int8 effectStr[64];
-
-	gMessageLib->sendSystemMessage(we,L"","performance","effect_perform_ventriloquism");
+    
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_perform_ventriloquism"), we);
 
 	sprintf(effectStr,"clienteffect/entertainer_ventriloquism_level_%u.cef",effect);
 

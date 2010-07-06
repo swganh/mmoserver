@@ -118,7 +118,7 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 			// zone transfer request
 			else
 			{
-				gMessageLib->sendSystemMessage(player,L"Requesting zone transfer...");
+				gMessageLib->SendSystemMessage(L"Requesting zone transfer...", player);
 
                 gMessageLib->sendClusterZoneTransferRequestByPosition(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
 			}
@@ -127,12 +127,12 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
 
 		default:
 		{
-			gMessageLib->sendSystemMessage(player,L"[SYNTAX] /admin_warp_self <x> <z> <planet>");
+			gMessageLib->SendSystemMessage(L"[SYNTAX] /admin_warp_self <x> <z> <planet>", player);
 		}
 		return;
 	}
 
-	gMessageLib->sendSystemMessage(player,L"Error parsing parameters.");
+	gMessageLib->SendSystemMessage(L"Error parsing parameters.", player);
 }
 
 
@@ -294,7 +294,7 @@ BString ObjectController::handleBroadcast(BString message) const
 				const PlayerObject* const player = (*it).second;
 				if (player->isConnected())
 				{
-					gMessageLib->sendSystemMessage((PlayerObject*)player, message.getUnicode16());
+					gMessageLib->SendSystemMessage(message.getUnicode16(), player);
 				}
 				++it;
 			}

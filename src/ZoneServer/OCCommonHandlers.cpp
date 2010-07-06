@@ -83,7 +83,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
 	}
 
@@ -94,7 +94,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 	if((str.getCrc() != BString("transport").getCrc()))
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_what_shuttle");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_what_shuttle"), playerObject);
 		return;
 	}
 
@@ -110,13 +110,13 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 			// in range check
 			if(playerObject->getParentId() !=  shuttle->getParentId())
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
 				return;
 			}
 
 			if (!shuttle->availableInPort())
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), playerObject);
 				return;
 			}
 
@@ -127,8 +127,8 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 
 		++it;
 	}
-
-	gMessageLib->sendSystemMessage(playerObject,L"","structure/structure_messages","boarding_what_shuttle");
+    
+    gMessageLib->SendSystemMessage(::common::OutOfBand("structure/structure_messages", "boarding_what_shuttle"), playerObject);
 }
 
 //=============================================================================
@@ -145,7 +145,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 	{
 		if(glm::distance(playerObject->getWorldPosition(), itemObject->getWorldPosition()) > 10)
 		{
-			gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "out_of_range"), playerObject);
 			return;
 		}
 
@@ -184,7 +184,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 		if (!aContainer)
 		{
 			// STF: container_error_message Key: container8 does not seem to be working, using this custom string temperary.
-			gMessageLib->sendSystemMessage(playerObject, L"You do not have permission to access that container.");
+			gMessageLib->SendSystemMessage(L"You do not have permission to access that container.", playerObject);
 		}
 		else
 		{
@@ -495,7 +495,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 		{
 			return true;
 		}
-		gMessageLib->sendSystemMessage(playerObject, L"", "player_structure", "not_admin");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_admin"), playerObject);
 		return false;
 	}
 
@@ -517,7 +517,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 				}
 			}
 			else
-				gMessageLib->sendSystemMessage(playerObject, L"", "player_structure", "not_admin");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_admin"), playerObject);
 		}
 		return false;
 	}
@@ -608,7 +608,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		{
 			// We don't allow users to place item in the container.
 			// gMessageLib->sendSystemMessage(playerObject,L"","event_perk","chest_can_not_add");
-			gMessageLib->sendSystemMessage(playerObject,L"","error_message","remove_only");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "remove_only"), playerObject);
 			return false;
 		}
 	}
@@ -652,7 +652,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			else
 			{
 				//This container is full. 
-				gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container03");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("container_error_message", "container03"), playerObject);
 				return false;
 			}
 			
@@ -660,7 +660,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		else
 		{
 			//You do not have permission to access that container. 
-			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container08");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("container_error_message", "container08"), playerObject);
 			return false;
 		}
 
@@ -677,7 +677,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(!access)
 		{
 			//You do not have permission to access that container. 
-			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container08");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("container_error_message", "container08"), playerObject);
 			return false;
 		}
 		
@@ -686,7 +686,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(!fit)
 		{
 			//This container is full. 
-			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container03");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("container_error_message", "container03"), playerObject);
 			return false;
 		}
 	}	
@@ -710,7 +710,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	if(containedContainersize >= containingContainersize)
 	{
 		//This item is too bulky to fit inside this container.
-		gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container12");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("container_error_message", "container12"), playerObject);
 		return false;
 	}
 
@@ -1124,7 +1124,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
 	}
 	
@@ -1138,7 +1138,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	
     if((!terminal)|| (glm::distance(terminal->mPosition, playerObject->mPosition) > purchaseRange))
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","too_far");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "too_far"), playerObject);
 		return;
 	}
 
@@ -1154,7 +1154,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(elements < 4)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","route_not_available");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "route_not_available"), playerObject);
 		return;
 	}
 
@@ -1164,7 +1164,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(!ticketProperties.dstPoint)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","route_not_available");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "route_not_available"), playerObject);
 		return;
 	}
 
@@ -1187,7 +1187,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(!inventory->checkSlots(static_cast<uint8>(amount)))
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","error_message","inv_full");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "inv_full"), playerObject);
 		return;
 	}
 
@@ -1209,7 +1209,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 	if(playerObject->isConnected())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_pay_acct_success","money/acct_n","travelsystem",L"",ticketProperties.price);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_pay_acct_success", "", "", "", "", "money/acct_n", "travelsystem", ticketProperties.price), playerObject);
 
 		gObjectFactory->requestNewTravelTicket(inventory,ticketProperties,inventory->getId(),99);
 
@@ -1671,7 +1671,7 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 
 	// schedule execution
 	addEvent(new LogOutEvent(Anh_Utils::Clock::getSingleton()->getLocalTime()+((logout-logoutSpacer)*1000),logoutSpacer*1000),logoutSpacer*1000);
-	gMessageLib->sendSystemMessage(player,L"","logout","time_left","","",L"",logout);
+    gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "time_left", 0, 0, 0, logout), player);
 
 }
 
@@ -1689,13 +1689,13 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	//can we burstrun right now ??
 	if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun))
 	{
-		gMessageLib->sendSystemMessage(player,L"You are already running as hard as you can.");
+		gMessageLib->SendSystemMessage(L"You are already running as hard as you can.", player);
 		return;
 	}
 
 	if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
 	{
-		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_wait");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_wait"), player);
 		return;
 	}
 
@@ -1705,7 +1705,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 
 	if(!player->getHam()->checkMainPools(healthcost,actioncost,mindcost))
 	{
-		gMessageLib->sendSystemMessage(player,L"You cannot burst run right now."); // the stf doesn't work!
+		gMessageLib->SendSystemMessage(L"You cannot burst run right now.", player); // the stf doesn't work!
 		return;
 	}
 
@@ -1730,7 +1730,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	addEvent(new BurstRunEvent(now+(br_length*1000),now+(br_coolD*1000)),t*1000);
 	
 	//Send the burst run system message to the player
-	gMessageLib->sendSystemMessage(player,L"You run as hard as you can!");
+	gMessageLib->SendSystemMessage(L"You run as hard as you can!", player);
 	
 	//Now send the burst run combat spam message to InRange
 	int8 s[256];

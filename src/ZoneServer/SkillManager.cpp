@@ -504,8 +504,8 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		gMessageLib->sendSkillCmdDeltasPLAY_9(player);
 		gMessageLib->sendSchematicDeltasPLAY_9(player);
 		//gMessageLib->sendSchematicDeltasAddPLAY_9(player);
-
-		gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_skill_learned","skl_n",skill->mName.getAnsi());
+        
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_skill_learned", "", "", "", "", "skl_n", skill->mName.getAnsi()), player);
 
 		// Update cap for this type of xp as long as it isn't of type none.
         if (skill->mXpType != XpType_none) {
@@ -689,7 +689,7 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,B
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(teacherObject,L"","teaching","no_skills");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "no_skills"), teacherObject);
 
 		pupilObject->getTrade()->setTeacher(NULL);
 	}
@@ -824,7 +824,7 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 		gMessageLib->sendSchematicDeltasPLAY_9(player);
 
 		if(showMessage)
-			gMessageLib->sendSystemMessage(player,L"Skill surrendered.");
+			gMessageLib->SendSystemMessage(L"Skill surrendered.", player);
 
 		// Update the cap for this type of xp, but do NOT adjust the xp down below cap.
 		int32 newXpCap = getXpCap(player, skill->mXpType);
@@ -976,16 +976,16 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				if (delta == -1)
 				{
 					// You lose 1 point of %TO experience
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp1","exp_n",getXPTypeById(xpType).getAnsi(),L"",-delta);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_revoke_xp1", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), -delta), playerObject);
 				}
 				else
 				{
 					// You lose %DI points of %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp","exp_n",getXPTypeById(xpType).getAnsi(),L"",-delta);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_revoke_xp", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), -delta), playerObject);
 				}
 
-				// You have achieved your current limit for %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType).getAnsi(),L"",0);
+				// You have achieved your current limit for %TO experience.                
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_hit_xp_cap", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi()), playerObject);
 
 				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Sub %u XP", -delta);
 			}
@@ -997,25 +997,25 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				delta = xpCap - xpAmount;	// Add a positive number to reach the cap level.
 				if (delta == 1)
 				{
-					// You receive 1 point of %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp1","exp_n",getXPTypeById(xpType).getAnsi(),L"",delta);
+					// You receive 1 point of %TO experience.                  
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_grant_xp1", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), delta), playerObject);
 				}
 				else
 				{
 					// You receive %DI points of %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType).getAnsi(),L"",delta);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_grant_xp", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), delta), playerObject);
 				}
 				// Do we have the max cap?
 				if (xpCap == getMaxXpCap(static_cast<uint8>(xpType)))
 				{
 					// Yes.
 					// You have achieved your limit of %DIpts for experience type '%TO'.
-					gMessageLib->sendSystemMessage(playerObject,L"","error_message","prose_hit_xp_limit","exp_n",getXPTypeById(xpType).getAnsi(),L"",xpCap);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "prose_hit_xp_limit", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), xpCap), playerObject);
 				}
 				else
 				{
 					// You have achieved your current limit for %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType).getAnsi());
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_hit_xp_cap", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi()), playerObject);
 				}
 				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: Adding %u XP", delta);
 			}
@@ -1028,12 +1028,13 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 			if (delta == 1)
 			{
 				// You receive 1 point of %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp1","exp_n",getXPTypeById(xpType).getAnsi(),L"",delta);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_grant_xp1", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), delta), playerObject);
 			}
 			else
 			{
 				// You receive %DI points of %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_grant_xp","exp_n",getXPTypeById(xpType).getAnsi(),L"",delta);
+                
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_grant_xp", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), delta), playerObject);
 			}
 		}
 	}
@@ -1054,16 +1055,16 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 				if (delta == -1)
 				{
 					// You lose 1 point of %TO experience
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp1","exp_n",getXPTypeById(xpType).getAnsi(),L"",-delta);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_revoke_xp1", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), -delta), playerObject);
 				}
 				else
 				{
 					// You lose %DI points of %TO experience.
-					gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_revoke_xp","exp_n",getXPTypeById(xpType).getAnsi(),L"",-delta);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_revoke_xp", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi(), -delta), playerObject);
 				}
 
 				// You have achieved your current limit for %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType).getAnsi(),L"",0);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_hit_xp_cap", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi()), playerObject);
 
 				// This is the value we should sub from DB (Everything down to the cap level.
 				delta = xpCap - xpAmount;
@@ -1073,7 +1074,7 @@ int32 SkillManager::handleExperienceCap(uint32 xpType,int32 valueDiff, PlayerObj
 			{
 				// We landed at the cap level.
 				// You have achieved your current limit for %TO experience.
-				gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_hit_xp_cap","exp_n",getXPTypeById(xpType).getAnsi(),L"",0);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_hit_xp_cap", "", "", "", "", "exp_n", getXPTypeById(xpType).getAnsi()), playerObject);
 				// gLogger->log(LogManager::DEBUG,"SkillManager::handleExperienceCap: At XP Cap limit, reduce XP with %d", -delta);
 			}
 			else

@@ -552,7 +552,7 @@ bool ObjectContainer::checkCapacity(uint8 amount, PlayerObject* player)
 	uint16 contentCount = getHeadCount();
 	if(player&&(mCapacity-contentCount < amount))
 	{
-		gMessageLib->sendSystemMessage(player,L"","container_error_message","container3");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("container_error_message", "container3"), player);
 	}
 
 	return((mCapacity-contentCount) >= amount);

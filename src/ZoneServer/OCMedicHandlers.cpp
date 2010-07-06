@@ -65,7 +65,7 @@ void ObjectController::_handleDiagnose(uint64 targetId, Message* message,ObjectC
 	{
 		gMedicManager->Diagnose(Medic, Target);
 	} else {
-		gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_b6");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_b6"), Medic);
 		return;
 	}
 }
@@ -102,7 +102,7 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
 	if (messageResponse.length() == 0)
 	{
 	  //you must specify a valid wound type
-	  gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_65");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_65"), Medic);
 	}
 	else
 	{
@@ -118,7 +118,7 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
 			}
 		}
 		else
-			gMessageLib->sendSystemMessage(Medic,L"","healing_response","not_enough_mind");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
 
 	}
 }
@@ -160,7 +160,7 @@ void ObjectController::_handleTendDamage(uint64 targetId,Message* message,Object
 		}
 	}
 	else
-		gMessageLib->sendSystemMessage(Medic,L"","healing_response","not_enough_mind");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
 
 }
 
@@ -183,7 +183,7 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
 	if (messageResponse.length() == 0)
 	{
 	  //you must specify a valid wound type
-	  gMessageLib->sendSystemMessage(Medic,L"","healing_response","healing_response_65");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_65"), Medic);
 	}
 	else
 	{
@@ -202,7 +202,7 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
 			}
 		}
 		else
-			gMessageLib->sendSystemMessage(Medic,L"","healing_response","not_enough_mind");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
 
 	}
 	
@@ -244,7 +244,7 @@ void ObjectController::_handleQuickHeal(uint64 targetId,Message* message,ObjectC
 		}
 	}
 	else
-		gMessageLib->sendSystemMessage(Medic,L"","healing_response","not_enough_mind");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
 }
 
 //=============================================================================================================================

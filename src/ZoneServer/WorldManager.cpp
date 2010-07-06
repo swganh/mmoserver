@@ -656,8 +656,8 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 					gWorldManager->addObject(item,true);
 
 					gMessageLib->sendCreateTangible(item,player);
-
-					gMessageLib->sendSystemMessage(player,L"","system_msg","prototype_transferred");
+                    
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "prototype_transferred"), player);
 
 					tool->setCurrentItem(NULL);
 				}
@@ -1255,8 +1255,8 @@ void WorldManager::	zoneSystemMessage(std::string message)
 
 		if(player->isConnected())
 		{
-      std::wstring msg(message.begin(), message.end());
-			gMessageLib->sendSystemMessage((PlayerObject*)player,msg);
+            std::wstring msg(message.begin(), message.end());
+            gMessageLib->SendSystemMessage(msg, player);
 		}
 
 		++it;

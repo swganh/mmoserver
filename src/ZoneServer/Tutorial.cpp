@@ -296,8 +296,8 @@ void Tutorial::scriptSystemMessage(std::string message)
 {
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
-    std::wstring msg(message.begin(), message.end());
-		gMessageLib->sendSystemMessage(mPlayerObject, msg);
+        std::wstring msg(message.begin(), message.end());
+        gMessageLib->SendSystemMessage(msg, mPlayerObject);
 	}
 }
 

@@ -433,7 +433,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			if (failed)
 			{
 				// This is a system failure.
-				gMessageLib->sendSystemMessage(player,L"","teaching","learning_failed");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
 				pageLink = 0;
 				break;
 			}
@@ -463,7 +463,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Player needs %u credits, but only have %u as cash", av->getDI(),
 				// 				dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 				// System message: You lack the %DI credits required for training in %TO. 
-        gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_nsf",av->getTOStfFile().getAnsi(),av->getTOStfVariable().getAnsi(),L"",av->getDI());
+                gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_nsf", "", "", "", "", av->getTOStfFile().getAnsi(), av->getTOStfVariable().getAnsi(), av->getDI()), player);
 
 				break;
 			}
@@ -607,7 +607,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			{
 				// Let's train this skill...
 				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Processing %DI credit payment for %TO training.");
-				gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_pay",av->getTOStfFile().getAnsi(),av->getTOStfVariable().getAnsi(),L"",av->getDI());
+                gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_pay", "", "", "", "", av->getTOStfFile().getAnsi(), av->getTOStfVariable().getAnsi(), av->getDI()), player);
 
 				// if (strstr(skill->mName.getAnsi(),"master"))
 				if (mPlayerGotRequirementsForMasterSkill)
@@ -624,7 +624,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 					if (!(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-skill->mMoneyRequired)))
 					{	
 						// This is a system error.
-						gMessageLib->sendSystemMessage(player,L"","skill_teacher","prose_nsf");
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_nsf"), player);
 						gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Error verifying credits\n");
 						pageLink = 0;
 					}
@@ -633,7 +633,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			else
 			{
 				// This is a system error.
-				gMessageLib->sendSystemMessage(player,L"","teaching","learning_failed");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
 				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Error verifying credits");
 				pageLink = 0;
 			}
@@ -694,7 +694,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 			else
 			{
 				// This is a system error.
-				gMessageLib->sendSystemMessage(player,L"","teaching","learning_failed");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
 				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Error verifying credits");
 				pageLink = 0;
 			}
@@ -815,6 +815,9 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 			// gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: Player now have %u credits left in cash", 
 								// dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 
+            // Build up a ProsePackage to send to the player.
+            ::common::ProsePackage prose("base_player", "prose_pay_acct_success");
+
 			// System message: You successfully make a payment of %DI credits to %TO.
 			// gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: You successfully make a payment of %DI credits to %TO");
 			if (av->getNpc()->getFirstName().getLength())
@@ -831,28 +834,17 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
 				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Name-string = %s",  npcDesription.getAnsi());
 				*/
-				gMessageLib->sendSystemMessage(player,
-												L"",
-												"base_player",
-												"prose_pay_acct_success",
-												"",
-												"",
-                        av->getNpc()->getFirstName().getUnicode16(),		// TODO: Use the complete descripton "Opsa Venfo (a scout trainer)"
-												av->getDI()
-												);
+                prose.to_custom_string = av->getNpc()->getFirstName().getUnicode16();
 			}
 			else
 			{
-				gMessageLib->sendSystemMessage(player,
-												L"",
-												"base_player",
-												"prose_pay_acct_success",
-												"mob/creature_names",
-                        av->getNpc()->getTitle().getAnsi(),
-												L"",
-												av->getDI()
-												);
+                prose.to_stf_file = "mob/creature_names";
+                prose.to_stf_label = av->getNpc()->getTitle().getAnsi();
 			}
+            
+            prose.di_integer = av->getDI();
+
+            gMessageLib->SendSystemMessage(::common::OutOfBand(prose), player);
 		}
 		// Fall through...
 

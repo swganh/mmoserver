@@ -86,7 +86,7 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
 	if(player->checkFriendList(friendName.getCrc()))
 	{
 		friendName.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(player,L"","cmnty","friend_duplicate","","",L"",0,"","",friendName.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_duplicate", L"", friendName.getUnicode16(), L""), player);
 		player->setContactListUpdatePending(false);
 		return;
 	}
@@ -96,7 +96,8 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
 	if(player->checkIgnoreList(friendName.getCrc()))
 	{
 		friendName.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(player,L"","cmnty","friend_fail_is_ignored","","",L"",0,"","",friendName.getUnicode16());
+        
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_fail_is_ignored", L"", friendName.getUnicode16(), L""), player);
 		player->setContactListUpdatePending(false);
 		return;
 	}
@@ -215,7 +216,7 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
 	if(player->checkIgnoreList(ignoreName.getCrc()))
 	{
 		ignoreName.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(player,L"","cmnty","ignore_duplicate","","",L"",0,"","",ignoreName.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_duplicate", L"", ignoreName.getUnicode16(), L""), player);
 		player->setContactListUpdatePending(false);
 		return;
 	}
@@ -319,7 +320,7 @@ void ObjectController::_handleAddFriendDBReply(uint32 retCode,BString friendName
 		default:
 		{
 			friendName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,L"","cmnty","friend_not_found","","",L"",0,"","",friendName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_not_found", L"", friendName.getUnicode16(), L""), player);
 	
 		}
 		break;
@@ -333,7 +334,7 @@ void ObjectController::_handleAddFriendDBReply(uint32 retCode,BString friendName
 
 			// send notification
 			friendName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,L"","cmnty","friend_added","","",L"",0,"","",friendName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_added", L"", friendName.getUnicode16(), L""), player);
 
 			// notify chat server
 			if(player->isConnected())
@@ -363,7 +364,7 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,BString friendNam
 	friendName.convert(BSTRType_Unicode16);
 	if(retCode == 0)
 	{
-		gMessageLib->sendSystemMessage(player,L"","cmnty","friend_location_failed_noname","","",L"",0,"","",friendName.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_location_failed_noname", L"", friendName.getUnicode16(), L""), player);
 		return;
 	}
 
@@ -371,14 +372,14 @@ void ObjectController::_handleFindFriendDBReply(uint64 retCode,BString friendNam
 
 	if(!searchObject)
 	{
-		gMessageLib->sendSystemMessage(player,L"","cmnty","friend_location_failed","","",L"",0,"","",friendName.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_location_failed", L"", friendName.getUnicode16(), L""), player);
 		return;
 	}
 
 	//are we on our targets friendlist???
 	if(!searchObject->checkFriendList(player->getFirstName().getCrc()))
 	{
-		gMessageLib->sendSystemMessage(player,L"","cmnty","friend_location_failed","","",L"",0,"","",friendName.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_location_failed", L"", friendName.getUnicode16(), L""), player);
 		return;
 	}
 
@@ -407,7 +408,7 @@ void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,BString friendN
 		default:
 		{
 			friendName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,L"","cmnty","friend_not_found","","",L"",0,"","",friendName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_not_found", L"", friendName.getUnicode16(), L""), player);
 		}
 		break;
 
@@ -420,7 +421,7 @@ void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,BString friendN
 
 			// send notification
 			friendName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,L"","cmnty","friend_removed","","",L"",0,"","",friendName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_removed", L"", friendName.getUnicode16(), L""), player);
 
 			if(player->isConnected())
 			{
@@ -457,7 +458,7 @@ void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,BString ignoreName
 		default:
 		{
 			ignoreName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,L"","cmnty","ignore_not_found","","",L"",0,"","",ignoreName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_not_found", L"", ignoreName.getUnicode16(), L""), player);
 		}
 		break;
 
@@ -470,7 +471,7 @@ void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,BString ignoreName
 
 			// send notification
 			ignoreName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,L"","cmnty","ignore_added","","",L"",0,"","",ignoreName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_added", L"", ignoreName.getUnicode16(), L""), player);
 
 			// notify chat server
 			if(player->isConnected())
@@ -505,7 +506,7 @@ void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,BString ignoreN
 		default:
 		{
 			ignoreName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,L"","cmnty","ignore_not_found","","",L"",0,"","",ignoreName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_not_found", L"", ignoreName.getUnicode16(), L""), player);
 		}
 		break;
 
@@ -518,7 +519,7 @@ void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,BString ignoreN
 
 			// send notification
 			ignoreName.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player,L"","cmnty","ignore_removed","","",L"",0,"","",ignoreName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_removed", L"", ignoreName.getUnicode16(), L""), player);
 
 			// notify chat server
 			if(player->isConnected())
@@ -555,7 +556,7 @@ void ObjectController::_handlefindfriend(uint64 targetId,Message* message,Object
 
 	if(!friendName.getLength())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","ui_cmnty","friend_location_failed_usage","","",L"",0,"","",L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("ui_cmnty", "friend_location_failed_usage"), playerObject);
 		return;
 	}
 	

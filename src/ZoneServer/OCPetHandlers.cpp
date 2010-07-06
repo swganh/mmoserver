@@ -71,10 +71,10 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
 				{
 					//The /mount command can work up to 32m on live
-          if(glm::distance(vehicle->body()->mPosition, player->mPosition) <= 32)	{
+                    if(glm::distance(vehicle->body()->mPosition, player->mPosition) <= 32)	{
 						vehicle->MountPlayer();
 					}	else {
-						gMessageLib->sendSystemMessage(player,L"Your target is too far away to mount.");
+						gMessageLib->SendSystemMessage(L"Your target is too far away to mount.", player);
 					}
 				}
 				else
@@ -83,7 +83,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
 				}
 			}
 		} else {
-			gMessageLib->sendSystemMessage(player,L"You cannot mount this because you are already mounted.");
+			gMessageLib->SendSystemMessage(L"You cannot mount this because you are already mounted.", player);
 		}
 	}
 }
@@ -124,7 +124,7 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
 		}
 		else
 		{
-			gMessageLib->sendSystemMessage(player,L"You are not mounted to perform this action.");
+			gMessageLib->SendSystemMessage(L"You are not mounted to perform this action.", player);
 		}
 	}
 }

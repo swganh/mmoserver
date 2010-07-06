@@ -354,8 +354,7 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
 	
 	if(medicSkill < req)
 	{
-        gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "insufficient_skill_heal"), Medic);
-		gMessageLib->sendSystemMessage(Medic,L"","healing","insufficient_skill_heal","","healingskill",L"req");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "insufficient_skill_heal", L"", L"", L"healingskill", static_cast<int32_t>(req)), Medic);
 		gLogger->log(LogManager::DEBUG,"The selected medicine is too high level.");
 		return false;
 	}

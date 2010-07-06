@@ -262,8 +262,10 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	if(!structure){
 		gLogger->log(LogManager::CRITICAL,"StructureManager::_HandleStructureRedeedCallBack failed to retrieve valid structure(%u) from DB. Possible connection issues.", asynContainer->mStructureId);
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-		gMessageLib->sendSystemMessage(player, L"The Empire discovered contraband within your property and confiscated your belongings. You will not receive the deed to this structure. ");
-		gMessageLib->sendSystemMessage(player, L"(We couldn't find it in the DB, please /bug report this so we can investigate.)");
+        if (player) {
+		    gMessageLib->SendSystemMessage(L"The Empire discovered contraband within your property and confiscated your belongings. You will not receive the deed to this structure. ", player);
+		    gMessageLib->SendSystemMessage(L"(We couldn't find it in the DB, please /bug report this so we can investigate.)", player);
+        }
 		return;
 	}
 	//if its a playerstructure boot all players and pets inside
@@ -475,11 +477,11 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
 
 		if(donor)
 		{
-			gMessageLib->sendSystemMessage(donor,L"","player_structure","ownership_transferred_out","",asynContainer->name);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "ownership_transferred_out", "", "", "", "", "", asynContainer->name), donor);
 		}
 		if(recipient)
 		{
-			gMessageLib->sendSystemMessage(recipient,L"","player_structure","ownership_transferred_in","",donor->getFirstName().getAnsi());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "ownership_transferred_in", "", "", "", "", "", donor->getFirstName().getAnsi()), recipient);
 		}
 		
 
@@ -564,7 +566,7 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 		BString name;
 		name = asynContainer->name;
 		name.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(player,L"","player_structure","player_removed","","",name.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "player_removed", L"", L"", name.getUnicode16()), player);
 
 		if(HouseObject*	house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(asynContainer->mStructureId)))
 		{
@@ -581,8 +583,8 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 		BString name;
 		name = asynContainer->name;
 		name.convert(BSTRType_Unicode16);
-
-		gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
+        
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "modify_list_invalid_player", L"", L"", name.getUnicode16()), player);
 	}
 
 	if(returnValue == 2)
@@ -593,7 +595,7 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 		name.convert(BSTRType_ANSI);
 		name << " is not on the list";
 		name.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(player,name.getUnicode16());
+		gMessageLib->SendSystemMessage(name.getUnicode16(), player);
 	}
 
 	if(returnValue == 3)
@@ -601,8 +603,8 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 		BString name;
 		name = asynContainer->name;
 		name.convert(BSTRType_Unicode16);
-
-		gMessageLib->sendSystemMessage(player,L"","player_structure","cannot_remove_owner","","",name.getUnicode16());
+        
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "cannot_remove_owner", L"", L"", name.getUnicode16()), player);
 	}
 
 
@@ -679,7 +681,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 		name = asynContainer->name;
 		//gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","",name.getAnsi());
 		name.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(player,L"","player_structure","player_added","","",name.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "player_added", L"", L"", name.getUnicode16()), player);
 		
 		//now read in the (admin) list again if its a playerHouse
 		//we need to keep them in memory to handle drop/pickup in cells
@@ -702,7 +704,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 		gLogger->log(LogManager::DEBUG,"StructurManager add %s failed ",name.getAnsi());
 		name.convert(BSTRType_Unicode16);
 		
-		gMessageLib->sendSystemMessage(player,L"","player_structure","modify_list_invalid_player","","",name.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "modify_list_invalid_player", L"", L"", name.getUnicode16()), player);
 	}
 
 	//name already on the list
@@ -713,19 +715,19 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 		name.convert(BSTRType_ANSI);
 		name << " is already on the list";
 		name.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(player,name.getUnicode16());
+		gMessageLib->SendSystemMessage(name.getUnicode16(), player);
 	}
 
 	//no more than 36 entries on the list
 	if(returnValue == 3)
 	{
-		gMessageLib->sendSystemMessage(player,L"","player_structure","too_many_entries");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "too_many_entries"), player);
 	}
 
 	//dont ban the owner
 	if(returnValue == 4)
 	{
-		gMessageLib->sendSystemMessage(player,L"You cannot Ban the structure's Owner");
+		gMessageLib->SendSystemMessage(L"You cannot Ban the structure's Owner", player);
 	}
 
 	mDatabase->DestroyDataBinding(binding);
@@ -841,7 +843,7 @@ void StructureManager::_HandleCheckPermission(StructureManagerAsyncContainer* as
 				building->updateCellPermissions(player,true);
 		}
 		else
-			gMessageLib->sendSystemMessage(player,L"", "player_structure","not_admin");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_admin"), player);
 	}
 
 	mDatabase->DestroyDataBinding(binding);

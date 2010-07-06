@@ -349,7 +349,7 @@ uint32 QuestGiver::handleConversationEvent(ActiveConversation* av,ConversationPa
 
 				// Give player his quest gun.
 				player->getTutorial()->addQuestWeapon(0, 0); // Use default weapon.
-				gMessageLib->sendSystemMessage(player, L"","newbie_tutorial/system_messages","receive_weapon");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("newbie_tutorial/system_messages", "receive_weapon"), player);
 			}
 		}
 #if defined(_MSC_VER)

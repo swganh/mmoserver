@@ -241,6 +241,9 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		// saves a player synched to the database
 		void					savePlayerSync(uint32 accId,bool remove);
 
+		// checks if the player save timer is up
+		bool					checkSavePlayer(PlayerObject* playerObject);
+
 		// find a player, returns NULL if not found
 		PlayerObject*			getPlayerByAccId(uint32 accId);
 

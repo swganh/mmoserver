@@ -168,6 +168,8 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 							,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 							,mZoneId,playerObject->getJediState(),playerObject->getId());
 	}
+	// reset the save timer on the player
+	playerObject->setSaveTimer(0);
 
 
 }
@@ -212,11 +214,18 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 
 
 	gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
-
+	playerObject->setSaveTimer(0);
 	if(remove)
 		destroyObject(playerObject);
 }
 
+//======================================================================================================================
+// here is where we change how often a player automatically saves
+// TODO: add in server config how often they can save
+bool WorldManager::checkSavePlayer(PlayerObject* playerObject)
+{ 
+	return (playerObject->getSaveTimer() >= 12000);
+}
 //======================================================================================================================
 
 PlayerObject*	WorldManager::getPlayerByAccId(uint32 accId)
@@ -313,9 +322,10 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
 
 	playerObject->setDisconnectTime(timeOut);
 
-	// resetting move and tickcounters
+	// resetting move, save and tickcounters
 	playerObject->setInMoveCount(0);
 	playerObject->setClientTickCount(0);
+	playerObject->setSaveTimer(0);
 
 	gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") reconnected",playerObject->getId());
 

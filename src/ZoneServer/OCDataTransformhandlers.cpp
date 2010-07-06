@@ -1161,5 +1161,10 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 		// We are busy, need to continue processing asap.
 		msToWait = 900;		// This should make us tick every second, since that's the base time for the timer we use.
 	}
+	// save the player periodically
+	if (gWorldManager->checkSavePlayer(player))
+	{
+		gWorldManager->savePlayer(player->getAccountId(), false, WMLogOut_No_LogOut);
+	}
 	return msToWait;
 }

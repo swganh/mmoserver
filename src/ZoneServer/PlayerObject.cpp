@@ -96,6 +96,7 @@ PlayerObject::PlayerObject()
 , mTradePartner(NULL)
 , mAccountId(0)
 , mClientTickCount(0)
+, mPlayerSaveTime(0)
 , mCraftingStage(0)
 , mDConnTime(60)
 , mExperimentationFlag(0)
@@ -319,6 +320,7 @@ void PlayerObject::resetProperties()
 {
 	mInMoveCount						= 0;
 	mClientTickCount					= 0;
+
 	mSkillCmdUpdateCounter				= mSkillCommands.size();
 	mSkillModUpdateCounter				= mSkillMods.size();
 	mXpUpdateCounter					= mXpList.size();
@@ -2246,11 +2248,4 @@ void PlayerObject::setCrouched()
 	{
 		gMessageLib->sendSystemMessage(this,L"","shared","player_kneel");
 	}
-}
-void PlayerObject::getSaveTime()
-{
-
-}
-void PlayerObject::setSaveTime()
-{
 }

@@ -408,6 +408,8 @@ class PlayerObject : public CreatureObject
 
 		bool				getAcceptBandFlourishes() {return mAcceptsBandFlourishes;}
 		void				setAcceptBandFlourishes(bool b) { mAcceptsBandFlourishes = b;}
+		void				getSaveTime();
+		void				setSaveTime();
 
 	private:
 
@@ -515,6 +517,7 @@ class PlayerObject : public CreatureObject
 		bool				mIsForaging;
 
 		int					mPreviousHarvestingSelection;
+		uint32              mPlayerSaveTime;
 };
 
 

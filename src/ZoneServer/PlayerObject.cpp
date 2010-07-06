@@ -75,6 +75,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 PlayerObject::PlayerObject()
 : CreatureObject()
+, mPlayerSaveTime
 , mBazaarPoint(NULL)
 , mClient(NULL)
 , mCraftingSession(NULL)
@@ -2245,4 +2246,11 @@ void PlayerObject::setCrouched()
 	{
 		gMessageLib->sendSystemMessage(this,L"","shared","player_kneel");
 	}
+}
+void PlayerObject::getSaveTime()
+{
+
+}
+void PlayerObject::setSaveTime()
+{
 }

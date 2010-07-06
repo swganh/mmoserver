@@ -179,7 +179,7 @@ void EntertainerManager::handleGroupManagerCallback(uint64 playerId, GroupManage
 		PlayerObject* notLeader = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(container->requestingPlayer));
 
 		if(notLeader)
-			gMessageLib->sendSystemMessage(notLeader,L"","group","must_be_leader");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("group", "must_be_leader"), notLeader);
 	}
 }
 
@@ -237,7 +237,7 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"Your deny service list is empty.");
+		gMessageLib->SendSystemMessage(L"Your deny service list is empty.", entertainer);
 	}
 }
 
@@ -272,12 +272,12 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 		PlayerObject* outCast = (PlayerObject* )gWorldManager->getObjectById(outCastId);
 		if(outCast)
 		{
-			gMessageLib->sendSystemMessage(outCast,L"","performance","deny_service_remove_other","","",L"",0,"","",L"",0,0,entertainer->getId());
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_remove_self","","",L"",0,"","",L"",outCastId);
-		}
-		outCastName.convert(BSTRType_Unicode16);
-    gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_remove_self","","",L"",0,"","",outCastName.getUnicode16());
-
+			gMessageLib->SendSystemMessage(::common::OutOfBand("performance","deny_service_remove_other", entertainer->getId(), 0, 0, 0, 0.0f), outCast);
+			gMessageLib->SendSystemMessage(::common::OutOfBand("performance","deny_service_remove_self", 0, outCastId, 0, 0, 0.0f), entertainer);
+		} else {
+		    outCastName.convert(BSTRType_Unicode16);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance","deny_service_remove_self", L"", outCastName.getUnicode16(), L"", 0, 0.0f), entertainer);
+        }
 		//remove it from the db
 		int8 sql[150];
 		sprintf(sql,"DELETE FROM entertainer_deny_service WHERE entertainer_id = '%"PRIu64"' and outcast_id = '%"PRIu64"'",entertainer->getId(),outCastId);
@@ -292,12 +292,12 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 	PlayerObject* outCast = (PlayerObject* )gWorldManager->getObjectById(outCastId);
 	if(outCast)
 	{
-		gMessageLib->sendSystemMessage(outCast,L"","performance","deny_service_add_other","","",L"",0,"","",L"",0,0,entertainer->getId());
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_add_self","","",L"",0,"","",L"",outCastId);
-	}
-
-	outCastName.convert(BSTRType_Unicode16);
-  gMessageLib->sendSystemMessage(entertainer,L"","performance","deny_service_add_self","","",L"",0,"","",outCastName.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance","deny_service_add_other", entertainer->getId(), 0, 0, 0, 0.0f), outCast);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance","deny_service_add_self", 0, outCastId, 0, 0, 0.0f), entertainer);
+	} else {
+        outCastName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance","deny_service_add_self", L"", outCastName.getUnicode16(), L"", 0, 0.0f), entertainer);
+    }
 	deniedAudienceList->push_back(outCastId);
 
 	//add it to the db
@@ -701,7 +701,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 				BString sstr;
 				sstr = BString(str);
 				sstr.convert(BSTRType_Unicode16);
-        gMessageLib->sendSystemMessage(entertainer,sstr.getUnicode16());
+                gMessageLib->SendSystemMessage(sstr.getUnicode16(), entertainer);
 			}
 		}
 		break;
@@ -839,7 +839,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
 	if(instrumentId == 0)
 	{
 		entertainer->setPerformingState(PlayerPerformance_None);
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_no_instrument");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_no_instrument"), entertainer);
 		return;
 	}
 
@@ -847,7 +847,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
 	if(!checkInstrumentSkill(entertainer,instrumentId))
 	{
 		entertainer->setPerformingState(PlayerPerformance_None);
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_lack_skill_instrument");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_lack_skill_instrument"), entertainer);
 		return;
 	}
 
@@ -863,7 +863,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
 		if(performanceStuct == NULL)
 		{
 			entertainer->setPerformingState(PlayerPerformance_None);
-			gMessageLib->sendSystemMessage(entertainer,L"Your instrument cannot be initialized.");
+            gMessageLib->SendSystemMessage(L"Your instrument cannot be initialized.", entertainer);
 			return;
 		}
 		//music
@@ -879,7 +879,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
 		{
 			// We where out of range. (using 6.0 m as default range,this value not verified).
 			// TODO: Find the proper error-message, the one below is a "made up".
-			gMessageLib->sendSystemMessage(entertainer,L"","system_msg","out_of_range");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "out_of_range"), entertainer);
 			return;
 		}
 
@@ -907,8 +907,8 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
 
 		entertainer->setEntertainerListenToId(entertainer->getId());
 		gMessageLib->sendListenToId(entertainer);
-
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_start_self");
+        
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_start_self"), entertainer);
 
 		//now add our scheduler
 		entertainer->setEntertainerTaskId(gWorldManager->addEntertainerToProccess(entertainer,performanceStuct->loopDuration*1000));
@@ -955,8 +955,8 @@ void	EntertainerManager::startDancePerformance(PlayerObject* entertainer,BString
 		entertainer->setEntertainerWatchToId(entertainer->getId());
 		entertainer->setEntertainerListenToId(entertainer->getId());
 		gMessageLib->sendListenToId(entertainer);
-
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","dance_start_self");
+        
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_start_self"), entertainer);
 
 		//now add our scheduler
 		entertainer->setEntertainerTaskId(gWorldManager->addEntertainerToProccess(entertainer,performanceStruct->loopDuration*1000));
@@ -983,11 +983,11 @@ void EntertainerManager::stopEntertaining(PlayerObject* entertainer)
 	if (entertainer->getPerformingState() == PlayerPerformance_Music)
 	{
 		//
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_stop_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_stop_self"), entertainer);
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","dance_stop_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_stop_self"), entertainer);
 	}
 
 	entertainer->setPerformance(NULL);
@@ -1024,12 +1024,12 @@ void EntertainerManager::stopEntertaining(PlayerObject* entertainer)
 		{
 			if(entertainer->getPerformingState() == PlayerPerformance_Dance)
 			{
-				gMessageLib->sendSystemMessage(audience,L"","performance","dance_stop_other","","",L"",0,"","",L"",0,0,entertainer->getId());
+                gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_stop_other", entertainer->getId(), 0, 0, 0, 0.0f), audience);
 				audience->setEntertainerWatchToId(0);
 			}
 			else
 			{
-				gMessageLib->sendSystemMessage(audience,L"","performance","music_stop_other","","",L"",0,"","",L"",0,0,entertainer->getId());
+                gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_stop_other", entertainer->getId(), 0, 0, 0, 0.0f), audience);
 				audience->setEntertainerListenToId(0);
 				gMessageLib->sendListenToId(audience);
 			}
@@ -1533,9 +1533,9 @@ void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
 		}
 
 		if(ooRange)
-			gMessageLib->sendSystemMessage(audience,L"","performance","dance_watch_out_of_range","","",L"",0,"","",L"",entertainer->getId());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_watch_out_of_range", 0, entertainer->getId(), 0, 0, 0.0f), audience);
 		else
-			gMessageLib->sendSystemMessage(audience,L"","performance","dance_watch_stop_self");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_watch_stop_self"), audience);
 
 
 		// now see whether we are grouped and in the buff map
@@ -1592,7 +1592,7 @@ void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(audience,L"","performance","music_fail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), audience);
 	}
 
 }
@@ -1607,7 +1607,7 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
 
 	if(audience->getEntertainerListenToId()== 0 )
 	{	//make sure that we are listening to an entertainer
-		gMessageLib->sendSystemMessage(audience,L"","performance","music_fail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), audience);
 
 		return;
 	}
@@ -1623,9 +1623,9 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
 		removeAudience(entertainer,audience);
 
 		if(ooRange)
-			gMessageLib->sendSystemMessage(audience,L"","performance","music_listen_out_of_range","","",L"it",0,"","",L"",entertainer->getId());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_listen_out_of_range", 0, entertainer->getId(), 0), audience);
 		else
-			gMessageLib->sendSystemMessage(audience,L"","performance","music_listen_stop_self");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_listen_stop_self"), audience);
 
 		audience->setTarget(NULL);
 		gMessageLib->sendTargetUpdateDeltasCreo6(audience);
@@ -1708,48 +1708,48 @@ void EntertainerManager::startListening(PlayerObject* audience, PlayerObject* en
 	if(checkAudience(entertainer,audience))
 	{
 		//we shouldnt be able to watch him several times or listen / watch at the same time
-		gMessageLib->sendSystemMessage(audience,L"You are already being entertained by this player.");
+		gMessageLib->SendSystemMessage(L"You are already being entertained by this player.", audience);
 		return;
 	}
 
 	if(audience->getEntertainerListenToId()== entertainer->getId())
 	{
-		gMessageLib->sendSystemMessage(audience,L"You are already being entertained by this player.");
+		gMessageLib->SendSystemMessage(L"You are already being entertained by this player.", audience);
 		return;
 	}
 
 	//is the audience on our denyservice list?
 	if (checkDenyServiceList(audience,entertainer))
 	{
-		gMessageLib->sendSystemMessage(audience,L"","performance","deny_service_add_other");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "deny_service_add_other"), audience);
 		return;
 	}
 
 	// is the entertainer valid???
 	if(entertainer == NULL || entertainer == audience)
 	{
-		gMessageLib->sendSystemMessage(audience,L"","performance","music_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), audience);
 		return;
 	}
 
 	//is the entertainer near enough???
     if(glm::distance(entertainer->mPosition, audience->mPosition) > 60)
 	{
-		gMessageLib->sendSystemMessage(audience,L"","performance","music_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), audience);
 		return;
 	}
 
 	if(entertainer->getPerformingState() != PlayerPerformance_Music)
 	{
 		//we only can watch entertainers who are dancing!!!!
-		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), audience);
 		return;
 	}
 
 	if(audience->getPerformingState() != PlayerPerformance_None)
 	{
 		//we only can watch when we are not performing ourselves
-		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), audience);
 		return;
 	}
 
@@ -1772,8 +1772,7 @@ void EntertainerManager::startListening(PlayerObject* audience, PlayerObject* en
 	gEntertainerManager->addAudience(entertainer,audience);
 
 	//string name = entertainer->getFirstName().getAnsi();
-	gMessageLib->sendSystemMessage(audience,L"","performance","music_listen_self","","",L"",0,"","",L"",entertainer->getId());
-
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_listen_self", 0, entertainer->getId(), 0), audience);
 
 	//are we in one group???
 	if((entertainer->getGroupId() != 0) &&(entertainer->getGroupId() == audience->getGroupId()))
@@ -1820,14 +1819,14 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 	// is the entertainer valid???
 	if(entertainer == NULL || entertainer == audience)
 	{
-		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), audience);
 		return;
 	}
 
 		//is the audience on our denyservice list?
 	if (checkDenyServiceList(audience,entertainer))
 	{
-		gMessageLib->sendSystemMessage(audience,L"","performance","deny_service_add_other");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "deny_service_add_other"), audience);
 		return;
 	}
 
@@ -1836,21 +1835,21 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 	//TODO range configureable ??
     if(glm::distance(entertainer->mPosition, audience->mPosition) > 60)
 	{
-		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), audience);
 		return;
 	}
 
 	if(entertainer->getPerformingState() != PlayerPerformance_Dance)
 	{
 		//we only can watch entertainers who are dancing!!!!
-		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), audience);
 		return;
 	}
 
 	if(audience->getPerformingState() != PlayerPerformance_None)
 	{
 		//we only can watch when we are not performing ourselves
-		gMessageLib->sendSystemMessage(audience,L"","performance","dance_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), audience);
 		return;
 	}
 
@@ -1872,7 +1871,7 @@ void EntertainerManager::startWatching(PlayerObject* audience, PlayerObject* ent
 
 	//add the caller to our audience List
 	gEntertainerManager->addAudience(entertainer,audience);
-	gMessageLib->sendSystemMessage(audience,L"","performance","dance_watch_self","","",L"",0,"","",L"",entertainer->getId());
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_watch_self", 0, entertainer->getId(), 0), audience);
 
 	//are we in one group???
 	if((entertainer->getGroupId() != 0) &&(entertainer->getGroupId() == audience->getGroupId()))
@@ -2041,7 +2040,7 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrum
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
 			// TODO: put another message ?
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 			return;
 		}
 	}
@@ -2057,7 +2056,7 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrum
 	if(instrumentId)
 	{
 		//we have an instrument equipped already
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 		return;
 	}
 
@@ -2067,7 +2066,7 @@ void EntertainerManager::playInstrument(PlayerObject* entertainer, Item* instrum
 		{
 			if(entertainer->getParentId() != instrument->getParentId())
 			{
-				gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+				gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 				return;
 			}
 
@@ -2094,7 +2093,7 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 	//we dont want to do this inmidst a performance
 	if(entertainer->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), entertainer);
 		return;
 
 	}
@@ -2102,7 +2101,7 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 	// we still need to check whether we have the appropriate skill
 	if(!checkInstrumentSkillbyType(entertainer,usedInstrument->getItemType()))
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_lack_skill_instrument");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_lack_skill_instrument"), entertainer);
 		stopEntertaining(entertainer);
 		return;
 	}
@@ -2114,7 +2113,7 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 		if(entertainer->getId() != usedInstrument->getOwner())
 		{
 			// Nope.
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
+			gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), entertainer);
 			return;
 		}
 
@@ -2126,7 +2125,7 @@ void EntertainerManager::useInstrument(PlayerObject* entertainer, Item* usedInst
 	// we have an other instrument placed already
 	if(entertainer->getPlacedInstrumentId())
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 		return;
 	}
 
@@ -2238,7 +2237,7 @@ bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, BStr
 	if(!performance.getLength())
 	{
 		//nothing selected
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), performer);
 		return false;
 	}
 
@@ -2260,7 +2259,7 @@ bool EntertainerManager::handleStartBandIndividual(PlayerObject* performer, BStr
 	if (found == false)
 	{
 		//no we perform the piece of music
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_fail");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), performer);
 		return false;
 	}
 
@@ -2304,7 +2303,7 @@ bool EntertainerManager::handleStartBandDanceIndividual(PlayerObject* performer,
 	if (found == false)
 	{
 		//no we cannot perform the dance
-		gMessageLib->sendSystemMessage(performer,L"","performance","dance_fail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_fail"), performer);
 		return false;
 	}
 
@@ -2548,7 +2547,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 
 	if(entertainer->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","already_performing_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), entertainer);
 		return;
 
 	}
@@ -2557,7 +2556,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	uint64 instrumentId = getInstrument(entertainer);
 	if(instrumentId == 0)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_no_instrument");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_no_instrument"), entertainer);
 		return;
 	}
 
@@ -2567,7 +2566,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
 			// TODO: put another message ?
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 
 			return;
 		}
@@ -2576,7 +2575,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	// check if the instrument slot is in use
 	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 
 		return;
 	}
@@ -2584,7 +2583,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	//check if we are skilled enough to use the instrument
 	if(!checkInstrumentSkill(entertainer,instrumentId))
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_lack_skill_instrument");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_lack_skill_instrument"), entertainer);
 		return;
 	}
 
@@ -2617,7 +2616,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), entertainer);
 	}
 }
 
@@ -2643,7 +2642,7 @@ void EntertainerManager::flourish(PlayerObject* entertainer, uint32 mFlourishId)
 	if(!ham->checkMainPools(0,pActionPoints,0))
 	{
 		//not enough action -> no flourish
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_too_tired");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_too_tired"), entertainer);
 		return;
 	}
 
@@ -2651,7 +2650,7 @@ void EntertainerManager::flourish(PlayerObject* entertainer, uint32 mFlourishId)
 	entertainer->setFlourishCount(entertainer->getFlourishCount()+1);
 	if (entertainer->getFlourishCount()>5)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_wait_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_wait_self"), entertainer);
 		return;
 	}
 
@@ -2725,7 +2724,7 @@ void EntertainerManager::usePlacedInstrument(PlayerObject* entertainer, Item* us
 
 	if (entertainer->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","already_performing_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), entertainer);
 		return;
 	}
 
@@ -2733,7 +2732,7 @@ void EntertainerManager::usePlacedInstrument(PlayerObject* entertainer, Item* us
 	// we don't have to bother if it's placed or in use or whatever....
 	if (!checkInstrumentSkillbyType(entertainer,usedInstrument->getItemType()))
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_lack_skill_instrument");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_lack_skill_instrument"), entertainer);
 		stopEntertaining(entertainer);
 		return;
 	}
@@ -2746,7 +2745,7 @@ void EntertainerManager::usePlacedInstrument(PlayerObject* entertainer, Item* us
 		if (item && item->getItemFamily() == ItemFamily_Instrument)
 		{
 			//we have an instrument equipped already
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 			return;
 		}
 
@@ -2765,7 +2764,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 
 	if (entertainer->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","already_performing_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "already_performing_self"), entertainer);
 		return;
 	}
 
@@ -2784,7 +2783,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 		if(object != entertainer->getEquipManager()->getDefaultWeapon())
 		{
 			// TODO: put another message ?
-			gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 			return;
 		}
 	}
@@ -2792,7 +2791,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	// check if the instrument slot is in use
 	if(entertainer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_must_unequip");
+		gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_must_unequip"), entertainer);
 		return;
 	}
 
@@ -2825,7 +2824,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(entertainer,L"","performance","music_fail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_fail"), entertainer);
 	}
 }
 
@@ -2910,7 +2909,7 @@ void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, BStri
 
 	if (found == false)
 	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_invalid_song");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_invalid_song"), performer);
 		return;
 	}
 
@@ -2933,7 +2932,7 @@ void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, BStri
 
 	if(!playCheck)
 	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_still_playing");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_still_playing"), performer);
 		return;
 	}
 
@@ -2964,7 +2963,7 @@ void EntertainerManager::_handleCompleteStartBand(PlayerObject* performer, BStri
 
 	if (!skillCheck)
 	{
-		gMessageLib->sendSystemMessage(performer,L"","performance","music_lack_skill_band_member");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_lack_skill_band_member"), performer);
 	}
 }
 
@@ -2986,19 +2985,19 @@ void EntertainerManager::_handleCompleteStopBand(PlayerObject* performer)
 			gEntertainerManager->stopEntertaining((*memberIt));
 
 			if((*memberIt) != performer)
-				gMessageLib->sendSystemMessage((*memberIt),L"","performance","music_stop_band_members","","",L"",0,"","",L"",0,0,performer->getId());
+                gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_stop_band_members", performer->getId(), 0, 0), *memberIt);
 
 		}
 		memberIt++;
 	}
 	if(music)
-			gMessageLib->sendSystemMessage(performer,L"","performance","music_stop_band_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_stop_band_self"), performer);
 }
 
 void EntertainerManager::_handleCompleteBandFlourish(PlayerObject* entertainer, uint32 FlourishId)
 {
 	//give notice
-	gMessageLib->sendSystemMessage(entertainer,L"","performance","flourish_perform_band_self");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_perform_band_self"), entertainer);
 
 	PlayerList members;
 	members = entertainer->getInRangeGroupMembers(true);
@@ -3009,7 +3008,7 @@ void EntertainerManager::_handleCompleteBandFlourish(PlayerObject* entertainer, 
 		if((*memberIt)->getPerformingState() != PlayerPerformance_None)
 		{
 			//give notice
-			gMessageLib->sendSystemMessage((*memberIt),L"","performance","flourish_perform_band_member","","",L"",0,"","",L"",entertainer->getId());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_perform_band_member", 0, entertainer->getId(), 0), entertainer);
 
 			if((*memberIt)->getAcceptBandFlourishes())
 				gEntertainerManager->flourish((*memberIt),FlourishId);

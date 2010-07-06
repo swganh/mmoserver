@@ -137,7 +137,7 @@ void Food::handleFoodUse(Object* srcObject)
 
 	if(playerObject->isDead() || playerObject->isIncapacitated())
 	{
-		gMessageLib->sendSystemMessage(playerObject, L"","error_message","wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
 	}
 

@@ -66,7 +66,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					{
 						// We where out of range. (using 6.0 m as default range,this value not verified).
 						// TODO: Find the proper error-message, the one below is a "made up".
-						gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "out_of_range"), player);
 						return;
 					}
 
@@ -103,7 +103,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 							}
 							else
 							{
-								gMessageLib->sendSystemMessage(player,L"", "error_message", "wrong_state");
+                                gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "wrong_state"), player);
 							}
 						}
 						else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
@@ -115,7 +115,7 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 								{
 									// We where out of range. (using 6.0 m as default range,this value not verified).
 									// TODO: Find the proper error-message, the one below is a "made up".
-									gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
+                                    gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "out_of_range"), player);
 									return;
 								}
 

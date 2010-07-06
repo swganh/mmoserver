@@ -79,10 +79,10 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player,
 
 					}
 				} else {
-					gMessageLib->sendSystemMessage(player,L"","healing_response","not_enough_mind");
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), player);
 				}
 			} else {
-				gMessageLib->sendSystemMessage(player,L"","healing_response","healing_response_62");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_62"), player);
 			}
 		}
 	}
@@ -112,10 +112,10 @@ void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player
 
 					}
 				} else {
-					gMessageLib->sendSystemMessage(player,L"","healing_response","not_enough_mind");
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), player);
 				}
 			} else {
-				gMessageLib->sendSystemMessage(player,L"","healing_response","healing_response_62");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_62"), player);
 			}
 		}
 	}

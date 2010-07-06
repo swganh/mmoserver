@@ -383,7 +383,7 @@ bool EquipManager::CheckEquipable(Object* object)
 
 	if((filter1 & filter2) != filter2)
 	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
+		gMessageLib->SendSystemMessage(L"You can't equip this item.", owner);
 		return(false);
 	}
 
@@ -393,7 +393,7 @@ bool EquipManager::CheckEquipable(Object* object)
 
 	if(filter1 && !filter2)
 	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
+		gMessageLib->SendSystemMessage(L"You can't equip this item.", owner);
 		return(false);
 	}
 
@@ -403,14 +403,14 @@ bool EquipManager::CheckEquipable(Object* object)
 	if((filter1 == 0x10000 && strcmp(owner->getFaction().getAnsi(),"rebel") != 0)
 	|| (filter1 == 0x20000 && strcmp(owner->getFaction().getAnsi(),"imperial") != 0))
 	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
+		gMessageLib->SendSystemMessage(L"You can't equip this item.", owner);
 		return(false);
 	}
 
 	uint64 filter3 = CreatureEquipSlot_Datapad & CreatureEquipSlot_Bank & CreatureEquipSlot_Inventory & CreatureEquipSlot_Mission;
 	if(filter3 && item->getEquipSlotMask())
 	{
-		gMessageLib->sendSystemMessage(owner,L"Attention!!! the Equip - BitMask is messedup.");
+		gMessageLib->SendSystemMessage(L"Attention!!! the Equip - BitMask is messedup.", owner);
 		return(false);
 	}
 	return true;

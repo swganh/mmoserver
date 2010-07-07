@@ -108,7 +108,7 @@ OutOfBand::OutOfBand(const std::string& base_stf_file, const std::string& base_s
     Initialize_();
 
     AddProsePackage(base_stf_file, base_stf_label,
-        tu_custom_string, tu_custom_string, tu_custom_string,
+        tu_custom_string, tt_custom_string, to_custom_string,
         di_integer, df_float, display_flag);
 }
 

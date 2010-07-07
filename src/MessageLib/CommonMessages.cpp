@@ -617,7 +617,7 @@ bool MessageLib::SendSystemMessage(const OutOfBand& prose, const PlayerObject* c
 
 bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
     // If a player was passed in but not connected return false.
-    if ((player) || (!player->isConnected())) {
+    if ((!player) || (!player->isConnected())) {
         return false;
     }
     

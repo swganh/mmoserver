@@ -102,6 +102,9 @@ class PlayerObject : public CreatureObject
 		uint32				getClientTickCount(){ return mClientTickCount; }
 		void				setClientTickCount(uint32 tickCount){ mClientTickCount = tickCount; }
 
+		uint32				getSaveTimer(){return mPlayerSaveTimer;}
+		void				setSaveTimer(uint32 saveTimer){mPlayerSaveTimer = saveTimer;}
+
 		BString				getTitle() const { return mTitle; }
 		void				setTitle(const BString title){ mTitle = title; }
 
@@ -408,7 +411,6 @@ class PlayerObject : public CreatureObject
 
 		bool				getAcceptBandFlourishes() {return mAcceptsBandFlourishes;}
 		void				setAcceptBandFlourishes(bool b) { mAcceptsBandFlourishes = b;}
-
 	private:
 
 		void				_verifyBadges();
@@ -515,6 +517,7 @@ class PlayerObject : public CreatureObject
 		bool				mIsForaging;
 
 		int					mPreviousHarvestingSelection;
+		uint32              mPlayerSaveTimer;
 };
 
 

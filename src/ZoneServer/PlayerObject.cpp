@@ -318,6 +318,7 @@ void PlayerObject::resetProperties()
 {
 	mInMoveCount						= 0;
 	mClientTickCount					= 0;
+
 	mSkillCmdUpdateCounter				= mSkillCommands.size();
 	mSkillModUpdateCounter				= mSkillMods.size();
 	mXpUpdateCounter					= mXpList.size();

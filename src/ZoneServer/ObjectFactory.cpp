@@ -274,9 +274,9 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		case QFQuery_WaypointUpdate:
 		{
 			// we're looking for a value of the waypoint that was updated
-			uint8 returnId = 0;
+			uint32 returnId = 0;
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint8,0,1);
+			binding->addField(DFT_uint32,0,4);
 			result->GetNextRow(binding,&returnId);
 			mDatabase->DestroyDataBinding(binding);
 			switch (returnId)
@@ -636,14 +636,14 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
 
 	int8 sql[512],*sqlPointer;
 	int8 restStr[128];
-
+	name.convert(BSTRType_ANSI);
 	sprintf(sql,"CALL sp_WaypointUpdate('");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
 	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)",wpId, coords.x, coords.y, coords.z, planetId, activeStatus);
 	strcat(sql,restStr);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 }
 //=============================================================================
 

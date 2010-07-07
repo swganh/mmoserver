@@ -227,7 +227,18 @@ void zmap::UpdateObject(Object *updateObject)
 	//		2a. Remove him from the current cell, insert into new cell at new cell
 	//		2b. Update info....
 
-	uint32 FinalCell = _getCellId(updateObject->mPosition.x, updateObject->mPosition.y);
+	glm::vec3   position;
+	
+	//cater for players in cells
+	if (updateObject->getParentId())
+	{
+		position = updateObject->getWorldPosition(); 
+	}
+	else
+	{
+		position = updateObject->mPosition;
+	}
+	uint32 FinalCell = _getCellId(position.x, position.y);
 	
 	if(updateObject->zmapCellID != FinalCell)
 	{

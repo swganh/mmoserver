@@ -112,13 +112,14 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		void						setType(ObjectType type){ mType = type; }
 		void						setTypeOptions(uint32 options){ mTypeOptions = options; }
 
-		// Object Observers
-		PlayerObjectSet*			getKnownPlayers() { return &mKnownPlayers; }
-		ObjectSet*					getKnownObjects() { return &mKnownObjects; }
-		void						destroyKnownObjects();
+		//use for keeping track of opened containers
+		//// Object Observers
+		//PlayerObjectSet*			getKnownPlayers() { return &mKnownPlayers; }
+		//ObjectSet*					getKnownObjects() { return &mKnownObjects; }
+		//void						destroyKnownObjects();
 		bool						checkKnownPlayer(PlayerObject* player);
 		// Not used void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
-		bool						addKnownObjectSafe(Object* object);
+		//bool						addKnownObjectSafe(Object* object);
 
 		// I wan't to overload this in some classes, instead of adding "useless code" (for the most objects) in the base method.
 		virtual void				addKnownObject(Object* object);

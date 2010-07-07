@@ -114,6 +114,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	}
 
 	// if we just left a building
+	// note that we remain in the grid at the worldposition
 	if(player->getParentId() != 0)
 	{
 
@@ -139,6 +140,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	
 		// Add us to the world.
 		gMessageLib->broadcastContainmentMessage(player->getId(),0,4,player);
+		
+		//grid uses worldposition when were in a cell
 		mGrid->UpdateObject(player);
 
 		// Inform tutorial about cell change.
@@ -147,10 +150,10 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			player->getTutorial()->setCellId(0);
 		}
 
-		//now destroy the buildings contents
+		/*//now destroy the buildings contents
 		BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
 		handleBuildingContentDespawn(building,player);
-
+		  */
 
 	}
 	else //we have not been in a building
@@ -232,7 +235,7 @@ void ObjectController::handleBuildingContentDespawn(BuildingObject* building, Pl
 	
 	while(cellChildsIt != list.end())
 	{
-		gMessageLib->sendDestroyObject((*cellChildsIt),player);
+		gMessageLib->sendDestroyObject((*cellChildsIt)->getId(),player);
 	}
 }
 
@@ -307,14 +310,13 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		}
 		else
 		{
-		 	// update grid with world position / building position???
-			// just screw it were in the same grid the building is and thats it
-			// mGrid->UpdateObject(player);//wed need to use playerworldposition anyway
+		 	// update grid with world position
+			mGrid->UpdateObject(player);//grid uses playerworldposition in these cases
 
 			if(player->checkIfMounted() && player->getMount())
 			{
-				player->getMount()->setSubZoneId(0);
-				region->mTree->removeObject(player->getMount());
+				
+				mGrid->UpdateObject(player->getMount());//
 
 				//Can't ride into a building with a mount! :-p
 				//However, its easy to do so we have handling incase the client is tricked.

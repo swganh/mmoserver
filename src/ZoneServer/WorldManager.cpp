@@ -100,16 +100,8 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 		gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
 	#endif
 	
-
-	// set up spatial index
-	mSpatialIndex = new ZoneTree();
-	mSpatialIndex->Init(gConfig->read<float>("FillFactor"),
-						gConfig->read<int>("IndexCap"),
-						gConfig->read<int>("LeafCap"),
-						2,
-						gConfig->read<float>("Horizon"));
-
-
+	mSpatialGrid = new zmap();
+	gMessageLib->setGrid(mSpatialGrid);
 
 	// load planet names and terrain files so we can start heightmap loading
 	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
@@ -134,14 +126,16 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 	SkillManager::Init(database);
 	SchematicManager::Init(database);
+	
 	if(zoneId != 41)
 		ResourceManager::Init(database,mZoneId);
+	
 	ResourceCollectionManager::Init(database);
 	TreasuryManager::Init(database);
 	ConversationManager::Init(database);
 	CraftingSessionFactory::Init(database);
-	if(zoneId != 41)
-		MissionManager::Init(database,mZoneId);
+	
+	MissionManager::Init(database,mZoneId);
 
 	// register world script hooks
 	_registerScriptHooks();

@@ -77,6 +77,7 @@ typedef struct tagResourceLocation ResourceLocation;
 
 typedef std::set<PlayerObject*>			PlayerObjectSetML;
 typedef std::list<PlayerObject*>		PlayerList;
+typedef std::list<Object*>				ObjectList;
 
 enum ObjectUpdate
 {
@@ -95,13 +96,16 @@ public:
 	static MessageLib*	getSingletonPtr() { return mSingleton; }
 	static MessageLib*	Init();
 
+
+	void				setGrid(zmap*	grid){mGrid = grid;}
+
 	// multiple messages, messagelib.cpp
 	bool				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
 	bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
 	bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
 	bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
 	bool				sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
-	void				sendCreateTangible(TangibleObject* tangibleObject, PlayerObjectSetML*	knownPlayers, bool sendchildren = true) ;
+	void				sendCreateTangible(TangibleObject* tangibleObject, ObjectList*	knownPlayers, bool sendchildren = true) ;
 	bool				sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject);
 	bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
 
@@ -214,12 +218,12 @@ public:
 	void				sendSpatialChat(CreatureObject* const srcObject, string chatMsg, char chatElement[5][32]);
 	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,string customMessage = L"",string mainFile = "",
 										string mainVar = "",string toFile = "",string toVar = "",string toCustom = L"",int32 di = 0,
-										string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
+										string ttFile = "",string ttVar = "",string ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0);
 	void				sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget);
 	void				sendCreatureAnimation(CreatureObject* srcObject,string animation);
 
 	// spatial for tutorial
-	void				sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const player) const ;
+	void				sendSpatialChat(const CreatureObject* srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const player);
 	void				sendCreatureAnimation(CreatureObject* srcObject,string animation, PlayerObject* player);
 
 	// npc conversations
@@ -522,12 +526,17 @@ private:
 	void				_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf = true);
 	void				_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf = true);
 
+	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object,uint16 priority, uint32 crc);
+	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object,uint16 priority, uint32 crc);
+
 	void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;
 	void				_sendToInstancedPlayers(Message* message, uint16 priority, const PlayerObject* const player) const ;
 	void				_sendToAll(Message* message,uint16 priority,bool unreliable = false) const;
 
 	static MessageLib*	mSingleton;
 	static bool			mInsFlag;
+
+	zmap*				mGrid;
 
 	MessageFactory*		mMessageFactory;
 };

@@ -54,6 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
+#include "ZoneServer/Zmap.h"
 
 #include "LogManager/LogManager.h"
 
@@ -180,60 +181,79 @@ bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uin
 //
 void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf)
 {
-	PlayerObjectSet*			inRangePlayers	= object->getKnownPlayers();
-	PlayerObjectSet::iterator	playerIt		= inRangePlayers->begin();
-
-	bool failed = false;
-	//save us some cycles if traffic is low
-
-	if(mMessageFactory->HeapWarningLevel() <= 4)
-	{
-		while(playerIt != inRangePlayers->end())
- 		{
-			if(_checkPlayer((*playerIt)))
-			{
- 				// clone our message
- 				mMessageFactory->StartMessage();
- 				mMessageFactory->addData(message->getData(),message->getSize());
- 
- 				((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));		
- 			}
-			else
-			{
-				//an invalid player at this point is like armageddon and Ultymas birthday combined at one time
-				assert(false && "Invalid Player in sendtoInrange");
-				failed = true;
- 			}
 	
-			++playerIt;
- 		}
- 
-		if( failed)
-			gLogger->log(LogManager::NOTICE,"MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
+	glm::vec3   position;
+	
+	//cater for players in cells
+	if (object->getParentId())
+	{
+		position = object->getWorldPosition(); 
 	}
 	else
 	{
-		while(playerIt != inRangePlayers->end())
-		{
-			if(_checkPlayer((*playerIt)))
-			{
-				bool yn = _checkDistance((*playerIt)->mPosition,object,mMessageFactory->HeapWarningLevel());
-				if(yn)
-				{
-					// clone our message
-					mMessageFactory->StartMessage();
-					mMessageFactory->addData(message->getData(),message->getSize());
+		position = object->mPosition;
+	}
 	
-					((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
-				}
+	std::list<Object*>*		inRangePlayers	= mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z));
+
+	bool failed = false;
+
+	for(std::list<Object*>::iterator playerIt = inRangePlayers->begin(); playerIt != inRangePlayers->end(); playerIt++)
+	{
+	
+		//save us some cycles if traffic is low
+
+		if(mMessageFactory->HeapWarningLevel() <= 4)
+		{
+			while(playerIt != inRangePlayers->end())
+ 			{
+				PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
+				if(_checkPlayer(player))
+				{
+ 					// clone our message
+ 					mMessageFactory->StartMessage();
+ 					mMessageFactory->addData(message->getData(),message->getSize());
+ 
+ 					(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));		
+ 				}
 				else
 				{
+					//an invalid player at this point is like armageddon and Ultymas birthday combined at one time
+					assert(false && "Invalid Player in sendtoInrange");
 					failed = true;
-				}
-			}
-			++playerIt;
-		}
+ 				}
 	
+				++playerIt;
+ 			}
+ 
+			if( failed)
+				gLogger->log(LogManager::NOTICE,"MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
+		}
+		else
+		{
+			while(playerIt != inRangePlayers->end())
+			{
+				PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
+				if(_checkPlayer(player))
+				{
+					bool yn = _checkDistance(player->mPosition,object,mMessageFactory->HeapWarningLevel());
+					if(yn)
+					{
+						// clone our message
+						mMessageFactory->StartMessage();
+						mMessageFactory->addData(message->getData(),message->getSize());
+	
+						(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
+					}
+					else
+					{
+						failed = true;
+					}
+				}
+				++playerIt;
+			}
+	
+		}
 	}
 
 	if(toSelf)
@@ -250,22 +270,115 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 	mMessageFactory->DestroyMessage(message);
 }
 
+void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object,uint16 priority, uint32 crc)
+{
+	
+	glm::vec3   position;
+	
+	//cater for players in cells
+	if (object->getParentId())
+	{
+		position = object->getWorldPosition(); 
+	}
+	else
+	{
+		position = object->mPosition;
+	}
+	
+	std::list<Object*>*		inRangePlayers	= mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z));
+
+	Message* clonedMessage;
+	bool failed = false;
+
+	for(std::list<Object*>::iterator playerIt = inRangePlayers->begin(); playerIt != inRangePlayers->end(); playerIt++)
+	{		
+		PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
+		if(_checkPlayer(player) && (!player->checkIgnoreList(crc)))
+		{
+ 			// clone our message
+ 			mMessageFactory->StartMessage();
+ 			mMessageFactory->addData(message->getData(),message->getSize());
+ 			clonedMessage = mMessageFactory->EndMessage();
+		
+			// replace the target id
+			int8* data = clonedMessage->getData() + 12;
+			*((uint64*)data) = player->getId();
+			(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
+		}
+		++playerIt;
+ 		
+	}
+
+}
+
+void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object,uint16 priority, uint32 crc)
+{
+	
+	glm::vec3   position;
+	
+	//cater for players in cells
+	if (object->getParentId())
+	{
+		position = object->getWorldPosition(); 
+	}
+	else
+	{
+		position = object->mPosition;
+	}
+	
+	std::list<Object*>*		inRangePlayers	= mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z));
+
+	Message* clonedMessage;
+	bool failed = false;
+
+	for(std::list<Object*>::iterator playerIt = inRangePlayers->begin(); playerIt != inRangePlayers->end(); playerIt++)
+	{		
+		PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
+		if ((_checkPlayer(player)) && (object->getGroupId()) &&(player->getGroupId() == object->getGroupId())&&(!player->checkIgnoreList(crc)))
+		{
+ 			// clone our message
+ 			mMessageFactory->StartMessage();
+ 			mMessageFactory->addData(message->getData(),message->getSize());
+ 			clonedMessage = mMessageFactory->EndMessage();
+		
+			// replace the target id
+			int8* data = clonedMessage->getData() + 12;
+			*((uint64*)data) = player->getId();
+			(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
+		}
+		++playerIt;
+ 		
+	}
+
+}
+
 //======================================================================================================================
 
 void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf)
 {
-	PlayerObjectSet*			inRangePlayers	= object->getKnownPlayers();
-	PlayerObjectSet::iterator	playerIt		= inRangePlayers->begin();
-
-	while(playerIt != inRangePlayers->end())
+	glm::vec3   position;
+	
+	//cater for players in cells
+	if (object->getParentId())
 	{
-		if(_checkPlayer((*playerIt)))
+		position = object->getWorldPosition(); 
+	}
+	else
+	{
+		position = object->mPosition;
+	}
+	std::list<Object*>*		inRangePlayers	= mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z));
+
+	for(std::list<Object*>::iterator playerIt = inRangePlayers->begin(); playerIt != inRangePlayers->end(); playerIt++)
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+		if(_checkPlayer(player))
 		{
 			// clone our message
 			mMessageFactory->StartMessage();
 			mMessageFactory->addData(message->getData(),message->getSize());
 
-			((*playerIt)->getClient())->SendChannelA(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			(player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
 		++playerIt;
@@ -297,18 +410,30 @@ void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const
 		return;
 	}
 
-	PlayerList const			inRangeMembers	= playerObject->getInRangeGroupMembers(true);
-	PlayerList::const_iterator	playerIt		= inRangeMembers.begin();
-
-	while (playerIt != inRangeMembers.end())
+	glm::vec3   position;
+	
+	//cater for players in cells
+	if (playerObject->getParentId())
 	{
-		if (_checkPlayer(*playerIt))
+		position = playerObject->getWorldPosition(); 
+	}
+	else
+	{
+		position = playerObject->mPosition;
+	}
+
+	std::list<Object*>*		inRangePlayers	= mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z));
+
+	for(std::list<Object*>::iterator playerIt = inRangePlayers->begin(); playerIt != inRangePlayers->end(); playerIt++)
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>(*playerIt);
+		if (_checkPlayer(player))
 		{
 			// Clone the message.
 			mMessageFactory->StartMessage();
 			mMessageFactory->addData(message->getData(),message->getSize());
 
-			((*playerIt)->getClient())->SendChannelA(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			(player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
 		++playerIt;
@@ -329,21 +454,40 @@ void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 prior
 		return;
 	}
 
-	PlayerList const			inRangeMembers	= playerObject->getInRangeGroupMembers(true);
-	PlayerList::const_iterator	playerIt		= inRangeMembers.begin();
-
-	while (playerIt != inRangeMembers.end())
+	glm::vec3   position;
+	
+	//cater for players in cells
+	if (playerObject->getParentId())
 	{
-		if (_checkPlayer(*playerIt))
+		position = playerObject->getWorldPosition(); 
+	}
+	else
+	{
+		position = playerObject->mPosition;
+	}
+
+	std::list<Object*>*		inRangePlayers	= mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z));
+
+	if(playerObject->getGroupId() != 0)
+	{
+		for(std::list<Object*>::iterator playerIt = inRangePlayers->begin(); playerIt != inRangePlayers->end(); playerIt++)
 		{
-			// Clone the message.
-			mMessageFactory->StartMessage();
-			mMessageFactory->addData(message->getData(),message->getSize());
+			PlayerObject* player = dynamic_cast<PlayerObject*>(*playerIt);
+		
+			if((playerObject->getGroupId() != 0) && (player->getGroupId() != playerObject->getGroupId()))
+				continue;
+		
+			if (_checkPlayer(player))
+			{
+				// Clone the message.
+				mMessageFactory->StartMessage();
+				mMessageFactory->addData(message->getData(),message->getSize());
 
-			((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
+				(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
+			}
+
+			++playerIt;
 		}
-
-		++playerIt;
 	}
 
 	mMessageFactory->DestroyMessage(message);
@@ -654,13 +798,13 @@ bool MessageLib::sendCreateCreature(CreatureObject* creatureObject,PlayerObject*
 //
 // create tangible
 //
-void MessageLib::sendCreateTangible(TangibleObject* tangibleObject, PlayerObjectSetML*	knownPlayers, bool sendchildren) 
+void MessageLib::sendCreateTangible(TangibleObject* tangibleObject, ObjectList*	knownPlayers, bool sendchildren) 
 {
-	PlayerObjectSet::iterator it = knownPlayers->begin();
+	ObjectList::iterator it = knownPlayers->begin();
 
 	while(it != knownPlayers->end())
 	{
-		PlayerObject* targetObject = (*it);
+		PlayerObject* targetObject = dynamic_cast<PlayerObject*>(*it);
 
 		gMessageLib->sendCreateTangible(tangibleObject, targetObject, sendchildren);
 

@@ -113,11 +113,9 @@ void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,
 	newMessage = mMessageFactory->EndMessage();
 
 
-	PlayerObjectSet* inRangePlayers	= srcObject->getKnownPlayers();
-	PlayerObjectSet::iterator it	= inRangePlayers->begin();
 	uint32 loweredNameCrc			= 0;
 	string loweredName;
-	Message* clonedMessage;
+	
 	bool crcValid = false;
 
 	// Get the source for this emote.
@@ -134,35 +132,8 @@ void MessageLib::sendSpatialChat(CreatureObject* const srcObject,string chatMsg,
 		}
 	}
 
-	while(it != inRangePlayers->end())
-	{
-		const PlayerObject* const player = (*it);
 
-		// If player online, send emote.
-		if (_checkPlayer(player))
-		{
-			if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 			{
-				// I am at recivers ignore list.
-				// Don't send any message.
-			}
-			else
-			{
-				// clone our message
-				mMessageFactory->StartMessage();
-				mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-				clonedMessage = mMessageFactory->EndMessage();
-
-				// replace the target id
-				int8* data = clonedMessage->getData() + 12;
-				*((uint64*)data) = player->getId();
-
-				//(player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,5);
-				(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-			}
-		}
-		++it;
-	}
+	_sendToInRangeUnreliableChat(newMessage, srcObject,5, loweredNameCrc);
 
 	// if we are a player, echo it back to ourself
 	if(srcObject->getType() == ObjType_Player)
@@ -235,7 +206,7 @@ void MessageLib::sendSpatialChat(CreatureObject* srcObject,string chatMsg,char c
 }
 */
 
-void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const playerObject) const
+void MessageLib::sendSpatialChat(const CreatureObject* srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const playerObject)
 {
 
 	using boost::lexical_cast;
@@ -304,43 +275,12 @@ void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,string ch
 			playerObject->getTutorial()->tutorialResponse("chatActive");
 		}
 
-		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
-		PlayerList::iterator it	= inRangeMembers.begin();
-		Message* clonedMessage;
-
-		while (it != inRangeMembers.end())
-		{
-			const PlayerObject* const player = (*it);
-
-			// If player online, send emote.
-			if (_checkPlayer(player))
-			{
-				if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 				{
-					// I am at recivers ignore list.
-					// Don't send any message.
-				}
-				else
-				{
-					// clone our message
-					mMessageFactory->StartMessage();
-					mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-					clonedMessage = mMessageFactory->EndMessage();
-
-					// replace the target id
-					int8* data = clonedMessage->getData() + 12;
-					*((uint64*)data) = player->getId();
-
-					(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-				}
-			}
-			++it;
-		}
+		_sendToInRangeUnreliableChatGroup(newMessage, srcObject,5, loweredNameCrc);
 	}
 	mMessageFactory->DestroyMessage(newMessage);
 }
 
-bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId) const
+bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId) 
 {
 	uint16 chatElementMood2	= srcObject->getMoodId();
 
@@ -439,38 +379,8 @@ bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const Pla
 			playerObject->getTutorial()->tutorialResponse("chatActive");
 		}
 
-		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
-		PlayerList::iterator it	= inRangeMembers.begin();
-		Message* clonedMessage;
-
-		while (it != inRangeMembers.end())
-		{
-			const PlayerObject* const player = (*it);
-
-			// If player online, send emote.
-			if (player->isConnected())
-			{
-				if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 				{
-					// I am at recivers ignore list.
-					// Don't send any message.
-				}
-				else
-				{
-					// clone our message
-					mMessageFactory->StartMessage();
-					mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-					clonedMessage = mMessageFactory->EndMessage();
-
-					// replace the target id
-					int8* data = clonedMessage->getData() + 12;
-					*((uint64*)data) = player->getId();
-
-					(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-				}
-			}
-			++it;
-		}
+		_sendToInRangeUnreliableChatGroup(newMessage, srcObject,5, loweredNameCrc);
+		
 	}
 
 	mMessageFactory->DestroyMessage(newMessage);

@@ -56,7 +56,9 @@ public:
 	void		RemoveObject(Object* removeObject);
 
 	// Update the object in the zmap
-	void UpdateObject(Object* updateObject);
+	void		UpdateObject(Object* updateObject);
+
+	//bool		checkPlayersNearby(Object* updateObject);
 
 	uint32	AddSubCell(float low_x, float low_z, float height, float width, ZmapSubCellCallback* callback);
 	bool	isObjectInSubCell(Object* object, uint32 subCellId);
@@ -113,6 +115,8 @@ public:
 	void CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
 	void CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
 	void ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
+
+	uint32 getCellId(float x, float z){return _getCellId(x, z);}
 
 	static inline zmap*	GetZmap() { return ZMAP; };
 

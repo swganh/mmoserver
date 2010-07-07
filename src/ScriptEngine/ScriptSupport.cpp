@@ -402,15 +402,13 @@ void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ) {
     npc->facePosition(glm::vec3(deltaX, 0.0f, deltaZ));
 
 	// send out position updates to known players
-	// updateNpcPosition(npc);
-	if(npc->getKnownPlayers()->empty()) {
-		return;
-	}
-
+	
     // Send out the appropriate data transform depending if the npc is in a cell or not.
-	if (npc->getParentId())	{
+	if (npc->getParentId())	
+	{
 		gMessageLib->sendDataTransformWithParent053(npc);
-	} else {
+	} else 
+	{
 		gMessageLib->sendDataTransform053(npc);
 	}
 }

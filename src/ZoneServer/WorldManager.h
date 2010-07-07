@@ -307,7 +307,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					removePlayerfromAccountMap(uint64 playerID);
 
 		// retrieve spatial index for this zone
-		ZoneTree*				getSI(){ return mSpatialIndex; }
+		//ZoneTree*				getSI(){ return mSpatialIndex; }
 		zmap*					getGrid(){ return mSpatialGrid; }
 
 		// removes player from the current scene, and starts a new one after updating his position
@@ -479,7 +479,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		Anh_Utils::Scheduler*		mNpcManagerScheduler;
 		Anh_Utils::Scheduler*		mObjControllerScheduler;
 		Anh_Utils::Scheduler*		mPlayerScheduler;
-		ZoneTree*					mSpatialIndex;
+		//ZoneTree*					mSpatialIndex;
 		zmap*						mSpatialGrid;
 		Anh_Utils::Scheduler*		mSubsystemScheduler;
 		ZoneServer*					mZoneServer;

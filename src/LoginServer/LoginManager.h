@@ -100,6 +100,11 @@ class LoginManager : public NetworkCallback, public DatabaseCallback
 		void                    _sendServerStatus(LoginClient* client);
 		void                    _updateServerStatus(DatabaseResult* result);
 
+        //launcher functions
+        void                    _handleLauncherSession(LoginClient* client, Message* message);
+        void                    _getLauncherSessionKey(LoginClient* client, DatabaseResult* result);
+        void                    _sendLauncherSessionKey(LoginClient* client, DatabaseResult* result);
+
 
 		Database*	            mDatabase;
 		// Anh_Utils::Clock*       mClock;

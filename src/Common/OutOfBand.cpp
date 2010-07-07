@@ -78,7 +78,7 @@ OutOfBand::OutOfBand(const std::string& base_stf_file, const std::string& base_s
     Initialize_();
 
     AddProsePackage(base_stf_file, base_stf_label,
-        tu_object_id, tu_object_id, tu_object_id, 
+        tu_object_id, tt_object_id, to_object_id, 
         di_integer, df_float, display_flag);
 }
 
@@ -93,8 +93,8 @@ OutOfBand::OutOfBand(const std::string& base_stf_file, const std::string& base_s
 
     AddProsePackage(base_stf_file, base_stf_label,
         tu_stf_file, tu_stf_label,
-        tu_stf_file, tu_stf_label,
-        tu_stf_file, tu_stf_label,
+        tt_stf_file, tt_stf_label,
+        to_stf_file, to_stf_label,
         di_integer, df_float, display_flag);
 }
 

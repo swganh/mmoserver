@@ -700,7 +700,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		return false;
 	}
 
-
+	//still check x -> player
 	return true;
 
 }
@@ -862,8 +862,8 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		if(building)
 		{
 			itemObject->destroyKnownObjects();
-			return true;
 		}
+		return true;
 	}
 	
 	return false;

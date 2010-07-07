@@ -788,8 +788,8 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
 		
 		//for children add knownPlayers!!!!
-		tO->addKnownObjectSafe(player);
-		player->addKnownObjectSafe(tO);
+		//tO->addKnownObjectSafe(player);
+		//player->addKnownObjectSafe(tO);
 		sendCreateObject(tO,player,false);
 		it++;
 	}

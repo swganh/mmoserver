@@ -61,6 +61,14 @@ public:
   uint32                mLastUpdate;
 };
 
+//======================================================================================================================
+// Session_Key is used by the launcher
+//======================================================================================================================
+class SessionKeyData
+{
+public:
+    BString             mSessionKey;
+};
 
 #endif // ANH_DATABASEMANAGER_ACCOUNTDATA_H
 

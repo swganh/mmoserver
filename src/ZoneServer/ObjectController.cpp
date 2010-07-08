@@ -491,7 +491,7 @@ bool ObjectController::_processCommandQueue()
 			if (message && cmdMsg->getSequence())
 			{
 				// if (PlayerObject* player = dynamic_cast<PlayerObject*>(mObject))
-				gMessageLib->sendCommandQueueRemove(cmdMsg->getSequence(),0.0f,reply1,reply2,player);
+				gMessageLib->sendCommandQueueRemove(cmdMsg->getSequence(),(static_cast<float>(cmdMsg->getExecutionTime())/1000),reply1,reply2,player);
 			}
 
 			// Be aware, internally created messages are NULL (auto-attack)

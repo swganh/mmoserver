@@ -279,7 +279,7 @@ void ZoneServer::Process(void)
 	if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)
 	{
 		mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-		gLogger->log(LogManager::NOTICE,"ZoneServer (%s) Heartbeat. Current Tick: %u", gZoneServer->getZoneName(), gWorldManager->GetCurrentGlobalTick());
+		gLogger->log(LogManager::NOTICE,"ZoneServer (%s) Heartbeat. Total  Players on zone : %i",gZoneServer->getZoneName().getAnsi(),(gWorldManager->getPlayerAccMap())->size());
 	}
 }
 
@@ -395,9 +395,14 @@ int main(int argc, char* argv[])
 		}
 		else if (Anh_Utils::kbhit())
 		{
-			if(std::cin.get() == 'q')
+			char input = std::cin.get();
+			if(input == 'q')
 			{
 				break;
+			}else if(input == 'm'){
+				char message[256];
+				std::cin.getline(message,256);
+				gWorldManager->zoneSystemMessage(message);
 			}
 		}
 

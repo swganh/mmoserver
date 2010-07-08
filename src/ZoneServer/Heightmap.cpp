@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/utils.h"
 #include <cassert>
 #include <cfloat>
-
+#include "math.h"
 //=============================================================================
 Heightmap::Heightmap(const char* planet_name, uint16 resolution)
 : mHeightmapCache(NULL)
@@ -516,4 +516,19 @@ float Heightmap::getHeight(float x, float y)
 	}
 	height &= 0x7FFF;
 	return ((float)height)/10;
+}
+
+//=============================================================================
+//
+//	Return the more 'accurate' height given two values and an allowed deviation.
+//  TODO: Re-evaluate need for this method once heightmaps are corrected.
+//
+float Heightmap::compensateForInvalidHeightmap(float hmapRes, float clientRes, float allowedDeviation){
+	if(hmapRes != clientRes){
+		if(fabs(hmapRes-clientRes) > allowedDeviation){
+			gLogger->log(LogManager::INFORMATION,"Heightmap::compensateForInvalidHeightmap: Returned client provided height based on hmapResult(%.2f), clientResult(%.2f), and allowedDeviation(%.2f)",hmapRes,clientRes,allowedDeviation);
+			return clientRes;
+		}
+	}
+	return hmapRes;
 }

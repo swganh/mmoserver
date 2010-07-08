@@ -1787,6 +1787,16 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
 				it++;
 			}
 
+			//TODO: Remove this patch when heightmaps are corrected!
+			PlayerObject*	player	= dynamic_cast<PlayerObject*>(container->player);
+			if(player){
+				float hmapHighest = highest;
+				highest = gHeightmap->compensateForInvalidHeightmap(highest, player->mPosition.y, (float)10.0);
+				if(hmapHighest != highest){
+					gLogger->log(LogManager::INFORMATION,"StructureManager::HeightmapStructureHandler: PlayerID(%u) placing structure...Heightmap found inconsistent, compensated height.", player->getId());
+				}
+			}//end TODO
+
 			if(worked)
 			{
 				container->oCallback->requestnewHousebyDeed(container->ofCallback,container->deed,container->player->getClient(),

@@ -115,6 +115,7 @@ class LoginManager : public NetworkCallback, public DatabaseCallback
 
 		uint32                  mLastStatusQuery;
 		uint32                  mLastHeartbeat;
+		uint32					mNumClientsProcessed;
 
 		boost::pool<boost::default_user_allocator_malloc_free>	mLoginClientPool;
 };

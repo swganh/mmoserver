@@ -64,6 +64,7 @@ class Heightmap
 		float getCachedHeightAt2DPosition(float xPos, float zPos) const;
 		float Heightmap::getHeight(float x, float y);
 		bool isReady();
+		float compensateForInvalidHeightmap(float hmapRes, float clientRes, float allowedDeviation);//TODO: Re-evaluate need once heightmaps are corrected
 	protected:
 		Heightmap(const char* planet_name, uint16 resolution);
 		~Heightmap();

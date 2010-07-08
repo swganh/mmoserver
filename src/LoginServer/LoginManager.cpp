@@ -57,6 +57,7 @@ mDatabase(database),
 mSendServerList(false),
 mLastStatusQuery(0),
 mLastHeartbeat(0),
+mNumClientsProcessed(0),
 mLoginClientPool(sizeof(LoginClient))
 {
 
@@ -90,7 +91,7 @@ void LoginManager::Process(void)
 	if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
 	{
 		mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-		gLogger->log(LogManager::NOTICE,"LoginServer Heartbeat. Total Players: %u", mLoginClientList.size());
+		gLogger->log(LogManager::NOTICE,"LoginServer Heartbeat. Total clients (non-unique) processed since boot: %u", mNumClientsProcessed);
 	}
 }
 
@@ -104,6 +105,7 @@ NetworkClient* LoginManager::handleSessionConnect(Session* session, Service* ser
 	newClient->setState(LCSTATE_ServerHelloSent);
 
 	mLoginClientList.push_back(newClient);
+	mNumClientsProcessed++;
 
 	return newClient;
 }

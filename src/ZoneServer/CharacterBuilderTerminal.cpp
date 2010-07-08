@@ -1220,7 +1220,7 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
 	{
 		ResourceIdList resourceIdList = dynamic_cast<UIResourceSelectListBox*>(window)->getResourceIdList();
 
-		if(element > (int32)resourceIdList.size())
+		if((int32)resourceIdList.size() < 1 || element > (int32)resourceIdList.size())//bad index or empty resource list
 		{
 			return;
 		}

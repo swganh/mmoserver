@@ -166,8 +166,14 @@ void VehicleController::Call() {
 	
 	// And drop it a little below the terrain to allow the client to normalize it.
 	//body_->mPosition.y = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
-	 body_->mPosition.y =  body_->mPosition.y - 0.3f;//TODO : Change this back to the above once heightmaps are corrected.
-
+	 //TODO: Remove this patch when heightmaps are corrected!
+	 if(owner_){
+		 float hmapHighest = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
+		 body_->mPosition.y = gHeightmap->compensateForInvalidHeightmap(hmapHighest, body_->mPosition.y, (float)10.0);
+		 if(hmapHighest != body_->mPosition.y){
+			 gLogger->log(LogManager::INFORMATION," VehicleController::Call: PlayerID(%u) calling vehicle... Heightmap found inconsistent, compensated height.", owner_->getId());
+		 }
+	 }//end TODO
 
   // Finally rotate it perpendicular to the player.
   body_->rotateRight(90.0f);

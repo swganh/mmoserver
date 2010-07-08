@@ -33,8 +33,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/ObjectController.h"
 #include "ZoneServer/Skill.h"   //for skillmodslist
+#include "ZoneServer/SocialChatTypes.h"
+#include "ZoneServer/MoodTypes.h"
 
-#include "Common/bytebuffer.h"
+#include "Common/OutOfBand.h"
+
 #include <vector>
 #include <list>
 #include <glm/glm.hpp>
@@ -148,20 +151,27 @@ public:
 	bool				sendServerTime(uint64 time,DispatchClient* client);
 	void				sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType, PlayerObject* player = NULL);
 	
-	bool				sendSysMsg(PlayerObject* playerObject,BString mainFile,BString mainVar,Object* to= NULL, Object* tt = NULL, Object* tu = NULL, int32 di = 0);
-	
-	bool				sendSystemMessage(PlayerObject* playerObject, std::wstring customMessage = L"", std::string mainFile = "",
-											std::string mainVar = "",std::string toFile = "",std::string toVar = "", std::wstring toCustom = L"",int32 di = 0,
-											std::string ttFile = "",std::string ttVar = "",std::wstring ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
-											std::string tuFile = "",std::string tuVar = "",std::wstring tuCustom = L"");
+    /**
+     * Sends a custom text string as a system message.
+     *
+     * @param custom_message A custom text string to be sent.
+     * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
+     * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
+     */
+    bool SendSystemMessage(const std::wstring& custom_message, const PlayerObject* const player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
 
-	bool				sendSystemMessageInRange(PlayerObject* playerObject, bool toSelf, BString customMessage = L"",BString mainFile = "",
-											BString mainVar = "",BString toFile = "",BString toVar = "",BString toCustom = L"",int32 di = 0,
-											BString ttFile = "",BString ttVar = "",BString ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0,
-											BString tuFile = "",BString tuVar = "",BString tuCustom = L"");
-
-	bool				sendMacroSystemMessage(PlayerObject* playerObject,BString message,BString macro);
-	bool				sendSystemMessage(PlayerObject* playerObject, BString message, bool chatOnly);
+    /**
+     * Sends a STF package as a system message.
+     *
+     * @param prose A custom STF string package.
+     * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
+     * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
+     */
+    bool SendSystemMessage(const common::OutOfBand& prose, const PlayerObject* const player = NULL, bool chatbox_only = false, bool send_to_inrange = false);
 
 	ResourceLocation	sendSurveyMessage(uint16 range,uint16 points,CurrentResource* resource,PlayerObject* targetObject);
 	bool				sendPlayMusicMessage(uint32 soundId,PlayerObject* targetObject);
@@ -211,18 +221,41 @@ public:
 	void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
 
 	// spatial
-	void				sendSpatialChat(CreatureObject* const srcObject, BString chatMsg, char chatElement[5][32]);
-	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,BString customMessage = L"",BString mainFile = "",
-										BString mainVar = "",BString toFile = "",BString toVar = "",BString toCustom = L"",int32 di = 0,
-										BString ttFile = "",BString ttVar = "",BString ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
-	bool				sendSpatialChat(const CreatureObject* const srcObject, const PlayerObject* const playerObject,char chatElement[5][32],BString customMessage = L"",BString mainFile = "",
-										BString mainVar = "",BString toFile = "",BString toVar = "",BString toCustom = L"",int32 di = 0,
-										BString ttFile = "",BString ttVar = "",BString ttCustom = L"",uint64 ttId = 0,uint64 toId = 0,uint64 tuId = 0) const;
+
+    /**
+     * Sends a custom text message via spatial chat, spoken by the specified object.
+     *
+     * @param speaking_object The object that is currently speaking this message.
+     * @param custom_message The text message to be sent via spatial chat.
+     * @param player_object This parameter allows the messages from npc's to be sent to the right instance players.
+     * @param target_id The object id of the target the speaker is talking to.
+     * @param text_size The size of the text for use in the spatial chat bubble.
+     *                  Options: 0, 2, 3, 4, 6, 8, 10
+     * @param chat_type_id An ID representing the type of chat. @todo: Add an ID table here.
+     * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
+     * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
+     */
+    void SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
+    
+    /**
+     * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
+     *
+     * @param speaking_object The object that is currently speaking this message.
+     * @param prose_message The OutOfBand to be sent via spatial chat.
+     * @param player_object This parameter allows the messages from npc's to be sent to the right instance players.
+     * @param target_id The object id of the target the speaker is talking to.
+     * @param text_size The size of the text for use in the spatial chat bubble.
+     *                  Options: 0, 2, 3, 4, 6, 8, 10
+     * @param chat_type_id An ID representing the type of chat. @todo: Add an ID table here.
+     * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
+     * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
+     */
+    void SendSpatialChat(CreatureObject* const speaking_object, const common::OutOfBand& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
+    
 	void				sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget);
 	void				sendCreatureAnimation(CreatureObject* srcObject,BString animation);
 
 	// spatial for tutorial
-	void				sendSpatialChat(const CreatureObject* const srcObject,BString chatMsg,char chatElement[5][32], const PlayerObject* const player) const ;
 	void				sendCreatureAnimation(CreatureObject* srcObject,BString animation, PlayerObject* player);
 
 	// npc conversations
@@ -525,13 +558,56 @@ private:
 
 	bool				_checkPlayer(const PlayerObject* const player) const;
 	bool				_checkPlayer(uint64 playerId) const;
-
-	void				_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf = true);
-	void				_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf = true);
+    
+	void				_sendToInRangeUnreliable(Message* message, Object* const object, uint16 priority, bool toSelf = true);
+	void				_sendToInRange(Message* message, Object* const object, uint16 priority, bool toSelf = true);
 
 	void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;
 	void				_sendToInstancedPlayers(Message* message, uint16 priority, const PlayerObject* const player) const ;
 	void				_sendToAll(Message* message,uint16 priority,bool unreliable = false) const;
+    
+    /**
+     * Sends a spatial message to in-range players.
+     *
+     * This helper method for spatial methods is used to send a message to in-range
+     * players while respecting their ignore lists.
+     *
+     * @param message The spatial message to be sent out to players.
+     * @param object This is the object from whom the message originates (ie., the speaker)
+     * @param player_object This is used to send out spatial messages in a player instance.
+     */
+	void SendSpatialToInRangeUnreliable_(Message* message, Object* const object, const PlayerObject* const player_object = NULL);
+    
+    /**
+     * Sends out a system message.
+     *
+     * This internal method is invoked by the two SendSystemMessage overloads to send out a system message.
+     *
+     * @param custom_message A custom text string to be sent.
+     * @param prose A custom STF string package.
+     * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
+     * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
+     */
+    bool SendSystemMessage_(const std::wstring& custom_message, const common::OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange);
+    
+    /**
+     * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
+     *
+     * @param speaking_object The object that is currently speaking this message.
+     * @param custom_message The text message to be sent via spatial chat.
+     * @param prose_message The OutOfBand attachment to be sent via spatial chat.
+     * @param player_object This parameter allows the messages from npc's to be sent to the right instance players.
+     * @param target_id The object id of the target the speaker is talking to.
+     * @param text_size The size of the text for use in the spatial chat bubble.
+     *                  Options: 0, 2, 3, 4, 6, 8, 10
+     * @param chat_type_id An ID representing the type of chat. @todo: Add an ID table here.
+     * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
+     * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
+     */
+    void SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const common::OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate);
+
 
 	static MessageLib*	mSingleton;
 	static bool			mInsFlag;

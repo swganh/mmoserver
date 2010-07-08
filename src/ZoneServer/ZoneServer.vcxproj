@@ -463,6 +463,7 @@
     <ClInclude Include="MissionManager.h" />
     <ClInclude Include="MissionObject.h" />
     <ClInclude Include="MissionTerminal.h" />
+    <ClInclude Include="MoodTypes.h" />
     <ClInclude Include="MountObject.h" />
     <ClInclude Include="MovingObject.h" />
     <ClInclude Include="noiseutils.h" />
@@ -526,6 +527,7 @@
     <ClInclude Include="Skill.h" />
     <ClInclude Include="SkillEnums.h" />
     <ClInclude Include="SkillManager.h" />
+    <ClInclude Include="SocialChatTypes.h" />
     <ClInclude Include="SpawnPoint.h" />
     <ClInclude Include="SpawnRegion.h" />
     <ClInclude Include="SpawnRegionFactory.h" />

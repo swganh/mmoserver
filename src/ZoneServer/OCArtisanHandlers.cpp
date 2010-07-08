@@ -61,7 +61,7 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 	// don't allow survey in buildings
 	if(playerObject->getParentId())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_in_structure");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
 		return;
 	}
 
@@ -71,14 +71,14 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
 	}
 
 	if(playerObject->getSurveyState())
 	{
 		playerObject->getSampleData()->mPendingSample = false;
-		gMessageLib->sendSystemMessage(playerObject,L"","survey","survey_sample");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "survey_sample"), playerObject);
 	}
 
 	SurveyTool*			tool			= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(targetId));
@@ -111,7 +111,7 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 
 		// send system message
 		resourceName.convert(BSTRType_Unicode16);
-    gMessageLib->sendSystemMessage(playerObject,L"","survey","start_survey","","",resourceName.getUnicode16());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_survey", L"", L"", resourceName.getUnicode16()), playerObject);
 
 		// schedule execution
 		addEvent(new SurveyEvent(tool,resource),5000);
@@ -130,26 +130,26 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 
 	if(playerObject->checkIfMounted())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"You cannot take resource samples while mounted.");
+		gMessageLib->SendSystemMessage(L"You cannot take resource samples while mounted.", playerObject);
 		return;
 	}
 
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
 	}
 
 	// don't allow sampling in buildings
 	if(playerObject->getParentId())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_in_structure");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
 		return;
 	}
 
 	if(playerObject->getPerformingState() != PlayerPerformance_None)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","error_message","sample_cancel");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_cancel"), playerObject);
 		return;
 	}
 
@@ -160,7 +160,7 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","survey","tool_recharge_time","","",L"",(int32)(playerObject->getNextSampleTime() - localTime) / 1000);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "tool_recharge_time", 0, 0, 0, static_cast<int32>(playerObject->getNextSampleTime() - localTime) / 1000), playerObject);
 		return;
 	}
 
@@ -179,7 +179,7 @@ void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message
 
 	if((resource->getType()->getCategoryId() == 903)||(resource->getType()->getCategoryId() == 904))
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","survey","must_have_harvester");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "must_have_harvester"), playerObject);
 		return;
 	}
 
@@ -205,7 +205,7 @@ void ObjectController::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 		{
 			if(it->second->hasWater)
 			{
-				gMessageLib->sendSystemMessage(container->playerObject,L"","error_message","survey_swimming");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), container->playerObject);
 				return;
 			}
 
@@ -213,7 +213,7 @@ void ObjectController::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 			container->playerObject->setSamplingState(true);
 
 			container->resourceName.convert(BSTRType_Unicode16);
-      gMessageLib->sendSystemMessage(container->playerObject,L"","survey","start_sampling","","",container->resourceName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_sampling", L"", L"", container->resourceName.getUnicode16()), container->playerObject);
 
 			// change posture
 			_handleKneel(0,NULL,NULL);

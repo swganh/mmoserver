@@ -927,7 +927,7 @@ void PlayerObject::addBadge(uint32 badgeId)
 		Badge* badge = gCharSheetManager->getBadgeById(badgeId);
 
 		gMessageLib->sendPlayMusicMessage(badge->getSoundId(),this);
-    gMessageLib->sendSystemMessage(this,L"","badge_n","prose_grant","badge_n",badge->getName().getAnsi(),L"");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("badge_n", "prose_grant", "", "", "", "", "badge_n", badge->getName().getAnsi()), this);
 
 		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
 
@@ -1156,7 +1156,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			}
 			else
 			{
-				gMessageLib->sendSystemMessage(callingObject,L"","teaching","student_has_offer_to_learn","","",L"",0,"","",L"",mId);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "student_has_offer_to_learn", 0, mId, 0), callingObject);
 			}
 		}
 		break;
@@ -1392,8 +1392,13 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 			//send mission accomplished to teacher
 			BString convName = teachBox->getPupil()->getFirstName().getAnsi();
 			convName.convert(BSTRType_Unicode16);
+            
+            ::common::ProsePackage prose("teaching", "teacher_skill_learned");
+            prose.to_stf_file = "skl_n";
+            prose.to_stf_label = teachBox->getSkill()->mName.getAnsi();
+            prose.tt_custom_string = convName.getUnicode16();
 
-      gMessageLib->sendSystemMessage(this,L"","teaching","teacher_skill_learned","skl_n",teachBox->getSkill()->mName.getAnsi(),L"",0,"","",convName.getUnicode16());
+            gMessageLib->SendSystemMessage(::common::OutOfBand(prose), this);
 
 			//add skill to our pupils repertoir and send mission accomplished to our pupil
 			gSkillManager->learnSkill(teachBox->getSkill()->mId,teachBox->getPupil(),true);
@@ -1827,17 +1832,17 @@ void PlayerObject::newPlayerMessage(void)
 		if (mNewPlayerExemptions >= 2)
 		{
 			// New Player Auto-Insure Activated. You have %DI deaths before item insurance is required.
-			gMessageLib->sendSystemMessage(this, L"", "base_player", "prose_newbie_insured", "", "", L"", mNewPlayerExemptions);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_newbie_insured", 0, 0, 0, mNewPlayerExemptions), this);
 		}
 		else if (mNewPlayerExemptions == 1)
 		{
 			// New Player Auto-Insure Activated. You have one death before item insurance is required.
-			gMessageLib->sendSystemMessage(this, L"", "base_player", "last_newbie_insure");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "last_newbie_insure"), this);
 		}
 		else if (mNewPlayerExemptions == 0)
 		{
-			// New player exemption status has expired. You will now be required to insure your items if you wish to retain them after cloning.
-			gMessageLib->sendSystemMessage(this, L"", "base_player", "newbie_expired");
+			// New player exemption status has expired. You will now be required to insure your items if you wish to retain them after cloning.            
+            gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "newbie_expired"), this);
 		}
 
 		mNewPlayerMessage = false;
@@ -1915,7 +1920,7 @@ Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
 		{
 			//send pvp_no_help
 			gLogger->log(LogManager::DEBUG,"PVP Flag not right");
-			gMessageLib->sendSystemMessage(Player,L"","healing","pvp_no_help");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "pvp_no_help"), Player);
 			//return Player as the healing target
 			return Player;
 		}
@@ -2023,7 +2028,7 @@ void PlayerObject::setSitting(Message* message)
 	if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
 	{
 		this->togglePlayerFlagOff(PlayerCustomFlag_LogOut);	
-		gMessageLib->sendSystemMessage(this,L"","logout","aborted");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);
 	}
 
 	if(this->isConnected())
@@ -2032,7 +2037,7 @@ void PlayerObject::setSitting(Message* message)
 	// see if we need to get out of sampling mode
 	if(this->getSamplingState())
 	{
-		gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
 		this->setSamplingState(false);
 	}
 
@@ -2139,7 +2144,7 @@ void PlayerObject::setSitting(Message* message)
 	}
 
 	//hack-fix clientside bug by manually sending client message
-	gMessageLib->sendSystemMessage(this,L"","shared","player_sit");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_sit"), this);
 }
 
 void PlayerObject::setUpright()
@@ -2150,14 +2155,14 @@ void PlayerObject::setUpright()
 	// see if we need to get out of sampling mode
 	if(this->getSamplingState())
 	{
-		gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
 		this->setSamplingState(false);
 	}
 
 	if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
 	{
-		this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
-		gMessageLib->sendSystemMessage(this,L"","logout","aborted");
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
 	}
 
 	this->toggleStateOff(CreatureState_SittingOnChair);
@@ -2174,7 +2179,7 @@ void PlayerObject::setUpright()
 	bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
 	if(IsSeatedOnChair)
 	{
-		gMessageLib->sendSystemMessage(this,L"","shared","player_stand");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);	
 	}
 }
 
@@ -2186,14 +2191,14 @@ void PlayerObject::setProne()
 	// see if we need to get out of sampling mode
 	if(this->getSamplingState())
 	{
-		gMessageLib->sendSystemMessage(this,L"","survey","sample_cancel");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
 		this->setSamplingState(false);
 	}
 
 	if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
 	{
-		this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
-		gMessageLib->sendSystemMessage(this,L"","logout","aborted");
+		this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
 	}
 
 	this->toggleStateOff(CreatureState_SittingOnChair);
@@ -2214,7 +2219,7 @@ void PlayerObject::setProne()
 	bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
 	if(IsSeatedOnChair)
 	{
-		gMessageLib->sendSystemMessage(this,L"","shared","player_prone");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_prone"), this);
 	}
 }
 
@@ -2244,6 +2249,6 @@ void PlayerObject::setCrouched()
 	//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
 	if(IsSeatedOnChair)
 	{
-		gMessageLib->sendSystemMessage(this,L"","shared","player_kneel");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_kneel"), this);
 	}
 }

@@ -88,7 +88,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 {
 	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
 	}
 
@@ -101,7 +101,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 		BString u = BString(sql);
 		u.convert(BSTRType_Unicode16);
 
-		gMessageLib->sendSystemMessage(playerObject,u.getUnicode16());
+		gMessageLib->SendSystemMessage(u.getUnicode16(), playerObject);
 
 		gLogger->log(LogManager::DEBUG,sql);
 
@@ -127,12 +127,12 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 			// in range check
             if(playerObject->getParentId() != getParentId() || (glm::distance(playerObject->mPosition, mPosition) > 25.0f))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
 				return;
 			}
 
 			if(noTicket)
-				gMessageLib->sendSystemMessage(playerObject,L"","travel","no_ticket");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "no_ticket"), playerObject);
 			else
 				gTravelMapHandler->createTicketSelectMenu(playerObject,this,port);
 
@@ -155,19 +155,19 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 			else
 				awayMsg.setLength(swprintf(awayMsg.getUnicode16(),80,L"The next shuttle will be ready to board in %u seconds.",seconds));
 
-      gMessageLib->sendSystemMessage(playerObject,awayMsg.getUnicode16());
+            gMessageLib->SendSystemMessage(awayMsg.getUnicode16(), playerObject);
 		}
 		break;
 
 		case ShuttleState_Landing:
 		{
-			gMessageLib->sendSystemMessage(playerObject,L"The next shuttle is about to begin boarding.");
+			gMessageLib->SendSystemMessage(L"The next shuttle is about to begin boarding.", playerObject);
 		}
 		break;
 
 		case ShuttleState_AboutBoarding:
 		{
-			gMessageLib->sendSystemMessage(playerObject,L"The next shuttle is about to begin boarding.");
+			gMessageLib->SendSystemMessage(L"The next shuttle is about to begin boarding.", playerObject);
 		}
 
 		default:break;

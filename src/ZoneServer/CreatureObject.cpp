@@ -746,7 +746,7 @@ void CreatureObject::die()
 
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
 	{
-		gMessageLib->sendSystemMessage(player,L"","base_player","victim_dead");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "victim_dead"), player);
 		player->disableAutoAttack();
 	}
 

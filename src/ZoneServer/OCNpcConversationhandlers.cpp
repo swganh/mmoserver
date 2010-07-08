@@ -121,7 +121,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 			sprintf(buffer, "You are out of range (%f m).", distance);
 			BString msg(buffer);
 			msg.convert(BSTRType_Unicode16);
-      gMessageLib->sendSystemMessage(player,msg.getUnicode16());
+            gMessageLib->SendSystemMessage(msg.getUnicode16(), player);
 			// gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
 			return;
 		}
@@ -167,58 +167,29 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 
 			// Let the npc have your attention, and some npc-movement.
 			// Nope... npc->prepareConversation(player);
-      std::wstring npc_chat;
-      uint32_t animation = 0;
+            std::wstring npc_chat;
+            uint32_t animation = 0;
 
 			// say a specific preset sentence
 			if(npc->hasInternalAttribute("npc_chat"))	{
 				std::string tmp = npc->getInternalAttribute<std::string>("npc_chat");
-        npc_chat = std::wstring(tmp.begin(), tmp.end());
-      } else {        
+                npc_chat = std::wstring(tmp.begin(), tmp.end());
+            } else {        
 				std::pair<std::wstring,uint32> chat = gWorldManager->getRandNpcChatter();
+                
+                npc_chat  = chat.first;
+                animation = chat.second;
+            }
 
-        npc_chat  = chat.first;
-        animation = chat.second;
-      }
-              
-      // Use regex to check if the chat string matches the stf string format.
-      static const wregex pattern(L"@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
-      wsmatch result;
-      
-      regex_search(npc_chat, result, pattern);
+            if (!gWorldConfig->isInstance()) {
+                gMessageLib->SendSpatialChat(npc, npc_chat);
 
-      // If not an exact match (2 sub-patterns + the full string = 3 elements) it's just a pain text string.
-      if (result.size() != 3) {     
-			  char quack[5][32];
-			  memset(quack, 0, sizeof(quack));
-        
-			  if (!gWorldConfig->isInstance()) {
-			  	gMessageLib->sendSpatialChat(npc, npc_chat.c_str(), quack);
+                if (animation) gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation));
+            } else {
+                gMessageLib->SendSpatialChat(npc, npc_chat, player);
 
-          if (animation) {
-						gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation));
-          }
-			  } else {
-			  	gMessageLib->sendSpatialChat(npc, npc_chat.c_str(), quack, player);
-          
-          if (animation) {
-						gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation), player);
-          }
-			  }
-      } else {
-        // This is an STF dialog send it out appropriately.
-        std::wstring filename = result[1].str();
-        std::wstring varname  = result[2].str();
-        
-        // If there was a match send it out as an stf spatial message.
-        gMessageLib->sendSpatialChat(npc, player, L"", 
-          std::string(filename.begin(), filename.end()).c_str(), 
-          std::string(varname.begin(), varname.end()).c_str());
-        
-        if (animation) {
-				  gMessageLib->sendCreatureAnimation(npc, gWorldManager->getNpcConverseAnimation(animation));
-        }
-      }   
+                if (animation) gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation), player);
+            }
 		}
 	}
 	else

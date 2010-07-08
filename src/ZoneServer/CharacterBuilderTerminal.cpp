@@ -571,11 +571,11 @@ void CharacterBuilderTerminal::GiveItem(PlayerObject* playerObject, uint32 input
 	{
 		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
         gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99, glm::vec3(),"");
-		gMessageLib->sendSystemMessage(playerObject, L"The item has been placed in your inventory.");
+		gMessageLib->SendSystemMessage(L"The item has been placed in your inventory.", playerObject);
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(playerObject, L"No such item.");
+		gMessageLib->SendSystemMessage(L"No such item.", playerObject);
 	}
 }
 void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -620,7 +620,7 @@ void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 act
 
 	if (availableXpTypes.size() == 0)
 	{
-		gMessageLib->sendSystemMessage(playerObject, L"You currently do not have any skills.");
+		gMessageLib->SendSystemMessage( L"You currently do not have any skills.", playerObject);
 		SAFE_DELETE(mSortedList);
 	}
 	else
@@ -788,7 +788,7 @@ void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject,
 			jt++;
 		}
 
-		gMessageLib->sendSystemMessage(playerObject,L"All skills surrendered successfully.");
+		gMessageLib->SendSystemMessage(L"All skills surrendered successfully.", playerObject);
 
 		return;
 	}
@@ -798,7 +798,7 @@ void CharacterBuilderTerminal::_handleProfessionMenu(PlayerObject* playerObject,
 	newSkill+=element-1;
 	if(!playerObject->getJediState() && strstr((*newSkill)->mName.getAnsi(),"discipline"))
 	{
-		gMessageLib->sendSystemMessage(playerObject, L"Sorry. That profession is only available to Jedi Enabled Accounts");
+		gMessageLib->SendSystemMessage(L"Sorry. That profession is only available to Jedi Enabled Accounts", playerObject);
 		if(playerObject->isConnected())
 		{
 			gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
@@ -811,7 +811,7 @@ void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject,
 {
 	if (element > (int32)playerObject->getXpList()->size() - 1 || element < 0)
 	{
-		gMessageLib->sendSystemMessage(playerObject, L"Error while giving Xp!");
+		gMessageLib->SendSystemMessage(L"Error while giving Xp!", playerObject);
 	}
 	else if (mSortedList)
 	{	// Get the xp type for the selection.
@@ -869,7 +869,7 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
 
 		if(mInputBoxAmount < 0)
 		{
-			gMessageLib->sendSystemMessage(player, L"Invalid amount.");
+			gMessageLib->SendSystemMessage(L"Invalid amount.", player);
 			return;
 		}
 

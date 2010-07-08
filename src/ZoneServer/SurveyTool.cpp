@@ -87,21 +87,20 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 			if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->isDead())
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_cant");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_cant"), playerObject);
 				return;
 			}
 
 			// verify we are able to use this
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"error_message","insufficient_skill");
-
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_skill"), playerObject);
 				return;
 			}
 
 			if(playerObject->getParentId())
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_in_structure");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
 				return;
 			}
 
@@ -124,8 +123,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"error_message","insufficient_skill");
-
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_skill"), playerObject);
 				return;
 			}
 

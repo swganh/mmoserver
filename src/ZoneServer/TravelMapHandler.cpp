@@ -526,13 +526,13 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
 
 		if (!shuttle->availableInPort())
 		{
-			gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), playerObject);
 			return;
 		}
 
         if((playerObject->getParentId() != shuttle->getParentId()) || (glm::distance(playerObject->mPosition, shuttle->mPosition) > 25.0f))
 		{
-			gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
 
 			return;
 		}
@@ -603,7 +603,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	// in range check
 	if(playerObject->getParentId() !=  shuttle->getParentId())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), playerObject);
 		return;
 	}
 
@@ -617,7 +617,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 
 	if (!shuttle->availableInPort())
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), playerObject);
 		return;
 	}
 
@@ -629,7 +629,7 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
 	// see if we are at the right location
 	if(srcPlanetId != zoneId || strcmp(srcPoint.getAnsi(),port.getAnsi()) != 0)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","wrong_shuttle");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "wrong_shuttle"), playerObject);
 		return;
 	}
 

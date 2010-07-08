@@ -66,7 +66,7 @@ void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectCont
 	// if  target is valid
 	if(target_player == NULL || target_player == player)
 	{
-		gMessageLib->sendSystemMessage(player,L"","group","invite_no_target_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("group", "invite_no_target_self"), player);
 		return;
 	}
 
@@ -96,7 +96,7 @@ void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectCo
 	// if  target is valid
 	if(targetPlayer == NULL || targetPlayer == player)
 	{
-		gMessageLib->sendSystemMessage(player,L"","group","uninvite_no_target_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("group", "uninvite_no_target_self"), player);
 		return;
 	}
 
@@ -143,8 +143,8 @@ void ObjectController::_handleDecline(uint64 targetId,Message* message,ObjectCon
 
 	// resetting the sender's id 
 	gMessageLib->sendInviteSenderUpdateDeltasCreo6(0,player);
-
-	gMessageLib->sendSystemMessage(player, L"","group","decline_self");
+    
+    gMessageLib->SendSystemMessage(::common::OutOfBand("group", "decline_self"), player);
 
 	// we advise the chat server that he refused
 	Message* newMessage;
@@ -218,7 +218,7 @@ void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,Object
 	// if  target is valid
 	if(targetPlayer == NULL || targetPlayer->getGroupId() != player->getGroupId())
 	{
-		gMessageLib->sendSystemMessage(player,L"Invalid Target.");
+		gMessageLib->SendSystemMessage(L"Invalid Target.", player);
 		return;
 	}
 
@@ -254,7 +254,7 @@ void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* messag
 	// if  target is valid
 	if(targetPlayer == NULL || targetPlayer->getGroupId() != player->getGroupId())
 	{
-		gMessageLib->sendSystemMessage(player,L"Invalid Target.");
+		gMessageLib->SendSystemMessage(L"Invalid Target.", player);
 		return;
 	}
 

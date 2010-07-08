@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "ZoneTree.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
+#include "Tutorial.h"
 #include "utils/rand.h"
 
 // TODO: Implement by functionality.
@@ -66,6 +67,7 @@ AttackableCreature::AttackableCreature(uint64 templateId)
 , mAssistedTargetId(0)
 , mLairNeedAssistanceWithId(0)
 , mAttackTauntSent(false)
+, mAttackedTauntSent(false)
 , mHoming(false)
 , mIsAssistingLair(false)
 , mWarningTauntSent(false)
@@ -214,9 +216,9 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 									{
 										// To little to split.
 										// "GROUP] You split %TU credits and receive %TT credits as your share."
-                    gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", lootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
+                                        gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split_coins_self", lootCreditsString.getUnicode16(), lootCreditsString.getUnicode16(), L""), playerObject);
 										// "There are insufficient group funds to split"
-										gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "nsf_to_split");
+										gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "nsf_to_split"), playerObject);
 									}
 									else
 									{
@@ -225,7 +227,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 										while (it != inRangeMembers.end())
 										{
 											// "[GROUP] You receive %DI credits as your share."
-											gMessageLib->sendSystemMessage((*it), L"", "group", "prose_split", "", "", L"", splittedCredits);
+										    gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split", 0, 0, 0, splittedCredits, 0.0f), *it);
 
 											// Now we need to add the credits to player inventory.
 											Inventory* playerInventory = dynamic_cast<Inventory*>((*it)->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -243,7 +245,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 										splitedLootCreditsString.convert(BSTRType_Unicode16);
 
 										// "GROUP] You split %TU credits and receive %TT credits as your share."
-                    gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", splitedLootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
+                                        gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split_coins_self", splitedLootCreditsString.getUnicode16(), lootCreditsString.getUnicode16(), L""), playerObject);
 
 										// Now we need to add the credits to our own inventory.
 										Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -260,8 +262,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 									// sprintf(str,"%u credits", lootedCredits);
 									// BString lootCreditsString(str);
 									// lootCreditsString.convert(BSTRType_Unicode16);
-									// gMessageLib->sendSystemMessage(playerObject, L"", "spam", "loot_item_self", "", "", L"", 0, getSpeciesGroup(), getSpeciesString(), L"", 0, 0, 0, "", "", lootCreditsString);
-									gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "prose_coin_loot", "", "", L"", lootedCredits, getSpeciesGroup().getAnsi(), getSpeciesString().getAnsi());
+                                    gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split_coins_self", "", "", getSpeciesGroup().getAnsi(), getSpeciesString().getAnsi(), "", "", lootedCredits, 0.0f), playerObject);
 
 									// Now we need to add the credits to our own inventory.
 									Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -278,7 +279,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 								if (lootedCredits == 0)
 								{
 									// There was no credits and no items in the inventory.
-									gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "corpse_empty");
+                                    gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "corpse_empty"), playerObject);
 								}
 
 								// Put this creaure in the pool of delayed destruction and remove the corpse from scene.
@@ -289,7 +290,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 					else
 					{
 						// Player do not have permission to loot this corpse.
-						gMessageLib->sendSystemMessage(playerObject,L"","error_message","no_corpse_permission");
+                        gMessageLib->SendSystemMessage(common::OutOfBand("error_message", "no_corpse_permission"), playerObject);
 					}
 				}
 			}
@@ -308,7 +309,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 				gScoutManager->handleHarvestCorpse(playerObject, this, HARVEST_BONE);
 				break;
 			case radId_serverMenu5: //MILKING!
-				gMessageLib->sendSystemMessage(playerObject,L"YOU TRIED TO MILK ME! WHY I OUTTA!");
+				gMessageLib->SendSystemMessage(L"YOU TRIED TO MILK ME! WHY I OUTTA!", playerObject);
 				break;
 
 			default:
@@ -452,23 +453,8 @@ bool AttackableCreature::setTargetInAttackRange(void)
 			// for now, let's just taunt him.
 			BString msg(this->getAttackStartMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
-
-			if (!gWorldConfig->isInstance())
-			{
-				gMessageLib->sendSpatialChat(this, msg, quack);
-				// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27));	// poke
-			}
-			else
-			{
-				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
-				if (playerObject)
-				{
-					gMessageLib->sendSpatialChat(this, msg, quack, playerObject);
-					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
-				}
-			}
+            
+            gMessageLib->SendSpatialChat(this, msg.getUnicode16());
 		}
 		else
 		{
@@ -550,23 +536,8 @@ bool AttackableCreature::showWarningInRange(void)
 		{
 			BString msg(getAttackWarningMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
-
-			if (!gWorldConfig->isInstance())
-			{
-				gMessageLib->sendSpatialChat(this, msg, quack);
-				// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27));	// poke
-			}
-			else
-			{
-				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
-				if (playerObject)
-				{
-					gMessageLib->sendSpatialChat(this, msg, quack, playerObject);
-					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
-				}
-			}
+            
+            gMessageLib->SendSpatialChat(this, msg.getUnicode16());
 		}
 		else
 		{
@@ -615,30 +586,17 @@ bool AttackableCreature::setTargetDefenderWithinWeaponRange(void)
 		++defenderIt;
 	}
 
-	if (foundTarget)
+	if (foundTarget && !this->isAttackedTauntSent())
 	{
+		this->setAttackedTauntSent();
+
 		if (getAttackedMessage().getLength())
 		{
 			// for now, let's just taunt him.
 			BString msg(getAttackedMessage());
 			msg.convert(BSTRType_Unicode16);
-			char quack[5][32];
-			memset(quack, 0, sizeof(quack));
 
-			if (!gWorldConfig->isInstance())
-			{
-				gMessageLib->sendSpatialChat(this, msg, quack);
-				// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27));	// poke
-			}
-			else
-			{
-				PlayerObject* playerObject = dynamic_cast<PlayerObject*>(this->getTarget());
-				if (playerObject)
-				{
-					gMessageLib->sendSpatialChat(this, msg, quack, playerObject);
-					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(27), playerObject);
-				}
-			}
+            gMessageLib->SendSpatialChat(this, msg.getUnicode16());
 		}
 	}
 	return foundTarget;
@@ -1887,6 +1845,16 @@ void AttackableCreature::setWarningTauntSent(void)
 void AttackableCreature::clearWarningTauntSent(void)
 {
 	mWarningTauntSent = false;
+}
+
+bool AttackableCreature::isAttackedTauntSent(void) const
+{
+	return mAttackedTauntSent;
+}
+
+void AttackableCreature::setAttackedTauntSent(void)
+{
+	mAttackedTauntSent = true;
 }
 
 void AttackableCreature::killEvent(void)

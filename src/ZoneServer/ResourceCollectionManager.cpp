@@ -261,7 +261,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 						gMessageLib->sendSelfPostureUpdate(player);
 						player->getSampleData()->mSampleEventFlag = false;
 						player->getSampleData()->mSampleGambleFlag = false;
-						gMessageLib->sendSystemMessage(player,L"","survey","gamble_no_action");
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_no_action"), player);
 						return;
 					}
 					//reduce action points by 300 and make sure 'damage' is set to false so we don't incap ourselves
@@ -280,7 +280,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					{
 						player->getSampleData()->mSampleEventFlag = false;
 						player->getSampleData()->mSampleGambleFlag = false;
-						gMessageLib->sendSystemMessage(player,L"","survey","gamble_fail");
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_fail"), player);
 					}
 
 					//TODO:invoke sample action
@@ -313,7 +313,7 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					
 					Datapad* datapad			= player->getDataPad();
                     datapad->requestNewWaypoint("Resource Node", glm::vec3(player->getSampleData()->Position.x,0.0f,player->getSampleData()->Position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
-					gMessageLib->sendSystemMessage(player,L"","survey","node_waypoint");
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_waypoint"), player);
 
 					player->setPosture(CreaturePosture_Upright);
 					player->updateMovementProperties();

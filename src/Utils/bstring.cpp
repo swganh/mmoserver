@@ -98,7 +98,7 @@ BString::BString(const uint16* data)
 : mString(0)
 , mType(BSTRType_Unicode16)
 , mAllocated(0)
-, mCharacterWidth(1)
+, mCharacterWidth(2)
 , mLength(0)
 {
 	_allocate();
@@ -115,7 +115,7 @@ BString::BString(const wchar_t* data)
 : mString(0)
 , mType(BSTRType_Unicode16)
 , mAllocated(0)
-, mCharacterWidth(1)
+, mCharacterWidth(2)
 , mLength(0)
 {
 	_allocate();

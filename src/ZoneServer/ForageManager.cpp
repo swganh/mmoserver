@@ -241,28 +241,28 @@ void ForageManager::failForage(PlayerObject* player, forageFails fail)
 	switch(fail)
 	{
 	case NOT_OUTSIDE:
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_inside");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_inside"), player);
 		break;
 	case PLAYER_MOVED:
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_movefail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_movefail"), player);
 		break;
 	case ACTION_LOW:
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_attrib");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_attrib"), player);
 		break;
 	case IN_COMBAT:
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_cant");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_cant"), player);
 		break;
 	case AREA_EMPTY:
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_empty");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_empty"), player);
 		break;
 	case ENTERED_COMBAT:
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_combatfail");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_combatfail"), player);
 		break;
 	case NO_SKILL:
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_noskill");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_noskill"), player);
 		break;
 	case ALREADY_FORAGING:
-		gMessageLib->sendSystemMessage(player, L"", "skl_use","sys_forage_already");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_already"), player);
 		return;
 	}
 

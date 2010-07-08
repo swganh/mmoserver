@@ -80,12 +80,12 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					//Player must be standing or Kneeling to launch
 					if((playerObject->getPosture()!=CreaturePosture_Upright && playerObject->getPosture()!=CreaturePosture_Crouched) || playerObject->getState() & CreatureState_RidingMount)
 					{
-							gMessageLib->sendSystemMessage(playerObject,L"You must be standing or kneeling to start a firework.");
-							return;
+                        gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
+                        return;
 					}
 					else if(playerObject->getParentId())
 					{
-						gMessageLib->sendSystemMessage(playerObject,L"You can not do this while indoors.");
+                        gMessageLib->SendSystemMessage(L"You can not do this while indoors.", playerObject);
 						return;
 					}
 					//Create the Firework in the world
@@ -149,7 +149,7 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject))
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"Firework Show Packagaes are still under development and not ready for testing");
+		gMessageLib->SendSystemMessage(L"Firework Show Packagaes are still under development and not ready for testing", playerObject);
 		return;
 	}
 	/*

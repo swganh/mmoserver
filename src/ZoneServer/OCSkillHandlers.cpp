@@ -70,20 +70,20 @@ void ObjectController::_handleTeach(uint64 targetId,Message* message,ObjectContr
 	// check if we have a target
 	if(!pupilObject	)
 	{
-		gMessageLib->sendSystemMessage(teacherObject,L"","teaching","no_target");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "no_target"), teacherObject);
 		return;
 	}
 
 	if(pupilObject == teacherObject)
 	{
 		// target self:(
-		gMessageLib->sendSystemMessage(teacherObject,L"","teaching","no_teach_self");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "no_teach_self"), teacherObject);
 		return;
 	}
 
 	if((teacherObject->getGroupId() == 0)||(teacherObject->getGroupId() != pupilObject	->getGroupId()))
 	{
-		gMessageLib->sendSystemMessage(teacherObject,L"","teaching","not_in_same_group","","",L"",0,"","",L"",pupilObject->getId());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "not_in_same_group", 0, pupilObject->getId(), 0), teacherObject);
 		return;
 	}
 
@@ -96,7 +96,7 @@ void ObjectController::_handleTeach(uint64 targetId,Message* message,ObjectContr
 	}
 	else
 	{
-		gMessageLib->sendSystemMessage(teacherObject,L"","teaching","student_has_offer_to_learn","","",L"",0,"","",L"",pupilObject->getId());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "student_has_offer_to_learn", 0, pupilObject->getId(), 0), teacherObject);
 	}
 
 }

@@ -112,18 +112,15 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 				// av->setCurrentPage(8);	// "Move along."
 				// gLogger->log(LogManager::DEBUG,"QuestGiver::preProcessfilterConversation: Returned modified pagelink %u", 8);
 				status = false;
-				char elements[5][32];
-				memset(elements, 0, sizeof(elements));
-				BString aMess("Move along.");	// @newbie_convo:trooper_move_along
-				aMess.convert(BSTRType_Unicode16);
+				std::wstring message(L"@newbie_convo:trooper_move_along");
 				if (!gWorldConfig->isInstance())
 				{
-					gMessageLib->sendSpatialChat(this,aMess,elements);
+					gMessageLib->SendSpatialChat(this, message);
 					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(46)); // none.
 				}
 				else
 				{
-					gMessageLib->sendSpatialChat(this, aMess, elements, player);
+					gMessageLib->SendSpatialChat(this, message, player);
 					// gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(46), player); // none.
 				}
 			}
@@ -139,18 +136,15 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 					if (inventory->itemExist(player->getTutorial()->getQuestWeaponFamily(), player->getTutorial()->getQuestWeaponType()))
 					{
 						status = false;
-						char elements[5][32];
-						memset(elements, 0, sizeof(elements));
-						BString aMess("What are you doing here?  Get a move on.  I'm, uh, still guarding here."); // @newbie_convo:convo_4_repeat
-						aMess.convert(BSTRType_Unicode16);
+						std::wstring message(L"@newbie_convo:convo_4_repeat");
 						if (!gWorldConfig->isInstance())
 						{
-							gMessageLib->sendSpatialChat(this,aMess,elements);
+							gMessageLib->SendSpatialChat(this, message);
 							gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(30)); // scared
 						}
 						else
 						{
-							gMessageLib->sendSpatialChat(this, aMess, elements, player);
+							gMessageLib->SendSpatialChat(this, message, player);
 							gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(30), player); // scared
 						}
 					}
@@ -163,18 +157,15 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 			else if (subState >= 19)	// We have killed the pirate.
 			{
 				status = false;
-				char elements[5][32];
-				memset(elements, 0, sizeof(elements));
-				BString aMess("Good job with that pirate, but what are you doing back here?  Go back through the big room where the pirate was."); // @newbie_convo:good_job
-				aMess.convert(BSTRType_Unicode16);
+				std::wstring message(L"@newbie_convo:good_job");
 				if (!gWorldConfig->isInstance())
 				{
-					gMessageLib->sendSpatialChat(this,aMess,elements);
+					gMessageLib->SendSpatialChat(this, message);
 					gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(41)); // tiphat
 				}
 				else
 				{
-					gMessageLib->sendSpatialChat(this, aMess, elements, player);
+					gMessageLib->SendSpatialChat(this, message, player);
 					gMessageLib->sendCreatureAnimation(this,gWorldManager->getNpcConverseAnimation(41), player); // tiphat
 				}
 			}
@@ -358,7 +349,7 @@ uint32 QuestGiver::handleConversationEvent(ActiveConversation* av,ConversationPa
 
 				// Give player his quest gun.
 				player->getTutorial()->addQuestWeapon(0, 0); // Use default weapon.
-				gMessageLib->sendSystemMessage(player, L"","newbie_tutorial/system_messages","receive_weapon");
+                gMessageLib->SendSystemMessage(::common::OutOfBand("newbie_tutorial/system_messages", "receive_weapon"), player);
 			}
 		}
 #if defined(_MSC_VER)

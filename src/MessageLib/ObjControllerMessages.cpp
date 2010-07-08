@@ -54,6 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LogManager/LogManager.h"
 
+#include "Common/ByteBuffer.h"
 #include "Common/atMacroString.h"
 #include "Common/DispatchClient.h"
 #include "Common/Message.h"
@@ -64,558 +65,99 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
+
+#ifdef WIN32
+using ::std::regex;
+using ::std::smatch;
+using ::std::regex_search;
+#else
+using ::boost::regex;
+using ::boost::smatch;
+using ::boost::regex_search;
+#endif
+
+using ::common::ByteBuffer;
+using ::common::OutOfBand;
 
 //======================================================================================================================
 //
 // Spatial Chat
 //
 
-void MessageLib::sendSpatialChat(CreatureObject* const srcObject,BString chatMsg,char chatElement[5][32])
-{
-	using boost::lexical_cast;
-    using boost::bad_lexical_cast;
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+    // First, if this is not a player object, check to see if it's an stf string.
+    if (speaking_object->getType() != ObjType_Player) {
+        // Use regex to check if the chat string matches the stf string format.
+        static const regex pattern("@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
+        smatch result;
+        
+        std::string stf_string(custom_message.begin(), custom_message.end());
 
-	uint64 chatElementTarget;
-	try
-	{
-		chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0]);
-	}
-	catch(bad_lexical_cast &)
-	{
-		chatElementTarget	= 0;
+        regex_search(stf_string, result, pattern);
+        
+        // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
+        // Reroute the call to the appropriate overload.
+        if (result.size() == 3) 
+        {
+            std::string file(result[1].str());
+            std::string string(result[2].str());
 
-	}
-		
-	uint16 chatElementMood1		= atoi(chatElement[1]);
-	uint16 chatElementMood2		= atoi(chatElement[2]);
+            SendSpatialChat_(speaking_object, L"", OutOfBand(file, string), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
+            return;
+        }
+    }
 
-	if(!chatElementMood2)
-		chatElementMood2 = srcObject->getMoodId();
+    SendSpatialChat_(speaking_object, custom_message, OutOfBand(), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
+}
 
-	Message*	newMessage;
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+    SendSpatialChat_(speaking_object, L"", prose_message, player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
+}
 
-	mMessageFactory->StartMessage();
+void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+    Message* message;
+
+    mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
 	mMessageFactory->addUint32(0x0000000B);
 	mMessageFactory->addUint32(opSpatialChat);
-	mMessageFactory->addUint64(srcObject->getId());
+	mMessageFactory->addUint64(speaking_object->getId());
 	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint64(chatElementTarget);
-	mMessageFactory->addString(chatMsg);
-	mMessageFactory->addUint16(0x32);
-	mMessageFactory->addUint16(chatElementMood1);
-	mMessageFactory->addUint16(chatElementMood2);
-	mMessageFactory->addUint8(0);
-	mMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
-	mMessageFactory->addUint64(0);                    // unknown
+	mMessageFactory->addUint64(speaking_object->getId());
+	mMessageFactory->addUint64(target_id);
+	mMessageFactory->addString(custom_message);
+	mMessageFactory->addUint16(text_size);
+	mMessageFactory->addUint16(chat_type_id);
 
-	newMessage = mMessageFactory->EndMessage();
+    // If no explicit mood was passed in, use the speaking object's current mood.
+    if (!mood_id) {
+        mood_id = static_cast<MoodType>(speaking_object->getMoodId());
+    }
 
+	mMessageFactory->addUint16(mood_id);
+	mMessageFactory->addUint8(whisper_target_animate);
+	mMessageFactory->addUint8(static_cast<uint8>(speaking_object->getLanguage()));
+    
+    // Add the ProsePackage to the message if no custom string was set.
+    if (!custom_message.length()) {
+        const ByteBuffer* attachment = prose_message.Pack();
+        mMessageFactory->addData(attachment->Data(), attachment->Size());
+    } else {
+        mMessageFactory->addUint32(0);
+    }
 
-	PlayerObjectSet* inRangePlayers	= srcObject->getKnownPlayers();
-	PlayerObjectSet::iterator it	= inRangePlayers->begin();
-	uint32 loweredNameCrc			= 0;
-	BString loweredName;
-	Message* clonedMessage;
-	bool crcValid = false;
-
-	// Get the source for this emote.
-	if (srcObject->getType() == ObjType_Player)
-	{
-		PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(srcObject);
-
-		if (srcPlayer->isConnected())
-		{
-			loweredName = srcPlayer->getFirstName().getAnsi();
-			loweredName.toLower();
-			loweredNameCrc = loweredName.getCrc();
-			crcValid = true;
-		}
-	}
-
-	while(it != inRangePlayers->end())
-	{
-		const PlayerObject* const player = (*it);
-
-		// If player online, send emote.
-		if (_checkPlayer(player))
-		{
-			if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 			{
-				// I am at recivers ignore list.
-				// Don't send any message.
-			}
-			else
-			{
-				// clone our message
-				mMessageFactory->StartMessage();
-				mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-				clonedMessage = mMessageFactory->EndMessage();
-
-				// replace the target id
-				int8* data = clonedMessage->getData() + 12;
-				*((uint64*)data) = player->getId();
-
-				//(player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,5);
-				(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-			}
-		}
-		++it;
-	}
-
-	// if we are a player, echo it back to ourself
-	if(srcObject->getType() == ObjType_Player)
-	{
-		PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(srcObject);
-
-		if (_checkPlayer(srcPlayer))
-		{
-			(srcPlayer->getClient())->SendChannelAUnreliable(newMessage,srcPlayer->getAccountId(),CR_Client,5);
-			return;
-		}
-	}
-
-	mMessageFactory->DestroyMessage(newMessage);
-
+	mMessageFactory->addUint32(0);
+    
+	message = mMessageFactory->EndMessage();
+    
+    SendSpatialToInRangeUnreliable_(message, speaking_object, player_object);
 }
 
-
-//======================================================================================================================
-//
-// Spatial Chat, used for tutorial
-// We do send NPC chat to "player", or "player" is talking to himself.
-//
-/* Not good enough when we run instanced groups
-
-void MessageLib::sendSpatialChat(CreatureObject* srcObject,BString chatMsg,char chatElement[5][32], PlayerObject* player)
-{
-	uint64 chatElementTarget	= _atoi64(chatElement[0]);
-	uint16 chatElementMood1		= atoi(chatElement[1]);
-	uint16 chatElementMood2		= atoi(chatElement[2]);
-
-	if(!chatElementMood2)
-		chatElementMood2 = srcObject->getMoodId();
-
-	Message*	newMessage;
-
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opSpatialChat);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint64(chatElementTarget);
-	mMessageFactory->addString(chatMsg);
-	mMessageFactory->addUint16(0x32);
-	mMessageFactory->addUint16(chatElementMood1);
-	mMessageFactory->addUint16(chatElementMood2);
-	mMessageFactory->addUint8(0);
-	mMessageFactory->addUint8(srcObject->getLanguage());
-	mMessageFactory->addUint64(0);                    // unknown
-
-	newMessage = mMessageFactory->EndMessage();
-
-	// If player online, send emote.
-	if (player->isConnected())
-	{
-		// Update tutorial about "chatActive"
-		player->getTutorial()->tutorialResponse("chatActive");
-
-		// replace the target id
-		int8* data = newMessage->getData() + 12;
-		*((uint64*)data) = player->getId();
-		(player->getClient())->SendChannelA(newMessage,player->getAccountId(),CR_Client,5,false);
-	}
-	else
-	{
-		mMessageFactory->DestroyMessage(newMessage);
-	}
-}
-*/
-
-void MessageLib::sendSpatialChat(const CreatureObject* const srcObject,BString chatMsg,char chatElement[5][32], const PlayerObject* const playerObject) const
-{
-
-	using boost::lexical_cast;
-    using boost::bad_lexical_cast;
-
-	uint64 chatElementTarget;
-	try
-	{
-		chatElementTarget	= boost::lexical_cast<uint64>(chatElement[0]);
-	}
-	catch(bad_lexical_cast &)
-	{
-		chatElementTarget	= 0;
-
-	}
-
-	uint16 chatElementMood1		= atoi(chatElement[1]);
-	uint16 chatElementMood2		= atoi(chatElement[2]);
-
-	if(!chatElementMood2)
-		chatElementMood2 = srcObject->getMoodId();
-
-	Message*	newMessage;
-
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opSpatialChat);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint64(chatElementTarget);
-	mMessageFactory->addString(chatMsg);
-	mMessageFactory->addUint16(0x32);
-	mMessageFactory->addUint16(chatElementMood1);
-	mMessageFactory->addUint16(chatElementMood2);
-	mMessageFactory->addUint8(0);
-	mMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
-	mMessageFactory->addUint64(0);                    // unknown
-
-	newMessage = mMessageFactory->EndMessage();
-
-	uint32 loweredNameCrc			= 0;
-	BString loweredName;
-	bool crcValid = false;
-
-	// Get the source for this emote.
-	if (srcObject->getType() == ObjType_Player)
-	{
-		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(srcObject);
-
-		if (srcPlayer->isConnected())
-		{
-			loweredName = srcPlayer->getFirstName().getAnsi();
-			loweredName.toLower();
-			loweredNameCrc = loweredName.getCrc();
-			crcValid = true;	// crcValid true means that the source is a connected player.
-		}
-	}
-
-	if (_checkPlayer(playerObject))
-	{
-		if (gWorldConfig->isTutorial() && crcValid)		// Don't trig the Tutorial at npc talk.
-		{
-			// Update tutorial about "chatActive"
-			playerObject->getTutorial()->tutorialResponse("chatActive");
-		}
-
-		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
-		PlayerList::iterator it	= inRangeMembers.begin();
-		Message* clonedMessage;
-
-		while (it != inRangeMembers.end())
-		{
-			const PlayerObject* const player = (*it);
-
-			// If player online, send emote.
-			if (_checkPlayer(player))
-			{
-				if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 				{
-					// I am at recivers ignore list.
-					// Don't send any message.
-				}
-				else
-				{
-					// clone our message
-					mMessageFactory->StartMessage();
-					mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-					clonedMessage = mMessageFactory->EndMessage();
-
-					// replace the target id
-					int8* data = clonedMessage->getData() + 12;
-					*((uint64*)data) = player->getId();
-
-					(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-				}
-			}
-			++it;
-		}
-	}
-	mMessageFactory->DestroyMessage(newMessage);
-}
-
-bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,char chatElement[5][32],BString customMessage,BString mainFile,BString mainVar,BString toFile,BString toVar,BString toCustom,int32 di,BString ttFile,BString ttVar,BString ttCustom,uint64 ttId,uint64 toId,uint64 tuId) const
-{
-	uint16 chatElementMood1		= atoi(chatElement[1]);
-	uint16 chatElementMood2		= atoi(chatElement[2]);
-
-	Message*	newMessage;
-
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opSpatialChat);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint64(playerObject->getId());
-	mMessageFactory->addString(L"");
-	mMessageFactory->addUint16(0x32);
-	mMessageFactory->addUint16(chatElementMood1);
-	mMessageFactory->addUint16(chatElementMood2);
-	mMessageFactory->addUint8(0);
-	mMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
-
-	// simple message
-	if(customMessage.getLength())
-	{
-		mMessageFactory->addString(customMessage);
-	}
-	// templated message
-	else
-	{
-		uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength();
-
-		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + ttCustom.getLength());
-
-		if(realSize % 2)
-			mMessageFactory->addUint16(1);
-		else
-			mMessageFactory->addUint16(0);
-
-		mMessageFactory->addUint8(1);
-		mMessageFactory->addUint32(0xFFFFFFFF);
-		mMessageFactory->addString(mainFile);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addString(mainVar);
-		mMessageFactory->addUint64(tuId);
-
-		mMessageFactory->addUint16(0);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint16(0);
-
-		mMessageFactory->addUint32(0);
-
-		mMessageFactory->addUint64(ttId);
-		mMessageFactory->addString(ttFile);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addString(ttVar);
-		mMessageFactory->addString(ttCustom);
-		mMessageFactory->addUint64(toId);
-		mMessageFactory->addString(toFile);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addString(toVar);
-		mMessageFactory->addString(toCustom);
-		mMessageFactory->addInt32(di);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint8(0);
-
-		if(realSize % 2)
-			mMessageFactory->addUint8(0);
-	}
-
-	mMessageFactory->addUint32(0);
-
-	newMessage = mMessageFactory->EndMessage();
-
-	uint32 loweredNameCrc			= 0;
-	BString loweredName;
-	bool crcValid = false;
-
-	// Get the source for this emote.
-	if (srcObject->getType() == ObjType_Player)
-	{
-		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(srcObject);
-
-		if (srcPlayer->isConnected())
-		{
-			loweredName = srcPlayer->getFirstName().getAnsi();
-			loweredName.toLower();
-			loweredNameCrc = loweredName.getCrc();
-			crcValid = true;
-		}
-	}
-
-	if (_checkPlayer(playerObject))
-	{
-		if (gWorldConfig->isTutorial())
-		{
-			// Update tutorial about "chatActive"
-			playerObject->getTutorial()->tutorialResponse("chatActive");
-		}
-
-		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
-		PlayerList::iterator it	= inRangeMembers.begin();
-		Message* clonedMessage;
-
-		while (it != inRangeMembers.end())
-		{
-			const PlayerObject* const player = (*it);
-
-			// If player online, send emote.
-			if (player->isConnected())
-			{
-				if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 				{
-					// I am at recivers ignore list.
-					// Don't send any message.
-				}
-				else
-				{
-					// clone our message
-					mMessageFactory->StartMessage();
-					mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-					clonedMessage = mMessageFactory->EndMessage();
-
-					// replace the target id
-					int8* data = clonedMessage->getData() + 12;
-					*((uint64*)data) = player->getId();
-
-					(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-				}
-			}
-			++it;
-		}
-	}
-
-	mMessageFactory->DestroyMessage(newMessage);
-
-return true;
-}
-
-bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,BString customMessage,BString mainFile,BString mainVar,BString toFile,BString toVar,BString toCustom,int32 di,BString ttFile,BString ttVar,BString ttCustom,uint64 ttId,uint64 toId,uint64 tuId) const
-{
-	uint16 chatElementMood2	= srcObject->getMoodId();
-
-	Message*	newMessage;
-
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opSpatialChat);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint64(playerObject->getId());
-	mMessageFactory->addString(L"");
-	mMessageFactory->addUint16(0x32);
-	mMessageFactory->addUint16(0);
-	mMessageFactory->addUint16(chatElementMood2);
-	mMessageFactory->addUint8(0);
-	mMessageFactory->addUint8(static_cast<uint8>(srcObject->getLanguage()));
-
-	// simple message
-	if(customMessage.getLength())
-	{
-		mMessageFactory->addString(customMessage);
-	}
-	// templated message
-	else
-	{
-		uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength();
-
-		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + ttCustom.getLength());
-
-		if(realSize % 2)
-			mMessageFactory->addUint16(1);
-		else
-			mMessageFactory->addUint16(0);
-
-		mMessageFactory->addUint8(1);
-		mMessageFactory->addUint32(0xFFFFFFFF);
-		mMessageFactory->addString(mainFile);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addString(mainVar);
-		mMessageFactory->addUint64(tuId);
-
-		mMessageFactory->addUint16(0);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint16(0);
-
-		mMessageFactory->addUint32(0);
-
-		mMessageFactory->addUint64(ttId);
-		mMessageFactory->addString(ttFile);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addString(ttVar);
-		mMessageFactory->addString(ttCustom);
-		mMessageFactory->addUint64(toId);
-		mMessageFactory->addString(toFile);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addString(toVar);
-		mMessageFactory->addString(toCustom);
-		mMessageFactory->addInt32(di);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint8(0);
-
-		if(realSize % 2)
-			mMessageFactory->addUint8(0);
-	}
-
-	mMessageFactory->addUint32(0);
-
-	newMessage = mMessageFactory->EndMessage();
-
-	uint32 loweredNameCrc			= 0;
-	BString loweredName;
-	bool crcValid = false;
-
-	// Get the source for this emote.
-	if (srcObject->getType() == ObjType_Player)
-	{
-		const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(srcObject);
-
-		if (srcPlayer->isConnected())
-		{
-			loweredName = srcPlayer->getFirstName().getAnsi();
-			loweredName.toLower();
-			loweredNameCrc = loweredName.getCrc();
-			crcValid = true;
-		}
-	}
-
-	if (_checkPlayer(playerObject))
-	{
-		if (gWorldConfig->isTutorial())
-		{
-			// Update tutorial about "chatActive"
-			playerObject->getTutorial()->tutorialResponse("chatActive");
-		}
-
-		PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
-		PlayerList::iterator it	= inRangeMembers.begin();
-		Message* clonedMessage;
-
-		while (it != inRangeMembers.end())
-		{
-			const PlayerObject* const player = (*it);
-
-			// If player online, send emote.
-			if (player->isConnected())
-			{
-				if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 				{
-					// I am at recivers ignore list.
-					// Don't send any message.
-				}
-				else
-				{
-					// clone our message
-					mMessageFactory->StartMessage();
-					mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-					clonedMessage = mMessageFactory->EndMessage();
-
-					// replace the target id
-					int8* data = clonedMessage->getData() + 12;
-					*((uint64*)data) = player->getId();
-
-					(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-				}
-			}
-			++it;
-		}
-	}
-
-	mMessageFactory->DestroyMessage(newMessage);
-
-return true;
-}
 
 //======================================================================================================================
 //

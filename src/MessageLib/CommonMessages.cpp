@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LogManager/LogManager.h"
 
+#include "Common/ByteBuffer.h"
 #include "Common/atMacroString.h"
 #include "Common/DispatchClient.h"
 #include "Common/Message.h"
@@ -56,6 +57,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
+
+#ifdef WIN32
+using ::std::regex;
+using ::std::smatch;
+using ::std::regex_search;
+#else
+using ::boost::regex;
+using ::boost::smatch;
+using ::boost::regex_search;
+#endif
+
+using ::common::ByteBuffer;
+using ::common::OutOfBand;
 
 //======================================================================================================================
 //
@@ -558,214 +577,84 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 	return(true);
 }
 
-//=======================================================================================================================
-//
-// system message
-//
-bool MessageLib::sendSystemMessageInRange(PlayerObject* playerObject,bool toSelf, BString customMessage,BString mainFile,BString mainVar,BString toFile,BString toVar,BString toCustom,int32 di,BString ttFile,BString ttVar,BString ttCustom,uint64 ttId,uint64 toId,uint64 tuId,BString tuFile,BString tuVar,BString tuCustom )
-{
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
-
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatSystemMessage);  
-	mMessageFactory->addUint8(0);
-
-	// simple message
-	if(customMessage.getLength())
-	{
-		mMessageFactory->addString(customMessage);
-		mMessageFactory->addUint32(0);				 
-	}
-	// templated message
-	else
-	{ 
-		mMessageFactory->addUint32(0);				 
-
-		uint32	realSize = mainFile.getLength() + mainVar.getLength() + toFile.getLength() + toVar.getLength() + ttFile.getLength() + ttVar.getLength() + tuFile.getLength() + tuVar.getLength();
-
-		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + ttCustom.getLength() + tuCustom.getLength());
-
-		if(realSize % 2)
-			mMessageFactory->addUint16(1);
-		else
-			mMessageFactory->addUint16(0);
-
-		mMessageFactory->addUint8(1);
-		mMessageFactory->addUint32(0xFFFFFFFF);
-
-		//main message		
-		mMessageFactory->addString(mainFile);
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(mainVar);
-
-		//object 1
-		mMessageFactory->addUint64(tuId);
-		mMessageFactory->addString(tuFile);
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(tuVar);
-		mMessageFactory->addString(tuCustom);
-
-		//object 2		
-		mMessageFactory->addUint64(ttId);  //object id2
-		mMessageFactory->addString(ttFile);
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(ttVar);
-		mMessageFactory->addString(ttCustom);
-
-		//object 3
-		mMessageFactory->addUint64(toId);
-		mMessageFactory->addString(toFile);
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(toVar);
-		mMessageFactory->addString(toCustom);
-
-		mMessageFactory->addInt32(di);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint8(0);
-
-		if(realSize % 2)
-			mMessageFactory->addUint8(0);
-	}
-
-	_sendToInRange(mMessageFactory->EndMessage(),playerObject,8,toSelf);		
-
-	return(true);
-}
 
 //=======================================================================================================================
 //
 // system message
 //
-bool MessageLib::sendSystemMessage(PlayerObject* playerObject, std::wstring customMessage, std::string mainFile,
-											std::string mainVar, std::string toFile, std::string toVar, std::wstring toCustom, int32 di,
-											std::string ttFile, std::string ttVar, std::wstring ttCustom, uint64 ttId, uint64 toId, uint64 tuId,
-											std::string tuFile, std::string tuVar, std::wstring tuCustom)
-{
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
 
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatSystemMessage);  
-	mMessageFactory->addUint8(0);
+bool MessageLib::SendSystemMessage(const std::wstring& custom_message, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
+    // Use regex to check if the chat string matches the stf string format.
+    static const regex pattern("@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
+    smatch result;
+    
+    std::string stf_string(custom_message.begin(), custom_message.end());
 
-	// simple message
-	if(customMessage.length())
-	{
-		mMessageFactory->addString(customMessage.c_str());
-		mMessageFactory->addUint32(0);				 
-	}
-	// templated message
-	else
-	{ 
-		mMessageFactory->addUint32(0);				 
-
-		uint32	realSize = mainFile.length() + mainVar.length() + toFile.length() + toVar.length() + ttFile.length() + ttVar.length() + tuFile.length() + tuVar.length();
-
-		mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.length() + ttCustom.length() + tuCustom.length());
-
-		if(realSize % 2)
-			mMessageFactory->addUint16(1);
-		else
-			mMessageFactory->addUint16(0);
-
-		mMessageFactory->addUint8(1);
-		mMessageFactory->addUint32(0xFFFFFFFF);
-
-		//main message		
-		mMessageFactory->addString(mainFile.c_str());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(mainVar.c_str());
-
-		//object 1
-		mMessageFactory->addUint64(tuId);
-		mMessageFactory->addString(tuFile.c_str());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(tuVar.c_str());
-		mMessageFactory->addString(tuCustom.c_str());
-
-		//object 2		
-		mMessageFactory->addUint64(ttId);  //object id2
-		mMessageFactory->addString(ttFile.c_str());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(ttVar.c_str());
-		mMessageFactory->addString(ttCustom.c_str());
-
-		//object 3
-		mMessageFactory->addUint64(toId);
-		mMessageFactory->addString(toFile.c_str());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(toVar.c_str());
-		mMessageFactory->addString(toCustom.c_str());
-
-		mMessageFactory->addInt32(di);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint8(0);
-
-		if(realSize % 2)
-			mMessageFactory->addUint8(0);
-	}
-
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
-
-	return(true);
+    regex_search(stf_string, result, pattern);
+    
+    // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
+    // Reroute the call to the appropriate overload.
+    if (result.size() == 3) 
+    {
+        std::string file(result[1].str());
+        std::string string(result[2].str());
+        
+        // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
+        // Remove this in the future as the other const correctness problems are dealt with.
+        return SendSystemMessage_(L"", OutOfBand(file, string), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+    }   
+    
+    // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
+    // Remove this in the future as the other const correctness problems are dealt with.
+    return SendSystemMessage_(custom_message, OutOfBand(), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
 }
 
-//======================================================================================================================
-//
-// system message
-//
-bool MessageLib::sendMacroSystemMessage(PlayerObject* playerObject,BString message,BString macro)
-{
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
-
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatSystemMessage);  
-	mMessageFactory->addUint8(0);
-	mMessageFactory->addString(message);
-	mMessageFactory->addString(macro);				 
-
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
-
-	return(true);
+bool MessageLib::SendSystemMessage(const OutOfBand& prose, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
+    // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
+    // Remove this in the future as the other const correctness problems are dealt with.
+    return SendSystemMessage_(L"", prose, const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
 }
 
-//======================================================================================================================
-//
-// system message, can be directed to chat only
-//
-bool MessageLib::sendSystemMessage(PlayerObject* playerObject, BString message, bool chatOnly)
-{
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
-
+bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
+    // If a player was passed in but not connected return false.
+    if ((!player) || (!player->isConnected())) {
+        return false;
+    }
+    
 	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatSystemMessage); 
+	mMessageFactory->addUint32(opChatSystemMessage);  
 
-	if (chatOnly)
-	{
-		mMessageFactory->addUint8(2);
-	}
-	else
-	{
-		mMessageFactory->addUint8(0);
-	}
+    // This determines the bitmask switch for where a message is displayed.
+    if (chatbox_only) {
+	    mMessageFactory->addUint8(2);
+    } else {
+	    mMessageFactory->addUint8(0);
+    }
 
-	mMessageFactory->addString(message);
-	mMessageFactory->addUint32(0);				 
+    if (custom_message.length()) {
+		mMessageFactory->addString(custom_message);
+		mMessageFactory->addUint32(0);		
+    } else {
+		mMessageFactory->addUint32(0);		
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+        const ByteBuffer* attachment = prose.Pack();
+        mMessageFactory->addData(attachment->Data(), attachment->Size());
+    }
 
-	return(true);
+    // If a player was passed in then only send out the message to the appropriate parties.
+    if (player) {
+        // If the send_to_inrange flag was set then send out to everyone in-range of the player.
+        if (send_to_inrange) {
+	        _sendToInRange(mMessageFactory->EndMessage(), player, 8, true);
+        } else {
+	        (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
+        }
+    } else {
+        // If no player was passed send the system message to everyone.
+	    _sendToAll(mMessageFactory->EndMessage(), 8, true);
+    }
+
+    return true;
 }
 
 //======================================================================================================================
@@ -1507,207 +1396,6 @@ bool MessageLib::sendLogout(PlayerObject* playerObject)
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opLogoutMessage);  
 	
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
-
-	return(true);
-}
-
-//======================================================================================================================
-
-bool MessageLib::sendSysMsg(PlayerObject* playerObject,BString mainFile,BString mainVar,Object* to, Object* tt, Object* tu, int32 di)
-{
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
-
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatSystemMessage);  
-	mMessageFactory->addUint8(0);
-	mMessageFactory->addUint32(0);				 
-
-	BString ttCustom, toCustom, tuCustom;
-	BString ttdir, tudir, todir;
-	BString ttfile, tufile, tofile;
-
-	uint32	realSize = mainFile.getLength() + mainVar.getLength();
-	
-	TangibleObject* tto = dynamic_cast<TangibleObject*>(to);
-	
-	if(tto)
-	{
-		realSize +=		tto->getNameFile().getLength() + tto->getName().getLength();
-		toCustom =		tto->getCustomName();
-		toCustom.convert(BSTRType_Unicode16);
-		
-		tofile	= tto->getNameFile();
-		todir	= tto->getName();
-	}
-	else
-	{
-		CreatureObject* cto = dynamic_cast<CreatureObject*>(to);
-		if(cto)
-		{
-			realSize +=  cto->getSpeciesString().getLength() + cto->getSpeciesGroup().getLength();
-			if(cto->getFirstName().getLength() > 1)
-			{
-				toCustom << cto->getFirstName().getAnsi();
-			}
-			if(cto->getLastName().getLength() > 1)
-			{
-				toCustom<< cto->getLastName().getAnsi();
-			}
-
-			toCustom.convert(BSTRType_Unicode16);
-
-			tofile	= cto->getSpeciesGroup();
-			todir	= cto->getSpeciesString();
-		}
-	}
-
-	TangibleObject* ttu = dynamic_cast<TangibleObject*>(tu);
-	
-	if(ttu)
-	{
-		realSize +=		ttu->getNameFile().getLength() + ttu->getName().getLength();
-		tuCustom =		ttu->getCustomName();
-		tuCustom.convert(BSTRType_Unicode16);
-		tufile	= ttu->getNameFile();
-		tudir	= ttu->getName();
-	}
-	else
-	{
-		CreatureObject* ctu = dynamic_cast<CreatureObject*>(tu);
-		if(ctu)
-		{
-			realSize +=  ctu->getSpeciesString().getLength() + ctu->getSpeciesGroup().getLength();
-			if(ctu->getFirstName().getLength() > 1)
-			{
-				tuCustom << ctu->getFirstName().getAnsi();
-			}
-			if(ctu->getLastName().getLength() > 1)
-			{
-				tuCustom<< ctu->getLastName().getAnsi();
-			}
-
-			tuCustom.convert(BSTRType_Unicode16);
-
-			tufile	= ctu->getSpeciesGroup();
-			tudir	= ctu->getSpeciesString();
-		}
-	}
-
-	
-	TangibleObject* ttt = dynamic_cast<TangibleObject*>(tt);
-
-	if(ttt)
-	{
-		realSize +=		ttt->getNameFile().getLength() + ttt->getName().getLength();
-		ttCustom =		ttt->getCustomName();
-		ttCustom.convert(BSTRType_Unicode16);
-
-		ttfile	= ttt->getNameFile();
-		ttdir	= ttt->getName();
-	}
-	else
-	{
-		CreatureObject* ctt = dynamic_cast<CreatureObject*>(tt);
-		if(ctt)
-		{
-			realSize +=  ctt->getSpeciesString().getLength() + ctt->getSpeciesGroup().getLength();
-			if(ctt->getFirstName().getLength() > 1)
-			{
-				ttCustom<< ctt->getFirstName().getAnsi();
-			}
-			if(ctt->getLastName().getLength() > 1)
-			{
-				ttCustom<< ctt->getLastName().getAnsi();
-			}
-
-			ttCustom.convert(BSTRType_Unicode16);
-
-			ttfile	= ctt->getSpeciesGroup();
-			ttdir	= ctt->getSpeciesString();
-		}
-	}
-
-	mMessageFactory->addUint32(42 + ((uint32)ceil(((double)realSize) / 2.0)) + toCustom.getLength() + tuCustom.getLength() + ttCustom.getLength());
-
-	if(realSize % 2)
-		mMessageFactory->addUint16(1);
-	else
-		mMessageFactory->addUint16(0);
-
-	mMessageFactory->addUint8(1);
-	mMessageFactory->addUint32(0xFFFFFFFF);
-
-	//main message		
-	mMessageFactory->addString(mainFile);
-	mMessageFactory->addUint32(0);//spacer
-	mMessageFactory->addString(mainVar);
-
-	//object 1
-	if(tu)
-	{
-		mMessageFactory->addUint64(tu->getId());
-		mMessageFactory->addString(tufile.getAnsi());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(tudir.getAnsi());
-		mMessageFactory->addString(tuCustom.getUnicode16());
-	}
-	else
-	{
-		mMessageFactory->addUint64(0);
-		mMessageFactory->addString(BString("").getAnsi());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(BString("").getAnsi());
-		mMessageFactory->addUint32(0);//
-	}
-
-	//object 2		
-	if(tt)
-	{
-		mMessageFactory->addUint64(tt->getId());
-		mMessageFactory->addString(ttfile.getAnsi());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(ttdir.getAnsi());
-		mMessageFactory->addString(ttCustom.getUnicode16());
-	}
-	else
-	{
-		mMessageFactory->addUint64(0);
-		mMessageFactory->addString(BString("").getAnsi());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(BString("").getAnsi());
-		mMessageFactory->addUint32(0);//spacer
-	}
-
-	//object 3
-	if(to)
-	{
-		mMessageFactory->addUint64(to->getId());
-		mMessageFactory->addString(tofile.getAnsi());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(todir.getAnsi());
-		mMessageFactory->addString(toCustom.getUnicode16());
-		//mMessageFactory->addString(to->getCustomName().getUnicode16());
-	}
-	else
-	{
-		mMessageFactory->addUint64(0);
-		mMessageFactory->addString(BString("").getAnsi());
-		mMessageFactory->addUint32(0);//spacer
-		mMessageFactory->addString(BString("").getAnsi());
-		mMessageFactory->addUint32(0);//spacer
-	}
-
-	mMessageFactory->addInt32(di);
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint8(0);
-
-	if(realSize % 2)
-		mMessageFactory->addUint8(0);
-
 	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
 	return(true);

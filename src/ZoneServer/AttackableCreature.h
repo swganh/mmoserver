@@ -228,6 +228,8 @@ class AttackableCreature : public NPCObject
 		bool	isWarningTauntSent(void) const;
 		void	setWarningTauntSent(void);
 		void	clearWarningTauntSent(void);
+		bool	isAttackedTauntSent(void) const;
+		void	setAttackedTauntSent(void);
 
 		const BString getAttackStartMessage(void) const {return mAttackStartMessage;}
 		const BString getAttackWarningMessage(void) const {return mAttackWarningMessage;}
@@ -345,6 +347,7 @@ private:
 		uint64	mAssistedTargetId;
 		uint64	mLairNeedAssistanceWithId;
 		bool		mAttackTauntSent;
+		bool		mAttackedTauntSent;
 		bool		mHoming;
 		bool		mIsAssistingLair;
 		bool		mWarningTauntSent;

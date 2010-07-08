@@ -351,6 +351,24 @@ void MessageFactory::addDouble(double data)
 
 //======================================================================================================================
 
+void MessageFactory::addString(const std::string& string)
+{
+	BString str(string.c_str());
+	addString(str);
+//return;
+}
+
+//======================================================================================================================
+
+void MessageFactory::addString(const std::wstring& string)
+{
+	BString str(string.c_str());
+	addString(str);
+//return;
+}
+
+//======================================================================================================================
+
 void MessageFactory::addString(const char* cstring)
 {
 	BString str;
@@ -415,7 +433,7 @@ void MessageFactory::addString(const BString& data)
 
 //======================================================================================================================
 
-void MessageFactory::addData(int8* data, uint16 len)
+void MessageFactory::addData(const int8* data, uint16 len)
 {
 	// Make sure we've called StartMessage()
 	assert(mCurrentMessage && "Must call StartMessage before adding data");
@@ -425,6 +443,21 @@ void MessageFactory::addData(int8* data, uint16 len)
 
 	// Insert our data and move our end pointer.
 	memcpy(mCurrentMessageEnd, data, len);
+	mCurrentMessageEnd += len;
+}
+
+//======================================================================================================================
+
+void MessageFactory::addData(const uint8_t* data, uint16 len)
+{
+	// Make sure we've called StartMessage()
+	assert(mCurrentMessage && "Must call StartMessage before adding data");
+
+	// Adjust start bounds if necessary.
+	_adjustHeapStartBounds(len);
+
+	// Insert our data and move our end pointer.
+	memcpy(reinterpret_cast<uint8_t*>(mCurrentMessageEnd), data, len);
 	mCurrentMessageEnd += len;
 }
 

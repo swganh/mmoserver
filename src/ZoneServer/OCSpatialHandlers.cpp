@@ -106,13 +106,24 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 
 	chatMessage.convert(BSTRType_Unicode16);
 
+    // Convert the chat elements to logical types before passing them on.
+    uint64_t chat_target_id;
+	try	{
+		chat_target_id	= boost::lexical_cast<uint64>(chatElement[0]);
+	} catch(boost::bad_lexical_cast &) {
+		chat_target_id	= 0;
+	}
+		
+	SocialChatType chat_type_id = static_cast<SocialChatType>(atoi(chatElement[1]));
+	MoodType mood_id = static_cast<MoodType>(atoi(chatElement[2]));
+
 	if (!gWorldConfig->isInstance())
 	{
-		gMessageLib->sendSpatialChat(playerObject,chatMessage,chatElement);
+        gMessageLib->SendSpatialChat(playerObject, chatMessage.getUnicode16(), NULL, chat_target_id, 0x32, chat_type_id, mood_id);
 	}
 	else
 	{
-		gMessageLib->sendSpatialChat(playerObject,chatMessage,chatElement, playerObject);
+        gMessageLib->SendSpatialChat(playerObject, chatMessage.getUnicode16(), playerObject, chat_target_id, 0x32, chat_type_id, mood_id);
 	}
 }
 

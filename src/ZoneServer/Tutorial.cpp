@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "WaypointObject.h"
 #include "SendSystemMailMessage.h"
+#include "SocialChatTypes.h"
 
 #include "Utils/EventHandler.h"
 #include "MessageLib/MessageLib.h"
@@ -295,8 +296,8 @@ void Tutorial::scriptSystemMessage(std::string message)
 {
 	if (mPlayerObject && mPlayerObject->isConnected())
 	{
-    std::wstring msg(message.begin(), message.end());
-		gMessageLib->sendSystemMessage(mPlayerObject, msg);
+        std::wstring msg(message.begin(), message.end());
+        gMessageLib->SendSystemMessage(msg, mPlayerObject);
 	}
 }
 
@@ -646,33 +647,8 @@ void Tutorial::spatialChat(uint64 targetId, std::string chatMsg)
 	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
 	if (mPlayerObject && mPlayerObject->isConnected() && npc)
 	{
-		// Use regex to check if the chat string matches the stf string format.
-		static const wregex pattern(L"@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
-		wsmatch result;
-      
-		std::wstring npc_chat;
-
-		npc_chat = std::wstring(chatMsg.begin(), chatMsg.end());
-		regex_search(npc_chat, result, pattern);
-
-		// If not an exact match (2 sub-patterns + the full string = 3 elements) it's just a pain text string.
-      if (result.size() != 3) 
-	  {     
-			  char quack[5][32];
-			  memset(quack, 0, sizeof(quack));
-			  gMessageLib->sendSpatialChat(npc, chatMsg.c_str(), quack, mPlayerObject);
-      }
-	  else 
-	  {
-        // This is an STF dialog send it out appropriately.
-        std::wstring filename = result[1].str();
-        std::wstring varname  = result[2].str();	
-
-        // If there was a match send it out as an stf spatial message.
-        gMessageLib->sendSpatialChat(npc, mPlayerObject, L"", 
-          std::string(filename.begin(), filename.end()).c_str(), 
-          std::string(varname.begin(), varname.end()).c_str());
-      }
+        std::wstring message(chatMsg.begin(), chatMsg.end());
+        gMessageLib->SendSpatialChat(npc, message, mPlayerObject, 0);
 	}
 }
 
@@ -684,39 +660,12 @@ void Tutorial::spatialChatShout(uint64 targetId, std::string chatMsg)
 {
 	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
 	if (mPlayerObject && mPlayerObject->isConnected() && npc)
-	{
-		// Use regex to check if the chat string matches the stf string format.
-		static const wregex pattern(L"@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
-		wsmatch result;
-      
-		std::wstring npc_chat;
+	{        
+        std::wstring message(chatMsg.begin(), chatMsg.end());
 
-		npc_chat = std::wstring(chatMsg.begin(), chatMsg.end());
-		regex_search(npc_chat, result, pattern);
-
-		// If not an exact match (2 sub-patterns + the full string = 3 elements) it's just a pain text string.
-      if (result.size() != 3) 
-	  {     
-			  char quack[5][32];
-			  memset(quack, 0, sizeof(quack));
-			  gMessageLib->sendSpatialChat(npc, chatMsg.c_str(), quack, mPlayerObject);
-      }
-	  else 
-	  {
-        // This is an STF dialog send it out appropriately.
-        std::wstring filename = result[1].str();
-        std::wstring varname  = result[2].str();	
-
-		char quack[5][32];
-		memset(quack, 0, sizeof(quack));
-		quack[1][0] = '8';
-		quack[1][1] = '0';
-
-        // If there was a match send it out as an stf spatial message.
-        gMessageLib->sendSpatialChat(npc, mPlayerObject, quack, L"", 
-          std::string(filename.begin(), filename.end()).c_str(), 
-          std::string(varname.begin(), varname.end()).c_str());
-      }
+        // 80 is shout
+        // @todo: need an enum of all potential chat types
+        gMessageLib->SendSpatialChat(npc, message, mPlayerObject, 0, 0x32, kSocialChatShout);
 	}
 }
 

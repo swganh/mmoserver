@@ -230,8 +230,6 @@ void PlayerObject::onSample(const SampleEvent* event)
 		
 		uint32 playerBF = mHam.getBattleFatigue();
 		
-		//TODO
-		//please note that bf alterations should be calculated by the ham object!!!!!!
 		uint32 woundDmg = 50*(1 + (playerBF/100)) + (50*(1 + (resPE/1000)));
 		uint32 bfDmg    = static_cast<uint32>(0.075*resPE);
 		uint32 hamReduc = 100*(2+ (resPE/1000));
@@ -330,7 +328,7 @@ void PlayerObject::onSample(const SampleEvent* event)
       gMessageLib->sendSystemMessage(this,L"","survey","sample_failed","","",resName.getUnicode16());
 		}
 
-		else if((dieRoll > 91)&&(dieRoll < 96))
+		else if((dieRoll == 98))
 		{
 			//EVENT WINDOW CASE
 			int32 eventRoll = int(gRandom->getRand()%2)+1;
@@ -388,13 +386,14 @@ void PlayerObject::onSample(const SampleEvent* event)
 				getSampleData()->mSampleNodeFlag = false;
 			}
 			else
-			if(dieRoll >= 96) 
+			if(dieRoll == 100) 
 			{
 				if(getSampleData()->mSampleGambleFlag)
 				{
 					gMessageLib->sendSystemMessage(this,L"","survey","gamble_success");
 					sampleAmount = (static_cast<uint32>(3*maxSample));
                     sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
+					gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName.getUnicode16(),sampleAmount);
 					getSampleData()->mSampleGambleFlag = false;
 					getSampleData()->mSampleEventFlag = false;
 				}
@@ -404,6 +403,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 					sampleAmount = (static_cast<uint32>(2*maxSample));
                     sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
                     gMessageLib->sendSystemMessage(this,L"","survey","critical_success","","",resName.getUnicode16());
+					gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName.getUnicode16(),sampleAmount);
 				}
 			} 
 			else 

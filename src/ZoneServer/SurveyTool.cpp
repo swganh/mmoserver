@@ -84,15 +84,8 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		case radId_itemUse:
 		{
 			//We only need to check this when using the tool's functions!
-			//are we swimming ??
-			//slow query - use for building placement only
-			//if(Heightmap::Instance()->hasWater(playerObject->mPosition.x,playerObject->mPosition.z))
-			//{	
-			//	gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_swimming");
-			//	return;
-			//}
 
-			if(playerObject->getPerformingState() != PlayerPerformance_None)
+			if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->isDead())
 			{
 				gMessageLib->sendSystemMessage(playerObject,L"","error_message","survey_cant");
 				return;
@@ -101,7 +94,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			// verify we are able to use this
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"You lack the skill to use this tool.");
+				gMessageLib->sendSystemMessage(playerObject,L"error_message","insufficient_skill");
 
 				return;
 			}
@@ -131,7 +124,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		{
 			if(!(playerObject->verifyAbility(opOCsurvey)))
 			{
-				gMessageLib->sendSystemMessage(playerObject,L"You lack the skill to use this tool.");
+				gMessageLib->sendSystemMessage(playerObject,L"error_message","insufficient_skill");
 
 				return;
 			}

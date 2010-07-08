@@ -62,7 +62,6 @@ class PlayerObject;
 class CraftingTool;
 class Item;
 class SpawnPoint;
-class ArtisanHeightmapAsyncContainer;
 class StructureHeightmapAsyncContainer;
 
 typedef std::set<Object*>				ObjectSet;
@@ -158,10 +157,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 
 		// inherited callbacks
 		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		virtual void			heightMapCallback(HeightmapAsyncContainer *ref);
-
-		void HeightmapArtisanHandler(HeightmapAsyncContainer* ref);
-
+		
 		// Anh_Utils::Clock*		getClock(){ return mClock; }
 
 		// object
@@ -418,16 +414,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_handlePlayHoloEmote(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		//artisan
-		void	_handleRequestCraftingSession(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleCancelCraftingSession(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleSelectDraftSchematic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleNextCraftingStage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleCreatePrototype(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleCreateManufactureSchematic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleRequestSurvey(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleSurvey(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleRequestCoreSample(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleSample(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		// in ArtisanManager and CraftingManager
 
 		// scout
 		void	_handleHarvestCorpse(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);

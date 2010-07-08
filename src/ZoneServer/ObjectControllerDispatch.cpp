@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
+#include "CraftingManager.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
@@ -183,25 +184,25 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 
 					case opCraftFillSlot:
 					{
-						ObjController->handleCraftFillSlot(message);
+						gCraftingManager->handleCraftFillSlot(object,message);
 					}
 					break;
 
 					case opCraftEmptySlot:
 					{
-						ObjController->handleCraftEmptySlot(message);
+						gCraftingManager->handleCraftEmptySlot(object, message);
 					}
 					break;
 
 					case opCraftExperiment:
 					{
-						ObjController->handleCraftExperiment(message);
+						gCraftingManager->handleCraftExperiment(object,message);
 					}
 					break;
 
 					case opCraftCustomization:
 					{
-						ObjController->handleCraftCustomization(message);
+						gCraftingManager->handleCraftCustomization(object,message);
 					}
 					break;
 

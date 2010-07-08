@@ -346,7 +346,9 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 	{
 		update_count++;
 		body.Write<uint16_t>(0x07);  
-        body.Write<std::wstring>(missionObject->getCreator().getUnicode16());
+		BString ha(missionObject->getCreator());
+		ha.convert(BSTRType_Unicode16);
+        body.Write<std::wstring>(ha.getUnicode16());
 	}
 
 	//vID 14 - Mission Type

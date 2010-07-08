@@ -639,7 +639,7 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
 	name.convert(BSTRType_ANSI);
 	sprintf(sql,"CALL sp_WaypointUpdate('");
 	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
+	sqlPointer += mDatabase->Escape_String(sqlPointer, name.getAnsi() ,name.getLength());
 	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)",wpId, coords.x, coords.y, coords.z, planetId, activeStatus);
 	strcat(sql,restStr);
 

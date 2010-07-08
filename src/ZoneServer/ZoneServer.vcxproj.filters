@@ -440,9 +440,6 @@
     <ClCompile Include="OCGroupHandlers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OCHeightmapCallback.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OCMarksmanHandlers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

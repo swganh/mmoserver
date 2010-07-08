@@ -20,7 +20,7 @@ while (1) do
   else
 	type = 0;
 	updateInterval = 600000;
-  end if;
+  end;
   
 
   wm:updateWeather(cloudX,cloudY,cloudZ,type);

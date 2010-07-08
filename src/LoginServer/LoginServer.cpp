@@ -83,6 +83,9 @@ mNetworkManager(0)
   // In case of a crash, we need to cleanup the DB a little.
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET authenticated=0 WHERE authenticated=1;"));
 
+    //and session_key now as well
+    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET session_key='';"));
+
 	// Instant the messageFactory. It will also run the Startup ().
 	(void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced. 
 												// The code itself here is not needed, since it will instance itself at first use.

@@ -57,7 +57,9 @@ enum MessageOpcodes
 	opEnumerateCharacterId					= 0x65EA4574,
 	opLoginClientId							= 0x41131f96,
 	opDeleteCharacterMessage				= 0xe87ad031,
-	opDeleteCharacterReplyMessage			= 0x8268989b
+	opDeleteCharacterReplyMessage			= 0x8268989b,
+    opLauncherSessionOpen                   = 0x486f6f6e,
+    opLauncherSessionCreated                = 0x2e4e6574
 };
 
 

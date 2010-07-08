@@ -41,6 +41,8 @@ enum LoginClientState
   LCSTATE_QueryCharacterList,
   LCSTATE_DeleteCharacter,
   LCSTATE_UpdateServerStatus,
+  LCSTATE_RetrieveAccountId,
+  LCSTATE_RetrieveSessionKey,
   LCSTATE_End
 };
 

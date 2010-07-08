@@ -396,7 +396,7 @@ void PlayerObject::onSample(const SampleEvent* event)
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_success"), this);
 					sampleAmount = (static_cast<uint32>(3*maxSample));
                     sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
-					gMessageLib->sendSystemMessage(this,L"","survey","sample_located","","",resName.getUnicode16(),sampleAmount);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), this);
 					getSampleData()->mSampleGambleFlag = false;
 					getSampleData()->mSampleEventFlag = false;
 				}

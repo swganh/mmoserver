@@ -453,7 +453,7 @@ bool StructureManager::checkNoBuildRegion(PlayerObject* player)
 	pVec.z = player->mPosition.z;
 	if (checkNoBuildRegion(pVec) ||!checkCityRadius(player))
 	{
-		gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("faction_perk", "no_build_area"), player);
 		return true;
 	}
 
@@ -1596,7 +1596,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 	//check the region whether were allowed to build
 	if(checkNoBuildRegion(pVec) || !checkCityRadius(player))
 	{
-		gMessageLib->sendSystemMessage(player,L"","faction_perk","no_build_area");
+        gMessageLib->SendSystemMessage(::common::OutOfBand("faction_perk", "no_build_area"), player);
 		return false;
 	}
 
@@ -1681,7 +1681,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 				// TODO: Enum for skills
 				if(!player->checkSkill(623)) //novice Politician
 				{
-					gMessageLib->sendSystemMessage(player,L"","player_structure","place_cityhall");
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
 					break;
 				}
 			}

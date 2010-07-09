@@ -523,7 +523,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
 			if (playerAttacker && playerAttacker->isConnected())
 			{
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "prose_target_incap", 0, defender->getId(), 0, 0, 0.0f), playerAttacker);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_target_incap", 0, defender->getId(), 0), playerAttacker);
 			}
 		}
 		if (defender->isDead())
@@ -531,7 +531,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
 			if (playerAttacker && playerAttacker->isConnected())
 			{
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "prose_target_dead", 0, defender->getId(), 0, 0, 0.0f), playerAttacker);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_target_dead", 0, defender->getId(), 0), playerAttacker);
 			}
 		}
 	}

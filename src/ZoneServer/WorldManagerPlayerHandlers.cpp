@@ -140,6 +140,10 @@ void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
 void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, CharacterLoadingContainer* clContainer)
 {
 	PlayerObject* playerObject			= getPlayerByAccId(accId);
+	if(!playerObject){
+		gLogger->log(LogManager::DEBUG,"WorldManager::savePlayer could not find player with AccId:%u, save aborted.",accId);
+		return;
+	}
 
 	// WMQuery_SavePlayer_Position is the query handler called by the buffmanager when all the buffcallbacks are finished
 	// we prepare the asynccontainer here already
@@ -159,14 +163,15 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 	//which will return its callback to the worldmanager
 
 	//if no buff was there to be saved we will continue directly
-	if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
-	{
-
-		// position save will be called by the buff callback if there is any buff
-		mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-							,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-							,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-							,mZoneId,playerObject->getJediState(),playerObject->getId());
+	if(playerObject && playerObject->isConnected() && !playerObject->isBeingDestroyed()){
+		if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
+			{
+				// position save will be called by the buff callback if there is any buff
+				mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+									,mZoneId,playerObject->getJediState(),playerObject->getId());
+			}
 	}
 
 }

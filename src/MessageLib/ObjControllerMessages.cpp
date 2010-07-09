@@ -165,6 +165,7 @@ void MessageLib::SendSpatialEmote(CreatureObject* source, uint32_t emote_id, uin
 	mMessageFactory->addUint64(source->getId());
 	mMessageFactory->addUint32(0); // This is the payload size, always 0
 	mMessageFactory->addUint64(source->getId());
+	mMessageFactory->addUint64(target_id);
     mMessageFactory->addUint32(emote_id);
     mMessageFactory->addUint8(emote_flags);
         
@@ -172,92 +173,6 @@ void MessageLib::SendSpatialEmote(CreatureObject* source, uint32_t emote_id, uin
     SendSpatialToInRangeUnreliable_(message, source);
 }
 
-//======================================================================================================================
-//
-// Spatial Emote
-//
-
-void MessageLib::sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget)
-{
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opSpatialEmote);
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint32(0);                    // unknown
-	mMessageFactory->addUint64(srcObject->getId());
-	mMessageFactory->addUint64(emoteTarget);
-	mMessageFactory->addUint16(emoteId);
-	mMessageFactory->addUint8(0);					  // unknown
-	mMessageFactory->addUint16(sendText);
-
-	Message* newMessage = mMessageFactory->EndMessage();
-
-	const PlayerObjectSet* const inRangePlayers	= srcObject->getKnownPlayers();
-	PlayerObjectSet::const_iterator it	= inRangePlayers->begin();
-	uint32 loweredNameCrc			= 0;
-	BString loweredName;
-	Message* clonedMessage;
-	bool crcValid = false;
-
-	// Get the source for this emote.
-	if(srcObject->getType() == ObjType_Player)
-	{
-		PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(srcObject);
-
-		if(srcPlayer->isConnected())
-		{
-			loweredName = srcPlayer->getFirstName().getAnsi();
-			loweredName.toLower();
-			loweredNameCrc = loweredName.getCrc();
-			crcValid = true;
-		}
-	}
-
-	while(it != inRangePlayers->end())
-	{
-		const PlayerObject* const player = (*it);
-
-		// If player online, send emote.
-		if(player->isConnected())
-		{
-			if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 			{
-				// I am at receivers ignore list.
-				// Don't send any message.
-			}
-			else
-			{
-				// clone our message
-				mMessageFactory->StartMessage();
-				mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-				clonedMessage = mMessageFactory->EndMessage();
-
-				// replace the target id
-				int8* data = clonedMessage->getData() + 12;
-				*((uint64*)data) = player->getId();
-
-				(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-			}
-		}
-		++it;
-	}
-
-	// if we are a player, echo it back to ourself
-	if(srcObject->getType() == ObjType_Player)
-	{
-		PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(srcObject);
-
-		if(srcPlayer->isConnected())
-		{
-			(srcPlayer->getClient())->SendChannelAUnreliable(newMessage,srcPlayer->getAccountId(),CR_Client,5);
-			return;
-		}
-	}
-
-	mMessageFactory->DestroyMessage(newMessage);
-
-}
 
 //======================================================================================================================
 //

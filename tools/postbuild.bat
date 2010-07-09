@@ -23,9 +23,9 @@ if not exist %1bin\%2\logs (
 
 xcopy %1data\script %1bin\%2\script /I /Y /s
 
-if not exist %1bin\%2\*.hmpw (
+if not exist %1bin\%2\heightmaps (
 	if exist %1data\heightmaps (
-		xcopy %1data\heightmaps\*.hmpw %1bin\%2 /I /Y /s
+		xcopy %1data\heightmaps\*.hmpw %1bin\%2\heightmaps /I /Y /s
 	)
 )
 

@@ -424,7 +424,10 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 		body.Write<float>(missionObject->getWaypoint()->getCoords().z);  //Z
 		body.Write<uint64_t>(0); //Possible Cell ID
 		body.Write<uint32_t>(missionObject->getWaypoint()->getPlanetCRC()); //Planet CRC
-		body.Write<std::wstring>(missionObject->getWaypoint()->getName().getUnicode16());
+		//
+		BString ha(missionObject->getWaypoint()->getName());
+		ha.convert(BSTRType_Unicode16);
+		body.Write<std::wstring>(ha.getUnicode16());
 		body.Write<uint64_t>(missionObject->getWaypoint()->getId());	 //waypoint id
 		body.Write<uint8_t>(missionObject->getWaypoint()->getWPType());   //waypoint type
 		body.Write<uint8_t>(missionObject->getWaypoint()->getActive());	 //activated flag

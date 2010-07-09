@@ -120,8 +120,6 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const Ou
 }
 
 void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
-    Message* message;
-
     mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opObjControllerMessage);
 	mMessageFactory->addUint32(0x0000000B);
@@ -153,11 +151,26 @@ void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const s
 
 	mMessageFactory->addUint32(0);
     
-	message = mMessageFactory->EndMessage();
-    
-    SendSpatialToInRangeUnreliable_(message, speaking_object, player_object);
+    Message* message(mMessageFactory->EndMessage());
+    SendSpatialToInRangeUnreliable_(mMessageFactory->EndMessage(), speaking_object, player_object);
 }
 
+
+void MessageLib::SendSpatialEmote(CreatureObject* source, uint32_t emote_id, uint64_t target_id, uint8_t emote_flags) {
+    mMessageFactory->StartMessage();
+
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opSpatialEmote);
+	mMessageFactory->addUint64(source->getId());
+	mMessageFactory->addUint32(0); // This is the payload size, always 0
+	mMessageFactory->addUint64(source->getId());
+    mMessageFactory->addUint32(emote_id);
+    mMessageFactory->addUint8(emote_flags);
+        
+    Message* message(mMessageFactory->EndMessage());
+    SendSpatialToInRangeUnreliable_(message, source);
+}
 
 //======================================================================================================================
 //

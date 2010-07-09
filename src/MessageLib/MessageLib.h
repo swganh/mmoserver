@@ -252,6 +252,16 @@ public:
      */
     void SendSpatialChat(CreatureObject* const speaking_object, const common::OutOfBand& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
     
+    /**
+     * Sends a spatial emote (such as a player or NPC cheering).
+     *
+     * @param source This is the CreatureObject (an NPC or player) that is performing the spatial emote.
+     * @param emote_id This is the id of the emote the source CreatureObject is performing.
+     * @param target_id This is optional value specifies a target for the source CreatureObject to direct the emote towards.
+     * @param emote_flags This determines whether the source CreatureObject performs an animation, displays a text message, or both. 
+     */
+    void SendSpatialEmote(CreatureObject* source, uint32_t emote_id, uint64_t target_id = 0, uint8_t emote_flags = 0x01);
+
 	void				sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint16 sendText,uint64 emoteTarget);
 	void				sendCreatureAnimation(CreatureObject* srcObject,BString animation);
 

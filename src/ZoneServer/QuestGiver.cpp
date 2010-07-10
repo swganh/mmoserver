@@ -136,7 +136,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 					if (inventory->itemExist(player->getTutorial()->getQuestWeaponFamily(), player->getTutorial()->getQuestWeaponType()))
 					{
 						status = false;
-						std::wstring message(L"@newbie_convo:convo_4_repeat");
+						std::wstring message(L"@newbie_tutorial/newbie_convo:convo_4_repeat");
 						if (!gWorldConfig->isInstance())
 						{
 							gMessageLib->SendSpatialChat(this, message);

@@ -273,3 +273,35 @@ void ResourceContainer::updateWorldPosition()
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
 	
 }
+
+void ResourceContainer::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount)
+{
+	RadialMenu* radial	= new RadialMenu();
+	uint8 i = 1;
+	uint8 u = 1;
+
+	// any object with callbacks needs to handle those (received with menuselect messages) !
+	radial->addItem(i++,0,radId_split,radAction_Default,"");
+
+	radial->addItem(i++,0,radId_examine,radAction_Default,"");
+
+	radial->addItem(i++,0,radId_itemPickup,radAction_Default,"");
+	
+	u = i;
+	radial->addItem(i++,0,radId_itemMove,radAction_Default, "");	
+	radial->addItem(i++,u,radId_itemMoveForward,radAction_Default, "");//radAction_ObjCallback
+	radial->addItem(i++,u,radId_ItemMoveBack,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemMoveUp,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemMoveDown,radAction_Default, "");
+	
+	u = i;
+	radial->addItem(i++,0,radId_itemRotate,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
+	radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
+
+  
+	RadialMenuPtr radialPtr(radial);
+	mRadialMenu = radialPtr;
+
+
+}

@@ -112,7 +112,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 				// av->setCurrentPage(8);	// "Move along."
 				// gLogger->log(LogManager::DEBUG,"QuestGiver::preProcessfilterConversation: Returned modified pagelink %u", 8);
 				status = false;
-				std::wstring message(L"@newbie_convo:trooper_move_along");
+				std::wstring message(L"@newbie_tutorial/newbie_convo:trooper_move_along");
 				if (!gWorldConfig->isInstance())
 				{
 					gMessageLib->SendSpatialChat(this, message);
@@ -157,7 +157,7 @@ bool QuestGiver::preProcessfilterConversation(ActiveConversation* av, Conversati
 			else if (subState >= 19)	// We have killed the pirate.
 			{
 				status = false;
-				std::wstring message(L"@newbie_convo:good_job");
+				std::wstring message(L"@newbie_tutorial/newbie_convo:good_job");
 				if (!gWorldConfig->isInstance())
 				{
 					gMessageLib->SendSpatialChat(this, message);

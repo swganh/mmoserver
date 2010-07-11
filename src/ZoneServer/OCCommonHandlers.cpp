@@ -1632,16 +1632,6 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 
 	player->togglePlayerCustomFlagOn(PlayerCustomFlag_LogOut);	
 
-	//// we need to kneel
-	//player->setPosture(CreaturePosture_Crouched);
-	//player->getHam()->updateRegenRates();
-	//player->toggleStateOff(CreatureState_SittingOnChair);
-	//player->updateMovementProperties();
-
-	//gMessageLib->sendUpdateMovementProperties(player);
-	//gMessageLib->sendPostureAndStateUpdate(player);
-	//gMessageLib->sendSelfPostureUpdate(player);
-
 	uint32 logout		= gWorldConfig->getConfiguration<uint32>("Player_LogOut_Time",(uint32)30);
 	uint32 logoutSpacer = gWorldConfig->getConfiguration<uint32>("Player_LogOut_Spacer",(uint32)5);
 

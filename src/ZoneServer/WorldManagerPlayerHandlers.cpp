@@ -159,21 +159,34 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 	asyncContainer->mLogout			=   mLogout;
 	asyncContainer->clContainer		=	clContainer;
 
-	//start by saving the buffs the buffmanager will deal with the buffspecific db callbacks and start the position safe at their end
-	//which will return its callback to the worldmanager
+	switch (mLogout)
+	{
+		case WMLogOut_LogOut:
+		case WMLogOut_Char_Load:
+			mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+									,mZoneId,playerObject->getJediState(),playerObject->getId());
+			break;
 
-	//if no buff was there to be saved we will continue directly
-	if(playerObject && playerObject->isConnected() && !playerObject->isBeingDestroyed()){
-		if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
-			{
-				// position save will be called by the buff callback if there is any buff
+		case WMLogOut_No_LogOut:
+		case WMLogOut_Zone_Transfer:
+			//start by saving the buffs the buffmanager will deal with the buffspecific db callbacks and start the position safe at their end
+			//which will return its callback to the worldmanager
+			//if no buff was there to be saved we will continue directly
+		if(playerObject && playerObject->isConnected() && !playerObject->isBeingDestroyed()){
+			if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
+				{
+					// position save will be called by the buff callback if there is any buff
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
 									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
 									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 									,mZoneId,playerObject->getJediState(),playerObject->getId());
+				}
 			}
+		default:
+			gLogger->log(LogManager::DEBUG,"We should never get in here, make sure to call savePlayer with the enum WMLogOut");
 	}
-
 }
 
 //======================================================================================================================

@@ -174,8 +174,28 @@ void Food::handleFoodUse(Object* srcObject)
         gMessageLib->SendSystemMessage(OutOfBand("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
 
 		playerObject->getStomach()->incFood(filling);
-
-		gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(548),playerObject->mPosition,playerObject);	
+		// the reptile eat client files do absolutely nothing, 
+		// so there is basically wookiee and everyone else
+		switch (playerObject->getRaceId())
+		{
+			// wookiee
+			case 4:
+				if (playerObject->getGender())
+					// female
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(545),playerObject->mPosition,playerObject);	
+				else
+					// male
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(552),playerObject->mPosition,playerObject);
+				break;
+			default:
+				if (playerObject->getGender())
+					// female
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),playerObject->mPosition,playerObject);	
+				else
+					// male
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),playerObject->mPosition,playerObject);
+				break;
+		}
 	}
 
 	if(this->hasAttribute("stomach_drink"))

@@ -119,7 +119,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 	//make sure objects arnt added several times!!!!
 	if(getObjectById(key))
 	{
-		gLogger->log(LogManager::NOTICE,"WorldManager::addObject Object(%u) already exists added several times or ID messup ???", key);
+		gLogger->log(LogManager::NOTICE,"WorldManager::addObject Object(%I64u) already exists added several times or ID messup ???", key);
 		return false;
 	}
 

@@ -849,9 +849,9 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 	// iterate our knowns
 	PlayerObject*				player			= dynamic_cast<PlayerObject*>(mObject);
 	ObjectSet*					knownObjects	= player->getKnownObjects();
-	ObjectSet::const_iterator			objIt			= knownObjects->begin();
+	ObjectSet::iterator			objIt			= knownObjects->begin();
 	PlayerObjectSet*			knownPlayers	= player->getKnownPlayers();
-	PlayerObjectSet::const_iterator	playerIt		= knownPlayers->begin();
+	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
 
 	const uint32 objectDestroyLimit = 5000;
 
@@ -902,6 +902,10 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 	uint32 messageCount = 0;
 
 	// update objects
+	//for(ObjectSet::const_iterator	objIt	= knownObjects->begin(); objIt != knownObjects->end(); objIt++)
+	
+	//we access the list above so it needs to be reset to the beginning
+	objIt		= knownObjects->begin();
 	while(objIt != knownObjects->end())
 	{
 		Object* object = (*objIt);
@@ -910,66 +914,9 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 		if(inRangeObjects->find(object) == inRangeObjects->end())
 		{
 
-			if(object->getType() == ObjType_Structure)
+			if(object->getType() == ObjType_Structure)//ObjType_Tangible
 			{
-				/*
-				if(FactoryObject* factory = dynamic_cast<FactoryObject*>(object))
-				{
-					//delete the hoppers contents
-					TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
-					if(hopper)
-					{
-							ObjectIDList*			ol = hopper->getObjects();
-							ObjectIDList::iterator	it = ol->begin();
-
-							while(it != ol->end())
-							{
-								TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-								if(!tO)
-								{
-									assert(false && "ObjectController::_destroyOutOfRangeObjects WorldManager unable to find TangibleObject instance");
-								}
-
-								tO->removeKnownObject(player);
-								player->removeKnownObject(tO);
-								gMessageLib->sendDestroyObject(tO->getId(),player);
-								it++;
-							}
-					
-							hopper->removeKnownObject(player);
-							player->removeKnownObject(hopper);
-							
-							gMessageLib->sendDestroyObject(hopper->getId(),player);					
-					}
-
-					hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
-					if(hopper)
-					{
-							ObjectIDList*			ol = hopper->getObjects();
-							ObjectIDList::iterator	it = ol->begin();
-
-							while(it != ol->end())
-							{
-								TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-								if(!tO)
-								{
-									assert(false && "ObjectController::_destroyOutOfRangeObjects WorldManager unable to find TangibleObject instance");
-								}
-
-								//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-								tO->removeKnownObject(player);
-								player->removeKnownObject(tO);
-								gMessageLib->sendDestroyObject(tO->getId(),player);
-								
-								it++;
-							}
-					
-							hopper->removeKnownObject(player);
-							player->removeKnownObject(hopper);
-							gMessageLib->sendDestroyObject(hopper->getId(),player);					
-					}
-					
-				}*/
+				
 			}
 			// send a destroy to us
 			gMessageLib->sendDestroyObject(object->getId(),player);

@@ -1918,7 +1918,7 @@ void MessageLib::sendIDChangeMessage(PlayerObject* targetObject,PlayerObject* sr
 
 void MessageLib::sendIDEndMessage(PlayerObject* targetObject,PlayerObject* srcObject,PlayerObject* otherObject, BString hair, uint32 iDsession,uint32 moneyOffered, uint32 moneyDemanded,uint32 unknown2, uint8 flag2, uint8 flag3,uint32 counter1)
 {
-	if(!(targetObject->isConnected()))
+	if((!targetObject) || (!targetObject->isConnected()))
 		return;
 
 	//thats send in both directions

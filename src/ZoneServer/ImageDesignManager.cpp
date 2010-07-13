@@ -673,14 +673,16 @@ bool EntertainerManager::handleImagedesignTimeOut(CreatureObject* designer)
 	}
 
 	PlayerObject* customer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(imageDesigner->getIDPartner()));
-	//gMessageLib->sendIDEndMessage(,);
-	gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,"", 0,0, 0,0,0,0,0);
+	
+	if(customer)
+	{
+		gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,"", 0,0, 0,0,0,0,0);
+		customer->setIDPartner(0);
+		customer->SetImageDesignSession(IDSessionNONE);
+	}
 
 	imageDesigner->setIDPartner(0);
-	customer->setIDPartner(0);
 	imageDesigner->SetImageDesignSession(IDSessionNONE);
-	customer->SetImageDesignSession(IDSessionNONE);
-
 	return false;
 
 }

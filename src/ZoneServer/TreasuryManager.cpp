@@ -123,7 +123,7 @@ void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
 		if(Bank* bank	= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
 		{
 			int32 credits = inventory->getCredits();
-			if(credits)
+			if(credits > 0)
 			{
 				// bank credits = bank + inventory.
 				// inventory = 0
@@ -139,6 +139,11 @@ void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
                 
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_deposit_success", 0, 0, 0, credits), playerObject);
 			}
+			else
+			{
+				//There has been an error during an attempt to deposit funds to your bank account. Verify you have sufficient funds for the desired transaction.
+				gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "bank_deposit"), playerObject);
+			}
 		}
 	}
 }
@@ -151,7 +156,7 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
 	{
 		if(Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
 		{
-			if(bank->getCredits())
+			if(bank->getCredits() > 0)
 			{
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_withdraw_success", 0, 0, 0, bank->getCredits()), playerObject);
 
@@ -167,6 +172,11 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
 				//send the appropriate deltas.
 				gMessageLib->sendInventoryCreditsUpdate(playerObject);
 				gMessageLib->sendBankCreditsUpdate(playerObject);
+			}
+			else
+			{
+				//There has been an error during an attempt to withdraw funds from your bank account. Verify you have sufficient funds for the desired transaction.
+				gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "bank_withdraw"), playerObject);
 			}
 		}
 	}

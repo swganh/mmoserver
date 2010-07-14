@@ -146,6 +146,8 @@ class InLoadingContainer
 		DispatchClient*			mClient;
 		uint32					mLoadCounter;
 		bool					mManSchem;
+		bool					mDPad;
+		bool					mInventory;
 };
 
 //=============================================================================

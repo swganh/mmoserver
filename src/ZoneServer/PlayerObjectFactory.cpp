@@ -231,53 +231,6 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 		}
 		break;
 
-		case POFQuery_DenyService:
-		{
-			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
-			uint64 id;
-
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
-
-			uint64 count = result->getRowCount();
-
-			for(uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(binding,&id);
-				playerObject->mDenyAudienceList.push_back(id);
-			}
-
-			mDatabase->DestroyDataBinding(binding);
-
-
-			// query ignorelist
-			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_HoloEmotes,asyncContainer->mClient);
-			asContainer->mObject = playerObject;
-
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %I64u",playerObject->getId());
-		}
-		break;
-
-		case POFQuery_HoloEmotes:
-		{
-			PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
-
-
-			DataBinding* binding = mDatabase->CreateDataBinding(2);
-			binding->addField(DFT_uint32,offsetof(PlayerObject,mHoloEmote),4,0);
-			binding->addField(DFT_int32,offsetof(PlayerObject,mHoloCharge),4,1);
-
-			uint64 count = result->getRowCount();
-
-			if(count ==1)
-			{
-				result->GetNextRow(binding,playerObject);
-			}
-
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
 		case POFQuery_Ignores:
 		{
 			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
@@ -319,6 +272,55 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 		}
 		break;
 
+		case POFQuery_DenyService:
+		{
+			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+			uint64 id;
+
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint64,0,8);
+
+			uint64 count = result->getRowCount();
+
+			for(uint64 i = 0;i < count;i++)
+			{
+				result->GetNextRow(binding,&id);
+				playerObject->mDenyAudienceList.push_back(id);
+			}
+
+			mDatabase->DestroyDataBinding(binding);
+
+
+			// query Holoemotes
+			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_HoloEmotes,asyncContainer->mClient);
+			asContainer->mObject = playerObject;
+
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %I64u",playerObject->getId());
+		}
+		break;
+
+		case POFQuery_HoloEmotes:
+		{
+			PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+
+
+			DataBinding* binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_uint32,offsetof(PlayerObject,mHoloEmote),4,0);
+			binding->addField(DFT_int32,offsetof(PlayerObject,mHoloCharge),4,1);
+
+			uint64 count = result->getRowCount();
+
+			if(count ==1)
+			{
+				result->GetNextRow(binding,playerObject);
+			}
+
+			mDatabase->DestroyDataBinding(binding);
+		}
+		break;
+
+		
+
 		case POFQuery_XP:
 		{
 			PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
@@ -343,10 +345,14 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
 			mDatabase->DestroyDataBinding(binding);
 
-			// store us for later lookup
-			InLoadingContainer* ilc = new(mILCPool.ordered_malloc()) InLoadingContainer(playerObject,asyncContainer->mOfCallback,asyncContainer->mClient,2);
-			ilc->mLoadCounter = 2;
 
+			// store us for later lookup - loadcounter is 2 for inventory and datapad
+			InLoadingContainer* ilc = new(mILCPool.ordered_malloc()) InLoadingContainer(playerObject,asyncContainer->mOfCallback,asyncContainer->mClient,2);
+			
+			//flag these two as necessary to load
+			ilc->mInventory = false;
+			ilc->mDPad = false;
+			
 			mObjectLoadMap.insert(std::make_pair(playerObject->getId(),ilc));
 
 			// request inventory
@@ -806,21 +812,28 @@ void PlayerObjectFactory::_destroyDatabindings()
 
 void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-	mIlc = _getObject(object->getParentId());
-	if(!mIlc)
+
+	InLoadingContainer*				ilc;
+	ilc= _getObject(object->getParentId());
+	if(!ilc)
 	{
-		gLogger->log(LogManager::DEBUG,"no mIlc :(");
+		gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::handleObjectReady:: no ilc :(");
+		assert(false);
 		return;
 	}
-	mIlc->mLoadCounter--;
+	ilc->mLoadCounter--;
 
-	PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mIlc->mObject);
-	//TangibleObject*		tangibleObject = dynamic_cast<TangibleObject*>(object);
-
+	PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(ilc->mObject);
+	if(!playerObject)
+	{
+		gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::handleObjectReady:: no playerObject :(");
+		assert(false);
+		return;
+	}
 
 	if(Inventory* inventory = dynamic_cast<Inventory*>(object))
 	{
-
+		ilc->mInventory = true;
 		inventory->setEquipSlotMask(CreatureEquipSlot_Inventory);
 
 		playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Inventory,inventory);
@@ -835,6 +848,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	else
 	if(Datapad* datapad = dynamic_cast<Datapad*>(object))
 	{
+		ilc->mDPad = true;
 		datapad->setEquipSlotMask(CreatureEquipSlot_Datapad);
 
 		playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Datapad,datapad);
@@ -851,10 +865,15 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 	}
 	else
 	{
-		gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: no idea what this was");
+		gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::handleObjectReady : no idea what this was");
 	}
 
-	if(!mIlc->mLoadCounter)
+	if((!ilc->mLoadCounter) && ((!ilc->mInventory) || (!ilc->mDPad)))
+	{
+		gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::handleObjectReady : mIlc LoadCounter is messed up - we have a racecondition");
+	}
+
+	if((!ilc->mLoadCounter) && (ilc->mInventory) && (ilc->mDPad))
 	{
 		if(!(_removeFromObjectLoadMap(playerObject->getId())))
 			gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: Failed removing object from loadmap");
@@ -876,9 +895,9 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		// init equip counter
 		playerObject->mEquipManager.setEquippedObjectsUpdateCounter(0);
 
-		mIlc->mOfCallback->handleObjectReady(playerObject,mIlc->mClient);
+		ilc->mOfCallback->handleObjectReady(playerObject,ilc->mClient);
 
-		mILCPool.free(mIlc);
+		mILCPool.free(ilc);
 	}
 	//gBuffManager->InitBuffs(playerObject);
 }

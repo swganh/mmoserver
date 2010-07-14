@@ -427,19 +427,17 @@ void PlayerObject::onSample(const SampleEvent* event)
 	
 
 	// show the effects
-	if (successSample) 
+
+	gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,this);
+
+	while(it != mKnownObjects.end())
 	{
-		gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,this);
-
-		while(it != mKnownObjects.end())
+		if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(*it))
 		{
-			if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(*it))
-			{
-				gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,targetPlayer);
-			}
-
-			++it;
+			gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,targetPlayer);
 		}
+
+		++it;
 	}
 
 	if (sampleAmount > 0)

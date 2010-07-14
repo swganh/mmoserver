@@ -1204,7 +1204,7 @@ uint8 CraftingSession::_assembleRoll()
 	riskRoll += (mCriticalCount*5);
 	//gLogger->logErrorF("Crafting","CraftingSession::_assembleRoll() modified riskroll %u",riskRoll);
 
-	if((mCriticalCount = 3))
+	if((mCriticalCount == 3))
 		riskRoll = static_cast<uint32>(risk+1);
 
 	if(riskRoll <= risk)

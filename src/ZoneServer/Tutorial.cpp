@@ -1114,6 +1114,12 @@ void Tutorial::sendStartingMails(void)
 		bodyDir = "newbie_tutorial/newbie_mail";
 		bodyStr = "outdoors_scout_body";
 	}
+	else
+	{
+		subject = "";
+		bodyDir = "";
+		bodyStr = "";
+	}
 	//sends the starting profession email
 	message->SendNewbieMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
 	message = NULL;

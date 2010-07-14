@@ -34,5 +34,8 @@ SendSystemMailMessage::~SendSystemMailMessage(){};
 
 void SendSystemMailMessage::SendNewbieMailMessage(PlayerObject* player, BString subject, BString bodyDir, BString bodyStr)
 {
-	gMessageLib->sendNewbieMail(player, subject, bodyDir, bodyStr);
+	if(player, subject.getLength() > 0, bodyDir.getLength() > 0, bodyStr.getLength() > 0)
+	{
+		gMessageLib->sendNewbieMail(player, subject, bodyDir, bodyStr);
+	}
 }

@@ -184,7 +184,7 @@ void MessageLib::sendNewbieMail(PlayerObject* playerObject, BString subject, BSt
 	aMS->addMBstf(bodyDir, bodyStr);
 	aMS->addTextModule();
 	//needed this extra one for some reason
-	aMS->addTextModule();
+	//aMS->addTextModule();
 
 	mMessageFactory->StartMessage();
 	mMessageFactory->addUint32(opIsmSendSystemMailMessage);

@@ -76,11 +76,17 @@ class CreatureObject : public MovingObject
 		void				setLastName(BString name){ mLastName = name; }
 
 		uint8				getPosture() const { return mPosture; }
-		void				setPosture(uint8 posture){ mPosture = posture; }
+		// calls setLocomotion as well
+		void				setPosture(uint8 posture){ setLocomotion(posture); mPosture = posture; }
 
+		uint8				getLocomotion() const { return mLocomotion; }
+protected:
+		// Locomotion set only through setPosture
+		void				setLocomotion(uint8 posture);
 		// Postures are NOT bitwise constants.
 		// Can NOT use bitwise operation on non bitwise constants.
 		// bool				checkPostures(uint8 postures) const { return((mPosture & postures) == postures); }
+public:
 		bool				checkPosture(uint8 postures) const { return (mPosture == postures); }
 
 		// Can NOT use bitwise operation on non bitwise constants.
@@ -323,6 +329,7 @@ class CreatureObject : public MovingObject
 		uint8				mIncapCount;
 		uint8				mMoodId;
 		uint8				mPosture;
+		uint8				mLocomotion;
 		uint8				mRaceId;
 		bool				mReady;
 		bool				mStationary;			 //sets the stationary flag in the tano3 so better move it there

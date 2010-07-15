@@ -52,16 +52,15 @@ enum PerformingPause
 
 enum CreatureGroup
 {
-	CreoGroup_Creature		= 0,
-	CreoGroup_PersistentNpc	= 1,
-	CreoGroup_Player		= 2,
-	CreoGroup_Shuttle		= 3,
-	CreoGroup_AttackableObject	= 4,	// Better naming?
-	CreoGroup_Vehicle		= 5
+	CreoGroup_Creature							= 0,
+	CreoGroup_PersistentNpc						= 1,
+	CreoGroup_Player							= 2,
+	CreoGroup_Shuttle							= 3,
+	CreoGroup_AttackableObject					= 4,	// Better naming?
+	CreoGroup_Vehicle							= 5
 };
 
 //=============================================================================
-
 enum CreatureState
 {
 	CreatureState_Cover							=	0x0000000000000001,
@@ -101,7 +100,32 @@ enum CreatureState
 };
 
 //=============================================================================
-
+enum CreatureLocomotion
+{
+	kLocomotionStanding							=	0,
+	kLocomotionSneaking							=	1,
+	kLocomotionWalking							=	2,
+	kLocomotionRunning							=	3,
+	kLocomotionKneeling							=	4,
+	kLocomotionCrouchSneaking					=	5,
+	kLocomotionCrouchWalking					=	6,
+	kLocomotionProne							=	7,
+	kLocomotionCrawling							=	8,
+	kLocomotionClimbingStationary				=	9,
+	kLocomotionClimbing							=	10,
+	kLocomotionHovering							=	11,
+	kLocomotionFlying							=	12,
+	kLocomotionLyingDown						=	13,
+	kLocomotionSitting							=	14,
+	kLocomotionSkillAnimating					=	15,
+	kLocomotionDrivingVehicle					=	16,
+	kLocomotionRidingCreature					=	17,
+	kLocomotionKnockedDown						=	18,
+	kLocomotionIncapacitated					=	19,
+	kLocomotionDead								=	20,
+	kLocomotionBlocking							=	21,
+};
+//=============================================================================
 enum CreaturePosture
 {
 	CreaturePosture_Upright				=	0,
@@ -119,13 +143,6 @@ enum CreaturePosture
 	CreaturePosture_KnockedDown			=	12,
 	CreaturePosture_Incapacitated		=	13,
 	CreaturePosture_Dead				=	14
-};
-
-//=============================================================================
-
-enum CreatureLocomotion
-{
-
 };
 
 //=============================================================================

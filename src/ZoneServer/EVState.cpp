@@ -44,11 +44,18 @@ bool EVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
     // check our states
     if(creature && cmdProperties && (creature->getState() & cmdProperties->mStates) != 0)
     {
-        reply1 = 0;
-        reply2 = 0;
+		if(creature->checkStates(cmdProperties->mStates))
+		{
+			reply1 = 1;
+			reply2 = creature->getState();
+		}
+		else
+		{
+			reply1 = 0;
+			reply2 = 0;
+		}
         return false;
     }
-
     return true;
 }
 

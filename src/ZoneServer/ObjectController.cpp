@@ -849,7 +849,7 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
 			{
 				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
 			}
-            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+            //gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
 			return(false);
 		}
 
@@ -910,7 +910,7 @@ void ObjectController::initEnqueueValidators()
 		{
 			mEnqueueValidators.push_back(new EVPosture(this));
 			mEnqueueValidators.push_back(new EVAbility(this));
-			//mEnqueueValidators.push_back(new EVState(this));
+			mEnqueueValidators.push_back(new EVState(this));
 			mEnqueueValidators.push_back(new EVWeapon(this));
 		}
 		break;

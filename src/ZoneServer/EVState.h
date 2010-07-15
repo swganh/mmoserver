@@ -33,6 +33,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class ObjectController;
 class ObjectControllerCmdProperties;
 
+enum CommandQueueStrings
+{
+	kCannotDoWhileState			= 1,
+	kInsufficientAbilities		= 2,
+	kInvalidTarget				= 3,
+	kTargetTooFarAway			= 4,
+	kCannotDoWhileLocomotion	= 5,
+	kCmdErrSTF					= 6,
+};
+
 //=======================================================================
 
 class EVState : public EnqueueValidator

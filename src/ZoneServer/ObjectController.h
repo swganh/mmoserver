@@ -99,6 +99,17 @@ enum OCCmdGroup
 
 //=======================================================================
 
+enum CommandQueueErrorStrings
+{
+	kCannotDoWhileLocomotion	= 1,
+	kInsufficientAbilities		= 2,
+	kInvalidTarget				= 3,
+	kTargetTooFarAway			= 4,
+	kCannotDoWhileState			= 5,
+	kCmdErrSTF					= 6,
+};
+//=======================================================================
+
 struct StatTargets
 {
 	uint32 TargetHealth;
@@ -111,6 +122,7 @@ struct StatTargets
 	uint32 TargetFocus;
 	uint32 TargetWillpower;
 };
+
 
 struct MenuItem
 {

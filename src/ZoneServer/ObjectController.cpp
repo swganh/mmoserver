@@ -878,7 +878,7 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
 			{
 				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
 			}
-            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+            //gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
 			return(false);
 		}
 

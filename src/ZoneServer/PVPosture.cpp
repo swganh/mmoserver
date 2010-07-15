@@ -46,13 +46,12 @@ bool PVPosture::validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 op
         // check our posture
         if(cmdProperties && ((cmdProperties->mPostureMask & postureBit) != postureBit))
         {
-            reply1 = 0;
-            reply2 = 0;
-            
-            return false;
+            reply1 = kCannotDoWhileLocomotion;
+            reply2 = getLowestCommonBit(creature->getPosture(),cmdProperties->mPostureMask);
+			return false;
         }
     }
     
-    return true;
+	return true;
 }
 

@@ -40,22 +40,22 @@ EVState::~EVState()
 bool EVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties)
 {
     CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
-
+	// grab bit to check against bitmask
+	uint32 locoBit = 1 << creature->getLocomotion();
     // check our states
-    if(creature && cmdProperties && (creature->getState() & cmdProperties->mStates) != 0)
+    if(creature && cmdProperties && creature->checkStates(cmdProperties->mStates))
     {
-		if(creature->checkStates(cmdProperties->mStates))
-		{
-			reply1 = 1;
-			reply2 = creature->getState();
-		}
-		else
-		{
-			reply1 = 0;
-			reply2 = 0;
-		}
-        return false;
-    }
+		reply1 = kCannotDoWhileState;
+		reply2 = getLowestCommonBit(creature->getState(), cmdProperties->mStates);
+		return false;
+	}
+	/*else if (creature && cmdProperties && ((cmdProperties->mPostureMask & locoBit) != locoBit))
+	{
+		reply1 = kCannotDoWhileLocomotion;
+		reply2 = creature->getLocomotion();
+		return false;
+	}*/
     return true;
 }
+
 

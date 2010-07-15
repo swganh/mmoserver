@@ -83,6 +83,7 @@ CreatureObject::CreatureObject()
 , mIncapCount(0)
 , mMoodId(0)
 , mPosture(0)
+, mLocomotion(0)
 
 ,mReady(false)
 {
@@ -1415,7 +1416,7 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 }
 //=============================================================================
 // maps the incoming posture
-void CreatureObject::setLocomotion(uint8 posture)
+void CreatureObject::setLocomotion(uint32 posture)
 {
 	switch (posture)
 	{

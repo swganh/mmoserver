@@ -2143,7 +2143,6 @@ void PlayerObject::setSitting(Message* message)
 		gMessageLib->sendPostureUpdate(this);
 		gMessageLib->sendSelfPostureUpdate(this);
 	}
-
 	//hack-fix clientside bug by manually sending client message
     gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_sit"), this);
 }

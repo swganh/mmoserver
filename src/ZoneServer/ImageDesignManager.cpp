@@ -665,7 +665,7 @@ bool EntertainerManager::handleImagedesignTimeOut(CreatureObject* designer)
 	//if the session has been ended, we have been removed, anyway
 	PlayerObject* imageDesigner = dynamic_cast<PlayerObject*>(designer);
 	
-	if(imageDesigner->getImageDesignSession() != IDSessionID)
+	if(!imageDesigner || imageDesigner->getImageDesignSession() != IDSessionID)
 	{
 		//Panik!!!!!!!
 		gLogger->log(LogManager::DEBUG,"ID force close session : id is not id !!!");

@@ -213,8 +213,8 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 	//9 max condition (vehicle)
 	mMessageFactory->addUint32(creatureHam->getPropertyValue(HamBar_Health,HamProperty_MaxHitpoints));
 
-	//10 locomotion ?
-	mMessageFactory->addUint8(1); // unknown
+	//10 locomotion 
+	mMessageFactory->addUint8(creatureObject->getLocomotion());
 	//11 posture
 	mMessageFactory->addUint8(creatureObject->getPosture());
 	//12

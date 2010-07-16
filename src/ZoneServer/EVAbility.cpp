@@ -48,7 +48,7 @@ bool EVAbility::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32
 		if(!(creature->verifyAbility(cmdProperties->mAbilityCrc)))
 		{
 			reply1 = 2;
-			reply2 = cmdProperties->mAbilityCrc;
+			reply2 = 0;
 			return(false);
 		}
 	}

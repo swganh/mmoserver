@@ -77,12 +77,13 @@ class CreatureObject : public MovingObject
 
 		uint32				getPosture() const { return mPosture; }
 		// calls setLocomotion as well
-		void				setPosture(uint32 posture){ setLocomotion(posture); mPosture = posture; }
+		void				setPosture(uint32 posture){ setLocomotionByPosture(posture); mPosture = posture; }
 
 		uint32				getLocomotion() const { return mLocomotion; }
+		void				setLocomotion(uint32 loco){ mLocomotion = loco ;}
 protected:
 		// Locomotion set only through setPosture
-		void				setLocomotion(uint32 posture);
+		void				setLocomotionByPosture(uint32 posture);
 		// Postures are NOT bitwise constants.
 		// Can NOT use bitwise operation on non bitwise constants.
 		// bool				checkPostures(uint8 postures) const { return((mPosture & postures) == postures); }

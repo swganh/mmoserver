@@ -135,7 +135,8 @@ class ObjectControllerCmdProperties
 		int32	mHealthCost;
 		int32	mActionCost;
 		int32	mMindCost;
-		uint32	mPostureMask;
+		uint64	mPostureMask;
+		uint64	mLocomotionMask;
 
 		// combat
 		uint32	mAnimationCrc;

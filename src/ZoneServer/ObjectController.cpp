@@ -892,7 +892,7 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
 //
 // setup enqueue cmd validators
 // make sure to keep the order sane
-//
+// http://wiki.swganh.org/index.php/CommandQueueRemove_(00000117)
 
 void ObjectController::initEnqueueValidators()
 {
@@ -903,7 +903,7 @@ void ObjectController::initEnqueueValidators()
 	{
 		case ObjType_Player:
 		{
-			mEnqueueValidators.push_back(new EVSurveySample(this));
+			//mEnqueueValidators.push_back(new EVSurveySample(this));
 		}
 		case ObjType_NPC:
 		case ObjType_Creature:
@@ -912,6 +912,7 @@ void ObjectController::initEnqueueValidators()
 			mEnqueueValidators.push_back(new EVAbility(this));
 			mEnqueueValidators.push_back(new EVState(this));
 			mEnqueueValidators.push_back(new EVWeapon(this));
+			//mEnqueueValidators.push_back(new EVTarget(this));
 		}
 		break;
 

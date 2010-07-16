@@ -666,9 +666,17 @@ bool EntertainerManager::handleImagedesignTimeOut(CreatureObject* designer)
         return false;
     }
 
+    PlayerObject* imageDesigner;
+
 	//check whether (the old) ID Session is still active
 	//if the session has been ended, we have been removed, anyway
-	PlayerObject* imageDesigner = dynamic_cast<PlayerObject*>(designer);
+    try {
+	    imageDesigner = dynamic_cast<PlayerObject*>(designer);
+    } catch(...) {
+        // The player must have disconnected or otherwise been removed and all 
+        // we have now is a dangling pointer. Bail out.
+        return false;
+    }
 	
     // The image designer isn't a player object? bail out.
     if(!imageDesigner) {

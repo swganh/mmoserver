@@ -28,10 +28,57 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_COMMON_EVENTDISPATCHER_H_
 #define SRC_COMMON_EVENTDISPATCHER_H_
 
+#include <cstdint>
+#include <functional>
+#include <list>
+#include <map>
+#include <set>
+
+#include "Common/Event.h"
+
 namespace common {
 
-class EventDispatcher {
+typedef std::function<bool (Event*)> EventListenerCallback; 
+typedef std::list<EventListenerCallback> EventListenerList;
 
+class EventDispatcher {
+public:
+    EventDispatcher();
+    ~EventDispatcher();
+
+    /**
+     * Connects an event listener to the specified event. 
+     *
+     * \param event_type The event type to check for connected listeners.
+     * \param callback The callback method provided by the event listener to 
+     *                 be called when an event is triggered.
+     * \returns Returns true if the listener was successfully connected, false if not.
+     */
+    bool Connect(const EventType& event_type, EventListenerCallback callback);
+
+    /**
+     * Gets all of the listeners connected to a specific event type.
+     *
+     * \param event_type The event type to check for connected listeners.
+     * \return A list of the connected listeners to the specified event.
+     */
+    EventListenerList GetListeners(const EventType& event_type) const;
+
+private:
+    /// Disable the default copy constructor.
+    EventDispatcher(const EventDispatcher&);
+
+    /// Disable the default assignment operator.
+    EventDispatcher& operator=(const EventDispatcher&);
+
+    bool ValidateEventType_(const EventType& event_type) const;
+    bool AddEventType_(const EventType& event_type);
+
+    typedef std::set<EventType> EventTypeSet;
+    EventTypeSet event_type_set_;
+
+    typedef std::map<EventType, EventListenerList> EventListenerMap;
+    EventListenerMap event_listener_map_;
 };
 
 }  // namespace common

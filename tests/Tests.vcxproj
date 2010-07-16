@@ -97,8 +97,10 @@
   <ItemGroup>
     <ClCompile Include="Common\TestByteBuffer.cpp" />
     <ClCompile Include="Common\TestEventDispatcher.cpp" />
+    <ClCompile Include="Common\TestHashString.cpp" />
     <ClCompile Include="Common\TestOutOfBand.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TestCrc.cpp" />
     <ClCompile Include="Utils\TestCmpistr.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +128,10 @@
     <ProjectReference Include="..\src\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common\MockObjects\MockListener.h" />
+    <ClInclude Include="Common\MockObjects\MockListenerAlt.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

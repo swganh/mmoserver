@@ -14,8 +14,10 @@
     <ClCompile Include="atMacroString.cpp" />
     <ClCompile Include="BuildInfo.cpp" />
     <ClCompile Include="ByteBuffer.cpp" />
+    <ClCompile Include="Crc.cpp" />
     <ClCompile Include="DispatchClient.cpp" />
     <ClCompile Include="EventDispatcher.cpp" />
+    <ClCompile Include="HashString.cpp" />
     <ClCompile Include="MessageDispatch.cpp" />
     <ClCompile Include="MessageFactory.cpp" />
     <ClCompile Include="OutOfBand.cpp" />
@@ -25,8 +27,11 @@
     <ClInclude Include="BuildInfo.h" />
     <ClInclude Include="ByteBuffer-Inl.h" />
     <ClInclude Include="ByteBuffer.h" />
+    <ClInclude Include="Crc.h" />
     <ClInclude Include="DispatchClient.h" />
+    <ClInclude Include="Event.h" />
     <ClInclude Include="EventDispatcher.h" />
+    <ClInclude Include="HashString.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="MessageDispatch.h" />
     <ClInclude Include="MessageFactory.h" />

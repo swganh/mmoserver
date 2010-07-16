@@ -27,6 +27,57 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <gtest/gtest.h>
 
+#include <memory>
+
 #include "Common/EventDispatcher.h"
+#include "MockObjects/MockListener.h"
+#include "MockObjects/MockListenerAlt.h"
 
 using ::common::EventDispatcher;
+using ::common::EventType;
+using ::common::EventListenerCallback;
+using ::common::EventListenerList;
+
+TEST(EventDispatcherTests, CanConnectListenerToEvent) {
+    // Create the EventDispatcher and a MockListener to use for testing.
+    EventDispatcher dispatcher;   
+    MockListener listener;
+   
+    // Connect the listener to a test event.
+    EventListenerCallback callback(std::bind(&MockListener::HandleEvent, std::ref(listener), std::placeholders::_1));
+    dispatcher.Connect(EventType("test_event"), callback);
+
+    // Query the dispatcher for a list of the listeners for the test event.
+    EventListenerList listeners = dispatcher.GetListeners(EventType("test_event"));
+
+    // Make sure there's 1 and only 1 listener registered.
+    EXPECT_EQ(1, listeners.size());
+
+    // Make sure the one item returned back is the same as the one put in.
+    EXPECT_EQ(callback, listeners.front());
+}
+
+TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
+    // Create the EventDispatcher and a MockListener to use for testing.
+    EventDispatcher dispatcher;   
+    MockListener listener1;
+    MockListenerAlt listener2;
+   
+    // Connect the listeners to a test event.
+    EventListenerCallback callback1(std::bind(&MockListener::HandleEvent, std::ref(listener1), std::placeholders::_1));
+    EventListenerCallback callback2(std::bind(&MockListenerAlt::HandleEvent, std::ref(listener2), std::placeholders::_1));
+
+    dispatcher.Connect(EventType("test_event"), callback1);
+    dispatcher.Connect(EventType("test_event"), callback2);
+
+    // Query the dispatcher for a list of the listeners for the test event.
+    EventListenerList listeners = dispatcher.GetListeners(EventType("test_event"));
+
+    // Make sure there's 1 and only 1 listener registered.
+    EXPECT_EQ(2, listeners.size());
+
+    // Make sure the items returned back are the same as the ones put in.
+    EXPECT_EQ(callback1, listeners.front());
+    listeners.pop_front();
+    EXPECT_EQ(callback2, listeners.front());
+}

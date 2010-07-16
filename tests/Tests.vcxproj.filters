@@ -7,6 +7,9 @@
     <Filter Include="Common">
       <UniqueIdentifier>{4f3e690b-dd02-4836-b306-aa4f38394d8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Common\MockObjects">
+      <UniqueIdentifier>{11653b4d-ab3f-43de-b45b-90c6e3af2b91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\TestCmpistr.cpp">
@@ -22,5 +25,19 @@
     <ClCompile Include="Common\TestEventDispatcher.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="TestCrc.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TestHashString.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Common\MockObjects\MockListener.h">
+      <Filter>Common\MockObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\MockObjects\MockListenerAlt.h">
+      <Filter>Common\MockObjects</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

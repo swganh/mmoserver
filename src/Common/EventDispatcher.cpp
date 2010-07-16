@@ -26,3 +26,134 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Common/EventDispatcher.h"
+
+namespace common {
+    
+EventDispatcher::EventDispatcher() {}
+
+EventDispatcher::~EventDispatcher() {}
+
+bool EventDispatcher::Connect(const EventType& event_type, EventListenerCallback callback) {
+    if (! ValidateEventType_(event_type)) {
+        return false;
+    }
+    
+    if (! AddEventType_(event_type)) {
+        return false;
+    }
+
+    // Look for an entry and
+    EventListenerMap::iterator map_it = event_listener_map_.find(event_type);
+    
+    // Somehow the event type doesn't exist.
+    if (map_it == event_listener_map_.end()) {
+        return false;
+    }
+
+    // Lookup the listener in the list to see if it already exists.
+    EventListenerList& listener_list = (*map_it).second;
+
+    for (EventListenerList::const_iterator list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
+        if ((*list_it).target_type() == callback.target_type()) {
+            return false;
+        }
+    }
+
+    // EventType has been validated, the listener validated and doesn't already exist, add it.
+    listener_list.push_back(callback);
+
+    return true;
+}
+
+EventListenerList EventDispatcher::GetListeners(const EventType& event_type) const {
+    if (! ValidateEventType_(event_type)) {
+        return EventListenerList();
+    }
+
+    EventListenerMap::const_iterator map_it = event_listener_map_.find(event_type);
+    
+    // no listerners currently for this event type, so sad
+    if (map_it == event_listener_map_.end()) {
+        return EventListenerList();
+    }
+    
+    const EventListenerList& listener_list = map_it->second;
+    
+    // there was, but is not now, any listerners currently for
+    // this event type, so sad
+    if (listener_list.size() == 0) {
+        return EventListenerList();
+    }
+    
+    // Build up the result set to return.
+    EventListenerList result;
+        
+    for (EventListenerList::const_iterator list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
+    	result.push_back(*list_it);
+    }
+    
+    return result;
+}
+
+bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
+    // Make sure the string isn't empty.
+    if (event_type.ident_string().length() == 0) {
+        return false;
+    }
+
+    // If an event_type already exists verify that the text is the same so
+    // that no naming clashes occur.
+    EventTypeSet::const_iterator it = event_type_set_.find(event_type);
+    
+    if (it != event_type_set_.end()) {
+        if ((*it).ident() != event_type.ident()) {
+            return false;
+        }
+    }
+
+    // If all the tests have passed then return true for validation.
+    return true;
+}
+
+bool EventDispatcher::AddEventType_(const EventType& event_type) {    
+    // check / update type list
+    EventTypeSet::iterator it = event_type_set_.find(event_type);
+    
+    // EventType already exists. Return true to indicate so.
+    if (it != event_type_set_.end()) {
+        return true;
+    }
+
+    // The EventType hasn't been registered before, attempt to insert it into the set.
+    std::pair<EventTypeSet::iterator, bool> set_insert_result = event_type_set_.insert(event_type);
+        
+    // Insertion failed for some reason.
+    if (set_insert_result.second == false) {
+        return false;
+    }
+    
+    // Somehow the insertion left the list empty, bail out.
+    if (set_insert_result.first == event_type_set_.end()) {
+        return false;
+    }
+
+    // Now ensure an empty list exists in the listener map for this type.
+    std::pair<EventListenerMap::iterator, bool> map_insert_result = event_listener_map_.insert(
+        std::pair<EventType, EventListenerList>(event_type, EventListenerList()));
+
+    // Could not insert into map.
+    if (map_insert_result.second == false) {
+            return false;
+    }
+    
+    // Somehow the insertion left the map empty, bail out.
+    if (map_insert_result.first == event_listener_map_.end()) {
+        return false;
+    }
+
+    // The event type already existed or it was successfully inserted, either
+    // way it definitely exists in the set now.
+    return true;
+}
+
+}  // namespace common

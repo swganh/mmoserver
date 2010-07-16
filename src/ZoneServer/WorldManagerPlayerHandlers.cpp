@@ -386,18 +386,9 @@ void WorldManager::addPlayerToDisconnectedList(PlayerObject* playerObject)
 
 void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& destination, uint64 parentId, const glm::quat& direction)
 {
-	// remove player from objects in his range.
 	removePlayerMovementUpdateTime(playerObject);
 
-	//remove the player out of his group - if any
-	//why the fuck would we do that ???
-	/*
-	GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
-
-	if(group)
-		group->removePlayer(playerObject->getId());
-		*/
-
+	// remove player from objects in his range.	
 	playerObject->destroyKnownObjects();
 
 	// remove from cell / SI

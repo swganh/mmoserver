@@ -384,7 +384,7 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
 		// And... pick a better name for the sp_.. below... like updateWoundsWithCloneData-something....
 		// int8 sql_sp[128];
 		// sprintf(sql_sp,"call swganh.sp_CharacterActivateClone(%I64u)", player->getId());
-		// (gWorldManager->getDatabase())->ExecuteSqlAsync(NULL,NULL,sql_sp);
+		// (gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql_sp);
 
 		// Update player objct with new data for wounds.
 		ObjControllerAsyncContainer* asyncContainer;

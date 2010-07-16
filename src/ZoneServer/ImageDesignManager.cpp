@@ -885,7 +885,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote
 	asyncContainer->customer = customer;
 
 	sprintf(sql,"call swganh.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)", customer->getId(),myEmote->pCRC,20);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 
 	//send message box holoemote bought
 

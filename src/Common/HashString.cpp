@@ -44,8 +44,18 @@ bool HashString::operator<(const HashString& other) const {
     return r;
 }
 
+bool HashString::operator>(const HashString& other) const {
+    bool r = (ident() > other.ident());
+    return r;
+}
+
 bool HashString::operator==(const HashString& other) const {
     bool r = (ident() == other.ident());
+    return r;
+}
+
+bool HashString::operator!=(const HashString& other) const {
+    bool r = (ident() != other.ident());
     return r;
 }
 

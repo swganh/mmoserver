@@ -81,11 +81,11 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 	ObjectSet		inRangeObjects;
 	float			boardingRange	= 25.0;
 
-	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
+	/*if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
-	}
+	}*/
 
 	BString str;
 	message->getStringUnicode16(str);
@@ -1110,11 +1110,11 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	
 	float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
 
-	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
+	/*if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
 	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
 		return;
-	}
+	}*/
 	
 
 	//however we are able to use the purchaseticket command in starports
@@ -1368,7 +1368,9 @@ void ObjectController::_handleTarget(uint64 targetId,Message* message,ObjectCont
 
 void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-
+	// set locomotion
+	PlayerObject* playerObject = (PlayerObject*)mObject;
+	playerObject->setLocomotion(kLocomotionStanding);
 }
 
 //======================================================================================================================
@@ -1709,6 +1711,9 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	
 	//Send the burst run system message to the player
 	gMessageLib->SendSystemMessage(L"You run as hard as you can!", player);
+
+	// set locomotion
+	player->setLocomotion(kLocomotionRunning);
 	
 	//Now send the burst run combat spam message to InRange
 	int8 s[256];

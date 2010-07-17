@@ -61,7 +61,7 @@ mDatabase(database)
 										 "cbt_spam,trail1,trail2,commandgroup,allowInPosture,"
 										 "health_hit_chance,action_hit_chance,mind_hit_chance,"
 										 "knockdown_chance,dizzy_chance,blind_chance,stun_chance,intimidate_chance,"
-										 "posture_down_chance,extended_range,damage_multiplier,delay_multiplier"
+										 "posture_down_chance,extended_range,damage_multiplier,delay_multiplier,deny_in_locomotion"
 										 " FROM command_table");
 }
 
@@ -103,7 +103,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 {
 	ObjectControllerCmdProperties* commandProperties;
 
-	DataBinding* binding = mDatabase->CreateDataBinding(28);
+	DataBinding* binding = mDatabase->CreateDataBinding(29);
 	binding->addField(DFT_bstring,offsetof(ObjectControllerCmdProperties,mCommandStr),64,0);
 	binding->addField(DFT_bstring,offsetof(ObjectControllerCmdProperties,mAbilityStr),64,1);
 	binding->addField(DFT_uint64,offsetof(ObjectControllerCmdProperties,mStates),8,2);
@@ -119,7 +119,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 	binding->addField(DFT_uint8,offsetof(ObjectControllerCmdProperties,mTrail1),1,12);
 	binding->addField(DFT_uint8,offsetof(ObjectControllerCmdProperties,mTrail2),1,13);
 	binding->addField(DFT_uint8,offsetof(ObjectControllerCmdProperties,mCmdGroup),1,14);
-	binding->addField(DFT_uint32,offsetof(ObjectControllerCmdProperties,mPostureMask),4,15);
+	binding->addField(DFT_uint64,offsetof(ObjectControllerCmdProperties,mPostureMask),8,15);
 	binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mHealthHitChance),4,16);
 	binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mActionHitChance),4,17);
 	binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mMindHitChance),4,18);
@@ -132,6 +132,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 	binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mExtendedRange),4,25);
 	binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mDamageMultiplier),4,26);
 	binding->addField(DFT_float,offsetof(ObjectControllerCmdProperties,mDelayMultiplier),4,27);
+	binding->addField(DFT_uint64,offsetof(ObjectControllerCmdProperties,mLocomotionMask),8,28);
 
 	uint64 count = result->getRowCount();
 

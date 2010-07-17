@@ -40,15 +40,25 @@ EVState::~EVState()
 bool EVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties)
 {
     CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
-
-    // check our states
-    if(creature && cmdProperties && (creature->getState() & cmdProperties->mStates) != 0)
-    {
-        reply1 = 0;
-        reply2 = 0;
-        return false;
-    }
-
+	if(creature && cmdProperties)
+	{
+		gLogger->log(LogManager::DEBUG, "locomotionMask(%u) & creature->getLocomotion (%u) ==%u",
+			cmdProperties->mLocomotionMask,mController->getLocoValidator(creature->getLocomotion()), cmdProperties->mLocomotionMask & creature->getLocomotion());
+		// check our states
+		if(creature->checkStates(cmdProperties->mStates))
+		{
+			reply1 = kCannotDoWhileState;
+			reply2 = this->mController->getLowestCommonBit(creature->getState(), cmdProperties->mStates);
+			return false;
+		}
+		else if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->getLocomotion()) != 0))
+		{
+			reply1 = kCannotDoWhileLocomotion;
+			reply2 = mController->getLocoValidator(creature->getLocomotion());
+			return false;
+		}
+	}
     return true;
 }
+
 

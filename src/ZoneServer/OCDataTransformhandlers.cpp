@@ -109,7 +109,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	// stop entertaining ???
 	// important is, that if we move we change our posture to NOT skill animating anymore!
 	// so only stop entertaining when we are performing and NOT skillanimationg
-	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
+	if(player->getPerformingState() != PlayerPerformance_None /*&& player->getPosture() != CreaturePosture_SkillAnimating*/)
 	{
 		gEntertainerManager->stopEntertaining(player);
 	}
@@ -359,7 +359,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		speed  = message->getFloat();
 
 		// stop entertaining, if we were
-		if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
+		if(player->getPerformingState() != PlayerPerformance_None/* && player->getPosture() != CreaturePosture_SkillAnimating*/)
 		{
 			gEntertainerManager->stopEntertaining(player);
 		}

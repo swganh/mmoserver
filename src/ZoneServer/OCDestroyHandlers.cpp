@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "CraftingTool.h"
+#include "BuildingObject.h"
 #include "Datapad.h"
 #include "Inventory.h"
 #include "Item.h"
@@ -134,6 +135,21 @@ void ObjectController::destroyObject(uint64 objectId)
 	else if(object->getType() == ObjType_Tangible)
 	{
 		TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
+
+		BuildingObject* building = dynamic_cast<BuildingObject*>(tangibleObject->getObjectMainParent(tangibleObject));
+		if(building)
+		{
+			if(!building->hasAdminRights(playerObject->getId()))
+			{
+				return;
+			}
+		}
+
+		if(tangibleObject->getParentId() == 0)
+		{
+			return;
+		}
+	
 		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 		// items
@@ -164,7 +180,7 @@ void ObjectController::destroyObject(uint64 objectId)
 			}
 		}
 		//tangible includes items and resourcecontainers
-		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
+		if(tangibleObject)
 		{
 			//if(tangible->getObjectMainParent(object) != inventory->getId())
 			if(tangibleObject->getKnownPlayers()->size())
@@ -197,6 +213,7 @@ void ObjectController::destroyObject(uint64 objectId)
 		{
 			gWorldManager->destroyObject(object);
 		}
+		
 	}
 }
 

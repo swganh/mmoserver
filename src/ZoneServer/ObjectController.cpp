@@ -849,7 +849,10 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
 			{
 				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
 			}
-            //gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+            // we still failed the check but we're not sending anything back
+			// send this generic message
+			if(! (reply1 && reply2) )
+              gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
 			return(false);
 		}
 
@@ -878,7 +881,10 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
 			{
 				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
 			}
-            //gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+			// we still failed the check but we're not sending anything back
+			// send this generic message
+			if(! (reply1 && reply2) )
+              gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
 			return(false);
 		}
 

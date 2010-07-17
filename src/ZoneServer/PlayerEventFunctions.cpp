@@ -597,7 +597,8 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 	{
 		if(this->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun))
 		{
-			gMessageLib->SendSystemMessage(L"You slow down.", this);
+			//You slow down.
+			gMessageLib->SendSystemMessage(OutOfBand("cbt_spam", "burstrun_stop_single"), this); 
 			int8 s[256];
 			sprintf(s,"%s %s slows down.",this->getFirstName().getAnsi(),this->getLastName().getAnsi());
 			BString bs(s);

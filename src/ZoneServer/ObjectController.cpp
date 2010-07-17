@@ -977,3 +977,50 @@ bool ObjectController::_consumeHam(ObjectControllerCmdProperties* cmdProperties)
 
 	return(false);
 }
+//=============================================================================
+uint32	ObjectController::getLowestCommonBit(uint64 playerMask, uint64 cmdPropertiesMask)
+{
+	// checks each bit and returns the value
+    bool bFound = false;
+    uint32 i = 0;
+    for (; i < 64 && !bFound; ++i) {
+    	bFound = (playerMask & (cmdPropertiesMask << i)) != 0;
+    }
+    if (bFound) {
+    	return i;
+    }
+    return 0;
+}
+//=============================================================================
+uint32 ObjectController::getLocoValidator(uint64 locomotion)
+{
+	// this is needed because of how SOE does their locomotion validation message
+	uint32 locoValidator = 0;
+	switch(locomotion)
+	{
+		case kLocomotionStanding: locoValidator = kLocoValidStanding; break;
+		case kLocomotionSneaking: locoValidator = kLocoValidSneaking; break;
+		case kLocomotionWalking: locoValidator = kLocoValidWalking; break;
+		case kLocomotionRunning: locoValidator = kLocoValidRunning; break;
+		case kLocomotionKneeling: locoValidator = kLocoValidKneeling; break;
+		case kLocomotionCrouchSneaking: locoValidator = kLocoValidCrouchWalking; break;
+		case kLocomotionCrouchWalking: locoValidator = kLocoValidProne; break;
+		case kLocomotionProne: locoValidator = kLocoValidProne; break;
+		case kLocomotionCrawling: locoValidator = kLocoValidCrawling; break;
+		case kLocomotionClimbingStationary: locoValidator = kLocoValidClimbingStationary; break;
+		case kLocomotionClimbing: locoValidator = kLocoValidClimbing; break;
+		case kLocomotionHovering: locoValidator = kLocoValidHovering; break;
+		case kLocomotionFlying: locoValidator = kLocoValidFlying; break;
+		case kLocomotionLyingDown: locoValidator = kLocoValidLyingDown; break;
+		case kLocomotionSitting: locoValidator = kLocoValidSitting; break;
+		case kLocomotionSkillAnimating: locoValidator = kLocoValidSkillAnimating; break;
+		case kLocomotionDrivingVehicle: locoValidator = kLocoValidDrivingVehicle; break;
+		case kLocomotionRidingCreature: locoValidator = kLocoValidRidingCreature; break;
+		case kLocomotionKnockedDown: locoValidator = kLocoValidKnockedDown; break;
+		case kLocomotionIncapacitated: locoValidator = kLocoValidIncapacitated; break;
+		case kLocomotionDead: locoValidator = kLocoValidDead; break;
+		case kLocomotionBlocking: locoValidator = kLocoValidBlocking; break;
+	}
+
+	return locoValidator;
+}

@@ -1421,6 +1421,7 @@ void CreatureObject::setLocomotionByPosture(uint32 posture)
 	switch (posture)
 	{
 		case CreaturePosture_Upright: mLocomotion = kLocomotionStanding; break;
+		// not even sure if this is used.
 		case CreaturePosture_Crouched:
 		{
 			if(this->getCurrentSpeed() < this->getBaseAcceleration())
@@ -1431,7 +1432,9 @@ void CreatureObject::setLocomotionByPosture(uint32 posture)
 		}
 		case CreaturePosture_Prone: mLocomotion = kLocomotionProne; break;
 		case CreaturePosture_Sneaking: mLocomotion = kLocomotionSneaking; break;
+		// is this used?
 		case CreaturePosture_Blocking: mLocomotion = kLocomotionBlocking; break;
+		// is this used?
 		case CreaturePosture_Climbing:
 		{
 				if(this->getCurrentSpeed() >0)

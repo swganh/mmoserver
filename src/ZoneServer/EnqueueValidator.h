@@ -33,32 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class ObjectController;
 class ObjectControllerCmdProperties;
 
-enum LocomotionValidator
-{
-	kLocoValidStanding							=	0,
-	kLocoValidSneaking							=	1,
-	kLocoValidWalking							=	2,
-	kLocoValidRunning							=	3,
-	kLocoValidKneeling							=	4,
-	kLocoValidCrouchSneaking					=	5,
-	kLocoValidCrouchWalking						=	6,
-	kLocoValidProne								=	7,
-	kLocoValidCrawling							=	8,
-	kLocoValidClimbingStationary				=	9,
-	kLocoValidClimbing							=	10,
-	kLocoValidHovering							=	11,
-	kLocoValidFlying							=	12,
-	kLocoValidLyingDown							=	13,
-	kLocoValidSitting							=	14,
-	kLocoValidSkillAnimating					=	15,
-	kLocoValidDrivingVehicle					=	16,
-	kLocoValidRidingCreature					=	17,
-	kLocoValidKnockedDown						=	18,
-	kLocoValidIncapacitated						=	19,
-	kLocoValidDead								=	20,
-	kLocoValidBlocking							=	21,
-};
-//=============================================================================
 
 //=======================================================================
 
@@ -69,21 +43,6 @@ public:
     virtual ~EnqueueValidator();
 
     virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties) = 0;
-
-	uint32	inline getLowestCommonBit(uint64 playerMask, uint64 cmdPropertiesMask)
-	{
-		// checks each bit and returns the value
-    	bool bFound = false;
-    	uint32 i = 0;
-    	for (; i < 64 && !bFound; ++i) {
-    		bFound = (playerMask & (cmdPropertiesMask << i)) != 0;
-    	}
-    	if (bFound) {
-    		return i;
-    	}
-    	return 0;
-	}
-	uint32 getLocoValidator(uint64 locomotion);
 
 protected:
     ObjectController* mController;

@@ -109,6 +109,32 @@ enum CommandQueueErrorStrings
 	kCmdErrSTF					= 6,
 };
 //=======================================================================
+enum LocomotionValidator
+{
+	kLocoValidStanding							=	0,
+	kLocoValidSneaking							=	1,
+	kLocoValidWalking							=	2,
+	kLocoValidRunning							=	3,
+	kLocoValidKneeling							=	4,
+	kLocoValidCrouchSneaking					=	5,
+	kLocoValidCrouchWalking						=	6,
+	kLocoValidProne								=	7,
+	kLocoValidCrawling							=	8,
+	kLocoValidClimbingStationary				=	9,
+	kLocoValidClimbing							=	10,
+	kLocoValidHovering							=	11,
+	kLocoValidFlying							=	12,
+	kLocoValidLyingDown							=	13,
+	kLocoValidSitting							=	14,
+	kLocoValidSkillAnimating					=	15,
+	kLocoValidDrivingVehicle					=	16,
+	kLocoValidRidingCreature					=	17,
+	kLocoValidKnockedDown						=	18,
+	kLocoValidIncapacitated						=	19,
+	kLocoValidDead								=	20,
+	kLocoValidBlocking							=	21,
+};
+//=============================================================================
 
 struct StatTargets
 {
@@ -251,8 +277,36 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		ObjectSet*				getInRangeObjects(){return(&mInRangeObjects);}
 		ObjectSet::iterator		getInRangeObjectsIterator(){return mObjectSetIt;}
 
+		 /**
+		 * gets the lowest common bit from two bit masks.
+		 *
+		 * it does this by checking if each bit from the playerMask to see if it
+		 * matches the cmdPropertiesMask. The cmdPropertiesMask is generally imported
+		 * from the database, but it could be any mask you want to use. It then
+		 * returns the first bit that was matched.
+		 *
+		 * @param uint64 playerMask
+		 *   playerMask is the first mask, which is to be checked against the second.
+		 * @param uint64 cmdPropertiesMask
+		 *   cmdPropertiesMask is the mask the first mask checks against.
+		 *
+		 * @return uint32 firstCommonBit
+		 *   This returns the the first common bit in between the two masks.
+		 */
+		uint32  getLowestCommonBit(uint64 playerMask, uint64 cmdPropertiesMask);
+		 /**
+		 * gets the uint32 representation of the current locomotion state
+		 *
+		 * It does this by simply by mapping one enumeration to another.
+		 *
+		 * @param uint32 locomotion
+		 *   locomotion is the uint64 bit value of the locomotion state
+		 * @return uint32 locomotion
+		 *   This returns locomotion integer value for use in:
+		 * http://wiki.swganh.org/index.php/CommandQueueRemove_(00000117)
+		 */
+		uint32  getLocoValidator(uint64 locomotion);
 	private:
-
 		// validate command
 		bool	_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties);
 		bool	_validateProcessCommand(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties);

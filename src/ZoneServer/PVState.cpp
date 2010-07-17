@@ -47,7 +47,7 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 		if(creature->checkStates(cmdProperties->mStates))
 		{
 			reply1 = kCannotDoWhileState;
-			reply2 = getLowestCommonBit(creature->getState(), cmdProperties->mStates);
+			reply2 = mController->getLowestCommonBit(creature->getState(), cmdProperties->mStates);
 			return false;
 		}
 

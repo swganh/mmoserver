@@ -79,7 +79,7 @@ class CreatureObject : public MovingObject
 		// calls setLocomotion as well
 		void				setPosture(uint32 posture){ setLocomotionByPosture(posture); mPosture = posture; }
 
-		uint32				getLocomotion() const { return mLocomotion; }
+		uint64				getLocomotion() const { return mLocomotion; }
 		void				setLocomotion(uint32 loco){ mLocomotion = loco ;}
 protected:
 		// Locomotion set only through setPosture
@@ -330,7 +330,7 @@ public:
 		uint8				mIncapCount;
 		uint8				mMoodId;
 		uint32				mPosture;
-		uint32				mLocomotion;
+		uint64				mLocomotion;
 		uint8				mRaceId;
 		bool				mReady;
 		bool				mStationary;			 //sets the stationary flag in the tano3 so better move it there

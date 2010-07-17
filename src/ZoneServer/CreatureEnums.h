@@ -61,7 +61,7 @@ enum CreatureGroup
 };
 
 //=============================================================================
-enum CreatureState
+enum CreatureState : unsigned long long
 {
 	CreatureState_Cover							=	0x0000000000000001,
 	CreatureState_Combat						=	0x0000000000000002,
@@ -100,7 +100,7 @@ enum CreatureState
 };
 
 //=============================================================================
-enum CreatureLocomotion
+enum CreatureLocomotion : unsigned long long
 {
 	kLocomotionStanding							=	0x0000000000000001,
 	kLocomotionSneaking							=	0x0000000000000002,

@@ -70,7 +70,7 @@ void EventDispatcher::Disconnect(const EventType& event_type, const EventListene
         return;
     }
     // Make sure a valid event listener type was passed in.
-    if (! ValidateEventListenerType_(event_type)) {
+    if (! ValidateEventListenerType_(event_listener_type)) {
         return;
     }
 
@@ -92,6 +92,18 @@ void EventDispatcher::Disconnect(const EventType& event_type, const EventListene
             listener_list.erase(list_it);
             break; // Item found and there is only one per list, break out.
         }
+    }
+}
+
+void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_type) {    
+    // Make sure a valid event listener type was passed in.
+    if (! ValidateEventListenerType_(event_listener_type)) {
+        return;
+    }
+
+    // Use the known type lists to loop and call Disconnect for each.
+    for (auto type_it = event_type_set_.begin(), end = event_type_set_.end(); type_it != end; ++type_it) {
+        Disconnect(*type_it, event_listener_type);
     }
 }
 

@@ -118,3 +118,36 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
     EXPECT_EQ(EventListenerType("MockListenerAlt"), listeners.front().first);
     EXPECT_EQ(callback2, listeners.front().second);
 }
+
+
+TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {    
+    EventDispatcher dispatcher;
+    MockListener listener1;
+    MockListenerAlt listener2;
+    
+    // Connect the listeners to 2 different test events.
+    EventListenerCallback callback1(std::bind(&MockListener::HandleEvent, std::ref(listener1), std::placeholders::_1));
+    EventListenerCallback callback2(std::bind(&MockListenerAlt::HandleEvent, std::ref(listener2), std::placeholders::_1));
+    
+    dispatcher.Connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback1));
+    dispatcher.Connect(EventType("test_event1"), EventListener(EventListenerType("MockListenerAlt"), callback2));
+    
+    dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback1));
+    dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListenerAlt"), callback2));
+    
+    // Query for the listeners to both events and make sure there's 2 items in each.
+    EventListenerList listeners1 = dispatcher.GetListeners(EventType("test_event1"));
+    EventListenerList listeners2 = dispatcher.GetListeners(EventType("test_event2"));
+    EXPECT_EQ(2, listeners1.size());
+    EXPECT_EQ(2, listeners2.size());
+
+    // Disconnect an listener from all events.
+    dispatcher.DisconnectFromAll(EventListenerType("MockListener"));
+    
+    // Query for the listeners to both events and make sure there's only 1 item each now.
+    listeners1 = dispatcher.GetListeners(EventType("test_event1"));
+    listeners2 = dispatcher.GetListeners(EventType("test_event2"));
+    EXPECT_EQ(1, listeners1.size());
+    EXPECT_EQ(1, listeners2.size());
+}
+

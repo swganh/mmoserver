@@ -72,6 +72,13 @@ public:
     void Disconnect(const EventType& event_type, const EventListenerType& event_listener_type);
 
     /**
+     * Disconnects an event listener from all events.
+     *
+     * \param event_listener_type The type of the event listener being disconnected.
+     */
+    void DisconnectFromAll(const EventListenerType& event_listener_type);
+
+    /**
      * Gets all of the listeners connected to a specific event type.
      *
      * \param event_type The event type to check for connected listeners.

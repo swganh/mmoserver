@@ -41,8 +41,8 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 {
      CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
 
-    // check our states
-    if(creature && cmdProperties && (creature->getState() & cmdProperties->mStates) != 0)
+    // if this command doesn't require state checks skip it, otherwise check our states
+    if(creature && cmdProperties && (cmdProperties->mStates != 0) && (creature->getState() & cmdProperties->mStates) != 0)
     {
 		if(creature->checkStates(cmdProperties->mStates))
 		{

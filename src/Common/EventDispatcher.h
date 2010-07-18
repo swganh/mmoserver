@@ -38,8 +38,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace common {
 
-typedef std::function<bool (Event*)> EventListenerCallback; 
-typedef std::list<EventListenerCallback> EventListenerList;
+typedef std::function<bool (Event*)> EventListenerCallback;
+
+// Use a HashString as the basis for EventListenerType's.
+typedef HashString EventListenerType;
+
+// Most of the time spent processing events will be iterating over a collection
+// of callbacks to notify about an event so we want to make use of std::list, however,
+// very infrequently we also want to be able to add and remove listeners and need a 
+// way to identify them in the list so a std::pair is used as the node.
+typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
+typedef std::list<EventListener> EventListenerList;
 
 class EventDispatcher {
 public:
@@ -50,11 +59,10 @@ public:
      * Connects an event listener to the specified event. 
      *
      * \param event_type The event type to check for connected listeners.
-     * \param callback The callback method provided by the event listener to 
-     *                 be called when an event is triggered.
+     * \param listener The listener interested in the event specified.
      * \returns Returns true if the listener was successfully connected, false if not.
      */
-    bool Connect(const EventType& event_type, EventListenerCallback callback);
+    bool Connect(const EventType& event_type, EventListener listener);
 
     /**
      * Gets all of the listeners connected to a specific event type.

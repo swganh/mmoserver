@@ -33,7 +33,7 @@ EventDispatcher::EventDispatcher() {}
 
 EventDispatcher::~EventDispatcher() {}
 
-bool EventDispatcher::Connect(const EventType& event_type, EventListenerCallback callback) {
+bool EventDispatcher::Connect(const EventType& event_type, EventListener listener) {
     if (! ValidateEventType_(event_type)) {
         return false;
     }
@@ -43,7 +43,7 @@ bool EventDispatcher::Connect(const EventType& event_type, EventListenerCallback
     }
 
     // Look for an entry and
-    EventListenerMap::iterator map_it = event_listener_map_.find(event_type);
+    auto map_it = event_listener_map_.find(event_type);
     
     // Somehow the event type doesn't exist.
     if (map_it == event_listener_map_.end()) {
@@ -53,14 +53,14 @@ bool EventDispatcher::Connect(const EventType& event_type, EventListenerCallback
     // Lookup the listener in the list to see if it already exists.
     EventListenerList& listener_list = (*map_it).second;
 
-    for (EventListenerList::const_iterator list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
-        if ((*list_it).target_type() == callback.target_type()) {
+    for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
+        if ((*list_it).first.ident() == listener.first.ident()) {
             return false;
         }
     }
 
     // EventType has been validated, the listener validated and doesn't already exist, add it.
-    listener_list.push_back(callback);
+    listener_list.push_back(listener);
 
     return true;
 }

@@ -35,8 +35,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using ::common::EventDispatcher;
 using ::common::EventType;
+using ::common::EventListener;
 using ::common::EventListenerCallback;
 using ::common::EventListenerList;
+using ::common::EventListenerType;
 
 TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     // Create the EventDispatcher and a MockListener to use for testing.
@@ -45,7 +47,7 @@ TEST(EventDispatcherTests, CanConnectListenerToEvent) {
    
     // Connect the listener to a test event.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, std::ref(listener), std::placeholders::_1));
-    dispatcher.Connect(EventType("test_event"), callback);
+    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback));
 
     // Query the dispatcher for a list of the listeners for the test event.
     EventListenerList listeners = dispatcher.GetListeners(EventType("test_event"));
@@ -54,7 +56,8 @@ TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     EXPECT_EQ(1, listeners.size());
 
     // Make sure the one item returned back is the same as the one put in.
-    EXPECT_EQ(callback, listeners.front());
+    EXPECT_EQ(EventListenerType("MockListener"), listeners.front().first);
+    EXPECT_EQ(callback, listeners.front().second);
 }
 
 TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
@@ -66,9 +69,9 @@ TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
     // Connect the listeners to a test event.
     EventListenerCallback callback1(std::bind(&MockListener::HandleEvent, std::ref(listener1), std::placeholders::_1));
     EventListenerCallback callback2(std::bind(&MockListenerAlt::HandleEvent, std::ref(listener2), std::placeholders::_1));
-
-    dispatcher.Connect(EventType("test_event"), callback1);
-    dispatcher.Connect(EventType("test_event"), callback2);
+    
+    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback1));
+    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListenerAlt"), callback2));
 
     // Query the dispatcher for a list of the listeners for the test event.
     EventListenerList listeners = dispatcher.GetListeners(EventType("test_event"));
@@ -77,7 +80,9 @@ TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
     EXPECT_EQ(2, listeners.size());
 
     // Make sure the items returned back are the same as the ones put in.
-    EXPECT_EQ(callback1, listeners.front());
+    EXPECT_EQ(EventListenerType("MockListener"), listeners.front().first);
+    EXPECT_EQ(callback1, listeners.front().second);
     listeners.pop_front();
-    EXPECT_EQ(callback2, listeners.front());
+    EXPECT_EQ(EventListenerType("MockListenerAlt"), listeners.front().first);
+    EXPECT_EQ(callback2, listeners.front().second);
 }

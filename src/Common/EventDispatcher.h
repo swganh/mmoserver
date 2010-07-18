@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <list>
 #include <map>
 #include <set>
+#include <vector>
 
 #include "Common/Event.h"
 
@@ -85,6 +86,13 @@ public:
      * \return A list of the connected listeners to the specified event.
      */
     EventListenerList GetListeners(const EventType& event_type) const;
+
+    /**
+     * Gets a list of all of the registered events.
+     * 
+     * \returns A list of all the registered events.
+     */
+    std::vector<EventType> GetRegisteredEvents() const;
 
 private:
     /// Disable the default copy constructor.

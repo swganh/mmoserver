@@ -60,6 +60,25 @@ TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     EXPECT_EQ(callback, listeners.front().second);
 }
 
+TEST(EventDispatcherTests, CanConnectListenerToTwoEvent) {
+    // Create the EventDispatcher and a MockListener to use for testing.
+    EventDispatcher dispatcher;   
+    MockListener listener;
+   
+    // Connect the listener to two test events.
+    EventListenerCallback callback(std::bind(&MockListener::HandleEvent, std::ref(listener), std::placeholders::_1));
+    dispatcher.Connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback));
+
+    // Query the dispatcher for a list of the listeners for the test event.
+    EventListenerList listeners1 = dispatcher.GetListeners(EventType("test_event1"));
+    EventListenerList listeners2 = dispatcher.GetListeners(EventType("test_event2"));
+
+    // Make sure there's 1 listener registered to each event.
+    EXPECT_EQ(1, listeners1.size());
+    EXPECT_EQ(1, listeners2.size());
+}
+
 TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
     // Create the EventDispatcher and a MockListener to use for testing.
     EventDispatcher dispatcher;   
@@ -119,7 +138,6 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
     EXPECT_EQ(callback2, listeners.front().second);
 }
 
-
 TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {    
     EventDispatcher dispatcher;
     MockListener listener1;
@@ -149,5 +167,25 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {
     listeners2 = dispatcher.GetListeners(EventType("test_event2"));
     EXPECT_EQ(1, listeners1.size());
     EXPECT_EQ(1, listeners2.size());
+}
+
+TEST(EventDispatcherTests, CanGetListOfRegisteredEventTypes) {
+    // Create the EventDispatcher and a MockListener to use for testing.
+    EventDispatcher dispatcher;   
+    MockListener listener;
+   
+    // Connect the listener to two test events.
+    EventListenerCallback callback(std::bind(&MockListener::HandleEvent, std::ref(listener), std::placeholders::_1));
+    dispatcher.Connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.Connect(EventType("test_event3"), EventListener(EventListenerType("MockListener"), callback));
+
+    std::vector<EventType> event_types = dispatcher.GetRegisteredEvents();
+    
+    EXPECT_EQ(3, event_types.size());
+
+    EXPECT_EQ(EventType("test_event1"), event_types[0]);
+    EXPECT_EQ(EventType("test_event3"), event_types[1]); // When hashed test_event3 happens to be less than test_event2
+    EXPECT_EQ(EventType("test_event2"), event_types[2]);
 }
 

@@ -137,6 +137,18 @@ EventListenerList EventDispatcher::GetListeners(const EventType& event_type) con
     return result;
 }
 
+std::vector<EventType> EventDispatcher::GetRegisteredEvents() const {
+    std::vector<EventType> event_types;
+    event_types.reserve(event_type_set_.size());
+
+    // Use the known type lists to loop and call Disconnect for each.
+    for (auto type_it = event_type_set_.begin(), end = event_type_set_.end(); type_it != end; ++type_it) {
+        event_types.push_back(*type_it);
+    }
+
+    return event_types;
+}
+
 bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
     // Make sure the string isn't empty.
     if (event_type.ident_string().length() == 0) {

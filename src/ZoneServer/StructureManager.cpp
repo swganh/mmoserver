@@ -55,6 +55,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "Utils/rand.h"
+#include "Utils/MathFunctions.h"
 
 #include <cassert>
 
@@ -448,10 +449,7 @@ bool StructureManager::checkinCamp(PlayerObject* player)
 //returns true if we're in a no build region
 bool StructureManager::checkNoBuildRegion(PlayerObject* player)
 {
-	glm::vec3 pVec;
-	pVec.x = player->mPosition.x;
-	pVec.z = player->mPosition.z;
-	if (checkNoBuildRegion(pVec) /*||!checkCityRadius(player)*/)
+	if (checkNoBuildRegion(player->mPosition) /*||!checkCityRadius(player)*/)
 	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("faction_perk", "no_build_area"), player);
 		return true;
@@ -462,7 +460,7 @@ bool StructureManager::checkNoBuildRegion(PlayerObject* player)
 //======================================================================================================================
 //returns true if we're in a no build region
 //======================================================================================================================
-bool StructureManager::checkNoBuildRegion(glm::vec3 vec3)
+bool StructureManager::checkNoBuildRegion(const glm::vec3& vec3)
 {
 	NoBuildRegionList* regionList = gStructureManager->getNoBuildRegionList();
 	NoBuildRegionList::iterator it = regionList->begin();
@@ -494,17 +492,10 @@ bool StructureManager::checkNoBuildRegion(glm::vec3 vec3)
 
                 // Convert the player position to a vec 2.
                 glm::vec2 player_position(vec3.x, vec3.z);
+                glm::vec2 region_center(rX, rZ);
 
-                // Get nobuild lower right and upper left corners.
-                glm::vec2 lower_left(rX - (0.5*width), rZ - (0.5*height));
-                glm::vec2 upper_right(rX + (0.5*width), rZ + (0.5*height));
-
-                // Check and see if the player is within this no build region.
-                glm::vec2::bool_type greater_than = glm::greaterThanEqual(player_position, lower_left);
-                glm::vec2::bool_type less_than = glm::lessThanEqual(player_position, upper_right);
-
-                if (greater_than.x && greater_than.y && less_than.x && less_than.y) {
-					return true;
+                if (IsPointInRectangle(player_position, region_center, width, height)) {
+                    return true;
                 }
 			}
 		}

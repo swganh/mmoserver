@@ -19,5 +19,8 @@
     <ClCompile Include="Common\TestOutOfBand.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\TestInRectangle.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

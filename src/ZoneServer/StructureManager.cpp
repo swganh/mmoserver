@@ -451,7 +451,7 @@ bool StructureManager::checkNoBuildRegion(PlayerObject* player)
 	glm::vec3 pVec;
 	pVec.x = player->mPosition.x;
 	pVec.z = player->mPosition.z;
-	if (checkNoBuildRegion(pVec) ||!checkCityRadius(player))
+	if (checkNoBuildRegion(pVec) /*||!checkCityRadius(player)*/)
 	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("faction_perk", "no_build_area"), player);
 		return true;
@@ -1594,7 +1594,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 	gLogger->log(LogManager::DEBUG," ID %I64u x %f y %f dir %f", deedId, pVec.x, pVec.z, dir);
 	
 	//check the region whether were allowed to build
-	if(checkNoBuildRegion(pVec) || !checkCityRadius(player))
+	if(checkNoBuildRegion(pVec) /*|| !checkCityRadius(player)*/)
 	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("faction_perk", "no_build_area"), player);
 		return false;

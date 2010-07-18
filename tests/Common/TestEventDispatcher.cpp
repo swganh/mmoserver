@@ -76,13 +76,45 @@ TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
     // Query the dispatcher for a list of the listeners for the test event.
     EventListenerList listeners = dispatcher.GetListeners(EventType("test_event"));
 
-    // Make sure there's 1 and only 1 listener registered.
+    // Make sure there are 2 listeners registered for this type.
     EXPECT_EQ(2, listeners.size());
 
     // Make sure the items returned back are the same as the ones put in.
     EXPECT_EQ(EventListenerType("MockListener"), listeners.front().first);
     EXPECT_EQ(callback1, listeners.front().second);
     listeners.pop_front();
+    EXPECT_EQ(EventListenerType("MockListenerAlt"), listeners.front().first);
+    EXPECT_EQ(callback2, listeners.front().second);
+}
+
+TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
+    EventDispatcher dispatcher;
+    MockListener listener1;
+    MockListenerAlt listener2;
+    
+    // Connect the listeners to a test event.
+    EventListenerCallback callback1(std::bind(&MockListener::HandleEvent, std::ref(listener1), std::placeholders::_1));
+    EventListenerCallback callback2(std::bind(&MockListenerAlt::HandleEvent, std::ref(listener2), std::placeholders::_1));
+    
+    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback1));
+    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListenerAlt"), callback2));
+    
+    // Query the dispatcher for a list of the listeners for the test event.
+    EventListenerList listeners = dispatcher.GetListeners(EventType("test_event"));
+    
+    // Make sure there are 2 listeners registered for this type.
+    EXPECT_EQ(2, listeners.size());
+
+    // Disconnect one of the listeners.
+    dispatcher.Disconnect(EventType("test_event"), EventListenerType("MockListener"));
+    
+    // Query the dispatcher again for a list of the listeners.
+    listeners = dispatcher.GetListeners(EventType("test_event"));
+    
+    // Make sure there is only listener registered for this type.
+    EXPECT_EQ(1, listeners.size());
+    
+    // Make sure the correct listener is still registered.
     EXPECT_EQ(EventListenerType("MockListenerAlt"), listeners.front().first);
     EXPECT_EQ(callback2, listeners.front().second);
 }

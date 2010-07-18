@@ -56,13 +56,20 @@ public:
     ~EventDispatcher();
 
     /**
-     * Connects an event listener to the specified event. 
+     * Connects an event listener to an event. 
      *
      * \param event_type The event type to check for connected listeners.
      * \param listener The listener interested in the event specified.
-     * \returns Returns true if the listener was successfully connected, false if not.
      */
-    bool Connect(const EventType& event_type, EventListener listener);
+    void Connect(const EventType& event_type, EventListener listener);
+
+    /**
+     * Disconnects an event listener from an event.
+     *
+     * \param event_type The event type to disconnect from.
+     * \param event_listener_type The type of the event listener being disconnected.
+     */
+    void Disconnect(const EventType& event_type, const EventListenerType& event_listener_type);
 
     /**
      * Gets all of the listeners connected to a specific event type.
@@ -80,6 +87,7 @@ private:
     EventDispatcher& operator=(const EventDispatcher&);
 
     bool ValidateEventType_(const EventType& event_type) const;
+    bool ValidateEventListenerType_(const EventListenerType& event_listener_type) const;
     bool AddEventType_(const EventType& event_type);
 
     typedef std::set<EventType> EventTypeSet;

@@ -33,13 +33,13 @@ EventDispatcher::EventDispatcher() {}
 
 EventDispatcher::~EventDispatcher() {}
 
-bool EventDispatcher::Connect(const EventType& event_type, EventListener listener) {
+void EventDispatcher::Connect(const EventType& event_type, EventListener listener) {
     if (! ValidateEventType_(event_type)) {
-        return false;
+        return;
     }
     
     if (! AddEventType_(event_type)) {
-        return false;
+        return;
     }
 
     // Look for an entry and
@@ -47,7 +47,7 @@ bool EventDispatcher::Connect(const EventType& event_type, EventListener listene
     
     // Somehow the event type doesn't exist.
     if (map_it == event_listener_map_.end()) {
-        return false;
+        return;
     }
 
     // Lookup the listener in the list to see if it already exists.
@@ -55,14 +55,44 @@ bool EventDispatcher::Connect(const EventType& event_type, EventListener listene
 
     for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
         if ((*list_it).first.ident() == listener.first.ident()) {
-            return false;
+            return;
         }
     }
 
     // EventType has been validated, the listener validated and doesn't already exist, add it.
     listener_list.push_back(listener);
+}
 
-    return true;
+
+void EventDispatcher::Disconnect(const EventType& event_type, const EventListenerType& event_listener_type){
+    // Make sure a valid event type was passed in.
+    if (! ValidateEventType_(event_type)) {
+        return;
+    }
+    // Make sure a valid event listener type was passed in.
+    if (! ValidateEventListenerType_(event_type)) {
+        return;
+    }
+
+    // Look for an entry and
+    auto map_it = event_listener_map_.find(event_type);
+    
+    // Somehow the event type doesn't exist.
+    if (map_it == event_listener_map_.end()) {
+        return;
+    }
+
+    // Lookup the listener in the list to see if it already exists.
+    EventListenerList& listener_list = (*map_it).second;
+    
+    // Loop through until we find it, no need to worry about invalidating the iterator
+    // because after the erase it's never used again.
+    for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
+        if ((*list_it).first.ident() == event_listener_type.ident()) {
+            listener_list.erase(list_it);
+            break; // Item found and there is only one per list, break out.
+        }
+    }
 }
 
 EventListenerList EventDispatcher::GetListeners(const EventType& event_type) const {
@@ -88,7 +118,7 @@ EventListenerList EventDispatcher::GetListeners(const EventType& event_type) con
     // Build up the result set to return.
     EventListenerList result;
         
-    for (EventListenerList::const_iterator list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
+    for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
     	result.push_back(*list_it);
     }
     
@@ -109,6 +139,16 @@ bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
         if ((*it).ident() != event_type.ident()) {
             return false;
         }
+    }
+
+    // If all the tests have passed then return true for validation.
+    return true;
+}
+
+bool EventDispatcher::ValidateEventListenerType_(const EventListenerType& event_listener_type) const {
+    // Make sure the string isn't empty.
+    if (event_listener_type.ident_string().length() == 0) {
+        return false;
     }
 
     // If all the tests have passed then return true for validation.

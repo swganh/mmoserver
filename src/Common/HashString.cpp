@@ -33,6 +33,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace common {
 
+std::ostream& operator<<(std::ostream& message, const HashString& string) {
+    message << string.ident_string();
+    return message;
+}
+
 HashString::HashString(char const * const ident_string)
 : ident_(reinterpret_cast<void*>(memcrc(ident_string, strlen(ident_string))))
 , ident_string_(ident_string) {}

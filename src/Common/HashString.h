@@ -32,7 +32,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 
 namespace common {
+
+class HashString;
     
+/**
+ * Writes a HashString to an output stream in a human readable format.
+ *
+ * @param message The output stream to write the data to.
+ * @param string The HashString to stream data from.
+ */
+std::ostream& operator<<(std::ostream& message, const HashString& string);
+
 class HashString {
 public:
     /**

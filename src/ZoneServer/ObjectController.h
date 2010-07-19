@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/pool/pool.hpp>
 
 // maximum commands allowed to be queued
-#define COMMAND_QUEUE_MAX_SIZE 10
+#define COMMAND_QUEUE_MAX_SIZE 30
 
 // typedef void (ObjectController::*adminFuncPointer)(BString message);
 //=======================================================================
@@ -327,6 +327,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void	_handleStand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleKneel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleProne(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		// logout
 		void	_handleClientLogout(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 		// destroy handlers

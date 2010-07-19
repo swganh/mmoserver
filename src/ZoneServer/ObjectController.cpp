@@ -842,9 +842,14 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
 
 	while(it != mEnqueueValidators.end())
 	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+		if(this->getCommandQueue()->size() >= COMMAND_QUEUE_MAX_SIZE)
+		{
+			gMessageLib->SendSystemMessage(::common::OutOfBand("client", "too_many_commands_queued_generic"),player);
+			return(false);
+		}
 		if(!((*it)->validate(reply1,reply2,targetId,opcode,cmdProperties)))
 		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 			if(opcode == opOCRequestCraftingSession)
 			{
 				gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,player);
@@ -902,7 +907,7 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
 
 void ObjectController::initEnqueueValidators()
 {
-	mEnqueueValidators.push_back(new EVQueueSize(this));
+	//mEnqueueValidators.push_back(new EVQueueSize(this));
 	mEnqueueValidators.push_back(new EVCmdProperty(this));
 
 	switch(mObject->getType())

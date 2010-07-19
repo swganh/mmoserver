@@ -31,6 +31,9 @@
     <ClCompile Include="Common\TestHashString.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="TestEvent.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\MockObjects\MockListener.h">

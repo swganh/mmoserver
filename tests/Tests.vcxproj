@@ -101,6 +101,7 @@
     <ClCompile Include="Common\TestOutOfBand.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestCrc.cpp" />
+    <ClCompile Include="TestEvent.cpp" />
     <ClCompile Include="Utils\TestCmpistr.cpp" />
   </ItemGroup>
   <ItemGroup>

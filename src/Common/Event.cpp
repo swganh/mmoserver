@@ -25,35 +25,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef SRC_COMMON_EVENT_H_
-#define SRC_COMMON_EVENT_H_
-
-#include <memory>
-
-#include "Common/ByteBuffer.h"
-#include "Common/HashString.h"
+#include "Common/Event.h"
 
 namespace common {
-    
-// Use a HashString as the basis for EventType's.
-typedef HashString EventType;
 
-class ByteBuffer;
+Event::Event(const EventType& event_type)
+: event_type_(event_type) {}
 
-class Event {
-public:
-    explicit Event(const EventType& event_type);
+const EventType& Event::event_type() const {
+    return event_type_;
+}
 
-    const EventType& event_type() const;
-
-    bool HasSubject() const;
-    //const ByteBuffer& subject() const;
-
-private:
-    EventType event_type_;
-    std::unique_ptr<ByteBuffer> subject_;
-};
+bool Event::HasSubject() const {
+    return (subject_ != nullptr);
+}
 
 }  // namespace common
-
-#endif  // SRC_COMMON_EVENT_H_

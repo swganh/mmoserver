@@ -25,35 +25,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef SRC_COMMON_EVENT_H_
-#define SRC_COMMON_EVENT_H_
+#include <gtest/gtest.h>
 
-#include <memory>
+#include "Common/Event.h"
 
-#include "Common/ByteBuffer.h"
-#include "Common/HashString.h"
+using ::common::Event;
+using ::common::EventType;
 
-namespace common {
-    
-// Use a HashString as the basis for EventType's.
-typedef HashString EventType;
+TEST(EventTests, CanSetTypeForEvent) {
+    Event my_event(EventType("my_event_type"));
 
-class ByteBuffer;
+    EXPECT_EQ(EventType("my_event_type"), my_event.event_type());
+}
 
-class Event {
-public:
-    explicit Event(const EventType& event_type);
+TEST(EventTests, SubjectIsNullByDefault) {
+    Event my_event(EventType("my_event_type"));
 
-    const EventType& event_type() const;
-
-    bool HasSubject() const;
-    //const ByteBuffer& subject() const;
-
-private:
-    EventType event_type_;
-    std::unique_ptr<ByteBuffer> subject_;
-};
-
-}  // namespace common
-
-#endif  // SRC_COMMON_EVENT_H_
+    EXPECT_EQ(false, my_event.HasSubject());
+}

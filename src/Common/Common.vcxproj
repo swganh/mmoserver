@@ -16,6 +16,7 @@
     <ClCompile Include="ByteBuffer.cpp" />
     <ClCompile Include="Crc.cpp" />
     <ClCompile Include="DispatchClient.cpp" />
+    <ClCompile Include="Event.cpp" />
     <ClCompile Include="EventDispatcher.cpp" />
     <ClCompile Include="HashString.cpp" />
     <ClCompile Include="MessageDispatch.cpp" />

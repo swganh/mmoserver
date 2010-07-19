@@ -49,7 +49,6 @@ typedef HashString EventListenerType;
 // very infrequently we also want to be able to add and remove listeners and need a 
 // way to identify them in the list so a std::pair is used as the node.
 typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
-typedef std::list<EventListener> EventListenerList;
 
 class EventDispatcher {
 public:
@@ -85,7 +84,7 @@ public:
      * \param event_type The event type to check for connected listeners.
      * \return A list of the connected listeners to the specified event.
      */
-    EventListenerList GetListeners(const EventType& event_type) const;
+    std::vector<EventListener> GetListeners(const EventType& event_type) const;
 
     /**
      * Gets a list of all of the registered events.
@@ -107,7 +106,8 @@ private:
 
     typedef std::set<EventType> EventTypeSet;
     EventTypeSet event_type_set_;
-
+    
+    typedef std::list<EventListener> EventListenerList;
     typedef std::map<EventType, EventListenerList> EventListenerMap;
     EventListenerMap event_listener_map_;
 };

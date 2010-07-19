@@ -107,16 +107,16 @@ void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_
     }
 }
 
-EventListenerList EventDispatcher::GetListeners(const EventType& event_type) const {
+std::vector<EventListener> EventDispatcher::GetListeners(const EventType& event_type) const {
     if (! ValidateEventType_(event_type)) {
-        return EventListenerList();
+        return std::vector<EventListener>();
     }
 
     EventListenerMap::const_iterator map_it = event_listener_map_.find(event_type);
     
     // no listerners currently for this event type, so sad
     if (map_it == event_listener_map_.end()) {
-        return EventListenerList();
+        return std::vector<EventListener>();
     }
     
     const EventListenerList& listener_list = map_it->second;
@@ -124,11 +124,11 @@ EventListenerList EventDispatcher::GetListeners(const EventType& event_type) con
     // there was, but is not now, any listerners currently for
     // this event type, so sad
     if (listener_list.size() == 0) {
-        return EventListenerList();
+        return std::vector<EventListener>();
     }
     
     // Build up the result set to return.
-    EventListenerList result;
+    std::vector<EventListener> result;
         
     for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
     	result.push_back(*list_it);

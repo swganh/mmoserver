@@ -30,14 +30,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace common {
 
 Event::Event(const EventType& event_type)
-: event_type_(event_type) {}
+: event_type_(event_type)
+, subject_() {}
+
+Event::Event(const EventType& event_type, const ByteBuffer& subject)
+: event_type_(event_type)
+, subject_(subject) {}
 
 const EventType& Event::event_type() const {
     return event_type_;
 }
 
 bool Event::HasSubject() const {
-    return (subject_ != nullptr);
+    return (subject_.Size() != 0);
+}
+
+std::unique_ptr<ByteBuffer> Event::subject() const {
+    std::unique_ptr<ByteBuffer> subject(new ByteBuffer(subject_));
+    return subject;
 }
 
 }  // namespace common

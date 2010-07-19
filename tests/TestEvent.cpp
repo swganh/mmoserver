@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/Event.h"
 
+using ::common::ByteBuffer;
 using ::common::Event;
 using ::common::EventType;
 
@@ -42,4 +43,17 @@ TEST(EventTests, SubjectIsNullByDefault) {
     Event my_event(EventType("my_event_type"));
 
     EXPECT_EQ(false, my_event.HasSubject());
+}
+
+TEST(EventTests, CanSetSubjectForEvent) {
+    // Create a byte-buffer to serve as a container for the subject data.
+    ByteBuffer subject;
+    subject.Write<std::string>("test_string");
+
+    // Create the event and ask it for the subject.
+    Event my_event(EventType("my_event_with_subject"), subject);
+    std::unique_ptr<ByteBuffer> event_subject = my_event.subject();
+
+    // Make sure the subject that we get out is the one that was put in.
+    EXPECT_EQ(subject.Read<std::string>(), event_subject->Read<std::string>());
 }

@@ -43,15 +43,36 @@ class ByteBuffer;
 class Event {
 public:
     explicit Event(const EventType& event_type);
+    Event(const EventType& event_type, const ByteBuffer& subject);
 
+    /**
+     * Returns the type of the event.
+     *
+     * \returns The type of the event.
+     */
     const EventType& event_type() const;
-
+    
+    /**
+     * Checks to see if a subject has been set or not.
+     *
+     * \returns True if a subject has been set, false if not.
+     */
     bool HasSubject() const;
-    //const ByteBuffer& subject() const;
+
+    /**
+     * Returns a throw-away copy of the subject.
+     *
+     * ByteBuffer's read functionality is non-const so a throw away copy is instead 
+     * created and returned. Although this copy can be modified it does not affect
+     * the source subject in the event itself.
+     *
+     * \returns A throw-away copy of the subject.
+     */
+    std::unique_ptr<ByteBuffer> subject() const;
 
 private:
     EventType event_type_;
-    std::unique_ptr<ByteBuffer> subject_;
+    ByteBuffer subject_;
 };
 
 }  // namespace common

@@ -235,6 +235,9 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
 			_sendDeleteCharacterReply(deleteFailed,client);
 
+            // Set the account authenticated status to 0 here because after a character deletion
+            // the client essentially reconnects to the login server if any further commands are given.
+	        mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", client->getAccountId());
 			// _sendDeleteCharacterReply(0,client);
 		}
         case LCSTATE_RetrieveAccountId:

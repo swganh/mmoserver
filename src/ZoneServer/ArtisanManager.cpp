@@ -169,12 +169,6 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
 		return false;
 	}
 
-	if(playerObject->getPerformingState() != PlayerPerformance_None)
-	{
-        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_cancel"), playerObject);
-		return false;
-	}
-
 	uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 	if(!playerObject->getNextSampleTime() || (int32)(playerObject->getNextSampleTime() - localTime) <= 0)
 	{

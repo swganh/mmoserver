@@ -38,12 +38,37 @@ namespace common {
 // Use a HashString as the basis for EventType's.
 typedef HashString EventType;
 
-class ByteBuffer;
+class Event;
+
+/**
+ * Compares the weight of two events based on priority and timestamp.
+ *
+ * This helper is intended for use with a std::priority_queue<> to determine where
+ * an event should be placed.
+ *
+ * \param lhs The "left-hand side" of the comparison (eg. x > z, x would be the lhs).
+ * \param rhs The "right-hand side" of the comparison (eg. x > z, z would be the rhs).
+ * \returns Returns true if left-hand side is less than the right-hand side.
+ */
+bool CompareEventWeightLessThan(const Event& lhs, const Event& rhs);
+
+/**
+ * Compares the weight of two events based on priority and timestamp.
+ *
+ * This helper is intended for use with a std::priority_queue<> to determine where
+ * an event should be placed.
+ *
+ * \param lhs The "left-hand side" of the comparison (eg. x > z, x would be the lhs).
+ * \param rhs The "right-hand side" of the comparison (eg. x > z, z would be the rhs).
+ * \returns Returns true if left-hand side is greater than the right-hand side.
+ */
+bool CompareEventWeightGreaterThan(const Event& lhs, const Event& rhs);
 
 class Event {
 public:
     explicit Event(const EventType& event_type);
-    Event(const EventType& event_type, const ByteBuffer& subject);
+    Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject);
+    Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject, std::unique_ptr<ByteBuffer>&& data);
 
     /**
      * Returns the type of the event.
@@ -69,10 +94,94 @@ public:
      * \returns A throw-away copy of the subject.
      */
     std::unique_ptr<ByteBuffer> subject() const;
+    
+    /**
+     * Checks to see if any data has been set for the event or not.
+     *
+     * \returns True if data has been set, false if not.
+     */
+    bool HasData() const;
 
+    /**
+     * Returns a throw-away copy of the event data.
+     *
+     * ByteBuffer's read functionality is non-const so a throw away copy is instead 
+     * created and returned. Although this copy can be modified it does not affect
+     * the source data in the event itself.
+     *
+     * \returns A throw-away copy of the event data.
+     */
+    std::unique_ptr<ByteBuffer> data() const;
+    
+    /**
+     * Checks to see if any response data has been set for the event or not.
+     *
+     * \returns True if response data has been set, false if not.
+     */
+    bool HasResponse() const;
+
+    /**
+     * Returns a throw-away copy of the event's response data.
+     *
+     * ByteBuffer's read functionality is non-const so a throw away copy is instead 
+     * created and returned. Although this copy can be modified it does not affect
+     * the source response data in the event itself.
+     *
+     * \returns A throw-away copy of the event's response data.
+     */
+    std::unique_ptr<ByteBuffer> response() const;
+
+    /**
+     * Sets response data for the event.
+     *
+     * \param response This is the response data. Implemented as a unique pointer it "consumes" anything passed into it
+     *                 meaning that it takes control of the object's lifetime including when to call delete.
+     */
+    void response(std::unique_ptr<ByteBuffer> response);
+
+    /**
+     * Sets a timestamp for the event to indicate when it was triggered. 
+     * 
+     * Timestamps are generally set via the EventDispatcher when it receives an event,
+     * however, if an event specifies a timestamp itself it will be honored and placed in the queue
+     * accordingly.
+     *
+     * \param timestamp The value to set the timestamp to.
+     */
+    void timestamp(uint64_t timestamp);
+
+    /**
+     * Returns a timestamp indicating when the event was triggered.
+     *
+     * \returns A timestamp indicating when the event was triggered.
+     */
+    uint64_t timestamp() const;    
+
+    /**
+     * Sets a priority for the event to use when concidering where placing it in a queue. 
+     * 
+     * Not all events are equal, some are simply more important than others and therefore
+     * need to be processed as soon as possible. Placing a higher priority value on these
+     * items will ensure they are placed higher in the queue.
+     *
+     * \param priority The value to set the priority to.
+     */
+    void priority(uint8_t timestamp);
+
+    /**
+     * Returns the current priority of the event.
+     *
+     * \returns Returns the current priority of the event.
+     */
+    uint8_t priority() const;
+    
 private:
     EventType event_type_;
-    ByteBuffer subject_;
+    std::unique_ptr<ByteBuffer> subject_;
+    std::unique_ptr<ByteBuffer> data_;
+    std::unique_ptr<ByteBuffer> response_;
+    uint64_t timestamp_;
+    uint8_t priority_;
 };
 
 }  // namespace common

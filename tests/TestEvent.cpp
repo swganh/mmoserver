@@ -33,13 +33,13 @@ using ::common::ByteBuffer;
 using ::common::Event;
 using ::common::EventType;
 
-TEST(EventTests, CanSetTypeForEvent) {
+TEST(EventTests, EventRequiresEventType) {
     Event my_event(EventType("my_event_type"));
 
     EXPECT_EQ(EventType("my_event_type"), my_event.event_type());
 }
 
-TEST(EventTests, SubjectIsNullByDefault) {
+TEST(EventTests, EventHasNoSubjectByDefault) {
     Event my_event(EventType("my_event_type"));
 
     EXPECT_EQ(false, my_event.HasSubject());
@@ -47,13 +47,101 @@ TEST(EventTests, SubjectIsNullByDefault) {
 
 TEST(EventTests, CanSetSubjectForEvent) {
     // Create a byte-buffer to serve as a container for the subject data.
-    ByteBuffer subject;
-    subject.Write<std::string>("test_string");
+    std::unique_ptr<ByteBuffer> subject(new ByteBuffer());
+    subject->Write<std::string>("test_string");
 
     // Create the event and ask it for the subject.
-    Event my_event(EventType("my_event_with_subject"), subject);
+    Event my_event(EventType("my_event_with_subject"), std::move(subject));
     std::unique_ptr<ByteBuffer> event_subject = my_event.subject();
 
     // Make sure the subject that we get out is the one that was put in.
-    EXPECT_EQ(subject.Read<std::string>(), event_subject->Read<std::string>());
+    EXPECT_EQ("test_string", event_subject->Read<std::string>());
 }
+
+TEST(EventTests, EventHasNoDataByDefault) {
+    Event my_event(EventType("my_event_type"));
+
+    EXPECT_EQ(false, my_event.HasData());
+}
+
+TEST(EventTests, CanSetDataForEvent) {
+    // Create a byte-buffer to serve as a container for the subject data.
+    std::unique_ptr<ByteBuffer> data(new ByteBuffer());
+    data->Write<std::string>("test_string");
+
+    // Create the event and ask it for the subject.
+    Event my_event(EventType("my_event_with_data"), nullptr, std::move(data));
+    std::unique_ptr<ByteBuffer> event_data = my_event.data();
+
+    // Make sure the subject that we get out is the one that was put in.
+    EXPECT_EQ("test_string", event_data->Read<std::string>());
+}
+
+TEST(EventTests, EventHasNoResponseByDefault) {
+    Event my_event(EventType("my_event_type"));
+
+    EXPECT_EQ(false, my_event.HasResponse());
+}
+
+TEST(EventTests, CanSetResponseForEvent) {
+    // Create a byte-buffer to serve as a container for the subject data.
+    std::unique_ptr<ByteBuffer> response(new ByteBuffer());
+    response->Write<std::string>("test_string");
+
+    // Create the event and ask it for the subject.
+    Event my_event(EventType("my_event_with_data"));
+    my_event.response(std::move(response));
+
+    std::unique_ptr<ByteBuffer> event_response = my_event.response();
+
+    // Make sure the subject that we get out is the one that was put in.
+    EXPECT_EQ("test_string", event_response->Read<std::string>());
+}
+
+TEST(EventTests, CanSetTimestampForEvent) {
+    uint64_t timestamp = 100;
+
+    // Set a timestamp for the event and make sure the value we get out is what was put in.
+    Event my_event(EventType("my_event_type"));
+    my_event.timestamp(timestamp);
+
+    EXPECT_EQ(timestamp, my_event.timestamp());
+}
+
+TEST(EventTests, EventsHaveDefaultPriorityOfZero) {
+    Event my_event(EventType("my_event_type"));
+
+    // Make sure that by default the priority is zero.
+    EXPECT_EQ(0, my_event.priority());
+}
+
+TEST(EventTests, CanSetPriorityForEvent) {
+    Event my_event(EventType("my_event_type"));
+
+    // Set a priority value and make sure what we get out is what was put in.
+    my_event.priority(27);
+    EXPECT_EQ(27, my_event.priority());
+}
+
+TEST(EventTests, ComparingEventsConsidersTimestamp) {
+    Event event1(EventType("event1"));
+    event1.timestamp(100);
+
+    Event event2(EventType("event2"));
+    event2.timestamp(200);
+
+    EXPECT_EQ(true, CompareEventWeightLessThan(event1, event2));
+    EXPECT_EQ(true, CompareEventWeightGreaterThan(event2, event1));
+}
+
+TEST(EventTests, ComparingEventsConsidersPriority) {
+    Event event1(EventType("event1"));
+    event1.priority(1);
+
+    Event event2(EventType("event2"));
+    event2.priority(2);
+
+    EXPECT_EQ(true, CompareEventWeightLessThan(event1, event2));
+    EXPECT_EQ(true, CompareEventWeightGreaterThan(event2, event1));
+}
+

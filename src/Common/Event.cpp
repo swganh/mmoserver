@@ -31,23 +31,87 @@ namespace common {
 
 Event::Event(const EventType& event_type)
 : event_type_(event_type)
-, subject_() {}
+, subject_(nullptr)
+, data_(nullptr)
+, response_(nullptr)
+, timestamp_(0)
+, priority_(0) {}
 
-Event::Event(const EventType& event_type, const ByteBuffer& subject)
+Event::Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject)
 : event_type_(event_type)
-, subject_(subject) {}
+, subject_(std::forward<std::unique_ptr<ByteBuffer>>(subject))
+, data_(nullptr)
+, response_(nullptr)
+, timestamp_(0)
+, priority_(0) {}
+
+Event::Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject, std::unique_ptr<ByteBuffer>&& data)
+: event_type_(event_type)
+, subject_(std::forward<std::unique_ptr<ByteBuffer>>(subject))
+, data_(std::forward<std::unique_ptr<ByteBuffer>>(data))
+, response_(nullptr)
+, timestamp_(0)
+, priority_(0) {}
 
 const EventType& Event::event_type() const {
     return event_type_;
 }
 
 bool Event::HasSubject() const {
-    return (subject_.Size() != 0);
+    return (subject_ != nullptr);
 }
 
 std::unique_ptr<ByteBuffer> Event::subject() const {
-    std::unique_ptr<ByteBuffer> subject(new ByteBuffer(subject_));
+    std::unique_ptr<ByteBuffer> subject(new ByteBuffer(*subject_));
     return subject;
+}
+
+bool Event::HasData() const {
+    return (data_ != nullptr);
+}
+
+std::unique_ptr<ByteBuffer> Event::data() const {
+    std::unique_ptr<ByteBuffer> data(new ByteBuffer(*data_));
+    return data;
+}
+
+bool Event::HasResponse() const {
+    return (response_ != nullptr);
+}
+
+std::unique_ptr<ByteBuffer> Event::response() const {
+    std::unique_ptr<ByteBuffer> response(new ByteBuffer(*response_));
+    return response;
+}
+
+void Event::response(std::unique_ptr<ByteBuffer> response) {
+    response_ = std::move(response);
+}
+
+void Event::timestamp(uint64_t timestamp) {
+    timestamp_ = timestamp;
+}
+
+uint64_t Event::timestamp() const {
+    return timestamp_;
+}
+
+void Event::priority(uint8_t priority) {
+    priority_ = priority;
+}
+
+uint8_t Event::priority() const {
+    return priority_;
+}
+
+// Helper function implementations
+
+bool CompareEventWeightLessThan(const Event& lhs, const Event& rhs) {
+    return ((lhs.timestamp() + lhs.priority()) < (rhs.timestamp() + rhs.priority()));
+}
+
+bool CompareEventWeightGreaterThan(const Event& lhs, const Event& rhs) {
+    return ((lhs.timestamp() + lhs.priority()) > (rhs.timestamp() + rhs.priority()));
 }
 
 }  // namespace common

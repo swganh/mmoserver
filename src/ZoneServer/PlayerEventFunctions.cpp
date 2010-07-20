@@ -610,9 +610,7 @@ void PlayerObject::onBurstRun(const BurstRunEvent* event)
 
 			this->setCurrentSpeedModifier(this->getBaseSpeedModifier());
 			gMessageLib->sendUpdateMovementProperties(this);
-
-
-
+			this->setUpright();
 		}
 	}
 

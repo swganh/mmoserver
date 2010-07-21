@@ -1229,7 +1229,17 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
 		//	gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
 		//	return;
 		//}
-		uint32		crc			= static_cast<uint32>(resourceIdList[element]);
+		uint32		crc;	
+		try
+		{
+			crc	= static_cast<uint32>(resourceIdList[element]);
+		}
+		catch (...)
+		{
+			gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
+			return;
+		}
+
 		Resource*	resource	= gResourceManager->getResourceByNameCRC(crc);
 
 		if(resource)

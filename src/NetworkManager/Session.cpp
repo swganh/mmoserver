@@ -1510,6 +1510,12 @@ void Session::_processDataOrderPacket(Packet* packet)
   uint16 sequence = ntohs(packet->getUint16());
 
   PacketWindowList::iterator	iter			= mWindowPacketList.begin();
+
+  // If the window packet list is empty just bail out now.
+  if (iter == mWindowPacketList.end()) {
+      return;
+  }
+
   Packet*						windowPacket	= *iter;
   
   PacketWindowList::iterator iterRoll = mRolloverWindowPacketList.begin();

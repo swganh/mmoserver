@@ -171,6 +171,7 @@ PlayerObject::~PlayerObject()
 	// make sure we stop entertaining if we are an entertainer
 	gEntertainerManager->stopEntertaining(this);
 
+	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
 	mObjectController.setTaskId(0);
 	mHam.setTaskId(0);
 	mStomach->mFoodTaskId = 0;

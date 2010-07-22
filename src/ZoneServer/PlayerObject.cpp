@@ -223,10 +223,23 @@ PlayerObject::~PlayerObject()
 
 	while(duelIt != mDuelList.end())
 	{
-		if((*duelIt)->checkDuelList(this))
+		//please note that this player doesnt necessarily exist anymore
+		//being challenged by us he might have logged out without him updating this list
+		//please note, that a challenge means, that only the challengers list is updated with the challenged players name
+		// the challenged players list remains empty
+		PlayerObject* duelPlayer;
+		try 
 		{
-			PlayerObject* duelPlayer = (*duelIt);
+			duelPlayer = dynamic_cast<PlayerObject*>((*duelIt));   
+		} 
+		catch (...) 
+		{
+			// The target or the instigator may have logged off in the process, bail out.
+			duelPlayer = nullptr;
+		}
 
+		if(duelPlayer && duelPlayer->checkDuelList(this))
+		{
 			duelPlayer->removeFromDuelList(this);
 
 			gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
@@ -2144,6 +2157,7 @@ void PlayerObject::setSitting(Message* message)
 		gMessageLib->sendPostureUpdate(this);
 		gMessageLib->sendSelfPostureUpdate(this);
 	}
+
 	//hack-fix clientside bug by manually sending client message
     gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_sit"), this);
 }

@@ -214,6 +214,7 @@ void VehicleController::Store()
 	// todo auto dismount
 	if(owner_->checkIfMounted())
 	{
+		owner_->setLocomotion(kLocomotionStanding);
 		DismountPlayer();
 	}
 

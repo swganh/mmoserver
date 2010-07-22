@@ -359,7 +359,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		speed  = message->getFloat();
 
 		// stop entertaining, if we were
-		if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
+		if(player->getPerformingState() != PlayerPerformance_None/* && player->getPosture() != CreaturePosture_SkillAnimating*/)
 		{
 			gEntertainerManager->stopEntertaining(player);
 		}

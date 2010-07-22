@@ -635,6 +635,9 @@ void WorldManager::destroyObject(Object* object)
 				}
 			}
 
+			//now that were removed destroy us for all known objects
+			object->destroyKnownObjects();
+
 		}
 		break;
 		case ObjType_NPC:

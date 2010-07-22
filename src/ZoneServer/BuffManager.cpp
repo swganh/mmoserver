@@ -381,9 +381,16 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 		return false;
 
 	//Get PlayerObjects from CreatureObjects
-	PlayerObject* player = dynamic_cast<PlayerObject*>(buff->GetTarget());
-	PlayerObject* target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
+    PlayerObject* player = nullptr;
+    PlayerObject* target = nullptr;
 
+    try {
+	    PlayerObject* player = dynamic_cast<PlayerObject*>(buff->GetTarget());
+	    PlayerObject* target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
+    } catch (...) {
+        // The target or the instigator may have logged off in the process, bail out.
+        return false;
+    }
 
 	//If target is a player, not Creature/NPC
 	if(player)

@@ -99,6 +99,7 @@
     <ClCompile Include="Common\TestOutOfBand.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utils\TestCmpistr.cpp" />
+    <ClCompile Include="Utils\TestInRectangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Common\Common.vcxproj">

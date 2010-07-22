@@ -1365,7 +1365,9 @@ void ObjectController::_handleTarget(uint64 targetId,Message* message,ObjectCont
 
 void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-
+	// set locomotion
+	PlayerObject* playerObject = (PlayerObject*)mObject;
+	playerObject->setLocomotion(kLocomotionStanding);
 }
 
 //======================================================================================================================
@@ -1706,6 +1708,9 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	
 	//Send the burst run system message to the player
 	gMessageLib->SendSystemMessage(L"You run as hard as you can!", player);
+
+	// set locomotion
+	player->setLocomotion(kLocomotionRunning);
 	
 	//Now send the burst run combat spam message to InRange
 	int8 s[256];

@@ -91,7 +91,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 
 							int8 sql[128];
 							sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
-							(gWorldManager->getDatabase())->ExecuteSqlAsync(NULL,NULL,sql);
+							(gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql);
 
 							// Clone location successfully updated
                             gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "clone_success"), playerObject);
@@ -183,7 +183,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr
 
 				int8 sql[128];
 				sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
-				(gWorldManager->getDatabase())->ExecuteSqlAsync(NULL,NULL,sql);
+				(gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql);
 
 				// Clone location successfully updated
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "clone_success"), playerObject);

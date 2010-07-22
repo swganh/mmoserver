@@ -192,25 +192,6 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 		expFlag = false;
 	}
 
-	if(playerObject->isDead() || playerObject->isIncapacitated())
-	{
-        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
-		return false;
-	}
-
-	if(playerObject->getPerformingState() != PlayerPerformance_None)
-	{
-        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
-		return false;
-	}
-
-	if(playerObject->checkState(CreatureState_Crafting) || playerObject->getCraftingSession())
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: state or session");
-		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
-		return false;
-	}
-
 	if(tool->getAttribute<std::string>("craft_tool_status") == "@crafting:tool_status_working")
 	{
 		if(tool->getCurrentItem())

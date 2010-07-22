@@ -1325,7 +1325,7 @@ uint64 WorldManager::addBuffToProcess(Buff* buff)
 {
 	//Create a copy of Buff* which can be Destructed when task completes (leaving the original ptr intact)
 	//Buff** pBuff = &buff;
-	Buff* DestructibleBuff = buff;
+	Buff* DestructibleBuff = new Buff(*buff);
 
 	//Create Event
 	//BuffEvent* bEvent = new BuffEvent(buff);

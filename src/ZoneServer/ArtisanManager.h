@@ -45,6 +45,8 @@ class ZoneTree;
 class ArtisanHeightmapAsyncContainer;
 class SampleEvent;
 class SurveyEvent;
+class CurrentResource;
+class SurveyTool;
 
 class ArtisanManager : public ObjectFactoryCallback, public HeightMapCallBack, public Anh_Utils::EventHandler
 {
@@ -74,25 +76,16 @@ public:
 	bool					handleSurvey(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 	bool					handleSample(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
-	//// survey
-	//bool					getSurveyState(){ return mSampleNode.mPendingSurvey; }
-	//void					setSurveyState(bool state){ mSampleNode.mPendingSurvey = state; }
+	bool					getNormalSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	bool					getGambleSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	bool					getRadioactiveSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	bool					stopSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
 
-	//// sample
-	//bool					getSamplingState(){ return mSampleNode.mPendingSample; }
-	//void					setSamplingState(bool state){ mSampleNode.mPendingSample = state; }
-	//uint64					getNextSampleTime(){ return mSampleNode.mNextSampleTime; }
-	//void					setNextSampleTime(uint64 time){ mSampleNode.mNextSampleTime = time; }
-	//SampleNode*				getSampleData(){return &mSampleNode;}
 
 	//events
 	void					onSample(const SampleEvent* event);
 	void					onSurvey(const SurveyEvent* event);
 private:
-	//the data for the sample node game
-//	SampleNode				mSampleNode;
-	PlayerObject*			mPlayer;
-
 	ObjectFactoryCallback*	mObjectFactoryCallback;
 	HeightMapCallBack*		mHeightMapCallback;
 	Anh_Utils::EventHandler* mEventHandler;

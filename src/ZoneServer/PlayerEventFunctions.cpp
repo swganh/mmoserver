@@ -132,6 +132,9 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 
 void PlayerObject::onSample(const SampleEvent* event)
 {
+	gArtisanManager->onSample(event);
+	return;
+
 	SurveyTool*			tool		= event->getTool();
 	CurrentResource*	resource	= event->getResource();
 
@@ -158,13 +161,6 @@ void PlayerObject::onSample(const SampleEvent* event)
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_gone"), this);
 		return;
 	}
-
-	if(this->checkIfMounted())
-	{
-		gMessageLib->SendSystemMessage(L"You cannot take resource samples while mounted.", this);
-		return;
-	}
-
 
 	uint32 actionCost = gResourceCollectionManager->sampleActionCost;
 
@@ -512,7 +508,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	if(mHam.checkMainPools(0,actionCost,0) && (resAvailable))
 	{
 		getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 3000; //change back to 30000 after testing is finished
-		mObjectController.addEvent(new SampleEvent(tool,resource),10000);
+		mObjectController.addEvent(new SampleEvent(this,tool,resource),10000);
 	}
 	// out of ham or not enough skill, or resource not spawned in current location, stop sampling
 	else

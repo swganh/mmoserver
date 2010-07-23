@@ -66,9 +66,33 @@ bool CompareEventWeightGreaterThan(const Event& lhs, const Event& rhs);
 
 class Event {
 public:
+    Event();
     explicit Event(const EventType& event_type);
     Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject);
     Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject, std::unique_ptr<ByteBuffer>&& data);
+
+    ~Event();
+
+    /**
+     * Copy constructor, used to copy one Event to another. This destroy's the from object.
+     * 
+     * \param from The Event to use as the source in the copy.
+     */
+	Event(const Event& from);
+
+    /**
+     * Assignment operator, assigns one Event's contents to another. This destroy's the from object.
+     *
+     * \param from The Event to use as the source in the assignment.
+     */
+	Event& operator=(const Event& from);
+
+    /**
+     * A no-throw swap used for swapping the contents of two Events.
+     *
+     * @param from The source Event to swap contents with.
+     */
+	void Swap(Event& from);
 
     /**
      * Returns the type of the event.

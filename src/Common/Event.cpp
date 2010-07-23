@@ -28,6 +28,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/Event.h"
 
 namespace common {
+    
+Event::Event()
+: event_type_(EventType("null"))
+, subject_(nullptr)
+, data_(nullptr)
+, response_(nullptr)
+, timestamp_(0)
+, priority_(0) {}
 
 Event::Event(const EventType& event_type)
 : event_type_(event_type)
@@ -52,6 +60,35 @@ Event::Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject,
 , response_(nullptr)
 , timestamp_(0)
 , priority_(0) {}
+
+Event::~Event() {}
+
+Event::Event(const Event& from)
+: event_type_(from.event_type_)
+, subject_(new ByteBuffer())
+, data_(new ByteBuffer())
+, response_(new ByteBuffer())
+//, subject_(std::unique_ptr<ByteBuffer> (new ByteBuffer(from.subject_.get())))
+//, data_(std::unique_ptr<ByteBuffer> (new ByteBuffer(*(from.data_.get()))))
+//, response_(std::unique_ptr<ByteBuffer> (new ByteBuffer(*(from.response_.get()))))
+, timestamp_(from.timestamp_)
+, priority_(from.priority_) {}
+
+Event& Event::operator=(const Event& from) {
+	Event tmp(from);
+	Swap(tmp);
+
+	return *this;
+}
+
+void Event::Swap(Event& from) {
+	std::swap(event_type_, from.event_type_);
+	std::swap(subject_, from.subject_);
+	std::swap(data_, from.data_);
+	std::swap(response_, from.response_);
+	std::swap(timestamp_, from.timestamp_);
+	std::swap(priority_, from.priority_);
+}
 
 const EventType& Event::event_type() const {
     return event_type_;

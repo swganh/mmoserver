@@ -34,6 +34,9 @@
     <ClCompile Include="TestEvent.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="Utils\TestConcurrentQueue.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\MockObjects\MockListener.h">

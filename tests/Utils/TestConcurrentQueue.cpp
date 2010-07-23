@@ -1,0 +1,99 @@
+/*
+---------------------------------------------------------------------------------------
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
+
+For more information, visit http://www.swganh.com
+
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+---------------------------------------------------------------------------------------
+*/
+
+#include <gtest/gtest.h>
+
+#include "Utils/ConcurrentQueue.h"
+#include "Common/Event.h"
+
+using ::common::Event;
+using ::common::EventType;
+
+TEST(ConcurrentQueueTests, CanPushAndPopItem) {
+    Event my_event(EventType("event"));
+
+    ConcurrentQueue<Event> event_queue;
+
+    event_queue.push(my_event);
+
+    Event out_event;
+    
+    bool result = event_queue.pop(out_event);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(EventType("event"), out_event.event_type());
+}
+
+TEST(ConcurrentQueueTests, CanPushAndPopMultipleItems) {
+    Event my_event1(EventType("event1"));
+    Event my_event2(EventType("event2"));
+    Event my_event3(EventType("event3"));
+
+    ConcurrentQueue<Event> event_queue;
+
+    event_queue.push(my_event1);
+    event_queue.push(my_event2);
+    event_queue.push(my_event3);
+
+    Event out_event;    
+    bool result = event_queue.pop(out_event);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(EventType("event1"), out_event.event_type());
+
+    result = event_queue.pop(out_event);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(EventType("event2"), out_event.event_type());
+    
+    result = event_queue.pop(out_event);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(EventType("event3"), out_event.event_type());
+}
+
+TEST(ConcurrentQueueTests, CanPushAfterPop) {   
+    Event my_event1(EventType("event1"));
+    Event my_event2(EventType("event2"));
+
+    ConcurrentQueue<Event> event_queue;
+
+    event_queue.push(my_event1);
+
+    Event out_event;    
+    bool result = event_queue.pop(out_event);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(EventType("event1"), out_event.event_type());
+    
+    event_queue.push(my_event2);
+
+    result = event_queue.pop(out_event);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(EventType("event2"), out_event.event_type());
+}

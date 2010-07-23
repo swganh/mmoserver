@@ -281,9 +281,6 @@ bool ArtisanManager::handleSample(Object* player,Object* target,Message* message
 
 void ArtisanManager::onSample(const SampleEvent* event)
 {
-
-
-
 	SurveyTool*			tool		= event->getTool();
 	CurrentResource*	resource	= event->getResource();
 	PlayerObject*		player		= event->getPlayer();
@@ -309,64 +306,16 @@ void ArtisanManager::onSample(const SampleEvent* event)
 	bool					successSample	= false;
 	bool					resAvailable	= true;
 	resName.convert(BSTRType_Unicode16);
-	// apply dmg/debuff if sampling rads
-			
-	//these are the radioactive types
-	if(resType == 477 || resType == 476 /* || resType == 475*/)
+
+	if (getRadioactiveSample(player, resource, tool))
 	{
-		//did we already warn the player on the wounds ???
-		if(!player->getSampleData()->mPassRadioactive)
+		// now we're done sampling for this go around, finish up or set a flag so we know to finish up
+		if(stopSampling(player, resource, tool))
 		{
-			//UI Integration
-
-			WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Radioactive_Sample);
-			asyncContainer->PlayerId		= player->getId();
-			asyncContainer->ToolId			= tool->getId();
-			asyncContainer->CurrentResource	= resource;
-
-
-			gUIManager->createNewMessageBox(gResourceCollectionManager,"radioactiveSample","@survey:radioactive_sample_t","@survey:radioactive_sample_d",player,SUI_Window_SmplRadioactive_MsgBox, SUI_MB_YESNO,asyncContainer);
-			//Pause Sampling
-			player->getSampleData()->mPendingSample = false;
 			return;
 		}
-		
-		uint32 playerBF = player->getHam()->getBattleFatigue();
-		
-		//TODO
-		//please note that bf alterations should be calculated by the ham object!!!!!!
-		uint32 woundDmg = 50*(1 + (playerBF/100)) + (50*(1 + (resPE/1000)));
-		uint32 bfDmg    = static_cast<uint32>(0.075*resPE);
-		uint32 hamReduc = 100*(2+ (resPE/1000));
-
-		if(resPE >= 500)
-		{
-			//wound and BF dmg
-			player->getHam()->updateBattleFatigue(bfDmg);
-			player->getHam()->updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg); 
-			player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_Wounds, woundDmg);
-			player->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, woundDmg);
-		}
-		
-		//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500
-		
-		BuffAttribute* healthdebuffAttribute = new BuffAttribute(attr_health, -(int)hamReduc,0,hamReduc); 
-		Buff* healthdebuff = Buff::SimpleBuff(player, player, 300000, 0, gWorldManager->GetCurrentGlobalTick());
-		healthdebuff->AddAttribute(healthdebuffAttribute);	
-		player->AddBuff(healthdebuff,true);
-
-		healthdebuffAttribute = new BuffAttribute(attr_action, -(int)hamReduc,0,hamReduc); 
-		healthdebuff = Buff::SimpleBuff(player, player, 300000, 0, gWorldManager->GetCurrentGlobalTick());
-		healthdebuff->AddAttribute(healthdebuffAttribute);	
-		player->AddBuff(healthdebuff,true);
-		
-
-		//mHam.updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-hamReduc,true);
-		//mHam.updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-hamReduc,true); 
-		//gLogger->log(LogManager::DEBUG,"applied ham costs H/A w/ reduc: %u",  hamReduc);
-	
 	}
-
+	
 	// calculate sample size if concentration >0 and surveyMod exists for player
 
 	//original implementation sampleAmount = (uint32)floor((double)((15.0f * ratio) * (surveyMod / 100.0f)));
@@ -379,38 +328,26 @@ void ArtisanManager::onSample(const SampleEvent* event)
 	float minSample			= ratio_100/20*adjSkill;
 	float maxSample		    = ratio_100/10*adjSkill;
 	float minConcentration  = static_cast<float>(-1.12*successChance+88);   // attempting to simplify this to "-1*sC+90" or whatever will break it
+	uint32 actionCost		= gResourceCollectionManager->sampleActionCost;
 
-	//for checking abs minimum conc
-	//float minConc100sk		= static_cast<float>(-1.12*maxSuccessChance+88);
-	
 	if(player->getSampleData()->mSampleNodeFlag)
 	{
-		//we need to be in a 5m radius of the node
-        if(glm::distance(player->mPosition, player->getSampleData()->Position) <= 5.0)
+		if(setupForNodeSampleRecovery(player))
 		{
 			ratio	= 100.0;
 			dieRoll = 200;
-			player->getSampleData()->mSampleNodeRecovery = true;
-		}
-		else
-		{
-			gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_not_close"), player);
-			player->getSampleData()->mPendingSample		= false;
-			player->getSampleData()->mSampleNodeFlag	= false;
-			player->getSampleData()->mSampleNodeRecovery= false;
-			return;
 		}
 	}
 
+	// let's make sure their ratio is good enough to sample this
 	if(ratio <= 0.0f)
 	{
-    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "density_below_threshold", L"", L"", resName.getUnicode16()), player);
+		gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "density_below_threshold", L"", L"", resName.getUnicode16()), player);
 		player->getSampleData()->mPendingSample = false;
 		return;
 
 	}
 
-	//dieRoll = 92;
 	//If previous call triggered a sample event, set the roll to ensure critical success
 	if(player->getSampleData()->mSampleEventFlag == true)
 	{
@@ -429,8 +366,8 @@ void ArtisanManager::onSample(const SampleEvent* event)
 		{
 			// FAILED ATTEMPT
 			sampleAmount = 0;
-			successSample =false;
-      gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_failed", L"", L"", resName.getUnicode16()), player);
+			successSample = false;
+			gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_failed", L"", L"", resName.getUnicode16()), player);
 		}
 		// this probably needs to change right now == 98
 		else if((dieRoll > 91)&&(dieRoll < 96))
@@ -441,13 +378,13 @@ void ArtisanManager::onSample(const SampleEvent* event)
 			//do event 1 or event 2 based on roll
 			if(eventRoll == 1)
 			{
+				// setup gamble event
 				//GAMBLE Event
 				WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Radioactive_Sample);
 				asyncContainer->PlayerId		= player->getId();
 				asyncContainer->ToolId			= tool->getId();
 				asyncContainer->CurrentResource	= resource;
 
-				//TODO: Change UI integration
 				BStringVector items;
 				items.push_back("Ignore the concentration and continue working.");
 				items.push_back("Attempt to recover the resources. (300 Action)");
@@ -463,13 +400,10 @@ void ArtisanManager::onSample(const SampleEvent* event)
 				asyncContainer->ToolId			= tool->getId();
 				asyncContainer->CurrentResource	= resource;
 
-				//string waypConcentrationChoices = "Tune device to concentration.";
-				//waypConcentrationChoices.convert(BSTRType_Unicode16);
 				//WAYP CONCENTRATION
 				BStringVector items;
 				items.push_back("Ignore the concentration and continue working.");
 				items.push_back("Focus the device on the concentration");
-				//gUIManager->createNewListBox(gResourceCollectionManager,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,this,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,asyncContainer);
 				gUIManager->createNewListBox(gResourceCollectionManager,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",items,player,SUI_Window_SmplWaypNode_ListBox,SUI_LB_OKCANCEL,0,0,asyncContainer);
 		
 				//Pause sampling
@@ -602,59 +536,101 @@ void ArtisanManager::onSample(const SampleEvent* event)
 	}
 
 	// check our ham and keep sampling
-	
-	if(player->getSampleData()->mSampleNodeRecovery)
-		actionCost = gResourceCollectionManager->sampleActionCost*2;
-
-	// update ham for standard sample action oc does this already - only the first time though???  !!!
-	player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actionCost,true);
-
-	gLogger->log(LogManager::DEBUG,"PlayerObject::sample : %i action taken ",actionCost);
-	if(player->getHam()->checkMainPools(0,actionCost,0) && (resAvailable))
+	if(stopSampling(player, resource, tool))
 	{
-		player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 3000; //change back to 30000 after testing is finished
-		player->getController()->addEvent(new SampleEvent(player,tool,resource),10000);
+		actionCost = gResourceCollectionManager->sampleActionCost*2;
 	}
-	// out of ham or not enough skill, or resource not spawned in current location, stop sampling
 	else
 	{
-		int32 myHealth = player->getHam()->mHealth.getCurrentHitPoints();
-		int32 myAction = player->getHam()->mAction.getCurrentHitPoints();
-		int32 myMind = player->getHam()->mMind.getCurrentHitPoints();
-		
-		
-		//return message for sampling cancel based on HAM
-		if(myAction < (int32)actionCost)
-		{
-			gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), player);
-		}
-
-		//message for stop sampling
-		gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), player);
-
-
-		player->getSampleData()->mPendingSample	= false;
-		player->setUpright();
-
-
-		player->getHam()->updateRegenRates();
-		player->updateMovementProperties();
-
-		gMessageLib->sendUpdateMovementProperties(player);
-		gMessageLib->sendPostureAndStateUpdate(player);
-		gMessageLib->sendSelfPostureUpdate(player);
+		player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 18000;
+		player->getController()->addEvent(new SampleEvent(player,tool,resource),18000);
 	}
+
+
+	// update ham for standard sample action oc does this already - only the first time though???  !!!
+	player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actionCost, true);
 }
 bool	ArtisanManager::getNormalSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
 {
 	return true;
 }
+bool	ArtisanManager::setupForNodeSampleRecovery(PlayerObject* player)
+{
+		// need to be in a 5m radius of the node
+        if(glm::distance(player->mPosition, player->getSampleData()->Position) <= 5.0)
+		{
+			player->getSampleData()->mSampleNodeRecovery = true;
+		}
+		else
+		{
+			gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_not_close"), player);
+			player->getSampleData()->mPendingSample		= false;
+			player->getSampleData()->mSampleNodeFlag	= false;
+			player->getSampleData()->mSampleNodeRecovery= false;
+			return false;
+		}
+
+
+	return true;
+}
 bool	ArtisanManager::getGambleSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
 {
+
 	return true;
 }
 bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
 {
+	uint32					resType			= resource->getType()->getCategoryId();
+	uint16					resPE			= resource->getAttribute(ResAttr_PE);
+	
+	//these are the radioactive types
+	if(resType == 477 || resType == 476 /* || resType == 475*/)
+	{
+		//did we already warn the player on the wounds ???
+		if(!player->getSampleData()->mPassRadioactive)
+		{
+			//UI Integration
+
+			WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Radioactive_Sample);
+			asyncContainer->PlayerId		= player->getId();
+			asyncContainer->ToolId			= tool->getId();
+			asyncContainer->CurrentResource	= resource;
+
+			gUIManager->createNewMessageBox(gResourceCollectionManager,"radioactiveSample","@survey:radioactive_sample_t","@survey:radioactive_sample_d",player,SUI_Window_SmplRadioactive_MsgBox, SUI_MB_YESNO,asyncContainer);
+			//Pause Sampling
+			player->getSampleData()->mPendingSample = false;
+			return true;
+		}
+		Ham* hamz = player->getHam();
+		uint32 playerBF = hamz->getBattleFatigue();
+		
+		uint32 woundDmg = 50*(1 + (playerBF/100)) + (50*(1 + (resPE/1000)));
+		uint32 bfDmg    = static_cast<uint32>(0.075*resPE);
+		uint32 hamReduc = 100*(2+ (resPE/1000));
+
+		if(resPE >= 500)
+		{
+			//wound and BF dmg
+			hamz->updateBattleFatigue(bfDmg);
+			hamz->updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg); 
+			hamz->updatePropertyValue(HamBar_Action,HamProperty_Wounds, woundDmg);
+			hamz->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, woundDmg);
+		}
+		
+		//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500
+		BuffAttribute* healthdebuffAttribute = new BuffAttribute(attr_health, -(int)hamReduc,0,hamReduc); 
+		Buff* healthdebuff = Buff::SimpleBuff(player, player, 300000, 0, gWorldManager->GetCurrentGlobalTick());
+		healthdebuff->AddAttribute(healthdebuffAttribute);	
+		player->AddBuff(healthdebuff,true);
+
+		healthdebuffAttribute = new BuffAttribute(attr_action, -(int)hamReduc,0,hamReduc); 
+		healthdebuff = Buff::SimpleBuff(player, player, 300000, 0, gWorldManager->GetCurrentGlobalTick());
+		healthdebuff->AddAttribute(healthdebuffAttribute);	
+		player->AddBuff(healthdebuff,true);
+	}
+	else
+		return false;
+
 	return true;
 }
 bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
@@ -707,9 +683,8 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
 		gMessageLib->sendUpdateMovementProperties(player);
 		gMessageLib->sendPostureAndStateUpdate(player);
 		gMessageLib->sendSelfPostureUpdate(player);
-		return false;
 	}
-	return true;
+	return stop;
 }
 ////=============================================================================
 ////

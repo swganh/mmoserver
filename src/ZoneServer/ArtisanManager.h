@@ -77,6 +77,8 @@ public:
 	bool					handleSample(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 	bool					getNormalSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	// gamble
+	bool					setupForNodeSampleRecovery(PlayerObject* player);
 	bool					getGambleSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
 	bool					getRadioactiveSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
 	bool					stopSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
@@ -86,6 +88,7 @@ public:
 	void					onSample(const SampleEvent* event);
 	void					onSurvey(const SurveyEvent* event);
 private:
+
 	ObjectFactoryCallback*	mObjectFactoryCallback;
 	HeightMapCallBack*		mHeightMapCallback;
 	Anh_Utils::EventHandler* mEventHandler;

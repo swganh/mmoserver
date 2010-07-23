@@ -360,10 +360,11 @@ class PlayerObject : public CreatureObject
 		// duels
 		PlayerList*			getDuelList(){ return &mDuelList; }
 		bool				checkDuelList(PlayerObject* player);
+		void				clearDuelList();
 		void				addToDuelList(PlayerObject* player);
 		void				removeFromDuelList(PlayerObject* player);
 		//PlayerList::iterator removeFromDuelList(PlayerList::iterator& it);
-		void				clearDuelList(){ mDuelList.clear(); }
+
 
 		// reset properties on zoning
 		void				resetProperties();

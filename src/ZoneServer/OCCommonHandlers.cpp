@@ -232,8 +232,6 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	float			x,y,z;
 
 
-	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItem: called item %I64u",itemObject->getId());
-
 	message->getStringUnicode16(dataStr);
 
 	if(swscanf(dataStr.getUnicode16(),L" %"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
@@ -242,15 +240,14 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		return;
 	}
 
-
-
-
 	if (!itemObject)
 	{
 		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No Object to transfer :(");
 		//no Object :(
 		return;
 	}
+
+	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItem: called item %I64u",itemObject->getId());
 
 	TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
 	if(!tangible)

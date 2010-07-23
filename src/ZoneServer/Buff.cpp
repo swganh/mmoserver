@@ -91,6 +91,7 @@ Buff::Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, u
 , mNoTicks(NoOfTicks)
 , mDoInit(true)
 , mMarkedForDeletion(false)
+, Attributes(0)
 {}
 
 

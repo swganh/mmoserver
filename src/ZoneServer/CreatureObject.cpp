@@ -771,23 +771,7 @@ void CreatureObject::die()
 		gMessageLib->sendSelfPostureUpdate(player);
 
 		// update duel lists
-		PlayerList::iterator duelIt = player->getDuelList()->begin();
-
-		while(duelIt != player->getDuelList()->end())
-		{
-			if((*duelIt)->checkDuelList(player))
-			{
-				PlayerObject* duelPlayer = (*duelIt);
-
-				duelPlayer->removeFromDuelList(player);
-
-				gMessageLib->sendUpdatePvpStatus(player,duelPlayer);
-				gMessageLib->sendUpdatePvpStatus(duelPlayer,player);
-			}
-
-			++duelIt;
-		}
-		player->getDuelList()->clear();
+		player->clearDuelList();
 
 		// update defender lists
 		ObjectIDList::iterator defenderIt = mDefenders.begin();

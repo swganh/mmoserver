@@ -139,6 +139,11 @@ bool ArtisanManager::handleRequestSurvey(Object* player,Object* target,Message* 
 		// schedule execution
 		player->getController()->addEvent(new SurveyEvent(tool,resource),5000);
 	}
+	else
+	{
+		gMessageLib->SendSystemMessage(::common::OutOfBand("ui","survey_nothingfound"));
+		return false;
+	}
 	return true;
 }
 
@@ -202,7 +207,10 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
 	resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
 
 	if(resource == NULL || tool == NULL)
+	{
+		gMessageLib->SendSystemMessage(::common::OutOfBand("ui","survey_noresource"), playerObject);
 		return false;
+	}
 
 	if((resource->getType()->getCategoryId() == 903)||(resource->getType()->getCategoryId() == 904))
 	{
@@ -284,7 +292,6 @@ bool ArtisanManager::handleSample(Object* player,Object* target,Message* message
 //
 // sample event
 //
-
 void ArtisanManager::onSample(const SampleEvent* event)
 {
 	SurveyTool*			tool		= event->getTool();
@@ -656,6 +663,9 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
 		{
 			gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,sampleAmount);
 		}
+
+		// deplete resource
+		gResourceManager->setResourceDepletion(resource, sampleAmount);
 	return;
 }
 bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
@@ -708,6 +718,7 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
 	}
 	return stop;
 }
+
 ////=============================================================================
 ////
 //// survey event

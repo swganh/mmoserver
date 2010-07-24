@@ -146,8 +146,6 @@ public:
 	*	current survey tool that we are using to sample
 	* @param uint32 sampleAmt
 	*	the sample amount from sampling
-	* @return bool flag
-	*   This returns true if sampling is finished
 	*/
 	void					finishSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool, uint32 sampleAmt);
 

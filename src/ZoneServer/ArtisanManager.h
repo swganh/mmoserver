@@ -76,12 +76,80 @@ public:
 	bool					handleSurvey(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 	bool					handleSample(Object* player, Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
-	bool					getNormalSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
-	// gamble
+	/**
+	* Sets the proper flags for sample node recovery
+	*
+	* a distance check is done to see if we should recover the node
+	*
+	* @param PlayerObject* player
+	*   player object that contains the sampling data
+	* @return bool recoverFlag
+	*   This returns true if the sample node will be recovered
+	*/
 	bool					setupForNodeSampleRecovery(PlayerObject* player);
-	bool					getGambleSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	/**
+	* Sets up the sample UI Event
+	*
+	* The UI Event is handled eventually by ResourceCollectionManager
+	*
+	* @param PlayerObject* player
+	*   player object that contains the sampling data
+	* @param CurrentResource* resource
+	*   resource that we are sampling
+	* @param SurveyTool* tool
+	*	current survey tool that we are using to sample
+	* @return bool flag
+	*   This returns true if the UI Event is setup properly
+	*/
+	bool					setupSampleEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	/**
+	* gets the radioactive sample for the player
+	*
+	* We check the resource type to see if it's radioactive, then we will set the UI Event
+	* Again this is handled by ResourceCollectionManager
+	*
+	* @param PlayerObject* player
+	*   player object that contains the sampling data
+	* @param CurrentResource* resource
+	*   resource that we are sampling
+	* @param SurveyTool* tool
+	*	current survey tool that we are using to sample
+	* @return bool radioactiveFlag
+	*   This returns true if the player is recovering radioactives
+	*/
 	bool					getRadioactiveSample(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	/**
+	* Checks if the player should stop sampling or not.
+	*
+	* the player is updated if sampling is stopped
+	*
+	* @param PlayerObject* player
+	*   player object that contains the sampling data
+	* @param CurrentResource* resource
+	*   resource that we are sampling
+	* @param SurveyTool* tool
+	*	current survey tool that we are using to sample
+	* @return bool flag
+	*   This returns true if sampling should stop
+	*/
 	bool					stopSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	/**
+	* Finishes sampling
+	*
+	* handles setting the xp and putting the resource in the inventory
+	*
+	* @param PlayerObject* player
+	*   player object that contains the sampling data
+	* @param CurrentResource* resource
+	*   resource that we are sampling
+	* @param SurveyTool* tool
+	*	current survey tool that we are using to sample
+	* @param uint32 sampleAmt
+	*	the sample amount from sampling
+	* @return bool flag
+	*   This returns true if sampling is finished
+	*/
+	void					finishSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool, uint32 sampleAmt);
 
 
 	//events

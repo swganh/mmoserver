@@ -29,7 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define SRC_UTILS_CONCURRENTQUEUE_H_
 
 #pragma warning(disable:4800)
+#pragma warning(disable:4244)
 #include <boost/atomic.hpp>
+#pragma warning(default:4244)
 #pragma warning(default:4800)
 
 using ::boost::atomic;

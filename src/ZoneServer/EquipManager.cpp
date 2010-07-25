@@ -56,7 +56,7 @@ EquipManager::~EquipManager()
 		}
 		else
 		{
-			delete (*it);
+			SAFE_DELETE(*it);
 		}
 		it++;
 	}

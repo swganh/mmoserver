@@ -310,7 +310,6 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				resource->mType = getResourceTypeById(resource->mTypeId);
 				resource->mCurrent = 1;
 				resource->buildDistributionMap();
-				mResourceIdMap.insert(std::make_pair(resource->mId,resource));
 				mResourceCRCNameMap.insert(std::make_pair(resource->mName.getCrc(),resource));
 				(getResourceCategoryById(resource->mType->mCatId))->insertResource(resource);
 			}
@@ -323,7 +322,26 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");
 		}
 		break;
-
+		case RMQuery_DepleteResources:
+		{
+			// do we have a return?
+			// if the return is 0 we need to do nothing else
+			// if it is 1, we need to execute sql async to set the active resource to 0
+			// this means the resource is depleted. (can we do this via a stored proc?)
+			uint32 returnId = 0;
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+			result->GetNextRow(binding,&returnId);
+			mDatabase->DestroyDataBinding(binding);
+			if (returnId == 1)
+			{
+				// remove from map
+				Resource* resource = asyncContainer->mCurrentResource;
+				mResourceCRCNameMap.erase(resource->mName.getCrc());
+				mResourceIdMap.erase(resource->getId());
+				(getResourceCategoryById(resource->mType->mCatId))->removeResource(resource);
+			}
+		}
 		default:break;
 	}
 
@@ -378,6 +396,25 @@ ResourceCategory* ResourceManager::getResourceCategoryById(uint32 id)
 	return(NULL);
 }
 
+bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
+{
+	RMAsyncContainer* asyncContainer = new RMAsyncContainer(RMQuery_DepleteResources);
+	// check resource against current map and make sure it's active
+	ResourceIdMap::iterator it = mResourceIdMap.find(resource->getId());
+	if (it != mResourceIdMap.end() && resource->getCurrent() != 0)
+	{
+		asyncContainer->mCurrentResource = resource;
+		mDatabase->ExecuteSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u " 
+				"where resource_id = %"PRIu64"",amt ,resource->getId());	
+	}
+	else
+	{
+		gLogger->log(LogManager::DEBUG, "resource %u was not found or is inactive",resource->getName());
+		return false;
+	}
+
+	return true;
+}
 //======================================================================================================================
 
 

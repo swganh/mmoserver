@@ -86,11 +86,6 @@ AttackableCreature::AttackableCreature(uint64 templateId)
 AttackableCreature::~AttackableCreature()
 {
 	mRadialMenu.reset();
-	// mDamageDealers.clear();
-
-	delete mPrimaryWeapon;
-	delete mSecondaryWeapon;
-	// delete mSpawn;
 }
 
 //=============================================================================

@@ -308,6 +308,9 @@ void ArtisanManager::onSample(const SampleEvent* event)
 	//
 	if (stopSampling(player, resource, tool))
 		return;
+	//if we're not kneeling do so now
+	if (player->getPosture() != CreaturePosture_Crouched)
+		player->setCrouched();
 
 	BString					effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
 	//bool					foundSameType	= false;
@@ -590,7 +593,7 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
 		// we don't have more ham than we should.
 		
 		BuffAttribute* healthdebuffAttribute = new BuffAttribute(attr_health, -(int)hamReduc,0,hamReduc); 
-		Buff* healthdebuff = Buff::SimpleBuff(player, player, 300000, 0, gWorldManager->GetCurrentGlobalTick());
+		Buff* healthdebuff = Buff::SimpleBuff(player, player, 300000,0, gWorldManager->GetCurrentGlobalTick());
 		healthdebuff->AddAttribute(healthdebuffAttribute);	
 		player->AddBuff(healthdebuff,true);
 

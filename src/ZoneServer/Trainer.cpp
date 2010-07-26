@@ -861,7 +861,7 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
 			if (pageId == 13)
 			{
-                OutOfBand prose("skill_teacher", "surpass_trainer", 0, "", "", L"", player->getId());
+                OutOfBand prose("skill_teacher", "surpass_trainer", 0, player->getId(), 0);
 				
 				if (!gWorldConfig->isInstance())
 				{

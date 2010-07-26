@@ -92,8 +92,9 @@ ScriptSupport* ScriptSupport::Instance()
 //======================================================================================================================
 //
 //	General purpose
-// will this only get called on start up ???
-// if no why dont get the objects created for surrounding players ??
+// this will add an object to the worldmanager
+// NOT to the spatial index
+// they will be added later by hand
 
 void ScriptSupport::handleObjectReady(Object* object)
 {
@@ -184,6 +185,8 @@ NPCObject* ScriptSupport::npcGetObject(uint64 id)
 
 uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay)
 {
+	gLogger->log(LogManager::NOTICE,"ScriptSupport::npcCreate template id %I64u",templateId);
+
 	uint64 npcId = gWorldManager->getRandomNpNpcIdSequence();
 	if (npcId != 0)
 	{

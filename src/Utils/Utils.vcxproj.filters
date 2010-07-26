@@ -106,7 +106,13 @@
     <ClInclude Include="VariableTimeScheduler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MathFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ConcurrentQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ActiveObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

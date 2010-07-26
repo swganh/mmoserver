@@ -152,25 +152,27 @@ void CharacterBuilderTerminal::InitWounds()
 {
 	mWoundMenu.push_back("+100 Health Wound");
 	mWoundMenu.push_back("+100 Strength Wound");
-	mWoundMenu.push_back("+100 Stamina Wound");
-	mWoundMenu.push_back("+100 Action Wound");
 	mWoundMenu.push_back("+100 Constitution Wound");
+	mWoundMenu.push_back("+100 Action Wound");
+	mWoundMenu.push_back("+100 Stamina Wound");
 	mWoundMenu.push_back("+100 Quickness Wound");
 	mWoundMenu.push_back("+100 Mind Wound");
 	mWoundMenu.push_back("+100 Focus Wound");
-	mWoundMenu.push_back("+100 willpower Wound");
+	mWoundMenu.push_back("+100 Willpower Wound");
 	mWoundMenu.push_back("+100 Battle Fatigue");
 
 	mWoundMenu.push_back("-100 Health Wound");
 	mWoundMenu.push_back("-100 Strength Wound");
-	mWoundMenu.push_back("-100 Stamina Wound");
+	mWoundMenu.push_back("-100 Constitution Wound");
 	mWoundMenu.push_back("-100 Action Wound");
 	mWoundMenu.push_back("-100 Quickness Wound");
-	mWoundMenu.push_back("-100 Constitution Wound");
+	mWoundMenu.push_back("-100 Stamina Wound");
 	mWoundMenu.push_back("-100 Mind Wound");
 	mWoundMenu.push_back("-100 Focus Wound");
-	mWoundMenu.push_back("-100 willpower Wound");
+	mWoundMenu.push_back("-100 Willpower Wound");
 	mWoundMenu.push_back("-100 Battle Fatigue");
+	
+	mWoundMenu.push_back("Heal all wound and Battle Fatigue");
 }
 void CharacterBuilderTerminal::InitItems()
 {
@@ -1229,7 +1231,17 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
 		//	gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
 		//	return;
 		//}
-		uint32		crc			= static_cast<uint32>(resourceIdList[element]);
+		uint32		crc;	
+		try
+		{
+			crc	= static_cast<uint32>(resourceIdList[element]);
+		}
+		catch (...)
+		{
+			gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
+			return;
+		}
+
 		Resource*	resource	= gResourceManager->getResourceByNameCRC(crc);
 
 		if(resource)
@@ -1345,6 +1357,17 @@ void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint
 	case 19: //BattleFatigue
 		playerObject->getHam()->updateBattleFatigue(-100);
 		break;
+	case 20: //remove all wounds and battlefatigue
+		playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Wounds, -10000);
+		playerObject->getHam()->updateBattleFatigue(-1000);
 	default:
 		break;
 	}	

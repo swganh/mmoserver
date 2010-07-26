@@ -171,6 +171,7 @@ PlayerObject::~PlayerObject()
 	// make sure we stop entertaining if we are an entertainer
 	gEntertainerManager->stopEntertaining(this);
 
+	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
 	mObjectController.setTaskId(0);
 	mHam.setTaskId(0);
 	mStomach->mFoodTaskId = 0;
@@ -218,24 +219,7 @@ PlayerObject::~PlayerObject()
 	this->toggleStateOff(CreatureState_Intimidated);
 
 	// update duel lists
-	PlayerList::iterator duelIt = mDuelList.begin();
-
-	while(duelIt != mDuelList.end())
-	{
-		if((*duelIt)->checkDuelList(this))
-		{
-			PlayerObject* duelPlayer = (*duelIt);
-
-			duelPlayer->removeFromDuelList(this);
-
-			gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
-			gMessageLib->sendUpdatePvpStatus(duelPlayer,this);
-		}
-
-		++duelIt;
-	}		 
-	mDuelList.clear();
-
+	clearDuelList();
 	
 
 	// update defender lists
@@ -350,20 +334,10 @@ void PlayerObject::resetProperties()
 	// mHam.resetCounters();
 	mHam.updateRegenRates();
 
-	// We should not be allowed to travel when in combat or in duel, if we are.. I want to see the bug happening so we can fix the cause of it.
+	// We might have been invited to a duel
+	clearDuelList();
+
 	/*
-	// clear duel lists
-	PlayerList::iterator duelIt = mDuelList.begin();
-
-	while(duelIt != mDuelList.end())
-	{
-		(*duelIt)->removeFromDuelList(this);
-
-		++duelIt;
-	}
-
-	mDuelList.clear();
-
 	// clear defender lists
 	ObjectIDList::iterator defenderIt = mDefenders.begin();
 
@@ -1537,6 +1511,44 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 		}
 		break;
 	}
+}
+
+//=============================================================================
+//
+// empty a players duellist and update the contaiuned players duellists
+//
+void PlayerObject::clearDuelList()
+{
+	PlayerList::iterator duelIt = mDuelList.begin();
+
+	while(duelIt != mDuelList.end())
+	{
+		//please note that this player doesnt necessarily exist anymore
+		//being challenged by us he might have logged out without him updating this list
+		//please note, that a challenge means, that only the challengers list is updated with the challenged players name
+		// the challenged players list remains empty
+		PlayerObject* duelPlayer;
+		try 
+		{
+			duelPlayer = dynamic_cast<PlayerObject*>((*duelIt));   
+		} 
+		catch (...) 
+		{
+			// The player might have logged out without accepting the duel
+			duelPlayer = nullptr;
+		}
+
+		if(duelPlayer && duelPlayer->checkDuelList(this))
+		{
+			duelPlayer->removeFromDuelList(this);
+
+			gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
+			gMessageLib->sendUpdatePvpStatus(duelPlayer,this);
+		}
+
+		++duelIt;
+	}		 
+	mDuelList.clear();
 }
 
 //=============================================================================

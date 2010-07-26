@@ -104,6 +104,7 @@
     <ClCompile Include="TestEvent.cpp" />
     <ClCompile Include="Utils\TestCmpistr.cpp" />
     <ClCompile Include="Utils\TestConcurrentQueue.cpp" />
+    <ClCompile Include="Utils\TestInRectangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Common\Common.vcxproj">

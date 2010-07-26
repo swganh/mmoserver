@@ -316,7 +316,7 @@ class StructureManager : public DatabaseCallback,public ObjectFactoryCallback, p
 		bool					checkCityRadius(PlayerObject* player);
 		bool					checkinCamp(PlayerObject* player);
 		//no build region
-		bool					checkNoBuildRegion(glm::vec3 vec3);
+		bool					checkNoBuildRegion(const glm::vec3& vec3);
 		bool					checkNoBuildRegion(PlayerObject* player);
 		//bool					checkInNoBuildRadius(glm::vec3 dVec, glm::vec3 rVec);
 

@@ -60,7 +60,7 @@ bool EVWeapon::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 
     if(cmdProperties->mRequiredWeaponGroup && (weaponGroup & cmdProperties->mRequiredWeaponGroup) != weaponGroup)
     {
         reply1 = 0;
-        reply2 = 0;
+        reply2 = 1;
 
         if(PlayerObject* player = dynamic_cast<PlayerObject*>(creature))
         {

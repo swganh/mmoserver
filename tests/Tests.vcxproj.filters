@@ -45,5 +45,8 @@
     <ClInclude Include="Common\MockObjects\MockListenerAlt.h">
       <Filter>Common\MockObjects</Filter>
     </ClInclude>
+    <ClCompile Include="Utils\TestInRectangle.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

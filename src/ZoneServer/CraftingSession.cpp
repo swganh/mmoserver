@@ -533,8 +533,6 @@ void CraftingSession::handleFillSlot(uint64 resContainerId,uint32 slotId,uint32 
 }
 
 
-
-
 //=============================================================================
 
 void CraftingSession::handleEmptySlot(uint32 slotId,uint64 containerId,uint8 counter)

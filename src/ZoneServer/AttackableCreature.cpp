@@ -86,11 +86,6 @@ AttackableCreature::AttackableCreature(uint64 templateId)
 AttackableCreature::~AttackableCreature()
 {
 	mRadialMenu.reset();
-	// mDamageDealers.clear();
-
-	delete mPrimaryWeapon;
-	delete mSecondaryWeapon;
-	// delete mSpawn;
 }
 
 //=============================================================================
@@ -1665,11 +1660,19 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 	if(gWorldConfig->isTutorial())
 		return;
 
-	// Get a target position
+	// Get a target position use vec2!!!!!! x=x z=y !!!!!!!!!!!!
     glm::vec3 destination;
+	glm::vec2 destination2;
+	glm::vec2 homePosition;
+	glm::vec2 currentPosition;
+	currentPosition.x = mPosition.x;
+	currentPosition.y = mPosition.z;
+
+	homePosition.x = getHomePosition().x;
+	homePosition.y = getHomePosition().z;
 
 	// If we already outside roaming area, get back home. We may get here when we stalk other objects.
-    if (glm::distance(mPosition, getHomePosition()) >= getRoamingDistanceMax())
+    if (glm::distance(currentPosition, homePosition) >= getRoamingDistanceMax())
 	{
 		enableHoming();
 		SetReadyDelay(1);	// Want to start the homing asap.
@@ -1677,11 +1680,25 @@ void AttackableCreature::setupRoaming(int32 maxRangeX, int32 maxRangeZ)
 	}
 	else
 	{
+		destination2.x = destination.x;
+		destination2.y = destination.z;
+
 		// Verify that we don't roam outside given area.
 		destination = getRandomPosition(mPosition, 2*maxRangeX, 2*maxRangeZ);
-        while (glm::distance(getHomePosition(), destination) > getRoamingDistanceMax())
+
+		uint32 sentinel = 0;
+        while (glm::distance(homePosition, destination2) > getRoamingDistanceMax())
 		{
 			destination = getRandomPosition(mPosition, 2*maxRangeX, 2*maxRangeZ);
+			destination2.x = destination.x;
+			destination2.y = destination.z;
+
+			sentinel++;
+			if(sentinel > 1000)
+			{
+				setDestination(mPosition);
+				return;
+			}
 		}
 	}
 

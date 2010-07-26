@@ -57,6 +57,7 @@ int main() {
 }
 */
 
+
 // threaded concurrent queue - small objects
 int main() {
     ConcurrentQueue<TestObject> the_queue;
@@ -70,25 +71,13 @@ int main() {
 
     // threaded
     boost::thread thread1([&the_queue, &small_test_object] {
-        for (int i = 0; i < 25000; ++i) {
+        for (int i = 0; i < 50000; ++i) {
             the_queue.push(small_test_object);
         }
     });
     
     boost::thread thread2([&the_queue, &small_test_object] {
-        for (int i = 0; i < 25000; ++i) {
-            the_queue.push(small_test_object);
-        }
-    });
-    
-    boost::thread thread3([&the_queue, &small_test_object] {
-        for (int i = 0; i < 25000; ++i) {
-            the_queue.push(small_test_object);
-        }
-    });
-    
-    boost::thread thread4([&the_queue, &small_test_object] {
-        for (int i = 0; i < 25000; ++i) {
+        for (int i = 0; i < 50000; ++i) {
             the_queue.push(small_test_object);
         }
     });
@@ -102,8 +91,6 @@ int main() {
     
     thread1.join();
     thread2.join();
-    thread3.join();
-    thread4.join();
     thread5.join();
 
     // Measuring the elapsed time

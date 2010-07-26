@@ -28,54 +28,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_UTILS_CONCURRENTQUEUE_H_
 #define SRC_UTILS_CONCURRENTQUEUE_H_
 
+// The atomics library is part of the upcoming c++0x standard, until that is available
+// in the vendor library we need to use the boost spec version. This generates a few
+// warnings in vs2010 at this point in time so mute them as they aren't hurting anything.
 #pragma warning(disable:4800)
 #pragma warning(disable:4244)
 #include <boost/atomic.hpp>
 #pragma warning(default:4244)
 #pragma warning(default:4800)
 
+//  Use a using statement here so whenever the vendor library begins supporting atomics we
+// can just update this to ::std::atomic and everything will continue to work.
 using ::boost::atomic;
 
+// @todo Need a way to programatically determine the cache line size for a given environment
+// for now 64 will do for all environments we currently support.
 #define CACHE_LINE_SIZE 64
 
+/**
+ * ConcurrentQueue is a multi-producer, multi-consumer queue intended for use across multiple threads.
+ *
+ * This code is an implementation of a design discussed in a series of concept articles by Herb Sutter 
+ * on developing a concurrent queue that uses light weight spin-locks at the head and tail of the queue
+ * to keep it concurrent without resulting to context switching.
+ *
+ * @see http://www.drdobbs.com/high-performance-computing/212201163
+ */
 template <typename T>
 class ConcurrentQueue {
-private:
-    struct Node {
-        Node(T* val) : value(val), next(nullptr) {}
-
-        T* value;
-        atomic<Node*> next;
-    };
-    
-    char pad0[CACHE_LINE_SIZE];
-
-    // Accessed by one consumer at a time.
-    Node* first_;
-
-    char pad1[CACHE_LINE_SIZE - sizeof(Node*)];
-
-    // Shared among consumers.
-    atomic<bool> consumer_lock_;
-
-    char pad2[CACHE_LINE_SIZE - sizeof(atomic<bool>)];
-    
-    // Accessed by one producer at a time.
-    Node* last_;
-
-    char pad3[CACHE_LINE_SIZE - sizeof(Node*)];
-    
-    // Shared among producers.
-    atomic<bool> producer_lock_;
-    
-    char pad4[CACHE_LINE_SIZE - sizeof(atomic<bool>)];
-
 public:
+    /// Default constructor initializes the queue to a default state.
     ConcurrentQueue() {
         first_ = last_ = new Node(nullptr);
         consumer_lock_ = producer_lock_ = false;
     }
 
+    /// Default destructor cleans up any items remaining in the queue.
     ~ConcurrentQueue() {
         while (first_ != nullptr) {
             Node* tmp = first_;
@@ -86,6 +74,14 @@ public:
         }
     }
 
+    /**
+     * Pushes an item onto the queue.
+     *
+     * This method pushes an item onto the queue. Keep in mind that a copy of the item
+     * being put in is made so T must provide a copy constructor.
+     *
+     * \param t The item being pushed onto the queue.
+     */
     void push(const T& t) {
         Node* tmp = new Node(new T(t));
 
@@ -98,22 +94,30 @@ public:
         producer_lock_ = false;
     }
     
+    /**
+     * Pops an item off the front of the queue.
+     *
+     * Pops an item off the front of the queue and copies it into the container passed in.
+     * 
+     * \param t The container to copy the queue item into.
+     * \returns Returns true if an item was successfully popped, false if not or the queue was empty.
+     */
     bool pop(T& t) {
         while (consumer_lock_.exchange(true)) {}
+        
+        if (first_->next != nullptr) {
+            Node* old_first = first_;
+            Node* first = first_->next;
 
-        Node* first = first_;
-        Node* next = first_->next;
-
-        if (next != nullptr) {
-            T* value = next->value;
-            next->value = nullptr;
-            first_ = next;
+            T* value = first->value;
+            first->value = nullptr;
+            first_ = first;
 
             consumer_lock_ = false;
 
             t = *value;
             delete value;
-            delete first;
+            delete old_first;
 
             return true;
         }
@@ -121,7 +125,39 @@ public:
         consumer_lock_ = false;
         return false;
     }
+    
+private:
+    // Node element used by the queue which holds the contained item and a pointer
+    // to the next node in the queue.
+    struct Node {
+        Node(T* val) : value(val), next(nullptr) {}
 
+        T* value;
+
+        atomic<Node*> next;
+        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(atomic<Node*>)];
+    };
+    
+    // @note: All these pad* variables are here to prevent hidden contention caused by
+    // the push and pop methods both accessing data in close proximity. By adding the padding
+    // it ensures that these things are kept on separate cache lines which eliminates the contention.
+    char pad0[CACHE_LINE_SIZE];
+
+    // Accessed by one consumer at a time.
+    Node* first_;
+    char pad1[CACHE_LINE_SIZE - sizeof(Node*)];
+
+    // Shared among consumers.
+    atomic<bool> consumer_lock_;
+    char pad2[CACHE_LINE_SIZE - sizeof(atomic<bool>)];
+    
+    // Accessed by one producer at a time.
+    Node* last_;
+    char pad3[CACHE_LINE_SIZE - sizeof(Node*)];
+    
+    // Shared among producers.
+    atomic<bool> producer_lock_;
+    char pad4[CACHE_LINE_SIZE - sizeof(atomic<bool>)];
 };
 
 #endif  // SRC_UTILS_CONCURRENTQUEUE_H_

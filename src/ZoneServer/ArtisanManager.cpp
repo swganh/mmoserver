@@ -357,7 +357,10 @@ void ArtisanManager::onSample(const SampleEvent* event)
 			dieRoll = 200;
 		}
 		else
+		{
 			stopSampling(player, resource, tool);
+			return;
+		}
 	}
 
 	// let's make sure their ratio is good enough to sample this

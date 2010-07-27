@@ -37,16 +37,39 @@ namespace boost {
     class thread;
 }
 
+
+/// The utils namespace hosts a number of useful utility classes intended to
+/// be used and reused in domain specific classes.
 namespace utils {
 
+/**
+ * There are many times when it makes sense to break an object off and run it
+ * concurrently while the rest of the application runs. The ActiveObject is a 
+ * reusable facility that encourages the encapsulation of data by using asynchronus
+ * messages to process requests in a private thread. This implementation is based
+ * on a design discussed by Herb Sutter.
+ *
+ * @see http://www.drdobbs.com/go-parallel/article/showArticle.jhtml?articleID=225700095
+ */
 class ActiveObject {
 public:
+    /// Messages are implemented as std::function to allow maximum flexibility for
+    /// how a message can be created with support for functions, functors, class members,
+    /// and most importantly lambdas.
     typedef std::function<void()> Message;
 
 public:
+    /// Default constructor kicks off the private thread that listens for incoming messages.
     ActiveObject();
+
+    /// Default destructor sends an end message and waits for the private thread to complete.
     ~ActiveObject();
 
+    /**
+     * Sends a message to be handled by the ActiveObject's private thread.
+     *
+     * \param Message The message to process on the private thread.
+     */
     void Send(Message message);
 
 private:
@@ -54,6 +77,8 @@ private:
     std::unique_ptr<boost::thread> thread_;
     bool done_;
 
+
+    /// Runs the ActiveObject's message loop until an end message is received.
     void Run();
 };
 

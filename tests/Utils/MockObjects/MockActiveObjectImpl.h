@@ -28,21 +28,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef TESTS_UTILS_MOCKOBJECTS_MOCKACTIVEOBJECTIMPL_H_
 #define TESTS_UTILS_MOCKOBJECTS_MOCKACTIVEOBJECTIMPL_H_
 
+#include <boost/thread.hpp>
+
 #include "Utils/ActiveObject.h"
 
 class MockActiveObjectImpl {
 public:
     MockActiveObjectImpl() : called_(false) {}
 
+    // Asyncronously set the called_ value to true. Use atomic operations
+    // for setting the value because we also read this value from other threads.
     void SomeAsyncInteraction() { active_obj_.Send([=] {
-        called_ = true;
+        while (called_.exchange(true)) {}
     } ); }
 
     bool called() const { return called_; }
 
 private:
     ::utils::ActiveObject active_obj_;
-    bool called_;
+    ::boost::atomic<bool> called_;
 };
 
 #endif  // TESTS_UTILS_MOCKOBJECTS_MOCKACTIVEOBJECTIMPL_H_

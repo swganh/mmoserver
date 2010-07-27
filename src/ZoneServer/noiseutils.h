@@ -34,11 +34,7 @@ namespace noise
 
   namespace utils
   {
-
-    /// @mainpage noiseutils
-    ///
-    /// @section intro Introduction
-    ///
+       
     /// This library contains useful classes for creating and rendering
     /// two-dimensional noise maps containing coherent noise that was
     /// generated from the libnoise library.  These classes are used to create
@@ -48,8 +44,6 @@ namespace noise
     /// (using Microsoft Visual C++ 5.0) and under Gentoo Linux 10.0 (using
     /// gcc 3.3.4).  It should be portable across all platforms that can
     /// compile libnoise.
-    ///
-    /// @section classes Classes
     ///
     /// This library contains the following classes:
     /// - A <i>noise map</i> class: This class implements a two-dimensional
@@ -66,8 +60,6 @@ namespace noise
     /// - Several <i>image-renderer</i> classes: these classes render images
     ///   given the contents of a noise map.  Each of these classes renders an
     ///   image in a different way.
-    ///
-    /// @section contact Contact
     ///
     /// Contact jas for questions about noiseutils.  The spam-resistant email
     /// address is jlbezigvins@gmzigail.com (For great email, take off every

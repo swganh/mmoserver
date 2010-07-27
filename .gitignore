@@ -16,3 +16,5 @@ ipch/
 *.lnk
 .DS_Store
 mmoserverdb
+docs/latex
+docs/html

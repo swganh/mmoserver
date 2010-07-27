@@ -37,13 +37,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma warning(default:4244)
 #pragma warning(default:4800)
 
-//  Use a using statement here so whenever the vendor library begins supporting atomics we
-// can just update this to ::std::atomic and everything will continue to work.
-using ::boost::atomic;
-
 // @todo Need a way to programatically determine the cache line size for a given environment
 // for now 64 will do for all environments we currently support.
 #define CACHE_LINE_SIZE 64
+
+namespace utils {
 
 /**
  * ConcurrentQueue is a multi-producer, multi-consumer queue intended for use across multiple threads.
@@ -134,8 +132,8 @@ private:
 
         T* value;
 
-        atomic<Node*> next;
-        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(atomic<Node*>)];
+        ::boost::atomic<Node*> next;
+        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(::boost::atomic<Node*>)];
     };
     
     // @note: All these pad* variables are here to prevent hidden contention caused by
@@ -148,16 +146,18 @@ private:
     char pad1[CACHE_LINE_SIZE - sizeof(Node*)];
 
     // Shared among consumers.
-    atomic<bool> consumer_lock_;
-    char pad2[CACHE_LINE_SIZE - sizeof(atomic<bool>)];
+    ::boost::atomic<bool> consumer_lock_;
+    char pad2[CACHE_LINE_SIZE - sizeof(::boost::atomic<bool>)];
     
     // Accessed by one producer at a time.
     Node* last_;
     char pad3[CACHE_LINE_SIZE - sizeof(Node*)];
     
     // Shared among producers.
-    atomic<bool> producer_lock_;
-    char pad4[CACHE_LINE_SIZE - sizeof(atomic<bool>)];
+    ::boost::atomic<bool> producer_lock_;
+    char pad4[CACHE_LINE_SIZE - sizeof(::boost::atomic<bool>)];
 };
+
+}  // namespace utils
 
 #endif  // SRC_UTILS_CONCURRENTQUEUE_H_

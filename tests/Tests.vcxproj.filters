@@ -25,17 +25,17 @@
     <ClCompile Include="Common\TestEventDispatcher.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="TestCrc.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Common\TestHashString.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="TestEvent.cpp">
       <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Utils\TestConcurrentQueue.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TestCrc.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\TestEvent.cpp">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

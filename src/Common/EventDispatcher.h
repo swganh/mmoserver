@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <set>
 #include <vector>
 
+#include "Utils/ActiveObject.h"
 #include "Common/Event.h"
 
 namespace common {
@@ -110,6 +111,8 @@ private:
     typedef std::list<EventListener> EventListenerList;
     typedef std::map<EventType, EventListenerList> EventListenerMap;
     EventListenerMap event_listener_map_;
+
+    ::utils::ActiveObject active;
 };
 
 }  // namespace common

@@ -443,9 +443,9 @@ void ArtisanManager::onSample(const SampleEvent* event)
 	}
 	else
 	{
-    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "density_below_threshold", L"", L"", resName.getUnicode16()), player);
-		successSample = false;
-		resAvailable = false;
+		gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "density_below_threshold", L"", L"", resName.getUnicode16()), player);
+		player->setSamplingState(false);
+		return;
 	}
 	// show the effects always
 	gMessageLib->sendPlayClientEffectLocMessage(effect, player->mPosition, player);
@@ -460,7 +460,7 @@ void ArtisanManager::onSample(const SampleEvent* event)
 		++it;
 	}
 
-	if (sampleAmount > 0)
+	if (sampleAmount > 0 && successSample)
 	{
 		finishSampling(player, resource, tool, sampleAmount);
 	}
@@ -468,7 +468,7 @@ void ArtisanManager::onSample(const SampleEvent* event)
 	// check our ham and keep sampling
 	if(stopSampling(player, resource, tool))
 	{
-		actionCost = gResourceCollectionManager->sampleActionCost*2;
+		//actionCost = gResourceCollectionManager->sampleActionCost*2;
 	}
 	else
 	{
@@ -584,7 +584,9 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
 		{
 			//wound and BF dmg
 			hamz->updateBattleFatigue(bfDmg);
-			hamz->updatePrimaryWounds(woundDmg);
+			hamz->updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg); 
+			hamz->updatePropertyValue(HamBar_Action,HamProperty_Wounds, woundDmg);
+			hamz->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, woundDmg);
 		}
 		
 		//this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500

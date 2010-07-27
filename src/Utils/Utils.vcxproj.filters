@@ -41,7 +41,10 @@
     <ClCompile Include="VariableTimeScheduler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConcurrentQueue.cpp">
+    <ClCompile Include="MathFunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ActiveObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

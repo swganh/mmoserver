@@ -87,9 +87,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ActiveObject.cpp" />
     <ClCompile Include="bstring.cpp" />
     <ClCompile Include="clock.cpp" />
-    <ClCompile Include="ConcurrentQueue.cpp" />
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="MathFunctions.cpp" />
     <ClCompile Include="mdump.cpp" />
@@ -101,6 +101,7 @@
     <ClCompile Include="VariableTimeScheduler.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActiveObject.h" />
     <ClInclude Include="bstring.h" />
     <ClInclude Include="clock.h" />
     <ClInclude Include="colors.h" />

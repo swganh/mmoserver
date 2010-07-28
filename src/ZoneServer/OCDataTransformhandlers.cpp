@@ -602,8 +602,19 @@ bool ObjectController::_updateInRangeObjectsOutside()
 	{
 		//BEWARE Object is at this time possibly not valid anymore!
 		//this actually causes a lot of crashes!!!!
+		Object* object = nullptr;
+		try
+		{
+			//the object might no exist anymore - the first cast to object actually might still work
+			//got alot of crashes that way ... -leave until we use smartpointers
+			object = dynamic_cast<Object*>(*mObjectSetIt);
+			uint64 id = object->getId();
+			object = dynamic_cast<Object*>(gWorldManager->getObjectById(id));
 
-		Object* object = dynamic_cast<Object*>(*mObjectSetIt);
+		}
+		catch (...)
+		{
+		}
 		// Just simplified the code a little. Good find Schmunzel.
 
 		// only add it if its also outside

@@ -1424,7 +1424,7 @@ void Session::_processDataChannelAck(Packet* packet)
 
 	if (mWindowPacketList.size() == 0)
 	{
-		gLogger->log(LogManager::DEBUG,"Dupe ACK received - Nothing in resend window - seq: %u, Session:0x%x%.4x", sequence, mService->getId(), getId());
+		//gLogger->log(LogManager::DEBUG,"Dupe ACK received - Nothing in resend window - seq: %u, Session:0x%x%.4x", sequence, mService->getId(), getId());
 		mPacketFactory->DestroyPacket(packet);
 		return;
 	}
@@ -1437,12 +1437,12 @@ void Session::_processDataChannelAck(Packet* packet)
 	if (sequence < windowPacketSequence)
 	{
 		// Dpulicate ack, drop it.
-		gLogger->log(LogManager::DEBUG, "Dupe ACK received - No such packet in window - ackSeq: %u, expect: %u, Session:0x%x%.4x", sequence, windowPacketSequence, mService->getId(), getId());
+		//gLogger->log(LogManager::DEBUG, "Dupe ACK received - No such packet in window - ackSeq: %u, expect: %u, Session:0x%x%.4x", sequence, windowPacketSequence, mService->getId(), getId());
 	}
 	else if (sequence > windowPacketSequence + mWindowPacketList.size())
 	{
 		// This ack is way out of bounds, log a message and drop it. 
-		gLogger->log(LogManager::DEBUG, "DataChannelAck:  Ack out of bounds - ackSeq: %u, expect: %u, Session:0x%x%.4x", sequence, windowPacketSequence, mService->getId(), getId());
+		//gLogger->log(LogManager::DEBUG, "DataChannelAck:  Ack out of bounds - ackSeq: %u, expect: %u, Session:0x%x%.4x", sequence, windowPacketSequence, mService->getId(), getId());
 	}
 	else
 	{
@@ -1634,7 +1634,7 @@ void Session::_resendData()
 		}
 		else
 		{
-			gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
+			//gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
 			return;
 		}
 	}
@@ -1660,12 +1660,12 @@ void Session::_resendData()
 		}
 		else
 		{
-			gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
+			//gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
 			return;
 		}
 	}  
 
-	gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
+	//gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
 }
 
 

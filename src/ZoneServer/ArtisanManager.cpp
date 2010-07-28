@@ -480,7 +480,7 @@ void ArtisanManager::onSample(const SampleEvent* event)
 	}
 
 	// update ham for standard sample action oc does this already - only the first time though???  !!!
-	player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actionCost, true);
+	player->getHam()->performSpecialAction(0, (float)actionCost, 0, HamProperty_CurrentHitpoints);
 }
 
 bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)

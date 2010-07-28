@@ -298,10 +298,10 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			{
 				// send out position updates to known players
 				// please note that these updates mess up our dance performance
-				if(player->getPerformingState() == PlayerPerformance_None)
-				{
-					gMessageLib->sendUpdateTransformMessage(player);
-				}
+				/*if(player->getPerformingState() == PlayerPerformance_None)
+				{*/
+				gMessageLib->sendUpdateTransformMessage(player);
+				//}
 		
 
 			}

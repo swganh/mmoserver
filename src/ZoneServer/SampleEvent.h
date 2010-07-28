@@ -59,14 +59,14 @@ class SampleEvent : public Anh_Utils::Event
 {
 	public:
 
-		SampleEvent(/*PlayerObject* player,*/ SurveyTool* tool,CurrentResource* resource) : mTool(tool),mResource(resource){}//, mPlayer(player){}
+		SampleEvent(PlayerObject* player,SurveyTool* tool,CurrentResource* resource) : mPlayer(player), mTool(tool),mResource(resource){}
 
-		//PlayerObject*		getPlayer() const {return mPlayer;}
+		PlayerObject*		getPlayer() const { return mPlayer; }
 		SurveyTool*			getTool() const { return mTool; }
 		CurrentResource*	getResource() const { return mResource; }
 
 	private:
-		//PlayerObject*		mPlayer;
+		PlayerObject*		mPlayer;
 		SurveyTool*			mTool;
 		CurrentResource*	mResource;
 };

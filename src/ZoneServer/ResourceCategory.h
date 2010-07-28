@@ -62,6 +62,7 @@ class ResourceCategory
 		void					setDescriptor(const BString desc){ mDescriptor = desc; }
 		void					insertCategory(ResourceCategory* cat){ mChildren.push_back(cat); }
 		void					insertResource(Resource* res){ mSiblings.push_back(res); }
+		void					removeResource(Resource* res){ mSiblings.remove(res);}
 		void					getResources(ResourceList& resourceList,bool currentOnly);
 
 	private:

@@ -688,9 +688,21 @@ void CraftingSession::handleFillSlotResourceRewrite(uint64 resContainerId,uint32
 
 	// see if something is filled already
 	existingAmount = manSlot->getFilledAmount();
-	
-	// update the needed amount
-	totalNeededAmount -= existingAmount;
+
+	//check whether we have the same resource - if it's different replace the current resource with the new one
+	if(manSlot->getResourceId() && (containerResId != manSlot->getResourceId()))
+	{
+		// remove the old resource from the slot and input the new one.
+		emptySlot(slotId, manSlot, manSlot->getResourceId());
+
+		//gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient,counter,mOwner);
+		//return;
+	}
+	else
+	{
+		// update the needed amount
+		totalNeededAmount -= existingAmount;
+	}
 
 	// fail if its already complete
 	if(!totalNeededAmount)
@@ -698,14 +710,7 @@ void CraftingSession::handleFillSlotResourceRewrite(uint64 resContainerId,uint32
 		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Slot_Already_Full,counter,mOwner);
 		return;
 	}
-
-	//check whether we have the same resource - no go if its different - check for the slot being empty though
-	if(manSlot->getResourceId() && (containerResId != manSlot->getResourceId()))
-	{
-		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient,counter,mOwner);
-		return;
-	}
-									
+							
 	uint32 takeAmount = 0;
 	if(availableAmount >= totalNeededAmount)
 	{

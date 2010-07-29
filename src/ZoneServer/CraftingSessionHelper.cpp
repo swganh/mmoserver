@@ -240,6 +240,8 @@ bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, Manu
 		}
 		
 		crateSize = fC->getAttribute<uint32>("factory_count");
+
+		fC->tempAmount = crateSize;
 		
 		if(!fC->getLinkedObject()->hasAttribute("stacksize"))
 		{
@@ -809,12 +811,17 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 			}
 		
 			crateSize = fC->getAttribute<uint32>("factory_count");
-			//did we empty it??
+			
+			// did we empty it?? in that case its removed from the container
+			// readd it
 			if(!crateSize)
 			{
 				container->addObject(fC);
 				gMessageLib->sendContainmentMessage(fC->getId(),container->getId(),0xffffffff,mOwner);
 			}	 		
+
+			// only update the size when we already readded it
+			// (it might have been in several slots)
 			fC->setAttributeIncDB("factory_count",boost::lexical_cast<std::string>(amount+crateSize));
 			gMessageLib->sendUpdateCrateContent(fC,mOwner);
 
@@ -890,9 +897,12 @@ void CraftingSession::destroyComponents()
 					return;
 				}
 			
+				fC->tempAmount -= (*compIt).second;
 				crateSize = fC->getAttribute<uint32>("factory_count");
-				//did we empty it??
-				if(!crateSize)
+				
+				// did we empty it??
+				// crates might be used in several slots!!!
+				if((!crateSize) && (!fC->tempAmount))
 				{
 					mManufacturingSchematic->removeObject((*compIt).first);
 					gMessageLib->sendDestroyObject(fC->getId(),mOwner);

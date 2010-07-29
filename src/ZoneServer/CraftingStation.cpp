@@ -44,4 +44,10 @@ CraftingStation::~CraftingStation()
 
 //=============================================================================
 
+void CraftingStation::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+{
+	mRadialMenu	= RadialMenuPtr(new RadialMenu());
+	mRadialMenu->addItem(1,0,radId_examine,radAction_Default);
+	mRadialMenu->addItem(2,0,radId_craftStart,radAction_Default);
 
+}

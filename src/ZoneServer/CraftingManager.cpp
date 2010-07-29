@@ -255,7 +255,10 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 	float				range = 25.0;
 
 	// the player clicked directly on a station
-	tool = getCraftingStationTool(playerObject, station);
+	if(station)
+	{
+		tool = getCraftingStationTool(playerObject, station);
+	}
 	
 	if(!tool)
 	{

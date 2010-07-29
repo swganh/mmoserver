@@ -154,31 +154,11 @@ bool CraftingManager::HandleSynchronizedUIListen(Object* object,Object* target,M
 {
 	return true;
 }
-
-//======================================================================================================================
-//
-// request crafting session
-//
-
-bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
+// get appropriate crafting tool from selected crafting station
+// check inventory for same tool 'type' as crafting station
+CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* playerObject, CraftingStation* station)
 {
-	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
-	CraftingTool*		tool			= dynamic_cast<CraftingTool*>(target);
-	CraftingStation*	station			= dynamic_cast<CraftingStation*>(target);
-	uint32				expFlag			= 2;//needs to be >1 !!!!!
-
-	message->setIndex(24);
-	/*uint32				counter			= */
-	message->getUint32();
-
-	//get nearest crafting station
-	ObjectSet			inRangeObjects;
-	float				range = 25.0;
-
-	// the player clicked directly on a station
-	if (station)
-	{
-		// check inventory for same tool 'type' as crafting station
+		CraftingTool*	tool	= NULL;
 		int32 stationType = station->getItemType();
 		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 		ObjectIDList::iterator It = inventory->getObjects()->begin();
@@ -252,8 +232,31 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 			++It;
 			continue;
 		}
-	}
+		return tool;
+}
+//======================================================================================================================
+//
+// request crafting session
+//
 
+bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
+{
+	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
+	CraftingTool*		tool			= dynamic_cast<CraftingTool*>(target);
+	CraftingStation*	station			= dynamic_cast<CraftingStation*>(target);
+	uint32				expFlag			= 2;//needs to be >1 !!!!!
+
+	message->setIndex(24);
+	/*uint32				counter			= */
+	message->getUint32();
+
+	//get nearest crafting station
+	ObjectSet			inRangeObjects;
+	float				range = 25.0;
+
+	// the player clicked directly on a station
+	tool = getCraftingStationTool(playerObject, station);
+	
 	if(!tool)
 	{
 		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",target->getId());

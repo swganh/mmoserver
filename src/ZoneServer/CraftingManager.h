@@ -35,6 +35,9 @@ class Object;
 class Message;
 class ObjectControllerCmdProperties;
 class ZoneTree;
+class CraftingStation;
+class CraftingTool;
+class PlayerObject;
 
 class CraftingManager
 {
@@ -71,9 +74,12 @@ public:
 	bool				HandleNextCraftingStage(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 	bool				HandleCreatePrototype(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 	bool				HandleCreateManufactureSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+	
 
 
  private:
+	CraftingTool*			getCraftingStationTool(PlayerObject* player, CraftingStation* station);
+
 	static CraftingManager*	mSingleton;
 	static bool				mInsFlag;
 		

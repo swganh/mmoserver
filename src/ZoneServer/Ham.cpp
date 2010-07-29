@@ -31,11 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-
-
-#ifndef max
-#define max(a,b)(((a)>(b))?(a):(b))
-#endif
 //===========================================================================
 
 Ham::Ham()
@@ -340,20 +335,13 @@ void Ham::updatePrimaryWounds(int32 propertyDelta)
 // @param2 action cost of the action
 // @param3 mind cost of the action
 // @link: http://wiki.swganh.org/index.php/Stats_(Game_Mechanics
-// @formula: Cost = Base * ( 1 - ( Stat / 1400 ) )
+// @formula: Cost = Base * ( 1 - ( currentStat / maxStat + 1400 ) )
 void Ham::performSpecialAction(float healthCost, float actionCost, float mindCost, uint8 valueIndex)
 {
-	float modifiedHCost = healthCost * (1.0f - ((float)mStrength.getCurrentHitPoints() / 1400.0f));
-	float modifiedACost = actionCost * (1.0f - ((float)mQuickness.getCurrentHitPoints() / 1400.0f));
-	float modifiedMCost = mindCost * (1.0f - ((float)mFocus.getCurrentHitPoints() / 1400.0f));
-	gLogger->log(LogManager::DEBUG,"Health cost %f, action cost %f, mind cost %f",modifiedHCost, modifiedACost,modifiedMCost);
+	float modifiedHCost = healthCost * (1.0f - ((float)mStrength.getCurrentHitPoints() / ((float)mStrength.getMaxHitPoints()+1400.0f)));
+	float modifiedACost = actionCost * (1.0f - ((float)mQuickness.getCurrentHitPoints() / ((float)mQuickness.getMaxHitPoints()+1400.0f)));
+	float modifiedMCost = mindCost * (1.0f - ((float)mFocus.getCurrentHitPoints() / ((float)mFocus.getMaxHitPoints() + 1400.0f)));
 	
-	// make sure the value is a reasonable number
-	// this probably needs to be changed
-	modifiedHCost = max(modifiedHCost, healthCost/10.0f);
-	modifiedACost = max(modifiedACost, actionCost/10.0f);
-	modifiedMCost = max(modifiedMCost, mindCost/10.0f);
-
 	updatePropertyValue(HamBar_Health, valueIndex, (int)-modifiedHCost, false, true, false);
 	updatePropertyValue(HamBar_Action, valueIndex, (int)-modifiedACost, false, true, false);
 	updatePropertyValue(HamBar_Mind, valueIndex, (int)-modifiedMCost, false, true, false);

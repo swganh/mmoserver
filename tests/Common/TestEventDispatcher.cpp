@@ -47,7 +47,7 @@ TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback));
 
     // Query the dispatcher for a list of the listeners for the test event.
-    std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event"));
+    std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
 
     // Make sure there's 1 and only 1 listener registered.
     EXPECT_EQ(1, listeners.size());
@@ -68,8 +68,8 @@ TEST(EventDispatcherTests, CanConnectListenerToTwoEvents) {
     dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback));
 
     // Query the dispatcher for a list of the listeners for the test event.
-    std::vector<EventListener> listeners1 = dispatcher.GetListeners(EventType("test_event1"));
-    std::vector<EventListener> listeners2 = dispatcher.GetListeners(EventType("test_event2"));
+    std::vector<EventListener> listeners1 = dispatcher.GetListeners(EventType("test_event1")).get();
+    std::vector<EventListener> listeners2 = dispatcher.GetListeners(EventType("test_event2")).get();
 
     // Make sure there's 1 listener registered to each event.
     EXPECT_EQ(1, listeners1.size());
@@ -90,7 +90,7 @@ TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
     dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListenerAlt"), callback2));
 
     // Query the dispatcher for a list of the listeners for the test event.
-    std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event"));
+    std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
 
     // Make sure there are 2 listeners registered for this type.
     EXPECT_EQ(2, listeners.size());
@@ -116,7 +116,7 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
     dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListenerAlt"), callback2));
     
     // Query the dispatcher for a list of the listeners for the test event.
-    std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event"));
+    std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
     
     // Make sure there are 2 listeners registered for this type.
     EXPECT_EQ(2, listeners.size());
@@ -125,7 +125,7 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
     dispatcher.Disconnect(EventType("test_event"), EventListenerType("MockListener"));
     
     // Query the dispatcher again for a list of the listeners.
-    listeners = dispatcher.GetListeners(EventType("test_event"));
+    listeners = dispatcher.GetListeners(EventType("test_event")).get();
     
     // Make sure there is only listener registered for this type.
     EXPECT_EQ(1, listeners.size());
@@ -151,8 +151,8 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {
     dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListenerAlt"), callback2));
     
     // Query for the listeners to both events and make sure there's 2 items in each.
-    std::vector<EventListener> listeners1 = dispatcher.GetListeners(EventType("test_event1"));
-    std::vector<EventListener> listeners2 = dispatcher.GetListeners(EventType("test_event2"));
+    std::vector<EventListener> listeners1 = dispatcher.GetListeners(EventType("test_event1")).get();
+    std::vector<EventListener> listeners2 = dispatcher.GetListeners(EventType("test_event2")).get();
 
     EXPECT_EQ(2, listeners1.size());
     EXPECT_EQ(2, listeners2.size());
@@ -161,8 +161,9 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {
     dispatcher.DisconnectFromAll(EventListenerType("MockListener"));
     
     // Query for the listeners to both events and make sure there's only 1 item each now.
-    listeners1 = dispatcher.GetListeners(EventType("test_event1"));
-    listeners2 = dispatcher.GetListeners(EventType("test_event2"));
+    listeners1 = dispatcher.GetListeners(EventType("test_event1")).get();
+    listeners2 = dispatcher.GetListeners(EventType("test_event2")).get();
+
     EXPECT_EQ(1, listeners1.size());
     EXPECT_EQ(1, listeners2.size());
 }
@@ -178,7 +179,7 @@ TEST(EventDispatcherTests, CanGetListOfRegisteredEventTypes) {
     dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback));
     dispatcher.Connect(EventType("test_event3"), EventListener(EventListenerType("MockListener"), callback));
 
-    std::vector<EventType> event_types = dispatcher.GetRegisteredEvents();
+    std::vector<EventType> event_types = dispatcher.GetRegisteredEvents().get();
     
     EXPECT_EQ(3, event_types.size());
 

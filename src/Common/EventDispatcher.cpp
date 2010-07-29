@@ -33,7 +33,7 @@ EventDispatcher::EventDispatcher() {}
 
 EventDispatcher::~EventDispatcher() {}
 
-void EventDispatcher::Connect(const EventType& event_type, EventListener listener) {
+void EventDispatcher::Connect(const EventType& event_type, EventListener listener) { active_.Send([=] {
     if (! ValidateEventType_(event_type)) {
         return;
     }
@@ -61,92 +61,94 @@ void EventDispatcher::Connect(const EventType& event_type, EventListener listene
 
     // EventType has been validated, the listener validated and doesn't already exist, add it.
     listener_list.push_back(listener);
-}
+
+} ); }
 
 
-void EventDispatcher::Disconnect(const EventType& event_type, const EventListenerType& event_listener_type){
-    // Make sure a valid event type was passed in.
-    if (! ValidateEventType_(event_type)) {
-        return;
-    }
+void EventDispatcher::Disconnect(const EventType& event_type, const EventListenerType& event_listener_type){ active_.Send([=] {
+    // Forward the disconnect request on to the internal handler.
+    Disconnect_(event_type, event_listener_type);
+} ); }
+
+void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_type) { active_.Send([=] {
     // Make sure a valid event listener type was passed in.
     if (! ValidateEventListenerType_(event_listener_type)) {
         return;
     }
 
-    // Look for an entry and
-    auto map_it = event_listener_map_.find(event_type);
-    
-    // Somehow the event type doesn't exist.
-    if (map_it == event_listener_map_.end()) {
-        return;
+    // Use the known type lists to loop and call Disconnect for each.
+    for (auto type_it = event_type_set_.begin(), end = event_type_set_.end(); type_it != end; ++type_it) {
+        // Call the internal disconnect method so that each disconnect doesn't get queued.
+        Disconnect_(*type_it, event_listener_type);
     }
+} ); }
 
-    // Lookup the listener in the list to see if it already exists.
-    EventListenerList& listener_list = (*map_it).second;
-    
-    // Loop through until we find it, no need to worry about invalidating the iterator
-    // because after the erase it's never used again.
-    for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
-        if ((*list_it).first.ident() == event_listener_type.ident()) {
-            listener_list.erase(list_it);
-            break; // Item found and there is only one per list, break out.
+boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(const EventType& event_type) {
+    // Create a packaged task for retrieving the value.
+    std::shared_ptr<boost::packaged_task<std::vector<EventListener>>> task = std::make_shared<boost::packaged_task<std::vector<EventListener>>>([=]()->std::vector<EventListener> {   
+
+        if (! ValidateEventType_(event_type)) {
+            return std::vector<EventListener>();
         }
-    }
-}
 
-void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_type) {    
-    // Make sure a valid event listener type was passed in.
-    if (! ValidateEventListenerType_(event_listener_type)) {
-        return;
-    }
-
-    // Use the known type lists to loop and call Disconnect for each.
-    for (auto type_it = event_type_set_.begin(), end = event_type_set_.end(); type_it != end; ++type_it) {
-        Disconnect(*type_it, event_listener_type);
-    }
-}
-
-std::vector<EventListener> EventDispatcher::GetListeners(const EventType& event_type) const {
-    if (! ValidateEventType_(event_type)) {
-        return std::vector<EventListener>();
-    }
-
-    EventListenerMap::const_iterator map_it = event_listener_map_.find(event_type);
-    
-    // no listerners currently for this event type, so sad
-    if (map_it == event_listener_map_.end()) {
-        return std::vector<EventListener>();
-    }
-    
-    const EventListenerList& listener_list = map_it->second;
-    
-    // there was, but is not now, any listerners currently for
-    // this event type, so sad
-    if (listener_list.size() == 0) {
-        return std::vector<EventListener>();
-    }
-    
-    // Build up the result set to return.
-    std::vector<EventListener> result;
+        EventListenerMap::const_iterator map_it = event_listener_map_.find(event_type);
         
-    for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
-    	result.push_back(*list_it);
-    }
+        // no listerners currently for this event type, so sad
+        if (map_it == event_listener_map_.end()) {
+            return std::vector<EventListener>();
+        }
+        
+        const EventListenerList& listener_list = map_it->second;
+        
+        // there was, but is not now, any listerners currently for
+        // this event type, so sad
+        if (listener_list.size() == 0) {
+            return std::vector<EventListener>();
+        }
+        
+        // Build up the result set to return.
+        std::vector<EventListener> result;
+            
+        for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
+        	result.push_back(*list_it);
+        }
+        
+        return result;
+    } );
     
-    return result;
+    // Add the message to the active object's queue that runs the task which in turn
+    // updates the future.
+    active_.Send([task] {
+        (*task)();
+    });
+
+    // Return the future to the caller.
+    return task->get_future();
 }
 
-std::vector<EventType> EventDispatcher::GetRegisteredEvents() const {
-    std::vector<EventType> event_types;
-    event_types.reserve(event_type_set_.size());
+boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvents() {
+    // Create a packaged task for retrieving the value.
+    std::shared_ptr<boost::packaged_task<std::vector<EventType>>> task = std::make_shared<boost::packaged_task<std::vector<EventType>>>([=]()->std::vector<EventType> {   
 
-    // Use the known type lists to loop and call Disconnect for each.
-    for (auto type_it = event_type_set_.begin(), end = event_type_set_.end(); type_it != end; ++type_it) {
-        event_types.push_back(*type_it);
-    }
+        std::vector<EventType> event_types;
+        event_types.reserve(event_type_set_.size());
 
-    return event_types;
+        // Use the known type lists to loop and call Disconnect for each.
+        for (auto type_it = event_type_set_.begin(), end = event_type_set_.end(); type_it != end; ++type_it) {
+            event_types.push_back(*type_it);
+        }
+
+        return event_types;
+    } );    
+    
+    // Add the message to the active object's queue that runs the task which in turn
+    // updates the future.
+    active_.Send([task] {
+        (*task)();
+    });
+
+    // Return the future to the caller.
+    return task->get_future();
 }
 
 bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
@@ -218,6 +220,37 @@ bool EventDispatcher::AddEventType_(const EventType& event_type) {
     // The event type already existed or it was successfully inserted, either
     // way it definitely exists in the set now.
     return true;
+}
+
+void EventDispatcher::Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type){ 
+    // Make sure a valid event type was passed in.
+    if (! ValidateEventType_(event_type)) {
+        return;
+    }
+    // Make sure a valid event listener type was passed in.
+    if (! ValidateEventListenerType_(event_listener_type)) {
+        return;
+    }
+
+    // Look for an entry and
+    auto map_it = event_listener_map_.find(event_type);
+    
+    // Somehow the event type doesn't exist.
+    if (map_it == event_listener_map_.end()) {
+        return;
+    }
+
+    // Lookup the listener in the list to see if it already exists.
+    EventListenerList& listener_list = (*map_it).second;
+    
+    // Loop through until we find it, no need to worry about invalidating the iterator
+    // because after the erase it's never used again.
+    for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
+        if ((*list_it).first.ident() == event_listener_type.ident()) {
+            listener_list.erase(list_it);
+            break; // Item found and there is only one per list, break out.
+        }
+    }
 }
 
 }  // namespace common

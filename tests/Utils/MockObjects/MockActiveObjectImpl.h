@@ -39,14 +39,28 @@ public:
     // Asyncronously set the called_ value to true. Use atomic operations
     // for setting the value because we also read this value from other threads.
     void SomeAsyncInteraction() { active_obj_.Send([=] {
-        while (called_.exchange(true)) {}
+            called_ = true;
     } ); }
 
-    bool called() const { return called_; }
+    boost::unique_future<bool> called() { 
+        // Create a packaged task for retrieving the value.
+        std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=] {   
+            return called_;
+        } );
+
+        // Add the message to the active object's queue that runs the task which in turn
+        // updates the future.
+        active_obj_.Send([task] {
+            (*task)();
+        });
+
+        // Return the future to the caller.
+        return task->get_future();
+    }
 
 private:
     ::utils::ActiveObject active_obj_;
-    ::boost::atomic<bool> called_;
+    bool called_;
 };
 
 #endif  // TESTS_UTILS_MOCKOBJECTS_MOCKACTIVEOBJECTIMPL_H_

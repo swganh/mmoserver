@@ -36,10 +36,8 @@ TEST(ActiveObjectTests, CanMakeAsyncCallToHostObject) {
     MockActiveObjectImpl active_object_impl;
 
     active_object_impl.SomeAsyncInteraction();
-
-    // Simulate some other work being done.
-    boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+    boost::unique_future<bool> future = active_object_impl.called();
 
     // Make sure that the async operation occurred.
-    EXPECT_EQ(true, active_object_impl.called());
+    EXPECT_EQ(true, future.get());
 }

@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <set>
 #include <vector>
 
+#include <boost/thread.hpp>
+
 #include "Utils/ActiveObject.h"
 #include "Common/Event.h"
 
@@ -50,6 +52,9 @@ typedef HashString EventListenerType;
 // very infrequently we also want to be able to add and remove listeners and need a 
 // way to identify them in the list so a std::pair is used as the node.
 typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
+typedef std::list<EventListener> EventListenerList;
+typedef std::map<EventType, EventListenerList> EventListenerMap;
+typedef std::set<EventType> EventTypeSet;
 
 class EventDispatcher {
 public:
@@ -85,14 +90,14 @@ public:
      * \param event_type The event type to check for connected listeners.
      * \return A list of the connected listeners to the specified event.
      */
-    std::vector<EventListener> GetListeners(const EventType& event_type) const;
+    boost::unique_future<std::vector<EventListener>> GetListeners(const EventType& event_type);
 
     /**
      * Gets a list of all of the registered events.
      * 
      * \returns A list of all the registered events.
      */
-    std::vector<EventType> GetRegisteredEvents() const;
+    boost::unique_future<std::vector<EventType>> GetRegisteredEvents();
 
 private:
     /// Disable the default copy constructor.
@@ -103,16 +108,14 @@ private:
 
     bool ValidateEventType_(const EventType& event_type) const;
     bool ValidateEventListenerType_(const EventListenerType& event_listener_type) const;
-    bool AddEventType_(const EventType& event_type);
+    bool AddEventType_(const EventType& event_type);    
+    void Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type);
 
-    typedef std::set<EventType> EventTypeSet;
     EventTypeSet event_type_set_;
     
-    typedef std::list<EventListener> EventListenerList;
-    typedef std::map<EventType, EventListenerList> EventListenerMap;
     EventListenerMap event_listener_map_;
 
-    ::utils::ActiveObject active;
+    ::utils::ActiveObject active_;
 };
 
 }  // namespace common

@@ -85,9 +85,21 @@ class Item : public TangibleObject
 		uint32	getLoadCount(){ return mLoadCount; }
 		void	setLoadCount(uint32 c){ mLoadCount = c; }
 
+		uint32	getTempAmount(){ return mTempAmount; }
+		uint32	decTempAmount(uint32 c){ if(c>mTempAmount) return 0; return mTempAmount-c; }
+		void	incTempAmount(uint32 c){ mTempAmount+=c; }
+		void	setTempAmount(uint32 c){ mTempAmount= c; }
+
+		//the amount of slots were linked to
+		uint32			getSlotCount(){ return mTempAmount; }
+		uint32			decSlotCount(uint32 c){ if(c>mTempAmount) return 0; return mTempAmount-c; }
+		void			incSlotCount(uint32 c){ mTempAmount+=c; }
+		void			setSlotCount(uint32 c){ mTempAmount= c; }
+
 		
 	protected:
 
+		uint32			mTempAmount;//virtual amount while crafting
 		uint32	mItemFamily;
 		uint32	mItemType;
 		uint32	mDynamicInt32;

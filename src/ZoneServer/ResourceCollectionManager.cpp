@@ -244,8 +244,8 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
-					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 4000;
-					player->getController()->addEvent(new SampleEvent(player,tool,resource),4000);
+					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
+					player->getController()->addEvent(new SampleEvent(player,tool,resource),1000);
 					
 				}
 				else
@@ -283,8 +283,8 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 		
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
-					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 4000;
-					player->getController()->addEvent(new SampleEvent(player,tool,resource),4000);
+					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
+					player->getController()->addEvent(new SampleEvent(player,tool,resource),1000);
 					
 				}
 			}

@@ -50,6 +50,8 @@ class FactoryCrate : public Item
 
 		TangibleObject*	getLinkedObject();
 		int32			decreaseContent(uint32 amount);
+		
+		uint32			tempAmount;//virtual amount while crafting
 
 	private:
 };

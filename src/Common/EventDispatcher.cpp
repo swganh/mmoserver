@@ -29,7 +29,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace common {
     
-EventDispatcher::EventDispatcher() {}
+EventDispatcher::EventDispatcher()
+: current_time_(0) {}
+
+EventDispatcher::EventDispatcher(uint64_t current_time)
+: current_time_(current_time) {}
 
 EventDispatcher::~EventDispatcher() {}
 
@@ -139,6 +143,31 @@ boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvent
         }
 
         return event_types;
+    } );    
+    
+    // Add the message to the active object's queue that runs the task which in turn
+    // updates the future.
+    active_.Send([task] {
+        (*task)();
+    });
+
+    // Return the future to the caller.
+    return task->get_future();
+}
+
+void EventDispatcher::Trigger(std::shared_ptr<Event> triggered_event) {
+    // Set the timestamp for this event.
+    triggered_event->timestamp(current_time_.load());
+
+    active_.Send([=] {
+        event_queue.push(triggered_event);
+    } ); 
+}
+
+boost::unique_future<bool> EventDispatcher::HasEvents() {
+    // Create a packaged task for retrieving the value.
+    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {   
+        return (event_queue.size() != 0);
     } );    
     
     // Add the message to the active object's queue that runs the task which in turn

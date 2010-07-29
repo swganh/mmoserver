@@ -32,10 +32,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MockObjects/MockListenerAlt.h"
 
 using ::common::EventDispatcher;
+using ::common::Event;
 using ::common::EventType;
 using ::common::EventListener;
 using ::common::EventListenerCallback;
 using ::common::EventListenerType;
+
+namespace {
 
 TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     // Create the EventDispatcher and a MockListener to use for testing.
@@ -186,4 +189,34 @@ TEST(EventDispatcherTests, CanGetListOfRegisteredEventTypes) {
     EXPECT_EQ(EventType("test_event1"), event_types[0]);
     EXPECT_EQ(EventType("test_event3"), event_types[1]); // When hashed test_event3 happens to be less than test_event2
     EXPECT_EQ(EventType("test_event2"), event_types[2]);
+}
+
+TEST(EventDispatcherTests, TriggeringEventQueuesItForProcessing) {
+    // Create the EventDispatcher.
+    EventDispatcher dispatcher;
+
+    // Create a new event.
+    std::shared_ptr<Event> my_event = std::make_shared<Event>(EventType("test_event"));
+
+    // Trigger the event and block on the future until the result is returned.
+    dispatcher.Trigger(my_event);
+
+    // Make sure the event has been marked as handled.
+    EXPECT_EQ(true, dispatcher.HasEvents().get());
+}
+
+TEST(EventDispatcherTests, TriggeringEventSetsTimestamp) {
+    // Create the EventDispatcher and initialize it with a current timestamp.
+    EventDispatcher dispatcher(100);
+
+    // Create a new event.
+    std::shared_ptr<Event> my_event = std::make_shared<Event>(EventType("test_event"));
+
+    // Trigger the event and block on the future until the result is returned.
+    dispatcher.Trigger(my_event);    
+
+    // Make sure the event has been marked as handled.
+    EXPECT_NE(0, my_event->timestamp());
+}
+
 }

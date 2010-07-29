@@ -147,8 +147,16 @@ bool CompareEventWeightLessThan(const Event& lhs, const Event& rhs) {
     return ((lhs.timestamp() + lhs.priority()) < (rhs.timestamp() + rhs.priority()));
 }
 
+bool CompareEventWeightLessThan(const std::shared_ptr<Event>& lhs, const std::shared_ptr<Event>& rhs) {
+    return CompareEventWeightLessThan(*lhs, *rhs);
+}
+
 bool CompareEventWeightGreaterThan(const Event& lhs, const Event& rhs) {
     return ((lhs.timestamp() + lhs.priority()) > (rhs.timestamp() + rhs.priority()));
+}
+
+bool CompareEventWeightGreaterThan(const std::shared_ptr<Event>& lhs, const std::shared_ptr<Event>& rhs) {
+    return CompareEventWeightGreaterThan(*lhs, *rhs);
 }
 
 }  // namespace common

@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <functional>
 #include <list>
 #include <map>
+#include <queue>
 #include <set>
 #include <vector>
 
@@ -55,10 +56,12 @@ typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
 typedef std::list<EventListener> EventListenerList;
 typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
+typedef std::priority_queue<std::shared_ptr<Event>, std::vector<std::shared_ptr<Event>>, CompareEventWeightLessThanPredicate> EventQueue;
 
 class EventDispatcher {
 public:
     EventDispatcher();
+    explicit EventDispatcher(uint64_t current_time);
     ~EventDispatcher();
 
     /**
@@ -99,6 +102,20 @@ public:
      */
     boost::unique_future<std::vector<EventType>> GetRegisteredEvents();
 
+    /**
+     * Triggers an event to be delivered all interested listeners.
+     *
+     * \param triggered_event The triggered event to be delivered.
+     */
+    void Trigger(std::shared_ptr<Event> triggered_event);
+
+    /**
+     * A check to see if there are any events waiting to be processed.
+     *
+     * \returns Returns true if their are events waiting, false if not.
+     */
+    boost::unique_future<bool> HasEvents();
+
 private:
     /// Disable the default copy constructor.
     EventDispatcher(const EventDispatcher&);
@@ -114,6 +131,10 @@ private:
     EventTypeSet event_type_set_;
     
     EventListenerMap event_listener_map_;
+
+    EventQueue event_queue;
+
+    ::boost::atomic<uint64_t> current_time_;
 
     ::utils::ActiveObject active_;
 };

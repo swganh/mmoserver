@@ -52,6 +52,12 @@ class Event;
  */
 bool CompareEventWeightLessThan(const Event& lhs, const Event& rhs);
 
+struct CompareEventWeightLessThanPredicate : public std::binary_function<std::shared_ptr<Event>, std::shared_ptr<Event>, bool> {
+    bool operator() (const std::shared_ptr<const Event>& lhs, const std::shared_ptr<const Event>& rhs) {
+        return CompareEventWeightLessThan(*lhs, *rhs);
+    }
+};
+
 /**
  * Compares the weight of two events based on priority and timestamp.
  *
@@ -63,6 +69,12 @@ bool CompareEventWeightLessThan(const Event& lhs, const Event& rhs);
  * \returns Returns true if left-hand side is greater than the right-hand side.
  */
 bool CompareEventWeightGreaterThan(const Event& lhs, const Event& rhs);
+
+struct CompareEventWeightGreaterThanPredicate : public std::binary_function<std::shared_ptr<Event>, std::shared_ptr<Event>, bool> {
+    bool operator() (const std::shared_ptr<const Event>& lhs, const std::shared_ptr<const Event>& rhs) {
+        return CompareEventWeightGreaterThan(*lhs, *rhs);
+    }
+};
 
 class Event {
 public:

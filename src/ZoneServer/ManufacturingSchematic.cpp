@@ -340,6 +340,7 @@ bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount, uint8 type)
 			mFilledResources.push_back(std::make_pair(resID,amount));
 			filledResIt				= mFilledResources.begin();
 			setFilledType((DSType)type);
+			setResourceId(resID);
 			return true;
 		}
 
@@ -356,6 +357,7 @@ bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount, uint8 type)
 		{
 			mFilledResources.push_back(std::make_pair(resID,amount));
 			setFilledType((DSType)type);
+			setResourceId(resID);
 			mFilledIndicatorChange = true;
 		}
 	}

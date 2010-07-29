@@ -198,32 +198,7 @@ void SocketWriteThread::run()
 				mService->AddSessionToProcessQueue(session);
 			}
 		}
-		/*
-		if(!mServerService)
-		{
-			uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
-			int64 timePassed = now - mLastTime;
-			
-			//get a measurement every several seconds 2 ?? 5 ???
-			if(timePassed > 5000)
-			{
-				mLastTime = now;
-
-				LPFILETIME time1, time2,time3,time4;
-				time1 = time2 = time3 = time4 = 0;
-				GetProcessTimes(mtheHandle,time1,time2,time3,time4);
-				
-				mLastThreadTime = mThreadTime;
-				mNewThreadTime = (uint64)&time3+(uint64)&time4;
-
-				mThreadTime = mNewThreadTime - mLastThreadTime;
-
-				mCpuUsage = (uint32)((100.0 * mThreadTime) / timePassed);
-				
-			}
-		}
-		
-		*/
+	
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 	}
@@ -257,24 +232,13 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 	uint32              sent, toLen = sizeof(toAddr), outLen;
 
 
-	// Some basic bounds checking.
-	//if(packet->getSize() > mMessageMaxSize)
-	//{
-	//	gLogger->logErrorF("Netcode","packet (%u) is longer than mMessageMaxSize (%u)",packet->getSize(),mMessageMaxSize);
-	//	return;
-	//}
-	//assert(packet->getSize() <= mMessageMaxSize);
-
-	// Want a fresh send buffer for debugging purposes.
-	memset(mSendBuffer, 0xcd, sizeof(mSendBuffer));
-/*
   // Going to simulate network packet loss here.
-  seed_rand_mwc1616(mClock->getLocalTime());
-  if (rand_mwc1616() < 0xffffffff / 5)  // 20%
-  {
-    return;
-  }
-*/
+  //seed_rand_mwc1616(gClock->getLocalTime());
+  //if (rand_mwc1616() < 0xffffffff / 5)  // 20%
+  //{
+	//return;
+  //}
+
 	packet->setReadIndex(0);
 	uint16 packetType = packet->getUint16();
 	uint8  packetTypeLow = *(packet->getData());

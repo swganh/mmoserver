@@ -39,6 +39,7 @@ class CraftingStation : public Item
 	public:
 
 		CraftingStation();
+		void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 		virtual ~CraftingStation();
 
 	private:

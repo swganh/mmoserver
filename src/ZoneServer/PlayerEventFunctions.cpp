@@ -93,7 +93,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 			return;
 		}
 
-		mHam.updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints, -(int)mindCost);
+		mHam.performSpecialAction(0,0,(float)mindCost,HamProperty_CurrentHitpoints);
 
 		// this is 0, if resource is not located
 		if(highestDist.position.y == 5.0)

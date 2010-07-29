@@ -157,6 +157,8 @@ private:
 	  void                        _processDataChannelPacket(Packet* packet, bool fastPath);
 	  void                        _processDataChannelB(Packet* packet);
 	  
+	  void						  _resendData();
+
 	  void                        _processDataOrderPacket(Packet* packet);
 	  void                        _processDataOrderChannelB(Packet* packet);
 	  void                        _processDataChannelAck(Packet* packet);

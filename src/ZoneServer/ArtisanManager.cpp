@@ -548,6 +548,7 @@ bool	ArtisanManager::setupForNodeSampleRecovery(PlayerObject* player)
 			player->getSampleData()->mPendingSample		= false;
 			player->getSampleData()->mSampleNodeFlag	= false;
 			player->getSampleData()->mSampleNodeRecovery= false;
+			player->getSampleData()->mSampleEventFlag = false;
 			return false;
 		}
 

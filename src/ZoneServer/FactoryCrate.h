@@ -59,7 +59,7 @@ class FactoryCrate : public Item
 
 		//the amount of slots were linked to
 		uint32			getSlotCount(){ return mTempAmount; }
-		uint32			decSlotCount(uint32 c){ if(c>mTempAmount) return 0; return mTempAmount-c; }
+		uint32			decSlotCount(uint32 c){ if(c>mTempAmount){mTempAmount = 0; return 0;} mTempAmount-=c; return mTempAmount-c; }
 		void			incSlotCount(uint32 c){ mTempAmount+=c; }
 		void			setSlotCount(uint32 c){ mTempAmount= c; }
 

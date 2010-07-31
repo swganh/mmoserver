@@ -39,8 +39,12 @@ std::ostream& operator<<(std::ostream& message, const HashString& string) {
 }
 
 HashString::HashString(char const * const ident_string)
-: ident_(reinterpret_cast<void*>(memcrc(ident_string, strlen(ident_string))))
-, ident_string_(ident_string) {}
+: ident_(reinterpret_cast<void*>(0))
+, ident_string_(ident_string) {
+    if (ident_string != kWildCardHashString) {
+        ident_ = reinterpret_cast<void*>(memcrc(ident_string, strlen(ident_string)));
+    }
+}
 
 HashString::~HashString() {}
 

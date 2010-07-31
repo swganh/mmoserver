@@ -43,6 +43,8 @@ class HashString;
  */
 std::ostream& operator<<(std::ostream& message, const HashString& string);
 
+const char* const kWildCardHashString = "*";
+
 class HashString {
 public:
     /**

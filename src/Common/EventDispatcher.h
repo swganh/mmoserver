@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace common {
 
-typedef std::function<bool (Event*)> EventListenerCallback;
+typedef std::function<bool (std::shared_ptr<Event>)> EventListenerCallback;
 
 // Use a HashString as the basis for EventListenerType's.
 typedef HashString EventListenerType;
@@ -103,11 +103,18 @@ public:
     boost::unique_future<std::vector<EventType>> GetRegisteredEvents();
 
     /**
-     * Triggers an event to be delivered all interested listeners.
+     * Notifies all interested listeners asynchronously that an event has occurred.
      *
      * \param triggered_event The triggered event to be delivered.
      */
-    void Trigger(std::shared_ptr<Event> triggered_event);
+    void Notify(std::shared_ptr<Event> triggered_event);
+
+    /**
+     * Delivers an event immediately to all interested listeners.
+     *
+     * \param triggered_event The triggered event to be delivered.
+     */
+    boost::unique_future<bool> Deliver(std::shared_ptr<Event> triggered_event);
 
     /**
      * A check to see if there are any events waiting to be processed.
@@ -115,6 +122,11 @@ public:
      * \returns Returns true if their are events waiting, false if not.
      */
     boost::unique_future<bool> HasEvents();
+
+    /**
+     * Processes all queued events.
+     */
+    void Tick();
 
 private:
     /// Disable the default copy constructor.
@@ -127,12 +139,13 @@ private:
     bool ValidateEventListenerType_(const EventListenerType& event_listener_type) const;
     bool AddEventType_(const EventType& event_type);    
     void Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type);
+    bool Deliver_(std::shared_ptr<Event> triggered_event);
 
     EventTypeSet event_type_set_;
     
     EventListenerMap event_listener_map_;
 
-    EventQueue event_queue;
+    EventQueue event_queue_;
 
     ::boost::atomic<uint64_t> current_time_;
 

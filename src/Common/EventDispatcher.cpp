@@ -69,10 +69,9 @@ void EventDispatcher::Connect(const EventType& event_type, EventListener listene
 } ); }
 
 
-void EventDispatcher::Disconnect(const EventType& event_type, const EventListenerType& event_listener_type){ active_.Send([=] {
-    // Forward the disconnect request on to the internal handler.
-    Disconnect_(event_type, event_listener_type);
-} ); }
+void EventDispatcher::Disconnect(const EventType& event_type, const EventListenerType& event_listener_type){ 
+    active_.Send(std::bind(&EventDispatcher::Disconnect_, this, event_type, event_listener_type));
+}
 
 void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_type) { active_.Send([=] {
     // Make sure a valid event listener type was passed in.
@@ -155,19 +154,36 @@ boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvent
     return task->get_future();
 }
 
-void EventDispatcher::Trigger(std::shared_ptr<Event> triggered_event) {
+void EventDispatcher::Notify(std::shared_ptr<Event> triggered_event) {
     // Set the timestamp for this event.
     triggered_event->timestamp(current_time_.load());
 
     active_.Send([=] {
-        event_queue.push(triggered_event);
+        event_queue_.push(triggered_event);
     } ); 
+}
+
+boost::unique_future<bool> EventDispatcher::Deliver(std::shared_ptr<Event> triggered_event) {
+    // Set the timestamp for this event.
+    triggered_event->timestamp(current_time_.load());
+
+    // Create a packaged task for retrieving the value.
+    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
+    
+    // Add the message to the active object's queue that runs the task which in turn
+    // updates the future.
+    active_.Send([task] {
+        (*task)();
+    });
+
+    // Return the future to the caller.
+    return task->get_future();
 }
 
 boost::unique_future<bool> EventDispatcher::HasEvents() {
     // Create a packaged task for retrieving the value.
     std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {   
-        return (event_queue.size() != 0);
+        return (event_queue_.size() != 0);
     } );    
     
     // Add the message to the active object's queue that runs the task which in turn
@@ -180,6 +196,15 @@ boost::unique_future<bool> EventDispatcher::HasEvents() {
     return task->get_future();
 }
 
+void EventDispatcher::Tick() { active_.Send([=] {
+    while(event_queue_.size() > 0) {
+        std::shared_ptr<Event> event_to_process = event_queue_.top(); 
+        event_queue_.pop();
+
+        Deliver_(event_to_process);
+    }
+} ); }
+
 bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
     // Make sure the string isn't empty.
     if (event_type.ident_string().length() == 0) {
@@ -190,12 +215,14 @@ bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
     // that no naming clashes occur.
     EventTypeSet::const_iterator it = event_type_set_.find(event_type);
     
+    // Check whether or not the event is known.
     if (it != event_type_set_.end()) {
+        // If the ident's don't match for whatever reason we failed.
         if ((*it).ident() != event_type.ident()) {
             return false;
         }
     }
-
+    
     // If all the tests have passed then return true for validation.
     return true;
 }
@@ -280,6 +307,49 @@ void EventDispatcher::Disconnect_(const EventType& event_type, const EventListen
             break; // Item found and there is only one per list, break out.
         }
     }
+}
+
+bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
+    // Ensure the triggered event is a known valid type.
+    if (!ValidateEventType_(triggered_event->event_type())) {
+        return false;
+    }
+
+    // Find the list of global listeners.
+    auto listener_it = event_listener_map_.find(EventType(kWildCardHashString));
+    
+    if (listener_it != event_listener_map_.end()) {
+        // Get the list of global listeners to iterate over.
+        auto listeners = listener_it->second;
+
+        // Allow each global listener the opportunity to process the event.
+        for (auto it = listeners.begin(), end = listeners.end(); it != end; ++it) {
+            (*it).second(triggered_event);
+        }
+    }
+    
+    // Find the list of listeners for this event type.
+    listener_it = event_listener_map_.find(triggered_event->event_type());
+
+    // If no listeners were found return false.
+    if (listener_it == event_listener_map_.end()) {
+        return false;
+    }
+
+    // Get the list of listeners to iterate over.
+    auto listeners = listener_it->second;
+    
+    // By default if an event isn't handled this method returns false.
+    bool processed = false;
+
+    // Allow each listener the opportunity to process the event, if it does set processed to true.
+    for (auto it = listeners.begin(), end = listeners.end(); it != end; ++it) {
+        if ((*it).second(triggered_event)) {
+            processed = true;
+        }
+    }
+    
+    return processed;
 }
 
 }  // namespace common

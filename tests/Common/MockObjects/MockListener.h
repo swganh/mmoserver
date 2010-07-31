@@ -29,13 +29,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class MockListener {
 public:
-    MockListener() {}
+    MockListener() : triggered_(false) {}
     ~MockListener() {}
 
-    bool HandleEvent(::common::Event* triggered_event) {
+    bool triggered() const { return triggered_; }
+
+    bool HandleEvent(std::shared_ptr<::common::Event> triggered_event) {
         triggered_event;
+        triggered_ = true;
         return true;
     }
+
+private:
+    bool triggered_;
 };
 
 #endif  // SRC_COMMON_MOCKS_MOCKLISTENER_H_

@@ -240,6 +240,8 @@ bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, Manu
 		}
 		
 		crateSize = fC->getAttribute<uint32>("factory_count");
+
+		fC->tempAmount = crateSize;
 		
 		if(!fC->getLinkedObject()->hasAttribute("stacksize"))
 		{
@@ -688,9 +690,21 @@ void CraftingSession::handleFillSlotResourceRewrite(uint64 resContainerId,uint32
 
 	// see if something is filled already
 	existingAmount = manSlot->getFilledAmount();
-	
-	// update the needed amount
-	totalNeededAmount -= existingAmount;
+
+	//check whether we have the same resource - if it's different replace the current resource with the new one
+	if(manSlot->getResourceId() && (containerResId != manSlot->getResourceId()))
+	{
+		// remove the old resource from the slot and input the new one.
+		emptySlot(slotId, manSlot, manSlot->getResourceId());
+
+		//gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient,counter,mOwner);
+		//return;
+	}
+	else
+	{
+		// update the needed amount
+		totalNeededAmount -= existingAmount;
+	}
 
 	// fail if its already complete
 	if(!totalNeededAmount)
@@ -698,14 +712,7 @@ void CraftingSession::handleFillSlotResourceRewrite(uint64 resContainerId,uint32
 		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Slot_Already_Full,counter,mOwner);
 		return;
 	}
-
-	//check whether we have the same resource - no go if its different - check for the slot being empty though
-	if(manSlot->getResourceId() && (containerResId != manSlot->getResourceId()))
-	{
-		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient,counter,mOwner);
-		return;
-	}
-									
+							
 	uint32 takeAmount = 0;
 	if(availableAmount >= totalNeededAmount)
 	{
@@ -804,12 +811,17 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 			}
 		
 			crateSize = fC->getAttribute<uint32>("factory_count");
-			//did we empty it??
+			
+			// did we empty it?? in that case its removed from the container
+			// readd it
 			if(!crateSize)
 			{
 				container->addObject(fC);
 				gMessageLib->sendContainmentMessage(fC->getId(),container->getId(),0xffffffff,mOwner);
 			}	 		
+
+			// only update the size when we already readded it
+			// (it might have been in several slots)
 			fC->setAttributeIncDB("factory_count",boost::lexical_cast<std::string>(amount+crateSize));
 			gMessageLib->sendUpdateCrateContent(fC,mOwner);
 
@@ -885,9 +897,12 @@ void CraftingSession::destroyComponents()
 					return;
 				}
 			
+				fC->tempAmount -= (*compIt).second;
 				crateSize = fC->getAttribute<uint32>("factory_count");
-				//did we empty it??
-				if(!crateSize)
+				
+				// did we empty it??
+				// crates might be used in several slots!!!
+				if((!crateSize) && (!fC->tempAmount))
 				{
 					mManufacturingSchematic->removeObject((*compIt).first);
 					gMessageLib->sendDestroyObject(fC->getId(),mOwner);

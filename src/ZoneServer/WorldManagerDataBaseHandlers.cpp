@@ -656,8 +656,17 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				// TODO: make stored function for saving
 				case WMQuery_SavePlayer_Position:
 				{
-					WMAsyncContainer* asyncContainer2	= new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SavePlayer_Attributes);
+					
 					PlayerObject* playerObject			= dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+					//saving ourselves async might see us deleted before finish
+					if(!playerObject)
+					{
+						PlayerObject* playerObject			= dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+						break;
+					}
+
+					WMAsyncContainer* asyncContainer2	= new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SavePlayer_Attributes);
+				
 					Ham* ham							= playerObject->getHam();
 
 					if(asyncContainer->mBool)
@@ -688,6 +697,13 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 					if(asyncContainer->mBool)
 					{
 						PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+						
+						//saving ourselves async might see us deleted before finish
+						if(!playerObject)
+						{
+							SAFE_DELETE(asyncContainer->clContainer);
+							break;
+						}
 						//delete the old char
 						
 						//remove the player out of his group - if any

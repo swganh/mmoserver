@@ -1617,7 +1617,7 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, Ite
 	ObjectSet::iterator it = inRangeObjects->begin();
 
 	mNearestCraftingStation = 0;
-
+	
 	while(it != inRangeObjects->end())
 	{
 		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
@@ -1689,7 +1689,7 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, Ite
 							return(station);
 						}
 					}
-				}
+				}	
 				break;
 
 				case ItemType_GenericTool:
@@ -1707,7 +1707,26 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, Ite
 
 	return(NULL);
 }
-
+//=============================================================================
+bool PlayerObject::isNearestCraftingStationPrivate(uint64 station)
+{
+	CraftingStation* craftStation = dynamic_cast<CraftingStation*>(gWorldManager->getObjectById(station));
+	if(craftStation)
+	{
+		switch(craftStation->getItemType())
+		{
+			case ItemType_ClothingStation:
+			case ItemType_WeaponStation:
+			case ItemType_FoodStation:
+			case ItemType_StructureStation:
+			case ItemType_SpaceStation:
+				return true;
+			default:
+				return false;
+		}
+	}
+	return false;
+}
 //=============================================================================
 
 void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3& pos, bool preDesignatedFacility)

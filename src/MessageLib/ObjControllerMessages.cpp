@@ -1334,7 +1334,7 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
 		//TODO: check for droids
 		if(playerObject->isNearestCraftingStationPrivate(station))
 		{
-			availableComplexity = 35;
+			availableComplexity = 50;
 		}
 		else
 			availableComplexity = 25;

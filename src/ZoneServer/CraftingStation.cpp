@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "CraftingStation.h"
-
+#include "PlayerObject.h"
 
 
 //=============================================================================
@@ -46,8 +46,15 @@ CraftingStation::~CraftingStation()
 
 void CraftingStation::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	mRadialMenu	= RadialMenuPtr(new RadialMenu());
-	mRadialMenu->addItem(1,0,radId_examine,radAction_Default);
-	mRadialMenu->addItem(2,0,radId_craftStart,radAction_Default);
-
+	// lets make sure
+	if(PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject))
+	{
+		if(this->getParentId() != player->getId()+INVENTORY_OFFSET)
+		{
+			mRadialMenu	= RadialMenuPtr(new RadialMenu());
+			mRadialMenu->addItem(1,0,radId_examine,radAction_Default);
+			mRadialMenu->addItem(2,0,radId_craftStart,radAction_Default);
+		}
+	}
 }
+	

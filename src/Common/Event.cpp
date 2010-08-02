@@ -34,6 +34,8 @@ Event::Event()
 , subject_(nullptr)
 , data_(nullptr)
 , response_(nullptr)
+, callback_(nullptr)
+, delay_ms_(0)
 , timestamp_(0)
 , priority_(0) {}
 
@@ -42,6 +44,39 @@ Event::Event(const EventType& event_type)
 , subject_(nullptr)
 , data_(nullptr)
 , response_(nullptr)
+, callback_(nullptr)
+, delay_ms_(0)
+, timestamp_(0)
+, priority_(0) {}
+
+Event::Event(const EventType& event_type, EventCallback callback)
+: event_type_(event_type)
+, subject_(nullptr)
+, data_(nullptr)
+, response_(nullptr)
+, callback_(new EventCallback(callback))
+, delay_ms_(0)
+, timestamp_(0)
+, priority_(0) {}
+
+
+Event::Event(const EventType& event_type, uint64_t delay_ms)
+: event_type_(event_type)
+, subject_(nullptr)
+, data_(nullptr)
+, response_(nullptr)
+, callback_(nullptr)
+, delay_ms_(delay_ms)
+, timestamp_(0)
+, priority_(0) {}
+
+Event::Event(const EventType& event_type, uint64_t delay_ms, EventCallback callback)
+: event_type_(event_type)
+, subject_(nullptr)
+, data_(nullptr)
+, response_(nullptr)
+, callback_(new EventCallback(callback))
+, delay_ms_(delay_ms)
 , timestamp_(0)
 , priority_(0) {}
 
@@ -50,6 +85,8 @@ Event::Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject)
 , subject_(std::forward<std::unique_ptr<ByteBuffer>>(subject))
 , data_(nullptr)
 , response_(nullptr)
+, callback_(nullptr)
+, delay_ms_(0)
 , timestamp_(0)
 , priority_(0) {}
 
@@ -58,6 +95,8 @@ Event::Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject,
 , subject_(std::forward<std::unique_ptr<ByteBuffer>>(subject))
 , data_(std::forward<std::unique_ptr<ByteBuffer>>(data))
 , response_(nullptr)
+, callback_(nullptr)
+, delay_ms_(0)
 , timestamp_(0)
 , priority_(0) {}
 
@@ -65,12 +104,11 @@ Event::~Event() {}
 
 Event::Event(const Event& from)
 : event_type_(from.event_type_)
-, subject_(new ByteBuffer())
-, data_(new ByteBuffer())
-, response_(new ByteBuffer())
-//, subject_(std::unique_ptr<ByteBuffer> (new ByteBuffer(from.subject_.get())))
-//, data_(std::unique_ptr<ByteBuffer> (new ByteBuffer(*(from.data_.get()))))
-//, response_(std::unique_ptr<ByteBuffer> (new ByteBuffer(*(from.response_.get()))))
+, subject_(nullptr)
+, data_(nullptr)
+, response_(nullptr)
+, callback_(nullptr)
+, delay_ms_(from.delay_ms_)
 , timestamp_(from.timestamp_)
 , priority_(from.priority_) {}
 
@@ -139,6 +177,25 @@ void Event::priority(uint8_t priority) {
 
 uint8_t Event::priority() const {
     return priority_;
+}
+
+void Event::triggerCallback() const {
+    if (callback_) {
+        (*callback_)();
+    }
+}
+
+std::shared_ptr<Event> Event::next(std::shared_ptr<Event> next) {
+    next_ = next;
+    return next_;
+}
+
+std::shared_ptr<Event> Event::next() {
+    return next_;
+}
+
+uint64_t Event::delay_ms() const {
+    return delay_ms_;
 }
 
 // Helper function implementations

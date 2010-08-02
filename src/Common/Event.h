@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_COMMON_EVENT_H_
 #define SRC_COMMON_EVENT_H_
 
+#include <functional>
 #include <memory>
 
 #include "Common/ByteBuffer.h"
@@ -78,8 +79,14 @@ struct CompareEventWeightGreaterThanPredicate : public std::binary_function<std:
 
 class Event {
 public:
+    typedef std::function<void ()> EventCallback;
+
+public:
     Event();
     explicit Event(const EventType& event_type);
+    Event(const EventType& event_type, EventCallback);
+    Event(const EventType& event_type, uint64_t delay_ms);
+    Event(const EventType& event_type, uint64_t delay_ms, EventCallback);
     Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject);
     Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject, std::unique_ptr<ByteBuffer>&& data);
 
@@ -210,12 +217,46 @@ public:
      * \returns Returns the current priority of the event.
      */
     uint8_t priority() const;
+
+    /**
+     * Trigger's the event's callback if set.
+     */
+    void triggerCallback() const;
+
+    /**
+     * Chain's an event to be called after the current one finishes executing.
+     *
+     * Easy daisy-chaining of events supported such as:
+     * \code 
+     *      my_event->next(some_event)->next(some_second_event)->next(some_third_event);
+     *
+     * \param next The next event in the chain.
+     * \returns The next event in the chain for easy "daisy-chaining" of events.
+     */
+    std::shared_ptr<Event> next(std::shared_ptr<Event> next);
+
+    /**
+     * Returns the next event in the chain.
+     *
+     * \param The next event in the chain.
+     */
+    std::shared_ptr<Event> next();
+
+    /**
+     * Returns the amount of time in milliseconds the event is to be delayed.
+     *
+     * \param The amount of time in milliseconds the event is to be delayed.
+     */
+    uint64_t delay_ms() const;
     
 private:
     EventType event_type_;
     std::unique_ptr<ByteBuffer> subject_;
     std::unique_ptr<ByteBuffer> data_;
     std::unique_ptr<ByteBuffer> response_;
+    std::unique_ptr<EventCallback> callback_;
+    std::shared_ptr<Event> next_;
+    uint64_t delay_ms_;
     uint64_t timestamp_;
     uint8_t priority_;
 };

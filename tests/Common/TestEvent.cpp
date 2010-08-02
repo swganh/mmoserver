@@ -145,3 +145,19 @@ TEST(EventTests, ComparingEventsConsidersPriority) {
     EXPECT_EQ(true, CompareEventWeightGreaterThan(event2, event1));
 }
 
+TEST(EventTests, CanSetCallbackForEvent) {
+    std::shared_ptr<int> someval = std::make_shared<int>(0);
+    
+    // Create an event with a callback that updates our local value.
+    Event event1(EventType("callback_event"), [=] {
+        *someval = 1;
+    });
+
+    event1.triggerCallback();
+    
+    // Make sure the value was updated.
+    EXPECT_EQ(1, *someval);
+}
+
+
+

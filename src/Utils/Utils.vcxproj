@@ -117,6 +117,7 @@
     <ClInclude Include="queue.h" />
     <ClInclude Include="rand.h" />
     <ClInclude Include="Scheduler.h" />
+    <ClInclude Include="Singleton.h" />
     <ClInclude Include="stack.h" />
     <ClInclude Include="StreamColors.h" />
     <ClInclude Include="Timer.h" />

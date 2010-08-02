@@ -66,11 +66,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
+#include "Common/EventDispatcher.h"
 #include "Common/Message.h"
 #include "Common/MessageFactory.h"
 #include "CraftingSession.h"
 
 #include <cassert>
+
+using ::common::Event;
+using ::common::EventType;
 
 //=============================================================================
 
@@ -1698,13 +1702,13 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	uint32 br_length		= gWorldConfig->getConfiguration<uint32>("Player_BurstRun_Time",(uint32)60);
 	uint32 br_coolD			= gWorldConfig->getConfiguration<uint32>("Player_BurstRun_CoolDown",(uint32)600);
 
-	uint32 t = std::min<uint32>(br_length,  br_coolD);
+	//uint32 t = std::min<uint32>(br_length,  br_coolD);
 
 	player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRunCD);	
 	player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRun);	
 
 	// schedule execution
-	addEvent(new BurstRunEvent(now+(br_length*1000),now+(br_coolD*1000)),t*1000);
+	//addEvent(new BurstRunEvent(now+(br_length*1000),now+(br_coolD*1000)),t*1000);
 	
 	//Send the burst run system message to the player
 	gMessageLib->SendSystemMessage(L"You run as hard as you can!", player);
@@ -1718,5 +1722,40 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	BString bs(s);
 	bs.convert(BSTRType_Unicode16);
 	gMessageLib->sendCombatSpam(player,player,0,"","",0,0,bs.getUnicode16());
+    
+    // Create a delayed event for the end of the burst run and attach a custom
+    // callback to be executed 60 seconds after being triggered.
+    std::shared_ptr<Event> burst_end_event = std::make_shared<Event>(EventType("burst_run_end"), br_length*1000, [=] {
+        if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun)) {
+			//You slow down.
+			gMessageLib->SendSystemMessage(::common::OutOfBand("cbt_spam", "burstrun_stop_single"), player); 
+			int8 s[256];
+			sprintf(s,"%s %s slows down.", player->getFirstName().getAnsi(), player->getLastName().getAnsi());
+			BString bs(s);
+			bs.convert(BSTRType_Unicode16);
+			gMessageLib->sendCombatSpam(player, player, 0, "", "", 0, 0, bs.getUnicode16());
+            
+            gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_tired"), player);
+			player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);	
 
+			player->setCurrentSpeedModifier(player->getBaseSpeedModifier());
+			gMessageLib->sendUpdateMovementProperties(player);
+			player->setUpright();
+		}
+    });
+    
+    // Create a delayed event for the end of the burst run cooldown timer and attach
+    // a custom callback to be executed 6 minutes after being triggered.
+    std::shared_ptr<Event> burst_cooldown_end_event = std::make_shared<Event>(EventType("burst_run_cooldown_end"), br_coolD*1000, [=] {
+        if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD)) {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_not_tired"), player);
+			player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRunCD);	
+		}
+    });
+    
+    // Chain the two events together so that they are called in the appropriate order.
+    burst_end_event->next(burst_cooldown_end_event);
+    
+    // Notify any curious listeners of the event.
+    gEventDispatcher.Notify(burst_end_event);
 }

@@ -690,8 +690,9 @@ void CreatureObject::incap()
 		uint32 configIncapCount = gWorldConfig->getConfiguration<uint32>("Player_Incapacitation",3);
 		if(++mIncapCount < (uint8)configIncapCount)
 		{
-			// update the posture
+			// update the posture and locomotion
 			mPosture = CreaturePosture_Incapacitated;
+			setLocomotionByPosture(mPosture);
 
 			// send timer updates
 			mCurrentIncapTime = gWorldConfig->getBaseIncapTime() * 1000;
@@ -752,6 +753,7 @@ void CreatureObject::die()
 	}
 
 	mPosture = CreaturePosture_Dead;
+	setLocomotionByPosture(mPosture);
 
 	// reset ham regeneration
 	mHam.updateRegenRates();

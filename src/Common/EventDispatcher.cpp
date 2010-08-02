@@ -385,7 +385,7 @@ bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
         std::shared_ptr<Event> next_event = triggered_event->next();
 
         if (next_event) {
-            event_queue_[active_queue_].push(next_event);
+            Notify(next_event);
         }
 
         return false;
@@ -410,7 +410,7 @@ bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
     std::shared_ptr<Event> next_event = triggered_event->next();
 
     if (next_event) {
-        event_queue_[active_queue_].push(next_event);
+        Notify(next_event);
     }
 
     return processed;

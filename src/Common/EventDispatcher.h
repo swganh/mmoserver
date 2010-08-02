@@ -42,10 +42,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/Singleton.h"
 #include "Common/Event.h"
 
+
 namespace common {
 
 class EventDispatcher;
-#define gEventDispatcher ::utils::Singleton<EventDispatcher>::Instance()
+#define gEventDispatcher ::utils::Singleton<::common::EventDispatcher>::Instance()
 
 typedef std::function<bool (std::shared_ptr<Event>)> EventListenerCallback;
 

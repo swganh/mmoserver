@@ -30,10 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace common {
     
 EventDispatcher::EventDispatcher()
-: current_time_(0) {}
+: current_timestep_(0)
+, active_queue_(0) {}
 
 EventDispatcher::EventDispatcher(uint64_t current_time)
-: current_time_(current_time) {}
+: current_timestep_(current_time)
+, active_queue_(0) {}
 
 EventDispatcher::~EventDispatcher() {}
 
@@ -156,16 +158,16 @@ boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvent
 
 void EventDispatcher::Notify(std::shared_ptr<Event> triggered_event) {
     // Set the timestamp for this event.
-    triggered_event->timestamp(current_time_.load());
+    triggered_event->timestamp(current_timestep_.load());
 
     active_.Send([=] {
-        event_queue_.push(triggered_event);
+        event_queue_[active_queue_].push(triggered_event);
     } ); 
 }
 
 boost::unique_future<bool> EventDispatcher::Deliver(std::shared_ptr<Event> triggered_event) {
     // Set the timestamp for this event.
-    triggered_event->timestamp(current_time_.load());
+    triggered_event->timestamp(current_timestep_.load());
 
     // Create a packaged task for retrieving the value.
     std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
@@ -183,7 +185,7 @@ boost::unique_future<bool> EventDispatcher::Deliver(std::shared_ptr<Event> trigg
 boost::unique_future<bool> EventDispatcher::HasEvents() {
     // Create a packaged task for retrieving the value.
     std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {   
-        return (event_queue_.size() != 0);
+        return (event_queue_[active_queue_].size() != 0);
     } );    
     
     // Add the message to the active object's queue that runs the task which in turn
@@ -196,14 +198,58 @@ boost::unique_future<bool> EventDispatcher::HasEvents() {
     return task->get_future();
 }
 
-void EventDispatcher::Tick() { active_.Send([=] {
-    while(event_queue_.size() > 0) {
-        std::shared_ptr<Event> event_to_process = event_queue_.top(); 
-        event_queue_.pop();
+boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {     
+    // Create a packaged task for retrieving the value.
+    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {
+        // If we were passed the same time or a time in the past return false.
+        if (current_timestep_.load() >= new_timestep) return false;
 
-        Deliver_(event_to_process);
-    }
-} ); }
+        current_timestep_.store(new_timestep);
+        
+	    int queue_to_process = active_queue_;
+        active_queue_ = (active_queue_ + 1) % kNumQueues;
+
+        while(event_queue_[queue_to_process].size() > 0) {
+            std::shared_ptr<Event> event_to_process = event_queue_[queue_to_process].top(); 
+            event_queue_[queue_to_process].pop();
+
+            // Check to to see if the event is ready for processing yet. If so deliver it, if not put it on the new queue.
+            if ((event_to_process->timestamp() + event_to_process->delay_ms()) <= current_timestep_.load()) {
+                Deliver_(event_to_process);
+            } else {
+                // Else push it back onto the next queue for processing.
+                event_queue_[active_queue_].push(event_to_process);
+            }
+        }
+
+        return true;
+    } );    
+    
+    // Add the message to the active object's queue that runs the task which in turn
+    // updates the future.
+    active_.Send([task] {
+        (*task)();
+    });
+
+    // Return the future to the caller.
+    return task->get_future();
+}
+
+boost::unique_future<uint64_t> EventDispatcher::current_timestep() {
+    // Create a packaged task for retrieving the value.
+    std::shared_ptr<boost::packaged_task<uint64_t>> task = std::make_shared<boost::packaged_task<uint64_t>>([=] {   
+        return current_timestep_.load();
+    } );    
+    
+    // Add the message to the active object's queue that runs the task which in turn
+    // updates the future.
+    active_.Send([task] {
+        (*task)();
+    });
+
+    // Return the future to the caller.
+    return task->get_future();
+}
 
 bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
     // Make sure the string isn't empty.
@@ -333,6 +379,15 @@ bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
 
     // If no listeners were found return false.
     if (listener_it == event_listener_map_.end()) {
+        // Callbacks shoud be called here if no specific listeners were found.
+        triggered_event->triggerCallback();
+
+        std::shared_ptr<Event> next_event = triggered_event->next();
+
+        if (next_event) {
+            event_queue_[active_queue_].push(next_event);
+        }
+
         return false;
     }
 
@@ -348,7 +403,16 @@ bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
             processed = true;
         }
     }
+
+    // If processing got this far then nothing failed so invoke the callback on the event.
+    triggered_event->triggerCallback();
     
+    std::shared_ptr<Event> next_event = triggered_event->next();
+
+    if (next_event) {
+        event_queue_[active_queue_].push(next_event);
+    }
+
     return processed;
 }
 

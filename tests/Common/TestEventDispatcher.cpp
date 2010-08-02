@@ -319,9 +319,116 @@ TEST(EventDispatcherTests, CallingTickProcessesQueuedEvents) {
     EXPECT_EQ(true, dispatcher.HasEvents().get());
 
     // Call tick on the dispatcher.
-    dispatcher.Tick();
+    dispatcher.Tick(1);
     
     // Make sure there are no waiting events.
+    EXPECT_EQ(false, dispatcher.HasEvents().get());
+    EXPECT_EQ(true, listener.triggered());
+}
+
+TEST(EventDispatcherTests, CallingTickUpdatesTimestamp) {
+    EventDispatcher dispatcher;
+
+    EXPECT_EQ(0, dispatcher.current_timestep().get());
+
+    dispatcher.Tick(10);
+
+    EXPECT_EQ(10, dispatcher.current_timestep().get());
+}
+
+TEST(EventDispatcherTests, SuccessfullDeliveryInvokesEventCallback) {
+    // Create some data to be modified in the callback.
+    std::shared_ptr<int> someval = std::make_shared<int>(0);
+
+    // Create the EventDispatcher.
+    EventDispatcher dispatcher;
+
+    // Create a new event.
+    std::shared_ptr<Event> my_event = std::make_shared<Event>(EventType("test_event"), [=] {
+        *someval = 1;
+    });
+
+    // Deliver the event.
+    dispatcher.Deliver(my_event).get();
+    
+    // Make sure the value was updated.
+    EXPECT_EQ(1, *someval);
+}
+
+TEST(EventDispatcherTests, CallingTickWithNonSequentialIntervalFails) {
+    EventDispatcher dispatcher(10);
+
+    // Try to tick with a time in the past.
+    EXPECT_EQ(false, dispatcher.Tick(9).get());
+}
+
+TEST(EventDispatcherTests, ChainedEventsAreAddedToQueueOnSuccessfulDelivery) {
+    // Create some data to be modified in the callback.
+    std::shared_ptr<int> someval = std::make_shared<int>(0);
+
+    // Create the EventDispatcher.
+    EventDispatcher dispatcher;
+
+    // Create a new event.
+    std::shared_ptr<Event> my_event1 = std::make_shared<Event>(EventType("test_event1"), [=] {
+        *someval = 1;
+    });
+    
+    std::shared_ptr<Event> my_event2 = std::make_shared<Event>(EventType("test_event2"), [=] {
+        *someval = 2;
+    });
+
+    my_event1->next(my_event2);
+    
+    // Make sure the dispatcher has no events waiting.
+    EXPECT_EQ(false, dispatcher.HasEvents().get());
+
+    // Deliver the event.
+    dispatcher.Deliver(my_event1).get();
+    
+    // Make sure the value was updated.
+    EXPECT_EQ(1, *someval);
+
+    // Make sure that the event dispatcher now has something in the queue.
+    EXPECT_EQ(true, dispatcher.HasEvents().get());
+
+    // Tick forward so the queued event is processed.
+    dispatcher.Tick(1).get();
+    
+    // Make sure the value was updated.
+    EXPECT_EQ(2, *someval);
+}
+
+
+TEST(EventDispatcherTests, DelayedEventsAreOnlyProcessedAfterTimeoutHasBeenReached) {
+    // Create the EventDispatcher.
+    EventDispatcher dispatcher;  
+    MockListener listener;
+   
+    // Connect the listener to a test event.
+    EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
+    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback));
+    
+    // Create a new event with a delay of 5 milliseconds.
+    std::shared_ptr<Event> my_event = std::make_shared<Event>(EventType("test_event"), 5);
+
+    // Trigger the event.
+    dispatcher.Notify(my_event);
+
+    // Make sure the dispatcher has waiting events.
+    EXPECT_EQ(true, dispatcher.HasEvents().get());
+
+    // Call tick on the dispatcher.
+    dispatcher.Tick(1);
+    
+    // Make sure the dispatcher still has the waiting event and the listener hasn't been triggered.
+    EXPECT_EQ(true, dispatcher.HasEvents().get());
+    EXPECT_EQ(false, listener.triggered());
+    
+    // Call tick on the dispatcher.
+    dispatcher.Tick(5);
+    
+    // Make sure the dispatcher no events and the listener has been triggered.
     EXPECT_EQ(false, dispatcher.HasEvents().get());
     EXPECT_EQ(true, listener.triggered());
 }

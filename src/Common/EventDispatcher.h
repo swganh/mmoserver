@@ -39,9 +39,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/thread.hpp>
 
 #include "Utils/ActiveObject.h"
+#include "Utils/Singleton.h"
 #include "Common/Event.h"
 
 namespace common {
+
+class EventDispatcher;
+#define gEventDispatcher ::utils::Singleton<EventDispatcher>::Instance()
 
 typedef std::function<bool (std::shared_ptr<Event>)> EventListenerCallback;
 
@@ -126,7 +130,14 @@ public:
     /**
      * Processes all queued events.
      */
-    void Tick();
+    boost::unique_future<bool> Tick(uint64_t new_timestep);
+
+    /**
+     * Returns the current timestep as provided by the most recent call to Tick.
+     *
+     * \returns The current timestep.
+     */
+    boost::unique_future<uint64_t> current_timestep();
 
 private:
     /// Disable the default copy constructor.
@@ -145,9 +156,18 @@ private:
     
     EventListenerMap event_listener_map_;
 
-    EventQueue event_queue_;
+    // Uses a double buffered queue to prevent events that generate events from creating
+    // an infinite loop.
+    
+    enum ClassConstants
+    {
+        kNumQueues = 2
+    };
 
-    ::boost::atomic<uint64_t> current_time_;
+    EventQueue event_queue_[kNumQueues];
+    int active_queue_;
+
+    ::boost::atomic<uint64_t> current_timestep_;
 
     ::utils::ActiveObject active_;
 };

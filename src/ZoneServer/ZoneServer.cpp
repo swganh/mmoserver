@@ -72,16 +72,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/MessageDispatch.h"
 #include "Common/MessageFactory.h"
 #include "Common/MessageOpcodes.h"
+#include "Common/EventDispatcher.h"
 #include "ConfigManager/ConfigManager.h"
 #include "Utils/utils.h"
 #include "Utils/clock.h"
+#include "Utils/Singleton.h"
 
 #if !defined(_DEBUG) && defined(_WIN32)
 #include "Utils/mdump.h"
 #endif
 
 #include <boost/thread/thread.hpp>
-  
+
+using ::utils::Singleton;
+using ::common::EventDispatcher;
+
 //======================================================================================================================
 
 ZoneServer* gZoneServer = NULL;
@@ -100,6 +105,8 @@ mDatabase(0)
 	
 	// gLogger->log(LogManager::DEBUG,"ZoneServer - %s Startup %s",zoneName,GetBuildString());
 	gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", zoneName);
+
+    Singleton<EventDispatcher>::Instance();
 
 	// Create and startup our core services.
 	mDatabaseManager = new DatabaseManager();
@@ -270,12 +277,13 @@ void ZoneServer::handleWMReady()
 
 void ZoneServer::Process(void)
 {
-
+    uint64_t current_timestep = Anh_Utils::Clock::getSingleton()->getGlobalTime();
 	// Process our game modules
 	mObjectControllerDispatch->Process();
 	gWorldManager->Process();
 	gScriptEngine->process();
 	mMessageDispatch->Process();
+    gEventDispatcher.Tick(current_timestep);
 
 	//is there stalling ?
 	mRouterService->Process();

@@ -359,9 +359,6 @@
     <ClCompile Include="OCAdminHandlers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OCArtisanHandlers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OCBioEngineerHandlers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -393,9 +390,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OCContactListsHandlers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="OCCraftingHandlers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OCCrateHandlers.cpp">
@@ -753,6 +747,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RegionFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArtisanManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CraftingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1472,6 +1472,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MoodTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArtisanManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CraftingManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -54,6 +54,9 @@ void ActiveObject::Run() {
         if (message_queue_.pop(message)) {
             message();
         }
+        
+        // @note: Yield here to give the rest of the processing time back to the OS.
+        boost::this_thread::yield();
     }
 }
 

@@ -49,6 +49,10 @@ namespace utils {
  * messages to process requests in a private thread. This implementation is based
  * on a design discussed by Herb Sutter.
  *
+ * Note that using an ActiveObject can result in up to 100% of the otherwise unused cpu
+ * being consumed. This is intentional as ActiveObjects should primarily be targeted at
+ * uses where being highly response is a priority.
+ *
  * @see http://www.drdobbs.com/go-parallel/article/showArticle.jhtml?articleID=225700095
  */
 class ActiveObject {

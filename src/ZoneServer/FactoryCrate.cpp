@@ -48,7 +48,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 FactoryCrate::FactoryCrate() : Item()
 {
-	tempAmount = 0;
+	mTempAmount = 0;
+	mSlotCount = 0;
 }
 
 //=============================================================================

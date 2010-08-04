@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/CharSheetManager.h"
 #include "ZoneServer/Conversation.h"
 #include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/CraftingStation.h"
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/DraftWeight.h"
 #include "ZoneServer/DraftSlot.h"
@@ -1327,10 +1328,16 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
 	uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");
 
 	uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + stationComplexity
-	if(playerObject->getNearestCraftingStation())
+	uint64 station = playerObject->getNearestCraftingStation();
+	if(station)
 	{
-		//TODO check for private stations!!
-		availableComplexity = 25;
+		//TODO: check for droids
+		if(playerObject->isNearestCraftingStationPrivate(station))
+		{
+			availableComplexity = 60;
+		}
+		else
+			availableComplexity = 25;
 	}
 
 

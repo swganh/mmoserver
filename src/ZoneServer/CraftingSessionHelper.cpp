@@ -90,11 +90,13 @@ uint32 CraftingSession::getComponentSerial(ManufactureSlot*	manSlot, Inventory* 
 
 //=============================================================================
 //
-// Adjust an Items amount / delete it
-//
+// Adjust an Itemstacks amount 
+// 
 
-bool CraftingSession::AdjustComponentStack(Item* item, Inventory* inventory, uint32 uses)
+bool CraftingSession::AdjustComponentStack(Item* item, uint32 uses)
 {
+	bool deleteStack = false;
+
 	//is this a stack ???
 	if(item->hasAttribute("stacksize"))
 	{
@@ -106,31 +108,135 @@ bool CraftingSession::AdjustComponentStack(Item* item, Inventory* inventory, uin
 		if(stackSize > uses)
 		{
 			//just adjust the stacks size
+			item->setAttributeIncDB("stacksize",boost::lexical_cast<std::string>(stackSize-uses));
 		}
-		return true;
-	}
+		if(stackSize < uses)
+		{
+			return false;	
+		}
+		
+		
+		if(stackSize == uses)
+		{
+			//just adjust the stacks size
+			item->setAttributeIncDB("stacksize",boost::lexical_cast<std::string>(stackSize-uses));
+			deleteStack = true;
+		}
 
+	}
+	else
 	//no stack, just a singular item
 	if(uses == 1)
 	{
-		//remove the item out of the inventory
-		inventory->removeObject(item);
-
-		//and add it to the manufacturing schematic
-		item->setParentId(mManufacturingSchematic->getId());
-		mManufacturingSchematic->addObject(item);
-		//the link will update the inventories item count
-		gMessageLib->sendContainmentMessage(item->getId(),item->getParentId(),4,mOwner);
-
-		//the db will only be updated if we really use the ´component!!
-		//at this point we might still put it out again or cancel the crafting session!!!!
-		//this is necessary in order to keep it consistent with a possible stack we might use
-
-		return true;
+		deleteStack = true;
+	}
+	else
+	{
+		return false;
 	}
 
-	return false;
+	if(deleteStack)
+	{
+		//remove the item out of its container
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
+		
+		if(!tO)
+		{
+			return false;
+		}
+		
+		tO->removeObject(item);
+		//and add it to the manufacturing schematic
+		item->setParentId(mManufacturingSchematic->getId());
+		
+		mManufacturingSchematic->addObject(item);
+		
+		gMessageLib->sendContainmentMessage(item->getId(),item->getParentId(),4,mOwner);
 
+	}
+
+	return true;
+
+}
+
+
+//=============================================================================
+//
+// Adjust an Itemstacks amount 
+// 
+
+bool CraftingSession::AdjustFactoryCrate(FactoryCrate* crate, uint32 uses)
+{
+	/*
+	bool deleteCrate = false;
+
+	uint32 crateSize = 1;
+	uint32 stackSize = 1;
+	
+	
+	if(!crate->hasAttribute("factory_count"))					  
+	{
+		gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponentoffer crate without factory_count attribute");
+		return false;
+	}
+	
+	crateSize = crate->getAttribute<uint32>("factory_count");
+
+	//============================================================================
+	//calculate the amount of stacks we need to remove from the crate
+	//
+
+	if(!crate->getLinkedObject()->hasAttribute("stacksize"))
+	{
+		stackSize = 1;
+	}
+
+	uint32 takeOut = 0;
+	uint32 amount = 0;
+	while(amount < uses)
+	{
+		takeOut++;
+		amount+= stackSize;
+	}
+
+	//============================================================================
+	//remove *amount* stacks from the crate
+	//
+		
+	if(takeOut>crateSize)
+	{
+		gLogger->log(LogManager::DEBUG,"CraftingSession::AdjustFactoryCrate :: Crate does not have enough content");
+		return false;
+	}
+
+	//only take away whole stacks
+	crate->setAttributeIncDB("factory_count",boost::lexical_cast<std::string>(crateSize-takeOut));
+	
+	//we might need to send these updates to all players watching the parentcontainer
+	gMessageLib->sendUpdateCrateContent(crate,mOwner);
+
+	//reference a copy in the slot so we dont loose it in case the crate gets destroyed
+	
+	manSlot->mUsedComponentStacks.push_back(std::make_pair(component,crateTaken));
+
+		//if its now empty remove it out of the inventory so we cant use it several times
+		if(crateTaken == crateSize)
+		{
+			TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(component->getParentId()));
+			if(!tO)
+				tO = dynamic_cast<TangibleObject*>(inventory);
+
+			tO->removeObject(component);
+			
+			//leave parent_id untouched - we might need to readd it to the container
+			gMessageLib->sendContainmentMessage(fC->getId(),mManufacturingSchematic->getId(),0xffffffff,mOwner);
+			
+		}
+		
+		fC->incSlotCount(1);
+		*/
+		return true;
+		
 }
 
 
@@ -219,8 +325,9 @@ uint32 CraftingSession::getComponentOffer(Item* component, uint32 needed)
 
 //=============================================================================
 //
-// preparing the offer means linking the stack/ crate to the slot so we can access it later on
-// delete it out of the inventory/continer if necessary
+// preparing the offer means creating copies for every slot and
+// linking them to the slot so we can deal with deleted / traded crates / items when we empty the slot
+// delete it out of the inventory/container if necessary
 // otherwise adjust the stacksize
 
 bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, ManufactureSlot* manSlot)
@@ -241,7 +348,7 @@ bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, Manu
 		
 		crateSize = fC->getAttribute<uint32>("factory_count");
 
-		fC->tempAmount = crateSize;
+		fC->setTempAmount(crateSize);
 		
 		if(!fC->getLinkedObject()->hasAttribute("stacksize"))
 		{
@@ -277,6 +384,7 @@ bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, Manu
 			
 		}
 		
+		fC->incSlotCount(1);
 		return true;
 		
 	}
@@ -325,6 +433,8 @@ bool CraftingSession::prepareComponentOffer(Item* component, uint32 needed, Manu
 		//leave parent_id untouched - we might need to readd it to the container
 		gMessageLib->sendContainmentMessage(component->getId(),mManufacturingSchematic->getId(),0xffffffff,mOwner);
 	}
+	
+	component->incSlotCount(1);
 		
 	return true;
 		
@@ -801,9 +911,13 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 			return;
 		}
 		
+		filledComponent->incTempAmount(amount);
+		filledComponent->decSlotCount(1);
+
 		FactoryCrate* fC = dynamic_cast<FactoryCrate*>(filledComponent);
 		if(fC)
 		{
+			
 			if(!fC->hasAttribute("factory_count"))					  
 			{
 				gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponentoffer crate without factory_count attribute");
@@ -883,7 +997,7 @@ void CraftingSession::destroyComponents()
 
 			if(!filledComponent)
 			{
-				gLogger->log(LogManager::DEBUG,"CraftingSession::bagComponents filledComponent not found");
+				gLogger->log(LogManager::DEBUG,"CraftingSession::destroyComponents filledComponent not found");
 				return;
 			}
 			
@@ -893,17 +1007,19 @@ void CraftingSession::destroyComponents()
 			{
 				if(!fC->hasAttribute("factory_count"))					  
 				{
-					gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponentoffer crate without factory_count attribute");
+					gLogger->log(LogManager::DEBUG,"CraftingSession::destroyComponents crate without factory_count attribute");
 					return;
 				}
 			
-				fC->tempAmount -= (*compIt).second;
+				fC->decSlotCount((*compIt).second);
 				crateSize = fC->getAttribute<uint32>("factory_count");
+				gLogger->log(LogManager::DEBUG,"CraftingSession::destroyComponents crate %I64u with %u content left",fC->getId(),fC->getTempAmount());
 				
 				// did we empty it??
 				// crates might be used in several slots!!!
-				if((!crateSize) && (!fC->tempAmount))
+				if((!crateSize) && (!fC->getSlotCount()))
 				{
+					gLogger->log(LogManager::DEBUG,"CraftingSession::destroyComponents remove crate %I64u with %u content left",fC->getId(),fC->getTempAmount() );
 					mManufacturingSchematic->removeObject((*compIt).first);
 					gMessageLib->sendDestroyObject(fC->getId(),mOwner);
 					gObjectFactory->deleteObjectFromDB(fC);
@@ -916,6 +1032,7 @@ void CraftingSession::destroyComponents()
 			
 			if(!filledComponent->hasAttribute("stacksize"))					  
 			{
+				gLogger->log(LogManager::DEBUG,"CraftingSession::destroyComponents remove stack %I64u",filledComponent->getId());
 				mManufacturingSchematic->removeObject((*compIt).first);
 				gObjectFactory->deleteObjectFromDB(filledComponent);
 				gMessageLib->sendDestroyObject(filledComponent->getId(),mOwner);
@@ -926,10 +1043,14 @@ void CraftingSession::destroyComponents()
 				
 			}
 			
-			crateSize = filledComponent->getAttribute<uint32>("stacksize");
+			uint32 stackSize = filledComponent->getAttribute<uint32>("stacksize");
+			
+			//get the amount of items we lost in that slot
+			uint32 tAmount = filledComponent->decTempAmount((*compIt).second);
 			
 			//did we empty it??
-			if(!crateSize)
+			//do not delete otherwise
+			if((!stackSize) && (!tAmount))
 			{
 				mManufacturingSchematic->removeObject((*compIt).first);
 				gObjectFactory->deleteObjectFromDB(filledComponent);

@@ -168,56 +168,6 @@ void PlayerObject::onLogout(const LogOutEvent* event)
 	
 }
 
-//=============================================================================
-// this event manages the burstrun
-//
-void PlayerObject::onBurstRun(const BurstRunEvent* event)
-{
-
-	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
-
-	//do we have to remove the cooldown?
-	if(now >  event->getCoolDown())
-	{
-		if(this->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
-		{
-            gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_not_tired"), this);
-			this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRunCD);	
-		}
-	}
-
-	//do we have to remove the burstrun??
-	if(now >  event->getEndTime())
-	{
-		if(this->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun))
-		{
-			//You slow down.
-			gMessageLib->SendSystemMessage(OutOfBand("cbt_spam", "burstrun_stop_single"), this); 
-			int8 s[256];
-			sprintf(s,"%s %s slows down.",this->getFirstName().getAnsi(),this->getLastName().getAnsi());
-			BString bs(s);
-			bs.convert(BSTRType_Unicode16);
-			gMessageLib->sendCombatSpam(this,this,0,"","",0,0,bs.getUnicode16());
-            
-            gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_tired"), this);
-			this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);	
-
-			this->setCurrentSpeedModifier(this->getBaseSpeedModifier());
-			gMessageLib->sendUpdateMovementProperties(this);
-			this->setUpright();
-		}
-	}
-
-	uint64 t = std::max<uint64>(event->getEndTime(),  event->getCoolDown());
-	
-	//have to call us once more ?
-	if(now < t)
-	{
-		mObjectController.addEvent(new BurstRunEvent(event->getEndTime(),event->getCoolDown()),t-now);
-	}
-		
-}
-
 
 //=============================================================================
 // this event manages the removeal of consumeables - so an object doesnt have to delete itself

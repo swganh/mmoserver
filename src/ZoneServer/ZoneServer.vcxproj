@@ -367,7 +367,6 @@
     <ClInclude Include="BuildingEnums.h" />
     <ClInclude Include="BuildingFactory.h" />
     <ClInclude Include="BuildingObject.h" />
-    <ClInclude Include="BurstRunEvent.h" />
     <ClInclude Include="Camp.h" />
     <ClInclude Include="CampRegion.h" />
     <ClInclude Include="CampTerminal.h" />

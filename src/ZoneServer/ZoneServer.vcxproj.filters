@@ -820,9 +820,6 @@
     <ClInclude Include="BuildingObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BurstRunEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Camp.h">
       <Filter>Header Files</Filter>
     </ClInclude>

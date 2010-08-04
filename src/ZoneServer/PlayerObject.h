@@ -37,7 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SurveyEvent.h"
 #include "SampleEvent.h"
 #include "LogOutEvent.h"
-#include "BurstRunEvent.h"
 #include "ItemDeleteEvent.h"
 #include "InjuryTreatmentEvent.h"
 #include "QuickHealInjuryTreatmentEvent.h"
@@ -376,7 +375,6 @@ class PlayerObject : public CreatureObject
 		void				onSurvey(const SurveyEvent* event);
 		void				onSample(const SampleEvent* event);
 		void				onLogout(const LogOutEvent* event);
-		void				onBurstRun(const BurstRunEvent* event);
 		void				onItemDeleteEvent(const ItemDeleteEvent* event);
 		void				onInjuryTreatment(const InjuryTreatmentEvent* event);
 		void				onWoundTreatment(const WoundTreatmentEvent* event);

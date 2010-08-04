@@ -159,9 +159,9 @@ void Food::handleFoodUse(Object* srcObject)
 		_handleUses_Remaining(playerObject);
 	}
 	bool drink = (this->hasAttribute("stomach_drink"));
-	if(this->hasAttribute("stomach_food"))
+	bool food = (this->hasAttribute("stomach_food"));
+	if(food)
 	{
-
 		filling = this->getAttribute<float>("stomach_food");					
 		
 		//do we still have place for it ?
@@ -174,51 +174,7 @@ void Food::handleFoodUse(Object* srcObject)
         gMessageLib->SendSystemMessage(OutOfBand("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
 
 		playerObject->getStomach()->incFood(filling);
-		
-		// the reptile eat client files do absolutely nothing, 
-		// so there is basically wookiee and everyone else
-		switch (playerObject->getRaceId())
-		{
-			// wookiee
-			case 4:
-				if (playerObject->getGender())
-				{
-					// female
-					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(545),playerObject->mPosition,playerObject);	
-					gMessageLib->sendPlayMusicMessage(WMSound_Eat_Wookiee_Female, playerObject);	
-					if (drink)
-						gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Female, playerObject);	
-				}
-				else
-				{
-					// male
-					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(552),playerObject->mPosition,playerObject);
-					gMessageLib->sendPlayMusicMessage(WMSound_Eat_Wookiee_Male, playerObject);	
-					if (drink)
-						gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Male, playerObject);	
-				}
-				break;
-			default:
-				if (playerObject->getGender())
-				{
-					// female
-					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),playerObject->mPosition,playerObject);	
-					gMessageLib->sendPlayMusicMessage(WMSound_Eat_Human_Female, playerObject);	
-					if (drink)
-						gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female, playerObject);	
-				}
-				else
-				{
-					// male
-					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),playerObject->mPosition,playerObject);
-					gMessageLib->sendPlayMusicMessage(WMSound_Eat_Human_Male, playerObject);	
-					if (drink)
-						gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male, playerObject);	
-				}
-				break;
-		}
 	}
-
 	if(drink)
 	{
 		float filling = 0;
@@ -234,15 +190,6 @@ void Food::handleFoodUse(Object* srcObject)
         gMessageLib->SendSystemMessage(OutOfBand("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
 		
 		playerObject->getStomach()->incDrink(filling);
-	
-		/*if(playerObject->getGender())
-		{
-			gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female,playerObject);
-		}
-		else
-		{
-			gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male,playerObject);
-		}*/
 
 	}
 	if(this->hasAttribute("duration"))
@@ -255,7 +202,8 @@ void Food::handleFoodUse(Object* srcObject)
 	} else {
 		_handleInstant(playerObject);
 	}
-
+	// play sounds
+	playerObject->playFoodSound(food, drink);
 	//when empty delete
 	if(toDelete)
 	{

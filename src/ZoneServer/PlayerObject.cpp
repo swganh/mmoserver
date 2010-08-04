@@ -2284,3 +2284,68 @@ void PlayerObject::setCrouched()
         gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_kneel"), this);
 	}
 }
+
+void PlayerObject::playFoodSound(bool food, bool drink)
+{
+	bool gender = getGender();
+	switch (getRaceId())
+	{
+		// wookiee
+		case 4:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(545),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(552),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Male, this);	
+			}
+			break;
+		// reptile aka Trandoshan
+		case 6:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Male, this);	
+			}
+			break;
+		// all else
+		default:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male, this);	
+			}
+			break;
+	}
+}

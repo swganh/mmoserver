@@ -134,6 +134,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\deps\boost\atomic.hpp" />
     <ClInclude Include="Common\MockObjects\MockListener.h" />
     <ClInclude Include="Common\MockObjects\MockListenerAlt.h" />
     <ClInclude Include="Utils\MockObjects\MockActiveObjectImpl.h" />

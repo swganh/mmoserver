@@ -24,6 +24,7 @@
     <ClCompile Include="OutOfBand.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\deps\boost\atomic\platform.hpp" />
     <ClInclude Include="atMacroString.h" />
     <ClInclude Include="BuildInfo.h" />
     <ClInclude Include="ByteBuffer-Inl.h" />

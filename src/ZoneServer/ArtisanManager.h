@@ -151,8 +151,9 @@ public:
 
 
 	//events
-	void					onSample(const SampleEvent* event);
-	void					onSurvey(const SurveyEvent* event);
+	void					sampleEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	void					surveyEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
+	
 private:
 
 	ObjectFactoryCallback*	mObjectFactoryCallback;

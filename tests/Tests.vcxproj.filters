@@ -57,5 +57,6 @@
     <ClInclude Include="Utils\MockObjects\MockActiveObjectImpl.h">
       <Filter>Utils\MockObjects</Filter>
     </ClInclude>
+    <ClInclude Include="..\deps\boost\atomic.hpp" />
   </ItemGroup>
 </Project>

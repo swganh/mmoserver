@@ -134,7 +134,7 @@ void PlayerObject::onSurvey(const SurveyEvent* event)
 void PlayerObject::onSample(const SampleEvent* event)
 {
 	// this will be replaced as soon as events are torn out of player object
-	gArtisanManager->onSample(event);
+	//gArtisanManager->onSample(event);
 	return;
 }
 

@@ -40,7 +40,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/clock.h"
 #include "Utils/rand.h"
+#include "Common/EventDispatcher.h"
 
+using ::common::Event;
+using ::common::EventType;
 //======================================================================================================================
 
 bool ResourceCollectionManager::mInsFlag = false;
@@ -214,7 +217,12 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource				= (CurrentResource*)asyncContainer->CurrentResource;
 					player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getLocalTime() + 4000;
-					player->getController()->addEvent(new SampleEvent(player,tool,resource),4000);
+					//player->getController()->addEvent(new SampleEvent(player,tool,resource),4000);
+					std::shared_ptr<Event> sample_radioactive_event = std::make_shared<Event>(EventType("sample_radioactive"), 4000, 
+						std::bind(&ArtisanManager::sampleEvent,gArtisanManager, player, resource, tool));
+					//notify the listeners
+					gEventDispatcher.Notify(sample_radioactive_event);
+
 				}
 			}
 		}
@@ -245,7 +253,11 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
 					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
-					player->getController()->addEvent(new SampleEvent(player,tool,resource),1000);
+					//player->getController()->addEvent(new SampleEvent(player,tool,resource),1000);
+					std::shared_ptr<Event> sample_gamble_event = std::make_shared<Event>(EventType("sample_gamble"), 1000, 
+						std::bind(&ArtisanManager::sampleEvent,gArtisanManager, player, resource, tool));
+					//notify the listeners
+					gEventDispatcher.Notify(sample_gamble_event);
 					
 				}
 				else
@@ -284,7 +296,11 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
 					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
-					player->getController()->addEvent(new SampleEvent(player,tool,resource),1000);
+					//player->getController()->addEvent(new SampleEvent(player,tool,resource),1000);
+					std::shared_ptr<Event> sample_gamble_event = std::make_shared<Event>(EventType("sample_gamble"), 1000, 
+						std::bind(&ArtisanManager::sampleEvent,gArtisanManager, player, resource, tool));
+					//notify the listeners
+					gEventDispatcher.Notify(sample_gamble_event);
 					
 				}
 			}
@@ -329,7 +345,11 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 					SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
 					CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
 					player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
-					player->getController()->addEvent(new SampleEvent(player,tool,resource),10000);
+					//player->getController()->addEvent(new SampleEvent(player,tool,resource),10000);
+					std::shared_ptr<Event> sample_continue_event = std::make_shared<Event>(EventType("sample_continue"), 10000, 
+						std::bind(&ArtisanManager::sampleEvent,gArtisanManager, player, resource, tool));
+					//notify the listeners
+					gEventDispatcher.Notify(sample_continue_event);
 					
 				}
 			}
@@ -348,14 +368,8 @@ void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,BStrin
 				gMessageLib->sendUpdateMovementProperties(player);
 				gMessageLib->sendPostureAndStateUpdate(player);
 				gMessageLib->sendSelfPostureUpdate(player);
-				
-				//continue sampling normally or stop ???
-				//SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-				//CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
-				//player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 30000;
-				//player->getController()->addEvent(new SampleEvent(tool,resource),10000);
-				return;
-				
+
+				return;				
 			}
 		}
 		break;

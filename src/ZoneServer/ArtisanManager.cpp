@@ -61,8 +61,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/MessageFactory.h"
 #include "ArtisanHeightmapAsyncContainer.h"
 #include "Utils/EventHandler.h"
+#include "Common/EventDispatcher.h"
 #include "Utils/rand.h"
 #include "Utils/clock.h"
+
+using ::common::Event;
+using ::common::EventType;
 
 bool						ArtisanManager::mInsFlag    = false;
 ArtisanManager*				ArtisanManager::mSingleton  = NULL;
@@ -76,6 +80,7 @@ ArtisanManager::ArtisanManager() : mObjectFactoryCallback(), mHeightMapCallback(
 ArtisanManager::~ArtisanManager()
 {
 };
+
 //======================================================================================================================
 //
 // request survey
@@ -137,7 +142,10 @@ bool ArtisanManager::handleRequestSurvey(Object* player,Object* target,Message* 
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_survey", L"", L"", resourceName.getUnicode16()), playerObject);
 
 		// schedule execution
-		player->getController()->addEvent(new SurveyEvent(tool,resource),5000);
+		//player->getController()->addEvent(new SurveyEvent(tool,resource),5000);
+		std::shared_ptr<Event> start_survey_event = std::make_shared<Event>(EventType("start_survey"), 5000, 
+			std::bind(&ArtisanManager::surveyEvent, this, playerObject, resource, tool));
+		gEventDispatcher.Notify(start_survey_event);
 	}
 	else
 	{
@@ -256,8 +264,13 @@ void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 			// play animation
 			gWorldManager->getClientEffect(container->tool->getInternalAttribute<uint32>("sample_effect"));
 			// schedule execution
-			container->playerObject->getController()->addEvent(new SampleEvent(container->playerObject,container->tool,container->resource),2000);
+			//container->playerObject->getController()->addEvent(new SampleEvent(container->playerObject,container->tool,container->resource),2000);
+			std::shared_ptr<Event> start_sample_event = std::make_shared<Event>(EventType("start_sample"), 2000, 
+			std::bind(&ArtisanManager::sampleEvent,this, container->playerObject, container->resource, container->tool));
+			// notify any listeners
+			gEventDispatcher.Notify(start_sample_event);
 		}
+		
 }
 
 //======================================================================================================================
@@ -287,17 +300,8 @@ bool ArtisanManager::handleSample(Object* player,Object* target,Message* message
 }
 
 //======================================================================================================================
-
-//=============================================================================
-//
-// sample event
-//
-void ArtisanManager::onSample(const SampleEvent* event)
+void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
 {
-	SurveyTool*			tool		= event->getTool();
-	CurrentResource*	resource	= event->getResource();
-	PlayerObject*		player		= event->getPlayer();
-
 	if (!player->isConnected())
 		return;
 
@@ -476,10 +480,12 @@ void ArtisanManager::onSample(const SampleEvent* event)
 	else
 	{
 		player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 18000;
-		player->getController()->addEvent(new SampleEvent(player,tool,resource),18000);
+		std::shared_ptr<Event> start_sample_event = std::make_shared<Event>(EventType("start_sample"), 18000, 
+			std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
+		//player->getController()->addEvent(new SampleEvent(player,tool,resource),18000);
+		gEventDispatcher.Notify(start_sample_event);
 	}
 
-	// update ham for standard sample action oc does this already - only the first time though???  !!!
 	player->getHam()->performSpecialAction(0, (float)actionCost, 0, HamProperty_CurrentHitpoints);
 }
 
@@ -733,70 +739,66 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
 //// survey event
 ////
 //
-//void ArtisanManager::onSurvey(const SurveyEvent* event)
-//{
-//	PlayerObject*		player		= event->getPlayer();
-//	SurveyTool*			tool		= event->getTool();
-//	CurrentResource*	resource	= event->getResource();
-//
-//	if(tool && resource && player->isConnected())
-//	{
-//		Datapad* datapad					= player->getDataPad();
-//		ResourceLocation	highestDist		= gMessageLib->sendSurveyMessage(tool->getInternalAttribute<uint16>("survey_range"),tool->getInternalAttribute<uint16>("survey_points"),resource,player);
-//
-//		uint32 mindCost = gResourceCollectionManager->surveyMindCost;
-//
-//		//are we able to sample in the first place ??
-//		if(!player->getHam()->checkMainPools(0,0,mindCost))
-//		{
-//			
-//			int32 myMind = player->getHam()->mAction.getCurrentHitPoints();		
-//			
-//			//return message for sampling cancel based on HAM
-//			if(myMind < (int32)mindCost)
-//			{
-//				gMessageLib->sendSystemMessage(player,L"","error_message","sample_mind");
-//			}
-//
-//			//message for stop sampling
-//			gMessageLib->sendSystemMessage(player,L"","survey","sample_cancel");
-//
-//			player->getSampleData()->mPendingSurvey = false;
-//
-//			player->getHam()->updateRegenRates();
-//			player->updateMovementProperties();
-//			return;
-//		}
-//
-//		player->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints, -(int)mindCost);
-//
-//		// this is 0, if resource is not located
-//		if(highestDist.position.y == 5.0)
-//		{
-//			WaypointObject*	waypoint = datapad->getWaypointByName("Resource Survey");
-//
-//			// remove the old one
-//			if(waypoint)
-//			{
-//				gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateDelete,player);
-//				datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),
-//										static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
-//			}
-//			else
-//			{
-//				// create a new one
-//				if(datapad->getCapacity())
-//				{
-//					gMessageLib->sendSysMsg(player,"survey","survey_waypoint");
-//					//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
-//				}
-//				//the datapad automatically checks if there is room and gives the relevant error message
-//				datapad->requestNewWaypoint("Resource Survey", glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
-//			}
-//
-//			gMissionManager->checkSurveyMission(player,resource,highestDist);
-//		}
-//	}
-//
-//	player->getSampleData()->mPendingSurvey = false;
-//}
+void ArtisanManager::surveyEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
+{
+	if(tool && resource && player->isConnected())
+	{
+		Datapad* datapad					= player->getDataPad();
+		ResourceLocation	highestDist		= gMessageLib->sendSurveyMessage(tool->getInternalAttribute<uint16>("survey_range"),tool->getInternalAttribute<uint16>("survey_points"),resource,player);
+
+		uint32 mindCost = gResourceCollectionManager->surveyMindCost;
+		Ham* hamz = player->getHam();
+		//are we able to sample in the first place ??
+		if(!hamz->checkMainPools(0,0,mindCost))
+		{
+			
+			int32 myMind = hamz->mAction.getCurrentHitPoints();		
+			
+			//return message for sampling cancel based on HAM
+			if(myMind < (int32)mindCost)
+			{
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), player);
+			}
+
+			//message for stop sampling
+            gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), player);
+
+			player->getSampleData()->mPendingSurvey = false;
+
+			hamz->updateRegenRates();
+			player->updateMovementProperties();
+			return;
+		}
+
+		hamz->performSpecialAction(0,0,(float)mindCost,HamProperty_CurrentHitpoints);
+
+		// this is 0, if resource is not located
+		if(highestDist.position.y == 5.0)
+		{
+			WaypointObject*	waypoint = datapad->getWaypointByName("Resource Survey");
+
+			// remove the old one
+			if(waypoint)
+			{
+				gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateDelete,player);
+				datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),
+										static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
+			}
+			else
+			{
+				// create a new one
+				if(datapad->getCapacity())
+				{
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "survey_waypoint"), player);
+					//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
+				}
+				//the datapad automatically checks if there is room and gives the relevant error message
+				datapad->requestNewWaypoint("Resource Survey", glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+			}
+
+			gMissionManager->checkSurveyMission(player,resource,highestDist);
+		}
+	}
+
+	player->getSampleData()->mPendingSurvey = false;
+}

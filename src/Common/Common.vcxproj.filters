@@ -88,5 +88,8 @@
     <ClInclude Include="HashString.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\deps\boost\atomic\platform.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

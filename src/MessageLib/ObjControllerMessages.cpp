@@ -1552,7 +1552,12 @@ void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,B
 	mMessageFactory->addUint32(0);
 
 	mMessageFactory->addUint64(attacker->getId());
-	mMessageFactory->addUint64(defender->getId());
+
+    if (defender) {
+	    mMessageFactory->addUint64(defender->getId());
+    } else {
+	    mMessageFactory->addUint64(0);
+    }
 
 	if(!item)
 		mMessageFactory->addUint64(0);

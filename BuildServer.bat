@@ -91,7 +91,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.2.0
+set DEPENDENCIES_VERSION=0.3.0
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
@@ -335,6 +335,7 @@ if exist "deps\gtest" call :BUILD_GTEST
 if exist "deps\gmock" call :BUILD_GMOCK
 if exist "deps\lua" call :BUILD_LUA
 if exist "deps\mysql++" call :BUILD_MYSQLPP
+if exist "deps\mysql-connector-cpp" call :BUILD_MYSQLCONN
 if exist "deps\noise" call :BUILD_NOISE
 if exist "deps\spatialindex" call :BUILD_SPATIALINDEX
 if exist "deps\tolua++" call :BUILD_TOLUA
@@ -665,6 +666,75 @@ cd ..
 
 goto :eof
 rem --- End of COMPILE_LUA -----------------------------------------------------
+rem ----------------------------------------------------------------------------
+
+
+
+rem ----------------------------------------------------------------------------
+rem --- Start of BUILD_MYSQLCONN -----------------------------------------------
+rem --- Builds the mysql c++ connector library for use with this project.    ---
+:BUILD_MYSQLCONN
+
+echo BUILDING: Mysql Connector/C++ - https://launchpad.net/mysql-connector-cpp
+
+cd "%PROJECT_BASE%deps\mysql-connector-cpp"
+
+rem Only build mysql++ if it hasn't been built already.
+if "%BUILD_TYPE%" == "debug" (
+	if exist "driver\Debug\mysqlcppconn.lib" (
+		echo Mysql Connector/C++ already built ... skipping
+		echo.
+		cd "%PROJECT_BASE%"
+		goto :eof
+	)
+)
+if "%BUILD_TYPE%" == "release" (
+	if exist "driver\Release\mysqlcppconn.lib" (
+		echo Mysql Connector/C++ already built ... skipping
+		echo.
+		cd "%PROJECT_BASE%"
+		goto :eof
+	)
+)
+if "%BUILD_TYPE%" == "all" (
+	if exist "driver\Debug\mysqlcppconn.lib" (
+		if exist "driver\Release\mysqlcppconn.lib" (
+			echo Mysql Connector/C++ already built ... skipping
+			echo.
+			cd "%PROJECT_BASE%"
+			goto :eof
+		)
+	)
+)
+
+rem Build the mysql Connector/C++ library we need.
+
+rem VS likes to create these .cache files and then complain about them existing afterwards.
+rem Removing it as it's not needed.
+if exist "*.cache" del /S /Q "*.cache" >NUL
+
+if "%BUILD_TYPE%" == "debug" (
+	"%MSBUILD%" "MYSQLCPPCONN.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+if "%BUILD_TYPE%" == "release" (
+	"%MSBUILD%" "MYSQLCPPCONN.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+if "%BUILD_TYPE%" == "all" (
+	"%MSBUILD%" "MYSQLCPPCONN.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+
+	"%MSBUILD%" "MYSQLCPPCONN.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+cd "%PROJECT_BASE%"
+
+goto :eof
+rem --- End of BUILD_MYSQLCONN -------------------------------------------------
 rem ----------------------------------------------------------------------------
 
 

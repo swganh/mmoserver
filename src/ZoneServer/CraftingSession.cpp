@@ -354,6 +354,10 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 	// its the manufacturing schematic
 	if(item->getItemFamily() == ItemFamily_ManufacturingSchematic)
 	{
+		//reset - we just started from scratch
+		mItemLoaded = false;
+
+		gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded schematic.");
 		mManufacturingSchematic = dynamic_cast<ManufacturingSchematic*>(item);
 		if(!mManufacturingSchematic)
 		{
@@ -379,6 +383,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 	// its the item we load 
 	else if(!mItemLoaded)
 	{
+		gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded item.");
 		//mark it as loaded the next item we might receive will be a component 
 		mItemLoaded = true;
 		mItem = item;
@@ -404,10 +409,12 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		//% just upsets the standard query
 		mDatabase->ExecuteSqlAsyncNoArguments(this,container,sql);
 		//mDatabase->ExecuteSqlAsync(this,container,sql);
+		return;
 	}
 	//as the main item has been loaded we can now only receive components when we fill slots with stack-/crate- content
 	else if(mItemLoaded)
 	{
+		gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded component.");
 		uint32 maxsize = mAsyncStackSize;
 
 		//make sure we have the proper stacksizes
@@ -425,6 +432,13 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 				mAsyncComponentAmount -= maxsize;
 			}
 		}
+		else
+		{
+			// when we use a crate with components that are not stacks we add every component individually
+			// only when the last component is added we want to continue execution
+			mAsyncComponentAmount--;
+		}
+
 		gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: stacksize : %u",mAsyncComponentAmount);
 
 		if(!mAsyncManSlot)
@@ -449,34 +463,38 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		// update the slot total resource amount
 		mAsyncManSlot->setFilledAmount(mAsyncManSlot->getFilledAmount()+maxsize);
 
-		if(mAsyncManSlot->getFilledAmount() == mAsyncManSlot->mDraftSlot->getNecessaryAmount())
-		{
-			// update the total count of filled slots
-			mManufacturingSchematic->addFilledSlot();
-			gMessageLib->sendUpdateFilledManufactureSlots(mManufacturingSchematic,mOwner);
-		}
 
-		// update the slot contents, send all slots on first fill
-		// we need to make sure we only update lists with changes, so the lists dont desynchronize!
-		if(!mFirstFill)
+		if(mAsyncComponentAmount == 0)
 		{
-			mFirstFill = true;
-			gMessageLib->sendDeltasMSCO_7(mManufacturingSchematic,mOwner);
-		}
-		else if(mAsyncSmallUpdate == true)
-		{
-			gMessageLib->sendManufactureSlotUpdateSmall(mManufacturingSchematic,static_cast<uint8>(mAsyncSlotId),mOwner);
-		}
-		else
-		{
-			gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(mAsyncSlotId),mOwner);
+			if(mAsyncManSlot->getFilledAmount() == mAsyncManSlot->mDraftSlot->getNecessaryAmount())
+			{
+				// update the total count of filled slots
+				mManufacturingSchematic->addFilledSlot();
+				gMessageLib->sendUpdateFilledManufactureSlots(mManufacturingSchematic,mOwner);
+			}
+
+			// update the slot contents, send all slots on first fill
+			// we need to make sure we only update lists with changes, so the lists dont desynchronize!
+			if(!mFirstFill)
+			{
+				mFirstFill = true;
+				gMessageLib->sendDeltasMSCO_7(mManufacturingSchematic,mOwner);
+			}
+			else if(mAsyncSmallUpdate == true)
+			{
+				gMessageLib->sendManufactureSlotUpdateSmall(mManufacturingSchematic,static_cast<uint8>(mAsyncSlotId),mOwner);
+			}
+			else
+			{
+				gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(mAsyncSlotId),mOwner);
 			
-			//after the first big update we want to send small ones to not desynchronize
-			mAsyncSmallUpdate = true;
-		}
+				//after the first big update we want to send small ones to not desynchronize
+				mAsyncSmallUpdate = true;
+			}
 
-		// done
-		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_None,mAsyncCounter,mOwner);
+			// done
+			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_None,mAsyncCounter,mOwner);
+		}
 
 
 	}

@@ -139,23 +139,7 @@ bool CraftingSession::AdjustComponentStack(Item* item, uint32 uses)
 		return false;
 	}
 
-	if(deleteStack)
-	{
-		gLogger->log(LogManager::DEBUG,"CraftingSession::AdjustComponentStack delete stack");
-		//remove the item out of its container
-		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
-		
-		if(!tO)
-		{
-			assert(false);
-			return false;
-		}
-		
-		//just delete it 
-		tO->removeObject(item);
-		gWorldManager->destroyObject(item);
-
-	}
+	
 
 	return true;
 
@@ -216,24 +200,6 @@ uint32 CraftingSession::AdjustFactoryCrate(FactoryCrate* crate, uint32 uses)
 	
 	//we might need to send these updates to all players watching the parentcontainer
 	gMessageLib->sendUpdateCrateContent(crate,mOwner);
-	
-	//if its now empty remove it out of the inventory so we cant use it several times
-	if(takeOut == crateSize)
-	{
-		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(crate->getParentId()));
-		
-		if(!tO)
-		{
-			return 0;
-		}
-		
-		//just delete it 
-		gMessageLib->sendDestroyObject(crate->getId(),mOwner);
-		gObjectFactory->deleteObjectFromDB(crate->getId());
-		tO->deleteObject(crate);
-	
-	}
-		
 	
 	return takeOut;
 		
@@ -339,7 +305,8 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 	{
 		
 		uint32 amount = AdjustFactoryCrate(fC, needed);
-		
+		gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponent FactoryCrate take %u stacks",amount);
+
 		//TODO - added stacks shouldnt have more items than maximally possible - needed is the amount needed for the slot
 		// that might be bigger than the max stack size
 
@@ -351,6 +318,26 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 		for(uint8 i = 0; i<amount;i++)
 			gObjectFactory->requestNewClonedItem(this,fC->getLinkedObject()->getId(),mManufacturingSchematic->getId());
 		
+
+		// if its now empty remove it out of the inventory so we cant use it several times
+		// and destroy it while were at it
+		uint32 crateSize = fC->getAttribute<uint32>("factory_count");
+		if(!crateSize)
+		{
+			TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(fC->getParentId()));
+		
+			if(!tO)
+			{
+				return 0;
+			}
+		
+			//just delete it 
+			gMessageLib->sendDestroyObject(fC->getId(),mOwner);
+			gObjectFactory->deleteObjectFromDB(fC->getId());
+			tO->deleteObject(fC);
+	
+		}
+
 		//dont send result - its a callback
 		return false;
 		
@@ -385,6 +372,27 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 	mAsyncManSlot = manSlot;
 	gObjectFactory->requestNewClonedItem(this,component->getId(),mManufacturingSchematic->getId());
 		
+	//delete the stack if empty
+	uint32 stackSize = component->getAttribute<uint32>("stacksize");
+
+	if(!stackSize)
+	{
+		gLogger->log(LogManager::DEBUG,"CraftingSession::AdjustComponentStack delete stack");
+		//remove the item out of its container
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(component->getParentId()));
+		
+		if(!tO)
+		{
+			assert(false);
+			return false;
+		}
+		
+		//just delete it 
+		tO->removeObject(component);
+		gWorldManager->destroyObject(component);
+
+	}
+
 	//dont send result - its a callback
 	return false;
 		

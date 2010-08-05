@@ -232,8 +232,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				if(player)
 				{
 					gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-					Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
+					
+					Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 					
 					//destroy it in the client
 					gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);

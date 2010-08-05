@@ -370,20 +370,21 @@ bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount, uint8 type)
 
 void ManufactureSlot::addComponenttoSlot(uint64 resID, uint32 amount, uint8 type)
 {
-
-	//the trouble is that we need one entry per item!!!
 	uint32 counter = 0;
 	if(mFilledResources.empty())
 		mFilledIndicatorChange = true;
 
-	while(counter<amount)
+	mFilledResources.push_back(std::make_pair(resID,amount));
+	setFilledType((DSType)type);
+
+	/*while(counter<amount)
 	{
 		counter++;
 		mFilledResources.push_back(std::make_pair(resID,1));
 		setFilledType((DSType)type);
 		
 	}
-	
+	*/
 }
 
 

@@ -516,6 +516,11 @@ void LoginManager::_sendDeleteCharacterReply(uint32 result,LoginClient* client)
 	Message* newMessage = gMessageFactory->EndMessage();
 
 	client->SendChannelA(newMessage, 2, false);
+
+    // Set the account authenticated to 0 (the server will attempt to relogin for any further processing). 
+    // Set the state to the end state to prevent character deletion infinite loop.
+    client->setState(LCSTATE_End);
+	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", client->getAccountId());
 }
 
 //======================================================================================================================

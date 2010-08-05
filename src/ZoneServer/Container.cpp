@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 Container::Container() : TangibleObject(), mParent(NULL)
 {
 	mTanGroup = TanGroup_Container;
+	this->setStatic(true);
 	mObjectLoadCounter = 1000;
 	//mObjects.reserve(80);
 }

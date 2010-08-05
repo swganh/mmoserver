@@ -52,6 +52,7 @@ class Database;
 class DatbaseCallback;
 class DispatchClient;
 class DraftSchematic;
+class FactoryCrate;
 class Inventory;
 class Item;
 class ManufacturingSchematic;
@@ -90,7 +91,8 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		BString					ComponentGetSerial(Item* component);
 
 		uint32					getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory);
-		bool					AdjustComponentStack(Item* item, Inventory* inventory, uint32 uses);
+		bool					AdjustComponentStack(Item* item, uint32 uses);
+		bool					AdjustFactoryCrate(FactoryCrate* crate, uint32 uses);
 		void					destroyComponents();
 
 		void					handleEmptySlot(uint32 slotId,uint64 containerId,uint8 counter);

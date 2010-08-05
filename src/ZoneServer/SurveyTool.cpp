@@ -75,7 +75,7 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 
-	if(!(playerObject->isConnected()))
+	if( !(playerObject->isConnected()) || playerObject->isDead())
 		return;
 
 	// bring up the surve ui
@@ -194,9 +194,10 @@ void SurveyTool::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWi
 
 		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId);
 		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);
-
-
 	}
+	else
+		// make the player set the range before they can use the tool
+		return;
 
 	PlayerObject*			playerObject	= window->getOwner();
 

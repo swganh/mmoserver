@@ -98,7 +98,7 @@ class PlayerObjectFactory : public FactoryBase, public ObjectFactoryCallback
 		DataBinding*					mPlayerBinding;
 		DataBinding*					mHairBinding;
 		DataBinding*					mBankBinding;
-		InLoadingContainer*				mIlc;
+		//InLoadingContainer*				mIlc;
 };
 
 //=============================================================================

@@ -83,6 +83,7 @@ CreatureObject::CreatureObject()
 , mIncapCount(0)
 , mMoodId(0)
 , mPosture(0)
+, mLocomotion(0)
 
 ,mReady(false)
 {
@@ -689,8 +690,9 @@ void CreatureObject::incap()
 		uint32 configIncapCount = gWorldConfig->getConfiguration<uint32>("Player_Incapacitation",3);
 		if(++mIncapCount < (uint8)configIncapCount)
 		{
-			// update the posture
+			// update the posture and locomotion
 			mPosture = CreaturePosture_Incapacitated;
+			setLocomotionByPosture(mPosture);
 
 			// send timer updates
 			mCurrentIncapTime = gWorldConfig->getBaseIncapTime() * 1000;
@@ -751,6 +753,7 @@ void CreatureObject::die()
 	}
 
 	mPosture = CreaturePosture_Dead;
+	setLocomotionByPosture(mPosture);
 
 	// reset ham regeneration
 	mHam.updateRegenRates();
@@ -770,23 +773,7 @@ void CreatureObject::die()
 		gMessageLib->sendSelfPostureUpdate(player);
 
 		// update duel lists
-		PlayerList::iterator duelIt = player->getDuelList()->begin();
-
-		while(duelIt != player->getDuelList()->end())
-		{
-			if((*duelIt)->checkDuelList(player))
-			{
-				PlayerObject* duelPlayer = (*duelIt);
-
-				duelPlayer->removeFromDuelList(player);
-
-				gMessageLib->sendUpdatePvpStatus(player,duelPlayer);
-				gMessageLib->sendUpdatePvpStatus(duelPlayer,player);
-			}
-
-			++duelIt;
-		}
-		player->getDuelList()->clear();
+		player->clearDuelList();
 
 		// update defender lists
 		ObjectIDList::iterator defenderIt = mDefenders.begin();
@@ -1413,4 +1400,43 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 			
 	}
 }
-
+//=============================================================================
+// maps the incoming posture
+void CreatureObject::setLocomotionByPosture(uint32 posture)
+{
+	switch (posture)
+	{
+		case CreaturePosture_Upright: mLocomotion = kLocomotionStanding; break;
+		// not even sure if this is used.
+		case CreaturePosture_Crouched:
+		{
+			if(this->getCurrentSpeed() < this->getBaseAcceleration())
+				mLocomotion = kLocomotionCrouchWalking;
+			else
+				mLocomotion = kLocomotionCrouchSneaking;
+			break;
+		}
+		case CreaturePosture_Prone: mLocomotion = kLocomotionProne; break;
+		case CreaturePosture_Sneaking: mLocomotion = kLocomotionSneaking; break;
+		// is this used?
+		case CreaturePosture_Blocking: mLocomotion = kLocomotionBlocking; break;
+		// is this used?
+		case CreaturePosture_Climbing:
+		{
+				if(this->getCurrentSpeed() >0)
+					mLocomotion = kLocomotionClimbing;
+				else
+					mLocomotion = kLocomotionClimbingStationary;
+				break;
+		}
+		case CreaturePosture_Flying: mLocomotion = kLocomotionFlying; break;
+		case CreaturePosture_LyingDown:	mLocomotion = kLocomotionLyingDown; break;
+		case CreaturePosture_Sitting: mLocomotion = kLocomotionSitting; break;
+		case CreaturePosture_SkillAnimating: mLocomotion = kLocomotionSkillAnimating; break;
+		case CreaturePosture_DrivingVehicle: mLocomotion = kLocomotionDrivingVehicle; break;
+		case CreaturePosture_RidingCreature: mLocomotion = kLocomotionRidingCreature; break;
+		case CreaturePosture_KnockedDown: mLocomotion = kLocomotionKnockedDown; break;
+		case CreaturePosture_Incapacitated: mLocomotion = kLocomotionIncapacitated; break;
+		case CreaturePosture_Dead: mLocomotion = kLocomotionDead; break;
+	}
+}

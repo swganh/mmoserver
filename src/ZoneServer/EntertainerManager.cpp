@@ -978,7 +978,11 @@ void EntertainerManager::stopEntertaining(PlayerObject* entertainer)
 	if(entertainer->getPerformingState() == PlayerPerformance_None)
 		return;
 
+	//remove us from the scheduler
+	gWorldManager->removeEntertainerToProcess(entertainer->getEntertainerTaskId());
+	
 	//stop our performance
+	
 
 	if (entertainer->getPerformingState() == PlayerPerformance_Music)
 	{

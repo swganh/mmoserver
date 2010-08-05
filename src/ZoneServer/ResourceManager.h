@@ -53,7 +53,8 @@ enum RMQueryType
 	RMQuery_ResourceTypes		= 1,
 	RMQuery_OldResources		= 2,
 	RMQuery_CurrentResources	= 3,
-	RMQuery_Categories			= 4
+	RMQuery_Categories			= 4,
+	RMQuery_DepleteResources	= 5,
 };
 
 //======================================================================================================================
@@ -73,6 +74,7 @@ class RMAsyncContainer
 		~RMAsyncContainer(){}
 
 		RMQueryType	mQueryType;
+		Resource*	mCurrentResource;
 };
 
 //======================================================================================================================
@@ -92,6 +94,7 @@ class ResourceManager : public DatabaseCallback
 		ResourceType*				getResourceTypeById(uint32 id);
 		ResourceCategory*			getResourceCategoryById(uint32 id);
 
+		bool						setResourceDepletion(Resource* resource, int32 amt);
 		// get map references
 		ResourceIdMap*				getResourceIdMap();
 		ResourceCRCNameMap*			getResourceCRCNameMap();

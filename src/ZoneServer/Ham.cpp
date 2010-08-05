@@ -31,9 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
-
-
-
 //===========================================================================
 
 Ham::Ham()
@@ -331,8 +328,24 @@ void Ham::updatePrimaryWounds(int32 propertyDelta)
 		}
 	}
 }
-
-
+//===========================================================================
+// 
+// gets called to perform a special action 
+// @param1 health cost of the action
+// @param2 action cost of the action
+// @param3 mind cost of the action
+// @link: http://wiki.swganh.org/index.php/Stats_(Game_Mechanics
+// @formula: Cost = Base * ( 1 - ( currentStat / maxStat + 1400 ) )
+void Ham::performSpecialAction(float healthCost, float actionCost, float mindCost, uint8 valueIndex)
+{
+	float modifiedHCost = healthCost * (1.0f - ((float)mStrength.getCurrentHitPoints() / ((float)mStrength.getMaxHitPoints()+1400.0f)));
+	float modifiedACost = actionCost * (1.0f - ((float)mQuickness.getCurrentHitPoints() / ((float)mQuickness.getMaxHitPoints()+1400.0f)));
+	float modifiedMCost = mindCost * (1.0f - ((float)mFocus.getCurrentHitPoints() / ((float)mFocus.getMaxHitPoints() + 1400.0f)));
+	
+	updatePropertyValue(HamBar_Health, valueIndex, (int)-modifiedHCost, false, true, false);
+	updatePropertyValue(HamBar_Action, valueIndex, (int)-modifiedACost, false, true, false);
+	updatePropertyValue(HamBar_Mind, valueIndex, (int)-modifiedMCost, false, true, false);
+}
 //===========================================================================
 //
 // gets called in order to modify a hambar

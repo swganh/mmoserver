@@ -146,15 +146,27 @@ void ObjectController::_handleSocialInternal(uint64 targetId,Message* message,Ob
 	emoteData.convert(BSTRType_ANSI);
 	emoteData.split(emoteElement,' ');
 
-	uint64 emoteTarget = boost::lexical_cast<uint64>(emoteElement[0].getAnsi());
-	uint16 emoteId		= atoi(emoteElement[1].getAnsi());
-	uint16 sendType		= 0x0100;
+	uint64_t emoteTarget = boost::lexical_cast<uint64>(emoteElement[0].getAnsi());
+	uint32_t emoteId     = atoi(emoteElement[1].getAnsi());
+
+    // Social emotes can have one of 3 types:
+    // 1 - Performs an animation
+    // 2 - Sends a text message
+    // 3 - Both
+	uint8_t sendType = 1;
 
 	// if set, send text along with animation
-	if(atoi(emoteElement[3].getAnsi()) == 1)
-		sendType = 0x0300;
+	if(atoi(emoteElement[3].getAnsi()) == 1) {
+	    // if the player is mounted (or perhaps other states to, such as sitting) only the
+        // text should be shown. Otherwise display both text and the animation.
+        if (playerObject->checkIfMounted()) {
+            sendType = 2;
+        } else {
+            sendType = 3;
+        }
+    }
 
-	gMessageLib->sendSpatialEmote(playerObject,emoteId,sendType,emoteTarget);
+    gMessageLib->SendSpatialEmote(playerObject, emoteId, emoteTarget, sendType);
 }
 
 //=============================================================================

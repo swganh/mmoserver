@@ -661,26 +661,45 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
 //
 bool EntertainerManager::handleImagedesignTimeOut(CreatureObject* designer)
 {
+    // Was a valid object passed in?
+    if (!designer) {
+        return false;
+    }
+
+    PlayerObject* imageDesigner;
+
 	//check whether (the old) ID Session is still active
 	//if the session has been ended, we have been removed, anyway
-	PlayerObject* imageDesigner = dynamic_cast<PlayerObject*>(designer);
+    try {
+	    imageDesigner = dynamic_cast<PlayerObject*>(designer);
+    } catch(...) {
+        // The player must have disconnected or otherwise been removed and all 
+        // we have now is a dangling pointer. Bail out.
+        return false;
+    }
 	
-	if(imageDesigner->getImageDesignSession() != IDSessionID)
-	{
-		//Panik!!!!!!!
-		gLogger->log(LogManager::DEBUG,"ID force close session : id is not id !!!");
-		return false;
+    // The image designer isn't a player object? bail out.
+    if(!imageDesigner) {
+        return false;
+    }
+
+    if (imageDesigner->getImageDesignSession() != IDSessionID) {
+	    //Panik!!!!!!!
+	    gLogger->log(LogManager::DEBUG,"ID force close session : id is not id !!!");
+	    return false;
 	}
 
 	PlayerObject* customer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(imageDesigner->getIDPartner()));
-	//gMessageLib->sendIDEndMessage(,);
-	gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,"", 0,0, 0,0,0,0,0);
+	
+	if(customer)
+	{
+		gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,"", 0,0, 0,0,0,0,0);
+		customer->setIDPartner(0);
+		customer->SetImageDesignSession(IDSessionNONE);
+	}
 
 	imageDesigner->setIDPartner(0);
-	customer->setIDPartner(0);
 	imageDesigner->SetImageDesignSession(IDSessionNONE);
-	customer->SetImageDesignSession(IDSessionNONE);
-
 	return false;
 
 }
@@ -883,7 +902,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote
 	asyncContainer->customer = customer;
 
 	sprintf(sql,"call swganh.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)", customer->getId(),myEmote->pCRC,20);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 
 	//send message box holoemote bought
 

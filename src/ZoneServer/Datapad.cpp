@@ -41,26 +41,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-Datapad::Datapad() : TangibleObject()
-{
+Datapad::Datapad() 
+: TangibleObject()
+, mWaypoints(0)
+, mManufacturingSchematics(0)
+, mMissions(0)
+, mData(0)
+, mOwner(NULL)
+, mObjectLoadCounter(0) {
 	mTanGroup					= TanGroup_Datapad;
 	mTanType					= TanType_CharacterDatapad;
 	mSchematicUpdateCounter		= 0;
-	mWayPointCapacity			= (uint8)gWorldConfig->getConfiguration<uint32>("Player_DataPad_WayPointCapacity",(uint32)100);
-	mCapacity					= (uint8)gWorldConfig->getConfiguration<uint32>("Player_Datapad_Capacity",(uint32)100);
-	mMissionCapacity			= (uint8)gWorldConfig->getConfiguration<uint32>("Player_Datapad_MissionCapacity",(uint32)2);
+    
+    mCapacity = static_cast<uint8>(gWorldConfig->getConfiguration<uint32_t>("Player_Datapad_Capacity", static_cast<uint32_t>(100)));
+    mWayPointCapacity = static_cast<uint8>(gWorldConfig->getConfiguration<uint32_t>("Player_DataPad_WayPointCapacity", static_cast<uint32_t>(100)));
+    mMissionCapacity = static_cast<uint8>(gWorldConfig->getConfiguration<uint32_t>("Player_Datapad_MissionCapacity", static_cast<uint32_t>(100)));
 
-	if(mMissionCapacity	>6)
-	{
+	if(mMissionCapacity	> 6) {
 		gLogger->log(LogManager::DEBUG,"Datapad::Datapad() : mMissionCapacity	was bigger than 6 - bigger entries are not supported due to the way Mission IDs are handled");
 		mMissionCapacity = 6;
 	}
-	
-	/*
-		//Absolute max of 6! To raise this change the 
-		//mission ID system from uint16 to uint32/uint64
-	*/
-
 }
 
 

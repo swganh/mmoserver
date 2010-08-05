@@ -168,8 +168,7 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 		return;
 	}
 
-	buffAsyncContainer*	envelope	= dynamic_cast<buffAsyncContainer*>(asyncContainer);
-	PlayerObject*	player			= envelope->player;
+	PlayerObject*	player			= asyncContainer->player;
 
 	BuffDBItem* tmp = new BuffDBItem();
 	for(uint64 i = 0;i < rowCount;i++)
@@ -177,11 +176,11 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 		result->GetNextRow(buffBinding,tmp);
 		
 		//Check player hasn't been logged out for more than 10mins
-		if((envelope->currentTime - tmp->mPausedGlobalTick) < 600000)
+		if((asyncContainer->currentTime - tmp->mPausedGlobalTick) < 600000)
 		{
-			Buff* buffTemp = Buff::FromDB(tmp, envelope->currentTime);
+			Buff* buffTemp = Buff::FromDB(tmp, asyncContainer->currentTime);
 			//Check there is time left
-			if(buffTemp->GetRemainingTime(envelope->currentTime) >0) 
+			if(buffTemp->GetRemainingTime(asyncContainer->currentTime) >0) 
 			{
 				buffTemp->setTarget(player);
 				player->AddBuff(buffTemp);
@@ -199,17 +198,17 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 
 	while(it != player->GetBuffList()->end())
 	{
-		envelope->buff = *it;
-		LoadBuffAttributes(envelope);
+		asyncContainer->buff = *it;
+		LoadBuffAttributes(asyncContainer);
 		it++;
 	}
 
 
-	envelope->mQueryType = BMQuery_Delete;
+	asyncContainer->mQueryType = BMQuery_Delete;
 
 	int8 sql2[550];
 	sprintf(sql2, "delete from character_buffs where character_id = %"PRIu64";", player->getId());
-	mDatabase->ExecuteSqlAsync(this,envelope,sql2);
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql2);
 }
 
 //=============================================================================
@@ -233,6 +232,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 		result->GetNextRow(buffBinding,tmp);
 		asyncContainer->buff->AddAttribute(BuffAttribute::FromDB(tmp));
 	}
+	
 	asyncContainer->buff->SetInit(true);
 	SAFE_DELETE(tmp);
 	mDatabase->DestroyDataBinding(buffBinding);
@@ -244,7 +244,8 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 	int8 sql2[550];
 	sprintf(sql2, "delete from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", asyncContainer->player->getId(), asyncContainer->buff->GetDBID());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql2);
-	SAFE_DELETE(asyncContainer);
+	
+	//we use the asyncContainer again the line above
 }
 
 //=============================================================================
@@ -380,9 +381,16 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 		return false;
 
 	//Get PlayerObjects from CreatureObjects
-	PlayerObject* player = dynamic_cast<PlayerObject*>(buff->GetTarget());
-	PlayerObject* target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
+    PlayerObject* player = nullptr;
+    PlayerObject* target = nullptr;
 
+    try {
+	    PlayerObject* player = dynamic_cast<PlayerObject*>(buff->GetTarget());
+	    PlayerObject* target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
+    } catch (...) {
+        // The target or the instigator may have logged off in the process, bail out.
+        return false;
+    }
 
 	//If target is a player, not Creature/NPC
 	if(player)

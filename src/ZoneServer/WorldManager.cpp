@@ -1099,6 +1099,21 @@ bool WorldManager::checkTask(uint64 id)
 
 uint64 WorldManager::addObjControllerToProcess(ObjectController* objController)
 {
+	//make sure the Objectcontroller wont be added to the processqueue after we removed it there when logging out
+
+	//Q: can only players be added to the process queue ???
+	//A: probably yes - so put this to the playerhandlers
+	if(!objController)
+		return 0;
+
+	//we get added automatically when the client sends a command to process
+	if(objController->getObject()->getType() == ObjType_Player)
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>(objController->getObject());
+		
+		if ((player->getConnectionState() == PlayerConnState_LinkDead) || (player->getConnectionState() == PlayerConnState_Destroying))
+			return 0;
+	}
     return((mObjControllerScheduler->addTask(fastdelegate::MakeDelegate(objController,&ObjectController::process),1,125,NULL)));
 }
 
@@ -1310,7 +1325,7 @@ uint64 WorldManager::addBuffToProcess(Buff* buff)
 {
 	//Create a copy of Buff* which can be Destructed when task completes (leaving the original ptr intact)
 	//Buff** pBuff = &buff;
-	Buff* DestructibleBuff = buff;
+	Buff* DestructibleBuff = new Buff(*buff);
 
 	//Create Event
 	//BuffEvent* bEvent = new BuffEvent(buff);

@@ -25,33 +25,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "PVPosture.h"
-#include "CreatureObject.h"
-#include "ObjectController.h"
-#include "ObjectControllerCommandMap.h"
+#ifndef SRC_UTILS_MATHFUNCTIONS_H_
+#define SRC_UTILS_MATHFUNCTIONS_H_
 
-PVPosture::PVPosture(ObjectController* controller)
-: ProcessValidator(controller)
-{}
+#include <glm/glm.hpp>
 
-PVPosture::~PVPosture()
-{}
+/**
+ * Checks to see if a given point is within the bounds of a rectangle given its center and width/height.
+ *
+ * \param check_point A point to check whether or not is inside a rectangle's bounds.
+ * \param rectangle_center The center point of a rectangle.
+ * \param width The width of the rectangle.
+ * \param height The height of the rectangle.
+ * \returns True if the check_point is within the rectangle bounds, false if not.
+ */
+bool IsPointInRectangle(const glm::vec2& check_point, const glm::vec2& rectangle_center, float width, float height);
 
-bool PVPosture::validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties)
-{
-    if(CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject()))
-    {
-        uint32 postureBit = 1 << creature->getPosture();
-
-        // check our posture
-        if(cmdProperties && ((cmdProperties->mPostureMask & postureBit) != postureBit))
-        {
-            reply1 = kCannotDoWhileLocomotion;
-            reply2 = mController->getLowestCommonBit(creature->getPosture(),cmdProperties->mPostureMask);
-			return false;
-        }
-    }
-    
-	return true;
-}
-
+#endif  // SRC_UTILS_MATHFUNCTIONS_H_

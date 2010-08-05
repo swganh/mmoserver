@@ -232,8 +232,6 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	float			x,y,z;
 
 
-	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItem: called item %I64u",itemObject->getId());
-
 	message->getStringUnicode16(dataStr);
 
 	if(swscanf(dataStr.getUnicode16(),L" %"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
@@ -242,15 +240,14 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		return;
 	}
 
-
-
-
 	if (!itemObject)
 	{
 		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No Object to transfer :(");
 		//no Object :(
 		return;
 	}
+
+	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItem: called item %I64u",itemObject->getId());
 
 	TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
 	if(!tangible)
@@ -1368,7 +1365,9 @@ void ObjectController::_handleTarget(uint64 targetId,Message* message,ObjectCont
 
 void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-
+	// set locomotion
+	PlayerObject* playerObject = (PlayerObject*)mObject;
+	playerObject->setLocomotion(kLocomotionStanding);
 }
 
 //======================================================================================================================
@@ -1632,16 +1631,6 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 
 	player->togglePlayerCustomFlagOn(PlayerCustomFlag_LogOut);	
 
-	//// we need to kneel
-	//player->setPosture(CreaturePosture_Crouched);
-	//player->getHam()->updateRegenRates();
-	//player->toggleStateOff(CreatureState_SittingOnChair);
-	//player->updateMovementProperties();
-
-	//gMessageLib->sendUpdateMovementProperties(player);
-	//gMessageLib->sendPostureAndStateUpdate(player);
-	//gMessageLib->sendSelfPostureUpdate(player);
-
 	uint32 logout		= gWorldConfig->getConfiguration<uint32>("Player_LogOut_Time",(uint32)30);
 	uint32 logoutSpacer = gWorldConfig->getConfiguration<uint32>("Player_LogOut_Spacer",(uint32)5);
 
@@ -1719,6 +1708,9 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 	
 	//Send the burst run system message to the player
 	gMessageLib->SendSystemMessage(L"You run as hard as you can!", player);
+
+	// set locomotion
+	player->setLocomotion(kLocomotionRunning);
 	
 	//Now send the burst run combat spam message to InRange
 	int8 s[256];

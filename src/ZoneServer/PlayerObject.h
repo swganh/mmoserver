@@ -96,7 +96,17 @@ class PlayerObject : public CreatureObject
 		bool				isLinkDead(){ return(mConnState == PlayerConnState_LinkDead); }
 		bool				isBeingDestroyed(){ return(mConnState == PlayerConnState_Destroying); }
 
+		/*! Returns the current player's time left to timeout after disconnect
+         *
+         * \returns pointer to uint32 holding seconds to timeout
+         */
 		uint32*				getDisconnectTime(){ return &mDConnTime; }
+		
+		/*! sets the current player's time to timeout on disconnect as initialized by Worldmanager
+         *
+         * \sets timeout time in seconds
+		 * @sets timeout time in seconds
+         */
 		void				setDisconnectTime(uint32 time){ mDConnTime = time; }
 
 		uint32				getClientTickCount(){ return mClientTickCount; }
@@ -108,14 +118,31 @@ class PlayerObject : public CreatureObject
 		BString				getTitle() const { return mTitle; }
 		void				setTitle(const BString title){ mTitle = title; }
 
+		/*! Returns the current player's PlayerObjectId Not to confuse with the ObjectId
+         *
+         * \returns uint64 holding the PlayerObjectId
+         */
 		uint64				getPlayerObjId(){ return mPlayerObjId; }
+
+		/*! sets the current player's PlayerObjectId Not to confuse with the ObjectId
+         *
+         * \sets PlayerObjectID
+         */
 		void				setPlayerObjId(uint64 id){ mPlayerObjId = id; }
 
 		void				setTravelPoint(TravelTerminal* tp){ mTravelPoint = tp; }
 		TravelTerminal*		getTravelPoint(){ return mTravelPoint; }
 
-		//datapad
+		/*! Returns the current player's Datapad
+         *
+         * \returns pointer to the Datapad
+         */
 		Datapad*			getDataPad(){return mDataPad;}
+		
+		/*! sets the current player's Datapad
+         *
+         * \sets mDataPad* to 
+         */
 		void				setDataPad(Datapad* pad){mDataPad = pad;}
 
 		void				setMotdReceived(bool b){ mMotdReceived = b; }
@@ -260,7 +287,9 @@ class PlayerObject : public CreatureObject
 
 		uint8				getGroupMusicXp(){return static_cast<uint8>(mGroupXp);}
 		void				setGroupMusicXp(uint8 groupXp){mGroupXp = groupXp;}
-
+		// sounds
+		// simple check to determine what food consumption sound to play. drink doesn't work currently
+		void				playFoodSound(bool food, bool drink);
 		// ID
 		void				setImageDesignerTaskId(uint64 taskId){mImageDesignerId = taskId;}
 		bool				UpdateIdAttributes(BString attribute,float value);
@@ -315,6 +344,7 @@ class PlayerObject : public CreatureObject
 		void				setExperimentationPoints(uint32 points){mExperimentationPoints = points; }
 		uint64				getNearestCraftingStation(){ return mNearestCraftingStation; }
 		void				setNearestCraftingStation(uint64 station){ mNearestCraftingStation = station; }
+		bool				isNearestCraftingStationPrivate(uint64 station);
 		CraftingSession*	getCraftingSession(){ return mCraftingSession; }
 		void				setCraftingSession(CraftingSession* craftingSession){ mCraftingSession = craftingSession; }
 		void				prepareSchematicIds();
@@ -333,10 +363,11 @@ class PlayerObject : public CreatureObject
 		// duels
 		PlayerList*			getDuelList(){ return &mDuelList; }
 		bool				checkDuelList(PlayerObject* player);
+		void				clearDuelList();
 		void				addToDuelList(PlayerObject* player);
 		void				removeFromDuelList(PlayerObject* player);
 		//PlayerList::iterator removeFromDuelList(PlayerList::iterator& it);
-		void				clearDuelList(){ mDuelList.clear(); }
+
 
 		// reset properties on zoning
 		void				resetProperties();

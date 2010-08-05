@@ -75,6 +75,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 PlayerObject::PlayerObject()
 : CreatureObject()
+, mDataPad(NULL)
 , mBazaarPoint(NULL)
 , mClient(NULL)
 , mCraftingSession(NULL)
@@ -170,6 +171,7 @@ PlayerObject::~PlayerObject()
 	// make sure we stop entertaining if we are an entertainer
 	gEntertainerManager->stopEntertaining(this);
 
+	gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
 	mObjectController.setTaskId(0);
 	mHam.setTaskId(0);
 	mStomach->mFoodTaskId = 0;
@@ -217,24 +219,7 @@ PlayerObject::~PlayerObject()
 	this->toggleStateOff(CreatureState_Intimidated);
 
 	// update duel lists
-	PlayerList::iterator duelIt = mDuelList.begin();
-
-	while(duelIt != mDuelList.end())
-	{
-		if((*duelIt)->checkDuelList(this))
-		{
-			PlayerObject* duelPlayer = (*duelIt);
-
-			duelPlayer->removeFromDuelList(this);
-
-			gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
-			gMessageLib->sendUpdatePvpStatus(duelPlayer,this);
-		}
-
-		++duelIt;
-	}		 
-	mDuelList.clear();
-
+	clearDuelList();
 	
 
 	// update defender lists
@@ -349,20 +334,10 @@ void PlayerObject::resetProperties()
 	// mHam.resetCounters();
 	mHam.updateRegenRates();
 
-	// We should not be allowed to travel when in combat or in duel, if we are.. I want to see the bug happening so we can fix the cause of it.
+	// We might have been invited to a duel
+	clearDuelList();
+
 	/*
-	// clear duel lists
-	PlayerList::iterator duelIt = mDuelList.begin();
-
-	while(duelIt != mDuelList.end())
-	{
-		(*duelIt)->removeFromDuelList(this);
-
-		++duelIt;
-	}
-
-	mDuelList.clear();
-
 	// clear defender lists
 	ObjectIDList::iterator defenderIt = mDefenders.begin();
 
@@ -1540,6 +1515,44 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
 //=============================================================================
 //
+// empty a players duellist and update the contaiuned players duellists
+//
+void PlayerObject::clearDuelList()
+{
+	PlayerList::iterator duelIt = mDuelList.begin();
+
+	while(duelIt != mDuelList.end())
+	{
+		//please note that this player doesnt necessarily exist anymore
+		//being challenged by us he might have logged out without him updating this list
+		//please note, that a challenge means, that only the challengers list is updated with the challenged players name
+		// the challenged players list remains empty
+		PlayerObject* duelPlayer;
+		try 
+		{
+			duelPlayer = dynamic_cast<PlayerObject*>((*duelIt));   
+		} 
+		catch (...) 
+		{
+			// The player might have logged out without accepting the duel
+			duelPlayer = nullptr;
+		}
+
+		if(duelPlayer && duelPlayer->checkDuelList(this))
+		{
+			duelPlayer->removeFromDuelList(this);
+
+			gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
+			gMessageLib->sendUpdatePvpStatus(duelPlayer,this);
+		}
+
+		++duelIt;
+	}		 
+	mDuelList.clear();
+}
+
+//=============================================================================
+//
 // checks if a player is in the duellist
 //
 bool PlayerObject::checkDuelList(PlayerObject* player)
@@ -1604,7 +1617,7 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, Ite
 	ObjectSet::iterator it = inRangeObjects->begin();
 
 	mNearestCraftingStation = 0;
-
+	
 	while(it != inRangeObjects->end())
 	{
 		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
@@ -1676,7 +1689,7 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, Ite
 							return(station);
 						}
 					}
-				}
+				}	
 				break;
 
 				case ItemType_GenericTool:
@@ -1694,7 +1707,26 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, Ite
 
 	return(NULL);
 }
-
+//=============================================================================
+bool PlayerObject::isNearestCraftingStationPrivate(uint64 station)
+{
+	CraftingStation* craftStation = dynamic_cast<CraftingStation*>(gWorldManager->getObjectById(station));
+	if(craftStation)
+	{
+		switch(craftStation->getItemType())
+		{
+			case ItemType_ClothingStation:
+			case ItemType_WeaponStation:
+			case ItemType_FoodStation:
+			case ItemType_StructureStation:
+			case ItemType_SpaceStation:
+				return true;
+			default:
+				return false;
+		}
+	}
+	return false;
+}
 //=============================================================================
 
 void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3& pos, bool preDesignatedFacility)
@@ -2250,5 +2282,70 @@ void PlayerObject::setCrouched()
 	if(IsSeatedOnChair)
 	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_kneel"), this);
+	}
+}
+
+void PlayerObject::playFoodSound(bool food, bool drink)
+{
+	bool gender = getGender();
+	switch (getRaceId())
+	{
+		// wookiee
+		case 4:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(545),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(552),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Male, this);	
+			}
+			break;
+		// reptile aka Trandoshan
+		case 6:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Male, this);	
+			}
+			break;
+		// all else
+		default:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male, this);	
+			}
+			break;
 	}
 }

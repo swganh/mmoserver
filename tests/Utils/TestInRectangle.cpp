@@ -25,33 +25,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "PVPosture.h"
-#include "CreatureObject.h"
-#include "ObjectController.h"
-#include "ObjectControllerCommandMap.h"
+#include <gtest/gtest.h>
 
-PVPosture::PVPosture(ObjectController* controller)
-: ProcessValidator(controller)
-{}
+#include "Utils/MathFunctions.h"
 
-PVPosture::~PVPosture()
-{}
+TEST(MathFunctionsTests, CanCheckIfPointIsInRectangleBoundries) {
+    // Load up some initial data
+    glm::vec2 rec_center(-5160.0f, 4380.0f);
+    glm::vec2 player_pos1(-4000.0f, 4000.0f);
+    glm::vec2 player_pos2(-6500.0f, 3000.0f);
 
-bool PVPosture::validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties)
-{
-    if(CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject()))
-    {
-        uint32 postureBit = 1 << creature->getPosture();
+    float width = 2500.0f;
+    float height = 1500.0f;
 
-        // check our posture
-        if(cmdProperties && ((cmdProperties->mPostureMask & postureBit) != postureBit))
-        {
-            reply1 = kCannotDoWhileLocomotion;
-            reply2 = mController->getLowestCommonBit(creature->getPosture(),cmdProperties->mPostureMask);
-			return false;
-        }
-    }
-    
-	return true;
+    // This point should be inside the rectangle.
+    EXPECT_EQ(true, IsPointInRectangle(player_pos1, rec_center, width, height));
+
+    // This point should not be inside the rectangle.
+    EXPECT_EQ(false, IsPointInRectangle(player_pos2, rec_center, width, height));
 }
-

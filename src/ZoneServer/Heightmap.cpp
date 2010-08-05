@@ -42,7 +42,8 @@ Heightmap::Heightmap(const char* planet_name, uint16 resolution)
 , mResolution(resolution)
 , mReady(false)
 {
-	mFilename = planet_name;
+    mFilename = "heightmaps/";
+	mFilename += planet_name;
 	mFilename += ".hmpw";
 	Connect();
 

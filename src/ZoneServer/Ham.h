@@ -108,6 +108,7 @@ class Ham
 		int32			getPropertyValue(uint8 propertyIndex,uint8 valueIndex);
 		void			setPropertyValue(uint8 propertyIndex,uint8 valueIndex,int32 propertyValue);
 		int32			updatePropertyValue(uint8 propertyIndex,uint8 valueIndex,int32 propertyDelta,bool damage = false,bool sendUpdate = true, bool debuff = false);
+		void			performSpecialAction(float healthCost, float actionCost, float mindCost, uint8 valueIndex);
 		void			updateAllWounds(int32 propertyDelta);
 		void			updatePrimaryWounds(int32 propertyDelta);
 

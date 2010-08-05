@@ -42,16 +42,21 @@ bool PVHam::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opc
 {
     if(CreatureObject* creature	= dynamic_cast<CreatureObject*>(mController->getObject())) 
     {
-        if(Ham*	ham = creature->getHam()) 
-        {
-            if(!ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost)) 
-            {
-                reply1 = 0;
-                reply2 = 0;
+		if(!(cmdProperties->mHealthCost == 0 && cmdProperties->mActionCost == 0 && cmdProperties->mMindCost == 0))
+		{
+			if(Ham*	ham = creature->getHam()) 
+			{
+				// checkMainPools will return true is the 0 <= 0 so if a creature is incapacitated or dead
+				// this will return false, when it should not. IE: if the action costs no HAM.
+				if(!ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost)) 
+				{
+					reply1 = 0;
+					reply2 = 0;
 
-                return false;
-            }
-        }
+					return false;
+				}
+			}
+		}
     }
 
     return true;

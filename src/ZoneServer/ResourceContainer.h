@@ -49,6 +49,8 @@ class ResourceContainer : public TangibleObject
 		virtual void	setParentIdIncDB(uint64 parentId);
 		virtual void	upDateFactoryVolume(BString amount);
 		virtual void	updateWorldPosition();
+		
+        void prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 	
 
 		uint64		getResourceId();

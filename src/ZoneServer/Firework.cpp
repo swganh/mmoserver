@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
+#include "DatabaseManager/Database.h"
 
 //=============================================================================
 
@@ -90,9 +91,24 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 					}
 					//Create the Firework in the world
 					TangibleObject* fireWorkInworld = gFireworkManager->createFirework(this->getItemType(),playerObject,playerObject->mPosition);
+
+					int charges = (int)this->getAttribute<float>("charges");
+					charges--;
+
 					if(fireWorkInworld)
 					{
-						playerObject->getController()->destroyObject(this->getId());							
+						if (charges)
+						{
+							this->setAttribute("charges",boost::lexical_cast<std::string>(charges));
+							gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",charges,this->getId(), AttrType_Charges);
+							//now update the uses display
+							gMessageLib->sendUpdateUses(this,playerObject);
+							return;						
+						}
+						else
+						{
+							playerObject->getController()->destroyObject(this->getId());	
+						}
 					}
 
 					//now add timer somewhere to make them start

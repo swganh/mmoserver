@@ -327,7 +327,10 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
 		while(it != end)
 		{
-			if((mZoneId != planetId && (*it)->portType == 1) || mZoneId == planetId)
+            // If the requested planet list is not the planet of the current zone
+            // then only list it if the origin is a starport and the destination is a starport.
+            if((mZoneId != planetId && qP->portType == 1 && (*it)->portType == 1) ||
+               mZoneId == planetId) // Show all starports/shuttleports on this planet.
 			{
 				printListing.push_back((*it));
 			}
@@ -363,7 +366,12 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 		gMessageFactory->addUint32(printListing.size());
 		for(it = printListing.begin(); it != end; ++it)
 		{
-			gMessageFactory->addUint8(1);
+            // If it's a starport send a 1, otherwise shuttleports are set to 0
+            if ((*it)->portType == portType_Starport) {
+			    gMessageFactory->addUint8(1);
+            } else {
+			    gMessageFactory->addUint8(0);
+            }
 		}
 		
 		playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);

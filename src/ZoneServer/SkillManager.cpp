@@ -780,7 +780,7 @@ bool SkillManager::checkRaceLearnSkill(uint32 skillId,CreatureObject* creatureOb
 
 	}
 
-	return(false);
+	return true;
 
 }
 

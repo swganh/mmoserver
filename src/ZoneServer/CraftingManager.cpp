@@ -28,8 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BankTerminal.h"
 #include "CraftingSessionFactory.h"
 #include "CraftingTool.h"
+#include "CraftingStation.h"
 #include "CurrentResource.h"
 #include "Item.h"
+#include "Inventory.h"
 #include "ManufacturingSchematic.h"
 #include "CraftingSession.h"
 #include "NPCObject.h"
@@ -152,7 +154,86 @@ bool CraftingManager::HandleSynchronizedUIListen(Object* object,Object* target,M
 {
 	return true;
 }
-
+// get appropriate crafting tool from selected crafting station
+// check inventory for same tool 'type' as crafting station
+CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* playerObject, CraftingStation* station)
+{
+		CraftingTool*	tool	= NULL;
+		int32 stationType = station->getItemType();
+		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		ObjectIDList::iterator It = inventory->getObjects()->begin();
+		while(It != inventory->getObjects()->end())
+		{
+			Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
+			if(!item)
+			{
+				It++;
+				continue;
+			}
+			int32 itemType = item->getItemType();
+			switch (stationType)
+			{
+				case ItemType_ClothingStation:
+				case ItemType_ClothingStationPublic:
+				{
+					if(itemType == ItemType_ClothingTool)
+					{
+						tool = dynamic_cast<CraftingTool*>(item);
+					}
+				}
+				break;
+				case ItemType_WeaponStation:
+				case ItemType_WeaponStationPublic:
+				{
+					if(itemType == ItemType_WeaponTool)
+					{
+						tool = dynamic_cast<CraftingTool*>(item);
+					}
+				}
+				break;
+				case ItemType_FoodStation:
+				case ItemType_FoodStationPublic:
+				{
+					if(itemType == ItemType_FoodTool)
+					{
+						tool = dynamic_cast<CraftingTool*>(item);
+					}
+				}
+				break;
+				case ItemType_StructureStation:
+				case ItemType_StructureStationPublic:
+				{
+					if(itemType == ItemType_StructureTool)
+					{
+						tool = dynamic_cast<CraftingTool*>(item);
+					}
+				}
+				break;
+				case ItemType_SpaceStation:
+				case ItemType_SpaceStationPublic:
+				{
+					if(itemType == ItemType_SpaceTool)
+					{
+						tool = dynamic_cast<CraftingTool*>(item);
+					}
+				}
+				break;
+				default:
+				{
+					break;
+				}
+				break;
+			}
+			if(tool)
+			{
+				// found it now jump out
+				break;
+			}
+			++It;
+			continue;
+		}
+		return tool;
+}
 //======================================================================================================================
 //
 // request crafting session
@@ -162,7 +243,7 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 {
 	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
 	CraftingTool*		tool			= dynamic_cast<CraftingTool*>(target);
-	CraftingStation*	station			= NULL;
+	CraftingStation*	station			= dynamic_cast<CraftingStation*>(target);
 	uint32				expFlag			= 2;//needs to be >1 !!!!!
 
 	message->setIndex(24);
@@ -173,42 +254,31 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 	ObjectSet			inRangeObjects;
 	float				range = 25.0;
 
+	// the player clicked directly on a station
+	if(station)
+	{
+		tool = getCraftingStationTool(playerObject, station);
+	}
+	
 	if(!tool)
 	{
 		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",target->getId());
+		gMessageLib->SendSystemMessage(common::OutOfBand("ui_craft","err_no_crafting_tool"),playerObject);
 		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 		return false;
 	}
-
-
-	// get the tangible objects in range
-	gCraftingManager->mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
-
-	//and see if a fitting crafting station is near
-	station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
+	// if we haven't come in through a station
+	if(!station)
+	{
+		// get the tangible objects in range
+		gCraftingManager->mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
+		//and see if a fitting crafting station is near
+		station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
+	}
 
 	if(!station)
 	{
 		expFlag = false;
-	}
-
-	if(playerObject->isDead() || playerObject->isIncapacitated())
-	{
-        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
-		return false;
-	}
-
-	if(playerObject->getPerformingState() != PlayerPerformance_None)
-	{
-        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
-		return false;
-	}
-
-	if(playerObject->checkState(CreatureState_Crafting) || playerObject->getCraftingSession())
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: state or session");
-		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
-		return false;
 	}
 
 	if(tool->getAttribute<std::string>("craft_tool_status") == "@crafting:tool_status_working")

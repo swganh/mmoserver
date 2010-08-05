@@ -30,10 +30,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseManager/DatabaseCallback.h"
 #include "Utils/EventHandler.h"
+#include "Utils/Singleton.h"
 #include "ObjectFactoryCallback.h"
 #include "HeightMapCallback.h"
+#include "UICallback.h"
+#include "glm/glm.hpp"
 
-#define 	gArtisanManager	ArtisanManager::getSingletonPtr()
+class ArtisanManager;
+#define gArtisanManager ::utils::Singleton<ArtisanManager>::Instance()
 //======================================================================================================================
 class Message;
 class MessageDispatch;
@@ -43,27 +47,19 @@ class ObjectControllerCmdProperties;
 class Database;
 class ZoneTree;
 class ArtisanHeightmapAsyncContainer;
-class SampleEvent;
-class SurveyEvent;
 class CurrentResource;
 class SurveyTool;
+class UIWindow;
 
-class ArtisanManager : public ObjectFactoryCallback, public HeightMapCallBack, public Anh_Utils::EventHandler
+typedef struct tagResourceLocation
+{
+   glm::vec3		position;
+   float			ratio;
+} ResourceLocation;
+
+class ArtisanManager : public ObjectFactoryCallback, public HeightMapCallBack, public UICallback
 {
 public:
-	static ArtisanManager*	getSingletonPtr() { return mSingleton; }
-	static ArtisanManager*	Init()
-	{
-		if(mInsFlag == false)
-		{
-			mSingleton = new ArtisanManager();
-			mInsFlag = true;
-			return mSingleton;
-		}
-		else
-			return mSingleton;
-	}
-	
 	ArtisanManager();
 	~ArtisanManager();
 
@@ -90,7 +86,7 @@ public:
 	/**
 	* Sets up the sample UI Event
 	*
-	* The UI Event is handled eventually by ResourceCollectionManager
+	* The UI Event is handled internally
 	*
 	* @param PlayerObject* player
 	*   player object that contains the sampling data
@@ -106,7 +102,7 @@ public:
 	* gets the radioactive sample for the player
 	*
 	* We check the resource type to see if it's radioactive, then we will set the UI Event
-	* Again this is handled by ResourceCollectionManager
+	* handled internally
 	*
 	* @param PlayerObject* player
 	*   player object that contains the sampling data
@@ -149,18 +145,17 @@ public:
 	*/
 	void					finishSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool, uint32 sampleAmt);
 
-
 	//events
 	void					sampleEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
 	void					surveyEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
 	
 private:
-
-	ObjectFactoryCallback*	mObjectFactoryCallback;
-	HeightMapCallBack*		mHeightMapCallback;
-	Anh_Utils::EventHandler* mEventHandler;
-	static ArtisanManager*	mSingleton;
-	static bool				mInsFlag;
+	ObjectFactoryCallback*					mObjectFactoryCallback;
+	HeightMapCallBack*						mHeightMapCallback;
+	UICallback*								mUICallback;
+	void									handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+	uint32									mSampleActionCost;
+	uint32									mSurveyMindCost;
 };
 
 #endif

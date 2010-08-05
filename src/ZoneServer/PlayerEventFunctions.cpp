@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactory.h"
 #include "ResourceManager.h"
 #include "ResourceContainer.h"
-#include "ResourceCollectionManager.h"
 #include "ResourceType.h"
 #include "Buff.h"
 #include "UIEnums.h"
@@ -53,90 +52,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <algorithm>
 
 using ::common::OutOfBand;
-
-//=============================================================================
-//
-// survey event
-//
-
-void PlayerObject::onSurvey(const SurveyEvent* event)
-{
-	SurveyTool*			tool		= event->getTool();
-	CurrentResource*	resource	= event->getResource();
-
-	if(tool && resource && isConnected())
-	{
-		Datapad* datapad					= getDataPad();
-		ResourceLocation	highestDist		= gMessageLib->sendSurveyMessage(tool->getInternalAttribute<uint16>("survey_range"),tool->getInternalAttribute<uint16>("survey_points"),resource,this);
-
-		uint32 mindCost = gResourceCollectionManager->surveyMindCost;
-
-		//are we able to sample in the first place ??
-		if(!mHam.checkMainPools(0,0,mindCost))
-		{
-			
-			int32 myMind = mHam.mAction.getCurrentHitPoints();		
-			
-			//return message for sampling cancel based on HAM
-			if(myMind < (int32)mindCost)
-			{
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), this);
-			}
-
-			//message for stop sampling
-            gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
-
-			getSampleData()->mPendingSurvey = false;
-
-			mHam.updateRegenRates();
-			updateMovementProperties();
-			return;
-		}
-
-		mHam.performSpecialAction(0,0,(float)mindCost,HamProperty_CurrentHitpoints);
-
-		// this is 0, if resource is not located
-		if(highestDist.position.y == 5.0)
-		{
-			WaypointObject*	waypoint = datapad->getWaypointByName("Resource Survey");
-
-			// remove the old one
-			if(waypoint)
-			{
-				gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateDelete,this);
-				datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),
-										static_cast<uint16>(gWorldManager->getZoneId()), this->getId(), WAYPOINT_ACTIVE);
-			}
-			else
-			{
-				// create a new one
-				if(datapad->getCapacity())
-				{
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "survey_waypoint"), this);
-					//gMessageLib->sendSystemMessage(this,L"","survey","survey_waypoint");
-				}
-				//the datapad automatically checks if there is room and gives the relevant error message
-				datapad->requestNewWaypoint("Resource Survey", glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
-			}
-
-			gMissionManager->checkSurveyMission(this,resource,highestDist);
-		}
-	}
-
-	getSampleData()->mPendingSurvey = false;
-}
-
-//=============================================================================
-//
-// sample event
-//
-
-void PlayerObject::onSample(const SampleEvent* event)
-{
-	// this will be replaced as soon as events are torn out of player object
-	//gArtisanManager->onSample(event);
-	return;
-}
 
 //=============================================================================
 // this event manages the logout through the /logout command

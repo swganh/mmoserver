@@ -46,7 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NpcManager.h"
 #include "NPCObject.h"
 #include "PlayerStructure.h"
-#include "ResourceCollectionManager.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "TreasuryManager.h"
@@ -151,7 +150,6 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 		//by not assigning a db we force the resourcemanager to not load db data
 		ResourceManager::Init(NULL,mZoneId);
 	}
-	ResourceCollectionManager::Init(database);
 	TreasuryManager::Init(database);
 	ConversationManager::Init(database);
 	CraftingSessionFactory::Init(database);

@@ -372,8 +372,6 @@ class PlayerObject : public CreatureObject
 		void				resetProperties();
 
 		// event functions
-		void				onSurvey(const SurveyEvent* event);
-		void				onSample(const SampleEvent* event);
 		void				onLogout(const LogOutEvent* event);
 		void				onItemDeleteEvent(const ItemDeleteEvent* event);
 		void				onInjuryTreatment(const InjuryTreatmentEvent* event);

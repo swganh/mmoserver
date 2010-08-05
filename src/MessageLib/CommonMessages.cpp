@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ObjectControllerOpcodes.h"
 #include "ZoneServer/ObjectFactory.h"
 #include "ZoneServer/PlayerObject.h"
-#include "ZoneServer/ResourceCollectionManager.h"
+#include "ZoneServer/ArtisanManager.h"
 #include "ZoneServer/TravelTerminal.h"
 #include "ZoneServer/UIOpcodes.h"
 #include "ZoneServer/Wearable.h"

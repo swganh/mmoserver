@@ -179,8 +179,6 @@ mDatabase(0)
 	(void)ScoutManager::Instance();
 	(void)NonPersistantObjectFactory::Instance();
 
-	//ArtisanManager callback
-	ArtisanManager::Init();
 	CraftingManager::Init(mDatabase);
 
 	UIManager::Init(mDatabase,mMessageDispatch);
@@ -246,7 +244,6 @@ ZoneServer::~ZoneServer(void)
 
 	delete mDatabaseManager;
 	delete gCraftingManager->getSingletonPtr();
-	delete gArtisanManager->getSingletonPtr();
 	delete gSkillManager->getSingletonPtr();
 	delete gMedicManager->getSingletonPtr();
 	delete gBuffManager->getSingletonPtr();

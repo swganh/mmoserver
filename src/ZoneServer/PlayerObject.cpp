@@ -47,7 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SchematicManager.h"
 #include "SpawnPoint.h"
 #include "StructureManager.h"
-#include "ResourceCollectionManager.h"
 #include "Tutorial.h"
 #include "UIManager.h"
 #include "UISkillSelectBox.h"
@@ -128,8 +127,6 @@ PlayerObject::PlayerObject()
 	mTrade				= new Trade(this);
 
 	// register event functions
-	registerEventFunction(this,&PlayerObject::onSurvey);
-	registerEventFunction(this,&PlayerObject::onSample);
 	registerEventFunction(this,&PlayerObject::onLogout);
 	registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
 	registerEventFunction(this,&PlayerObject::onInjuryTreatment);

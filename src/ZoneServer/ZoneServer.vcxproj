@@ -279,8 +279,6 @@
     <ClCompile Include="RegionObject.cpp" />
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="ResourceCategory.cpp" />
-    <ClCompile Include="ResourceCollectionCommand.cpp" />
-    <ClCompile Include="ResourceCollectionManager.cpp" />
     <ClCompile Include="ResourceContainer.cpp" />
     <ClCompile Include="ResourceContainerFactory.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
@@ -509,8 +507,6 @@
     <ClInclude Include="RegionObject.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ResourceCategory.h" />
-    <ClInclude Include="ResourceCollectionCommand.h" />
-    <ClInclude Include="ResourceCollectionManager.h" />
     <ClInclude Include="ResourceContainer.h" />
     <ClInclude Include="ResourceContainerFactory.h" />
     <ClInclude Include="ResourceManager.h" />

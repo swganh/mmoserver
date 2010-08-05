@@ -48,7 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NpcManager.h"
 #include "NPCObject.h"
 #include "PlayerStructure.h"
-#include "ResourceCollectionManager.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "SpawnPoint.h"

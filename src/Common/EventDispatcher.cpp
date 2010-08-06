@@ -157,6 +157,9 @@ boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvent
 }
 
 void EventDispatcher::Notify(std::shared_ptr<Event> triggered_event) {
+    // Sanity check on the event itself.
+    if (!triggered_event) return;
+
     // Set the timestamp for this event.
     triggered_event->timestamp(current_timestep_.load());
 
@@ -166,8 +169,11 @@ void EventDispatcher::Notify(std::shared_ptr<Event> triggered_event) {
 }
 
 boost::unique_future<bool> EventDispatcher::Deliver(std::shared_ptr<Event> triggered_event) {
-    // Set the timestamp for this event.
-    triggered_event->timestamp(current_timestep_.load());
+    // Sanity check on the event itself.
+    if (triggered_event) {
+        // Set the timestamp for this event.
+        triggered_event->timestamp(current_timestep_.load());
+    }
 
     // Create a packaged task for retrieving the value.
     std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
@@ -356,6 +362,11 @@ void EventDispatcher::Disconnect_(const EventType& event_type, const EventListen
 }
 
 bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
+    // Sanity check to make sure the event is valid.
+    if (!triggered_event) {
+        return false;
+    }
+
     // Ensure the triggered event is a known valid type.
     if (!ValidateEventType_(triggered_event->event_type())) {
         return false;

@@ -433,4 +433,20 @@ TEST(EventDispatcherTests, DelayedEventsAreOnlyProcessedAfterTimeoutHasBeenReach
     EXPECT_EQ(true, listener.triggered());
 }
 
+TEST(EventDispatcherTests, DeliveringNullEventReturnsFalse) {
+    // Create the EventDispatcher.
+    EventDispatcher dispatcher;
+
+    // Deliver the event.
+    EXPECT_EQ(false, dispatcher.Deliver(nullptr).get());
+}
+
+TEST(EventDispatcherTests, TriggeringNullEventDoesNothing) {
+    // Create the EventDispatcher.
+    EventDispatcher dispatcher;
+
+    // Notify the dispatcher with a null event.
+    dispatcher.Notify(nullptr);
+}
+
 }

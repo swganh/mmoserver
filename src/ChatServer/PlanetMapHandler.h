@@ -78,7 +78,7 @@ private:
 
 
 	Database*                     mDatabase;
-  DataBinding*                  mDataBinding;
+	DataBinding*                  mDataBinding;
 	MessageDispatch*              mMessageDispatch;
 };
 

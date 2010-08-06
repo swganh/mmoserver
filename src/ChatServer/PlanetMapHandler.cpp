@@ -157,12 +157,12 @@ void PlanetMapHandler::_processMapLocationsRequest(Message* message, DispatchCli
   // Set our client object
   container->mClient = client;
 
-	// get the requested planet
+  // get the requested planet
   message->getStringAnsi(container->mPlanetName);
 
   // Send our job in.
-
-  mDatabase->ExecuteSqlAsync(this, (void*)container, "select planetmap.id,planetmap.name,planetmap.x,planetmap.z,planetmapcategory.main,planetmapcategory.sub,planetmap.icon from planetmap inner join planetmapcategory on(planetmap.category_id = planetmapcategory.id) where planetmap.planet_id = (SELECT planet.planet_id from planet WHERE planet.name='%s')", container->mPlanetName.getAnsi());
+  mDatabase->ExecuteProcedureAsync(this, (void*)container, "CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi());
+  gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi()); // SQL Debug Log
 }
 
 //======================================================================================================================

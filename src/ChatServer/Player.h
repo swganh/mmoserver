@@ -78,11 +78,11 @@ public:
 	uint64			getCharId(){ return mCharId; }
 	void			setCharId(uint64 charId){ mCharId = charId; }
 
-	BString&			getName(){ return mPlayerData.name; }
+	BString&		getName(){ return mPlayerData.name; }
 	void			setName(const BString name){ mPlayerData.name = name; }
 
-	PlayerData* getPlayerData() { return &mPlayerData; }
-	BString&			getLastName(){ return mPlayerData.last_name; }
+	PlayerData*		getPlayerData() { return &mPlayerData; }
+	BString&		getLastName(){ return mPlayerData.last_name; }
 	void			setLastName(const BString lastName){ mPlayerData.last_name = lastName; }
 
 	DispatchClient*	getClient(){ return mClient; }
@@ -126,15 +126,15 @@ private:
 	ContactMap			mFriendsList,mIgnoreList;
 	PlayerData  		mPlayerData;
 	Bazaar*		    	mBazaar;
-	DispatchClient*	mClient;
-	uint64					mCharId;
-	uint64					mGroupId;
-	uint32					mKey;
-	uint32					mPlanetId;
-	float						mX;
-	float						mZ;
-	uint16					mGroupMemberIndex;
-	bool						mAddPending;
+	DispatchClient*		mClient;
+	uint64				mCharId;
+	uint64				mGroupId;
+	uint32				mKey;
+	uint32				mPlanetId;
+	float				mX;
+	float				mZ;
+	uint16				mGroupMemberIndex;
+	bool				mAddPending;
 };
 
 #endif

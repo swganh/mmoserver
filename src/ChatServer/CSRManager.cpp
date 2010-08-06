@@ -64,7 +64,8 @@ CSRManager::CSRManager(Database* database, MessageDispatch* dispatch, ChatManage
 	_loadDatabindings();
 
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Categories);
-	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT * FROM csr_categories;");
+	mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CSRCategoriesGet();");
+	gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_CSRGetCategoriesGet();"); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -225,8 +226,11 @@ void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient*
 	mDatabase->Escape_String(cleanComment,comment.getAnsi(),comment.getLength());
 	mDatabase->Escape_String(cleanPoster,poster.getAnsi(), poster.getLength());
 
-	mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO csr_comments VALUES (NULL, %u, '%s', '%s');", ticketid, cleanComment, cleanPoster);
-	mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_TicketActivity(%u);", ticketid);
+	// mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO csr_comments VALUES (NULL, %u, '%s', '%s');", ticketid, cleanComment, cleanPoster);
+	mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_CSRTicketCommentAdd(%u, '%s', '%s');", ticketid, cleanComment, cleanPoster);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_CSRTicketCommentAdd(%u, '%s', '%s');", ticketid, cleanComment, cleanPoster); // SQL Debug Log
+	mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_CSRTicketActivity(%u);", ticketid);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_CSRTicketActivity(%u);", ticketid); // SQL Debug Log
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opAppendCommentResponseMessage);
@@ -240,8 +244,10 @@ void CSRManager::_processCancelTicketMessage( Message* message, DispatchClient* 
 {
 	uint32 ticketid = message->getUint32();
 
-	mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM csr_comments WHERE ticket_id = %u", ticketid);
-	mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM csr_tickets WHERE ticket_id = %u", ticketid);
+	// mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM csr_comments WHERE ticket_id = %u", ticketid);
+	// mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM csr_tickets WHERE ticket_id = %u", ticketid);
+	mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_CSRTicketCancel(%u);", ticketid);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_CSRTicketCancel(%u);", ticketid); // SQL Debug Log
 
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opCancelTicketResponseMessage);
@@ -301,7 +307,9 @@ void CSRManager::_processGetArticleMessage(Message *message, DispatchClient* cli
 
 	CSRAsyncContainer* asynccontainer = new CSRAsyncContainer(CSRQuery_FullArticle);
 	asynccontainer->mClient = client;
-	mDatabase->ExecuteSqlAsync(this, asynccontainer, "SELECT * FROM csr_knowledgebase WHERE id = %s", id.getAnsi());
+	// mDatabase->ExecuteSqlAsync(this, asynccontainer, "SELECT * FROM csr_knowledgebase WHERE id = %s", id.getAnsi());
+	mDatabase->ExecuteProcedureAsync(this, asynccontainer, "CALL sp_CSRKnowledgeBaseArticleGet(%s);", id.getAnsi());
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_CSRKnowledgeBaseArticleGet(%s);", id.getAnsi()); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -312,7 +320,9 @@ void CSRManager::_processGetCommentsMessage(Message *message, DispatchClient* cl
 
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_CommentsByTicket);
 	asyncContainer->mClient = client;
-	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT * FROM csr_comments WHERE ticket_id = %u", ticketid);
+	// mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT * FROM csr_comments WHERE ticket_id = %u", ticketid);
+	mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketCommentGet(%u);", ticketid);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_CSRTicketCommentGet(%u);", ticketid); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -322,7 +332,7 @@ void CSRManager::_processGetTicketsMessage(Message *message, DispatchClient* cli
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Tickets);
 	asyncContainer->mClient = client;
 
-	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT csr_tickets.ticket_id, characters.firstname, csr_categories.category_id, csr_subcategories.subcategory_id, csr_tickets.comment, csr_tickets.info, csr_tickets.harrasing_user, csr_tickets.language, csr_tickets.bugreport, csr_tickets.activity, csr_tickets.closed, csr_tickets.lastmodified FROM csr_tickets JOIN characters ON (csr_tickets.character_id = characters.id) JOIN csr_subcategories ON (csr_tickets.subcategory_id = csr_subcategories.subcategory_index) JOIN csr_categories ON (csr_subcategories.category_id = csr_categories.category_id) WHERE (csr_tickets.bugreport = 0) && (csr_tickets.character_id = %"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
+	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT csr_tickets.ticket_id, characters.firstname, csr_categories.category_id, csr_subcategories.subcategory_id, csr_tickets.comment, csr_tickets.info, csr_tickets.harrasing_user, csr_tickets.language, csr_tickets.bugreport, csr_tickets.activity, csr_tickets.closed, csr_tickets.lastmodified FROM csr_tickets JOIN characters ON (csr_tickets.character_id = characters.id) JOIN csr_subcategories ON (csr_tickets.subcategory_id = csr_subcategories.subcategory_index) JOIN csr_categories ON (csr_subcategories.category_id = csr_categories.category_id) WHERE (csr_tickets.bugreport = 1) && (csr_tickets.character_id = %"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
 }
 
 //======================================================================================================================

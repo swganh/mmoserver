@@ -2183,8 +2183,8 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
 		mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
 		// mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_banned VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi()*/);
 
-		mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserBan(%u, '%s');", channel->getId, sql);
-		gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserBan(%u, '%s');", channel->getId, sql);
+		mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserBan(%u, '%s');", channel->getId(), sql);
+		gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserBan(%u, '%s');", channel->getId(), sql);
 
 		gChatMessageLib->sendChatOnBanAvatarFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
 		gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
@@ -2284,8 +2284,8 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
 
 		// mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_banned WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
 
-		mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserUnBan(%u, '%s');", channel->getId, sql);
-		gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserUnBan(%u, '%s');", channel->getId, sql);
+		mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserUnBan(%u, '%s');", channel->getId(), sql);
+		gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserUnBan(%u, '%s');", channel->getId(), sql);
 
 		gChatMessageLib->sendChatOnUnBanAvatarFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
 	}
@@ -2298,11 +2298,11 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
 
 void ChatManager::_processAvatarId(Message* message,DispatchClient* client)
 {
-	gLogger->log(LogManager::DEBUG,"Avatar Id");
+	gLogger->log(LogManager::DEBUG, "Avatar Id");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-//allows the trademanager to send EMails even if neither sender nor recipient is logged in
+//allows the trade manager to send EMails even if neither sender nor recipient is logged in
 //which is necessary for auctions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
@@ -2314,9 +2314,10 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
 	asyncContainer->mClient = NULL;
 
 	int8 sql[100];
-	sprintf(sql,"SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", recipient);
+	sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", recipient);
 
 	mDatabase->ExecuteSqlAsyncNoArguments(this, asyncContainer, sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql);
 }
 
 
@@ -2326,7 +2327,6 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
 // and retrieved with RequestPersistentMessage
 // TODO: attachments
 //
-
 
 void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* client)
 {
@@ -2365,7 +2365,7 @@ void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* cli
 	asyncContainer->mClient = client;
 
 	int8 sql[100];
-	sprintf(sql,"SELECT firstname FROM characters WHERE id LIKE %"PRIu64"",ReceiverID);
+	sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", ReceiverID);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -2423,7 +2423,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
 		*sqlPointer++ = '\0';
 		strcat(sql,footer);
 
-		mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,sql);
+		mDatabase->ExecuteSqlAsyncNoArguments(this, asyncContainer, sql);
 
 	}
 	else
@@ -2437,11 +2437,11 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
 		int8 sql[256],*sqlPointer;
 		sprintf(sql,"SELECT id FROM characters WHERE LOWER(firstname) LIKE '");
 		sqlPointer = sql + strlen(sql);
-		sqlPointer += mDatabase->Escape_String(sqlPointer,receiverStr.getAnsi(),receiverStr.getLength());
+		sqlPointer += mDatabase->Escape_String(sqlPointer, receiverStr.getAnsi(), receiverStr.getLength());
 		*sqlPointer++ = '\'';
 		*sqlPointer++ = '\0';
 
-		mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,sql);
+		mDatabase->ExecuteSqlAsyncNoArguments(this, asyncContainer, sql);
 	}
 }
 
@@ -2942,7 +2942,7 @@ void ChatManager::_processFindFriendMessage(Message* message,DispatchClient* cli
 	asyncContainer->mName = friendName.getAnsi();
 	asyncContainer->mSender = playerObject;
 
-	sprintf(sql,"SELECT id from swganh.characters where firstname like '");
+	sprintf(sql,"SELECT id FROM swganh.characters WHERE firstname LIKE '");
 	sprintf(end,"'");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,friendName.getAnsi(),friendName.getLength());

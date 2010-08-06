@@ -292,9 +292,8 @@ void CSRManager::_processCreateTicketMessage( Message* message, DispatchClient* 
 	mDatabase->Escape_String(cleanHarrasser, harrassinguser.getAnsi(), harrassinguser.getLength());
 	mDatabase->Escape_String(cleanLanguage, language.getAnsi(), language.getLength());
 
-	mDatabase->ExecuteSqlAsync(this, asyncContainer,
-					"SELECT sf_NewTicket('%s', %u, %u, '%s', '%s', '%s', '%s', %d);",
-					cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport);
+	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT sp_CSRTicketAdd('%s', %u, %u, '%s', '%s', '%s', '%s', %d);", cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT sp_CSRTicketAdd('%s', %u, %u, '%s', '%s', '%s', '%s', %d);", cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -332,7 +331,7 @@ void CSRManager::_processGetTicketsMessage(Message *message, DispatchClient* cli
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Tickets);
 	asyncContainer->mClient = client;
 
-	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT csr_tickets.ticket_id, characters.firstname, csr_categories.category_id, csr_subcategories.subcategory_id, csr_tickets.comment, csr_tickets.info, csr_tickets.harrasing_user, csr_tickets.language, csr_tickets.bugreport, csr_tickets.activity, csr_tickets.closed, csr_tickets.lastmodified FROM csr_tickets JOIN characters ON (csr_tickets.character_id = characters.id) JOIN csr_subcategories ON (csr_tickets.subcategory_id = csr_subcategories.subcategory_index) JOIN csr_categories ON (csr_subcategories.category_id = csr_categories.category_id) WHERE (csr_tickets.bugreport = 1) && (csr_tickets.character_id = %"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
+	mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT csr_tickets.ticket_id, characters.firstname, csr_categories.category_id, csr_subcategories.subcategory_id, csr_tickets.comment, csr_tickets.info, csr_tickets.harrasing_user, csr_tickets.language, csr_tickets.bugreport, csr_tickets.activity, csr_tickets.closed, csr_tickets.lastmodified FROM csr_tickets JOIN characters ON (csr_tickets.character_id = characters.id) JOIN csr_subcategories ON (csr_tickets.subcategory_id = csr_subcategories.subcategory_index) JOIN csr_categories ON (csr_subcategories.category_id = csr_categories.category_id) WHERE (csr_tickets.bugreport = 0) && (csr_tickets.character_id = %"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
 }
 
 //======================================================================================================================

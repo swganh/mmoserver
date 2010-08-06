@@ -284,15 +284,14 @@ rem --- Downloads datafiles such as heightmaps needed to run the project.    ---
 :DOWNLOAD_HEIGHTMAP
 
 if not exist "data\heightmaps\%1.hmpw" (
-	if not exist "data\heightmaps\%1.7z" (
+	if not exist "data\heightmaps\%1.hmpw.7z" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-		"tools\wget.exe" http://github.com/downloads/swganh/mmoserver/heightmap-%1.7z -O data\heightmaps\heightmap-%1.7z
-
+		"tools\wget.exe" http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
 		echo ** Downloading heightmap complete **
 	)
 
-	"tools\7z.exe" x -y -odata\heightmaps data\heightmaps\heightmap-%1.7z 
+	"tools\7z.exe" x -y -odata\heightmaps data\heightmaps\%1.hmpw.7z 
 )
 
 goto :eof

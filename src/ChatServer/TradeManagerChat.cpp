@@ -1861,18 +1861,14 @@ void TradeManagerChatHandler::handleGlobalTickPreserve()
 //=======================================================================================================================
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Will be called every 10 seconds to find all expired auctions
+// Will be called every 10 seconds to find all expired auctions
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void TradeManagerChatHandler::handleCheckAuctions()
 {
 	TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ExpiredListing, NULL);
-	int8 sql[500];
 	uint32 time = static_cast<uint32>(getGlobalTickCount());
-	//sprintf(sql," SELECT ca.auction_id, ca.owner_id,ca.type, ca.price, ca.name, ca.bidder_name, ca.bazaar_id, cc.firstname, c.id FROM swganh.characters AS c RIGHT JOIN swganh.commerce_auction AS ca ON (c.firstname = ca.bidder_name) INNER JOIN swganh.characters AS cc ON (cc.id = ca.owner_id) WHERE %u > start;",time/1000);
-	sprintf(sql," SELECT ca.auction_id, ca.owner_id,ca.type, ca.price, ca.name, ca.bidder_name, ca.bazaar_id, cc.firstname, c.id FROM swganh.characters AS c RIGHT JOIN swganh.commerce_auction AS ca ON (c.firstname = ca.bidder_name) INNER JOIN swganh.characters AS cc ON (cc.id = ca.owner_id) WHERE %"PRIu32" > start;",time/1000);
-
-	//sprintf(sql,"CALL sp_CommerceFindExpiredListing()");
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionFindExpired(%"PRIu32");", time/1000);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_BazaarAuctionFindExpired(%"PRIu32");", time/1000); // SQL Debug Log
 }
 
 //=======================================================================================================================
@@ -1882,7 +1878,7 @@ void TradeManagerChatHandler::handleCheckAuctions()
 
 void TradeManagerChatHandler::handleGlobalTickUpdate()
 {
-	mGlobalTickCount += 1000;//in our case 1sek as timeintervall sufficient
+	mGlobalTickCount += 1000; // in our case a 1 second time interval is sufficient
 }
 
 //=======================================================================================================================

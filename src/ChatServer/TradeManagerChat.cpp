@@ -1507,13 +1507,11 @@ void TradeManagerChatHandler::processGetAuctionDetails(Message* message,Dispatch
 	//the ID of the Auction we want to learn more about
 	uint64 AuctionID = message->getUint64();
 
-	//build our query
-	int8 sql[1024];
 	//we'll need our item description, the iff data and the rest will be done by the items object
-	sprintf(sql,"SELECT auction_id, description, object_string FROM swganh.commerce_auction c  WHERE c.auction_id = %"PRIu64"",AuctionID);
-
 	asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetDetails,client);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+
+	mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionDetailsGet(%"PRIu64");", AuctionID);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_BazaarAuctionDetailsGet(%"PRIu64");", AuctionID);
 }
 
 //=======================================================================================================================
@@ -1536,7 +1534,9 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 		gLogger->log(LogManager::EMERGENCY,"Error getting player from account map");
 		return;
 	}
+
 	//squeeze our Packet for all usefull information
+
 	Query query;
 	query.Region = message->getUint32();
 	query.UpdateCounter = message->getUint32();
@@ -1555,7 +1555,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 	query.start = message->getUint16();//nr of 1st auction to show
 
 
-	//build our db Quer
+	// build our db Query
 
 	// the region to display
 
@@ -1597,16 +1597,16 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 
 	switch (query.Windowtype)
 	{
-		case TRMVendor_AllAuctions://open up bazaar and look at it without a category
+		case TRMVendor_AllAuctions: //open up bazaar and look at it without a category
 		{
-			sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32"))",TRMVendor_Auction,TRMVendor_Instant);
+			sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32"))", TRMVendor_Auction, TRMVendor_Instant);
 
 		}
 		break;
 
-		case TRMVendor_MySales://what Im selling at the bazaar
+		case TRMVendor_MySales: //what Im selling at the bazaar
 		{
-			sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32"))AND",TRMVendor_Auction,TRMVendor_Instant);
+			sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32"))AND", TRMVendor_Auction, TRMVendor_Instant);
 			int8 tmp[128];
 			sprintf(tmp," (c.owner_id = %"PRIu64")",player->getCharId());
 			strcat(query.WindowQuery,tmp);
@@ -1614,7 +1614,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 		}
 		break;
 
-		case TRMVendor_MyBids://auctions Im bidding on currently at the bazaar
+		case TRMVendor_MyBids: //auctions Im bidding on currently at the bazaar
 		{
 			//sprintf(query.WindowQuery," ((c.type = %u) or (c.type = %u)) AND",TRMVendor_Auction,TRMVendor_Instant);
 			//int8 tmp[128];
@@ -1700,7 +1700,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 	int8 Limit[64];
 	uint32 StopTime;
 	StopTime = (static_cast<uint32>(getGlobalTickCount()) / 1000);
-	sprintf(Limit," AND (c.start > %"PRIu32") LIMIT %u, %u",StopTime,query.start, query.start+100);
+	sprintf(Limit," AND (c.start > %"PRIu32") LIMIT %u, %u", StopTime,query.start, query.start+100);
 
 	//region or bazaar id
 

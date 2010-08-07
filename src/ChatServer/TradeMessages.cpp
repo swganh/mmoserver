@@ -90,12 +90,9 @@ void ChatMessageLib::sendIsVendorOwnerResponseMessage(DispatchClient* client, BS
 
 	Message* newMessage = gMessageFactory->EndMessage();
 	client->SendChannelA(newMessage,client->getAccountId(),  CR_Client, 6);
-
 }
 
-
 //=======================================================================================================================
-
 void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlayerID, uint64 mItemID,uint32 mItemGroup, uint32 mPlanetID) const
 {
 	gMessageFactory->StartMessage();
@@ -106,11 +103,9 @@ void ChatMessageLib::processSendCreateItem(DispatchClient* client, uint64 mPlaye
 	Message* newMessage = gMessageFactory->EndMessage();
 	//planetID+8 is the zones ID 
 	client->SendChannelA(newMessage, client->getAccountId(), static_cast<uint8>(mPlanetID)+8, 6);
-
 }
 
-
-
+//=======================================================================================================================
 void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* asynContainer, AttributesList* mAttributesList) const
 {
 
@@ -152,6 +147,7 @@ void ChatMessageLib::SendGetAuctionDetailsResponse(TradeManagerAsyncContainer* a
 //adds the amount for a banktip to a players bank account on the respective zone
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//=======================================================================================================================
 void ChatMessageLib::sendBankTipDeductMessage(DispatchClient* client, uint64 receiverId,   uint32 amount, Player*  mPlayer) const
 {
 	gMessageFactory->StartMessage();
@@ -169,6 +165,7 @@ void ChatMessageLib::sendBankTipDeductMessage(DispatchClient* client, uint64 rec
 //gives the zone server information on a won instant
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//=======================================================================================================================
 void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, AuctionItem mAuctionItem, uint64 mBuyerId,   uint32 mTime, Player*  mPlayer, Bazaar* mBazaarInfo) const
 {
 
@@ -208,49 +205,38 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
 		y =  BString(token);
 	}
 	
-
-
 	gMessageFactory->StartMessage();
 	gMessageFactory->addUint32(opDeductMoneyMessage);
-	gMessageFactory->addUint64(mBuyerId);				//buyer Id
-	gMessageFactory->addUint64(mAuctionItem.OwnerID);	//seller Id
-	gMessageFactory->addUint64(mAuctionItem.ItemID);
-	gMessageFactory->addUint32(mAuctionItem.Price);
-	gMessageFactory->addUint32(mTime);
-	gMessageFactory->addString(BString(mAuctionItem.Name));//itemname
-	gMessageFactory->addString(planet);//Planet
-	gMessageFactory->addString(region);//Region
-	gMessageFactory->addString(BString(mAuctionItem.Owner));
-	
-	gMessageFactory->addString(x);//x
-	gMessageFactory->addString(y);//y
+	gMessageFactory->addUint64(mBuyerId);									// Buyer ID
+	gMessageFactory->addUint64(mAuctionItem.OwnerID);						// Seller ID
+	gMessageFactory->addUint64(mAuctionItem.ItemID);						// Item ID
+	gMessageFactory->addUint32(mAuctionItem.Price);							// Price
+	gMessageFactory->addUint32(mTime);										// Time Left?
+	gMessageFactory->addString(BString(mAuctionItem.Name));					// Item Name
+	gMessageFactory->addString(planet);										// Planet
+	gMessageFactory->addString(region);										// Region
+	gMessageFactory->addString(BString(mAuctionItem.Owner));				// Owner Name
+	gMessageFactory->addString(x);											// x
+	gMessageFactory->addString(y);											// y
 
 	Message* newMessage = gMessageFactory->EndMessage();
 	client->SendChannelA(newMessage, client->getAccountId(), static_cast<uint8>(mPlayer->getPlanetId())+8 , 6);
-
 }
-
-//======================================================================================================================
-
-
 
 //=======================================================================================================================
 //
 // sends the relevant delta to the client to update hopper contents
 //
-
 void ChatMessageLib::SendHarvesterHopperUpdate(StructureManagerAsyncContainer* asynContainer, HopperResourceList* mHopperList) const
 {			
 									 
 	HopperResourceList::iterator it = mHopperList->begin();
 									 
-	gMessageFactory->StartMessage();
-	
-	gMessageFactory->addUint16(2);	//2 updated vars
-	gMessageFactory->addUint16(12);	//var Nr 12 = hopper update flag
-	gMessageFactory->addUint8(1);
-	
-	gMessageFactory->addUint16(13);	//var Nr 12 = hopper resourcelist
+	gMessageFactory->StartMessage();	
+	gMessageFactory->addUint16(2);														// 2 updated vars
+	gMessageFactory->addUint16(12);														// var Nr 12 = hopper update flag
+	gMessageFactory->addUint8(1);														//
+	gMessageFactory->addUint16(13);														// var Nr 12 = hopper resourcelist
 	gMessageFactory->addUint32(mHopperList->size());
 	gMessageFactory->addUint32(asynContainer->updateCounter+mHopperList->size());
 
@@ -285,7 +271,6 @@ void ChatMessageLib::SendHarvesterHopperUpdate(StructureManagerAsyncContainer* a
 }
 
 //=======================================================================================================================
-
 void ChatMessageLib::sendStructureConditionActiveUpdate(DispatchClient* client, uint64 structureID, uint32 mPlanetID, uint32 condition) const
 {
 	gMessageFactory->StartMessage();

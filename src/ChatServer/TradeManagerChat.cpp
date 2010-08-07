@@ -348,7 +348,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				//we'll need all the attributes which are marked as external
 				sprintf(sql,"SELECT name, value FROM swganh.item_attributes ia  INNER JOIN swganh.attributes a ON ia.attribute_id = a.id WHERE ia.item_id =%"PRIu64" and a.internal = 0 ORDER BY ia.order",mItemDescription->ItemID);
 
-				TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetAttributeDetails,asynContainer->mClient);
+				TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetAttributeDetails, asynContainer->mClient);
 				asyncContainer->mItemDescription = mItemDescription;
 
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -736,11 +736,11 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				gMessageFactory->addUint16(static_cast<uint16>((*itA)->GetBidderListID()));
 
 
-				gMessageFactory->addUint32((*itA)->GetBid());//highbid My High Bid!!!!
-				gMessageFactory->addUint32((*itA)->GetProxy());// my Proxy
-				gMessageFactory->addUint32((*itA)->GetBid());//highbid My High Bid!!!!
+				gMessageFactory->addUint32((*itA)->GetBid());	// high bid My High Bid!!!!
+				gMessageFactory->addUint32((*itA)->GetProxy());	// my Proxy
+				gMessageFactory->addUint32((*itA)->GetBid());	// high bid My High Bid!!!!
 
-				gMessageFactory->addUint32((*itA)->GetCategory());// itemtype for proper text reference
+				gMessageFactory->addUint32((*itA)->GetCategory());// item type for proper text reference
 
 
 				gMessageFactory->addUint8(0);
@@ -1032,7 +1032,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 					//flag it as bought, change the owner and the remaining Time
 					//retrieve is send by client after that
 
-					uint32 time = (3600*24*30)+( static_cast<uint32>(getGlobalTickCount())/1000);
+					uint32 time = (3600*24*30)+(static_cast<uint32>(getGlobalTickCount())/1000);
 
 					//let the zoneserver deal with the transaction and send the relevant Emails
 					gChatMessageLib->sendBazaarTransactionMessage(asynContainer->mClient, *AuctionTemp, player->getCharId(), time, player, bazaarInfo);
@@ -1265,8 +1265,8 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
 
 			//just update the high proxy
 			//strcpy(Name,player->getName().getAnsi());
-			//sprintf(sql," UPDATE commerce_bidhistory SET proxy_bid = '%u'WHERE auction_id = '%I64u' AND bidder_name = %s",asynContainer->MyProxy  ,asynContainer->AuctionTemp->ItemID ,Name);
-			sprintf(sql," UPDATE commerce_bidhistory SET proxy_bid = '%"PRIu32"'WHERE auction_id = '%"PRIu64"' AND bidder_name = '%s'",asynContainer->MyProxy  ,asynContainer->AuctionTemp->ItemID,PlayerName);
+			//sprintf(sql,"UPDATE commerce_bidhistory SET proxy_bid = '%u'WHERE auction_id = '%I64u' AND bidder_name = %s",asynContainer->MyProxy  ,asynContainer->AuctionTemp->ItemID ,Name);
+			sprintf(sql,"UPDATE commerce_bidhistory SET proxy_bid = '%"PRIu32"'WHERE auction_id = '%"PRIu64"' AND bidder_name = '%s'", asynContainer->MyProxy, asynContainer->AuctionTemp->ItemID, PlayerName);
 
 			TradeManagerAsyncContainer* asyncContainer;
 			asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
@@ -1323,19 +1323,18 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
 		TheProxy = asynContainer->AuctionTemp->HighProxy;
 		int8 BidderName[40];
 		strcpy(BidderName,asynContainer->AuctionTemp->bidder_name);
-		//what do we do if this is our first bid and we are NOT the high bidder?
-		//sf_BidAuction only updates the bid of the high bidder
 
-		//solution!!! Invent sf_BidUpdates
+		// what do we do if this is our first bid and we are NOT the high bidder?
+		// sf_BidAuction only updates the bid of the high bidder
 
-		sprintf(sql,"SELECT sf_BidUpdate ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')",asynContainer->AuctionTemp->ItemID,asynContainer->MyBid,asynContainer->MyProxy,PlayerName);
+		sprintf(sql,"SELECT sf_BidUpdate ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", asynContainer->AuctionTemp->ItemID, asynContainer->MyBid, asynContainer->MyProxy, PlayerName);
 		TradeManagerAsyncContainer* asyncContainer;
-		asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
-		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+		asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval, asynContainer->mClient);
+		mDatabase->ExecuteSqlAsync(this, asyncContainer, sql);
 
 	}
 
-	sprintf(sql,"SELECT sf_BidAuction ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')",asynContainer->AuctionTemp->ItemID,TheBid,TheProxy,PlayerName);
+	sprintf(sql,"SELECT sf_BidAuction ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", asynContainer->AuctionTemp->ItemID, TheBid, TheProxy, PlayerName);
 	TradeManagerAsyncContainer* asyncContainer;
 	asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
 

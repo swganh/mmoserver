@@ -172,6 +172,7 @@
     <ClCompile Include="GroupManagerHandler.cpp" />
     <ClCompile Include="Ham.cpp" />
     <ClCompile Include="HamProperty.cpp" />
+    <ClCompile Include="HamService.cpp" />
     <ClCompile Include="HarvesterFactory.cpp" />
     <ClCompile Include="HarvesterObject.cpp" />
     <ClCompile Include="Heightmap.cpp" />
@@ -433,6 +434,7 @@
     <ClInclude Include="GroupObject.h" />
     <ClInclude Include="Ham.h" />
     <ClInclude Include="HamProperty.h" />
+    <ClInclude Include="HamService.h" />
     <ClInclude Include="HarvesterFactory.h" />
     <ClInclude Include="HarvesterObject.h" />
     <ClInclude Include="Heightmap.h" />

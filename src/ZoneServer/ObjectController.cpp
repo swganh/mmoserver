@@ -48,11 +48,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
+#include "Common/EventDispatcher.h"
 #include "Common/MessageFactory.h"
 #include "Common/Message.h"
 #include "Utils/clock.h"
 
 #include <cassert>
+
+using ::common::Event;
+using ::common::EventType;
 
 //=============================================================================
 //
@@ -378,8 +382,9 @@ bool ObjectController::_processCommandQueue()
             // If a new style handler is found process it.
             if (message && it != gObjectControllerCommands->getCommandMap().end()) {
 
-              ((*it).second)(mObject, target, message, cmdProperties);
-							consumeHam = mHandlerCompleted;
+                if (((*it).second)(mObject, target, message, cmdProperties)) {
+                    gEventDispatcher.Notify(std::make_shared<Event>(EventType("object_controller.successful_command")));
+                }
             } else {
               // Otherwise, process the old style handler.
 						  OriginalCommandMap::iterator it = gObjControllerCmdMap.find(command);

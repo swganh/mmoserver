@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ApplicationService.cpp" />
     <ClCompile Include="atMacroString.cpp" />
     <ClCompile Include="BuildInfo.cpp" />
     <ClCompile Include="ByteBuffer.cpp" />
@@ -24,6 +25,7 @@
     <ClCompile Include="OutOfBand.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ApplicationService.h" />
     <ClInclude Include="atMacroString.h" />
     <ClInclude Include="BuildInfo.h" />
     <ClInclude Include="ByteBuffer-Inl.h" />

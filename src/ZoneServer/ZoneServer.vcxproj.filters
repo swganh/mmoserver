@@ -755,6 +755,9 @@
     <ClCompile Include="CraftingManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HamService.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h">
@@ -1475,6 +1478,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CraftingManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HamService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -78,6 +78,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/clock.h"
 #include "Utils/Singleton.h"
 
+#include "ZoneServer/HamService.h"
+
 #if !defined(_DEBUG) && defined(_WIN32)
 #include "Utils/mdump.h"
 #endif
@@ -99,7 +101,8 @@ mNetworkManager(0),
 mDatabaseManager(0),
 mRouterService(0),
 mLastHeartbeat(0),
-mDatabase(0)
+mDatabase(0),
+ham_service_(nullptr)
 {
 	Anh_Utils::Clock::Init();
 	
@@ -199,6 +202,8 @@ mDatabase(0)
 	// Invoked when all creature regions for spawning of lairs are loaded
 	// (void)NpcManager::Instance();
 
+    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(gEventDispatcher));
+    ham_service_->initialize();
 
 	ScriptEngine::Init();
 

@@ -25,14 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ConnectionDispatch.h"
-
 #include "ConnectionClient.h"
 #include "ConnectionDispatchCallback.h"
-
 #include "LogManager/LogManager.h"
-
 #include "NetworkManager/Session.h"
-
 #include "Common/Message.h"
 
 #include <stdio.h>

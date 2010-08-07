@@ -194,7 +194,7 @@ void ConnectionServer::Process(void)
 void ConnectionServer::_updateDBServerList(uint32 status)
 {
 	// Execute our query
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='connection';",mServerService->getLocalAddress(), mServerService->getLocalPort(), status));
+	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='connection';", mServerService->getLocalAddress(), mServerService->getLocalPort(), status));
 }
 
 //======================================================================================================================
@@ -205,11 +205,11 @@ void ConnectionServer::ToggleLock()
 	if(mLocked)
 	{
 		// Update our status for the LoginServer
-		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
+		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;", mClusterId));
 		gLogger->log(LogManager::INFORMATION,"Locking server to normal users");
 	} else {
 		// Update our status for the LoginServer
-		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
+		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;", mClusterId));
 		gLogger->log(LogManager::INFORMATION,"unlocking server to normal users");
 	}
 }
@@ -264,10 +264,3 @@ int main(int argc, char* argv[])
 }
 
 //======================================================================================================================
-
-
-
-
-
-
-

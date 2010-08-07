@@ -1399,16 +1399,17 @@ void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message
 		return;
 	}
 
-	//squeeze our Packet for all usefull information
-	//ID of the Auction that gets retrieved
+	// squeeze our Packet for all usefull information
+	// ID of the Auction that gets retrieved
+
 	uint64	ItemID		= message->getUint64();
 	uint64	TerminalID	= message->getUint64();
 
 	int8 sql[200];
-	sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM swganh.commerce_auction c  WHERE c.auction_id = %"PRIu64"",ItemID);
-	asyncContainer = new TradeManagerAsyncContainer(TRMQuery_RetrieveAuction,client);
+	sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM swganh.commerce_auction c  WHERE c.auction_id = %"PRIu64"", ItemID);
+	asyncContainer = new TradeManagerAsyncContainer(TRMQuery_RetrieveAuction, client);
 	asyncContainer->BazaarID = TerminalID;
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	mDatabase->ExecuteSqlAsync(this, asyncContainer, sql);
 }
 
 //=======================================================================================================================

@@ -575,7 +575,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 				int8 sql[100];
 
 				// then use maintenance
-				sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)",harvesterID);
+				sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)", harvesterID);
 				StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneStructureMaintenance,0);
 				asyncContainer->harvesterID = harvesterID;
 				

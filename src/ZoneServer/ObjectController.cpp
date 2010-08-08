@@ -370,41 +370,48 @@ bool ObjectController::_processCommandQueue()
 					case ObjControllerCmdGroup_Common:
 					{
 						// Check the new style of handlers first.
-            CommandMap::const_iterator it = gObjectControllerCommands->getCommandMap().find(command);
+                        CommandMap::const_iterator it = gObjectControllerCommands->getCommandMap().find(command);
             
-            // Find the target object (if one is given) and pass it in.
-            Object* target = NULL;
-            
-            if (targetId) {
-              target = gWorldManager->getObjectById(targetId);
-            }
+                        // Find the target object (if one is given) and pass it in.
+                        Object* target = NULL;
+                        
+                        if (targetId) {
+                          target = gWorldManager->getObjectById(targetId);
+                        }
 
-            // If a new style handler is found process it.
-            if (message && it != gObjectControllerCommands->getCommandMap().end()) {
+                        // If a new style handler is found process it.
+                        if (message && it != gObjectControllerCommands->getCommandMap().end()) {
+                            // Trigger a pre-command processing event and get the result. This allows
+                            // any listeners to veto the processing of the command (such as validators).
+                            bool process_command_check = gEventDispatcher.Deliver(std::make_shared<Event>(EventType("object_controller.pre_command_process"))).get();
 
-                if (((*it).second)(mObject, target, message, cmdProperties)) {
-                    gEventDispatcher.Notify(std::make_shared<Event>(EventType("object_controller.successful_command")));
-                }
-            } else {
-              // Otherwise, process the old style handler.
-						  OriginalCommandMap::iterator it = gObjControllerCmdMap.find(command);
+                            //std::shared_ptr<ObjectController::PreCommandEvent> pre_event = std::make_shared<ObjectController::PreCommandEvent>(new Event(EventType("object_controller.pre_command_process")));
+                            //pre_event->object_id(mObject->getId());
+                            //pre_event->target_id(target->getId());
+                            //pre_event->message(message);
+                            //pre_event->command_properties(cmdProperties);
 
-						  if (message && it != gObjControllerCmdMap.end())
-						  {
-                ((*it).second)(this, targetId, message, cmdProperties);
+                            // Only process the command if it passed validation from the above.
+                            if (process_command_check) {
+                                bool command_processed = ((*it).second)(mObject, target, message, cmdProperties);
+                                gEventDispatcher.Deliver(std::make_shared<Event>(EventType("object_controller.post_command_process")));
+                            }
+                        } else {
+                            // Otherwise, process the old style handler.
+						    OriginalCommandMap::iterator it = gObjControllerCmdMap.find(command);
+
+						    if (message && it != gObjControllerCmdMap.end()) {
+                                ((*it).second)(this, targetId, message, cmdProperties);
 						  	//(this->*((*it).second))(targetId,message,cmdProperties);
-						  	consumeHam = mHandlerCompleted;
-						  }
-						  else
-						  {
-						  	gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",command,mObject->getId());
-						  	//gLogger->hexDump(message->getData(),message->getSize());
-
-						  	consumeHam = false;
-						  }
-            }
-					}
-					break;
+						  	    consumeHam = mHandlerCompleted;
+						    } else {
+						  	    gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",command,mObject->getId());
+						  	    //gLogger->hexDump(message->getData(),message->getSize());
+                                consumeHam = false;
+                            }
+                        }
+                    }
+                    break;
 
 					case ObjControllerCmdGroup_Attack:
 					{

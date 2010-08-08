@@ -101,6 +101,12 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 															"INNER JOIN cells ON spawn_clone.parentid = cells.id "
 															"INNER JOIN buildings ON cells.parent_id = buildings.id "
 															"WHERE buildings.id = %"PRIu64";",building->getId());
+				gLogger->log(LogManager::DEBUG, "SQL :: SELECT spawn_clone.parentId,spawn_clone.oX,spawn_clone.oY,spawn_clone.oZ,spawn_clone.oW,"
+												"spawn_clone.cell_x,spawn_clone.cell_y,spawn_clone.cell_z,spawn_clone.city "
+												"FROM  spawn_clone "
+												"INNER JOIN cells ON spawn_clone.parentid = cells.id "
+												"INNER JOIN buildings ON cells.parent_id = buildings.id "
+												"WHERE buildings.id = %"PRIu64";",building->getId()); // SQL Debug Log
 			}
 			else
 			{
@@ -108,6 +114,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				asContainer->mObject = building;
 
 				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRIu64";",building->getId());
+				gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM cells WHERE parent_id = %"PRIu64";",building->getId()); // SQL Debug Log
 			}
 		}
 		break;
@@ -137,6 +144,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			asContainer->mObject = building;
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRIu64";",building->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM cells WHERE parent_id = %"PRIu64";",building->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -183,6 +191,11 @@ void BuildingFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 								"building_types.file,building_types.name,building_types.family "
 								"FROM buildings INNER JOIN building_types ON (buildings.type_id = building_types.id) "
 								"WHERE (buildings.id = %"PRIu64")",id);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT buildings.id,buildings.oX,buildings.oY,buildings.oZ,buildings.oW,buildings.x,"
+									"buildings.y,buildings.z,building_types.model,building_types.width,building_types.height,"
+									"building_types.file,building_types.name,building_types.family "
+									"FROM buildings INNER JOIN building_types ON (buildings.type_id = building_types.id) "
+									"WHERE (buildings.id = %"PRIu64")",id); // SQL Debug Log
 }
 
 //=============================================================================

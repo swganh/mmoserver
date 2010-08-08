@@ -108,6 +108,11 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
 								" FROM badge_regions"
 								" INNER JOIN planet_regions ON (badge_regions.region_id = planet_regions.region_id)"
 								" WHERE (badge_regions.id = %"PRIu64")",id);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT badge_regions.id,badge_regions.badge_id,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+									"planet_regions.width,planet_regions.height,badge_regions.parent_id"
+									" FROM badge_regions"
+									" INNER JOIN planet_regions ON (badge_regions.region_id = planet_regions.region_id)"
+									" WHERE (badge_regions.id = %"PRIu64")",id); // SQL Debug Log
 }
 
 //=============================================================================

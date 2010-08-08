@@ -183,7 +183,8 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr
 
 				int8 sql[128];
 				sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
-				(gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql);
+				(gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL, NULL, sql);
+				gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 
 				// Clone location successfully updated
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "clone_success"), playerObject);

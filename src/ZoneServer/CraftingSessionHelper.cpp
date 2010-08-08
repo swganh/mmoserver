@@ -685,6 +685,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 			resContainer->setAmount(newContainerAmount);
 			gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
 			mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newContainerAmount,resContainer->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newContainerAmount,resContainer->getId()); // SQL Debug Log
 		}
 
 		// update the slot total resource amount
@@ -1118,6 +1119,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 						gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
 
 						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId());
+						gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId()); // SQL Debug Log
 					}
 					// target container full, put in what fits, create a new one
 					else if(newAmount > maxAmount)
@@ -1128,6 +1130,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 
 						gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
 						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%I64u",maxAmount,resCont->getId());
+						gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%I64u",maxAmount,resCont->getId()); // SQL Debug Log
 
 						gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),(*resIt).first,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,selectedNewAmount);
 					}
@@ -1489,9 +1492,11 @@ void CraftingSession::collectResources()
 		//enter it slotdependent as we dont want to clot our attributes table with resources
 		//173  is cat_manf_schem_resource
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str); // SQL Debug Log
 		
 		//now enter it in the relevant manschem table so we can use it in factories
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second); // SQL Debug Log
 
 		checkResIt  ++;
 	}
@@ -1591,9 +1596,11 @@ void CraftingSession::collectComponents()
 		//enter it slotdependent as we dont want to clot our attributes table with resources
 		//173  is cat_manf_schem_resource
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str); // SQL Debug Log
 		
 		//now enter it in the relevant manschem table so we can use it in factories
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial,(*checkResIt).second);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial,(*checkResIt).second); // SQL Debug Log
 
 		checkResIt  ++;
 	}
@@ -1629,6 +1636,7 @@ void CraftingSession::updateResourceContainer(uint64 containerID, uint32 newAmou
 		resContainer->setAmount(newAmount);
 		gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resContainer->getId());
+		gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resContainer->getId()); // SQL Debug Log
 	}
 
 }

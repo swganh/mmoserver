@@ -208,6 +208,7 @@ int32 FactoryCrate::decreaseContent(uint32 amount)
 
 	this->setAttribute("factory_count",boost::lexical_cast<std::string>(newAmount));
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",newAmount,this->getId(),AttrType_factory_count);
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",newAmount,this->getId(),AttrType_factory_count); // SQL Debug Log
 
 	return newAmount;
 }

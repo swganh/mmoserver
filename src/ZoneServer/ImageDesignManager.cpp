@@ -363,6 +363,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
 			int8 sql[300];
 			sprintf(sql,"UPDATE character_appearance set %s = %u where character_id = '%"PRIu64"'",iDContainer->Atr1Name, value,customer->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+			gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 
 			//update object clientside
 			// now update the hair customization string
@@ -568,6 +569,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 				// update the db
 				sprintf(sql,"UPDATE character_appearance set hair = '' where character_id = '%"PRIu64"'",customer->getId());
 				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+				gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 			}
 		}
 		//destroy serverside
@@ -598,6 +600,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 		// update the db
 		sprintf(sql,"UPDATE character_appearance set hair = '%s' where character_id = '%"PRIu64"'",newHairString.getAnsi(),customer->getId());
 		mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+		gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 
 		// now update the modelstring in the creo6 equipped list and the corresponding tano
 		//are we wearing a helmet ? if not we need to update the world
@@ -654,6 +657,7 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
 	mTransaction->addQuery(sql);
 
 	mTransaction->execute();
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 }
 
 //=============================================================================
@@ -802,6 +806,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 		gLogger->log(LogManager::DEBUG,"ID apply changes : sql: %s ",sql);
 		asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+		gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 	}
 
 
@@ -829,6 +834,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 
 		sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %"PRIu64"", customer->getId());
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+		gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 	}
 	else
 	{
@@ -903,6 +909,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote
 
 	sprintf(sql,"call swganh.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)", customer->getId(),myEmote->pCRC,20);
 	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 
 	//send message box holoemote bought
 

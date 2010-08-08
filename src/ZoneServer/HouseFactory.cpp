@@ -122,9 +122,10 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HOFQuery_AdminData,asyncContainer->mClient);
 			asContainer->mObject = house;
 
-			int8 hmm[1024];
-			sprintf(hmm,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",house->getId());
-			mDatabase->ExecuteSqlAsync(this,asContainer,hmm);
+			int8 sql[1024];
+			sprintf(sql,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",house->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer,sql);
+			gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 
 		}
 		break;
@@ -179,6 +180,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			asContainer->mObject = house;
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM structure_cells WHERE parent_id = %"PRIu64" ORDER BY structure_cells.id;",house->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM structure_cells WHERE parent_id = %"PRIu64" ORDER BY structure_cells.id;",house->getId()); // SQL Debug Log
 			
 
 			
@@ -202,6 +204,10 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 															 " FROM structure_attributes sa"
 															 " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
 															 " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",house->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,sa.value,attributes.internal"
+				" FROM structure_attributes sa"
+				" INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
+				" WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",house->getId()); // SQL Debug Log
 
 			
 		}
@@ -238,8 +244,8 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
 {
 	//request the harvesters Data first
 	
-	int8 hmm[1024];
-	sprintf(hmm,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z, "
+	int8 sql[1024];
+	sprintf(sql,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z, "
 					"std.type,std.object_string,std.stf_name, std.stf_file, s.name, "
 					"std.lots_used, h.private, std.maint_cost_wk, s.condition, std.max_condition, std.max_storage "
 					"FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN houses h ON (s.id = h.id) " 
@@ -247,7 +253,8 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
 
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HOFQuery_MainData,client,id);
 
-	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);
+	mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 }
 
 //=============================================================================

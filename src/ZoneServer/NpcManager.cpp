@@ -204,11 +204,8 @@ void NpcManager::loadLairs(void)
 	//load lair and creature spawn, and optionally heightmaps cache.
 	// NpcFamily_NaturalLairs
 
-	mDatabase->ExecuteSqlAsync(this,new NpcAsyncContainer(NpcQuery_Lairs),
-								"SELECT lairs.id, lairs.lair_template, lairs.count "
-								"FROM lairs "
-								"INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) "
-								"WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs);
+	mDatabase->ExecuteSqlAsync(this,new NpcAsyncContainer(NpcQuery_Lairs), "SELECT lairs.id, lairs.lair_template, lairs.count FROM lairs INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT lairs.id, lairs.lair_template, lairs.count FROM lairs INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs); // SQL Debug Log
 }
 
 void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)

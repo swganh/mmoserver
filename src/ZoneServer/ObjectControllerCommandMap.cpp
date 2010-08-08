@@ -63,6 +63,13 @@ mDatabase(database)
 										 "knockdown_chance,dizzy_chance,blind_chance,stun_chance,intimidate_chance,"
 										 "posture_down_chance,extended_range,damage_multiplier,delay_multiplier,deny_in_locomotion"
 										 " FROM command_table");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT commandname,characterability,deny_in_states,healthcost,actioncost,mindcost,"
+											"animationCrc,addtocombatqueue,defaulttime,scripthook,requiredweapongroup,"
+											"cbt_spam,trail1,trail2,commandgroup,allowInPosture,"
+											"health_hit_chance,action_hit_chance,mind_hit_chance,"
+											"knockdown_chance,dizzy_chance,blind_chance,stun_chance,intimidate_chance,"
+											"posture_down_chance,extended_range,damage_multiplier,delay_multiplier,deny_in_locomotion"
+											" FROM command_table"); // SQL Debug Log
 }
 
 //======================================================================================================================

@@ -386,8 +386,6 @@ void ManufactureSlot::addComponenttoSlot(uint64 resID, uint32 amount, uint8 type
 	
 }
 
-
-
 void ManufacturingSchematic::ModifyBlueBars(float mod)
 {
 	ExperimentationProperties*			expPropertiesList	= getExperimentationProperties();

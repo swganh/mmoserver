@@ -1015,7 +1015,7 @@ void WorldManager::_loadAllObjects(uint64 parentId)
 				,mZoneId,parentId,mZoneId,parentId,mZoneId);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log	
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log	
 
 	//gConfig->read<float>("FillFactor"
 }

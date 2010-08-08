@@ -225,7 +225,7 @@ void VehicleControllerFactory::createVehicle(uint32 vehicle_type,PlayerObject* t
 	sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",vehicle_type,targetPlayer->getId());
 	 gLogger->log(LogManager::DEBUG,"VehicleControllerFactory::createVehicle query %s",  sql);
 	 mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),sql);				
-	 gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log	
+	 gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log	
 }
 //=============================================================================
 

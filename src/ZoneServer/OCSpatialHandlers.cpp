@@ -193,7 +193,7 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
 	sprintf(sql,"UPDATE swganh.character_attributes SET moodId = %u where character_id = %"PRIu64"",mood,playerObject->getId());
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 }
 

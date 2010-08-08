@@ -528,7 +528,7 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 		" WHERE (characters.id = %"PRIu64");", id + BANK_OFFSET, id);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 }
 
 //=============================================================================

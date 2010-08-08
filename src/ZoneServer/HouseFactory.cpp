@@ -125,7 +125,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			int8 sql[1024];
 			sprintf(sql,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",house->getId());
 			mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 		}
 		break;
@@ -254,7 +254,7 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HOFQuery_MainData,client,id);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 }
 
 //=============================================================================

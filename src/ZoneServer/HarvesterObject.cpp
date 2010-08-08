@@ -549,7 +549,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",this->getId());
 			
 			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asyncContainer,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 		
 		}

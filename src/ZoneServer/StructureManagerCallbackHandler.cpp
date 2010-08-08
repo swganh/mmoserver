@@ -366,7 +366,7 @@ void StructureManager::_HandleStructureDestruction(StructureManagerAsyncContaine
 			int8 sql[100];
 			sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
 			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);					
-			gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 			//delete harvester db side with all power and all resources
 			gObjectFactory->deleteObjectFromDB(structure);

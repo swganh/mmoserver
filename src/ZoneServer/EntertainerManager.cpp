@@ -235,7 +235,7 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
 		EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_DenyServiceListNames,0);
 		asyncContainer->performer = entertainer;
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-		gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+		gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 		//gUIManager->createNewOutcastSelectBox(entertainer,"handleselectoutcast","select whom to delete from your deny service list","",availableOutCasts,entertainer,SUI_LB_OK);
 	}
@@ -311,7 +311,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 
 	EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 }
 
@@ -352,7 +352,7 @@ void EntertainerManager::verifyOutcastName(PlayerObject* entertainer,BString out
 	asyncContainer->outCastName = outCastName;
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 }
 
@@ -605,12 +605,12 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 					asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 					sprintf(sql,"UPDATE swganh.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
 					mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+					gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 					asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
 					sprintf(sql,"UPDATE swganh.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
 					mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+					gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 					gSkillManager->addExperience(XpType_imagedesigner,2000,asynContainer->performer);
 				}

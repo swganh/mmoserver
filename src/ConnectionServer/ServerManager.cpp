@@ -131,7 +131,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	int8 sql[500];
 	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 	gLogger->logCont(LogManager::DEBUG,"\n");
 							
 	// If we found them

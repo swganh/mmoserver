@@ -303,7 +303,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
  // Setup an async query for checking authentication.
   client->setState(LCSTATE_QueryAuth);
   mDatabase->ExecuteProcedureAsync(this,client,sql);
-  gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+  gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -652,7 +652,7 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
 
     //and execute
 	mDatabase->ExecuteProcedureAsync(this, client, sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -677,7 +677,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
 
         client->setState(LCSTATE_RetrieveSessionKey);
         mDatabase->ExecuteProcedureAsync(this, client, sql);
-		gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+		gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
     }
     else
     {

@@ -191,7 +191,7 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 	strcat(sql,restStr);
 	
 	gWorldManager->getDatabase()->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;
@@ -604,7 +604,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				int8 sql[150];
 				sprintf(sql,"select sf_DefaultHarvesterUpdateDeed(%"PRIu64",%"PRIu64")", structure->getId(),structure->getOwner()+INVENTORY_OFFSET);
 				mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-				gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+				gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 			}
 			else

@@ -459,7 +459,7 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->targetId + BANK_OFFSET);
 	mTransaction->addQuery(sql);
 	mTransaction->execute();
-	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 
 }
 
@@ -575,7 +575,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipUpdateGalaxyAccount,0);
 				
 				mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
-				gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
+				gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
 			}
 			else
 			{

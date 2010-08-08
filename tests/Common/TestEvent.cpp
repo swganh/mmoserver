@@ -28,34 +28,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <gtest/gtest.h>
 
 #include "Common/Event.h"
+#include "MockObjects/MockEvent.h"
 
 using ::common::ByteBuffer;
 using ::common::Event;
 using ::common::EventType;
 
-TEST(EventTests, EventRequiresEventType) {
-    Event my_event(EventType("my_event_type"));
+namespace {
 
-    EXPECT_EQ(EventType("my_event_type"), my_event.event_type());
+/*! All events should have a type and a way of returning that type to a caller.
+ */
+TEST(EventTests, EventHasAnEventType) {
+    MockEvent test_event;
+    EXPECT_EQ(EventType("mock_event"), test_event.event_type());
 }
 
+/*! Code that consumes an event needs a method of determining if a subject has
+ * been set yet or not.
+ */
 TEST(EventTests, EventHasNoSubjectByDefault) {
-    Event my_event(EventType("my_event_type"));
-
-    EXPECT_EQ(false, my_event.HasSubject());
+    MockEvent test_event;
+    EXPECT_EQ(false, test_event.hasSubject());
 }
 
-TEST(EventTests, CanSetSubjectForEvent) {
-    // Create a byte-buffer to serve as a container for the subject data.
-    std::unique_ptr<ByteBuffer> subject(new ByteBuffer());
-    subject->Write<std::string>("test_string");
+/*! An event's subject should be specified at the point of event creation.
+ */
+TEST(EventTests, CanSetAndRetrieveSubjectForEvent) {
+    // Create some subject id number to use for testing and create the MockEvent instance with it.
+    uint64_t some_subject_id = 2234;
+    MockEvent test_event(some_subject_id);
 
-    // Create the event and ask it for the subject.
-    Event my_event(EventType("my_event_with_subject"), std::move(subject));
-    std::unique_ptr<ByteBuffer> event_subject = my_event.subject();
-
-    // Make sure the subject that we get out is the one that was put in.
-    EXPECT_EQ("test_string", event_subject->Read<std::string>());
+    // Make sure that the event now has a subject and that it returns the correct value.
+    EXPECT_EQ(true, test_event.hasSubject());
+    EXPECT_EQ(some_subject_id, test_event.subject());
 }
 
 TEST(EventTests, EventHasNoDataByDefault) {
@@ -159,5 +164,4 @@ TEST(EventTests, CanSetCallbackForEvent) {
     EXPECT_EQ(1, *someval);
 }
 
-
-
+}

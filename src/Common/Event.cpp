@@ -28,6 +28,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/Event.h"
 
 namespace common {
+
+BaseEvent::BaseEvent(uint64_t subject, uint64_t timestamp) 
+: subject_(subject)
+, timestamp_(timestamp) {}
+
+BaseEvent::~BaseEvent() {}
+
+bool BaseEvent::hasSubject() const {
+    return (subject_ != 0) ? true : false;
+}
+
+uint64_t BaseEvent::subject() const { 
+    return subject_;
+}
+
+uint64_t BaseEvent::timestamp() const { 
+    return timestamp_;
+}
+
+void BaseEvent::serialize(ByteBuffer& out) const {
+    out.Write<uint32_t>(event_type().ident());
+
+    onSerialize(out);
+}
     
 Event::Event()
 : event_type_(EventType("null"))

@@ -39,6 +39,35 @@ namespace common {
 // Use a HashString as the basis for EventType's.
 typedef HashString EventType;
 
+class IEvent;
+typedef std::shared_ptr<IEvent> IEventPtr;
+
+class IEvent {
+public:
+    virtual const EventType& event_type() const = 0;
+    virtual uint64_t timestamp() const = 0;
+  
+    virtual void onSerialize(ByteBuffer& out) const = 0;
+};
+
+class BaseEvent : public IEvent {
+public:
+    BaseEvent(uint64_t subject = 0, uint64_t timestamp = 0);
+
+    virtual ~BaseEvent();
+    
+    bool hasSubject() const;
+    uint64_t subject() const;
+
+    uint64_t timestamp() const;
+
+    void serialize(ByteBuffer& out) const;
+    
+protected:
+    const uint64_t subject_;
+    const uint64_t timestamp_;
+};
+
 class Event;
 
 /**
@@ -90,7 +119,7 @@ public:
     Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject);
     Event(const EventType& event_type, std::unique_ptr<ByteBuffer>&& subject, std::unique_ptr<ByteBuffer>&& data);
 
-    ~Event();
+    virtual ~Event();
 
     /**
      * Copy constructor, used to copy one Event to another. This destroy's the from object.

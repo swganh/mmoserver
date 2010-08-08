@@ -107,6 +107,7 @@ void ShuttleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
 {
 	mDatabase->ExecuteProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, SHFQuery_MainData, client), "CALL sp_ShuttleDetailGet(%"PRIu64");", id);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ShuttleDetailGet(%"PRIu64");", id); // SQL Debug Log	
 }
 
 //=============================================================================

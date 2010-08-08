@@ -270,6 +270,7 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
 		}
 
 		mTransaction->addQuery(sql);
+		gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 
 		++it;
 	}

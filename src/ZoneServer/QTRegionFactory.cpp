@@ -108,6 +108,11 @@ void QTRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 		" FROM zone_regions"
 		" INNER JOIN planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
 		" WHERE (zone_regions.id = %"PRIu64")",id);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT zone_regions.id,zone_regions.qtdepth,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+		"planet_regions.width,planet_regions.height"
+		" FROM zone_regions"
+		" INNER JOIN planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
+		" WHERE (zone_regions.id = %"PRIu64")",id); // SQL Debug Log
 }
 
 //=============================================================================

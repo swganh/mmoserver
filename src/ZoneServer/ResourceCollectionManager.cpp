@@ -57,10 +57,11 @@ mDBAsyncPool(sizeof(RCMAsyncContainer))
 	// load sample costs
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RCMAsyncContainer(RCMQuery_SampleCosts),
 		"select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('dosample');");
+	gLogger->log(LogManager::DEBUG, "SQL :: select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('dosample');"); // SQL Debug Log
 	
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RCMAsyncContainer(RCMQuery_SurveyCosts),
 		"select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('requestSurvey');");
-
+	gLogger->log(LogManager::DEBUG, "SQL :: select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('requestSurvey');"); // SQL Debug Log
 }
 
 //======================================================================================================================

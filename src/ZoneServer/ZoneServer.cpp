@@ -117,12 +117,14 @@ mDatabase(0)
 
 	//increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
 	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'", zoneName);
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'", zoneName); // SQL Debug Log
 
 	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
 	// Grab our zoneId out of the DB for this zonename.
 	uint32 zoneId = 0;
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName); // SQL Debug Log
 
 	if (!result->getRowCount())
 	{
@@ -298,6 +300,7 @@ void ZoneServer::_updateDBServerList(uint32 status)
 {
 	// Update the DB with our status.  This must be synchronous as the connection server relies on this data.
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='%s';", mRouterService->getLocalAddress(), mRouterService->getLocalPort(), status, mZoneName.getAnsi()));
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='%s';", mRouterService->getLocalAddress(), mRouterService->getLocalPort(), status, mZoneName.getAnsi())); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -318,6 +321,7 @@ void ZoneServer::_connectToConnectionServer(void)
 
 	// Execute our statement
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';"); // SQL Debug Log
 	uint32 count = static_cast<uint32>(result->getRowCount());
 
 	// If we found them

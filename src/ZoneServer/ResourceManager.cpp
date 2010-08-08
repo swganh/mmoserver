@@ -65,6 +65,7 @@ mDBAsyncPool(sizeof(RMAsyncContainer))
 	// load resource types
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_ResourceTypes),
 		"SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM resource_template ORDER BY id");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM resource_template ORDER BY id"); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -264,6 +265,20 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 														" WHERE"
 														" (resources_spawn_config.planet_id = %u) AND"
 														" (resources.active = 1)",mZoneId);
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT resources.id,resources.name,resources.type_id,"
+				"resources.er,resources.cr,resources.cd,resources.dr,resources.fl,resources.hr,"
+				"resources.ma,resources.oq,resources.sr,resources.ut,resources.pe,"
+				"resources_spawn_config.noiseMapBoundsX1,resources_spawn_config.noiseMapBoundsX2,"
+				"resources_spawn_config.noiseMapBoundsY1,resources_spawn_config.noiseMapBoundsY2,"
+				"resources_spawn_config.noiseMapOctaves,resources_spawn_config.noiseMapFrequency,"
+				"resources_spawn_config.noiseMapPersistence,resources_spawn_config.noiseMapScale,"
+				"resources_spawn_config.noiseMapBias,"
+				"resources_spawn_config.unitsTotal,resources_spawn_config.unitsLeft"
+				" FROM resources"
+				" INNER JOIN resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
+				" WHERE"
+				" (resources_spawn_config.planet_id = %u) AND"
+				" (resources.active = 1)",mZoneId); // SQL Debug Log
 		}
 		break;
 
@@ -404,8 +419,8 @@ bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
 	if (it != mResourceIdMap.end() && resource->getCurrent() != 0)
 	{
 		asyncContainer->mCurrentResource = resource;
-		mDatabase->ExecuteSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u " 
-				"where resource_id = %"PRIu64"",amt ,resource->getId());	
+		mDatabase->ExecuteSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u where resource_id = %"PRIu64"",amt ,resource->getId());	
+		gLogger->log(LogManager::DEBUG, "SQL :: update resources_spawn_config set unitsLeft = unitsLeft - %u where resource_id = %"PRIu64"",amt ,resource->getId());	 // SQL Debug Log
 	}
 	else
 	{

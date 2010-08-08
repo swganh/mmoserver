@@ -167,6 +167,10 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
 									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 									,mZoneId,playerObject->getJediState(),playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+				,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+				,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+				,mZoneId,playerObject->getJediState(),playerObject->getId()); // SQL Debug Log
 			break;
 
 		case WMLogOut_No_LogOut:
@@ -183,6 +187,10 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
 									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 									,mZoneId,playerObject->getJediState(),playerObject->getId());
+				gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+					,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+					,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+					,mZoneId,playerObject->getJediState(),playerObject->getId()); // SQL Debug Log
 			}
 		}
 		break;
@@ -202,6 +210,10 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 						,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
 						,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 						,mZoneId,playerObject->getId()));
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+		,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+		,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+		,mZoneId,playerObject->getId())); // SQL Debug Log
 
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
 								",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
@@ -228,6 +240,31 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 								playerObject->getLanguage(),
 								playerObject->getGroupId(),
 								playerObject->getId()));
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
+		",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
+		",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
+		",character_flags=%u,states=%"PRIu64",language=%u, group_id=%"PRIu64" WHERE character_id=%"PRIu64"",
+		ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
+		ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
+		ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier(),	 //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
+		ham->mHealth.getWounds(),
+		ham->mStrength.getWounds(),
+		ham->mConstitution.getWounds(),
+		ham->mAction.getWounds(),
+		ham->mQuickness.getWounds(),
+		ham->mStamina.getWounds(),
+		ham->mMind.getWounds(),
+		ham->mFocus.getWounds(),
+		ham->mWillpower.getWounds(),
+		ham->getBattleFatigue(),
+		playerObject->getPosture(),
+		playerObject->getMoodId(),
+		playerObject->getTitle().getAnsi(),
+		playerObject->getPlayerFlags(),
+		playerObject->getState(),
+		playerObject->getLanguage(),
+		playerObject->getGroupId(),
+		playerObject->getId())); // SQL Debug Log
 
 
 	gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());

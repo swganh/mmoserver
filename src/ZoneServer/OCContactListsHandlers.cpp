@@ -123,6 +123,7 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
 	strcat(sql,end);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 
 }
 
@@ -173,6 +174,7 @@ void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,Obje
 	strcat(sql,end);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 
 		
 }
@@ -251,6 +253,7 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
 	strcat(sql,end);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 	
 }
 
@@ -301,6 +304,7 @@ void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,Obje
 	strcat(sql,end);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 	
 }
 

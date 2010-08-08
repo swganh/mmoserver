@@ -905,6 +905,7 @@ void PlayerObject::addBadge(uint32 badgeId)
         gMessageLib->SendSystemMessage(::common::OutOfBand("badge_n", "prose_grant", "", "", "", "", "badge_n", badge->getName().getAnsi()), this);
 
 		(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId); // SQL Debug Log
 
 		gLogger->log(LogManager::DEBUG,"Badge %u granted to %"PRIu64"",badgeId,mId);
 
@@ -1784,6 +1785,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
 						// Remove insurance.
 						tangibleObject->setInternalAttribute("insured","0");
 						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=0 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
+						gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value=0 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270); // SQL Debug Log
 
 						tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() & ~((uint32)4));
 
@@ -2041,6 +2043,7 @@ void PlayerObject::setParentIdIncDB(uint64 parentId)
 	mParentId = parentId; 
 
 	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId()); // SQL Debug Log
 }
 
 //=============================================================================

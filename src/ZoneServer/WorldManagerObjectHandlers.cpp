@@ -595,6 +595,10 @@ void WorldManager::destroyObject(Object* object)
 								,sp->mDirection.x,sp->mDirection.y,sp->mDirection.z,sp->mDirection.w
 								,sp->mPosition.x,sp->mPosition.y,sp->mPosition.z
 								,player->getId());
+							gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
+								,sp->mDirection.x,sp->mDirection.y,sp->mDirection.z,sp->mDirection.w
+								,sp->mPosition.x,sp->mPosition.y,sp->mPosition.z
+								,player->getId()); // SQL Debug Log	
 						}
 					}
 				}
@@ -1011,6 +1015,7 @@ void WorldManager::_loadAllObjects(uint64 parentId)
 				,mZoneId,parentId,mZoneId,parentId,mZoneId);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log	
 
 	//gConfig->read<float>("FillFactor"
 }

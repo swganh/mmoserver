@@ -174,7 +174,8 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
 	mMessageRouter->RouteMessage(message, connClient);
 
 	// Update the account record that the account is logged out.
-	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET loggedin=0 WHERE account_id=%u;", connClient->getAccountId());
+	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", 0, connClient->getAccountId());
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", 0, connClient->getAccountId()); // SQL Debug Log
 
 	// Client has disconnected.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
@@ -224,7 +225,6 @@ void ClientManager::handleDispatchMessage(uint32 opcode, Message* message, Conne
   }
 }
 
-
 //======================================================================================================================
 void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
@@ -243,7 +243,6 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
   }
 }
 
-
 //======================================================================================================================
 void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* message)
 {
@@ -256,6 +255,7 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
   // Start our auth query
   client->setState(CCSTATE_QueryAuth);
   mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+  gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId()); // SQL Debug Log
 }
 
 
@@ -265,6 +265,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
   uint64 characterId = message->getUint64();
 
   DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM characters WHERE id=%I64u;", characterId);
+  gLogger->log(LogManager::DEBUG, "SQL :: SELECT planet_id FROM characters WHERE id=%I64u;", characterId); // SQL Debug Log
 
   uint32 serverId;
   DataBinding* binding = mDatabase->CreateDataBinding(1);

@@ -266,11 +266,11 @@ void TravelMapHandler::_processTutorialTravelList(Message* message, DispatchClie
 	{
 		gMessageLib->sendStartingLocationList(
 			player,
-			tatooine, //Tatooine
-			corellia, //Corellia
-			talus, //Talus
-			rori, //Rori
-			naboo  //Naboo
+			tatooine,	//Tatooine
+			corellia,	//Corellia
+			talus,		//Talus
+			rori,		//Rori
+			naboo		//Naboo
 			);
 	}
 }

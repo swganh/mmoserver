@@ -98,10 +98,12 @@ mLocked(false)
 	mClusterId = gConfig->read<uint32>("ClusterId");
 	
 	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE galaxy SET status=1, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE galaxy SET status=1, last_update=NOW() WHERE galaxy_id=%u;", mClusterId); // SQL Debug Log
 
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
 	// In case of a crash, we need to cleanup the DB a little.
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET loggedin=0 WHERE loggedin=%u;", mClusterId);
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET loggedin=0 WHERE loggedin=%u;", mClusterId); // SQL Debug Log
 	mDatabase->DestroyResult(result);
 
 	// Status:  0=offline, 1=loading, 2=online
@@ -137,7 +139,8 @@ ConnectionServer::~ConnectionServer(void)
 	gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutting down...");
 
 	// Update our status for the LoginServer
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=0 WHERE galaxy_id=%u;",mClusterId));
+	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=0 WHERE galaxy_id=%u;", mClusterId));
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE galaxy SET status=0 WHERE galaxy_id=%u;", mClusterId); // SQL Debug Log
 
 	// We're shuttind down, so update the DB again.
 	_updateDBServerList(0);
@@ -195,6 +198,7 @@ void ConnectionServer::_updateDBServerList(uint32 status)
 {
 	// Execute our query
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='connection';", mServerService->getLocalAddress(), mServerService->getLocalPort(), status));
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='connection';", mServerService->getLocalAddress(), mServerService->getLocalPort(), status); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -206,10 +210,12 @@ void ConnectionServer::ToggleLock()
 	{
 		// Update our status for the LoginServer
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;", mClusterId));
+		gLogger->log(LogManager::DEBUG, "SQL :: UPDATE galaxy SET status=3, last_update=NOW() WHERE galaxy_id=%u;", mClusterId); // SQL Debug Log
 		gLogger->log(LogManager::INFORMATION,"Locking server to normal users");
 	} else {
 		// Update our status for the LoginServer
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;", mClusterId));
+		gLogger->log(LogManager::DEBUG, "SQL :: UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId); // SQL Debug Log
 		gLogger->log(LogManager::INFORMATION,"unlocking server to normal users");
 	}
 }

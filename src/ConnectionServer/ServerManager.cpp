@@ -131,7 +131,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 	int8 sql[500];
 	sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
 	DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
-	gLogger->log(LogManager::DEBUG, sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 	gLogger->logCont(LogManager::DEBUG,"\n");
 							
 	// If we found them
@@ -165,7 +165,8 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 			++mTotalConnectedServers;
 			if(mTotalConnectedServers == mTotalActiveServers)
 			{
-				mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
+				mDatabase->ExecuteSqlAsync(0, 0, "UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
+				gLogger->log(LogManager::DEBUG, "SQL :: UPDATE galaxy SET status=2, last_update=NOW() WHERE galaxy_id=%u;", mClusterId); // SQL Debug Log
 			}
 		}
 	}
@@ -210,6 +211,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
 		--mTotalConnectedServers;
 
 		mDatabase->ExecuteSqlAsync(0,0,"UPDATE galaxy SET status=1,last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
+		gLogger->log(LogManager::DEBUG, "SQL :: UPDATE galaxy SET status=1,last_update=NOW() WHERE galaxy_id=%u;", mClusterId); // SQL Debug Log
 	}
 
 	gLogger->log(LogManager::DEBUG,"Servermanager handle server down\n");
@@ -280,6 +282,7 @@ void ServerManager::_loadProcessAddressMap(void)
 
 	// retrieve our list of process addresses.
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;"); // SQL Debug Log
 
 	mTotalActiveServers = static_cast<uint32>(result->getRowCount());
 

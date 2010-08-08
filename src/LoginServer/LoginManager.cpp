@@ -81,6 +81,7 @@ void LoginManager::Process(void)
 	{
 		mLastStatusQuery = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
 		mDatabase->ExecuteProcedureAsync(this, (void*)1, "CALL swganh.sp_ReturnGalaxyStatus;");
+		gLogger->log(LogManager::DEBUG, "SQL :: CALL swganh.sp_ReturnGalaxyStatus;"); // SQL Debug Log
 	}
 
 	// Heartbeat once in awhile
@@ -112,6 +113,7 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
 
 	// Client has disconnected.  Update the db to show they are no longer authenticated.
 	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId()); // SQL Debug Log
 
 	LoginClientList::iterator iter = mLoginClientList.begin();
 
@@ -201,6 +203,7 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 		  // Execute our query
 		  client->setState(LCSTATE_QueryCharacterList);
 		  mDatabase->ExecuteProcedureAsync(this, ref, "CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId());
+		  gLogger->log(LogManager::DEBUG, "SQL :: CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId()); // SQL Debug Log
 		  break;
 		}
 	  case LCSTATE_QueryCharacterList:
@@ -300,6 +303,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
  // Setup an async query for checking authentication.
   client->setState(LCSTATE_QueryAuth);
   mDatabase->ExecuteProcedureAsync(this,client,sql);
+  gLogger->log(LogManager::DEBUG, "SQL :: ", sql); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -381,10 +385,12 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
 
   // Update the account record so we know they authenticated properly.
   mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET authenticated=1 WHERE account_id=%u;", client->getAccountId());
+  gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET authenticated=1 WHERE account_id=%u;", client->getAccountId()); // SQL Debug Log
 
   // Execute our query for sending the server list.
   client->setState(LCSTATE_QueryServerList);
   mDatabase->ExecuteProcedureAsync(this, (void*)client, "CALL swganh.sp_ReturnServerList;");
+  gLogger->log(LogManager::DEBUG, "SQL :: CALL swganh.sp_ReturnServerList;"); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -491,8 +497,8 @@ void LoginManager::_processDeleteCharacter(Message* message,LoginClient* client)
 	uint64 characterId = message->getUint64();
 
 	client->setState(LCSTATE_DeleteCharacter);
-	// mDatabase->ExecuteSqlAsync(this,(void*)client,"DELETE FROM characters WHERE id=%"PRIu64" AND galaxy_id=%u AND account_id=%u",characterId,galaxyId,client->getAccountId());
 	mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%"PRIu64"\')", characterId);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_CharacterDelete(\'%"PRIu64"\')", characterId); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -509,6 +515,7 @@ void LoginManager::_sendDeleteCharacterReply(uint32 result,LoginClient* client)
     // Set the state to the end state to prevent character deletion infinite loop.
     client->setState(LCSTATE_End);
 	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", client->getAccountId());
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET authenticated=0 WHERE account_id=%u;", client->getAccountId()); // SQL Debug Log
 }
 
 //======================================================================================================================

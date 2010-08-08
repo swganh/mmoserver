@@ -184,7 +184,7 @@ void TangibleObject::buildTanoCustomization(uint8 len)
 }
 
 //=============================================================================
-//assign the item a new custom name
+// assign the item a new custom name
 //
 void TangibleObject::setCustomNameIncDB(const int8* name)
 {
@@ -200,7 +200,7 @@ void TangibleObject::setCustomNameIncDB(const int8* name)
 }
 
 //=============================================================================
-//assign the item a new parentid
+// assign the item a new parentid
 //
 
 void TangibleObject::setParentIdIncDB(uint64 parentId)

@@ -116,7 +116,7 @@ mDatabase(0)
 
 
 	//increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'",zoneName);
+	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'", zoneName);
 
 	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 

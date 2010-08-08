@@ -95,6 +95,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Common\MockObjects\MockEvent.cpp" />
     <ClCompile Include="Common\TestByteBuffer.cpp" />
     <ClCompile Include="Common\TestCrc.cpp" />
     <ClCompile Include="Common\TestEvent.cpp" />
@@ -134,6 +135,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Common\MockObjects\MockEvent.h" />
     <ClInclude Include="Common\MockObjects\MockListener.h" />
     <ClInclude Include="Common\MockObjects\MockListenerAlt.h" />
     <ClInclude Include="Utils\MockObjects\MockActiveObjectImpl.h" />

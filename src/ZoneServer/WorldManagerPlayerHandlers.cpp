@@ -213,7 +213,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",playerObject->getParentId()
 		,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
 		,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-		,mZoneId,playerObject->getId())); // SQL Debug Log
+		,mZoneId,playerObject->getId()); // SQL Debug Log
 
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
 								",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
@@ -264,7 +264,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 		playerObject->getState(),
 		playerObject->getLanguage(),
 		playerObject->getGroupId(),
-		playerObject->getId())); // SQL Debug Log
+		playerObject->getId()); // SQL Debug Log
 
 
 	gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());

@@ -300,7 +300,7 @@ void ZoneServer::_updateDBServerList(uint32 status)
 {
 	// Update the DB with our status.  This must be synchronous as the connection server relies on this data.
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='%s';", mRouterService->getLocalAddress(), mRouterService->getLocalPort(), status, mZoneName.getAnsi()));
-	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='%s';", mRouterService->getLocalAddress(), mRouterService->getLocalPort(), status, mZoneName.getAnsi())); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='%s';", mRouterService->getLocalAddress(), mRouterService->getLocalPort(), status, mZoneName.getAnsi()); // SQL Debug Log
 }
 
 //======================================================================================================================

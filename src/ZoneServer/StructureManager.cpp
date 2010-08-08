@@ -218,7 +218,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 	StructureManagerAsyncContainer* asyncContainer;
 
 	asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Remove_Permission, 0);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"
+	mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_RemovePermissionList(%I64u,'%s','%s')",structureId,playerName,list.getAnsi());
 	gLogger->log(LogManager::DEBUG, "SQL :: select sf_RemovePermissionList(%I64u,'%s','%s')",structureId,playerName,list.getAnsi()); // SQL Debug Log
 	asyncContainer->mStructureId = structureId;
 	asyncContainer->mPlayerId = playerId;

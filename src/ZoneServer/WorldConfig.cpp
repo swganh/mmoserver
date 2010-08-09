@@ -178,7 +178,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 		int8 sql[255];
 		sprintf(sql,"SELECT csa.attribute,cs.value FROM config_server cs INNER JOIN config_server_attributes csa ON (csa.id = cs.config_attributes_id) WHERE cs.server_name like '%s' ",mZoneName.getAnsi());
 		mDatabase->ExecuteSqlAsync(this,NULL,sql);
-		gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log	
+		gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log	
 	}
 
 	mGroupMissionUpdateTime = gWorldConfig->getConfiguration<uint32>("Group_MissionUpdate_Time",10000);

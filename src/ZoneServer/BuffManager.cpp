@@ -347,7 +347,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
 	int8 sql[550];
 	sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %"PRIu64"", playerObject->getId());
 	mDatabase->ExecuteSqlAsync(this,envelope,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //=============================================================================
@@ -367,7 +367,7 @@ void BuffManager::LoadBuffAttributes(buffAsyncContainer* envelope)
 	int8 sql[550];
 	sprintf(sql, "SELECT type,initial,tick,final from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", envelope->player->getId(), envelope->buff->GetDBID());
 	mDatabase->ExecuteSqlAsync(this,temp,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //=============================================================================
@@ -431,7 +431,7 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 
 
 		mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-		gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+		gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 
 		int8 sql2[550];

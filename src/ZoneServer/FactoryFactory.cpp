@@ -370,7 +370,7 @@ void FactoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,FFQuery_MainData,client,id);
 
 	mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //the factories hopper is accessed - update the hoppers contents

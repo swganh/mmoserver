@@ -252,7 +252,7 @@ void ObjectController::_handleSetBiography(uint64 targetId,Message* message,Obje
 	strcat(sql,end);
 
 	mDatabase->ExecuteSqlAsync(0,0,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //======================================================================================================================

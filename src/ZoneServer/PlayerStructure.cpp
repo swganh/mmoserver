@@ -485,7 +485,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
 			strcat(sql,end);
 
 			gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 			gLogger->log(LogManager::DEBUG,"PlayerStructure::Rename Structure sql : %s", sql);
 

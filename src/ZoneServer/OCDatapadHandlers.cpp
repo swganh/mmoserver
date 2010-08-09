@@ -235,7 +235,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 	strcat(sql,restStr);
 
 	mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 	gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateChange,player);
 }

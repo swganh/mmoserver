@@ -165,7 +165,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 			int8 sql[250];
 			sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
 			mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 
 		}

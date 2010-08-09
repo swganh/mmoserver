@@ -220,7 +220,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 						" INNER JOIN schem_crc ON (draft_schematics_slots.schematic_id = schem_crc.crc)"
 						" INNER JOIN draft_schematics ON (schem_crc.object_string = draft_schematics.object_string)");
 			mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 
 			//gLogger->log(LogManager::DEBUG,"Started Loading Schematic Assembly Batches.");
@@ -231,7 +231,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 						" INNER JOIN draft_assembly_batches ON (draft_weights.assembly_batch_id = draft_assembly_batches.id)"
 						" ORDER BY draft_weights.id");
 			mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 			//gLogger->log(LogManager::DEBUG,"Started Loading Schematic Experimentation Batches.");
 			// experimentbatches
@@ -243,7 +243,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 						" ORDER BY draft_experiment_batches.list_id ");
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 			//gLogger->log(LogManager::DEBUG,"Started Loading Schematic Crafting Batches.");
 			// craftingbatches
@@ -254,7 +254,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 						" INNER JOIN draft_schematics ON(draft_weights.id = draft_schematics.weightsbatch_id) "
 						" ORDER BY draft_craft_batches.list_id ");
 			mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: '%s'", sql); // SQL Debug Log
+			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 			if(!--mGroupLoadCount)
 			{

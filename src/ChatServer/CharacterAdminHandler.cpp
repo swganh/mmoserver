@@ -334,10 +334,10 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   strcat(sql, sql2);
 
   //Logging the character create sql for debugging purposes,beware this contains binary data
-  gLogger->log(LogManager::DEBUG,"CharacterCreate: %s", sql);
+  gLogger->log(LogManager::DEBUG,"SQL :: %s", sql);
 
   CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
-  mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+  mDatabase->ExecuteProcedureAsync(this, asyncContainer, sql);
 }
 
 //======================================================================================================================
@@ -350,18 +350,18 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 		case CAQuery_CreateCharacter:
 		{
 			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
+			binding->addField(DFT_uint64, 0, 8);
 
 			uint64 queryResult;
 			result->GetNextRow(binding,&queryResult);
 
 			if(queryResult >= 0x0000000200000000ULL)
 			{
-				_sendCreateCharacterSuccess(queryResult,asyncContainer->mClient);
+				_sendCreateCharacterSuccess(queryResult, asyncContainer->mClient);
 			}
 			else
 			{
-				_sendCreateCharacterFailed(static_cast<uint32>(queryResult),asyncContainer->mClient);
+				_sendCreateCharacterFailed(static_cast<uint32>(queryResult), asyncContainer->mClient);
 			}
 
 			mDatabase->DestroyDataBinding(binding);
@@ -664,7 +664,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 
 		default:
 			errorString = "name_declined_internal_error";
-			gLogger->log(LogManager::DEBUG,"CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: %u",errorCode);
+			gLogger->log(LogManager::DEBUG,"CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: %u", errorCode);
 			break;
 	}
 

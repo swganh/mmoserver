@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Object_Enums.h"
 #include "TangibleEnums.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 
 #include <glm/glm.hpp>

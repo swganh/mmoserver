@@ -28,12 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_BUFF_H
 #define ANH_BUFF_H
 
+#include <list>
+
 #include "BuffAttributeEnums.h"
 #include "BuffIconsEnum.h"
-
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
-
-#include <list>
 
 class CreatureObject;
 class BuffAttribute;

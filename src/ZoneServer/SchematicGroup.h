@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_SCHEMATICGROUP_H
 #define ANH_ZONESERVER_SCHEMATICGROUP_H
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include <vector>
 

@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define SRC_CHATSERVER_CHARACTERADMINHANDLER_H_
 
 #include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
 

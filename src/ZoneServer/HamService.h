@@ -46,7 +46,7 @@ private:
 
     virtual void onInitialize();
 
-    bool handleSuccessfulObjectControllerCommand(std::shared_ptr<::common::Event> triggered_event);
+    bool handleSuccessfulObjectControllerCommand(::common::IEventPtr triggered_event);
 };
 
 } // namespace zone

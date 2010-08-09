@@ -25,60 +25,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_CHATAVATARID_CHANNEL_H
-#define ANH_CHATAVATARID_CHANNEL_H
+/** \file CommonDeclspec.h
+ * \brief Defines the DLL Import/Export declspec macros for the Common library.
+ */
 
-#include "Utils/typedefs.h"
-#include "Utils/bstring.h"
+#ifndef SRC_COMMON_DECLSPEC_H_
+#define SRC_COMMON_DECLSPEC_H_
 
-class ChatSystemAvatar;
-class Player;
-
-#define gSystemAvatar ChatSystemAvatar::GetSingleton()
-
-//======================================================================================================================
-
-class ChatAvatarId
-{
-public:
-
-	ChatAvatarId(){};
-	~ChatAvatarId(){};
-
-	BString			getGalaxy() { return mGalaxy; }
-	void			setGalaxy(const BString name) { mGalaxy = name; }
-
-	Player*			getPlayer() { return mPlayer; }
-	void			setPlayer(Player* player);
-	void			setPlayer(const BString player);
-
-	virtual BString	getLoweredName() { return mName; }
-
-	BString	getPath();
-
-protected:
-	BString		mGalaxy;
-	BString		mName;
-	Player*		mPlayer;
-};
-
-//======================================================================================================================
-
-class ChatSystemAvatar : public ChatAvatarId
-{
-public: 
-
-	~ChatSystemAvatar(){}
-	static ChatSystemAvatar* GetSingleton();
-
-	BString getLoweredName();
-
-private:
-
-	ChatSystemAvatar() : ChatAvatarId() {};
-
-	static bool					mInsFlag;
-	static ChatSystemAvatar*	mSingleton;
-};
-
+// The following block is the standard way of creating macros which make exporting
+// from a DLL simpler. All files within this DLL are compiled with the COMMON_EXPORT
+// symbol defined on the command line. This symbol should not be defined on any project
+// that uses this DLL. This way any other project whose source files include this file see
+// COMMON_API functions as being imported from a DLL, whereas this DLL sees symbols
+// defined with this macro as being exported.
+#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
+#   ifdef COMMON_EXPORT
+#      define COMMON_API __declspec(dllexport)
+#   else
+#      define COMMON_API __declspec(dllimport)
+#   endif 
+#else
+#   define COMMON_API
 #endif
+
+#endif  // SRC_COMMON_DECLSPEC_H_

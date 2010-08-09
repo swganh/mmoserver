@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 #include <string>
 
+#include "Common/CommonDeclspec.h"
+
 namespace common {
 
 class HashString;
@@ -41,11 +43,11 @@ class HashString;
  * @param message The output stream to write the data to.
  * @param string The HashString to stream data from.
  */
-std::ostream& operator<<(std::ostream& message, const HashString& string);
+COMMON_API std::ostream& operator<<(std::ostream& message, const HashString& string);
 
 const char* const kWildCardHashString = "*";
 
-class HashString {
+class COMMON_API HashString {
 public:
     /**
      * This explicit constructor takes a human readable string and stores a hash of it.

@@ -94,5 +94,8 @@
     <ClInclude Include="ApplicationService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CommonDeclspec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

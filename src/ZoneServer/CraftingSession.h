@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include "math.h"
 #include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/bstring.h"
 #include "Utils/rand.h"
 #include "ObjectFactoryCallback.h"
 #include "CraftingEnums.h"

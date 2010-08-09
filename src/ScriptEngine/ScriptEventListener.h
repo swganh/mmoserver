@@ -28,11 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_SCRIPT_EVENT_LISTENER_H
 #define ANH_SCRIPT_EVENT_LISTENER_H
 
-#include "Utils/typedefs.h"
-
 #include <map>
 #include <string>
 #include <list>
+
+#include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 
 class Script;
 

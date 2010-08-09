@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 #include <string>
 
+#include "Common/CommonDeclspec.h"
+
 namespace common {
 
 /**
@@ -44,7 +46,7 @@ namespace common {
  * \param length The length of the source_string.
  * \returns A 32-bit checksum of the string.
  */
-uint32_t memcrc(char const * const source_string, uint32_t length);
+COMMON_API uint32_t memcrc(char const * const source_string, uint32_t length);
 
 /**
  * Calculates a 32-bit checksum of a std::string.
@@ -56,7 +58,7 @@ uint32_t memcrc(char const * const source_string, uint32_t length);
  * \param source_string The string to use as the basis for generating the checksum.
  * \returns A 32-bit checksum of the string.
  */
-uint32_t memcrc(const std::string& source_string);
+COMMON_API uint32_t memcrc(const std::string& source_string);
 
 }  // namespace common
 

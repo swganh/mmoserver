@@ -125,12 +125,6 @@ typedef uint64_t  	uint64;
 typedef int64_t		sint64;
 #endif
 
-#include "bstring.h"  // Bad bad bad.  Don't include headers in headers if at all possible.
-// unfotunately, this is needed here for base type funtionality.
-// This is also a circular dependency between bstring.h and typedefs.h
-// do not move the order of this include.  Needs to be after all the standard
-// type definitions.
-
 typedef unsigned int        SOCKET;
 
 // Windows and unix handle their long long specifiers differently since windows doesn't

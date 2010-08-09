@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 
 #include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 //#include "ZoneServer/TradeManager.h"
 
 class DispatchClient;

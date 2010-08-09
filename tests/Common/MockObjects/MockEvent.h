@@ -29,23 +29,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class MockEvent : public ::common::BaseEvent {
 public:
-    explicit MockEvent(uint64_t subject_id = 0, uint64_t timestamp = 0) 
-        : BaseEvent(subject_id, timestamp) 
+    explicit MockEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0) 
+        : BaseEvent(subject_id, timestamp, delay_ms)
     , some_event_val_(0) {}
-    
-    explicit MockEvent(int some_event_val, uint64_t subject_id = 0, uint64_t timestamp = 0) 
-        : BaseEvent(subject_id, timestamp)
-    , some_event_val_(some_event_val) {}
+
+    explicit MockEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
+        : BaseEvent(subject_id, timestamp, delay_ms, callback)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(::common::ByteBuffer& in) {
+        deserialize(in);
+    }
     
     ~MockEvent() {}
 
     const ::common::EventType& event_type() const { return event_type_; }
 
     int some_event_val() const { return some_event_val_; }
+    void some_event_val(int some_event_val) { some_event_val_ = some_event_val; }
 
 private:
     void onSerialize(::common::ByteBuffer& out) const {
         out << some_event_val_;
+    }
+
+    void onDeserialize(::common::ByteBuffer& in) {
+        some_event_val_ = in.Read<int>();
+    }
+
+    bool onConsume(bool handled) const {
+        return true;
     }
 
     static const ::common::EventType event_type_;

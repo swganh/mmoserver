@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <stdexcept>
 
+#include "Common/CommonDeclspec.h"
+
 namespace common {
 
 class ByteBuffer;
@@ -44,7 +46,7 @@ class ByteBuffer;
  * @param value The data value to write to the ByteBuffer.
  */
 template<typename T> 
-ByteBuffer& operator<<(ByteBuffer& buffer, const T& value);
+COMMON_API ByteBuffer& operator<<(ByteBuffer& buffer, const T& value);
 
 /**
  * Writes a ByteBuffer to an output stream in a human readable format.
@@ -52,7 +54,7 @@ ByteBuffer& operator<<(ByteBuffer& buffer, const T& value);
  * @param message The output stream to write the data to.
  * @param buffer The ByteBuffer to stream data from.
  */
-std::ostream& operator<<(std::ostream& message, const ByteBuffer& buffer);
+COMMON_API std::ostream& operator<<(std::ostream& message, const ByteBuffer& buffer);
 
 /**
  * This utility class is used to package various data types into a byte stream.
@@ -60,7 +62,7 @@ std::ostream& operator<<(std::ostream& message, const ByteBuffer& buffer);
  * Byte streams are commonly used for packets and binary files, this utility class
  * eases the task of reading and writing data to these resources.
  */
-class ByteBuffer
+class COMMON_API ByteBuffer
 {		
 public:
 	enum { SWAP_ENDIAN = 1 };

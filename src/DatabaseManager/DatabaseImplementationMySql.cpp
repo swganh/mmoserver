@@ -25,17 +25,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "DatabaseImplementationMySql.h"
-#include "DatabaseResult.h"
-#include "DataBinding.h"
-
-#include "LogManager/LogManager.h"
-
-#include <boost/lexical_cast.hpp>
-#include <mysql.h>
+#include "DatabaseManager/DatabaseImplementationMySql.h"
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+
+#include <boost/lexical_cast.hpp>
+
+#include <mysql.h>
+
+#include "Utils/bstring.h"
+#include "LogManager/LogManager.h"
+
+#include "DatabaseManager/DatabaseResult.h"
+#include "DatabaseManager/DataBinding.h"
 
 //======================================================================================================================
 DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema) :

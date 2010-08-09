@@ -31,7 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 #include <string>
 #include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 #include "ConfigManager/ConfigManager.h"
+#include "Common/CommonDeclspec.h"
 
 //======================================================================================================================
 
@@ -44,7 +46,7 @@ class Message;
 
 //======================================================================================================================
 
-class MessageFactory
+class COMMON_API MessageFactory
 {
 	public:
 

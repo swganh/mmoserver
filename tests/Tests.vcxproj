@@ -65,7 +65,8 @@
       <AdditionalOptions>/NODEFAULTLIB:libcmtd.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>"$(OutDir)$(TargetName)$(TargetExt)" --gtest_break_on_failure --gtest_output=xml:$(SolutionDir)build-aux\</Command>
+      <Command>cd "$(SolutionDir)bin\$(ConfigurationName)"
+"$(OutDir)$(TargetName)$(TargetExt)" --gtest_break_on_failure --gtest_output=xml:$(SolutionDir)build-aux\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -91,7 +92,8 @@
       <AdditionalOptions>/NODEFAULTLIB:libcmt.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>"$(OutDir)$(TargetName)$(TargetExt)" --gtest_break_on_failure --gtest_output=xml:$(SolutionDir)build-aux\</Command>
+      <Command>cd "$(SolutionDir)bin\$(ConfigurationName)"
+"$(OutDir)$(TargetName)$(TargetExt)" --gtest_break_on_failure --gtest_output=xml:$(SolutionDir)build-aux\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

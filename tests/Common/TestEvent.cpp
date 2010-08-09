@@ -31,8 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MockObjects/MockEvent.h"
 
 using ::common::ByteBuffer;
-using ::common::Event;
+using ::common::IEventPtr;
 using ::common::EventType;
+using ::common::EventSubject;
 
 namespace {
 
@@ -55,7 +56,7 @@ TEST(EventTests, EventHasNoSubjectByDefault) {
  */
 TEST(EventTests, CanSetAndRetrieveSubjectForEvent) {
     // Create some subject id number to use for testing and create the MockEvent instance with it.
-    uint64_t some_subject_id = 2234;
+    EventSubject some_subject_id = 2234;
     MockEvent test_event(some_subject_id);
 
     // Make sure that the event now has a subject and that it returns the correct value.
@@ -63,105 +64,102 @@ TEST(EventTests, CanSetAndRetrieveSubjectForEvent) {
     EXPECT_EQ(some_subject_id, test_event.subject());
 }
 
-TEST(EventTests, EventHasNoDataByDefault) {
-    Event my_event(EventType("my_event_type"));
+/*! Every event needs to pass through the event dispatcher in order to be 
+ * consumed by a listener. The event dispatcher recognizes that not all events
+ * are created equal and therefore uses an event's priority as a weight when
+ * determining where to place it in the processing queue. By default event's 
+ * should have no additional weight.
+ */
+TEST(EventTests, EventsHaveDefaultPriorityOfZero) {
+    MockEvent test_event;
 
-    EXPECT_EQ(false, my_event.HasData());
+    // Make sure that by default the priority is zero.
+    EXPECT_EQ(0, test_event.priority());
 }
 
-TEST(EventTests, CanSetDataForEvent) {
-    // Create a byte-buffer to serve as a container for the subject data.
-    std::unique_ptr<ByteBuffer> data(new ByteBuffer());
-    data->Write<std::string>("test_string");
+/*! Setting a priority for an event will most likely not be the responsibility
+ * of the source that's generating it, therefore some facility must exist for
+ * setting a priority for an event.
+ */
+TEST(EventTests, CanSetPriorityForEvent) {
+    MockEvent test_event;
 
-    // Create the event and ask it for the subject.
-    Event my_event(EventType("my_event_with_data"), nullptr, std::move(data));
-    std::unique_ptr<ByteBuffer> event_data = my_event.data();
-
-    // Make sure the subject that we get out is the one that was put in.
-    EXPECT_EQ("test_string", event_data->Read<std::string>());
-}
-
-TEST(EventTests, EventHasNoResponseByDefault) {
-    Event my_event(EventType("my_event_type"));
-
-    EXPECT_EQ(false, my_event.HasResponse());
-}
-
-TEST(EventTests, CanSetResponseForEvent) {
-    // Create a byte-buffer to serve as a container for the subject data.
-    std::unique_ptr<ByteBuffer> response(new ByteBuffer());
-    response->Write<std::string>("test_string");
-
-    // Create the event and ask it for the subject.
-    Event my_event(EventType("my_event_with_data"));
-    my_event.response(std::move(response));
-
-    std::unique_ptr<ByteBuffer> event_response = my_event.response();
-
-    // Make sure the subject that we get out is the one that was put in.
-    EXPECT_EQ("test_string", event_response->Read<std::string>());
+    // Set a priority value and make sure what we get out is what was put in.
+    test_event.priority(27);
+    EXPECT_EQ(27, test_event.priority());
 }
 
 TEST(EventTests, CanSetTimestampForEvent) {
     uint64_t timestamp = 100;
 
     // Set a timestamp for the event and make sure the value we get out is what was put in.
-    Event my_event(EventType("my_event_type"));
-    my_event.timestamp(timestamp);
+    MockEvent test_event;
+    test_event.timestamp(timestamp);
 
-    EXPECT_EQ(timestamp, my_event.timestamp());
-}
-
-TEST(EventTests, EventsHaveDefaultPriorityOfZero) {
-    Event my_event(EventType("my_event_type"));
-
-    // Make sure that by default the priority is zero.
-    EXPECT_EQ(0, my_event.priority());
-}
-
-TEST(EventTests, CanSetPriorityForEvent) {
-    Event my_event(EventType("my_event_type"));
-
-    // Set a priority value and make sure what we get out is what was put in.
-    my_event.priority(27);
-    EXPECT_EQ(27, my_event.priority());
+    EXPECT_EQ(timestamp, test_event.timestamp());
 }
 
 TEST(EventTests, ComparingEventsConsidersTimestamp) {
-    Event event1(EventType("event1"));
-    event1.timestamp(100);
+    // Create two events with differing timestamps.
+    EventSubject some_subject_id = 2234;
 
-    Event event2(EventType("event2"));
-    event2.timestamp(200);
+    MockEvent test_event1(some_subject_id, 100);
+    MockEvent test_event2(some_subject_id, 200);
 
-    EXPECT_EQ(true, CompareEventWeightLessThan(event1, event2));
-    EXPECT_EQ(true, CompareEventWeightGreaterThan(event2, event1));
+    EXPECT_EQ(true, CompareEventWeightLessThan(test_event1, test_event2));
+    EXPECT_EQ(true, CompareEventWeightGreaterThan(test_event2, test_event1));
 }
 
 TEST(EventTests, ComparingEventsConsidersPriority) {
-    Event event1(EventType("event1"));
-    event1.priority(1);
+    // Create two events with differing priorities.
+    MockEvent test_event1;
+    test_event1.priority(1);
 
-    Event event2(EventType("event2"));
-    event2.priority(2);
+    MockEvent test_event2;
+    test_event2.priority(2);
 
-    EXPECT_EQ(true, CompareEventWeightLessThan(event1, event2));
-    EXPECT_EQ(true, CompareEventWeightGreaterThan(event2, event1));
+    EXPECT_EQ(true, CompareEventWeightLessThan(test_event1, test_event2));
+    EXPECT_EQ(true, CompareEventWeightGreaterThan(test_event2, test_event1));
 }
+
 
 TEST(EventTests, CanSetCallbackForEvent) {
     std::shared_ptr<int> someval = std::make_shared<int>(0);
     
     // Create an event with a callback that updates our local value.
-    Event event1(EventType("callback_event"), [=] {
+    MockEvent test_event1(0, 0, 0, [=] {
         *someval = 1;
     });
 
-    event1.triggerCallback();
+    test_event1.consume(true);
     
     // Make sure the value was updated.
     EXPECT_EQ(1, *someval);
+}
+
+TEST(EventTests, CanDeserializeEventFromBuffer) {
+    // Create the buffer with the correct contents.
+    ByteBuffer buffer;
+    buffer.Write<uint32_t>(0xC3CEA198); // This is the swgcrc of "mock_event"
+    buffer.Write<int>(27); // Some random int value.
+
+    MockEvent test_event(buffer);
+
+    EXPECT_EQ(27, test_event.some_event_val());
+}
+
+TEST(EventTests, CanSerializeEventToBuffer) {
+    // Create the buffer with the correct contents.
+    ByteBuffer buffer;
+
+    MockEvent test_event;
+    test_event.some_event_val(27);
+
+    // Read the event into the buffer.
+    test_event.serialize(buffer);
+
+    EXPECT_EQ(0xC3CEA198, buffer.Read<uint32_t>());
+    EXPECT_EQ(27, buffer.Read<int>());
 }
 
 }

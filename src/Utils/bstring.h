@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_UTILS_BSTRING_H
 
 #include <vector>
+#include "Common/CommonDeclspec.h"
+#include "Utils/typedefs.h"
 
 class BString;
 

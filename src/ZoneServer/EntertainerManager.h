@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <list>
 
+#include "Utils/bstring.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ObjectFactoryCallback.h"
 #include "GroupManagerCallback.h"

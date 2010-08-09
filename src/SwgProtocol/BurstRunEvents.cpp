@@ -25,60 +25,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_CHATAVATARID_CHANNEL_H
-#define ANH_CHATAVATARID_CHANNEL_H
+#include "SwgProtocol/BurstRunEvents.h"
 
-#include "Utils/typedefs.h"
-#include "Utils/bstring.h"
+namespace swg_protocol {
 
-class ChatSystemAvatar;
-class Player;
+const ::common::EventType BurstRunEndEvent::event_type_ = ::common::EventType("BurstRunEndEvent");
 
-#define gSystemAvatar ChatSystemAvatar::GetSingleton()
+BurstRunEndEvent::BurstRunEndEvent(::common::ByteBuffer& in) {
+    deserialize(in);
+}
 
-//======================================================================================================================
+BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms) :
+::common::BaseEvent(subject_id, timestamp, delay_ms) {}
 
-class ChatAvatarId
-{
-public:
+BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
+    : ::common::BaseEvent(subject_id, timestamp, delay_ms, callback) {}
+    
+BurstRunEndEvent::~BurstRunEndEvent() {}
 
-	ChatAvatarId(){};
-	~ChatAvatarId(){};
+const ::common::EventType& BurstRunEndEvent::event_type() const { 
+    return event_type_; 
+}
 
-	BString			getGalaxy() { return mGalaxy; }
-	void			setGalaxy(const BString name) { mGalaxy = name; }
+void BurstRunEndEvent::onSerialize(::common::ByteBuffer& out) const {}
+void BurstRunEndEvent::onDeserialize(::common::ByteBuffer& in) {}
 
-	Player*			getPlayer() { return mPlayer; }
-	void			setPlayer(Player* player);
-	void			setPlayer(const BString player);
+bool BurstRunEndEvent::onConsume(bool handled) const {
+    return true;
+}
 
-	virtual BString	getLoweredName() { return mName; }
-
-	BString	getPath();
-
-protected:
-	BString		mGalaxy;
-	BString		mName;
-	Player*		mPlayer;
-};
-
-//======================================================================================================================
-
-class ChatSystemAvatar : public ChatAvatarId
-{
-public: 
-
-	~ChatSystemAvatar(){}
-	static ChatSystemAvatar* GetSingleton();
-
-	BString getLoweredName();
-
-private:
-
-	ChatSystemAvatar() : ChatAvatarId() {};
-
-	static bool					mInsFlag;
-	static ChatSystemAvatar*	mSingleton;
-};
-
-#endif
+}  // namespace swg_protocol

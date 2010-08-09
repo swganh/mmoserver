@@ -25,60 +25,36 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_CHATAVATARID_CHANNEL_H
-#define ANH_CHATAVATARID_CHANNEL_H
+/** \file SwgProtocol/BurstRunEvents.h
+ * \brief Defines the events used during the burst run command.
+ */
 
-#include "Utils/typedefs.h"
-#include "Utils/bstring.h"
+#ifndef SRC_SWGPROTOCOL_BURSTRUNEVENTS_H_
+#define SRC_SWGPROTOCOL_BURSTRUNEVENTS_H_
 
-class ChatSystemAvatar;
-class Player;
+#include "SwgProtocol/SwgProtocolDeclspec.h"
+#include "Common/Event.h"
 
-#define gSystemAvatar ChatSystemAvatar::GetSingleton()
+namespace swg_protocol {
 
-//======================================================================================================================
+class SWGPROTOCOL_API BurstRunEndEvent : public ::common::BaseEvent {
+    explicit BurstRunEndEvent(::common::ByteBuffer& in);
+    explicit BurstRunEndEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
+    BurstRunEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
+        
+    ~BurstRunEndEvent();
 
-class ChatAvatarId
-{
-public:
-
-	ChatAvatarId(){};
-	~ChatAvatarId(){};
-
-	BString			getGalaxy() { return mGalaxy; }
-	void			setGalaxy(const BString name) { mGalaxy = name; }
-
-	Player*			getPlayer() { return mPlayer; }
-	void			setPlayer(Player* player);
-	void			setPlayer(const BString player);
-
-	virtual BString	getLoweredName() { return mName; }
-
-	BString	getPath();
-
-protected:
-	BString		mGalaxy;
-	BString		mName;
-	Player*		mPlayer;
-};
-
-//======================================================================================================================
-
-class ChatSystemAvatar : public ChatAvatarId
-{
-public: 
-
-	~ChatSystemAvatar(){}
-	static ChatSystemAvatar* GetSingleton();
-
-	BString getLoweredName();
+    const ::common::EventType& event_type() const;
 
 private:
+    void onSerialize(::common::ByteBuffer& out) const;
+    void onDeserialize(::common::ByteBuffer& in);
 
-	ChatSystemAvatar() : ChatAvatarId() {};
+    bool onConsume(bool handled) const;
 
-	static bool					mInsFlag;
-	static ChatSystemAvatar*	mSingleton;
+    static const ::common::EventType event_type_;
 };
 
-#endif
+}  // namespace swg_protocol
+
+#endif  // SRC_SWGPROTOCOL_BURSTRUNEVENTS_H_

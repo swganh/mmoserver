@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/ActiveObject.h"
 #include "Utils/Singleton.h"
 #include "Common/Event.h"
+#include "Common/CommonDeclspec.h"
 
 
 namespace common {
@@ -48,7 +49,7 @@ namespace common {
 class EventDispatcher;
 #define gEventDispatcher ::utils::Singleton<::common::EventDispatcher>::Instance()
 
-typedef std::function<bool (std::shared_ptr<Event>)> EventListenerCallback;
+typedef std::function<bool (IEventPtr)> EventListenerCallback;
 
 // Use a HashString as the basis for EventListenerType's.
 typedef HashString EventListenerType;
@@ -61,9 +62,9 @@ typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
 typedef std::list<EventListener> EventListenerList;
 typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
-typedef std::priority_queue<std::shared_ptr<Event>, std::vector<std::shared_ptr<Event>>, CompareEventWeightLessThanPredicate> EventQueue;
+typedef std::priority_queue<IEventPtr, std::vector<IEventPtr>, CompareEventWeightLessThanPredicate> EventQueue;
 
-class EventDispatcher {
+class COMMON_API EventDispatcher {
 public:
     EventDispatcher();
     explicit EventDispatcher(uint64_t current_time);
@@ -112,14 +113,14 @@ public:
      *
      * \param triggered_event The triggered event to be delivered.
      */
-    void Notify(std::shared_ptr<Event> triggered_event);
+    void Notify(IEventPtr triggered_event);
 
     /**
      * Delivers an event immediately to all interested listeners.
      *
      * \param triggered_event The triggered event to be delivered.
      */
-    boost::unique_future<bool> Deliver(std::shared_ptr<Event> triggered_event);
+    boost::unique_future<bool> Deliver(IEventPtr triggered_event);
 
     /**
      * A check to see if there are any events waiting to be processed.
@@ -151,7 +152,7 @@ private:
     bool ValidateEventListenerType_(const EventListenerType& event_listener_type) const;
     bool AddEventType_(const EventType& event_type);    
     void Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type);
-    bool Deliver_(std::shared_ptr<Event> triggered_event);
+    bool Deliver_(IEventPtr triggered_event);
 
     EventTypeSet event_type_set_;
     

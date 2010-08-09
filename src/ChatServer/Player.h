@@ -28,8 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_CHATSERVER_PLAYER_H
 #define ANH_CHATSERVER_PLAYER_H
 
-#include "Utils/typedefs.h"
 #include <map>
+
+#include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 
 class DispatchClient;
 

@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <map>
 #include <functional>
 
+#include "Common/CommonDeclspec.h"
 
 //======================================================================================================================
 
@@ -53,7 +54,7 @@ typedef std::map<uint32, DispatchClient*>            AccountClientMap;
 
 //======================================================================================================================
 
-class MessageDispatch : public NetworkCallback
+class COMMON_API MessageDispatch : public NetworkCallback
 {
 	public:
 

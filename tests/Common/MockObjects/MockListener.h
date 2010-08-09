@@ -34,7 +34,7 @@ public:
 
     bool triggered() const { return triggered_; }
 
-    bool HandleEvent(std::shared_ptr<::common::Event> triggered_event) {
+    bool HandleEvent(::common::IEventPtr triggered_event) {
         triggered_event;
         triggered_ = true;
         return true;

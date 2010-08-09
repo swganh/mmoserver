@@ -32,7 +32,7 @@ public:
     MockListenerAlt() {}
     ~MockListenerAlt() {}
 
-    bool HandleEvent(std::shared_ptr<::common::Event> triggered_event) {
+    bool HandleEvent(::common::IEventPtr triggered_event) {
         triggered_event;
         return true;
     }

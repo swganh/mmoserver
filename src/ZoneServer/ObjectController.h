@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <set>
 #include <algorithm>
 #include <deque>
+#include "Utils/bstring.h"
 #include "Utils/PriorityVector.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ObjectFactoryCallback.h"

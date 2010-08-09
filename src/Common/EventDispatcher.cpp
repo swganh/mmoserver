@@ -87,7 +87,7 @@ void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_
         Disconnect_(*type_it, event_listener_type);
     }
 } ); }
-
+                                                                               
 boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(const EventType& event_type) {
     // Create a packaged task for retrieving the value.
     std::shared_ptr<boost::packaged_task<std::vector<EventListener>>> task = std::make_shared<boost::packaged_task<std::vector<EventListener>>>([=]()->std::vector<EventListener> {   
@@ -98,14 +98,14 @@ boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(c
 
         EventListenerMap::const_iterator map_it = event_listener_map_.find(event_type);
         
-        // no listerners currently for this event type, so sad
+        // no listeners currently for this event type, so sad
         if (map_it == event_listener_map_.end()) {
             return std::vector<EventListener>();
         }
         
         const EventListenerList& listener_list = map_it->second;
         
-        // there was, but is not now, any listerners currently for
+        // there was, but is not now, any listeners currently for
         // this event type, so sad
         if (listener_list.size() == 0) {
             return std::vector<EventListener>();
@@ -115,7 +115,7 @@ boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(c
         std::vector<EventListener> result;
             
         for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
-        	result.push_back(*list_it);
+            result.push_back(*list_it);
         }
         
         return result;
@@ -156,25 +156,16 @@ boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvent
     return task->get_future();
 }
 
-void EventDispatcher::Notify(std::shared_ptr<Event> triggered_event) {
+void EventDispatcher::Notify(IEventPtr triggered_event) {
     // Sanity check on the event itself.
     if (!triggered_event) return;
 
-    // Set the timestamp for this event.
-    triggered_event->timestamp(current_timestep_.load());
-
     active_.Send([=] {
         event_queue_[active_queue_].push(triggered_event);
-    } ); 
+    }); 
 }
 
-boost::unique_future<bool> EventDispatcher::Deliver(std::shared_ptr<Event> triggered_event) {
-    // Sanity check on the event itself.
-    if (triggered_event) {
-        // Set the timestamp for this event.
-        triggered_event->timestamp(current_timestep_.load());
-    }
-
+boost::unique_future<bool> EventDispatcher::Deliver(IEventPtr triggered_event) {
     // Create a packaged task for retrieving the value.
     std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
     
@@ -212,11 +203,11 @@ boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
 
         current_timestep_.store(new_timestep);
         
-	    int queue_to_process = active_queue_;
+        int queue_to_process = active_queue_;
         active_queue_ = (active_queue_ + 1) % kNumQueues;
 
         while(event_queue_[queue_to_process].size() > 0) {
-            std::shared_ptr<Event> event_to_process = event_queue_[queue_to_process].top(); 
+            IEventPtr event_to_process = event_queue_[queue_to_process].top(); 
             event_queue_[queue_to_process].pop();
 
             // Check to to see if the event is ready for processing yet. If so deliver it, if not put it on the new queue.
@@ -361,7 +352,7 @@ void EventDispatcher::Disconnect_(const EventType& event_type, const EventListen
     }
 }
 
-bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
+bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
     // Sanity check to make sure the event is valid.
     if (!triggered_event) {
         return false;
@@ -390,10 +381,10 @@ bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
 
     // If no listeners were found return false.
     if (listener_it == event_listener_map_.end()) {
-        // Callbacks shoud be called here if no specific listeners were found.
-        triggered_event->triggerCallback();
+        // Callbacks should be called here if no specific listeners were found.
+        triggered_event->consume(false);
 
-        std::shared_ptr<Event> next_event = triggered_event->next();
+        IEventPtr next_event = triggered_event->next();
 
         if (next_event) {
             Notify(next_event);
@@ -416,9 +407,9 @@ bool EventDispatcher::Deliver_(std::shared_ptr<Event> triggered_event) {
     }
 
     // If processing got this far then nothing failed so invoke the callback on the event.
-    triggered_event->triggerCallback();
+    triggered_event->consume(processed);
     
-    std::shared_ptr<Event> next_event = triggered_event->next();
+    IEventPtr next_event = triggered_event->next();
 
     if (next_event) {
         Notify(next_event);

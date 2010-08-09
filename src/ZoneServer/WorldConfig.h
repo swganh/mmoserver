@@ -28,11 +28,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_WORLDCONFIG_H
 #define ANH_ZONESERVER_WORLDCONFIG_H
 
-#include "Utils/typedefs.h"
-#include "DatabaseManager/DatabaseCallback.h"
 #include <map>
-#include "LogManager/LogManager.h"
 #include <boost/lexical_cast.hpp>
+
+#include "Utils/bstring.h"
+#include "Utils/typedefs.h"
+#include "LogManager/LogManager.h"
+#include "DatabaseManager/DatabaseCallback.h"
 
 #define	gWorldConfig	WorldConfig::getSingletonPtr()
 

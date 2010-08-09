@@ -73,14 +73,14 @@ template<typename T> ByteBuffer& operator<<(ByteBuffer& buffer, const T& value) 
 	return buffer;
 }
 
-template<> void ByteBuffer::SwapEndian_(uint16_t& data) const;
-template<> void ByteBuffer::SwapEndian_(uint32_t& data) const;
-template<> void ByteBuffer::SwapEndian_(uint64_t& data) const;
+template<> COMMON_API void ByteBuffer::SwapEndian_(uint16_t& data) const;
+template<> COMMON_API void ByteBuffer::SwapEndian_(uint32_t& data) const;
+template<> COMMON_API void ByteBuffer::SwapEndian_(uint64_t& data) const;
 
-template<> ByteBuffer& ByteBuffer::Write<std::string>(std::string data);
-template<> const std::string ByteBuffer::Read<std::string>(bool do_swap_endian);
-template<> ByteBuffer& ByteBuffer::Write<std::wstring>(std::wstring data);
-template<> const std::wstring ByteBuffer::Read<std::wstring>(bool do_swap_endian);
+template<> COMMON_API ByteBuffer& ByteBuffer::Write<std::string>(std::string data);
+template<> COMMON_API const std::string ByteBuffer::Read<std::string>(bool do_swap_endian);
+template<> COMMON_API ByteBuffer& ByteBuffer::Write<std::wstring>(std::wstring data);
+template<> COMMON_API const std::wstring ByteBuffer::Read<std::wstring>(bool do_swap_endian);
 
 }  // namespace common
 

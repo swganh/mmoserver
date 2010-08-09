@@ -73,8 +73,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cassert>
 
-using ::common::Event;
-using ::common::EventType;
+using ::common::IEventPtr;
 
 //=============================================================================
 
@@ -1717,6 +1716,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
     // Cooldown duration for the burst run command in seconds.
 	uint32_t cooldown_duration_sec = gWorldConfig->getConfiguration<uint32_t>("Player_BurstRun_CoolDown", 600);
     
+    /*
     // Create a delayed event for the end of the burst run and attach a custom
     // callback to be executed 60 seconds after being triggered.
     std::shared_ptr<Event> burst_end_event = std::make_shared<Event>(EventType("burst_run_end"), effect_duration_sec * 1000, [=] {
@@ -1756,4 +1756,5 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
     
     // Notify any curious listeners of the event.
     gEventDispatcher.Notify(burst_end_event);
+    */
 }

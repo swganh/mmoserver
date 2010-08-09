@@ -25,76 +25,73 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#include <string>
 #include <gtest/gtest.h>
-
 #include "Utils/ConcurrentQueue.h"
-#include "Common/Event.h"
 
-using ::common::Event;
-using ::common::EventType;
 using ::utils::ConcurrentQueue;
 
 TEST(ConcurrentQueueTests, CanPushAndPopItem) {
-    Event my_event(EventType("event"));
+    std::string test_string("test_string");
 
-    ConcurrentQueue<Event> event_queue;
+    ConcurrentQueue<std::string> string_queue;
 
-    event_queue.push(my_event);
+    string_queue.push(test_string);
 
-    Event out_event;
+    std::string out_string;
     
-    bool result = event_queue.pop(out_event);
+    bool result = string_queue.pop(out_string);
 
     EXPECT_EQ(true, result);
-    EXPECT_EQ(EventType("event"), out_event.event_type());
+    EXPECT_EQ(test_string, out_string);
 }
 
 TEST(ConcurrentQueueTests, CanPushAndPopMultipleItems) {
-    Event my_event1(EventType("event1"));
-    Event my_event2(EventType("event2"));
-    Event my_event3(EventType("event3"));
-
-    ConcurrentQueue<Event> event_queue;
-
-    event_queue.push(my_event1);
-    event_queue.push(my_event2);
-    event_queue.push(my_event3);
-
-    Event out_event;    
-    bool result = event_queue.pop(out_event);
-
-    EXPECT_EQ(true, result);
-    EXPECT_EQ(EventType("event1"), out_event.event_type());
-
-    result = event_queue.pop(out_event);
-
-    EXPECT_EQ(true, result);
-    EXPECT_EQ(EventType("event2"), out_event.event_type());
+    std::string test_string1("test_string1");
+    std::string test_string2("test_string2");
+    std::string test_string3("test_string3");
     
-    result = event_queue.pop(out_event);
+    ConcurrentQueue<std::string> string_queue;
+
+    string_queue.push(test_string1);
+    string_queue.push(test_string2);
+    string_queue.push(test_string3);
+
+    std::string out_string;    
+    bool result = string_queue.pop(out_string);
 
     EXPECT_EQ(true, result);
-    EXPECT_EQ(EventType("event3"), out_event.event_type());
+    EXPECT_EQ(test_string1, out_string);
+
+    result = string_queue.pop(out_string);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(test_string2, out_string);
+    
+    result = string_queue.pop(out_string);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(test_string3, out_string);
 }
 
 TEST(ConcurrentQueueTests, CanPushAfterPop) {   
-    Event my_event1(EventType("event1"));
-    Event my_event2(EventType("event2"));
-
-    ConcurrentQueue<Event> event_queue;
-
-    event_queue.push(my_event1);
-
-    Event out_event;    
-    bool result = event_queue.pop(out_event);
-
-    EXPECT_EQ(true, result);
-    EXPECT_EQ(EventType("event1"), out_event.event_type());
+    std::string test_string1("test_string1");
+    std::string test_string2("test_string2");
     
-    event_queue.push(my_event2);
+    ConcurrentQueue<std::string> string_queue;
 
-    result = event_queue.pop(out_event);
+    string_queue.push(test_string1);
+
+    std::string out_string;    
+    bool result = string_queue.pop(out_string);
 
     EXPECT_EQ(true, result);
-    EXPECT_EQ(EventType("event2"), out_event.event_type());
+    EXPECT_EQ(test_string1, out_string);
+    
+    string_queue.push(test_string2);
+
+    result = string_queue.pop(out_string);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(test_string2, out_string);
 }

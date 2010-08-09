@@ -30,11 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/NetworkClient.h"
 #include "Utils/typedefs.h"
+#include "Common/CommonDeclspec.h"
 
 
 //======================================================================================================================
 
-class DispatchClient : public NetworkClient
+class COMMON_API DispatchClient : public NetworkClient
 {
 	public:
   

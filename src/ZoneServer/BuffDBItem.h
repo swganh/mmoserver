@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_BUFFDBITEM_H
 #define ANH_BUFFDBITEM_H
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 
 class BuffDBItem

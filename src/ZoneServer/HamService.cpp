@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "LogManager/LogManager.h"
 
 using ::common::ApplicationService;
-using ::common::Event;
+using ::common::IEventPtr;
 using ::common::EventType;
 using ::common::EventListener;
 using ::common::EventListenerType;
@@ -46,7 +46,7 @@ void HamService::onInitialize() {
     event_dispatcher_.Connect(EventType("object_controller.pre_command_process"), EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handleSuccessfulObjectControllerCommand, this, std::placeholders::_1)));
 }
 
-bool HamService::handleSuccessfulObjectControllerCommand(std::shared_ptr<::common::Event> triggered_event) {
+bool HamService::handleSuccessfulObjectControllerCommand(IEventPtr triggered_event) {
     gLogger->log(LogManager::CRITICAL, "HAM Service processed successful ObjectController command");
 
     return true;

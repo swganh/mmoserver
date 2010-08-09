@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "atMacroString.h"
+#include "Common/atMacroString.h"
+
 #include <cstring>
 
 atMacroString::atMacroString(void)

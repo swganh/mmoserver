@@ -32,6 +32,8 @@
 #include <memory>
 #include <string>
 
+#include "Common/CommonDeclspec.h"
+
 namespace common {
 
 class ByteBuffer;
@@ -56,7 +58,7 @@ class ByteBuffer;
  *
  * Credit to Xenozephyr for information.
  */
-struct ProsePackage {
+struct COMMON_API ProsePackage {
     /**
      * Default constructor.
      *
@@ -104,7 +106,7 @@ struct ProsePackage {
 };
 
 // @todo fully document the WaypointPackage
-struct WaypointPackage {
+struct COMMON_API WaypointPackage {
     float position_x;
     float position_y;
     float position_z;
@@ -123,7 +125,7 @@ struct WaypointPackage {
  * @see ProsePackage
  * @see WaypointPackage
  */
-class OutOfBand {
+class COMMON_API OutOfBand {
 public:
     /// Default constructor, generates an empty OutOfBand package.
     OutOfBand();    

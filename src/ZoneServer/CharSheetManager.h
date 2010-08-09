@@ -30,12 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define gCharSheetManager	CharSheetManager::getSingletonPtr()
 
+#include <map>
+#include <vector>
+#include <boost/pool/pool.hpp>
 
 #include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
-
-#include <map>
-#include <boost/pool/pool.hpp>
 
 //=========================================================================================#
 

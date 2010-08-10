@@ -236,9 +236,27 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
   {
   case CCSTATE_QueryAuth:
     {
+	   // Retrieve the current number of characters for a client (synchronously)
+	  DatabaseResult* syncResult = mDatabase->ExecuteSynchSql("CALL sp_ReturnAccountCharacters(%u)", client->getAccountId());
+	  if (syncResult->getRowCount())
+	  {
+	    client->setCurrentChars(static_cast<uint32>(syncResult->getRowCount()));
+	  }
+
       _handleQueryAuth(client, result);
       break;
     }
+	case CCSTATE_AllowedChars:
+		{
+			DataBinding* binding = mDatabase->CreateDataBinding(1);
+			binding->addField(DFT_uint32,0,4);
+
+			uint32 queryResult;
+			result->GetNextRow(binding,&queryResult);
+			mDatabase->DestroyDataBinding(binding);
+
+			setAllowedChars(queryResult);
+		}
   default:
   	break;
   }
@@ -257,8 +275,8 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
   // Start our auth query
   client->setState(CCSTATE_QueryAuth);
   mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
-}
 
+}
 
 //======================================================================================================================
 void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* message)
@@ -395,7 +413,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   {
     // Update the account record that it is now logged in and last login date.
     mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET lastlogin=NOW(), loggedin=%u WHERE account_id=%u;", gConfig->read<uint32>("ClusterId"), client->getAccountId());
-
+	 
     // finally add them to our accountId map.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
 	mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));
@@ -413,11 +431,34 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
     adminMessage->setRouted(true);
     mMessageRouter->RouteMessage(adminMessage, client);
 
+	// grab the database result for characters allowed and store into client
+	// will get rid of this databinding stuff soon
+	// TODO: remove databindings
+
+	uint32 charsAllowed = 0;
+
+
+	DataBinding* mClientBinding = mDatabase->CreateDataBinding(1);
+	mClientBinding->addField(DFT_uint32, offsetof(ConnectionClient, mCharsAllowed), 8, 12);
+	uint32 count = result->getRowCount();
+	for (int i = 0; i < count; i++)
+	{
+		result->GetNextRow(mClientBinding, &charsAllowed);
+		client->setCharsAllowed(charsAllowed);
+	}
+	
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opClientPermissionsMessage);
-    gMessageFactory->addUint8(1);             // unknown
-    gMessageFactory->addUint8(1);             // Character creation allowed?
-    gMessageFactory->addUint8(1);
+    gMessageFactory->addUint8(1);             // Galaxy Available
+
+	// Checks the Clients Characters allowed against how many they have and sends the flag accordingly for char creation
+	if (client->getCharsAllowed() > client->getCurrentChars()){
+		gMessageFactory->addUint8(1);             // Character creation allowed
+	}
+	else{
+		gMessageFactory->addUint8(0);             // Character creation disabled
+	}
+    gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag
     Message* message = gMessageFactory->EndMessage();
 
     // Send our message to the client.
@@ -428,6 +469,12 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   {
     client->Disconnect(10);  // no idea if 10 is even a valid reason, just testing.
   }
+  
+}
+void ClientManager::_processAllowedChars(Message* message,ConnectionClient* client)
+{
+	client->setState(CCSTATE_AllowedChars);
+	mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT characters_allowed FROM account WHERE account_id = '%u'",client->getAccountId());
 }
 
 

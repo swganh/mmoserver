@@ -36,6 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 enum ConnectionClientState
 {
 	CCSTATE_QueryAuth,
+	CCSTATE_QueryChars,
+	CCSTATE_AllowedChars,
 	CCState_End
 };
 
@@ -51,10 +53,17 @@ class ConnectionClient : public NetworkClient
 		ConnectionClientState         getState(void)                            { return mState; }
 		uint32                        getAccountId(void)                        { return mAccountId; }
 		uint32                        getServerId(void)                         { return mServerId; }
+		uint32						  getCharsAllowed(void)						{ return mCharsAllowed;}
+		uint32						  getCurrentChars(void)						{ return mCurrentChars;}
 
 		void                          setState(ConnectionClientState state)     { mState = state; }
 		void                          setAccountId(uint32 id)                   { mAccountId = id; }
 		void                          setServerId(uint32 id)                    { mServerId = id; }
+		void                          setCharsAllowed(uint32 chars)				{ mCharsAllowed = chars; }
+		void                          setCurrentChars(uint32 currentChars)      { mCurrentChars = currentChars; }
+
+		uint32						  mCharsAllowed;
+		uint32						  mCurrentChars;
 
 	private:
 

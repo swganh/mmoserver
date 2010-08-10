@@ -606,6 +606,9 @@
     <ProjectReference Include="..\ScriptEngine\ScriptEngine.vcxproj">
       <Project>{1e105ba1-3ec9-411a-9cfe-ab279f6fc3a7}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\SwgProtocol\SwgProtocol.vcxproj">
+      <Project>{0a2cf1bc-a4eb-4113-825b-9bda52c00e1b}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
     </ProjectReference>

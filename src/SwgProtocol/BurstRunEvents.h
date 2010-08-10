@@ -39,11 +39,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace swg_protocol {
 
 class BurstRunEndEvent : public ::common::BaseEvent {
+public:
     SWGPROTOCOL_API explicit BurstRunEndEvent(::common::ByteBuffer& in);
     SWGPROTOCOL_API explicit BurstRunEndEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
     SWGPROTOCOL_API BurstRunEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
         
     SWGPROTOCOL_API ~BurstRunEndEvent();
+
+    SWGPROTOCOL_API const ::common::EventType& event_type() const;
+
+private:
+    void onSerialize(::common::ByteBuffer& out) const;
+    void onDeserialize(::common::ByteBuffer& in);
+
+    bool onConsume(bool handled) const;
+
+    static const ::common::EventType event_type_;
+};
+
+class BurstRunCooldownEndEvent : public ::common::BaseEvent {
+public:
+    SWGPROTOCOL_API explicit BurstRunCooldownEndEvent(::common::ByteBuffer& in);
+    SWGPROTOCOL_API explicit BurstRunCooldownEndEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
+    SWGPROTOCOL_API BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
+        
+    SWGPROTOCOL_API ~BurstRunCooldownEndEvent();
 
     SWGPROTOCOL_API const ::common::EventType& event_type() const;
 

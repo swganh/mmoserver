@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace swg_protocol {
 
 const ::common::EventType BurstRunEndEvent::event_type_ = ::common::EventType("BurstRunEndEvent");
+const ::common::EventType BurstRunCooldownEndEvent::event_type_ = ::common::EventType("BurstRunCooldownEndEvent");
 
 BurstRunEndEvent::BurstRunEndEvent(::common::ByteBuffer& in) {
     deserialize(in);
@@ -51,6 +52,29 @@ void BurstRunEndEvent::onSerialize(::common::ByteBuffer& out) const {}
 void BurstRunEndEvent::onDeserialize(::common::ByteBuffer& in) {}
 
 bool BurstRunEndEvent::onConsume(bool handled) const {
+    return true;
+}
+
+BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(::common::ByteBuffer& in) {
+    deserialize(in);
+}
+
+BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms) :
+::common::BaseEvent(subject_id, timestamp, delay_ms) {}
+
+BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
+    : ::common::BaseEvent(subject_id, timestamp, delay_ms, callback) {}
+    
+BurstRunCooldownEndEvent::~BurstRunCooldownEndEvent() {}
+
+const ::common::EventType& BurstRunCooldownEndEvent::event_type() const { 
+    return event_type_; 
+}
+
+void BurstRunCooldownEndEvent::onSerialize(::common::ByteBuffer& out) const {}
+void BurstRunCooldownEndEvent::onDeserialize(::common::ByteBuffer& in) {}
+
+bool BurstRunCooldownEndEvent::onConsume(bool handled) const {
     return true;
 }
 

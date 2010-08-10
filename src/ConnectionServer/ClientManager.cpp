@@ -237,25 +237,20 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
   case CCSTATE_QueryAuth:
     {
 	   // Retrieve the current number of characters for a client (synchronously)
-	  DatabaseResult* syncResult = mDatabase->ExecuteSynchSql("CALL sp_ReturnAccountCharacters(%u)", client->getAccountId());
-	  if (syncResult->getRowCount())
-	  {
-	    client->setCurrentChars(static_cast<uint32>(syncResult->getRowCount()));
-	  }
-
       _handleQueryAuth(client, result);
       break;
     }
 	case CCSTATE_AllowedChars:
 		{
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0,4);
-
-			uint32 queryResult;
+			DataBinding* binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCharsAllowed), 4);
+			binding->addField(DFT_uint32, offsetof(MessageRoute, mCurrentChars), 4);
+			//uint32 queryResult;
 			result->GetNextRow(binding,&queryResult);
 			mDatabase->DestroyDataBinding(binding);
 
-			setAllowedChars(queryResult);
+			setAllowedChars(mCharsAllowed);
+			setCurrentChars(mCurrentChars);
 		}
   default:
   	break;
@@ -436,16 +431,6 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 	// TODO: remove databindings
 
 	uint32 charsAllowed = 0;
-
-
-	DataBinding* mClientBinding = mDatabase->CreateDataBinding(1);
-	mClientBinding->addField(DFT_uint32, offsetof(ConnectionClient, mCharsAllowed), 8, 12);
-	uint32 count = result->getRowCount();
-	for (int i = 0; i < count; i++)
-	{
-		result->GetNextRow(mClientBinding, &charsAllowed);
-		client->setCharsAllowed(charsAllowed);
-	}
 	
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opClientPermissionsMessage);
@@ -474,7 +459,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 void ClientManager::_processAllowedChars(Message* message,ConnectionClient* client)
 {
 	client->setState(CCSTATE_AllowedChars);
-	mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT characters_allowed FROM account WHERE account_id = '%u'",client->getAccountId());
+	mDatabase->ExecuteSqlAsync(this,(void*)client," SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u'",client->getAccountId());
 }
 
 

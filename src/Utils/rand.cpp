@@ -60,6 +60,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  and is highly recommended for speed and simplicity.
  */
 
+#include <stdlib.h>
+#include <assert.h>
+
+#include "rand.h"
+#include "clock.h"
+
 static unsigned int mwc1616_x = 1;
 static unsigned int mwc1616_y = 2;
 
@@ -73,12 +79,6 @@ unsigned int rand_mwc1616(void) {
     mwc1616_y = 30903 * (mwc1616_y & 0xffff) + (mwc1616_y >> 16);
     return (mwc1616_x<<16)+(mwc1616_y&0xffff);
 }
-
-#include <stdlib.h>
-#include <assert.h>
-
-#include "rand.h"
-#include "clock.h"
 
 //======================================================================================================================
 

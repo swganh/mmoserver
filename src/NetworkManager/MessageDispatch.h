@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <map>
 #include <functional>
 
-#include "Common/CommonDeclspec.h"
+#include "NetworkManager/declspec.h"
 
 //======================================================================================================================
 
@@ -54,32 +54,32 @@ typedef std::map<uint32, DispatchClient*>            AccountClientMap;
 
 //======================================================================================================================
 
-class COMMON_API MessageDispatch : public NetworkCallback
+class MessageDispatch : public NetworkCallback
 {
-	public:
+    public:
 
-		MessageDispatch(Service* service);
-		~MessageDispatch(void);
+        NET_API MessageDispatch(Service* service);
+        NET_API ~MessageDispatch(void);
 
-		void						Process(void);
+        NET_API void						Process(void);
 
-		void						RegisterMessageCallback(uint32 opcode, std::function<void (Message*,DispatchClient*)> callback);
-		void						UnregisterMessageCallback(uint32 opcode);
-		AccountClientMap*			getClientMap(){return(&mAccountClientMap);}
+        NET_API void						RegisterMessageCallback(uint32 opcode, std::function<void (Message*,DispatchClient*)> callback);
+        NET_API void						UnregisterMessageCallback(uint32 opcode);
+        NET_API AccountClientMap*			getClientMap(){return(&mAccountClientMap);}
 
-		// Inherited NetworkCallback
-		virtual NetworkClient*		handleSessionConnect(Session* session, Service* service);
-		virtual void				handleSessionDisconnect(NetworkClient* client);
-		virtual void				handleSessionMessage(NetworkClient* client, Message* message);
+        // Inherited NetworkCallback
+        NET_API virtual NetworkClient*		handleSessionConnect(Session* session, Service* service);
+        NET_API virtual void				handleSessionDisconnect(NetworkClient* client);
+        NET_API virtual void				handleSessionMessage(NetworkClient* client, Message* message);
 
-		// Sessionless clients
-		void						registerSessionlessDispatchClient(uint32 accountId);
-		void						unregisterSessionlessDispatchClient(uint32 accountId);
-	private:
+        // Sessionless clients
+        NET_API void						registerSessionlessDispatchClient(uint32 accountId);
+        NET_API void						unregisterSessionlessDispatchClient(uint32 accountId);
+    private:
 
-		Service*					mRouterService;
-		MessageCallbackMap			mMessageCallbackMap;
-		AccountClientMap			mAccountClientMap;
+        Service*					mRouterService;
+        MessageCallbackMap			mMessageCallbackMap;
+        AccountClientMap			mAccountClientMap;
         boost::recursive_mutex		mSessionMutex;
 };
 

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "SendSystemMailMessage.h"
-#include "Common/DispatchClient.h"
+#include "NetworkManager/DispatchClient.h"
 #include "MessageLib/MessageLib.h"
 
 SendSystemMailMessage::SendSystemMailMessage(){};

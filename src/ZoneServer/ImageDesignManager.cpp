@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseManager/Database.h"
 
-#include "Common/MessageFactory.h"
+#include "NetworkManager/MessageFactory.h"
 
 //======================================================================================================================
 //gets the information on a holoemote from the loaded db data

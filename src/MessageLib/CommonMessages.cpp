@@ -49,11 +49,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/ByteBuffer.h"
 #include "Common/atMacroString.h"
-#include "Common/DispatchClient.h"
-#include "Common/Message.h"
-#include "Common/MessageDispatch.h"
-#include "Common/MessageFactory.h"
-#include "Common/MessageOpcodes.h"
+#include "NetworkManager/DispatchClient.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageDispatch.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/MessageOpcodes.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -82,40 +82,40 @@ using ::common::OutOfBand;
 //
 bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const
 {
-	if(!object || !targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!object || !targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opSceneCreateObjectByCrc); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opSceneCreateObjectByCrc); 
 
-	if(!player)
-		mMessageFactory->addUint64(object->getId());
-	else
-		mMessageFactory->addUint64(dynamic_cast<PlayerObject*>(object)->getPlayerObjId());
+    if(!player)
+        mMessageFactory->addUint64(object->getId());
+    else
+        mMessageFactory->addUint64(dynamic_cast<PlayerObject*>(object)->getPlayerObjId());
 
-	// direction
-	mMessageFactory->addFloat(object->mDirection.x);
-	mMessageFactory->addFloat(object->mDirection.y);
-	mMessageFactory->addFloat(object->mDirection.z);
-	mMessageFactory->addFloat(object->mDirection.w);
+    // direction
+    mMessageFactory->addFloat(object->mDirection.x);
+    mMessageFactory->addFloat(object->mDirection.y);
+    mMessageFactory->addFloat(object->mDirection.z);
+    mMessageFactory->addFloat(object->mDirection.w);
 
-	// position
-	mMessageFactory->addFloat(object->mPosition.x);     
-	mMessageFactory->addFloat(object->mPosition.y);       
-	mMessageFactory->addFloat(object->mPosition.z);     
+    // position
+    mMessageFactory->addFloat(object->mPosition.x);     
+    mMessageFactory->addFloat(object->mPosition.y);       
+    mMessageFactory->addFloat(object->mPosition.z);     
 
-	if(!player)
-		mMessageFactory->addUint32(object->getModelString().getCrc());
-	else
-		mMessageFactory->addUint32(0x619bae21); // shared_player.iff
+    if(!player)
+        mMessageFactory->addUint32(object->getModelString().getCrc());
+    else
+        mMessageFactory->addUint32(0x619bae21); // shared_player.iff
 
-	mMessageFactory->addUint8(0);         
+    mMessageFactory->addUint8(0);         
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -124,18 +124,18 @@ bool MessageLib::sendCreateObjectByCRC(Object* object,const PlayerObject* const 
 // 
 bool MessageLib::sendEndBaselines(uint64 objectId,const PlayerObject* const targetObject) const
 {
-	if(!targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opSceneEndBaselines);   
-	mMessageFactory->addUint64(objectId);   
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opSceneEndBaselines);   
+    mMessageFactory->addUint64(objectId);   
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 2);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 2);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -145,57 +145,57 @@ bool MessageLib::sendEndBaselines(uint64 objectId,const PlayerObject* const targ
 // 
 bool MessageLib::sendDestroyObject(uint64 objectId, PlayerObject* targetObject)
 {
-	if(!targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opSceneDestroyObject);   
-	mMessageFactory->addUint64(objectId);  
-	mMessageFactory->addUint8(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opSceneDestroyObject);   
+    mMessageFactory->addUint64(objectId);  
+    mMessageFactory->addUint8(0);
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 3);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 3);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
 
 bool MessageLib::sendDestroyObject(uint64 objectId, CreatureObject* owner)
 {
-	if(!owner)
-	{
-		return(false);
-	}
+    if(!owner)
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opSceneDestroyObject);   
-	mMessageFactory->addUint64(objectId);  
-	mMessageFactory->addUint8(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opSceneDestroyObject);   
+    mMessageFactory->addUint64(objectId);  
+    mMessageFactory->addUint8(0);
 
-	_sendToInRange(mMessageFactory->EndMessage(), owner, 3, false);
+    _sendToInRange(mMessageFactory->EndMessage(), owner, 3, false);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
 // What is the use of "owner"? The info is send to the know Objects....
 bool MessageLib::sendDestroyObject_InRange(uint64 objectId, PlayerObject* const owner, bool self)
 {
-	if(!owner || !owner->isConnected())
-	{
-		return(false);
-	}
+    if(!owner || !owner->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opSceneDestroyObject);   
-	mMessageFactory->addUint64(objectId);  
-	mMessageFactory->addUint8(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opSceneDestroyObject);   
+    mMessageFactory->addUint64(objectId);  
+    mMessageFactory->addUint8(0);
 
-	_sendToInRange(mMessageFactory->EndMessage(), owner, 3,self);
+    _sendToInRange(mMessageFactory->EndMessage(), owner, 3,self);
 
-	return(true);
+    return(true);
 }
 
 //==============================================================================================================
@@ -204,19 +204,19 @@ bool MessageLib::sendDestroyObject_InRange(uint64 objectId, PlayerObject* const 
 //
 bool MessageLib::sendDestroyObject_InRangeofObject(Object* object)
 {
-	if(!object)
-	{
-		return(false);
-	}
+    if(!object)
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opSceneDestroyObject);   
-	mMessageFactory->addUint64(object->getId());  
-	mMessageFactory->addUint8(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opSceneDestroyObject);   
+    mMessageFactory->addUint64(object->getId());  
+    mMessageFactory->addUint8(0);
 
-	_sendToInRange(mMessageFactory->EndMessage(), object, 3,false);
+    _sendToInRange(mMessageFactory->EndMessage(), object, 3,false);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -225,63 +225,63 @@ bool MessageLib::sendDestroyObject_InRangeofObject(Object* object)
 //
 bool MessageLib::sendContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,const PlayerObject* const targetObject) const
 {
-	if(!targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateContainmentMessage);  
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateContainmentMessage);  
 
-	mMessageFactory->addUint64(objectId);  
-	mMessageFactory->addUint64(parentId);
-	mMessageFactory->addUint32(linkType);	
+    mMessageFactory->addUint64(objectId);  
+    mMessageFactory->addUint64(parentId);
+    mMessageFactory->addUint32(linkType);	
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 4);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
 //same with broadcast to in Range
 bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetObject)
 {
-	if(!targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateContainmentMessage);  
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateContainmentMessage);  
 
-	mMessageFactory->addUint64(objectId);  
-	mMessageFactory->addUint64(parentId);
-	mMessageFactory->addUint32(linkType);				
+    mMessageFactory->addUint64(objectId);  
+    mMessageFactory->addUint64(parentId);
+    mMessageFactory->addUint32(linkType);				
 
-	_sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
+    _sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
 
 bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,uint32 linkType,CreatureObject* targetObject)
 {
-	if(!targetObject)
-	{
-		return(false);
-	}
+    if(!targetObject)
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateContainmentMessage);  
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateContainmentMessage);  
 
-	mMessageFactory->addUint64(objectId);  
-	mMessageFactory->addUint64(parentId);
-	mMessageFactory->addUint32(linkType);				
+    mMessageFactory->addUint64(objectId);  
+    mMessageFactory->addUint64(parentId);
+    mMessageFactory->addUint32(linkType);				
 
-	_sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
+    _sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -290,17 +290,17 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
 //
 bool MessageLib::sendHeartBeat(DispatchClient* client)
 {
-	if(!client)
-	{
-		return(false);
-	}
+    if(!client)
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();         
-	mMessageFactory->addUint32(opHeartBeat); 
+    mMessageFactory->StartMessage();         
+    mMessageFactory->addUint32(opHeartBeat); 
 
-	client->SendChannelAUnreliable(mMessageFactory->EndMessage(), client->getAccountId(), CR_Client, 1);
+    client->SendChannelAUnreliable(mMessageFactory->EndMessage(), client->getAccountId(), CR_Client, 1);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -309,21 +309,21 @@ bool MessageLib::sendHeartBeat(DispatchClient* client)
 //
 bool MessageLib::sendOpenedContainer(uint64 objectId, PlayerObject* targetObject)
 {
-	if(!targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opOpenedContainer);  
-	mMessageFactory->addUint32(0xFFFFFFFF);  
-	mMessageFactory->addUint64(objectId);				
-	mMessageFactory->addUint16(0);
-	mMessageFactory->addUint8(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opOpenedContainer);  
+    mMessageFactory->addUint32(0xFFFFFFFF);  
+    mMessageFactory->addUint64(objectId);				
+    mMessageFactory->addUint16(0);
+    mMessageFactory->addUint8(0);
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 2);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 2);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -333,18 +333,18 @@ bool MessageLib::sendOpenedContainer(uint64 objectId, PlayerObject* targetObject
 void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 {
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateTransformMessage);          
-	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));     
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));      
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));      
-	mMessageFactory->addUint32(object->getInMoveCount()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateTransformMessage);          
+    mMessageFactory->addUint64(object->getId());
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));     
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));      
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));      
+    mMessageFactory->addUint32(object->getInMoveCount()); 
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
-	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,true);
+    _sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8,true);
 }
 
 //======================================================================================================================
@@ -353,24 +353,24 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
 //
 void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
 {
-	if(!object)
-	{
-		return;
-	}
+    if(!object)
+    {
+        return;
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
-	mMessageFactory->addUint64(object->getParentId());
-	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));     
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));    
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));    
-	mMessageFactory->addUint32(object->getInMoveCount()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
+    mMessageFactory->addUint64(object->getParentId());
+    mMessageFactory->addUint64(object->getId());
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));     
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));    
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));    
+    mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
-	_sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8);		
+    _sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,8);		
 }
 
 //======================================================================================================================
@@ -379,23 +379,23 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
 //
 void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* player)
 {
-	if(!object || !player || !player->isConnected())
-	{
-		return;
-	}
+    if(!object || !player || !player->isConnected())
+    {
+        return;
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateTransformMessage);          
-	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));     
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));      
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));      
-	mMessageFactory->addUint32(object->getInMoveCount()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateTransformMessage);          
+    mMessageFactory->addUint64(object->getId());
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));     
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));      
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));      
+    mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
-	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
+    _sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
 
 //======================================================================================================================
@@ -404,24 +404,24 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
 //
 void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, PlayerObject* player)
 {
-	if(!object || !player || !player->isConnected())
-	{
-		return;
-	}
+    if(!object || !player || !player->isConnected())
+    {
+        return;
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
-	mMessageFactory->addUint64(object->getParentId());
-	mMessageFactory->addUint64(object->getId());
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));     
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));    
-	mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));    
-	mMessageFactory->addUint32(object->getInMoveCount()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateTransformMessageWithParent);   
+    mMessageFactory->addUint64(object->getParentId());
+    mMessageFactory->addUint64(object->getId());
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));     
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));    
+    mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));    
+    mMessageFactory->addUint32(object->getInMoveCount()); 
             
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f)); 
 
-	_sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
+    _sendToInstancedPlayersUnreliable(mMessageFactory->EndMessage(), 8, player);
 }
 
 //======================================================================================================================
@@ -430,19 +430,19 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
 //
 bool MessageLib::sendChatServerStatus(uint8 unk1,uint8 unk2,DispatchClient* client)
 {
-	if(!client)
-	{
-		return(false);
-	}
+    if(!client)
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();    
-	mMessageFactory->addUint32(opChatServerStatus);
-	mMessageFactory->addUint8(unk1);             
-	mMessageFactory->addUint8(unk2);
+    mMessageFactory->StartMessage();    
+    mMessageFactory->addUint32(opChatServerStatus);
+    mMessageFactory->addUint8(unk1);             
+    mMessageFactory->addUint8(unk2);
 
-	client->SendChannelA(mMessageFactory->EndMessage(),client->getAccountId(),CR_Client,2);
+    client->SendChannelA(mMessageFactory->EndMessage(),client->getAccountId(),CR_Client,2);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -451,18 +451,18 @@ bool MessageLib::sendChatServerStatus(uint8 unk1,uint8 unk2,DispatchClient* clie
 //
 bool MessageLib::sendParameters(uint32 parameters,DispatchClient* client)
 {
-	if(!client)
-	{
-		return(false);
-	}
+    if(!client)
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opParametersMessage);   
-	mMessageFactory->addUint32(parameters);   
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opParametersMessage);   
+    mMessageFactory->addUint32(parameters);   
 
-	client->SendChannelA(mMessageFactory->EndMessage(), client->getAccountId(), CR_Client, 2);
+    client->SendChannelA(mMessageFactory->EndMessage(), client->getAccountId(), CR_Client, 2);
 
-	return(true);
+    return(true);
 }
 
 //=======================================================================================================================
@@ -471,29 +471,29 @@ bool MessageLib::sendParameters(uint32 parameters,DispatchClient* client)
 //
 bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
 {
-	if(!player || !player->isConnected())
-	{
-		return(false);
-	}
+    if(!player || !player->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opCmdStartScene);   
-	mMessageFactory->addUint8(0);             
-	mMessageFactory->addUint64(player->getId());           
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opCmdStartScene);   
+    mMessageFactory->addUint8(0);             
+    mMessageFactory->addUint64(player->getId());           
 
-	BString mapName = gWorldManager->getTrnFileThis();
-	mMessageFactory->addString(mapName);
+    BString mapName = gWorldManager->getTrnFileThis();
+    mMessageFactory->addString(mapName);
 
-	mMessageFactory->addFloat(player->mPosition.x);     
-	mMessageFactory->addFloat(player->mPosition.y);    
-	mMessageFactory->addFloat(player->mPosition.z);   
+    mMessageFactory->addFloat(player->mPosition.x);     
+    mMessageFactory->addFloat(player->mPosition.y);    
+    mMessageFactory->addFloat(player->mPosition.z);   
 
-	mMessageFactory->addString(player->getModelString());
-	mMessageFactory->addUint64(zoneId);
+    mMessageFactory->addString(player->getModelString());
+    mMessageFactory->addUint64(zoneId);
 
-	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 9);
+    (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 9);
 
-	return(true);
+    return(true);
 }
 
 //=======================================================================================================================
@@ -502,18 +502,18 @@ bool MessageLib::sendStartScene(uint64 zoneId,PlayerObject* player)
 //
 bool MessageLib::sendServerTime(uint64 time,DispatchClient* client)
 {
-	if(!client)
-	{
-		return(false);
-	}
+    if(!client)
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opServerTimeMessage);  
-	mMessageFactory->addUint64(time);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opServerTimeMessage);  
+    mMessageFactory->addUint64(time);
 
-	client->SendChannelA(mMessageFactory->EndMessage(), client->getAccountId(), CR_Client, 2);
+    client->SendChannelA(mMessageFactory->EndMessage(), client->getAccountId(), CR_Client, 2);
 
-	return(true);
+    return(true);
 }
 
 //=======================================================================================================================
@@ -522,17 +522,17 @@ bool MessageLib::sendServerTime(uint64 time,DispatchClient* client)
 //
 bool MessageLib::sendSceneReady(DispatchClient* client)
 {
-	if(!client)
-	{
-		return(false);
-	}
+    if(!client)
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opCmdSceneReady);  
+    mMessageFactory->StartMessage(); 
+    mMessageFactory->addUint32(opCmdSceneReady);  
 
-	client->SendChannelA(mMessageFactory->EndMessage(), client->getAccountId(), CR_Client, 1);
+    client->SendChannelA(mMessageFactory->EndMessage(), client->getAccountId(), CR_Client, 1);
 
-	return(true);
+    return(true);
 }
 
 //=======================================================================================================================
@@ -541,17 +541,17 @@ bool MessageLib::sendSceneReady(DispatchClient* client)
 //
 bool MessageLib::sendSceneReadyToChat(DispatchClient* client)
 {
-	if(!client)
-	{
-		return(false);
-	}
-	
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatNotifySceneReady);  
+    if(!client)
+    {
+        return(false);
+    }
+    
+    mMessageFactory->StartMessage(); 
+    mMessageFactory->addUint32(opChatNotifySceneReady);  
 
-	client->SendChannelA(mMessageFactory->EndMessage(), client->getAccountId(), CR_Chat, 4);
+    client->SendChannelA(mMessageFactory->EndMessage(), client->getAccountId(), CR_Chat, 4);
 
-	return(true);
+    return(true);
 }
 //=======================================================================================================================
 //
@@ -559,22 +559,22 @@ bool MessageLib::sendSceneReadyToChat(DispatchClient* client)
 //
 bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,PlayerObject* targetObject)
 {
-	if(!terminal || !targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!terminal || !targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	BString planet = gWorldManager->getPlanetNameThis();
+    BString planet = gWorldManager->getPlanetNameThis();
 
-	mMessageFactory->StartMessage();   
-	mMessageFactory->addUint32(opEnterTicketPurchaseModeMessage);  
-	mMessageFactory->addString(planet);
-	mMessageFactory->addString(terminal->getPosDescriptor());
-	mMessageFactory->addUint8(0);
+    mMessageFactory->StartMessage();   
+    mMessageFactory->addUint32(opEnterTicketPurchaseModeMessage);  
+    mMessageFactory->addString(planet);
+    mMessageFactory->addString(terminal->getPosDescriptor());
+    mMessageFactory->addUint8(0);
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 4);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 
@@ -621,21 +621,21 @@ bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const Ou
         return false;
     }
     
-	mMessageFactory->StartMessage(); 
-	mMessageFactory->addUint32(opChatSystemMessage);  
+    mMessageFactory->StartMessage(); 
+    mMessageFactory->addUint32(opChatSystemMessage);  
 
     // This determines the bitmask switch for where a message is displayed.
     if (chatbox_only) {
-	    mMessageFactory->addUint8(2);
+        mMessageFactory->addUint8(2);
     } else {
-	    mMessageFactory->addUint8(0);
+        mMessageFactory->addUint8(0);
     }
 
     if (custom_message.length()) {
-		mMessageFactory->addString(custom_message);
-		mMessageFactory->addUint32(0);		
+        mMessageFactory->addString(custom_message);
+        mMessageFactory->addUint32(0);		
     } else {
-		mMessageFactory->addUint32(0);		
+        mMessageFactory->addUint32(0);		
 
         const ByteBuffer* attachment = prose.Pack();
         mMessageFactory->addData(attachment->Data(), attachment->Size());
@@ -645,13 +645,13 @@ bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const Ou
     if (player) {
         // If the send_to_inrange flag was set then send out to everyone in-range of the player.
         if (send_to_inrange) {
-	        _sendToInRange(mMessageFactory->EndMessage(), player, 8, true);
+            _sendToInRange(mMessageFactory->EndMessage(), player, 8, true);
         } else {
-	        (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
+            (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
         }
     } else {
         // If no player was passed send the system message to everyone.
-	    _sendToAll(mMessageFactory->EndMessage(), 8, true);
+        _sendToAll(mMessageFactory->EndMessage(), 8, true);
     }
 
     return true;
@@ -663,20 +663,20 @@ bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const Ou
 //
 bool MessageLib::sendErrorMessage(PlayerObject* playerObject,BString errType,BString errMsg,uint8 fatal)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();        
-	mMessageFactory->addUint32(opErrorMessage);  
-	mMessageFactory->addString(errType);
-	mMessageFactory->addString(errMsg);
-	mMessageFactory->addUint8(fatal);				 
+    mMessageFactory->StartMessage();        
+    mMessageFactory->addUint32(opErrorMessage);  
+    mMessageFactory->addString(errType);
+    mMessageFactory->addString(errMsg);
+    mMessageFactory->addUint8(fatal);				 
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 3);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 3);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -685,24 +685,24 @@ bool MessageLib::sendErrorMessage(PlayerObject* playerObject,BString errType,BSt
 //
 void MessageLib::sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType, PlayerObject* player)
 {
-	mMessageFactory->StartMessage();    
-	mMessageFactory->addUint32(opServerWeatherMessage);  
-	mMessageFactory->addUint32(weatherType);           
-	mMessageFactory->addFloat(cloudVec.x);
-	mMessageFactory->addFloat(cloudVec.y);
-	mMessageFactory->addFloat(cloudVec.z);
+    mMessageFactory->StartMessage();    
+    mMessageFactory->addUint32(opServerWeatherMessage);  
+    mMessageFactory->addUint32(weatherType);           
+    mMessageFactory->addFloat(cloudVec.x);
+    mMessageFactory->addFloat(cloudVec.y);
+    mMessageFactory->addFloat(cloudVec.z);
 
-	if(player)
-	{
-		if(player->isConnected())
-		{
-			(player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,3);
-		}
-	}
-	else
-	{
-		_sendToAll(mMessageFactory->EndMessage(),3);
-	}
+    if(player)
+    {
+        if(player->isConnected())
+        {
+            (player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,3);
+        }
+    }
+    else
+    {
+        _sendToAll(mMessageFactory->EndMessage(),3);
+    }
 }
 
 //======================================================================================================================
@@ -711,19 +711,19 @@ void MessageLib::sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType
 //
 bool MessageLib::sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject)
 {
-	if(!cellObject || !playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!cellObject || !playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();     
-	mMessageFactory->addUint32(opUpdateCellPermissionMessage);  
-	mMessageFactory->addUint8(permission);
-	mMessageFactory->addUint64(cellObject->getId());
+    mMessageFactory->StartMessage();     
+    mMessageFactory->addUint32(opUpdateCellPermissionMessage);  
+    mMessageFactory->addUint8(permission);
+    mMessageFactory->addUint64(cellObject->getId());
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 3);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 3);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -732,35 +732,35 @@ bool MessageLib::sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 pe
 //
 bool MessageLib::sendPlayClientEffectObjectMessage(BString effect,BString location,Object* effectObject,PlayerObject* playerObject)
 {
-	if((playerObject && !playerObject->isConnected()) || !effectObject)
-	{
-		return(false);	
-	}
+    if((playerObject && !playerObject->isConnected()) || !effectObject)
+    {
+        return(false);	
+    }
 
-	mMessageFactory->StartMessage();   
-	mMessageFactory->addUint32(opPlayClientEffectObjectMessage);
-	mMessageFactory->addString(effect);
-	mMessageFactory->addString(location);
-	mMessageFactory->addUint64(effectObject->getId());
-	mMessageFactory->addUint16(0); 
+    mMessageFactory->StartMessage();   
+    mMessageFactory->addUint32(opPlayClientEffectObjectMessage);
+    mMessageFactory->addString(effect);
+    mMessageFactory->addString(location);
+    mMessageFactory->addUint64(effectObject->getId());
+    mMessageFactory->addUint16(0); 
 
-	if(playerObject)
-	{
-		(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
-	}
-	else
-	{
-		if(PlayerObject* playerTargetObject = dynamic_cast<PlayerObject*>(effectObject))
-		{
-			_sendToInRange(mMessageFactory->EndMessage(),effectObject,5);
-		}
-		else
-		{
-			_sendToInRange(mMessageFactory->EndMessage(),effectObject,5,false);
-		}
-	}
+    if(playerObject)
+    {
+        (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+    }
+    else
+    {
+        if(PlayerObject* playerTargetObject = dynamic_cast<PlayerObject*>(effectObject))
+        {
+            _sendToInRange(mMessageFactory->EndMessage(),effectObject,5);
+        }
+        else
+        {
+            _sendToInRange(mMessageFactory->EndMessage(),effectObject,5,false);
+        }
+    }
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -769,26 +769,26 @@ bool MessageLib::sendPlayClientEffectObjectMessage(BString effect,BString locati
 //
 bool MessageLib::sendPlayClientEffectLocMessage(BString effect, const glm::vec3& pos, PlayerObject* targetObject)
 {
-	if(!targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	BString		planet = gWorldManager->getPlanetNameThis();
+    BString		planet = gWorldManager->getPlanetNameThis();
 
-	mMessageFactory->StartMessage();            
-	mMessageFactory->addUint32(opPlayClientEffectLocMessage);
-	mMessageFactory->addString(effect);
-	mMessageFactory->addString(planet);
-	mMessageFactory->addFloat(pos.x);
-	mMessageFactory->addFloat(pos.y);
-	mMessageFactory->addFloat(pos.z);
-	mMessageFactory->addUint64(0);
-	mMessageFactory->addUint32(0); 
+    mMessageFactory->StartMessage();            
+    mMessageFactory->addUint32(opPlayClientEffectLocMessage);
+    mMessageFactory->addString(effect);
+    mMessageFactory->addString(planet);
+    mMessageFactory->addFloat(pos.x);
+    mMessageFactory->addFloat(pos.y);
+    mMessageFactory->addFloat(pos.z);
+    mMessageFactory->addUint64(0);
+    mMessageFactory->addUint32(0); 
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 8);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 8);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -797,58 +797,58 @@ bool MessageLib::sendPlayClientEffectLocMessage(BString effect, const glm::vec3&
 //
 ResourceLocation MessageLib::sendSurveyMessage(uint16 range,uint16 points,CurrentResource* resource,PlayerObject* targetObject)
 {
-	if(!resource || !targetObject || !targetObject->isConnected())
-	{
-		return(ResourceLocation());
-	}
+    if(!resource || !targetObject || !targetObject->isConnected())
+    {
+        return(ResourceLocation());
+    }
 
-	float				posX,posZ,ratio;	
-	ResourceLocation	highestDist;
+    float				posX,posZ,ratio;	
+    ResourceLocation	highestDist;
 
-	// init to lowest possible value
-	uint8		 step		= range / (points - 1);
-	highestDist.ratio		= -1.0f;
+    // init to lowest possible value
+    uint8		 step		= range / (points - 1);
+    highestDist.ratio		= -1.0f;
 
-	// using mY of highest ratio vector, to determine if resource actually was found
-	highestDist.position.y = 0.0f;
+    // using mY of highest ratio vector, to determine if resource actually was found
+    highestDist.position.y = 0.0f;
 
-	range = (range >> 1);
+    range = (range >> 1);
 
-	mMessageFactory->StartMessage();         
-	mMessageFactory->addUint32(opSurveyMessage);   
+    mMessageFactory->StartMessage();         
+    mMessageFactory->addUint32(opSurveyMessage);   
 
-	mMessageFactory->addUint32(points*points);
+    mMessageFactory->addUint32(points*points);
 
-	for(int16 i = -range;i <= range;i+=step)
-	{
-		for(int16 j = -range;j <= range;j+=step)
-		{
-			posX	= targetObject->mPosition.x + (float)i;
-			posZ	= targetObject->mPosition.z + (float)j;
-			ratio	= resource->getDistribution((int)posX + 8192,(int)posZ + 8192);
+    for(int16 i = -range;i <= range;i+=step)
+    {
+        for(int16 j = -range;j <= range;j+=step)
+        {
+            posX	= targetObject->mPosition.x + (float)i;
+            posZ	= targetObject->mPosition.z + (float)j;
+            ratio	= resource->getDistribution((int)posX + 8192,(int)posZ + 8192);
 
-			if(ratio > highestDist.ratio)
-			{				
-				highestDist.position.x = posX;
-				highestDist.position.z = posZ;
-				highestDist.ratio = ratio;
-			}
+            if(ratio > highestDist.ratio)
+            {				
+                highestDist.position.x = posX;
+                highestDist.position.z = posZ;
+                highestDist.ratio = ratio;
+            }
 
-			mMessageFactory->addFloat(posX);
-			mMessageFactory->addFloat(0.0f);
-			mMessageFactory->addFloat(posZ);
-			mMessageFactory->addFloat(ratio);  
-		}
-	}
+            mMessageFactory->addFloat(posX);
+            mMessageFactory->addFloat(0.0f);
+            mMessageFactory->addFloat(posZ);
+            mMessageFactory->addFloat(ratio);  
+        }
+    }
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 2);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetObject->getAccountId(), CR_Client, 2);
 
-	if(highestDist.ratio >= 0.1f)
-	{
-		highestDist.position.y = 5.0f;
-	}
+    if(highestDist.ratio >= 0.1f)
+    {
+        highestDist.position.y = 5.0f;
+    }
 
-	return highestDist;
+    return highestDist;
 }
 
 //======================================================================================================================
@@ -857,46 +857,46 @@ ResourceLocation MessageLib::sendSurveyMessage(uint16 range,uint16 points,Curren
 //
 bool MessageLib::sendBadges(PlayerObject* srcObject,PlayerObject* targetObject)
 {
-	if(!srcObject || !targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!srcObject || !targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	uint32		badgeMap[15];
+    uint32		badgeMap[15];
 
-	for(uint32 i = 0;i < 15;i++)
-	{
-		memset(&badgeMap[i],0,sizeof(badgeMap[i]));
-	}
+    for(uint32 i = 0;i < 15;i++)
+    {
+        memset(&badgeMap[i],0,sizeof(badgeMap[i]));
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opBadgesResponseMessage);
-	mMessageFactory	->addUint64(srcObject->getId());
-	mMessageFactory->addUint32(15);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBadgesResponseMessage);
+    mMessageFactory	->addUint64(srcObject->getId());
+    mMessageFactory->addUint32(15);
 
-	BadgesList* badges = srcObject->getBadges();
+    BadgesList* badges = srcObject->getBadges();
 
-	BadgesList::iterator it = badges->begin();
+    BadgesList::iterator it = badges->begin();
 
-	while(it != badges->end())
-	{
-		uint32 index	= (uint32)floor((double)((*it)/32));
-		badgeMap[index] = badgeMap[index] ^ (1 << ((*it)%32));
+    while(it != badges->end())
+    {
+        uint32 index	= (uint32)floor((double)((*it)/32));
+        badgeMap[index] = badgeMap[index] ^ (1 << ((*it)%32));
 
-		++it;
-	}
+        ++it;
+    }
 
-	for(uint32 i = 0;i < 15;i++)
-	{
-		mMessageFactory->addUint32(badgeMap[i]);
-	}
+    for(uint32 i = 0;i < 15;i++)
+    {
+        mMessageFactory->addUint32(badgeMap[i]);
+    }
 
-	// unknown
-	mMessageFactory->addUint8(0);
+    // unknown
+    mMessageFactory->addUint8(0);
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,3);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,3);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -905,21 +905,21 @@ bool MessageLib::sendBadges(PlayerObject* srcObject,PlayerObject* targetObject)
 //
 bool MessageLib::sendPlayMusicMessage(uint32 soundId,PlayerObject* targetObject)
 {
-	if(!targetObject || !targetObject->isConnected())
-	{
-		return(false);
-	}
+    if(!targetObject || !targetObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opPlayMusicMessage);
-	mMessageFactory->addString(gWorldManager->getSound(soundId));
-	mMessageFactory->addUint64(0);
-	mMessageFactory->addUint32(1);
-	mMessageFactory->addUint8(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opPlayMusicMessage);
+    mMessageFactory->addString(gWorldManager->getSound(soundId));
+    mMessageFactory->addUint64(0);
+    mMessageFactory->addUint32(1);
+    mMessageFactory->addUint8(0);
 
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,5);
+    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -928,16 +928,16 @@ bool MessageLib::sendPlayMusicMessage(uint32 soundId,PlayerObject* targetObject)
 //
 bool MessageLib::sendPlayMusicMessage(uint32 soundId, Object* creatureObject)
 {
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opPlayMusicMessage);
-	mMessageFactory->addString(gWorldManager->getSound(soundId));
-	mMessageFactory->addUint64(0);
-	mMessageFactory->addUint32(1);
-	mMessageFactory->addUint8(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opPlayMusicMessage);
+    mMessageFactory->addString(gWorldManager->getSound(soundId));
+    mMessageFactory->addUint64(0);
+    mMessageFactory->addUint32(1);
+    mMessageFactory->addUint8(0);
 
-	_sendToInRange(mMessageFactory->EndMessage(),creatureObject,5,false);	
+    _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5,false);	
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -946,82 +946,82 @@ bool MessageLib::sendPlayMusicMessage(uint32 soundId, Object* creatureObject)
 //
 bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opCharacterSheetResponseMessage);  
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opCharacterSheetResponseMessage);  
 
-	mMessageFactory->addUint64(0);
+    mMessageFactory->addUint64(0);
 
-	if(playerObject->getBindPlanet() == -1)
-	{
-		mMessageFactory->addFloat(0);
-		mMessageFactory->addFloat(0);
-		mMessageFactory->addFloat(0);
-		mMessageFactory->addUint16(0);
-	}
-	else
-	{
-		glm::vec3 bindLoc = playerObject->getBindCoords();
+    if(playerObject->getBindPlanet() == -1)
+    {
+        mMessageFactory->addFloat(0);
+        mMessageFactory->addFloat(0);
+        mMessageFactory->addFloat(0);
+        mMessageFactory->addUint16(0);
+    }
+    else
+    {
+        glm::vec3 bindLoc = playerObject->getBindCoords();
 
-		mMessageFactory->addFloat(bindLoc.x);
-		mMessageFactory->addFloat(bindLoc.y);
-		mMessageFactory->addFloat(bindLoc.z);
-		BString bindPlanet(gWorldManager->getPlanetNameById(playerObject->getBindPlanet()));
-		mMessageFactory->addString(bindPlanet);
-	}
+        mMessageFactory->addFloat(bindLoc.x);
+        mMessageFactory->addFloat(bindLoc.y);
+        mMessageFactory->addFloat(bindLoc.z);
+        BString bindPlanet(gWorldManager->getPlanetNameById(playerObject->getBindPlanet()));
+        mMessageFactory->addString(bindPlanet);
+    }
 
-	// unknown (the unused bank position)
-	mMessageFactory->addUint64(0);
-	mMessageFactory->addUint32(0);
+    // unknown (the unused bank position)
+    mMessageFactory->addUint64(0);
+    mMessageFactory->addUint32(0);
 
-	// bank
-	Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+    // bank
+    Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-	if(!bank || bank->getPlanet() == -1)
-	{
-		mMessageFactory->addString(BString("unknown"));
-	}
-	else
-	{
-		mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->getPlanet())));
-	}
+    if(!bank || bank->getPlanet() == -1)
+    {
+        mMessageFactory->addString(BString("unknown"));
+    }
+    else
+    {
+        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->getPlanet())));
+    }
 
-	if(playerObject->getHomePlanet() == -1)
-	{
-		mMessageFactory->addFloat(0);
-		mMessageFactory->addFloat(0);
-		mMessageFactory->addFloat(0);
-		mMessageFactory->addUint16(0);
-	}
-	else
-	{
-		glm::vec3 homeLoc = playerObject->getHomeCoords();
+    if(playerObject->getHomePlanet() == -1)
+    {
+        mMessageFactory->addFloat(0);
+        mMessageFactory->addFloat(0);
+        mMessageFactory->addFloat(0);
+        mMessageFactory->addUint16(0);
+    }
+    else
+    {
+        glm::vec3 homeLoc = playerObject->getHomeCoords();
 
-		mMessageFactory->addFloat(homeLoc.x);
-		mMessageFactory->addFloat(homeLoc.y);
-		mMessageFactory->addFloat(homeLoc.z);
-		mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(playerObject->getHomePlanet())));
-	} 
+        mMessageFactory->addFloat(homeLoc.x);
+        mMessageFactory->addFloat(homeLoc.y);
+        mMessageFactory->addFloat(homeLoc.z);
+        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(playerObject->getHomePlanet())));
+    } 
 
-	mMessageFactory->addString(playerObject->getMarriage());
-	mMessageFactory->addUint32(playerObject->getLots());
+    mMessageFactory->addString(playerObject->getMarriage());
+    mMessageFactory->addUint32(playerObject->getLots());
 
-	// neutral
-	if(playerObject->getFaction().getCrc() == 0x1fdc3051)
-		mMessageFactory->addUint32(0);
-	else
-		mMessageFactory->addUint32(playerObject->getFaction().getCrc());
+    // neutral
+    if(playerObject->getFaction().getCrc() == 0x1fdc3051)
+        mMessageFactory->addUint32(0);
+    else
+        mMessageFactory->addUint32(playerObject->getFaction().getCrc());
 
-	// Faction State see wiki for details
-	mMessageFactory->addUint32(0);
+    // Faction State see wiki for details
+    mMessageFactory->addUint32(0);
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1030,18 +1030,18 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
 //
 bool MessageLib::sendDeleteItemMessage(PlayerObject* playerObject,uint64 ItemId)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opRemoveItemMessage);  
-	mMessageFactory->addUint64(ItemId);  
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opRemoveItemMessage);  
+    mMessageFactory->addUint64(ItemId);  
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1050,19 +1050,19 @@ bool MessageLib::sendDeleteItemMessage(PlayerObject* playerObject,uint64 ItemId)
 //
 bool MessageLib::sendBidAuctionResponseMessage(PlayerObject* playerObject, uint64 AuctionId, uint32 error)
 {	
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opBidAuctionResponseMessage);
-	mMessageFactory->addUint64(AuctionId);
-	mMessageFactory->addUint32(error);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBidAuctionResponseMessage);
+    mMessageFactory->addUint64(AuctionId);
+    mMessageFactory->addUint32(error);
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }			
 
 //======================================================================================================================
@@ -1071,18 +1071,18 @@ bool MessageLib::sendBidAuctionResponseMessage(PlayerObject* playerObject, uint6
 //
 bool MessageLib::sendAcceptTradeMessage(PlayerObject* playerObject)
 {	
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	//sets the accepted flag
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opAcceptTransactionMessage);  
+    //sets the accepted flag
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opAcceptTransactionMessage);  
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1091,18 +1091,18 @@ bool MessageLib::sendAcceptTradeMessage(PlayerObject* playerObject)
 //
 bool MessageLib::sendGiveMoneyMessage(PlayerObject* playerObject,uint32 Money)
 {	
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opGiveMoneyMessage);  
-	mMessageFactory->addUint32(Money);  
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opGiveMoneyMessage);  
+    mMessageFactory->addUint32(Money);  
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1111,17 +1111,17 @@ bool MessageLib::sendGiveMoneyMessage(PlayerObject* playerObject,uint32 Money)
 //
 bool MessageLib::sendUnacceptTradeMessage(PlayerObject* playerObject)
 {	
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opUnacceptTransactionMessage);  
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opUnacceptTransactionMessage);  
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1130,17 +1130,17 @@ bool MessageLib::sendUnacceptTradeMessage(PlayerObject* playerObject)
 //
 bool MessageLib::sendBeginVerificationMessage(PlayerObject* playerObject)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opBeginVerificationMessage);  
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opBeginVerificationMessage);  
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1149,17 +1149,17 @@ bool MessageLib::sendBeginVerificationMessage(PlayerObject* playerObject)
 //
 bool MessageLib::sendTradeCompleteMessage(PlayerObject* playerObject)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opTradeCompleteMessage);  
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opTradeCompleteMessage);  
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1168,17 +1168,17 @@ bool MessageLib::sendTradeCompleteMessage(PlayerObject* playerObject)
 //
 bool MessageLib::sendVerifyTradeMessage(PlayerObject* playerObject)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opVerifyTradeMessage);  
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opVerifyTradeMessage);  
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1187,17 +1187,17 @@ bool MessageLib::sendVerifyTradeMessage(PlayerObject* playerObject)
 //
 bool MessageLib::sendAbortTradeMessage(PlayerObject* playerObject)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opAbortTradeMessage);  
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opAbortTradeMessage);  
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1206,18 +1206,18 @@ bool MessageLib::sendAbortTradeMessage(PlayerObject* playerObject)
 //
 bool MessageLib::sendBeginTradeMessage(PlayerObject* targetPlayer,PlayerObject* srcObject)
 {
-	if(!srcObject || !targetPlayer || !targetPlayer->isConnected())
-	{
-		return(false);
-	}
+    if(!srcObject || !targetPlayer || !targetPlayer->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();      
-	mMessageFactory->addUint32(opBeginTradeMessage);  
-	mMessageFactory->addUint64(srcObject->getId());  
+    mMessageFactory->StartMessage();      
+    mMessageFactory->addUint32(opBeginTradeMessage);  
+    mMessageFactory->addUint64(srcObject->getId());  
 
-	(targetPlayer->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetPlayer->getAccountId(), CR_Client, 4);
+    (targetPlayer->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetPlayer->getAccountId(), CR_Client, 4);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1226,18 +1226,18 @@ bool MessageLib::sendBeginTradeMessage(PlayerObject* targetPlayer,PlayerObject* 
 //
 bool MessageLib::sendAddItemMessage(PlayerObject* targetPlayer,TangibleObject* object)
 {
-	if(!object || !targetPlayer || !targetPlayer->isConnected())
-	{
-		return(false);
-	}
+    if(!object || !targetPlayer || !targetPlayer->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opAddItemMessage);          
-	mMessageFactory->addUint64(object->getId());       
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opAddItemMessage);          
+    mMessageFactory->addUint64(object->getId());       
 
-	(targetPlayer->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetPlayer->getAccountId(), CR_Client, 5);
+    (targetPlayer->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetPlayer->getAccountId(), CR_Client, 5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1246,19 +1246,19 @@ bool MessageLib::sendAddItemMessage(PlayerObject* targetPlayer,TangibleObject* o
 //
 bool MessageLib::sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer,uint64 AuctionId,uint32 error)
 {
-	if(!targetPlayer || !targetPlayer->isConnected())
-	{
-		return(false);
-	}
+    if(!targetPlayer || !targetPlayer->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opCreateAuctionMessageResponseMessage);
-	mMessageFactory->addUint64(AuctionId);
-	mMessageFactory->addUint32(error);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opCreateAuctionMessageResponseMessage);
+    mMessageFactory->addUint64(AuctionId);
+    mMessageFactory->addUint32(error);
 
-	(targetPlayer->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetPlayer->getAccountId(),  CR_Client, 6);
+    (targetPlayer->getClient())->SendChannelA(mMessageFactory->EndMessage(), targetPlayer->getAccountId(),  CR_Client, 6);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1267,16 +1267,16 @@ bool MessageLib::sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer
 //
 bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uint32 linkType,PlayerObject* targetPlayer)
 {
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateContainmentMessage);  
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateContainmentMessage);  
 
-	mMessageFactory->addUint64(objectId);  
-	mMessageFactory->addUint64(parentId);
-	mMessageFactory->addUint32(linkType);				
+    mMessageFactory->addUint64(objectId);  
+    mMessageFactory->addUint64(parentId);
+    mMessageFactory->addUint32(linkType);				
 
-	_sendToInRange(mMessageFactory->EndMessage(),targetPlayer,4,true);		
+    _sendToInRange(mMessageFactory->EndMessage(),targetPlayer,4,true);		
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1286,16 +1286,16 @@ bool MessageLib::broadcastContainmentMessage(uint64 objectId,uint64 parentId,uin
 //
 bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentId,uint32 linkType)
 {
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opUpdateContainmentMessage);  
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opUpdateContainmentMessage);  
 
-	mMessageFactory->addUint64(targetObject->getId());  
-	mMessageFactory->addUint64(parentId);
-	mMessageFactory->addUint32(linkType);				
+    mMessageFactory->addUint64(targetObject->getId());  
+    mMessageFactory->addUint64(parentId);
+    mMessageFactory->addUint32(linkType);				
 
-	_sendToInRange(mMessageFactory->EndMessage(),targetObject,4,false);	
+    _sendToInRange(mMessageFactory->EndMessage(),targetObject,4,false);	
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1304,18 +1304,18 @@ bool MessageLib::broadcastContainmentMessage(Object* targetObject,uint64 parentI
 //
 bool MessageLib::sendUpdateTutorialRequest(PlayerObject* playerObject, BString request)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opNewbieTutorialRequest);  
-	mMessageFactory->addString(request);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opNewbieTutorialRequest);  
+    mMessageFactory->addString(request);
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1324,18 +1324,18 @@ bool MessageLib::sendUpdateTutorialRequest(PlayerObject* playerObject, BString r
 //
 bool MessageLib::sendOpenHolocron(PlayerObject* playerObject)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opOpenHolocronToPageMessage);  
-	mMessageFactory->addUint16(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opOpenHolocronToPageMessage);  
+    mMessageFactory->addUint16(0);
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1344,20 +1344,20 @@ bool MessageLib::sendOpenHolocron(PlayerObject* playerObject)
 //
 bool MessageLib::sendEnableHudElement(PlayerObject* playerObject, BString hudElement)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(0xCA375124);  
-	mMessageFactory->addString(hudElement);
-	mMessageFactory->addUint8(1);
-	mMessageFactory->addUint32(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(0xCA375124);  
+    mMessageFactory->addString(hudElement);
+    mMessageFactory->addUint8(1);
+    mMessageFactory->addUint32(0);
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1366,20 +1366,20 @@ bool MessageLib::sendEnableHudElement(PlayerObject* playerObject, BString hudEle
 //
 bool MessageLib::sendDisableHudElement(PlayerObject* playerObject, BString hudElement)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(0xCA375124);  
-	mMessageFactory->addString(hudElement);
-	mMessageFactory->addUint8(0);
-	mMessageFactory->addUint32(0);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(0xCA375124);  
+    mMessageFactory->addString(hudElement);
+    mMessageFactory->addUint8(0);
+    mMessageFactory->addUint32(0);
 
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -1388,15 +1388,15 @@ bool MessageLib::sendDisableHudElement(PlayerObject* playerObject, BString hudEl
 //
 bool MessageLib::sendLogout(PlayerObject* playerObject)
 {
-	if(!playerObject || !playerObject->isConnected())
-	{
-		return(false);
-	}
+    if(!playerObject || !playerObject->isConnected())
+    {
+        return(false);
+    }
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opLogoutMessage);  
-	
-	(playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opLogoutMessage);  
+    
+    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
 
-	return(true);
+    return(true);
 }

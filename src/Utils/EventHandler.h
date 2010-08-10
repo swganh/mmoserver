@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/ptr_container/ptr_map.hpp>
 #include <typeinfo>
 
+#include "Utils/declspec.h"
+
 
 //======================================================================================================================
 
@@ -44,7 +46,7 @@ class TypeInfo;
 // Event
 //
 
-class Event
+class UTILS_API Event
 {
 	public:
 
@@ -56,7 +58,7 @@ class Event
 // HandlerFunctionBase
 //
 
-class HandlerFunctionBase
+class UTILS_API HandlerFunctionBase
 {
 	public:
 
@@ -65,7 +67,7 @@ class HandlerFunctionBase
 
 	private:
 
-		virtual void call(const Event*) = 0;
+        virtual void call(const Event*) {}
 };
 
 //======================================================================================================================
@@ -100,9 +102,9 @@ class MemberFunctionHandler : public HandlerFunctionBase
 class EventHandler
 {
 public:
-	virtual ~EventHandler();
+	UTILS_API virtual ~EventHandler();
 
-	void handleEvent(const Event*);
+	UTILS_API void handleEvent(const Event*);
 
 	template <class T,class EventT>
 	void registerEventFunction(T*,void(T::*memFn)(const EventT*));
@@ -132,7 +134,7 @@ class TypeInfo
 {
 	public:
 
-        explicit TypeInfo(const std::type_info& info) : mTypeInfo(info) {};
+        explicit TypeInfo(const std::type_info& info) : mTypeInfo(info) {}
 
 		bool operator < (const TypeInfo& rhs) const
 		{

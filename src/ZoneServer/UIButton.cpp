@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "UIButton.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/MessageFactory.h"
 
 //================================================================================
 

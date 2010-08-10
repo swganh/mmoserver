@@ -16,12 +16,9 @@
     <ClCompile Include="BuildInfo.cpp" />
     <ClCompile Include="ByteBuffer.cpp" />
     <ClCompile Include="Crc.cpp" />
-    <ClCompile Include="DispatchClient.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="EventDispatcher.cpp" />
     <ClCompile Include="HashString.cpp" />
-    <ClCompile Include="MessageDispatch.cpp" />
-    <ClCompile Include="MessageFactory.cpp" />
     <ClCompile Include="OutOfBand.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -30,16 +27,11 @@
     <ClInclude Include="BuildInfo.h" />
     <ClInclude Include="ByteBuffer-Inl.h" />
     <ClInclude Include="ByteBuffer.h" />
-    <ClInclude Include="CommonDeclspec.h" />
+    <ClInclude Include="declspec.h" />
     <ClInclude Include="Crc.h" />
-    <ClInclude Include="DispatchClient.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventDispatcher.h" />
     <ClInclude Include="HashString.h" />
-    <ClInclude Include="Message.h" />
-    <ClInclude Include="MessageDispatch.h" />
-    <ClInclude Include="MessageFactory.h" />
-    <ClInclude Include="MessageOpcodes.h" />
     <ClInclude Include="OutOfBand.h" />
   </ItemGroup>
   <ItemGroup>
@@ -48,9 +40,6 @@
     </ProjectReference>
     <ProjectReference Include="..\LogManager\LogManager.vcxproj">
       <Project>{daca5015-e625-4cda-a634-89ded4a9516a}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\NetworkManager\NetworkManager.vcxproj">
-      <Project>{daa23959-260d-4ee1-bb7f-443100ff7d4e}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>

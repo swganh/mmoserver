@@ -29,20 +29,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_UTILS_RAND_H
 
 
-//======================================================================================================================
-void			seed_rand_mwc1616(unsigned int seed);
-unsigned int	rand_mwc1616(void);
-
-
-#include "typedefs.h"
 #include <cstdlib>
+#include "typedefs.h"
+#include "Utils/declspec.h"
+
+//======================================================================================================================
+UTILS_API void seed_rand_mwc1616(unsigned int seed);
+UTILS_API unsigned int rand_mwc1616(void);
+
 
 //==============================================================================================================================
 
 namespace Anh_Utils
 {
 	//==============================================================================================================================
-	class Random
+	class UTILS_API Random
 	{
 		public:
 

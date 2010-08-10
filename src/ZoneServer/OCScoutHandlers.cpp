@@ -33,8 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/Message.h"
 #include "ScoutManager.h"
 #include "ForageManager.h"
 #include "PlayerObject.h"
@@ -48,42 +48,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleHarvestCorpse(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	AttackableCreature* target = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    AttackableCreature* target = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	if(!playerObject || !playerObject->isConnected())
-		return;
+    if(!playerObject || !playerObject->isConnected())
+        return;
 
-	if(!target)
+    if(!target)
         gMessageLib->SendSystemMessage(::common::OutOfBand("internal_command_string", "target_not_creature"), playerObject);
 
-	BString cmdString;
-	message->getStringAnsi(cmdString);
+    BString cmdString;
+    message->getStringAnsi(cmdString);
 
-	int8 rawData[128];
+    int8 rawData[128];
 
-	int32 elementCount = sscanf(cmdString.getAnsi(), "%80s", rawData);
+    int32 elementCount = sscanf(cmdString.getAnsi(), "%80s", rawData);
 
-	if(elementCount == 0)
-	{
-		gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_ANY);
-	}
-	else if(elementCount == 1)
-	{
-		BString data(rawData);
-		data.toLower();
-		
-		if(data == "meat")
-			gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_MEAT);
-		else if(data == "bone")
-			gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_BONE);
-		else if(data == "hide")
-			gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_HIDE);
-	}
-	else
-	{
+    if(elementCount == 0)
+    {
+        gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_ANY);
+    }
+    else if(elementCount == 1)
+    {
+        BString data(rawData);
+        data.toLower();
+        
+        if(data == "meat")
+            gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_MEAT);
+        else if(data == "bone")
+            gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_BONE);
+        else if(data == "hide")
+            gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_HIDE);
+    }
+    else
+    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("internal_command_string", "no_resource"), playerObject);
-	}
+    }
 
 } 
 
@@ -103,9 +103,9 @@ void ObjectController::_handleMaskScent(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleForage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-	if(player)
-		gForageManager->startForage(player, ForageClass_Scout);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    if(player)
+        gForageManager->startForage(player, ForageClass_Scout);
 } 
 
 //=============================================================================================================================

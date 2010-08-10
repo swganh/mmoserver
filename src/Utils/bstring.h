@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_UTILS_BSTRING_H
 
 #include <vector>
-#include "Common/CommonDeclspec.h"
 #include "Utils/typedefs.h"
+#include "Utils/declspec.h"
 
 class BString;
 
@@ -49,7 +49,7 @@ enum BStringType
 
 //======================================================================================================================
 
-class BString
+class UTILS_API BString
 {
 public:
     BString();

@@ -31,17 +31,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "typedefs.h"
 #include <string>
 
+#include "Utils/declspec.h"
+
 
 //==============================================================================================================================
 
-uint64 swap64(uint64 value);
-std::string strRep(std::string a,std::string b,std::string c);
+UTILS_API uint64 swap64(uint64 value);
+UTILS_API std::string strRep(std::string a,std::string b,std::string c);
 
 namespace Anh_Utils
 {
-	int cmpistr(const char* s1, const char* s2);
-	int cmpnistr(const char* s1, const char* s2, size_t length);
-	int kbhit(void);
+	UTILS_API int cmpistr(const char* s1, const char* s2);
+	UTILS_API int cmpnistr(const char* s1, const char* s2, size_t length);
+	UTILS_API int kbhit(void);
 }
 
 //==============================================================================================================================

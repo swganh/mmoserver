@@ -77,7 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BurstRunEvents.h" />
-    <ClInclude Include="SwgProtocolDeclspec.h" />
+    <ClInclude Include="declspec.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">

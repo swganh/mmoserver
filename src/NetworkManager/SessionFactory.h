@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Session.h"
 #include <boost/pool/singleton_pool.hpp>
+#include "NetworkManager/declspec.h"
 
 
 //======================================================================================================================
@@ -49,7 +50,7 @@ typedef boost::singleton_pool<Session,sizeof(Session),boost::default_user_alloca
 
 //======================================================================================================================
 
-class SessionFactory
+class NET_API SessionFactory
 {
 	public:
 									SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice);

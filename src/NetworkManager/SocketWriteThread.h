@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Utils/clock.h"
 #include "Utils/concurrent_queue.h"
+#include "NetworkManager/declspec.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -49,51 +50,51 @@ typedef Anh_Utils::concurrent_queue<Session*>    SessionQueue;
 
 class SocketWriteThread
 {
-	public:
+    public:
 
-		SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
-		~SocketWriteThread();
+        NET_API SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
+        NET_API ~SocketWriteThread();
 
-		virtual void	run();
+        NET_API virtual void	run();
 
-		void			NewSession(Session* session);
+        NET_API void			NewSession(Session* session);
 
-		bool			getIsRunning(void){ return mIsRunning; }
-		void			requestExit(){ mExit = true; }
+        NET_API bool			getIsRunning(void){ return mIsRunning; }
+        NET_API void			requestExit(){ mExit = true; }
 
-	private:
+    private:
 
-		void			_startup(void);
-		void			_shutdown(void);
+        void			_startup(void);
+        void			_shutdown(void);
 
-		void			_sendPacket(Packet* packet, Session* session);
+        void			_sendPacket(Packet* packet, Session* session);
 
-		//void				*mtheHandle;
+        //void				*mtheHandle;
 
-		uint16				mMessageMaxSize;
-		int8				mSendBuffer[SEND_BUFFER_SIZE];  
-		Service*			mService;
-		CompCryptor*		mCompCryptor;
-		SOCKET				mSocket;
-		bool				mIsRunning;
-		uint64			    mLastTime;
-		uint64			    mLastThreadTime;
-		uint64			    mNewThreadTime;
-		uint32				mCpuUsage;
-		uint64			    mThreadTime;
-		uint64				lastThreadProcessingTime;
-		uint64				threadProcessingTime;
+        uint16				mMessageMaxSize;
+        int8				mSendBuffer[SEND_BUFFER_SIZE];  
+        Service*			mService;
+        CompCryptor*		mCompCryptor;
+        SOCKET				mSocket;
+        bool				mIsRunning;
+        uint64			    mLastTime;
+        uint64			    mLastThreadTime;
+        uint64			    mNewThreadTime;
+        uint32				mCpuUsage;
+        uint64			    mThreadTime;
+        uint64				lastThreadProcessingTime;
+        uint64				threadProcessingTime;
 
-		uint32				unCount;
-		uint32				reCount;
-		bool				mServerService;
-		// Anh_Utils::Clock*	mClock;
+        uint32				unCount;
+        uint32				reCount;
+        bool				mServerService;
+        // Anh_Utils::Clock*	mClock;
 
-		SessionQueue				mSessionQueue;
+        SessionQueue				mSessionQueue;
 
         boost::thread   			mThread;
-		boost::recursive_mutex      mSocketWriteMutex;
-		bool						mExit;
+        boost::recursive_mutex      mSocketWriteMutex;
+        bool						mExit;
 };
 
 //======================================================================================================================

@@ -32,19 +32,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_SWGPROTOCOL_BURSTRUNEVENTS_H_
 #define SRC_SWGPROTOCOL_BURSTRUNEVENTS_H_
 
-#include "SwgProtocol/SwgProtocolDeclspec.h"
 #include "Common/Event.h"
+
+#include "SwgProtocol/declspec.h"
 
 namespace swg_protocol {
 
-class SWGPROTOCOL_API BurstRunEndEvent : public ::common::BaseEvent {
-    explicit BurstRunEndEvent(::common::ByteBuffer& in);
-    explicit BurstRunEndEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
-    BurstRunEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
+class BurstRunEndEvent : public ::common::BaseEvent {
+    SWGPROTOCOL_API explicit BurstRunEndEvent(::common::ByteBuffer& in);
+    SWGPROTOCOL_API explicit BurstRunEndEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
+    SWGPROTOCOL_API BurstRunEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
         
-    ~BurstRunEndEvent();
+    SWGPROTOCOL_API ~BurstRunEndEvent();
 
-    const ::common::EventType& event_type() const;
+    SWGPROTOCOL_API const ::common::EventType& event_type() const;
 
 private:
     void onSerialize(::common::ByteBuffer& out) const;

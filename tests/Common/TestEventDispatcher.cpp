@@ -256,7 +256,7 @@ TEST(EventDispatcherTests, DeliveringEventCallsGlobalListeners) {
 
     // Deliver the event and verify the global listener was called.
     dispatcher.Deliver(my_event).get();
-    //EXPECT_EQ(true, listener.triggered());
+    EXPECT_EQ(true, listener.triggered());
 }
 
 TEST(EventDispatcherTests, GlobalListenersDoNotCountTowardsValidDelivery) {

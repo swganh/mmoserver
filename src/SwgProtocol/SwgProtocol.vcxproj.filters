@@ -19,7 +19,7 @@
     <ClInclude Include="BurstRunEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SwgProtocolDeclspec.h">
+    <ClInclude Include="declspec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 #include "Utils/concurrent_queue.h"
+#include "NetworkManager/declspec.h"
 
 #include <list>
 
@@ -54,25 +55,25 @@ class Service
 {
 	public:
 
-		Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize);
-		~Service(void);
+		NET_API Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize);
+		NET_API ~Service(void);
 
-		void	Process();
+		NET_API void	Process();
 
-		void	Connect(NetworkClient* client, int8* address, uint16 port);
+		NET_API void	Connect(NetworkClient* client, int8* address, uint16 port);
 
-		void	AddSessionToProcessQueue(Session* session);
+		NET_API void	AddSessionToProcessQueue(Session* session);
 		//void	AddNetworkCallback(NetworkCallback* callback){ mNetworkCallbackList.push_back(callback); }
-		void	AddNetworkCallback(NetworkCallback* callback){ assert((mCallBack == NULL) && "dammit"); mCallBack = callback; }
+		NET_API void	AddNetworkCallback(NetworkCallback* callback){ assert((mCallBack == NULL) && "dammit"); mCallBack = callback; }
 		
 
-		int8*	getLocalAddress(void);
-		uint16	getLocalPort(void);
-		uint32	getId(void){ return mId; };
+		NET_API int8*	getLocalAddress(void);
+		NET_API uint16	getLocalPort(void);
+		NET_API uint32	getId(void){ return mId; };
 
-		void	setId(uint32 id){ mId = id; };
-		void	setQueued(bool b){ mQueued = b; }
-		bool	isQueued(){ return mQueued; }
+		NET_API void	setId(uint32 id){ mId = id; };
+		NET_API void	setQueued(bool b){ mQueued = b; }
+		NET_API bool	isQueued(){ return mQueued; }
 
 	private:
 

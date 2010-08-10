@@ -39,8 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
-#include "Common/MessageFactory.h"
-#include "Common/MessageOpcodes.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/MessageOpcodes.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 SurveyTool::SurveyTool() : Item()
 {
-	
+    
 }
 
 //=============================================================================
@@ -60,77 +60,77 @@ SurveyTool::~SurveyTool()
 
 void SurveyTool::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	mRadialMenu	= RadialMenuPtr(new RadialMenu());
+    mRadialMenu	= RadialMenuPtr(new RadialMenu());
 
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_ObjCallback);
-	mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_Default);
-	mRadialMenu->addItem(4,0,radId_serverItemOptions,radAction_ObjCallback,"@sui:tool_options");
-	mRadialMenu->addItem(5,4,radId_serverSurveyToolRange,radAction_ObjCallback,"@sui:survey_range");
+    mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_ObjCallback);
+    mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_Default);
+    mRadialMenu->addItem(4,0,radId_serverItemOptions,radAction_ObjCallback,"@sui:tool_options");
+    mRadialMenu->addItem(5,4,radId_serverSurveyToolRange,radAction_ObjCallback,"@sui:survey_range");
 }
 
 //=============================================================================
 
 void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 
-	if(!(playerObject->isConnected()))
-		return;
+    if(!(playerObject->isConnected()))
+        return;
 
-	// bring up the surve ui
-	switch(messageType)
-	{
-		case radId_itemUse:
-		{
-			//We only need to check this when using the tool's functions!
+    // bring up the surve ui
+    switch(messageType)
+    {
+        case radId_itemUse:
+        {
+            //We only need to check this when using the tool's functions!
 
-			if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->isDead())
-			{
+            if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->isDead())
+            {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_cant"), playerObject);
-				return;
-			}
+                return;
+            }
 
-			// verify we are able to use this
-			if(!(playerObject->verifyAbility(opOCsurvey)))
-			{
+            // verify we are able to use this
+            if(!(playerObject->verifyAbility(opOCsurvey)))
+            {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_skill"), playerObject);
-				return;
-			}
+                return;
+            }
 
-			if(playerObject->getParentId())
-			{
+            if(playerObject->getParentId())
+            {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
-				return;
-			}
+                return;
+            }
 
-			//check whether the tool is initialized already - if not initialize
+            //check whether the tool is initialized already - if not initialize
 
-			int32	range	= getInternalAttribute<int32>("survey_range");
-			if(range < 0 )
-			{
-				_createRangeMenu(playerObject, true);
-				return;
-			}
+            int32	range	= getInternalAttribute<int32>("survey_range");
+            if(range < 0 )
+            {
+                _createRangeMenu(playerObject, true);
+                return;
+            }
 
-			StartUsing(playerObject);
+            StartUsing(playerObject);
 
 
-		}
-		break;
+        }
+        break;
 
-		case radId_serverSurveyToolRange:
-		{
-			if(!(playerObject->verifyAbility(opOCsurvey)))
-			{
+        case radId_serverSurveyToolRange:
+        {
+            if(!(playerObject->verifyAbility(opOCsurvey)))
+            {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_skill"), playerObject);
-				return;
-			}
+                return;
+            }
 
-			_createRangeMenu(playerObject);
-		}
-		break;
-	}
+            _createRangeMenu(playerObject);
+        }
+        break;
+    }
 }
 
 //=============================================================================
@@ -140,36 +140,36 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 void SurveyTool::StartUsing(PlayerObject* player)
 {
-	Message*			message;
-	ResourceCategory*	mainCat = gResourceManager->getResourceCategoryById(getInternalAttribute<uint32>("survey_tool_resource_category"));
-	ResourceList		resourceList;
+    Message*			message;
+    ResourceCategory*	mainCat = gResourceManager->getResourceCategoryById(getInternalAttribute<uint32>("survey_tool_resource_category"));
+    ResourceList		resourceList;
 
-	mainCat->getResources(resourceList,true);
+    mainCat->getResources(resourceList,true);
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opResourceListForSurveyMessage);
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opResourceListForSurveyMessage);
 
-	gMessageFactory->addUint32(resourceList.size());
+    gMessageFactory->addUint32(resourceList.size());
 
-	ResourceList::iterator resourceIt = resourceList.begin();
+    ResourceList::iterator resourceIt = resourceList.begin();
 
-	while(resourceIt != resourceList.end())
-	{
-		Resource* tmpResource = (*resourceIt);
+    while(resourceIt != resourceList.end())
+    {
+        Resource* tmpResource = (*resourceIt);
 
-		gMessageFactory->addString(tmpResource->getName());
-		gMessageFactory->addUint64(tmpResource->getId());
-		gMessageFactory->addString((tmpResource->getType())->getDescriptor());
+        gMessageFactory->addString(tmpResource->getName());
+        gMessageFactory->addUint64(tmpResource->getId());
+        gMessageFactory->addString((tmpResource->getType())->getDescriptor());
 
-		++resourceIt;
-	}
+        ++resourceIt;
+    }
 
-	gMessageFactory->addString(mainCat->getName());
-	gMessageFactory->addUint64(mId);
+    gMessageFactory->addString(mainCat->getName());
+    gMessageFactory->addUint64(mId);
 
-	message = gMessageFactory->EndMessage();
+    message = gMessageFactory->EndMessage();
 
-	(player->getClient())->SendChannelA(message, player->getAccountId(),CR_Client,4);
+    (player->getClient())->SendChannelA(message, player->getAccountId(),CR_Client,4);
 }
 
 //=============================================================================
@@ -178,64 +178,64 @@ void SurveyTool::StartUsing(PlayerObject* player)
 //
 void SurveyTool::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-	if(!action && element != -1)
-	{
-		uint32	range  = (element + 1) * 64;
-		uint32	points = 3;
+    if(!action && element != -1)
+    {
+        uint32	range  = (element + 1) * 64;
+        uint32	points = 3;
 
-		switch(element)
-		{
-			case 1: case 2: points = 4; break;
-			case 3: case 4: points = 5; break;
-		}
+        switch(element)
+        {
+            case 1: case 2: points = 4; break;
+            case 3: case 4: points = 5; break;
+        }
 
-		setInternalAttribute("survey_range",boost::lexical_cast<std::string>(range));
-		setInternalAttribute("survey_points",boost::lexical_cast<std::string>(points));
+        setInternalAttribute("survey_range",boost::lexical_cast<std::string>(range));
+        setInternalAttribute("survey_points",boost::lexical_cast<std::string>(points));
 
-		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId);
-		gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);
-	}
-	else
-		// make the player set the range before they can use the tool
-		return;
+        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId);
+        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);
+    }
+    else
+        // make the player set the range before they can use the tool
+        return;
 
-	PlayerObject*			playerObject	= window->getOwner();
+    PlayerObject*			playerObject	= window->getOwner();
 
-	if(mSampleAfterSet)
-	{
-		StartUsing(playerObject);
-		mSampleAfterSet = false;
-	}
+    if(mSampleAfterSet)
+    {
+        StartUsing(playerObject);
+        mSampleAfterSet = false;
+    }
 }
 
 //=============================================================================
 
 void SurveyTool::_createRangeMenu(PlayerObject* playerObject, bool sample)
 {
-	int32 surveyMod = playerObject->getSkillModValue(SMod_surveying);
+    int32 surveyMod = playerObject->getSkillModValue(SMod_surveying);
 
-	BStringVector availableRanges;
+    BStringVector availableRanges;
 
-	availableRanges.push_back("64m x 3pts");
+    availableRanges.push_back("64m x 3pts");
 
-	if(surveyMod >= 35)
-		availableRanges.push_back("128m x 4pts");
+    if(surveyMod >= 35)
+        availableRanges.push_back("128m x 4pts");
 
-	if(surveyMod >= 55)
-		availableRanges.push_back("192m x 4pts");
+    if(surveyMod >= 55)
+        availableRanges.push_back("192m x 4pts");
 
-	if(surveyMod >= 75)
-		availableRanges.push_back("256m x 5pts");
+    if(surveyMod >= 75)
+        availableRanges.push_back("256m x 5pts");
 
-	if(surveyMod >= 100)
-		availableRanges.push_back("320m x 5pts");
+    if(surveyMod >= 100)
+        availableRanges.push_back("320m x 5pts");
 
-	if(!sample)
-		mSampleAfterSet = false;
-	else
-		mSampleAfterSet = true;
+    if(!sample)
+        mSampleAfterSet = false;
+    else
+        mSampleAfterSet = true;
 
-	gUIManager->createNewListBox(this,"handleSetRange","Survey Device","@survey:select_range",availableRanges,playerObject);
+    gUIManager->createNewListBox(this,"handleSetRange","Survey Device","@survey:select_range",availableRanges,playerObject);
 }
 
 //=============================================================================

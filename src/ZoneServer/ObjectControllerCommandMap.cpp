@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/Message.h"
+#include "NetworkManager/Message.h"
 #include "ArtisanManager.h"
 #include "OCStructureHandlers.h"
 #include "CraftingManager.h"

@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Service.h"
 
+#include "NetworkManager/declspec.h"
+
 //======================================================================================================================
 
 class Client;
@@ -50,19 +52,19 @@ class NetworkManager
 {
 	public:
 
-		NetworkManager(void);
-		~NetworkManager(void);
+		NET_API NetworkManager(void);
+		NET_API ~NetworkManager(void);
 
-		void		Process(void);
+		NET_API void		Process(void);
 
-		Service*	GenerateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);
-		void		DestroyService(Service* service);
-		Client*		Connect(void);
+		NET_API Service*	GenerateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);
+		NET_API void		DestroyService(Service* service);
+		NET_API Client*		Connect(void);
 
-		void		RegisterCallback(NetworkCallback* callback);
-		void		UnregisterCallback(NetworkCallback* callback);
+		NET_API void		RegisterCallback(NetworkCallback* callback);
+		NET_API void		UnregisterCallback(NetworkCallback* callback);
 
-		void		AddServiceToProcessQueue(Service* service);
+		NET_API void		AddServiceToProcessQueue(Service* service);
 
 	private:
 

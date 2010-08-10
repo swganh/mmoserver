@@ -32,8 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 #include "LogManager/LogManager.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
 #include "DatabaseManager/Database.h"
 #include "MessageLib/MessageLib.h"
 
@@ -41,10 +41,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 ResourceContainer::ResourceContainer() : TangibleObject()
 {
-	mTanGroup	= TanGroup_ResourceContainer;
-	mResource	= NULL;
-	mAmount		= 0;
-	mMaxAmount	= 100000;
+    mTanGroup	= TanGroup_ResourceContainer;
+    mResource	= NULL;
+    mAmount		= 0;
+    mMaxAmount	= 100000;
 }
 
 //=============================================================================
@@ -87,13 +87,13 @@ uint32 ResourceContainer::getAmount()
 void ResourceContainer::setAmount(uint32 amount)
 {
     mAmount = amount;
-	//This cannot work until we do a) == instead of =
-	//and b call our parent to destroy us
-	//in which case we still would already be destroyed when we would have to finish the last line of code
-	//PLUS if it actually worked, it would send the destroyobject several times to the client, thus crashing the zone
-	//right now it crashes the server randomly when we try to access / delete the resource stack
-	//if (mAmount = 0)// -> ==
-		//ResourceContainer::deleteObject(this);//we are NOT a child of ourselves what you do is basically this->deleteObject(this);
+    //This cannot work until we do a) == instead of =
+    //and b call our parent to destroy us
+    //in which case we still would already be destroyed when we would have to finish the last line of code
+    //PLUS if it actually worked, it would send the destroyobject several times to the client, thus crashing the zone
+    //right now it crashes the server randomly when we try to access / delete the resource stack
+    //if (mAmount = 0)// -> ==
+        //ResourceContainer::deleteObject(this);//we are NOT a child of ourselves what you do is basically this->deleteObject(this);
 }
 
 
@@ -118,11 +118,11 @@ BString ResourceContainer::getBazaarTang()
 
 BString	ResourceContainer::getBazaarName()
 {
-	BString value = BString(BSTRType_ANSI,256);
+    BString value = BString(BSTRType_ANSI,256);
 
-	value.setLength(sprintf(value.getAnsi(),"%s (%s)",getResource()->getType()->getName().getAnsi(),getResource()->getName().getAnsi()));
+    value.setLength(sprintf(value.getAnsi(),"%s (%s)",getResource()->getType()->getName().getAnsi(),getResource()->getName().getAnsi()));
 
-	return value;
+    return value;
 }
 
 
@@ -135,97 +135,97 @@ uint32 ResourceContainer::getCategoryBazaar()
 
 void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 {
-	if(!(playerObject->isConnected()))
-		return;
+    if(!(playerObject->isConnected()))
+        return;
 
-	Message*	newMessage;
-	BString		tmpValueStr = BString(BSTRType_Unicode16,64);
-	BString		value;
+    Message*	newMessage;
+    BString		tmpValueStr = BString(BSTRType_Unicode16,64);
+    BString		value;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opAttributeListMessage);
-	gMessageFactory->addUint64(mId);
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opAttributeListMessage);
+    gMessageFactory->addUint64(mId);
 
-	uint32 attrCount = 4;
+    uint32 attrCount = 4;
 
-	for(uint8 i = 0;i < 11;i++)
-	{
-		if(mResource->getAttribute(i))
-			++attrCount;
-	}
+    for(uint8 i = 0;i < 11;i++)
+    {
+        if(mResource->getAttribute(i))
+            ++attrCount;
+    }
 
-	gMessageFactory->addUint32(attrCount + mAttributeMap.size());
+    gMessageFactory->addUint32(attrCount + mAttributeMap.size());
 
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),20,L"%u/%u",mMaxCondition-mDamage,mMaxCondition));
-	gMessageFactory->addString(BString("condition"));
-	gMessageFactory->addString(tmpValueStr);
+    tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),20,L"%u/%u",mMaxCondition-mDamage,mMaxCondition));
+    gMessageFactory->addString(BString("condition"));
+    gMessageFactory->addString(tmpValueStr);
 
-	AttributeMap::iterator			mapIt;
-	AttributeOrderList::iterator	orderIt = mAttributeOrderList.begin();
+    AttributeMap::iterator			mapIt;
+    AttributeOrderList::iterator	orderIt = mAttributeOrderList.begin();
 
-	while(orderIt != mAttributeOrderList.end())
-	{
-		mapIt = mAttributeMap.find(*orderIt);
+    while(orderIt != mAttributeOrderList.end())
+    {
+        mapIt = mAttributeMap.find(*orderIt);
 
-		gMessageFactory->addString(gWorldManager->getAttributeKey((*mapIt).first));
+        gMessageFactory->addString(gWorldManager->getAttributeKey((*mapIt).first));
 
-		value = (*mapIt).second.c_str();
-		value.convert(BSTRType_Unicode16);
+        value = (*mapIt).second.c_str();
+        value.convert(BSTRType_Unicode16);
 
-		gMessageFactory->addString(value);
+        gMessageFactory->addString(value);
 
-		++orderIt;
-	}
+        ++orderIt;
+    }
 
-	tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),20,L"%u/%u",mAmount,mMaxAmount));
-	gMessageFactory->addString(BString("resource_contents"));
-	gMessageFactory->addString(tmpValueStr);
+    tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),20,L"%u/%u",mAmount,mMaxAmount));
+    gMessageFactory->addString(BString("resource_contents"));
+    gMessageFactory->addString(tmpValueStr);
 
-	tmpValueStr = mResource->getName().getAnsi();
-	tmpValueStr.convert(BSTRType_Unicode16);
-	gMessageFactory->addString(BString("resource_name"));
-	gMessageFactory->addString(tmpValueStr);
+    tmpValueStr = mResource->getName().getAnsi();
+    tmpValueStr.convert(BSTRType_Unicode16);
+    gMessageFactory->addString(BString("resource_name"));
+    gMessageFactory->addString(tmpValueStr);
 
-	tmpValueStr = ((mResource->getType())->getName()).getAnsi();
-	tmpValueStr.convert(BSTRType_Unicode16);
-	gMessageFactory->addString(BString("resource_class"));
-	gMessageFactory->addString(tmpValueStr);
+    tmpValueStr = ((mResource->getType())->getName()).getAnsi();
+    tmpValueStr.convert(BSTRType_Unicode16);
+    gMessageFactory->addString(BString("resource_class"));
+    gMessageFactory->addString(tmpValueStr);
 
-	for(uint8 i = 0;i < 11;i++)
-	{
-		uint16	attrValue = 0;
-		BString	attrName;
+    for(uint8 i = 0;i < 11;i++)
+    {
+        uint16	attrValue = 0;
+        BString	attrName;
 
-		if((attrValue = mResource->getAttribute(i)) != 0)
-		{
-			switch(i)
-			{
-				case ResAttr_OQ: attrName = "res_quality";				break;
-				case ResAttr_CR: attrName = "res_cold_resist";			break;
-				case ResAttr_CD: attrName = "res_conductivity";			break;
-				case ResAttr_DR: attrName = "res_decay_resist";			break;
-				case ResAttr_HR: attrName = "res_heat_resist";			break;
-				case ResAttr_MA: attrName = "res_malleability";			break;
-				case ResAttr_SR: attrName = "res_shock_resistance";		break;
-				case ResAttr_UT: attrName = "res_toughness";			break;
-				case ResAttr_ER: attrName = "entangle_resistance";		break;
-				case ResAttr_PE: attrName = "res_potential_energy";		break;
-				case ResAttr_FL: attrName = "res_flavor";				break;
-			}
+        if((attrValue = mResource->getAttribute(i)) != 0)
+        {
+            switch(i)
+            {
+                case ResAttr_OQ: attrName = "res_quality";				break;
+                case ResAttr_CR: attrName = "res_cold_resist";			break;
+                case ResAttr_CD: attrName = "res_conductivity";			break;
+                case ResAttr_DR: attrName = "res_decay_resist";			break;
+                case ResAttr_HR: attrName = "res_heat_resist";			break;
+                case ResAttr_MA: attrName = "res_malleability";			break;
+                case ResAttr_SR: attrName = "res_shock_resistance";		break;
+                case ResAttr_UT: attrName = "res_toughness";			break;
+                case ResAttr_ER: attrName = "entangle_resistance";		break;
+                case ResAttr_PE: attrName = "res_potential_energy";		break;
+                case ResAttr_FL: attrName = "res_flavor";				break;
+            }
 
-			tmpValueStr = BString(BSTRType_Unicode16,64);
-			tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),10,L"%u",attrValue));
+            tmpValueStr = BString(BSTRType_Unicode16,64);
+            tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),10,L"%u",attrValue));
 
-			gMessageFactory->addString(attrName);
-			gMessageFactory->addString(tmpValueStr);
-		}
-	}
+            gMessageFactory->addString(attrName);
+            gMessageFactory->addString(tmpValueStr);
+        }
+    }
 
-	//gMessageFactory->addUint32(0);
+    //gMessageFactory->addUint32(0);
 
-	newMessage = gMessageFactory->EndMessage();
+    newMessage = gMessageFactory->EndMessage();
 
-	(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 9);
+    (playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 9);
 }
 
 
@@ -235,73 +235,73 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 
 void ResourceContainer::setParentIdIncDB(uint64 parentId)
 { 
-	mParentId = parentId; 
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+    mParentId = parentId; 
+    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
 }
 
 void ResourceContainer::upDateFactoryVolume(BString amount)
 {
-	uint32 a = 0;
-	a = boost::lexical_cast<uint32>(amount.getAnsi());
-	
-	if(a == this->getAmount())
-	{
-		return;
-	}
+    uint32 a = 0;
+    a = boost::lexical_cast<uint32>(amount.getAnsi());
+    
+    if(a == this->getAmount())
+    {
+        return;
+    }
 
-	this->setAmount(a);
+    this->setAmount(a);
 
-	TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
-	
-	PlayerObjectSet*			knownPlayers	= hopper->getKnownPlayers();
-	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+    TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
+    
+    PlayerObjectSet*			knownPlayers	= hopper->getKnownPlayers();
+    PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
 
-	while(playerIt != knownPlayers->end())
-	{
-		PlayerObject* player = (*playerIt);
-		if(player)
-			gMessageLib->sendResourceContainerUpdateAmount(this,player);
+    while(playerIt != knownPlayers->end())
+    {
+        PlayerObject* player = (*playerIt);
+        if(player)
+            gMessageLib->sendResourceContainerUpdateAmount(this,player);
 
-		playerIt++;
-	}
+        playerIt++;
+    }
 
 }
 
 
 void ResourceContainer::updateWorldPosition()
 {
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
-	
+    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
+    
 }
 
 void ResourceContainer::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount)
 {
-	RadialMenu* radial	= new RadialMenu();
-	uint8 i = 1;
-	uint8 u = 1;
+    RadialMenu* radial	= new RadialMenu();
+    uint8 i = 1;
+    uint8 u = 1;
 
-	// any object with callbacks needs to handle those (received with menuselect messages) !
-	radial->addItem(i++,0,radId_split,radAction_Default,"");
+    // any object with callbacks needs to handle those (received with menuselect messages) !
+    radial->addItem(i++,0,radId_split,radAction_Default,"");
 
-	radial->addItem(i++,0,radId_examine,radAction_Default,"");
+    radial->addItem(i++,0,radId_examine,radAction_Default,"");
 
-	radial->addItem(i++,0,radId_itemPickup,radAction_Default,"");
-	
-	u = i;
-	radial->addItem(i++,0,radId_itemMove,radAction_Default, "");	
-	radial->addItem(i++,u,radId_itemMoveForward,radAction_Default, "");//radAction_ObjCallback
-	radial->addItem(i++,u,radId_ItemMoveBack,radAction_Default, "");
-	radial->addItem(i++,u,radId_itemMoveUp,radAction_Default, "");
-	radial->addItem(i++,u,radId_itemMoveDown,radAction_Default, "");
-	
-	u = i;
-	radial->addItem(i++,0,radId_itemRotate,radAction_Default, "");
-	radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
-	radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
+    radial->addItem(i++,0,radId_itemPickup,radAction_Default,"");
+    
+    u = i;
+    radial->addItem(i++,0,radId_itemMove,radAction_Default, "");	
+    radial->addItem(i++,u,radId_itemMoveForward,radAction_Default, "");//radAction_ObjCallback
+    radial->addItem(i++,u,radId_ItemMoveBack,radAction_Default, "");
+    radial->addItem(i++,u,radId_itemMoveUp,radAction_Default, "");
+    radial->addItem(i++,u,radId_itemMoveDown,radAction_Default, "");
+    
+    u = i;
+    radial->addItem(i++,0,radId_itemRotate,radAction_Default, "");
+    radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
+    radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
 
   
-	RadialMenuPtr radialPtr(radial);
-	mRadialMenu = radialPtr;
+    RadialMenuPtr radialPtr(radial);
+    mRadialMenu = radialPtr;
 
 
 }

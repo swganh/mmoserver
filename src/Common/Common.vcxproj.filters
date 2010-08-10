@@ -17,15 +17,6 @@
     <ClCompile Include="BuildInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DispatchClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MessageDispatch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MessageFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ByteBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,21 +46,6 @@
     <ClInclude Include="BuildInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DispatchClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Message.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageDispatch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessageOpcodes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ByteBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -94,7 +70,7 @@
     <ClInclude Include="ApplicationService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CommonDeclspec.h">
+    <ClInclude Include="declspec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

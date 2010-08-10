@@ -52,8 +52,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
 #include "Utils/clock.h"
 
 #include <boost/lexical_cast.hpp>
@@ -63,7 +63,7 @@ CraftingManager*			CraftingManager::mSingleton  = NULL;
 
 CraftingManager::CraftingManager(Database* database) : mDatabase(database)
 {
-	mSI	= gWorldManager->getSI();
+    mSI	= gWorldManager->getSI();
 }
 
 
@@ -78,35 +78,35 @@ CraftingManager::~CraftingManager(void)
 
 bool CraftingManager::HandleRequestDraftslotsBatch(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
-	BString			requestStr;
-	BStringVector	dataElements;
-	uint16			elementCount;
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
+    BString			requestStr;
+    BStringVector	dataElements;
+    uint16			elementCount;
 
-	message->getStringUnicode16(requestStr);
-	requestStr.convert(BSTRType_ANSI);
+    message->getStringUnicode16(requestStr);
+    requestStr.convert(BSTRType_ANSI);
 
-	elementCount = requestStr.split(dataElements,' ');
+    elementCount = requestStr.split(dataElements,' ');
 
-	if(!elementCount)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
-		return false;
-	}
+    if(!elementCount)
+    {
+        gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
+        return false;
+    }
 
-	for(uint16 i = 1;i < elementCount;i += 2)
-	{
-		// since we currently store everything in 1 schematic object, just look up by the crc
-		// lookup of weights is done in requestresourceweightsbatch
-		uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
-		DraftSchematic* schematic = gSchematicManager->getSchematicBySlotId(static_cast<uint32>(itemId));
+    for(uint16 i = 1;i < elementCount;i += 2)
+    {
+        // since we currently store everything in 1 schematic object, just look up by the crc
+        // lookup of weights is done in requestresourceweightsbatch
+        uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
+        DraftSchematic* schematic = gSchematicManager->getSchematicBySlotId(static_cast<uint32>(itemId));
 
-		if(schematic)
-		{
-			gMessageLib->sendDraftslotsResponse(schematic,playerObject);
-		}
-	}
-	return true;
+        if(schematic)
+        {
+            gMessageLib->sendDraftslotsResponse(schematic,playerObject);
+        }
+    }
+    return true;
 }
 
 //======================================================================================================================
@@ -116,33 +116,33 @@ bool CraftingManager::HandleRequestDraftslotsBatch(Object* object,Object* target
 
 bool CraftingManager::HandleRequestResourceWeightsBatch(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
-	BString			requestStr;
-	BStringVector	dataElements;
-	uint16			elementCount;
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
+    BString			requestStr;
+    BStringVector	dataElements;
+    uint16			elementCount;
 
-	message->getStringUnicode16(requestStr);
-	requestStr.convert(BSTRType_ANSI);
+    message->getStringUnicode16(requestStr);
+    requestStr.convert(BSTRType_ANSI);
 
-	elementCount = requestStr.split(dataElements,' ');
+    elementCount = requestStr.split(dataElements,' ');
 
-	if(!elementCount)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
-		return false;
-	}
+    if(!elementCount)
+    {
+        gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
+        return false;
+    }
 
-	for(uint16 i = 0;i < elementCount;i++)
-	{
-		uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
-		DraftSchematic* schematic = gSchematicManager->getSchematicByWeightId(static_cast<uint32>(itemId));
+    for(uint16 i = 0;i < elementCount;i++)
+    {
+        uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
+        DraftSchematic* schematic = gSchematicManager->getSchematicByWeightId(static_cast<uint32>(itemId));
 
-		if(schematic)
-		{
-			gMessageLib->sendDraftWeightsResponse(schematic,playerObject);
-		}
-	}
-	return true;
+        if(schematic)
+        {
+            gMessageLib->sendDraftWeightsResponse(schematic,playerObject);
+        }
+    }
+    return true;
 }
 
 //======================================================================================================================
@@ -152,87 +152,87 @@ bool CraftingManager::HandleRequestResourceWeightsBatch(Object* object,Object* t
 
 bool CraftingManager::HandleSynchronizedUIListen(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	return true;
+    return true;
 }
 // get appropriate crafting tool from selected crafting station
 // check inventory for same tool 'type' as crafting station
 CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* playerObject, CraftingStation* station)
 {
-		CraftingTool*	tool	= NULL;
-		int32 stationType = station->getItemType();
-		Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		ObjectIDList::iterator It = inventory->getObjects()->begin();
-		while(It != inventory->getObjects()->end())
-		{
-			Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
-			if(!item)
-			{
-				It++;
-				continue;
-			}
-			int32 itemType = item->getItemType();
-			switch (stationType)
-			{
-				case ItemType_ClothingStation:
-				case ItemType_ClothingStationPublic:
-				{
-					if(itemType == ItemType_ClothingTool)
-					{
-						tool = dynamic_cast<CraftingTool*>(item);
-					}
-				}
-				break;
-				case ItemType_WeaponStation:
-				case ItemType_WeaponStationPublic:
-				{
-					if(itemType == ItemType_WeaponTool)
-					{
-						tool = dynamic_cast<CraftingTool*>(item);
-					}
-				}
-				break;
-				case ItemType_FoodStation:
-				case ItemType_FoodStationPublic:
-				{
-					if(itemType == ItemType_FoodTool)
-					{
-						tool = dynamic_cast<CraftingTool*>(item);
-					}
-				}
-				break;
-				case ItemType_StructureStation:
-				case ItemType_StructureStationPublic:
-				{
-					if(itemType == ItemType_StructureTool)
-					{
-						tool = dynamic_cast<CraftingTool*>(item);
-					}
-				}
-				break;
-				case ItemType_SpaceStation:
-				case ItemType_SpaceStationPublic:
-				{
-					if(itemType == ItemType_SpaceTool)
-					{
-						tool = dynamic_cast<CraftingTool*>(item);
-					}
-				}
-				break;
-				default:
-				{
-					break;
-				}
-				break;
-			}
-			if(tool)
-			{
-				// found it now jump out
-				break;
-			}
-			++It;
-			continue;
-		}
-		return tool;
+        CraftingTool*	tool	= NULL;
+        int32 stationType = station->getItemType();
+        Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        ObjectIDList::iterator It = inventory->getObjects()->begin();
+        while(It != inventory->getObjects()->end())
+        {
+            Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
+            if(!item)
+            {
+                It++;
+                continue;
+            }
+            int32 itemType = item->getItemType();
+            switch (stationType)
+            {
+                case ItemType_ClothingStation:
+                case ItemType_ClothingStationPublic:
+                {
+                    if(itemType == ItemType_ClothingTool)
+                    {
+                        tool = dynamic_cast<CraftingTool*>(item);
+                    }
+                }
+                break;
+                case ItemType_WeaponStation:
+                case ItemType_WeaponStationPublic:
+                {
+                    if(itemType == ItemType_WeaponTool)
+                    {
+                        tool = dynamic_cast<CraftingTool*>(item);
+                    }
+                }
+                break;
+                case ItemType_FoodStation:
+                case ItemType_FoodStationPublic:
+                {
+                    if(itemType == ItemType_FoodTool)
+                    {
+                        tool = dynamic_cast<CraftingTool*>(item);
+                    }
+                }
+                break;
+                case ItemType_StructureStation:
+                case ItemType_StructureStationPublic:
+                {
+                    if(itemType == ItemType_StructureTool)
+                    {
+                        tool = dynamic_cast<CraftingTool*>(item);
+                    }
+                }
+                break;
+                case ItemType_SpaceStation:
+                case ItemType_SpaceStationPublic:
+                {
+                    if(itemType == ItemType_SpaceTool)
+                    {
+                        tool = dynamic_cast<CraftingTool*>(item);
+                    }
+                }
+                break;
+                default:
+                {
+                    break;
+                }
+                break;
+            }
+            if(tool)
+            {
+                // found it now jump out
+                break;
+            }
+            ++It;
+            continue;
+        }
+        return tool;
 }
 //======================================================================================================================
 //
@@ -241,63 +241,63 @@ CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* playerObject
 
 bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
-	CraftingTool*		tool			= dynamic_cast<CraftingTool*>(target);
-	CraftingStation*	station			= dynamic_cast<CraftingStation*>(target);
-	uint32				expFlag			= 2;//needs to be >1 !!!!!
+    PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
+    CraftingTool*		tool			= dynamic_cast<CraftingTool*>(target);
+    CraftingStation*	station			= dynamic_cast<CraftingStation*>(target);
+    uint32				expFlag			= 2;//needs to be >1 !!!!!
 
-	message->setIndex(24);
-	/*uint32				counter			= */
-	message->getUint32();
+    message->setIndex(24);
+    /*uint32				counter			= */
+    message->getUint32();
 
-	//get nearest crafting station
-	ObjectSet			inRangeObjects;
-	float				range = 25.0;
+    //get nearest crafting station
+    ObjectSet			inRangeObjects;
+    float				range = 25.0;
 
-	// the player clicked directly on a station
-	if(station)
-	{
-		tool = getCraftingStationTool(playerObject, station);
-	}
-	
-	if(!tool)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",target->getId());
-		gMessageLib->SendSystemMessage(common::OutOfBand("ui_craft","err_no_crafting_tool"),playerObject);
-		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
-		return false;
-	}
-	// if we haven't come in through a station
-	if(!station)
-	{
-		// get the tangible objects in range
-		gCraftingManager->mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
-		//and see if a fitting crafting station is near
-		station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
-	}
+    // the player clicked directly on a station
+    if(station)
+    {
+        tool = getCraftingStationTool(playerObject, station);
+    }
+    
+    if(!tool)
+    {
+        gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",target->getId());
+        gMessageLib->SendSystemMessage(common::OutOfBand("ui_craft","err_no_crafting_tool"),playerObject);
+        gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
+        return false;
+    }
+    // if we haven't come in through a station
+    if(!station)
+    {
+        // get the tangible objects in range
+        gCraftingManager->mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
+        //and see if a fitting crafting station is near
+        station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
+    }
 
-	if(!station)
-	{
-		expFlag = false;
-	}
+    if(!station)
+    {
+        expFlag = false;
+    }
 
-	if(tool->getAttribute<std::string>("craft_tool_status") == "@crafting:tool_status_working")
-	{
-		if(tool->getCurrentItem())
+    if(tool->getAttribute<std::string>("craft_tool_status") == "@crafting:tool_status_working")
+    {
+        if(tool->getCurrentItem())
             gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), playerObject);
 
-		// TODO: put the right message for practice
-		else
+        // TODO: put the right message for practice
+        else
             gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), playerObject);
 
-		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
+        gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
 
-		return false;
-	}
+        return false;
+    }
 
-	gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: new session :)");
-	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(),playerObject,tool,station,expFlag));
-	return true;
+    gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: new session :)");
+    playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(),playerObject,tool,station,expFlag));
+    return true;
 }
 
 //======================================================================================================================
@@ -307,22 +307,22 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 
 bool CraftingManager::HandleSelectDraftSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
-	CraftingSession*	session			= playerObject->getCraftingSession();
-	//DraftSchematic*		schematic		= NULL;
-	BString				dataStr;
-	uint32				schematicIndex	= 0;
+    PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
+    CraftingSession*	session			= playerObject->getCraftingSession();
+    //DraftSchematic*		schematic		= NULL;
+    BString				dataStr;
+    uint32				schematicIndex	= 0;
 
-	message->getStringUnicode16(dataStr);
+    message->getStringUnicode16(dataStr);
 
-	if(session)
-	{
-		if(swscanf(dataStr.getUnicode16(),L"%u",&schematicIndex) != 1 || !session->selectDraftSchematic(schematicIndex))
-		{
-			gCraftingSessionFactory->destroySession(session);
-		}
-	}
-	return true;
+    if(session)
+    {
+        if(swscanf(dataStr.getUnicode16(),L"%u",&schematicIndex) != 1 || !session->selectDraftSchematic(schematicIndex))
+        {
+            gCraftingSessionFactory->destroySession(session);
+        }
+    }
+    return true;
 }
 
 //======================================================================================================================
@@ -332,17 +332,17 @@ bool CraftingManager::HandleSelectDraftSchematic(Object* object,Object* target,M
 
 bool CraftingManager::HandleCancelCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(object);
 
-	message->setIndex(24);
+    message->setIndex(24);
 
-	/*uint32			counter			= */message->getUint32();
+    /*uint32			counter			= */message->getUint32();
 
-	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
+    gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
 
-	gLogger->log(LogManager::DEBUG,"session canceled");
-	//client complains over crafting tool already hacing an item when we go out of the slot screen!!!!!
-	return true;
+    gLogger->log(LogManager::DEBUG,"session canceled");
+    //client complains over crafting tool already hacing an item when we go out of the slot screen!!!!!
+    return true;
 }
 
 //=============================================================================================================================
@@ -352,24 +352,24 @@ bool CraftingManager::HandleCancelCraftingSession(Object* object,Object* target,
 
 void CraftingManager::handleCraftFillSlot(Object* object,Message* message)
 {
-	PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
-	CraftingSession*	session		= player->getCraftingSession();
+    PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
+    CraftingSession*	session		= player->getCraftingSession();
 
-	uint64				resContainerId	= message->getUint64();
-	uint32				slotId			= message->getUint32();
-	uint32				unknownId		= message->getUint32();
-	uint8				counter			= message->getUint8();
+    uint64				resContainerId	= message->getUint64();
+    uint32				slotId			= message->getUint32();
+    uint32				unknownId		= message->getUint32();
+    uint8				counter			= message->getUint8();
 
-	// make sure we have a valid session and are in the assembly stage
-	if(session && player->getCraftingStage() == 2)
-	{
-		session->handleFillSlot(resContainerId,slotId,unknownId,counter);
-	}
-	// it failed
-	else
-	{
-		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Not_In_Assembly_Stage,counter,player);
-	}
+    // make sure we have a valid session and are in the assembly stage
+    if(session && player->getCraftingStage() == 2)
+    {
+        session->handleFillSlot(resContainerId,slotId,unknownId,counter);
+    }
+    // it failed
+    else
+    {
+        gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Not_In_Assembly_Stage,counter,player);
+    }
 }
 
 //=============================================================================================================================
@@ -379,22 +379,22 @@ void CraftingManager::handleCraftFillSlot(Object* object,Message* message)
 
 void CraftingManager::handleCraftEmptySlot(Object* object,Message* message)
 {
-	PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
-	CraftingSession*	session		= player->getCraftingSession();
-	uint32				slotId		= message->getUint32();
-	uint64				containerId	= message->getUint64();
-	uint8				counter		= message->getUint8();
+    PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
+    CraftingSession*	session		= player->getCraftingSession();
+    uint32				slotId		= message->getUint32();
+    uint64				containerId	= message->getUint64();
+    uint8				counter		= message->getUint8();
 
-	// make sure we have a valid session and are in the assembly stage
-	if(session && player->getCraftingStage() == 2)
-	{
-		session->handleEmptySlot(slotId,containerId,counter);
-	}
-	// it failed
-	else
-	{
-		gMessageLib->sendCraftAcknowledge(opCraftEmptySlot,CraftError_Not_In_Assembly_Stage,counter,player);
-	}
+    // make sure we have a valid session and are in the assembly stage
+    if(session && player->getCraftingStage() == 2)
+    {
+        session->handleEmptySlot(slotId,containerId,counter);
+    }
+    // it failed
+    else
+    {
+        gMessageLib->sendCraftAcknowledge(opCraftEmptySlot,CraftError_Not_In_Assembly_Stage,counter,player);
+    }
 }
 
 //=============================================================================================================================
@@ -404,19 +404,19 @@ void CraftingManager::handleCraftEmptySlot(Object* object,Message* message)
 
 void CraftingManager::handleCraftExperiment(Object* object, Message* message)
 {
-	PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
-	CraftingSession*	session		= player->getCraftingSession();
-	uint8				counter		= message->getUint8();
-	uint32				propCount	= message->getUint32();
-	std::vector<std::pair<uint32,uint32> >	properties;
+    PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
+    CraftingSession*	session		= player->getCraftingSession();
+    uint8				counter		= message->getUint8();
+    uint32				propCount	= message->getUint32();
+    std::vector<std::pair<uint32,uint32> >	properties;
 
-	if(!session || player->getCraftingStage() != 3)
-		return;
+    if(!session || player->getCraftingStage() != 3)
+        return;
 
-	for(uint32 i = 0;i < propCount;i++)
-		properties.push_back(std::make_pair(message->getUint32(),message->getUint32()));
+    for(uint32 i = 0;i < propCount;i++)
+        properties.push_back(std::make_pair(message->getUint32(),message->getUint32()));
 
-	session->experiment(counter,properties);
+    session->experiment(counter,properties);
 }
 
 //=============================================================================================================================
@@ -426,49 +426,49 @@ void CraftingManager::handleCraftExperiment(Object* object, Message* message)
 
 void CraftingManager::handleCraftCustomization(Object* object,Message* message)
 {
-	PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
-	CraftingSession*	session		= player->getCraftingSession();
-	BString				itemName;
-	uint8				hmmm1,hmmm2;
-	uint32				amount,color;
+    PlayerObject*		player		= dynamic_cast<PlayerObject*>(object);
+    CraftingSession*	session		= player->getCraftingSession();
+    BString				itemName;
+    uint8				hmmm1,hmmm2;
+    uint32				amount,color;
 
-	if(!session)
-		return;
-	player->setCraftingStage(4);
+    if(!session)
+        return;
+    player->setCraftingStage(4);
 
-	message->getStringUnicode16(itemName);
-	itemName.convert(BSTRType_ANSI);
+    message->getStringUnicode16(itemName);
+    itemName.convert(BSTRType_ANSI);
 
-	message->getUint8(hmmm1);
+    message->getUint8(hmmm1);
 
-	message->getUint32(amount);
-	message->getUint8(hmmm2);
+    message->getUint32(amount);
+    message->getUint8(hmmm2);
 
-	CustomizationList* cList;
+    CustomizationList* cList;
 
-	cList = session->getManufacturingSchematic()->getCustomizationList();
-	CustomizationList::iterator	custIt = cList->begin();
+    cList = session->getManufacturingSchematic()->getCustomizationList();
+    CustomizationList::iterator	custIt = cList->begin();
 
-	uint32 i = 0;
-	while((custIt != cList->end())&&(i < hmmm2))
-	{
-		message->getUint32(color);
-		gLogger->log(LogManager::DEBUG,"craft customization int1 : %u",color);
-		message->getUint32(color);
-		gLogger->log(LogManager::DEBUG,"craft customization int2 : %u at index : %u",color,(*custIt)->cutomizationIndex);
-		session->getItem()->setCustomization(static_cast<uint8>((*custIt)->cutomizationIndex),(uint16)color,3);
+    uint32 i = 0;
+    while((custIt != cList->end())&&(i < hmmm2))
+    {
+        message->getUint32(color);
+        gLogger->log(LogManager::DEBUG,"craft customization int1 : %u",color);
+        message->getUint32(color);
+        gLogger->log(LogManager::DEBUG,"craft customization int2 : %u at index : %u",color,(*custIt)->cutomizationIndex);
+        session->getItem()->setCustomization(static_cast<uint8>((*custIt)->cutomizationIndex),(uint16)color,3);
 
-		i++;
-		++custIt;
-	}
+        i++;
+        ++custIt;
+    }
 
 
-	int8 sql[550];
-	sprintf(sql,"INSERT INTO item_customization VALUES(%"PRIu64", %u, %u)",session->getItem()->getId(),session->getItem()->getCustomization(1),session->getItem()->getCustomization(2));
-	mDatabase->ExecuteSqlAsync(0,0,sql);
+    int8 sql[550];
+    sprintf(sql,"INSERT INTO item_customization VALUES(%"PRIu64", %u, %u)",session->getItem()->getId(),session->getItem()->getCustomization(1),session->getItem()->getCustomization(2));
+    mDatabase->ExecuteSqlAsync(0,0,sql);
 
-	session->setProductionAmount(amount);
-	session->customize(itemName.getAnsi());
+    session->setProductionAmount(amount);
+    session->customize(itemName.getAnsi());
 }
 
 //=============================================================================================================================
@@ -478,74 +478,74 @@ void CraftingManager::handleCraftCustomization(Object* object,Message* message)
 
 bool CraftingManager::HandleNextCraftingStage(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
-	CraftingSession*	session			= playerObject->getCraftingSession();
-	BString				dataStr;
-	uint32				counter			= 1;
+    PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
+    CraftingSession*	session			= playerObject->getCraftingSession();
+    BString				dataStr;
+    uint32				counter			= 1;
 
-	if(!session)
-		return false;
+    if(!session)
+        return false;
 
-	message->getStringUnicode16(dataStr);
+    message->getStringUnicode16(dataStr);
 
-	if(dataStr.getLength() == 0)
-	{
-		//Command Line Entry
-		counter = session->getCounter();
-	}
-	else
-	{
-		uint32 resultCount = swscanf(dataStr.getUnicode16(),L"%u",&counter);
-		if(resultCount != 1)
-		{
-			gCraftingSessionFactory->destroySession(session);
-			return false;
-		}
-		gLogger->log(LogManager::DEBUG,"Counter We Got: %u", counter);
-		gLogger->log(LogManager::DEBUG,"Counter We'd Use: %u", session->getCounter());
-	}
+    if(dataStr.getLength() == 0)
+    {
+        //Command Line Entry
+        counter = session->getCounter();
+    }
+    else
+    {
+        uint32 resultCount = swscanf(dataStr.getUnicode16(),L"%u",&counter);
+        if(resultCount != 1)
+        {
+            gCraftingSessionFactory->destroySession(session);
+            return false;
+        }
+        gLogger->log(LogManager::DEBUG,"Counter We Got: %u", counter);
+        gLogger->log(LogManager::DEBUG,"Counter We'd Use: %u", session->getCounter());
+    }
 
-	switch(session->getStage())
-	{
-		case 1:
-		{
-			//Player's Macro is wrong! :p
-		}
-		break;
+    switch(session->getStage())
+    {
+        case 1:
+        {
+            //Player's Macro is wrong! :p
+        }
+        break;
 
-		case 2:
-		{
-			session->assemble(counter);
-		}
-		break;
+        case 2:
+        {
+            session->assemble(counter);
+        }
+        break;
 
-		case 3:
-		{
-			session->experimentationStage(counter);
+        case 3:
+        {
+            session->experimentationStage(counter);
 
-		}
-		break;
+        }
+        break;
 
-		case 4:
-		{
-			session->customizationStage(counter);
-			//session->creationStage(counter);
-		}
-		break;
+        case 4:
+        {
+            session->customizationStage(counter);
+            //session->creationStage(counter);
+        }
+        break;
 
-		case 5:
-		{
-			session->creationStage(counter);
-		}
-		break;
+        case 5:
+        {
+            session->creationStage(counter);
+        }
+        break;
 
-		default:
-		{
-			gLogger->log(LogManager::NOTICE,"ObjController::_handlenextcraftingstage: unhandled stage %u",session->getStage());
-		}
-		break;
-	}
-	return true;
+        default:
+        {
+            gLogger->log(LogManager::NOTICE,"ObjController::_handlenextcraftingstage: unhandled stage %u",session->getStage());
+        }
+        break;
+    }
+    return true;
 }
 
 //=============================================================================================================================
@@ -555,24 +555,24 @@ bool CraftingManager::HandleNextCraftingStage(Object* object,Object* target,Mess
 
 bool CraftingManager::HandleCreatePrototype(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		player	= dynamic_cast<PlayerObject*>(object);
-	CraftingSession*	session	= player->getCraftingSession();
-	BString				dataStr;
-	uint32				mode,counter;
+    PlayerObject*		player	= dynamic_cast<PlayerObject*>(object);
+    CraftingSession*	session	= player->getCraftingSession();
+    BString				dataStr;
+    uint32				mode,counter;
 
-	if(!session)
-		return false;
+    if(!session)
+        return false;
 
-	message->getStringUnicode16(dataStr);
+    message->getStringUnicode16(dataStr);
 
-	if(swscanf(dataStr.getUnicode16(),L"%u %u",&counter,&mode) != 2)
-	{
-		gCraftingSessionFactory->destroySession(player->getCraftingSession());
-		return false;
-	}
+    if(swscanf(dataStr.getUnicode16(),L"%u %u",&counter,&mode) != 2)
+    {
+        gCraftingSessionFactory->destroySession(player->getCraftingSession());
+        return false;
+    }
 
-	session->createPrototype(mode,counter);
-	return true;
+    session->createPrototype(mode,counter);
+    return true;
 }
 
 //=============================================================================================================================
@@ -582,25 +582,25 @@ bool CraftingManager::HandleCreatePrototype(Object* object,Object* target,Messag
 
 bool CraftingManager::HandleCreateManufactureSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		player	= dynamic_cast<PlayerObject*>(object);
-	CraftingSession*	session	= player->getCraftingSession();
-	BString				dataStr;
-	uint32				counter;
+    PlayerObject*		player	= dynamic_cast<PlayerObject*>(object);
+    CraftingSession*	session	= player->getCraftingSession();
+    BString				dataStr;
+    uint32				counter;
 
-	if(!session)
-		return false;
+    if(!session)
+        return false;
 
-	message->getStringUnicode16(dataStr);
+    message->getStringUnicode16(dataStr);
 
-	if(swscanf(dataStr.getUnicode16(),L"%u",&counter) != 1)
-	{
-		gCraftingSessionFactory->destroySession(player->getCraftingSession());
-		return false;
-	}
+    if(swscanf(dataStr.getUnicode16(),L"%u",&counter) != 1)
+    {
+        gCraftingSessionFactory->destroySession(player->getCraftingSession());
+        return false;
+    }
 
-	//gLogger->hexDump(message->getData(),message->getSize());
-	session->createManufactureSchematic(counter);
-	return true;
+    //gLogger->hexDump(message->getData(),message->getSize());
+    session->createManufactureSchematic(counter);
+    return true;
 }
 
 //======================================================================================================================

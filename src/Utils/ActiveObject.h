@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 
 #include "Utils/ConcurrentQueue.h"
+#include "Utils/declspec.h"
 
 namespace boost {
     class thread;
@@ -64,17 +65,17 @@ public:
 
 public:
     /// Default constructor kicks off the private thread that listens for incoming messages.
-    ActiveObject();
+    UTILS_API ActiveObject();
 
     /// Default destructor sends an end message and waits for the private thread to complete.
-    ~ActiveObject();
+    UTILS_API ~ActiveObject();
 
     /**
      * Sends a message to be handled by the ActiveObject's private thread.
      *
      * \param Message The message to process on the private thread.
      */
-    void Send(Message message);
+    UTILS_API void Send(Message message);
 
 private:
     ::utils::ConcurrentQueue<Message> message_queue_;

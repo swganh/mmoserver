@@ -35,42 +35,42 @@ template<typename T> void ByteBuffer::SwapEndian_(T& data) const {
 }
 
 template<typename T> ByteBuffer& ByteBuffer::Write(T data) {
-	Write(reinterpret_cast<unsigned char*>(&data), sizeof(T));
-	return *this;
+    Write(reinterpret_cast<unsigned char*>(&data), sizeof(T));
+    return *this;
 }
 
 template<typename T> ByteBuffer& ByteBuffer::WriteAt(size_t offset, T data) {
-	Write(offset, reinterpret_cast<unsigned char*>(&data), sizeof(T));
-	return *this;
+    Write(offset, reinterpret_cast<unsigned char*>(&data), sizeof(T));
+    return *this;
 }
 
 
 template<typename T> const T ByteBuffer::Read(bool do_swap_endian) {
-	T data = Peek<T>(do_swap_endian);
-	read_position_ += sizeof(T);
-	return data;
+    T data = Peek<T>(do_swap_endian);
+    read_position_ += sizeof(T);
+    return data;
 }
 
 template<typename T> const T ByteBuffer::Peek(bool do_swap_endian) const {
-	return PeekAt<T>(read_position_, do_swap_endian);
+    return PeekAt<T>(read_position_, do_swap_endian);
 }
 
 template<typename T> const T ByteBuffer::PeekAt(size_t offset, bool do_swap_endian) const {
-	if (data_.size() < offset + sizeof(T)) {
-		throw std::out_of_range("Read past end of buffer");
-	}
+    if (data_.size() < offset + sizeof(T)) {
+        throw std::out_of_range("Read past end of buffer");
+    }
 
-	T data = *reinterpret_cast<const T*>(&data_[offset]);
+    T data = *reinterpret_cast<const T*>(&data_[offset]);
 
-	if (do_swap_endian)
-		SwapEndian_<T>(data);
+    if (do_swap_endian)
+        SwapEndian_<T>(data);
 
-	return data;
+    return data;
 }
 
 template<typename T> ByteBuffer& operator<<(ByteBuffer& buffer, const T& value) {
-	buffer.Write<T>(value);
-	return buffer;
+    buffer.Write<T>(value);
+    return buffer;
 }
 
 template<> COMMON_API void ByteBuffer::SwapEndian_(uint16_t& data) const;

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_COMMON_APPLICATION_SERVICE_H_
 #define SRC_COMMON_APPLICATION_SERVICE_H_
 
-#include "Common/CommonDeclspec.h"
+#include "Common/declspec.h"
 
 namespace common {
 

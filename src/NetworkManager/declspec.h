@@ -25,33 +25,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_COMMON_DISPATCHCLIENT_H
-#define ANH_COMMON_DISPATCHCLIENT_H
+/** \file declspec.h
+ * \brief Defines the DLL Import/Export declspec macros for the Common library.
+ */
 
-#include "NetworkManager/NetworkClient.h"
-#include "Utils/typedefs.h"
-#include "Common/CommonDeclspec.h"
+#ifndef SRC_NETWORKMANAGER_DECLSPEC_H_
+#define SRC_NETWORKMANAGER_DECLSPEC_H_
 
+// The following block is the standard way of creating macros which make exporting
+// from a DLL simpler. All files within this DLL are compiled with the UTILS_EXPORT
+// symbol defined on the command line. This symbol should not be defined on any project
+// that uses this DLL. This way any other project whose source files include this file see
+// UTILS_API functions as being imported from a DLL, whereas this DLL sees symbols
+// defined with this macro as being exported.
+#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
+#   ifdef NET_EXPORT
+#      define NET_API __declspec(dllexport)
+#   else
+#      define NET_API __declspec(dllimport)
+#   endif 
+#else
+#   define NET_API
+#endif
 
-//======================================================================================================================
-
-class COMMON_API DispatchClient : public NetworkClient
-{
-	public:
-  
-		virtual void	SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
-		virtual void	SendChannelAUnreliable(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
-		void			setAccountId(uint32 id){ mAccountId = id; };
-
-		uint32			getAccountId(void){ return mAccountId; };
-
-	private:
-
-		uint32	mAccountId;
-};
-
-//======================================================================================================================
-
-#endif //MMOSERVER_COMMON_DISPATCHCLIENT_H
-
-
+#endif  // SRC_NETWORKMANAGER_DECLSPEC_H_

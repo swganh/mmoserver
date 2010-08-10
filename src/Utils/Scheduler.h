@@ -28,12 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_UTILS_SCHEDULER_H
 #define ANH_UTILS_SCHEDULER_H
 
+#include <algorithm>
 #include "typedefs.h"
 #include "FastDelegate.h"
 #include "PriorityVector.h"
 #include "clock.h"
-#include <algorithm>
-
+#include "Utils/declspec.h"
 
 typedef fastdelegate::FastDelegate2<uint64,void*,bool> FDCallback;
 
@@ -74,15 +74,15 @@ typedef priority_vector<Task> TaskContainer;
 	{
 		public:
 
-			Scheduler(uint64 processTimeLimit = 100, uint64 throttleLimit = 0);
-			~Scheduler();
+			UTILS_API Scheduler(uint64 processTimeLimit = 100, uint64 throttleLimit = 0);
+			UTILS_API ~Scheduler();
 
-			uint64	addTask(FDCallback callback,uint8 priority,uint64 interval,void* async);
-			void	removeTask(uint64 id);
-			bool	checkTask(uint64 id);
-			void	reset(){ mNextTask = 0; }
-			void	process();
-			bool	runTask();
+			UTILS_API uint64	addTask(FDCallback callback,uint8 priority,uint64 interval,void* async);
+			UTILS_API void	removeTask(uint64 id);
+			UTILS_API bool	checkTask(uint64 id);
+			UTILS_API void	reset(){ mNextTask = 0; }
+			UTILS_API void	process();
+			UTILS_API bool	runTask();
 		
 		protected:
 

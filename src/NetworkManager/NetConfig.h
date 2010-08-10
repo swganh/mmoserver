@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_NETCONFIG_H
 
 #include "Utils/typedefs.h"
+#include "NetworkManager/declspec.h"
 
 #define	gNetConfig	NetConfig::getSingletonPtr()
 
@@ -38,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-class NetConfig 
+class NET_API NetConfig 
 {
 	public:
 

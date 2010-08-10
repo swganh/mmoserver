@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/ActiveObject.h"
 #include "Utils/Singleton.h"
 #include "Common/Event.h"
-#include "Common/CommonDeclspec.h"
+#include "Common/declspec.h"
 
 
 namespace common {
@@ -64,11 +64,11 @@ typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
 typedef std::priority_queue<IEventPtr, std::vector<IEventPtr>, CompareEventWeightLessThanPredicate> EventQueue;
 
-class COMMON_API EventDispatcher {
+class EventDispatcher {
 public:
-    EventDispatcher();
-    explicit EventDispatcher(uint64_t current_time);
-    ~EventDispatcher();
+    COMMON_API EventDispatcher();
+    COMMON_API explicit EventDispatcher(uint64_t current_time);
+    COMMON_API ~EventDispatcher();
 
     /**
      * Connects an event listener to an event. 
@@ -76,7 +76,7 @@ public:
      * \param event_type The event type to check for connected listeners.
      * \param listener The listener interested in the event specified.
      */
-    void Connect(const EventType& event_type, EventListener listener);
+    COMMON_API void Connect(const EventType& event_type, EventListener listener);
 
     /**
      * Disconnects an event listener from an event.
@@ -84,14 +84,14 @@ public:
      * \param event_type The event type to disconnect from.
      * \param event_listener_type The type of the event listener being disconnected.
      */
-    void Disconnect(const EventType& event_type, const EventListenerType& event_listener_type);
+    COMMON_API void Disconnect(const EventType& event_type, const EventListenerType& event_listener_type);
 
     /**
      * Disconnects an event listener from all events.
      *
      * \param event_listener_type The type of the event listener being disconnected.
      */
-    void DisconnectFromAll(const EventListenerType& event_listener_type);
+    COMMON_API void DisconnectFromAll(const EventListenerType& event_listener_type);
 
     /**
      * Gets all of the listeners connected to a specific event type.
@@ -99,47 +99,47 @@ public:
      * \param event_type The event type to check for connected listeners.
      * \return A list of the connected listeners to the specified event.
      */
-    boost::unique_future<std::vector<EventListener>> GetListeners(const EventType& event_type);
+    COMMON_API boost::unique_future<std::vector<EventListener>> GetListeners(const EventType& event_type);
 
     /**
      * Gets a list of all of the registered events.
      * 
      * \returns A list of all the registered events.
      */
-    boost::unique_future<std::vector<EventType>> GetRegisteredEvents();
+    COMMON_API boost::unique_future<std::vector<EventType>> GetRegisteredEvents();
 
     /**
      * Notifies all interested listeners asynchronously that an event has occurred.
      *
      * \param triggered_event The triggered event to be delivered.
      */
-    void Notify(IEventPtr triggered_event);
+    COMMON_API void Notify(IEventPtr triggered_event);
 
     /**
      * Delivers an event immediately to all interested listeners.
      *
      * \param triggered_event The triggered event to be delivered.
      */
-    boost::unique_future<bool> Deliver(IEventPtr triggered_event);
+    COMMON_API boost::unique_future<bool> Deliver(IEventPtr triggered_event);
 
     /**
      * A check to see if there are any events waiting to be processed.
      *
      * \returns Returns true if their are events waiting, false if not.
      */
-    boost::unique_future<bool> HasEvents();
+    COMMON_API boost::unique_future<bool> HasEvents();
 
     /**
      * Processes all queued events.
      */
-    boost::unique_future<bool> Tick(uint64_t new_timestep);
+    COMMON_API boost::unique_future<bool> Tick(uint64_t new_timestep);
 
     /**
      * Returns the current timestep as provided by the most recent call to Tick.
      *
      * \returns The current timestep.
      */
-    boost::unique_future<uint64_t> current_timestep();
+    COMMON_API boost::unique_future<uint64_t> current_timestep();
 
 private:
     /// Disable the default copy constructor.

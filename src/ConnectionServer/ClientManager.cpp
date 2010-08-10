@@ -37,9 +37,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
-#include "Common/MessageOpcodes.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/MessageOpcodes.h"
 
 #include "ConfigManager/ConfigManager.h"
 
@@ -51,26 +51,26 @@ mDatabase(database),
 mMessageRouter(router),
 mConnectionDispatch(dispatch)
 {
-	// Set our member variables
-	mMessageRouter->setClientManager(this);
+    // Set our member variables
+    mMessageRouter->setClientManager(this);
 
-	// Put ourselves on the callback list for this service.
-	mClientService->AddNetworkCallback(this);
+    // Put ourselves on the callback list for this service.
+    mClientService->AddNetworkCallback(this);
 
-	// Register our opcodes
-	mConnectionDispatch->RegisterMessageCallback(opClientIdMsg, this);
-	mConnectionDispatch->RegisterMessageCallback(opSelectCharacter, this);
-	mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferCharacter, this);
+    // Register our opcodes
+    mConnectionDispatch->RegisterMessageCallback(opClientIdMsg, this);
+    mConnectionDispatch->RegisterMessageCallback(opSelectCharacter, this);
+    mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferCharacter, this);
 }
 
 //======================================================================================================================
 
 ClientManager::~ClientManager(void)
 {
-	// Unregister our opcodes
-	mConnectionDispatch->UnregisterMessageCallback(opClientIdMsg);
-	mConnectionDispatch->UnregisterMessageCallback(opSelectCharacter);
-	mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferCharacter);
+    // Unregister our opcodes
+    mConnectionDispatch->UnregisterMessageCallback(opClientIdMsg);
+    mConnectionDispatch->UnregisterMessageCallback(opSelectCharacter);
+    mConnectionDispatch->UnregisterMessageCallback(opClusterZoneTransferCharacter);
 }
 
 //======================================================================================================================
@@ -84,25 +84,25 @@ void ClientManager::Process(void)
 
 void ClientManager::SendMessageToClient(Message* message)
 {
-	// Find our client from the accountId.
+    // Find our client from the accountId.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
 
-	PlayerClientMap::iterator iter = mPlayerClientMap.find(message->getAccountId());
+    PlayerClientMap::iterator iter = mPlayerClientMap.find(message->getAccountId());
 
-	// We're headed to the client, don't use the routing header.
-	message->setRouted(false);
+    // We're headed to the client, don't use the routing header.
+    message->setRouted(false);
 
-	// If we found the client, send the data.
-	if (iter != mPlayerClientMap.end())
-	{
-		ConnectionClient* client = (*iter).second;
-		client->SendChannelA(message, message->getPriority(), message->getFastpath());
-	}
-	else
-	{
-		//happens when the client logs out
-		gMessageFactory->DestroyMessage(message);
-	}
+    // If we found the client, send the data.
+    if (iter != mPlayerClientMap.end())
+    {
+        ConnectionClient* client = (*iter).second;
+        client->SendChannelA(message, message->getPriority(), message->getFastpath());
+    }
+    else
+    {
+        //happens when the client logs out
+        gMessageFactory->DestroyMessage(message);
+    }
 }
 
 //======================================================================================================================
@@ -112,25 +112,25 @@ void ClientManager::SendMessageToClient(Message* message)
 
 void ClientManager::handleServerDown(uint32 serverId)
 {
-	// disconnect all clients that were on this server, if its a zone
-	if(serverId >= 8)
-	{
+    // disconnect all clients that were on this server, if its a zone
+    if(serverId >= 8)
+    {
         boost::recursive_mutex::scoped_lock lk(mServiceMutex);
 
-		PlayerClientMap::iterator it = mPlayerClientMap.begin();
+        PlayerClientMap::iterator it = mPlayerClientMap.begin();
 
-		while(it != mPlayerClientMap.end())
-		{
-			ConnectionClient* client = (*it).second;
+        while(it != mPlayerClientMap.end())
+        {
+            ConnectionClient* client = (*it).second;
 
-			if(client->getServerId() == serverId)
-			{
-				client->Disconnect(0);
-			}
+            if(client->getServerId() == serverId)
+            {
+                client->Disconnect(0);
+            }
 
-			++it;
-		}
-	}
+            ++it;
+        }
+    }
 
 }
 
@@ -138,53 +138,53 @@ void ClientManager::handleServerDown(uint32 serverId)
 
 NetworkClient* ClientManager::handleSessionConnect(Session* session, Service* service)
 {
-	// Create a new client for the network.
-	ConnectionClient* newClient = new ConnectionClient();
+    // Create a new client for the network.
+    ConnectionClient* newClient = new ConnectionClient();
 
-	return reinterpret_cast<NetworkClient*>(newClient);
+    return reinterpret_cast<NetworkClient*>(newClient);
 }
 
 //======================================================================================================================
 
 void ClientManager::handleSessionDisconnect(NetworkClient* client)
 {
-	Message* message;
-	ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
+    Message* message;
+    ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
 
-	// Create a ClusterClientDisconnect message and send it to the servers
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opClusterClientDisconnect);
-	gMessageFactory->addUint32(0);                        // Reason: Disconnected
-	message = gMessageFactory->EndMessage();
+    // Create a ClusterClientDisconnect message and send it to the servers
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opClusterClientDisconnect);
+    gMessageFactory->addUint32(0);                        // Reason: Disconnected
+    message = gMessageFactory->EndMessage();
 
-	message->setAccountId(connClient->getAccountId());
-	message->setDestinationId(CR_Chat);  // chat server
-	message->setRouted(true);
-	mMessageRouter->RouteMessage(message, connClient);
+    message->setAccountId(connClient->getAccountId());
+    message->setDestinationId(CR_Chat);  // chat server
+    message->setRouted(true);
+    mMessageRouter->RouteMessage(message, connClient);
 
-	// Create a ClusterClientDisconnect message and send it to the servers
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opClusterClientDisconnect);
-	gMessageFactory->addUint32(0);                        // Reason: Disconnected
-	message = gMessageFactory->EndMessage();
+    // Create a ClusterClientDisconnect message and send it to the servers
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opClusterClientDisconnect);
+    gMessageFactory->addUint32(0);                        // Reason: Disconnected
+    message = gMessageFactory->EndMessage();
 
-	message->setAccountId(connClient->getAccountId());
-	message->setDestinationId(static_cast<uint8>(connClient->getServerId()));  // zone server
-	message->setRouted(true);
-	mMessageRouter->RouteMessage(message, connClient);
+    message->setAccountId(connClient->getAccountId());
+    message->setDestinationId(static_cast<uint8>(connClient->getServerId()));  // zone server
+    message->setRouted(true);
+    mMessageRouter->RouteMessage(message, connClient);
 
-	// Update the account record that the account is logged out.
-	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET loggedin=0 WHERE account_id=%u;", connClient->getAccountId());
+    // Update the account record that the account is logged out.
+    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET loggedin=0 WHERE account_id=%u;", connClient->getAccountId());
 
-	// Client has disconnected.
+    // Client has disconnected.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
-	PlayerClientMap::iterator iter = mPlayerClientMap.find(connClient->getAccountId());
+    PlayerClientMap::iterator iter = mPlayerClientMap.find(connClient->getAccountId());
 
-	if(iter != mPlayerClientMap.end())
-	{
-		delete ((*iter).second);
-		mPlayerClientMap.erase(iter);
-	}
+    if(iter != mPlayerClientMap.end())
+    {
+        delete ((*iter).second);
+        mPlayerClientMap.erase(iter);
+    }
 }
 
 
@@ -240,7 +240,7 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
       break;
     }
   default:
-  	break;
+    break;
   }
 }
 
@@ -368,16 +368,16 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
     newZoneMessage->setRouted(true);
     mMessageRouter->RouteMessage(newZoneMessage, client);
 
-	// notify the chatserver
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opClusterZoneTransferCharacter);
-	gMessageFactory->addUint32(newPlanetId);
-	newZoneMessage = gMessageFactory->EndMessage();
+    // notify the chatserver
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opClusterZoneTransferCharacter);
+    gMessageFactory->addUint32(newPlanetId);
+    newZoneMessage = gMessageFactory->EndMessage();
 
-	newZoneMessage->setAccountId(message->getAccountId());
-	newZoneMessage->setDestinationId(CR_Chat);
-	newZoneMessage->setRouted(true);
-	mMessageRouter->RouteMessage(newZoneMessage,client);
+    newZoneMessage->setAccountId(message->getAccountId());
+    newZoneMessage->setDestinationId(CR_Chat);
+    newZoneMessage->setRouted(true);
+    mMessageRouter->RouteMessage(newZoneMessage,client);
   }
   else
   {
@@ -398,8 +398,8 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 
     // finally add them to our accountId map.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
-	mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));
-	lk.unlock();
+    mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));
+    lk.unlock();
 
     // send an opClusterClientConnect message to admin server.
     gMessageFactory->StartMessage();

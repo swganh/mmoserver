@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "typedefs.h"
 #include "Scheduler.h"
+#include "Utils/declspec.h"
 
 //==============================================================================================================================
 
@@ -39,7 +40,7 @@ class Scheduler;
 
 namespace Anh_Utils
 {
-	class Clock	//: public TimerCallback
+	class UTILS_API Clock	//: public TimerCallback
 	{
     public:
 		static Clock* getSingleton(){return mSingleton;}

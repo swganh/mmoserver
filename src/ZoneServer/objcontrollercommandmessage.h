@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_OBJCONTROLLER_COMMAND_MESSAGE_H
 
 #include "Utils/typedefs.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/MessageFactory.h"
 
 class Message;
 class ObjectControllerCmdProperties;

@@ -42,94 +42,94 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
 
 void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// The very idea with using ID's instead of object refs are that you can TEST them without using the object itself.
-	// And some parameter validation...
-	if (targetId == 0)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle ID :(");
-		return;
-	}
+    // The very idea with using ID's instead of object refs are that you can TEST them without using the object itself.
+    // And some parameter validation...
+    if (targetId == 0)
+    {
+        gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle ID :(");
+        return;
+    }
 
-	PlayerObject* player	= dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* player	= dynamic_cast<PlayerObject*>(mObject);
 
-	if (player && player->getMount() && (player->getParentId() == 0))
-	{
-		// Do we have a valid target?
-		if (!player->checkIfMounted())
-		{
-			// verify its player's mount
-			MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
-			if (pet && (pet->owner() == player->getId()))
-			{
-				// get the mount Vehicle object by the id (Creature object id - 1 )
+    if (player && player->getMount() && (player->getParentId() == 0))
+    {
+        // Do we have a valid target?
+        if (!player->checkIfMounted())
+        {
+            // verify its player's mount
+            MountObject* pet	= dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
+            if (pet && (pet->owner() == player->getId()))
+            {
+                // get the mount Vehicle object by the id (Creature object id - 1 )
 
-				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
-				{
-					//The /mount command can work up to 32m on live
+                if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
+                {
+                    //The /mount command can work up to 32m on live
                     if(glm::distance(vehicle->body()->mPosition, player->mPosition) <= 32)	{
-						//change locomotion
-						player->setLocomotion(kLocomotionDrivingVehicle);
-						vehicle->MountPlayer();
-					}	else {
-						gMessageLib->SendSystemMessage(L"Your target is too far away to mount.", player);
-					}
-				}
-				else
-				{
-					gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle");
-				}
-			}
-		} else {
-			gMessageLib->SendSystemMessage(L"You cannot mount this because you are already mounted.", player);
-		}
-	}
+                        //change locomotion
+                        player->setLocomotion(kLocomotionDrivingVehicle);
+                        vehicle->MountPlayer();
+                    }	else {
+                        gMessageLib->SendSystemMessage(L"Your target is too far away to mount.", player);
+                    }
+                }
+                else
+                {
+                    gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle");
+                }
+            }
+        } else {
+            gMessageLib->SendSystemMessage(L"You cannot mount this because you are already mounted.", player);
+        }
+    }
 }
 
 //===============================================================================================
 
 void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// The very idea with using ID's instead of object refs are that you can TEST them without using the object itself.
-	// And some parameter validation...
+    // The very idea with using ID's instead of object refs are that you can TEST them without using the object itself.
+    // And some parameter validation...
 
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
-	if (player && player->getMount() && (player->getParentId() == 0))
-	{
-		if (player->checkIfMounted())
-		{
-			// verify its player's mount
-			MountObject* pet = NULL;
-			if (targetId == 0)
-			{
-				// No object targeted, assume the one we are riding.	- what else should we dismount ???
-				pet	= player->getMount();
-			}
-			else
-			{
-				pet = dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
-			}
+    if (player && player->getMount() && (player->getParentId() == 0))
+    {
+        if (player->checkIfMounted())
+        {
+            // verify its player's mount
+            MountObject* pet = NULL;
+            if (targetId == 0)
+            {
+                // No object targeted, assume the one we are riding.	- what else should we dismount ???
+                pet	= player->getMount();
+            }
+            else
+            {
+                pet = dynamic_cast<MountObject*>(gWorldManager->getObjectById(targetId));
+            }
 
-			if (pet && (pet->owner() == player->getId()))
-			{
-				// get the pets controller for a swoop its the vehicle
-				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
-				{
-					player->setLocomotion(kLocomotionStanding);
-					vehicle->DismountPlayer();
-				}
-			}
-		}
-		else
-		{
-			gMessageLib->SendSystemMessage(L"You are not mounted to perform this action.", player);
-		}
-	}
+            if (pet && (pet->owner() == player->getId()))
+            {
+                // get the pets controller for a swoop its the vehicle
+                if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
+                {
+                    player->setLocomotion(kLocomotionStanding);
+                    vehicle->DismountPlayer();
+                }
+            }
+        }
+        else
+        {
+            gMessageLib->SendSystemMessage(L"You are not mounted to perform this action.", player);
+        }
+    }
 }
 
 //===============================================================================================

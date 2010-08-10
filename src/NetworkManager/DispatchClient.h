@@ -25,39 +25,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_UTILS_TIMER_H
-#define ANH_UTILS_TIMER_H
+#ifndef ANH_COMMON_DISPATCHCLIENT_H
+#define ANH_COMMON_DISPATCHCLIENT_H
 
-#include <boost/thread/thread.hpp>
-
-#include "Utils/clock.h"
+#include "NetworkManager/NetworkClient.h"
 #include "Utils/typedefs.h"
+#include "NetworkManager/declspec.h"
 
-#include "Utils/declspec.h"
 
-class TimerCallback;
+//======================================================================================================================
 
-//==============================================================================================================================
-
-class Timer
+class NET_API DispatchClient : public NetworkClient
 {
-public:
-    UTILS_API Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container);
-    UTILS_API ~Timer();
+	public:
+  
+		virtual void	SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
+		virtual void	SendChannelAUnreliable(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
+		void			setAccountId(uint32 id){ mAccountId = id; };
 
-    UTILS_API virtual	void	Run();
+		uint32			getAccountId(void){ return mAccountId; };
 
-    UTILS_API uint32			getId(){ return mId; }
+	private:
 
-private:
-    boost::thread   mThread;
-    void*						mContainer;
-    TimerCallback*	mCallback;
-    uint32					mId;
-    uint64					mInterval;
-    uint64					mLastTick;
+		uint32	mAccountId;
 };
 
-#endif
+//======================================================================================================================
+
+#endif //MMOSERVER_COMMON_DISPATCHCLIENT_H
 
 

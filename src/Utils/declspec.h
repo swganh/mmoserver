@@ -25,39 +25,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_UTILS_TIMER_H
-#define ANH_UTILS_TIMER_H
+/** \file declspec.h
+ * \brief Defines the DLL Import/Export declspec macros for the Common library.
+ */
 
-#include <boost/thread/thread.hpp>
+#ifndef SRC_UTILS_DECLSPEC_H_
+#define SRC_UTILS_DECLSPEC_H_
 
-#include "Utils/clock.h"
-#include "Utils/typedefs.h"
-
-#include "Utils/declspec.h"
-
-class TimerCallback;
-
-//==============================================================================================================================
-
-class Timer
-{
-public:
-    UTILS_API Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container);
-    UTILS_API ~Timer();
-
-    UTILS_API virtual	void	Run();
-
-    UTILS_API uint32			getId(){ return mId; }
-
-private:
-    boost::thread   mThread;
-    void*						mContainer;
-    TimerCallback*	mCallback;
-    uint32					mId;
-    uint64					mInterval;
-    uint64					mLastTick;
-};
-
+// The following block is the standard way of creating macros which make exporting
+// from a DLL simpler. All files within this DLL are compiled with the UTILS_EXPORT
+// symbol defined on the command line. This symbol should not be defined on any project
+// that uses this DLL. This way any other project whose source files include this file see
+// UTILS_API functions as being imported from a DLL, whereas this DLL sees symbols
+// defined with this macro as being exported.
+#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined( __BCPLUSPLUS__)  || defined( __MWERKS__)
+#   ifdef UTILS_EXPORT
+#      define UTILS_API __declspec(dllexport)
+#   else
+#      define UTILS_API __declspec(dllimport)
+#   endif 
+#else
+#   define UTILS_API
 #endif
 
-
+#endif  // SRC_UTILS_DECLSPEC_H_

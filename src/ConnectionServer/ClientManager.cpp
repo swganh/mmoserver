@@ -244,13 +244,12 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 		{
 			DataBinding* binding = mDatabase->CreateDataBinding(2);
 			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCharsAllowed), 4);
-			binding->addField(DFT_uint32, offsetof(MessageRoute, mCurrentChars), 4);
+			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCurrentChars), 4);
 			//uint32 queryResult;
-			result->GetNextRow(binding,&queryResult);
+			result->GetNextRow(binding,&client);
+			client->setAllowedChars(&client.mCharsAllowed);
+			client->setCurrentChars(&client.mCurrentChars);
 			mDatabase->DestroyDataBinding(binding);
-
-			setAllowedChars(mCharsAllowed);
-			setCurrentChars(mCurrentChars);
 		}
   default:
   	break;

@@ -248,6 +248,7 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 			result->GetNextRow(binding,&client);
 			mDatabase->DestroyDataBinding(binding);
 			client->getState(CCSTATE_QueryAuth);
+			mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 		}
   default:
   	break;
@@ -267,8 +268,6 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
   _processAllowedChars(message, client);
 
   // Start our auth query
-  client->setState(CCSTATE_QueryAuth);
-  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 
 }
 

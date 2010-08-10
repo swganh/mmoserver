@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseType.h"
 #include <list>
 #include "Utils/typedefs.h"
+#include "DatabaseManager/declspec.h"
 
 
 //======================================================================================================================
@@ -44,12 +45,12 @@ typedef std::list<Database*>           DatabaseList;
 class DatabaseManager
 {
 public:
-                                  DatabaseManager(void);
-                                  ~DatabaseManager(void);
+  DBMANAGER_API                                 DatabaseManager(void);
+  DBMANAGER_API                                 ~DatabaseManager(void);
 
-  void                            Process(void);
+  DBMANAGER_API void                            Process(void);
 
-  Database*                       Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* dbname);
+  DBMANAGER_API Database*                       Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* dbname);
 
 private:
   DatabaseList                    mDatabaseList;

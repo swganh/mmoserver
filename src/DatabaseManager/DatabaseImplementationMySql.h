@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseImplementation.h"
 #include "Utils/typedefs.h"
+#include "DatabaseManager/declspec.h"
 
 //======================================================================================================================
 class DatabaseResult;
@@ -44,17 +45,17 @@ typedef struct st_mysql_rows MYSQL_ROWS;
 class DatabaseImplementationMySql : public DatabaseImplementation
 {
 public:
-									 DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema);
-  virtual							~DatabaseImplementationMySql(void);
+  DBMANAGER_API                                    DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema);
+  DBMANAGER_API virtual							~DatabaseImplementationMySql(void);
   
-  virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false);
-  virtual DatabaseWorkerThread*		DestroyResult(DatabaseResult* result);
+  DBMANAGER_API virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false);
+  DBMANAGER_API virtual DatabaseWorkerThread*		DestroyResult(DatabaseResult* result);
 
-  virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object);
-  virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0);
-  virtual uint64					GetInsertId(void);
+  DBMANAGER_API virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object);
+  DBMANAGER_API virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0);
+  DBMANAGER_API virtual uint64					GetInsertId(void);
 
-  virtual uint32					Escape_String(int8* target,const int8* source,uint32 length);
+  DBMANAGER_API virtual uint32					Escape_String(int8* target,const int8* source,uint32 length);
 
 private:
   MYSQL*                      mConnection;

@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_DATABASEMANAGER_DATABASERESULT_H
 
 #include "Utils/typedefs.h"
+#include "DatabaseManager/declspec.h"
 
 
 //======================================================================================================================
@@ -38,11 +39,11 @@ class DatabaseWorkerThread;
 
 
 //======================================================================================================================
-class DatabaseResult
+class DBMANAGER_API DatabaseResult
 {
 public:
                               DatabaseResult(bool multiResult = false) 
-								  :mWorkerReference(0), mConnectionReference(0),mResultSetReference(0),mRowCount(0),mDatabaseImplementation(0),mMultiResult(multiResult) {};
+                                  :mWorkerReference(0), mConnectionReference(0),mResultSetReference(0),mRowCount(0),mDatabaseImplementation(0),mMultiResult(multiResult) {};
                               ~DatabaseResult(void) {};
 
   virtual void               GetNextRow(DataBinding* dataBinding, void* object);

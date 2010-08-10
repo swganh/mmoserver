@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseType.h"
 #include "Utils/typedefs.h"
+#include "DatabaseManager/declspec.h"
 #include <boost/thread/thread.hpp>
 
 //======================================================================================================================
@@ -43,14 +44,14 @@ class DatabaseImplementation;
 class DatabaseWorkerThread
 {
 public:
-                              DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-                              ~DatabaseWorkerThread(void);
+  DBMANAGER_API                             DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
+  DBMANAGER_API                             ~DatabaseWorkerThread(void);
 
-  virtual void				  run(); 
+  DBMANAGER_API virtual void				  run(); 
 
-  void                        ExecuteJob(DatabaseJob* job);
+  DBMANAGER_API void                        ExecuteJob(DatabaseJob* job);
 
-  void						  requestExit(){ mExit = true; }
+  DBMANAGER_API void						  requestExit(){ mExit = true; }
 
 protected:
   int8                        mHostname[256];

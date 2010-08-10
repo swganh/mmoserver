@@ -39,10 +39,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/declspec.h"
 
 //======================================================================================================================
 DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema) :
-	DatabaseImplementation(host, port, user, pass, schema)
+    DatabaseImplementation(host, port, user, pass, schema)
 {
   MYSQL*        connect = 0;
 
@@ -71,7 +72,7 @@ DatabaseImplementationMySql::~DatabaseImplementationMySql(void)
 //======================================================================================================================
 DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure)
 {
-	DatabaseResult* newResult = new(ResultPool::ordered_malloc()) DatabaseResult(procedure);
+    DatabaseResult* newResult = new(ResultPool::ordered_malloc()) DatabaseResult(procedure);
 
   newResult->setDatabaseImplementation(this);
 
@@ -104,26 +105,26 @@ DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure
 
 DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult* result)
 {
-	DatabaseWorkerThread* worker = NULL;
+    DatabaseWorkerThread* worker = NULL;
 
-	if((MYSQL_RES*)result->getResultSetReference() == mResultSet)
-		mResultSet = NULL;
+    if((MYSQL_RES*)result->getResultSetReference() == mResultSet)
+        mResultSet = NULL;
 
-	mysql_free_result((MYSQL_RES*)result->getResultSetReference());
+    mysql_free_result((MYSQL_RES*)result->getResultSetReference());
 
-	if(result->isMultiResult())
-	{
-		while(mysql_next_result((MYSQL*)result->getConnectionReference()) == 0)
-		{
-			mysql_free_result(mysql_store_result((MYSQL*)result->getConnectionReference()));
-		}
+    if(result->isMultiResult())
+    {
+        while(mysql_next_result((MYSQL*)result->getConnectionReference()) == 0)
+        {
+            mysql_free_result(mysql_store_result((MYSQL*)result->getConnectionReference()));
+        }
 
-		worker = result->getWorkerReference();
-	}
+        worker = result->getWorkerReference();
+    }
 
-	ResultPool::ordered_free(result);
+    ResultPool::ordered_free(result);
 
-	return(worker);
+    return(worker);
 }
 
 
@@ -162,10 +163,10 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
           }
         case DFT_uint16:
           {
-			  if(row[binding->mDataFields[i].mColumn])
-				*((unsigned short*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = atoi(row[binding->mDataFields[i].mColumn]);
-			  else
-				  *((unsigned short*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = 0;
+              if(row[binding->mDataFields[i].mColumn])
+                *((unsigned short*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = atoi(row[binding->mDataFields[i].mColumn]);
+              else
+                  *((unsigned short*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = 0;
 
             break;
           }
@@ -176,7 +177,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
           }
         case DFT_uint32:
           {
-			  *((uint32*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<uint32>(row[binding->mDataFields[i].mColumn]);
+              *((uint32*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<uint32>(row[binding->mDataFields[i].mColumn]);
             break;
           }
         case DFT_int64:
@@ -191,7 +192,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
           }
         case DFT_float:
           {
-			  *((float*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<float>(row[binding->mDataFields[i].mColumn]);
+              *((float*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<float>(row[binding->mDataFields[i].mColumn]);
             break;
           }
         case DFT_double:
@@ -218,11 +219,11 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
             break;
           }
 
-		case DFT_raw:
-		{
-			memcpy(&((char*)object)[binding->mDataFields[i].mDataOffset],row[binding->mDataFields[i].mColumn],lengths[binding->mDataFields[i].mColumn]);
-		}
-		break;
+        case DFT_raw:
+        {
+            memcpy(&((char*)object)[binding->mDataFields[i].mDataOffset],row[binding->mDataFields[i].mColumn],lengths[binding->mDataFields[i].mColumn]);
+        }
+        break;
 
         default:
           {
@@ -238,16 +239,16 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
 //======================================================================================================================
 void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64 index)
 {
-	if(!result){
-		gLogger->log(LogManager::CRITICAL,"Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.");
-		return;
-	}
-	MYSQL_RES* temp = (MYSQL_RES*)result->getResultSetReference();
-	if(!temp)
-	{
-		gLogger->log(LogManager::CRITICAL,"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.");
-		return;
-	}
+    if(!result){
+        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.");
+        return;
+    }
+    MYSQL_RES* temp = (MYSQL_RES*)result->getResultSetReference();
+    if(!temp)
+    {
+        gLogger->log(LogManager::CRITICAL,"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.");
+        return;
+    }
   mysql_data_seek(temp, index);
 }
 
@@ -262,17 +263,17 @@ uint64 DatabaseImplementationMySql::GetInsertId(void)
 
 uint32 DatabaseImplementationMySql::Escape_String(int8* target,const int8* source,uint32 length)
 {
-	if(!target) 
-	{
-		gLogger->log(LogManager::CRITICAL,"Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.");
-		return 0;
-	}
-	if(!source) 
-	{
-		gLogger->log(LogManager::CRITICAL,"Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.");
-		return 0;
-	}
-	return(mysql_real_escape_string(mConnection,target,source,length));
+    if(!target) 
+    {
+        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.");
+        return 0;
+    }
+    if(!source) 
+    {
+        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.");
+        return 0;
+    }
+    return(mysql_real_escape_string(mConnection,target,source,length));
 }
 
 //======================================================================================================================

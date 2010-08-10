@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include "Utils/typedefs.h"
+#include "DatabaseManager/declspec.h"
 #include <boost/pool/pool.hpp>
 
 
@@ -44,13 +45,13 @@ class DataBindingFactory
 {
 	public:
 
-		DataBindingFactory(void);
-		~DataBindingFactory(void);
+		DBMANAGER_API DataBindingFactory(void);
+		DBMANAGER_API ~DataBindingFactory(void);
 
-		DataBinding*	CreateDataBinding(uint16 fieldCount);
-		void			DestroyDataBinding(DataBinding* binding);
+		DBMANAGER_API DataBinding*	CreateDataBinding(uint16 fieldCount);
+		DBMANAGER_API void			DestroyDataBinding(DataBinding* binding);
 
-		bool			releasePoolMemory(){ return(mDataBindingPool.release_memory()); }
+		DBMANAGER_API bool			releasePoolMemory(){ return(mDataBindingPool.release_memory()); }
 
 	private:
 

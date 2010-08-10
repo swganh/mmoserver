@@ -236,7 +236,6 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
   {
   case CCSTATE_QueryAuth:
     {
-	   // Retrieve the current number of characters for a client (synchronously)
       _handleQueryAuth(client, result);
       break;
     }
@@ -247,8 +246,6 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCurrentChars), 4);
 			//uint32 queryResult;
 			result->GetNextRow(binding,&client);
-			client->setAllowedChars(&client.mCharsAllowed);
-			client->setCurrentChars(&client.mCurrentChars);
 			mDatabase->DestroyDataBinding(binding);
 		}
   default:
@@ -270,6 +267,7 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
   client->setState(CCSTATE_QueryAuth);
   mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 
+  _processAllowedChars();
 }
 
 //======================================================================================================================
@@ -425,12 +423,6 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
     adminMessage->setRouted(true);
     mMessageRouter->RouteMessage(adminMessage, client);
 
-	// grab the database result for characters allowed and store into client
-	// will get rid of this databinding stuff soon
-	// TODO: remove databindings
-
-	uint32 charsAllowed = 0;
-	
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opClientPermissionsMessage);
     gMessageFactory->addUint8(1);             // Galaxy Available

@@ -236,7 +236,7 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
   {
   case CCSTATE_QueryAuth:
     {
-      _handleQueryAuth(client, result);
+     // _handleQueryAuth(client, result);
       break;
     }
 	case CCSTATE_AllowedChars:
@@ -247,6 +247,7 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 			//uint32 queryResult;
 			result->GetNextRow(binding,&client);
 			mDatabase->DestroyDataBinding(binding);
+			_handleQueryAuth(client, result);
 		}
   default:
   	break;
@@ -263,11 +264,11 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
   message->setIndex(message->getIndex() + (uint16)dataSize - 4);
   client->setAccountId(message->getUint32());
 
+  _processAllowedChars(message, client);
   // Start our auth query
   client->setState(CCSTATE_QueryAuth);
   mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 
-  _processAllowedChars();
 }
 
 //======================================================================================================================

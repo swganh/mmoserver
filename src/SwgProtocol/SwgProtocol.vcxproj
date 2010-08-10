@@ -74,10 +74,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BurstRunEvents.cpp" />
+    <ClCompile Include="ObjectControllerEvents.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BurstRunEvents.h" />
     <ClInclude Include="declspec.h" />
+    <ClInclude Include="ObjectControllerEvents.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">

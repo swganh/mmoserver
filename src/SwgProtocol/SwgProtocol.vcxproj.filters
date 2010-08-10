@@ -14,12 +14,18 @@
     <ClCompile Include="BurstRunEvents.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectControllerEvents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BurstRunEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="declspec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectControllerEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

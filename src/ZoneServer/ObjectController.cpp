@@ -53,6 +53,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "Utils/clock.h"
 
+#include "SwgProtocol/ObjectControllerEvents.h"
+
 #include <cassert>
 
 using ::common::IEventPtr;
@@ -380,9 +382,11 @@ bool ObjectController::_processCommandQueue()
 
                         // If a new style handler is found process it.
                         if (message && it != gObjectControllerCommands->getCommandMap().end()) {
+                            std::shared_ptr<::swg_protocol::object_controller::PreCommandEvent> pre_event = std::make_shared<::swg_protocol::object_controller::PreCommandEvent>(mObject->getId(), Anh_Utils::Clock::getSingleton()->getGlobalTime(), 0);
+                            
                             // Trigger a pre-command processing event and get the result. This allows
                             // any listeners to veto the processing of the command (such as validators).
-                            bool process_command_check = false; //gEventDispatcher.Deliver(std::make_shared<Event>(EventType("object_controller.pre_command_process"))).get();
+                            bool process_command_check = gEventDispatcher.Deliver(pre_event).get();
 
                             //std::shared_ptr<ObjectController::PreCommandEvent> pre_event = std::make_shared<ObjectController::PreCommandEvent>(new Event(EventType("object_controller.pre_command_process")));
                             //pre_event->object_id(mObject->getId());
@@ -393,7 +397,9 @@ bool ObjectController::_processCommandQueue()
                             // Only process the command if it passed validation from the above.
                             if (process_command_check) {
                                 bool command_processed = ((*it).second)(mObject, target, message, cmdProperties);
-                              //  gEventDispatcher.Deliver(std::make_shared<Event>(EventType("object_controller.post_command_process")));
+                                
+                                std::shared_ptr<::swg_protocol::object_controller::PostCommandEvent> post_event = std::make_shared<::swg_protocol::object_controller::PostCommandEvent>(mObject->getId(), Anh_Utils::Clock::getSingleton()->getGlobalTime(), 0);                            
+                                gEventDispatcher.Deliver(post_event);
                             }
                         } else {
                             // Otherwise, process the old style handler.

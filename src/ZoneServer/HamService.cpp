@@ -43,7 +43,7 @@ HamService::HamService(::common::EventDispatcher& event_dispatcher)
 HamService::~HamService() {}
 
 void HamService::onInitialize() {
-    event_dispatcher_.Connect(EventType("object_controller.pre_command_process"), EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handleSuccessfulObjectControllerCommand, this, std::placeholders::_1)));
+    event_dispatcher_.Connect(EventType("PreCommandProcess"), EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handleSuccessfulObjectControllerCommand, this, std::placeholders::_1)));
 }
 
 bool HamService::handleSuccessfulObjectControllerCommand(IEventPtr triggered_event) {

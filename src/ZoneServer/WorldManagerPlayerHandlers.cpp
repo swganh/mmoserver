@@ -67,7 +67,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "QuadTree.h"
 #include "Shuttle.h"
 #include "TicketCollector.h"
-#include "ConfigManager/ConfigManager.h"
+#include "Common/ConfigManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -82,55 +82,55 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
 {
-	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
-	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(object,&inRangeObjects,(ObjType_Player),gWorldConfig->getPlayerViewingRange());
+    // we still query for players here, cause they are found through the buildings and arent kept in a qtree
+    ObjectSet inRangeObjects;
+    mSpatialIndex->getObjectsInRange(object,&inRangeObjects,(ObjType_Player),gWorldConfig->getPlayerViewingRange());
 
-	// query the according qtree, if we are in one
-	if(object->getSubZoneId())
-	{
-		if(QTRegion* region = getQTRegion(object->getSubZoneId()))
-		{
-			float				viewingRange	= _GetMessageHeapLoadViewingRange();
-			//float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
-			Anh_Math::Rectangle qRect;
+    // query the according qtree, if we are in one
+    if(object->getSubZoneId())
+    {
+        if(QTRegion* region = getQTRegion(object->getSubZoneId()))
+        {
+            float				viewingRange	= _GetMessageHeapLoadViewingRange();
+            //float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
+            Anh_Math::Rectangle qRect;
 
-			if(!object->getParentId())
-			{
-				qRect = Anh_Math::Rectangle(object->mPosition.x - viewingRange,object->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-			}
-			else
-			{
-				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(object->getParentId()));
-				BuildingObject* building	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId()));
+            if(!object->getParentId())
+            {
+                qRect = Anh_Math::Rectangle(object->mPosition.x - viewingRange,object->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
+            }
+            else
+            {
+                CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(object->getParentId()));
+                BuildingObject* building	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId()));
 
-				qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-			}
+                qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
+            }
 
-			region->mTree->getObjectsInRange(object,&inRangeObjects,ObjType_Player,&qRect);
-		}
-	}
+            region->mTree->getObjectsInRange(object,&inRangeObjects,ObjType_Player,&qRect);
+        }
+    }
 
-	// iterate through the results
-	ObjectSet::iterator it = inRangeObjects.begin();
+    // iterate through the results
+    ObjectSet::iterator it = inRangeObjects.begin();
 
-	while(it != inRangeObjects.end())
-	{
-		PlayerObject* pObject = dynamic_cast<PlayerObject*>(*it);
+    while(it != inRangeObjects.end())
+    {
+        PlayerObject* pObject = dynamic_cast<PlayerObject*>(*it);
 
-		if(pObject)
-		{
-			if(pObject != player)
-			{
-				gMessageLib->sendCreateObject(object,pObject);
-				pObject->addKnownObjectSafe(object);
-				object->addKnownObjectSafe(pObject);
-			}
+        if(pObject)
+        {
+            if(pObject != player)
+            {
+                gMessageLib->sendCreateObject(object,pObject);
+                pObject->addKnownObjectSafe(object);
+                object->addKnownObjectSafe(pObject);
+            }
 
-		}
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
 }
 
@@ -139,100 +139,100 @@ void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
 
 void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, CharacterLoadingContainer* clContainer)
 {
-	PlayerObject* playerObject			= getPlayerByAccId(accId);
-	if(!playerObject){
-		gLogger->log(LogManager::DEBUG,"WorldManager::savePlayer could not find player with AccId:%u, save aborted.",accId);
-		return;
-	}
+    PlayerObject* playerObject			= getPlayerByAccId(accId);
+    if(!playerObject){
+        gLogger->log(LogManager::DEBUG,"WorldManager::savePlayer could not find player with AccId:%u, save aborted.",accId);
+        return;
+    }
 
-	// WMQuery_SavePlayer_Position is the query handler called by the buffmanager when all the buffcallbacks are finished
-	// we prepare the asynccontainer here already
-	WMAsyncContainer* asyncContainer	= new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SavePlayer_Position);
+    // WMQuery_SavePlayer_Position is the query handler called by the buffmanager when all the buffcallbacks are finished
+    // we prepare the asynccontainer here already
+    WMAsyncContainer* asyncContainer	= new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SavePlayer_Position);
 
-	if(remove)
-	{
-		asyncContainer->mBool = true;
-	}
+    if(remove)
+    {
+        asyncContainer->mBool = true;
+    }
 
-	//clarify what handler we have to call after saving - if any
-	asyncContainer->mObject			= playerObject;
-	asyncContainer->mLogout			=   mLogout;
-	asyncContainer->clContainer		=	clContainer;
+    //clarify what handler we have to call after saving - if any
+    asyncContainer->mObject			= playerObject;
+    asyncContainer->mLogout			=   mLogout;
+    asyncContainer->clContainer		=	clContainer;
 
-	switch (mLogout)
-	{
-		case WMLogOut_LogOut:
-		case WMLogOut_Char_Load:
-			mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-									,mZoneId,playerObject->getJediState(),playerObject->getId());
-			break;
+    switch (mLogout)
+    {
+        case WMLogOut_LogOut:
+        case WMLogOut_Char_Load:
+            mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+                                    ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+                                    ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+                                    ,mZoneId,playerObject->getJediState(),playerObject->getId());
+            break;
 
-		case WMLogOut_No_LogOut:
-		case WMLogOut_Zone_Transfer:
-			//start by saving the buffs the buffmanager will deal with the buffspecific db callbacks and start the position safe at their end
-			//which will return its callback to the worldmanager
-			//if no buff was there to be saved we will continue directly
-		if(playerObject && playerObject->isConnected() && !playerObject->isBeingDestroyed())
-		{
-			if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
-			{
-					// position save will be called by the buff callback if there is any buff
-				mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-									,mZoneId,playerObject->getJediState(),playerObject->getId());
-			}
-		}
-		break;
-		default:
-			gLogger->log(LogManager::DEBUG,"We should never get in here, make sure to call savePlayer with the enum WMLogOut");
-	}
+        case WMLogOut_No_LogOut:
+        case WMLogOut_Zone_Transfer:
+            //start by saving the buffs the buffmanager will deal with the buffspecific db callbacks and start the position safe at their end
+            //which will return its callback to the worldmanager
+            //if no buff was there to be saved we will continue directly
+        if(playerObject && playerObject->isConnected() && !playerObject->isBeingDestroyed())
+        {
+            if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
+            {
+                    // position save will be called by the buff callback if there is any buff
+                mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+                                    ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+                                    ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+                                    ,mZoneId,playerObject->getJediState(),playerObject->getId());
+            }
+        }
+        break;
+        default:
+            gLogger->log(LogManager::DEBUG,"We should never get in here, make sure to call savePlayer with the enum WMLogOut");
+    }
 }
 
 //======================================================================================================================
 
 void WorldManager::savePlayerSync(uint32 accId,bool remove)
 {
-	PlayerObject* playerObject = getPlayerByAccId(accId);
-	Ham* ham = playerObject->getHam();
+    PlayerObject* playerObject = getPlayerByAccId(accId);
+    Ham* ham = playerObject->getHam();
 
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-						,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-						,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-						,mZoneId,playerObject->getId()));
+    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+                        ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+                        ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+                        ,mZoneId,playerObject->getId()));
 
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
-								",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
-								",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
-								",character_flags=%u,states=%"PRIu64",language=%u, group_id=%"PRIu64" WHERE character_id=%"PRIu64"",
-								ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
-								ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
-								ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier(),	 //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
-								ham->mHealth.getWounds(),
-								ham->mStrength.getWounds(),
-								ham->mConstitution.getWounds(),
-								ham->mAction.getWounds(),
-								ham->mQuickness.getWounds(),
-								ham->mStamina.getWounds(),
-								ham->mMind.getWounds(),
-								ham->mFocus.getWounds(),
-								ham->mWillpower.getWounds(),
-								ham->getBattleFatigue(),
-								playerObject->getPosture(),
-								playerObject->getMoodId(),
-								playerObject->getTitle().getAnsi(),
-								playerObject->getPlayerFlags(),
-								playerObject->getState(),
-								playerObject->getLanguage(),
-								playerObject->getGroupId(),
-								playerObject->getId()));
+    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
+                                ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
+                                ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
+                                ",character_flags=%u,states=%"PRIu64",language=%u, group_id=%"PRIu64" WHERE character_id=%"PRIu64"",
+                                ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
+                                ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(), //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
+                                ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier(),	 //Llloydyboy Added the -Modifier so that when buffs are reinitialised, it doesn't screw up HAM
+                                ham->mHealth.getWounds(),
+                                ham->mStrength.getWounds(),
+                                ham->mConstitution.getWounds(),
+                                ham->mAction.getWounds(),
+                                ham->mQuickness.getWounds(),
+                                ham->mStamina.getWounds(),
+                                ham->mMind.getWounds(),
+                                ham->mFocus.getWounds(),
+                                ham->mWillpower.getWounds(),
+                                ham->getBattleFatigue(),
+                                playerObject->getPosture(),
+                                playerObject->getMoodId(),
+                                playerObject->getTitle().getAnsi(),
+                                playerObject->getPlayerFlags(),
+                                playerObject->getState(),
+                                playerObject->getLanguage(),
+                                playerObject->getGroupId(),
+                                playerObject->getId()));
 
 
-	gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
-	if(remove)
-		destroyObject(playerObject);
+    gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
+    if(remove)
+        destroyObject(playerObject);
 }
 
 //======================================================================================================================
@@ -240,143 +240,143 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
 // TODO: add in server config how often they can save
 bool WorldManager::checkSavePlayer(PlayerObject* playerObject)
 { 
-	return (playerObject->getSaveTimer() >= 12000);
+    return (playerObject->getSaveTimer() >= 12000);
 }
 //======================================================================================================================
 
 PlayerObject*	WorldManager::getPlayerByAccId(uint32 accId)
 {
- 	PlayerAccMap::iterator it = mPlayerAccMap.find(accId);
+    PlayerAccMap::iterator it = mPlayerAccMap.find(accId);
 
-	if(it != mPlayerAccMap.end())
-	{
-		return(PlayerObject*)((*it).second);
-	}
+    if(it != mPlayerAccMap.end())
+    {
+        return(PlayerObject*)((*it).second);
+    }
 
-	return(NULL);
+    return(NULL);
 }
 
 //======================================================================================================================
 
 void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 {
-	uint32 timeOut = gWorldConfig->getConfiguration<uint32>("Zone_Player_Logout",300);
+    uint32 timeOut = gWorldConfig->getConfiguration<uint32>("Zone_Player_Logout",300);
 
-	gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",playerObject->getId(),timeOut);
+    gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",playerObject->getId(),timeOut);
 
-	// Halt the tutorial scripts, if running.
-	playerObject->stopTutorial();
+    // Halt the tutorial scripts, if running.
+    playerObject->stopTutorial();
 
 
-	Datapad* datapad			= playerObject->getDataPad();
+    Datapad* datapad			= playerObject->getDataPad();
 
-	if(playerObject->getMount() && datapad)
-	{
-		if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->controller())))
-		{
-			datapad_pet->Store();
-		}
-	}
+    if(playerObject->getMount() && datapad)
+    {
+        if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(datapad->getDataById(playerObject->getMount()->controller())))
+        {
+            datapad_pet->Store();
+        }
+    }
 
-	// Delete private owned spawned objects, like npc's in the Tutorial.
-	uint64 privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
-	while (privateOwnedObjectId != 0)
-	{
-		// Delete the object ref from script support.
-		ScriptSupport::Instance()->eraseObject(privateOwnedObjectId);
+    // Delete private owned spawned objects, like npc's in the Tutorial.
+    uint64 privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
+    while (privateOwnedObjectId != 0)
+    {
+        // Delete the object ref from script support.
+        ScriptSupport::Instance()->eraseObject(privateOwnedObjectId);
 
-		// We did have a private npc. Let us delete him/her/that.
-		if (Object* object = getObjectById(privateOwnedObjectId))
-		{
-			// But first, remove npc from our defender list.
-			playerObject->removeDefenderAndUpdateList(object->getId());
+        // We did have a private npc. Let us delete him/her/that.
+        if (Object* object = getObjectById(privateOwnedObjectId))
+        {
+            // But first, remove npc from our defender list.
+            playerObject->removeDefenderAndUpdateList(object->getId());
 
-			destroyObject(object);
-			// gLogger->log(LogManager::DEBUG,"WorldManager::addDisconnectedPlayer Deleted object with id  %"PRIu64"",privateOwnedObjectId);
-		}
+            destroyObject(object);
+            // gLogger->log(LogManager::DEBUG,"WorldManager::addDisconnectedPlayer Deleted object with id  %"PRIu64"",privateOwnedObjectId);
+        }
 
-		privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
-	}
+        privateOwnedObjectId = ScriptSupport::Instance()->getObjectOwnedBy(playerObject->getId());
+    }
 
-	removeObjControllerToProcess(playerObject->getController()->getTaskId());
-	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
-	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
-	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
-	removeEntertainerToProcess(playerObject->getEntertainerTaskId());
+    removeObjControllerToProcess(playerObject->getController()->getTaskId());
+    removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+    removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+    removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
+    removeEntertainerToProcess(playerObject->getEntertainerTaskId());
 
-	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
-	playerObject->setCraftingSession(NULL);
-	playerObject->toggleStateOff(CreatureState_Crafting);
+    gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
+    playerObject->setCraftingSession(NULL);
+    playerObject->toggleStateOff(CreatureState_Crafting);
 
-	//despawn camps ??? - every reference is over id though
+    //despawn camps ??? - every reference is over id though
 
-	playerObject->getController()->setTaskId(0);
-	playerObject->getHam()->setTaskId(0);
-	playerObject->setSurveyState(false);
-	playerObject->setSamplingState(false);
-	playerObject->togglePlayerFlagOn(PlayerFlag_LinkDead);
-	playerObject->setConnectionState(PlayerConnState_LinkDead);
-	playerObject->setDisconnectTime(timeOut);
-	
-	//add to the disconnect list
-	addPlayerToDisconnectedList(playerObject);
+    playerObject->getController()->setTaskId(0);
+    playerObject->getHam()->setTaskId(0);
+    playerObject->setSurveyState(false);
+    playerObject->setSamplingState(false);
+    playerObject->togglePlayerFlagOn(PlayerFlag_LinkDead);
+    playerObject->setConnectionState(PlayerConnState_LinkDead);
+    playerObject->setDisconnectTime(timeOut);
+    
+    //add to the disconnect list
+    addPlayerToDisconnectedList(playerObject);
 
-	gMessageLib->sendUpdatePlayerFlags(playerObject);
+    gMessageLib->sendUpdatePlayerFlags(playerObject);
 }
 
 //======================================================================================================================
 
 void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
 {
-	uint32 timeOut = gWorldConfig->getConfiguration<uint32>("Zone_Player_Logout",300);
+    uint32 timeOut = gWorldConfig->getConfiguration<uint32>("Zone_Player_Logout",300);
 
-	playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
-	playerObject->setConnectionState(PlayerConnState_Connected);
+    playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
+    playerObject->setConnectionState(PlayerConnState_Connected);
 
-	// Restart the tutorial.
-	playerObject->startTutorial();
+    // Restart the tutorial.
+    playerObject->startTutorial();
 
-	playerObject->setDisconnectTime(timeOut);
+    playerObject->setDisconnectTime(timeOut);
 
-	// resetting move, save and tickcounters
-	playerObject->setInMoveCount(0);
-	playerObject->setClientTickCount(0);
-	playerObject->setSaveTimer(0);
+    // resetting move, save and tickcounters
+    playerObject->setInMoveCount(0);
+    playerObject->setClientTickCount(0);
+    playerObject->setSaveTimer(0);
 
-	gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") reconnected",playerObject->getId());
+    gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") reconnected",playerObject->getId());
 
-	removePlayerFromDisconnectedList(playerObject);
+    removePlayerFromDisconnectedList(playerObject);
 }
 
 //======================================================================================================================
 
 void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 {
-	PlayerList::iterator it;
-	
-	it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
-	if(it == mPlayersToRemove.end())
-	{
-		gLogger->log(LogManager::DEBUG,"WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %"PRIu64"",playerObject->getId());
-	}
-	else
-	{
-		mPlayersToRemove.erase(it);
-	}
+    PlayerList::iterator it;
+    
+    it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
+    if(it == mPlayersToRemove.end())
+    {
+        gLogger->log(LogManager::DEBUG,"WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %"PRIu64"",playerObject->getId());
+    }
+    else
+    {
+        mPlayersToRemove.erase(it);
+    }
 }
 
 void WorldManager::addPlayerToDisconnectedList(PlayerObject* playerObject)
 {
-	PlayerList::iterator it;
-	it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
-	if( it == mPlayersToRemove.end())
-	{
-		mPlayersToRemove.push_back(playerObject);
-	}
-	else
-	{
-		gLogger->log(LogManager::DEBUG,"WorldManager::addPlayerToDisconnectedList: Error adding Player : already on List: %"PRIu64"",playerObject->getId());
-	}
+    PlayerList::iterator it;
+    it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
+    if( it == mPlayersToRemove.end())
+    {
+        mPlayersToRemove.push_back(playerObject);
+    }
+    else
+    {
+        gLogger->log(LogManager::DEBUG,"WorldManager::addPlayerToDisconnectedList: Error adding Player : already on List: %"PRIu64"",playerObject->getId());
+    }
 }
 
 //======================================================================================================================
@@ -386,95 +386,95 @@ void WorldManager::addPlayerToDisconnectedList(PlayerObject* playerObject)
 
 void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& destination, uint64 parentId, const glm::quat& direction)
 {
-	removePlayerMovementUpdateTime(playerObject);
+    removePlayerMovementUpdateTime(playerObject);
 
-	// remove player from objects in his range.	
-	playerObject->destroyKnownObjects();
+    // remove player from objects in his range.	
+    playerObject->destroyKnownObjects();
 
-	// remove from cell / SI
-	if(playerObject->getParentId())
-	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId())))
-		{
-			cell->removeObject(playerObject);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"WorldManager::removePlayer: couldn't find cell %"PRIu64"",playerObject->getParentId());
-		}
-	}
-	else
-	{
-		if(playerObject->getSubZoneId())
-		{
-			if(QTRegion* region = getQTRegion(playerObject->getSubZoneId()))
-			{
-				playerObject->setSubZoneId(0);
-				region->mTree->removeObject(playerObject);
-			}
-		}
-	}
+    // remove from cell / SI
+    if(playerObject->getParentId())
+    {
+        if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId())))
+        {
+            cell->removeObject(playerObject);
+        }
+        else
+        {
+            gLogger->log(LogManager::DEBUG,"WorldManager::removePlayer: couldn't find cell %"PRIu64"",playerObject->getParentId());
+        }
+    }
+    else
+    {
+        if(playerObject->getSubZoneId())
+        {
+            if(QTRegion* region = getQTRegion(playerObject->getSubZoneId()))
+            {
+                playerObject->setSubZoneId(0);
+                region->mTree->removeObject(playerObject);
+            }
+        }
+    }
 
-	// remove any timers running
-	//why remove that ?
-	//removeObjControllerToProcess(playerObject->getController()->getTaskId());
-	//playerObject->getController()->clearQueues();
-	//playerObject->getController()->setTaskId(0);
-	
-	//why remove that ?	
-	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
-	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
-	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
-	//we've removed the taskId, now lets reset the Id
-	playerObject->getHam()->setTaskId(0);
+    // remove any timers running
+    //why remove that ?
+    //removeObjControllerToProcess(playerObject->getController()->getTaskId());
+    //playerObject->getController()->clearQueues();
+    //playerObject->getController()->setTaskId(0);
+    
+    //why remove that ?	
+    removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+    removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+    removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
+    //we've removed the taskId, now lets reset the Id
+    playerObject->getHam()->setTaskId(0);
 
-	// reset player properties
-	playerObject->resetProperties();
+    // reset player properties
+    playerObject->resetProperties();
 
-	playerObject->setParentId(parentId);
-	playerObject->mPosition		= destination;
-	playerObject->mDirection	= direction;
+    playerObject->setParentId(parentId);
+    playerObject->mPosition		= destination;
+    playerObject->mDirection	= direction;
 
-	// start the new scene
-	gMessageLib->sendStartScene(mZoneId,playerObject);
-	gMessageLib->sendServerTime(gWorldManager->getServerTime(),playerObject->getClient());
+    // start the new scene
+    gMessageLib->sendStartScene(mZoneId,playerObject);
+    gMessageLib->sendServerTime(gWorldManager->getServerTime(),playerObject->getClient());
 
-	// add us to cell / SI
-	if(parentId)
-	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId)))
-		{
-			cell->addObjectSecure(playerObject);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"WorldManager::warpPlanet: couldn't find cell %"PRIu64"",parentId);
-		}
-	}
-	else
-	{
-		if(QTRegion* region = mSpatialIndex->getQTRegion(playerObject->mPosition.x,playerObject->mPosition.z))
-		{
-			playerObject->setSubZoneId((uint32)region->getId());
-			region->mTree->addObject(playerObject);
-		}
-		else
-		{
-			// we should never get here !
-			gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map");
-			return;
-		}
-	}
+    // add us to cell / SI
+    if(parentId)
+    {
+        if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId)))
+        {
+            cell->addObjectSecure(playerObject);
+        }
+        else
+        {
+            gLogger->log(LogManager::DEBUG,"WorldManager::warpPlanet: couldn't find cell %"PRIu64"",parentId);
+        }
+    }
+    else
+    {
+        if(QTRegion* region = mSpatialIndex->getQTRegion(playerObject->mPosition.x,playerObject->mPosition.z))
+        {
+            playerObject->setSubZoneId((uint32)region->getId());
+            region->mTree->addObject(playerObject);
+        }
+        else
+        {
+            // we should never get here !
+            gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map");
+            return;
+        }
+    }
 
-	// initialize objects in range
-	initObjectsInRange(playerObject);
+    // initialize objects in range
+    initObjectsInRange(playerObject);
 
-	// initialize at new position
-	gMessageLib->sendCreatePlayer(playerObject,playerObject);
+    // initialize at new position
+    gMessageLib->sendCreatePlayer(playerObject,playerObject);
 
-	// initialize ham regeneration
-	playerObject->getHam()->checkForRegen();
-	playerObject->getStomach()->checkForRegen();
+    // initialize ham regeneration
+    playerObject->getHam()->checkForRegen();
+    playerObject->getStomach()->checkForRegen();
 }
 //======================================================================================================================
 //
@@ -484,32 +484,32 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 // 
 bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
 {
-	//uint32 playerCount = mPlayerAccMap.size();
-	//// don't save all players if > 100
-	uint32 playerSaveCount = 0;
-	PlayerAccMap::iterator playerIt = mPlayerAccMap.begin();
-	while (playerIt != mPlayerAccMap.end())
-	{
-		const PlayerObject* const playerObject = (*playerIt).second;
-		if (playerObject)
-		{
-			if (playerObject->isConnected())
-			{
-				// TODO: don't save all players if > x players (100ish)
-				// set the timer to save rest of players again
-				// TODO: check if player has saved recently
-				// save player async
-				gWorldManager->savePlayer(playerObject->getAccountId(), false, WMLogOut_No_LogOut);
-				++playerSaveCount;
-			}
-			
-		}
+    //uint32 playerCount = mPlayerAccMap.size();
+    //// don't save all players if > 100
+    uint32 playerSaveCount = 0;
+    PlayerAccMap::iterator playerIt = mPlayerAccMap.begin();
+    while (playerIt != mPlayerAccMap.end())
+    {
+        const PlayerObject* const playerObject = (*playerIt).second;
+        if (playerObject)
+        {
+            if (playerObject->isConnected())
+            {
+                // TODO: don't save all players if > x players (100ish)
+                // set the timer to save rest of players again
+                // TODO: check if player has saved recently
+                // save player async
+                gWorldManager->savePlayer(playerObject->getAccountId(), false, WMLogOut_No_LogOut);
+                ++playerSaveCount;
+            }
+            
+        }
 
-		++playerIt;
-	}
-	gLogger->log(LogManager::NOTICE, "Periodic Save of %u Players", playerSaveCount);
-	//setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 60000, NULL));
-	return true;
+        ++playerIt;
+    }
+    gLogger->log(LogManager::NOTICE, "Periodic Save of %u Players", playerSaveCount);
+    //setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 60000, NULL));
+    return true;
 }
 //======================================================================================================================
 //
@@ -519,50 +519,50 @@ bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
 
 bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 {
-	PlayerMovementUpdateMap::iterator it = mPlayerMovementUpdateMap.begin();
+    PlayerMovementUpdateMap::iterator it = mPlayerMovementUpdateMap.begin();
 
-	while (it != mPlayerMovementUpdateMap.end())
-	{
-		PlayerObject* player = dynamic_cast<PlayerObject*>(getObjectById((*it).first));
-		if (player)
-		{
-			if (player->isConnected())
-			{
-				// gLogger->log(LogManager::DEBUG,"WorldManager::_handleObjectMovementUpdateTimers: Checking player update time %"PRIu64" againts %"PRIu64"", callTime, (*it).second);
-				//  The timer has expired?
-				if (callTime >= ((*it).second))
-				{
-					// Yes, handle it.
-					// gLogger->log(LogManager::DEBUG,"Calling UPDATEPOSITION-bla-ha ()");
+    while (it != mPlayerMovementUpdateMap.end())
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(getObjectById((*it).first));
+        if (player)
+        {
+            if (player->isConnected())
+            {
+                // gLogger->log(LogManager::DEBUG,"WorldManager::_handleObjectMovementUpdateTimers: Checking player update time %"PRIu64" againts %"PRIu64"", callTime, (*it).second);
+                //  The timer has expired?
+                if (callTime >= ((*it).second))
+                {
+                    // Yes, handle it.
+                    // gLogger->log(LogManager::DEBUG,"Calling UPDATEPOSITION-bla-ha ()");
 
-					ObjectController* ObjCtl = player->getController();
+                    ObjectController* ObjCtl = player->getController();
 
-					uint64 next = ObjCtl->playerWorldUpdate(false);
-					mPlayerMovementUpdateMap.erase(it++);
-					if (next)
-					{
-						// Add next scheduled update.
-						addPlayerMovementUpdateTime(player, next);
-					}
-				}
-				else
-				{
-					++it;
-				}
-			}
-			else
-			{
-				// Remove the disconnected...
-				mPlayerMovementUpdateMap.erase(it++);
-			}
-		}
-		else
-		{
-			// Remove the disconnected...
-			mPlayerMovementUpdateMap.erase(it++);
-		}
-	}
-	return (true);
+                    uint64 next = ObjCtl->playerWorldUpdate(false);
+                    mPlayerMovementUpdateMap.erase(it++);
+                    if (next)
+                    {
+                        // Add next scheduled update.
+                        addPlayerMovementUpdateTime(player, next);
+                    }
+                }
+                else
+                {
+                    ++it;
+                }
+            }
+            else
+            {
+                // Remove the disconnected...
+                mPlayerMovementUpdateMap.erase(it++);
+            }
+        }
+        else
+        {
+            // Remove the disconnected...
+            mPlayerMovementUpdateMap.erase(it++);
+        }
+    }
+    return (true);
 }
 
 
@@ -573,9 +573,9 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
 
 void WorldManager::addPlayerMovementUpdateTime(PlayerObject* player, uint64 when)
 {
-	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	// gLogger->log(LogManager::DEBUG,"Adding new at %"PRIu64"", expireTime + when);
-	mPlayerMovementUpdateMap.insert(std::make_pair(player->getId(), expireTime + when));
+    uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    // gLogger->log(LogManager::DEBUG,"Adding new at %"PRIu64"", expireTime + when);
+    mPlayerMovementUpdateMap.insert(std::make_pair(player->getId(), expireTime + when));
 }
 
 //======================================================================================================================
@@ -585,16 +585,16 @@ void WorldManager::addPlayerMovementUpdateTime(PlayerObject* player, uint64 when
 
 void WorldManager::removePlayerMovementUpdateTime(PlayerObject* player)
 {
-	if (player)
-	{
-		PlayerMovementUpdateMap::iterator it = mPlayerMovementUpdateMap.find(player->getId());
-		while (it != mPlayerMovementUpdateMap.end())
-		{
-			// Remove the disconnected...
-			mPlayerMovementUpdateMap.erase(it);
-			it = mPlayerMovementUpdateMap.find(player->getId());
-		}
-	}
+    if (player)
+    {
+        PlayerMovementUpdateMap::iterator it = mPlayerMovementUpdateMap.find(player->getId());
+        while (it != mPlayerMovementUpdateMap.end())
+        {
+            // Remove the disconnected...
+            mPlayerMovementUpdateMap.erase(it);
+            it = mPlayerMovementUpdateMap.find(player->getId());
+        }
+    }
 }
 
 //======================================================================================================================
@@ -604,9 +604,9 @@ void WorldManager::removePlayerMovementUpdateTime(PlayerObject* player)
 
 void WorldManager::addPlayerObjectForTimedCloning(uint64 playerId, uint64 when)
 {
-	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-	mPlayerObjectReviveMap.insert(std::make_pair(playerId, expireTime + when));
+    mPlayerObjectReviveMap.insert(std::make_pair(playerId, expireTime + when));
 }
 
 //======================================================================================================================
@@ -616,10 +616,10 @@ void WorldManager::addPlayerObjectForTimedCloning(uint64 playerId, uint64 when)
 
 void WorldManager::removePlayerObjectForTimedCloning(uint64 playerId)
 {
-	PlayerObjectReviveMap::iterator it = mPlayerObjectReviveMap.find(playerId);
-	if (it != mPlayerObjectReviveMap.end())
-	{
-		// Remove player.
-		mPlayerObjectReviveMap.erase(it);
-	}
+    PlayerObjectReviveMap::iterator it = mPlayerObjectReviveMap.find(playerId);
+    if (it != mPlayerObjectReviveMap.end())
+    {
+        // Remove player.
+        mPlayerObjectReviveMap.erase(it);
+    }
 }

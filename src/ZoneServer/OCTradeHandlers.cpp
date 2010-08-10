@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/Message.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 //======================================================================================================================
 //

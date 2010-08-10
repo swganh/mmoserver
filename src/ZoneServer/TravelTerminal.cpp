@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Tutorial.h"
 #include "WorldConfig.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 
 //=============================================================================

@@ -15,10 +15,13 @@
     <ClCompile Include="atMacroString.cpp" />
     <ClCompile Include="BuildInfo.cpp" />
     <ClCompile Include="ByteBuffer.cpp" />
+    <ClCompile Include="ConfigFile.cpp" />
+    <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="Crc.cpp" />
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="EventDispatcher.cpp" />
     <ClCompile Include="HashString.cpp" />
+    <ClCompile Include="LogManager.cpp" />
     <ClCompile Include="OutOfBand.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -27,20 +30,17 @@
     <ClInclude Include="BuildInfo.h" />
     <ClInclude Include="ByteBuffer-Inl.h" />
     <ClInclude Include="ByteBuffer.h" />
+    <ClInclude Include="ConfigFile.h" />
+    <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="declspec.h" />
     <ClInclude Include="Crc.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="EventDispatcher.h" />
     <ClInclude Include="HashString.h" />
+    <ClInclude Include="LogManager.h" />
     <ClInclude Include="OutOfBand.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ConfigManager\ConfigManager.vcxproj">
-      <Project>{c8684fd3-623a-484c-8686-1e7dfc09d759}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\LogManager\LogManager.vcxproj">
-      <Project>{daca5015-e625-4cda-a634-89ded4a9516a}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
     </ProjectReference>

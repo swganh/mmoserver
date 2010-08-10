@@ -112,14 +112,8 @@
     <ProjectReference Include="..\Common\Common.vcxproj">
       <Project>{432dcbe9-1f49-49ff-9753-be806192a917}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\ConfigManager\ConfigManager.vcxproj">
-      <Project>{c8684fd3-623a-484c-8686-1e7dfc09d759}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\DatabaseManager\DatabaseManager.vcxproj">
       <Project>{c4e4bd1a-64fe-46b4-a38b-9fe62e57697d}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\LogManager\LogManager.vcxproj">
-      <Project>{daca5015-e625-4cda-a634-89ded4a9516a}</Project>
     </ProjectReference>
     <ProjectReference Include="..\NetworkManager\NetworkManager.vcxproj">
       <Project>{daa23959-260d-4ee1-bb7f-443100ff7d4e}</Project>

@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ChatManager.h"
 #include "Player.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 #include "Utils/typedefs.h"
 

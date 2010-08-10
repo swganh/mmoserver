@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TangibleEnums.h"
 #include "TerminalFactory.h"
 #include "TicketCollectorFactory.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "Utils/utils.h"
 
 #include <assert.h>

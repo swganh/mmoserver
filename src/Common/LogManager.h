@@ -34,6 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <queue>
 #include <string>
 
+#include "Common/declspec.h"
+
 #define LOG_CHANNEL_CONSOLE	 1
 #define LOG_CHANNEL_FILE	 2
 #define LOG_CHANNEL_SYSLOG	 4
@@ -67,14 +69,14 @@ public:
 		DEBUG			= 8
 	};
 
-	static LogManager*	getSingleton() { return mSingleton;}
-	static void			Init(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename) { mSingleton = new LogManager(console_priority, file_priority, filename);}
+	COMMON_API static LogManager*	getSingleton() { return mSingleton;}
+	COMMON_API static void			Init(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename) { mSingleton = new LogManager(console_priority, file_priority, filename);}
 	
-	void log(LOG_PRIORITY priority, std::string format, ...);
-	void logCont(LOG_PRIORITY priority, std::string format, ...);
+	COMMON_API void log(LOG_PRIORITY priority, std::string format, ...);
+	COMMON_API void logCont(LOG_PRIORITY priority, std::string format, ...);
 
-	void logS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
-	void logContS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
+	COMMON_API void logS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
+	COMMON_API void logContS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
 
 	static LogManager* mSingleton;
 

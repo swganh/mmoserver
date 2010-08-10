@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "QuadTreeNode.h"
 #include "WorldManager.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "MathLib/Rectangle.h"
 #include "MathLib/Circle.h"
 

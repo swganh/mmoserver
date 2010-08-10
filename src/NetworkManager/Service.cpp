@@ -35,11 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SocketReadThread.h"
 #include "SocketWriteThread.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 #include "NetworkManager/Message.h"
 
-#include "ConfigManager/ConfigManager.h"
+#include "Common/ConfigManager.h"
 #include "Utils/typedefs.h"
 
 #include <boost/thread/thread.hpp>

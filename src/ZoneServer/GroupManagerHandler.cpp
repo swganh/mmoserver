@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "Utils/utils.h"
 
 bool						GroupManagerHandler::mInsFlag    = false;

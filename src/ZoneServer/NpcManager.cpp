@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"

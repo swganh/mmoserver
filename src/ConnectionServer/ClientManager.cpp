@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Service.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 
-#include "ConfigManager/ConfigManager.h"
+#include "Common/ConfigManager.h"
 
 //======================================================================================================================
 

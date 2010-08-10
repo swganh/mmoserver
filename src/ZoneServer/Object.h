@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "RadialMenu.h"
 #include "UICallback.h"
 #include "Object_Enums.h"
-#include "LogManager/LogManager.h" // @todo: this needs to go.	  where does it need to go ?
+#include "Common/LogManager.h" // @todo: this needs to go.	  where does it need to go ?
 #include "Utils/EventHandler.h"
 #include "Utils/typedefs.h"
 

@@ -49,6 +49,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "Common/declspec.h"
+
 struct file_not_found 
 {
 	std::string filename;
@@ -70,11 +72,11 @@ protected:
 
 // Methods
 public:
-	ConfigFile( std::string filename,
+	COMMON_API ConfigFile( std::string filename,
 	            std::string delimiter = "=",
 	            std::string comment = "#",
 				std::string sentry = "EndConfigFile" );
-	ConfigFile();
+	COMMON_API ConfigFile();
 	
 	// Search for key and read value or optional default value
 	template<class T> T read( const std::string& key ) const;  // call as read<T>
@@ -85,23 +87,23 @@ public:
 	
 	// Modify keys and values
 	template<class T> void add( std::string key, const T& value );
-	void remove( const std::string& key );
+	COMMON_API void remove( const std::string& key );
 	
 	// Check whether key exists in configuration
-	bool keyExists( const std::string& key ) const;
+	COMMON_API bool keyExists( const std::string& key ) const;
 	
 	// Check or change configuration syntax
-	std::string getDelimiter() const { return myDelimiter; }
-	std::string getComment() const { return myComment; }
-	std::string getSentry() const { return mySentry; }
-	std::string setDelimiter( const std::string& s )
+	COMMON_API std::string getDelimiter() const { return myDelimiter; }
+	COMMON_API std::string getComment() const { return myComment; }
+	COMMON_API std::string getSentry() const { return mySentry; }
+	COMMON_API std::string setDelimiter( const std::string& s )
 		{ std::string old = myDelimiter;  myDelimiter = s;  return old; }  
 	std::string setComment( const std::string& s )
 		{ std::string old = myComment;  myComment = s;  return old; }
 	
 	// Write or read configuration
-	friend std::ostream& operator<<( std::ostream& os, const ConfigFile& cf );
-	friend std::istream& operator>>( std::istream& is, ConfigFile& cf );
+	COMMON_API friend std::ostream& operator<<( std::ostream& os, const ConfigFile& cf );
+	COMMON_API friend std::istream& operator>>( std::istream& is, ConfigFile& cf );
 	
 protected:
 	template<class T> static std::string T_as_string( const T& t );

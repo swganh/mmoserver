@@ -31,12 +31,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "ConfigFile.h"
 
+#include "Common/declspec.h"
+
 #define CONFIG_DIR "config//"
 #define	gConfig	ConfigManager::getSingletonPtr()->getConfigFile()
 
 //======================================================================================================================
 
-class ConfigManager
+class COMMON_API ConfigManager
 {
 	public:
 

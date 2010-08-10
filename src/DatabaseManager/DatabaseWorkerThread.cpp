@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseImplementationMySql.h"
 #include "DatabaseJob.h"
 #include "DatabaseType.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 #include <boost/thread/thread.hpp>
 

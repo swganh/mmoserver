@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "glue_files/tolua++.h"
 #include "glue_files/LuaInterface.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 #include "Utils/clock.h"
 

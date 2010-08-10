@@ -29,11 +29,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CurrentResource.h"
 #include "ResourceCategory.h"
 #include "ResourceType.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "ConfigManager/ConfigManager.h"
+#include "Common/ConfigManager.h"
 
 //======================================================================================================================
 

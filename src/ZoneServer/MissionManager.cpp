@@ -47,13 +47,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneTree.h"
 
 #include "Common/OutOfBand.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "MessageLib/MessageLib.h"
 
-#include "ConfigManager/ConfigManager.h"
+#include "Common/ConfigManager.h"
 
 #include "Utils/rand.h"
 #include <cstdio>

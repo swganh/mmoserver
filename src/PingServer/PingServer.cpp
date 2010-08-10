@@ -29,9 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PingServer.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
-#include "ConfigManager/ConfigManager.h"
+#include "Common/ConfigManager.h"
 #include <boost/thread/thread.hpp>
 
 #include "Utils/utils.h"

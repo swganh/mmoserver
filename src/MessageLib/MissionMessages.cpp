@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 #include "Common/ByteBuffer.h"
 #include "NetworkManager/DispatchClient.h"

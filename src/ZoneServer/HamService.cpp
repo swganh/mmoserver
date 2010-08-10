@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/HamService.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 using ::common::ApplicationService;
 using ::common::IEventPtr;

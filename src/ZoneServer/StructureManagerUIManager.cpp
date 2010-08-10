@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerStructure.h"
 #include "WorldManager.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "UIManager.h"
 #include "Utils/colors.h"
 

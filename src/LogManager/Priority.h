@@ -1,4 +1,0 @@
-enum LOG_PRIORITY
-{
-
-};

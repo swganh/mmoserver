@@ -37,14 +37,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
-#include "ConfigManager/ConfigManager.h"
+#include "Common/ConfigManager.h"
 #include "utils/rand.h"
 
 

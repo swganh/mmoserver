@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Socket.h"
 #include "SocketWriteThread.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "NetworkManager/MessageFactory.h"
 
 #include <boost/thread/thread.hpp>

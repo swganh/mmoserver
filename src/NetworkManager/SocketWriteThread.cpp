@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Service.h"
 #include "Session.h"
 
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 
 #include "Utils/rand.h"
 

@@ -241,14 +241,16 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
     }
 	case CCSTATE_AllowedChars:
 		{
+			ConnectionClient* data;
 			DataBinding* binding = mDatabase->CreateDataBinding(2);
-			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCharsAllowed), 4);
-			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCurrentChars), 4);
+			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCharsAllowed), 4, 0);
+			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCurrentChars), 4, 1);
 			//uint32 queryResult;
 			result->GetNextRow(binding,&client);
-			mDatabase->DestroyDataBinding(binding);
-			client->getState(CCSTATE_QueryAuth);
+			//mDatabase->DestroyDataBinding(binding);
 			mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+			client->setState(CCSTATE_QueryAuth);
+			break;
 		}
   default:
   	break;

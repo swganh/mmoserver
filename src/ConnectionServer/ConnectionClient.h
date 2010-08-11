@@ -62,12 +62,11 @@ class ConnectionClient : public NetworkClient
 		void                          setCharsAllowed(uint32 chars)				{ mCharsAllowed = chars; }
 		void                          setCurrentChars(uint32 currentChars)      { mCurrentChars = currentChars; }
 
-		uint32						  mCharsAllowed;
-		uint32						  mCurrentChars;
-
 	private:
 
 		ConnectionClientState	mState;
+		uint32					mCharsAllowed;
+		uint32					mCurrentChars;
 		uint32                  mAccountId;
 		uint32                  mServerId;
 };

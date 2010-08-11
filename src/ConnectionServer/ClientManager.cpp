@@ -241,13 +241,21 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
     }
 	case CCSTATE_AllowedChars:
 		{
+			struct charsCurrentAllowed {
+				uint32  currentChars;
+				uint32	charsAllowed;
+			} charsStruct;
+
 			DataBinding* binding = mDatabase->CreateDataBinding(2);
-			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCharsAllowed), 4, 0);
-			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCurrentChars), 4, 1);
-			result->GetNextRow(binding,&client);
-			//mDatabase->DestroyDataBinding(binding);
-			mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+			binding->addField(DFT_int32,offsetof(charsCurrentAllowed, currentChars), 4, 0);
+			binding->addField(DFT_int32,offsetof(charsCurrentAllowed, charsAllowed), 4, 1);
+			
+			result->GetNextRow(binding,&charsStruct);
+			client->setCharsAllowed(charsStruct.charsAllowed);
+			client->setCurrentChars(charsStruct.currentChars);
+			
 			client->setState(CCSTATE_QueryAuth);
+			mDatabase->DestroyDataBinding(binding);
 			break;
 		}
   default:
@@ -448,7 +456,9 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
 {
 	client->setState(CCSTATE_AllowedChars);
-	mDatabase->ExecuteSqlAsync(this, client," SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u'",client->getAccountId());
+	mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u'",client->getAccountId());
+	
+	mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 }
 
 

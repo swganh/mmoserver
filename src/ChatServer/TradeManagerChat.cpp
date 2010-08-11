@@ -640,14 +640,14 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 			binding->addField(DFT_uint32,offsetof(AuctionItem,ItemTyp),4,7);
 			binding->addField(DFT_uint32,offsetof(AuctionItem,Price),4,8);
 			binding->addField(DFT_string,offsetof(AuctionItem,Name),128,9);
-			binding->addField(DFT_string,offsetof(AuctionItem,Description),1024,10);
-			binding->addField(DFT_uint16,offsetof(AuctionItem,RegionID),2,11);
-			binding->addField(DFT_string,offsetof(AuctionItem,bidder_name),32,12);
-			binding->addField(DFT_uint16,offsetof(AuctionItem,PlanetID),2,13);
-			binding->addField(DFT_string,offsetof(AuctionItem,SellerName),32,14);
-			binding->addField(DFT_string,offsetof(AuctionItem,BazaarName),128,15);
-			binding->addField(DFT_string,offsetof(AuctionItem,HighProxyRaw),8,16);
-			binding->addField(DFT_string,offsetof(AuctionItem,HighBidRaw),8,17);
+			binding->addField(DFT_string,offsetof(AuctionItem,Description), 1024, 10);
+			binding->addField(DFT_uint16,offsetof(AuctionItem,RegionID), 2, 11);
+			binding->addField(DFT_string,offsetof(AuctionItem,bidder_name), 32, 12);
+			binding->addField(DFT_uint16,offsetof(AuctionItem,PlanetID), 2, 13);
+			binding->addField(DFT_string,offsetof(AuctionItem,SellerName), 32 ,14);
+			binding->addField(DFT_string,offsetof(AuctionItem,BazaarName), 128, 15);
+			binding->addField(DFT_string,offsetof(AuctionItem,HighProxyRaw), 8, 16);
+			binding->addField(DFT_string,offsetof(AuctionItem,HighBidRaw) ,8, 17);
 
 			uint64 count = result->getRowCount();
 
@@ -917,9 +917,9 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 				//now move the auctions in their proper holding areas or delete the ones which have expired their holding date
 				TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
 
-				sprintf(sql,"CALL sp_CommerceFindExpiredListing()");
-				mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
-				gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+				/*sprintf(sql,"CALL sp_CommerceFindExpiredListing()");*/
+				mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CommerceFindExpiredListing();");
+				gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_CommerceFindExpiredListing();"); // SQL Debug Log
 
 				}
 			break;

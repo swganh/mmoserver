@@ -100,11 +100,13 @@ mLocked(false)
 	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
 	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // SQL Debug Log
 
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
+	//mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
+	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);");
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);"); // SQL Debug Log
+
 	// In case of a crash, we need to cleanup the DB a little.
 	DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET loggedin=0 WHERE loggedin=%u;", mClusterId);
-	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET loggedin=0 WHERE loggedin=%u;", mClusterId); // SQL Debug Log
-	mDatabase->DestroyResult(result);
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId); // SQL Debug Log
 
 	// Status:  0=offline, 1=loading, 2=online
 	_updateDBServerList(1);
@@ -192,8 +194,9 @@ void ConnectionServer::Process(void)
 void ConnectionServer::_updateDBServerList(uint32 status)
 {
 	// Execute our query
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='connection';", mServerService->getLocalAddress(), mServerService->getLocalPort(), status));
-	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='connection';", mServerService->getLocalAddress(), mServerService->getLocalPort(), status); // SQL Debug Log
+	// mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='connection';", mServerService->getLocalAddress(), mServerService->getLocalPort(), status));
+	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', %u, '%s', %u);", status, mServerService->getLocalAddress(), mServerService->getLocalPort());
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('connection', %u, '%s', %u);", status, mServerService->getLocalAddress(), mServerService->getLocalPort()); // SQL Debug Log
 }
 
 //======================================================================================================================

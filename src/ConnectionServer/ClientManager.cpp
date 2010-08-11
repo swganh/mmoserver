@@ -440,6 +440,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 	else{
 		gMessageFactory->addUint8(0);             // Character creation disabled
 	}
+	// \todo add in unlimited char check with server config changes
     gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag
     Message* message = gMessageFactory->EndMessage();
 

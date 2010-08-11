@@ -241,14 +241,12 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
     }
 	case CCSTATE_AllowedChars:
 		{
-			ConnectionClient* data;
 			DataBinding* binding = mDatabase->CreateDataBinding(2);
 			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCharsAllowed), 4, 0);
 			binding->addField(DFT_uint32, offsetof(ConnectionClient, mCurrentChars), 4, 1);
-			//uint32 queryResult;
 			result->GetNextRow(binding,&client);
 			//mDatabase->DestroyDataBinding(binding);
-			mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+			mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 			client->setState(CCSTATE_QueryAuth);
 			break;
 		}
@@ -267,10 +265,7 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
   message->setIndex(message->getIndex() + (uint16)dataSize - 4);
   client->setAccountId(message->getUint32());
 
-  _processAllowedChars(message, client);
-
-  // Start our auth query
-
+  _processAllowedChars(this, client);
 }
 
 //======================================================================================================================
@@ -450,10 +445,10 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   }
   
 }
-void ClientManager::_processAllowedChars(Message* message,ConnectionClient* client)
+void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
 {
 	client->setState(CCSTATE_AllowedChars);
-	mDatabase->ExecuteSqlAsync(this,(void*)client," SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u'",client->getAccountId());
+	mDatabase->ExecuteSqlAsync(this, client," SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u'",client->getAccountId());
 }
 
 

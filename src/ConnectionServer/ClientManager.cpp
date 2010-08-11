@@ -239,6 +239,25 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
       _handleQueryAuth(client, result);
       break;
     }
+	case CCSTATE_AllowedChars:
+		{
+			struct charsCurrentAllowed {
+				uint32  currentChars;
+				uint32	charsAllowed;
+			} charsStruct;
+
+			DataBinding* binding = mDatabase->CreateDataBinding(2);
+			binding->addField(DFT_int32,offsetof(charsCurrentAllowed, currentChars), 4, 0);
+			binding->addField(DFT_int32,offsetof(charsCurrentAllowed, charsAllowed), 4, 1);
+			
+			result->GetNextRow(binding,&charsStruct);
+			client->setCharsAllowed(charsStruct.charsAllowed);
+			client->setCurrentChars(charsStruct.currentChars);
+			
+			client->setState(CCSTATE_QueryAuth);
+			mDatabase->DestroyDataBinding(binding);
+			break;
+		}
   default:
   	break;
   }
@@ -254,11 +273,8 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
   message->setIndex(message->getIndex() + (uint16)dataSize - 4);
   client->setAccountId(message->getUint32());
 
-  // Start our auth query
-  client->setState(CCSTATE_QueryAuth);
-  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+  _processAllowedChars(this, client);
 }
-
 
 //======================================================================================================================
 void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* message)
@@ -395,7 +411,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   {
     // Update the account record that it is now logged in and last login date.
     mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET lastlogin=NOW(), loggedin=%u WHERE account_id=%u;", gConfig->read<uint32>("ClusterId"), client->getAccountId());
-
+	 
     // finally add them to our accountId map.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
 	mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));
@@ -415,9 +431,16 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opClientPermissionsMessage);
-    gMessageFactory->addUint8(1);             // unknown
-    gMessageFactory->addUint8(1);             // Character creation allowed?
-    gMessageFactory->addUint8(1);
+    gMessageFactory->addUint8(1);             // Galaxy Available
+
+	// Checks the Clients Characters allowed against how many they have and sends the flag accordingly for char creation
+	if (client->getCharsAllowed() > client->getCurrentChars()){
+		gMessageFactory->addUint8(1);             // Character creation allowed
+	}
+	else{
+		gMessageFactory->addUint8(0);             // Character creation disabled
+	}
+    gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag
     Message* message = gMessageFactory->EndMessage();
 
     // Send our message to the client.
@@ -428,6 +451,15 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   {
     client->Disconnect(10);  // no idea if 10 is even a valid reason, just testing.
   }
+  
+}
+void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
+{
+	client->setState(CCSTATE_AllowedChars);
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u',client->getAccountId());"); // SQL Debug Log
+	mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u'",client->getAccountId());
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0; , client->getAccountId());"); // SQL Debug Log
+	mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 }
 
 

@@ -62,26 +62,26 @@ COMMON_API std::ostream& operator<<(std::ostream& message, const ByteBuffer& buf
  * Byte streams are commonly used for packets and binary files, this utility class
  * eases the task of reading and writing data to these resources.
  */
-class ByteBuffer
+class COMMON_API ByteBuffer
 {		
 public:
     enum { SWAP_ENDIAN = 1 };
 
 public:
     /// Default constructor, creates an empty ByteBuffer.
-    COMMON_API ByteBuffer();
+    ByteBuffer();
 
     /**
      * Constructor overload used to set an explicit size for the ByteBuffer.
      */
-    COMMON_API explicit ByteBuffer(size_t length);
+    explicit ByteBuffer(size_t length);
 
     /**
      * Constructor overload that creates a ByteBuffer from a data array.
      *
      * @param data The data to initialize the ByteBuffer with.
      */
-    COMMON_API explicit ByteBuffer(std::vector<unsigned char>& data);
+    explicit ByteBuffer(std::vector<unsigned char>& data);
 
     /**
      * Constructor overload that creates a ByteBuffer from a C array.
@@ -89,38 +89,38 @@ public:
      * @param data A C array containing the data.
      * @param length Length of the C array.
      */
-    COMMON_API ByteBuffer(const unsigned char* data, size_t length);
+    ByteBuffer(const unsigned char* data, size_t length);
 
     /// Default deconstructor.
-    COMMON_API ~ByteBuffer();
+    ~ByteBuffer();
 
     /**
      * Copy constructor, used to copy one ByteBuffer to another.
      * 
      * @param from The ByteBuffer to use as the source in the copy.
      */
-    COMMON_API ByteBuffer(const ByteBuffer& from);
+    ByteBuffer(const ByteBuffer& from);
 
     /**
      * Assignment operator, assigns one ByteBuffer's contents to another.
      *
      * @param from The ByteBuffer to use as the source in the assignment.
      */
-    COMMON_API ByteBuffer& operator=(const ByteBuffer& from);
+    ByteBuffer& operator=(const ByteBuffer& from);
 
     /**
      * A no-throw swap used for swapping the contents of two ByteBuffers.
      *
      * @param from The source ByteBuffer to swap contents with.
      */
-    COMMON_API void Swap(ByteBuffer& from);
+    void Swap(ByteBuffer& from);
 
     /**
      * Appends one ByteBuffer to another.
      *
      * @param from The ByteBuffer that should be appended.
      */
-    COMMON_API void Append(const ByteBuffer& from);
+    void Append(const ByteBuffer& from);
 
     /**
      * Write's data of type T to the ByteBuffer.
@@ -187,7 +187,7 @@ public:
      * @param data The data to write to the ByteBuffer.
      * @param size Size of the data to write to the ByteBuffer.
      */
-    COMMON_API void Write(const unsigned char* data, size_t size);
+    void Write(const unsigned char* data, size_t size);
     
     /**
      * Write's data to the ByteBuffer at an offset.
@@ -196,59 +196,59 @@ public:
      * @param data The data to write to the ByteBuffer.
      * @param size Size of the data to write to the ByteBuffer.
      */
-    COMMON_API void Write(size_t offset, const unsigned char* data, size_t size);
+    void Write(size_t offset, const unsigned char* data, size_t size);
 
     /// Clear's the ByteBuffer (useful for reusing a buffer to save memory allocations).
-    COMMON_API void Clear();
+    void Clear();
 
     /**
      * Gets the current read position
      *
      * @returns The current read position.
      */
-    COMMON_API size_t ReadPosition() const;
+    size_t ReadPosition() const;
 
     /** 
      * Sets the current read position.
      *
      * @param position The new read position.
      */
-    COMMON_API void ReadPosition(size_t position);
+    void ReadPosition(size_t position);
 
     /**
      * Gets the current write position.
      *
      * @returns The current write position.
      */
-    COMMON_API size_t WritePosition() const;
+    size_t WritePosition() const;
 
     /**
      * Sets the current write position.
      *
      * @param position The new write position.
      */
-    COMMON_API void WritePosition(size_t position);
+    void WritePosition(size_t position);
 
     /**
      * Reserves a specific amount of space for the ByteBuffer.
      *
      * @param size The size of space to reserve for the ByteBuffer.
      */
-    COMMON_API void Reserve(size_t size);
+    void Reserve(size_t size);
 
     /**
      * Gets the current size of the ByteBuffer.
      *
      * @returns The current size of the ByteBuffer.
      */
-    COMMON_API size_t Size() const;
+    size_t Size() const;
 
     /**
      * Returns the ByteBuffer contents, useful for working with C functions.
      *
      * @returns The raw ByteBuffer contents.
      */
-    COMMON_API const unsigned char* Data() const;
+    const unsigned char* Data() const;
 
     /** 
      * Returns the ByteBuffer contents in a modifyable format. This should rarely
@@ -257,12 +257,21 @@ public:
      *
      * @returns A modifyable form of the ByteBuffer's internal data.
      */
-    COMMON_API std::vector<uint8_t>& Raw();
+    std::vector<uint8_t>& Raw();
 
 private:
     template<typename T> void SwapEndian_(T& data) const;
-
+    
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     std::vector<uint8_t> data_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
     size_t read_position_;
     size_t write_position_;
 

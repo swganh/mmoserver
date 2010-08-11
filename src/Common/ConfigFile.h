@@ -53,70 +53,78 @@
 
 struct file_not_found 
 {
-	std::string filename;
-	file_not_found(const std::string& filename_ = std::string()) : filename(filename_) {}
+    std::string filename;
+    file_not_found(const std::string& filename_ = std::string()) : filename(filename_) {}
 };
 
 //using namespace std;
 
-class ConfigFile {
+class COMMON_API ConfigFile {
 // Data
 protected:
-	std::string myDelimiter;  // separator between key and value
-	std::string myComment;    // separator between value and comments
-	std::string mySentry;     // optional string to signal end of file
-	std::map<std::string,std::string> myContents;  // extracted keys and values
-	
-	typedef std::map<std::string,std::string>::iterator mapi;
-	typedef std::map<std::string,std::string>::const_iterator mapci;
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+    std::string myDelimiter;  // separator between key and value
+    std::string myComment;    // separator between value and comments
+    std::string mySentry;     // optional string to signal end of file
+    std::map<std::string,std::string> myContents;  // extracted keys and values
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+    
+    typedef std::map<std::string,std::string>::iterator mapi;
+    typedef std::map<std::string,std::string>::const_iterator mapci;
 
 // Methods
 public:
-	COMMON_API ConfigFile( std::string filename,
-	            std::string delimiter = "=",
-	            std::string comment = "#",
-				std::string sentry = "EndConfigFile" );
-	COMMON_API ConfigFile();
-	
-	// Search for key and read value or optional default value
-	template<class T> T read( const std::string& key ) const;  // call as read<T>
-	template<class T> T read( const std::string& key, const T& value ) const;
-	template<class T> bool readInto( T& var, const std::string& key ) const;
-	template<class T>
-	bool readInto( T& var, const std::string& key, const T& value ) const;
-	
-	// Modify keys and values
-	template<class T> void add( std::string key, const T& value );
-	COMMON_API void remove( const std::string& key );
-	
-	// Check whether key exists in configuration
-	COMMON_API bool keyExists( const std::string& key ) const;
-	
-	// Check or change configuration syntax
-	COMMON_API std::string getDelimiter() const { return myDelimiter; }
-	COMMON_API std::string getComment() const { return myComment; }
-	COMMON_API std::string getSentry() const { return mySentry; }
-	COMMON_API std::string setDelimiter( const std::string& s )
-		{ std::string old = myDelimiter;  myDelimiter = s;  return old; }  
-	std::string setComment( const std::string& s )
-		{ std::string old = myComment;  myComment = s;  return old; }
-	
-	// Write or read configuration
-	COMMON_API friend std::ostream& operator<<( std::ostream& os, const ConfigFile& cf );
-	COMMON_API friend std::istream& operator>>( std::istream& is, ConfigFile& cf );
-	
+    ConfigFile( std::string filename,
+                std::string delimiter = "=",
+                std::string comment = "#",
+                std::string sentry = "EndConfigFile" );
+    ConfigFile();
+    
+    // Search for key and read value or optional default value
+    template<class T> T read( const std::string& key ) const;  // call as read<T>
+    template<class T> T read( const std::string& key, const T& value ) const;
+    template<class T> bool readInto( T& var, const std::string& key ) const;
+    template<class T>
+    bool readInto( T& var, const std::string& key, const T& value ) const;
+    
+    // Modify keys and values
+    template<class T> void add( std::string key, const T& value );
+    void remove( const std::string& key );
+    
+    // Check whether key exists in configuration
+    bool keyExists( const std::string& key ) const;
+    
+    // Check or change configuration syntax
+    std::string getDelimiter() const { return myDelimiter; }
+    std::string getComment() const { return myComment; }
+    std::string getSentry() const { return mySentry; }
+    std::string setDelimiter( const std::string& s )
+        { std::string old = myDelimiter;  myDelimiter = s;  return old; }  
+    std::string setComment( const std::string& s )
+        { std::string old = myComment;  myComment = s;  return old; }
+    
+    // Write or read configuration
+    friend std::ostream& operator<<( std::ostream& os, const ConfigFile& cf );
+    friend std::istream& operator>>( std::istream& is, ConfigFile& cf );
+    
 protected:
-	template<class T> static std::string T_as_string( const T& t );
-	template<class T> static T string_as_T( const std::string& s );
-	static void trim( std::string& s );
+    template<class T> static std::string T_as_string( const T& t );
+    template<class T> static T string_as_T( const std::string& s );
+    static void trim( std::string& s );
 
 
 // Exception types
 public:
-	struct key_not_found {  // thrown only by T read(key) variant of read()
-		std::string key;
-		key_not_found( const std::string& key_ = std::string() )
-			: key(key_) {} };
+    struct key_not_found {  // thrown only by T read(key) variant of read()
+        std::string key;
+        key_not_found( const std::string& key_ = std::string() )
+            : key(key_) {} };
 };
 
 
@@ -124,11 +132,11 @@ public:
 template<class T>
 std::string ConfigFile::T_as_string( const T& t )
 {
-	// Convert from a T to a string
-	// Type T must support << operator
-	std::ostringstream ost;
-	ost << t;
-	return ost.str();
+    // Convert from a T to a string
+    // Type T must support << operator
+    std::ostringstream ost;
+    ost << t;
+    return ost.str();
 }
 
 
@@ -136,12 +144,12 @@ std::string ConfigFile::T_as_string( const T& t )
 template<class T>
 T ConfigFile::string_as_T( const std::string& s )
 {
-	// Convert from a string to a T
-	// Type T must support >> operator
-	T t;
-	std::istringstream ist(s);
-	ist >> t;
-	return t;
+    // Convert from a string to a T
+    // Type T must support >> operator
+    T t;
+    std::istringstream ist(s);
+    ist >> t;
+    return t;
 }
 
 
@@ -149,9 +157,9 @@ T ConfigFile::string_as_T( const std::string& s )
 template<>
 inline std::string ConfigFile::string_as_T<std::string>( const std::string& s )
 {
-	// Convert from a string to a string
-	// In other words, do nothing
-	return s;
+    // Convert from a string to a string
+    // In other words, do nothing
+    return s;
 }
 
 
@@ -159,80 +167,80 @@ inline std::string ConfigFile::string_as_T<std::string>( const std::string& s )
 template<>
 inline bool ConfigFile::string_as_T<bool>( const std::string& s )
 {
-	// Convert from a string to a bool
-	// Interpret "false", "F", "no", "n", "0" as false
-	// Interpret "true", "T", "yes", "y", "1", "-1", or anything else as true
-	bool b = true;
-	std::string sup = s;
-	for( std::string::iterator p = sup.begin(); p != sup.end(); ++p )
-		*p = toupper(*p);  // make string all caps
-	if( sup==std::string("FALSE") || sup==std::string("F") ||
-	    sup==std::string("NO") || sup==std::string("N") ||
-	    sup==std::string("0") || sup==std::string("NONE") )
-		b = false;
-	return b;
+    // Convert from a string to a bool
+    // Interpret "false", "F", "no", "n", "0" as false
+    // Interpret "true", "T", "yes", "y", "1", "-1", or anything else as true
+    bool b = true;
+    std::string sup = s;
+    for( std::string::iterator p = sup.begin(); p != sup.end(); ++p )
+        *p = toupper(*p);  // make string all caps
+    if( sup==std::string("FALSE") || sup==std::string("F") ||
+        sup==std::string("NO") || sup==std::string("N") ||
+        sup==std::string("0") || sup==std::string("NONE") )
+        b = false;
+    return b;
 }
 
 
 template<class T>
 T ConfigFile::read( const std::string& key ) const
 {
-	// Read the value corresponding to key
-	mapci p = myContents.find(key);
-	if( p == myContents.end() ) throw key_not_found(key);
-	return string_as_T<T>( p->second );
+    // Read the value corresponding to key
+    mapci p = myContents.find(key);
+    if( p == myContents.end() ) throw key_not_found(key);
+    return string_as_T<T>( p->second );
 }
 
 
 template<class T>
 T ConfigFile::read( const std::string& key, const T& value ) const
 {
-	// Return the value corresponding to key or given default value
-	// if key is not found
-	mapci p = myContents.find(key);
-	if( p == myContents.end() ) return value;
-	return string_as_T<T>( p->second );
+    // Return the value corresponding to key or given default value
+    // if key is not found
+    mapci p = myContents.find(key);
+    if( p == myContents.end() ) return value;
+    return string_as_T<T>( p->second );
 }
 
 
 template<class T>
 bool ConfigFile::readInto( T& var, const std::string& key ) const
 {
-	// Get the value corresponding to key and store in var
-	// Return true if key is found
-	// Otherwise leave var untouched
-	mapci p = myContents.find(key);
-	bool found = ( p != myContents.end() );
-	if( found ) var = string_as_T<T>( p->second );
-	return found;
+    // Get the value corresponding to key and store in var
+    // Return true if key is found
+    // Otherwise leave var untouched
+    mapci p = myContents.find(key);
+    bool found = ( p != myContents.end() );
+    if( found ) var = string_as_T<T>( p->second );
+    return found;
 }
 
 
 template<class T>
 bool ConfigFile::readInto( T& var, const std::string& key, const T& value ) const
 {
-	// Get the value corresponding to key and store in var
-	// Return true if key is found
-	// Otherwise set var to given default
-	mapci p = myContents.find(key);
-	bool found = ( p != myContents.end() );
-	if( found )
-		var = string_as_T<T>( p->second );
-	else
-		var = value;
-	return found;
+    // Get the value corresponding to key and store in var
+    // Return true if key is found
+    // Otherwise set var to given default
+    mapci p = myContents.find(key);
+    bool found = ( p != myContents.end() );
+    if( found )
+        var = string_as_T<T>( p->second );
+    else
+        var = value;
+    return found;
 }
 
 
 template<class T>
 void ConfigFile::add( std::string key, const T& value )
 {
-	// Add a key with given value
-	std::string v = T_as_string( value );
-	trim(key);
-	trim(v);
-	myContents[key] = v;
-	return;
+    // Add a key with given value
+    std::string v = T_as_string( value );
+    trim(key);
+    trim(v);
+    myContents[key] = v;
+    return;
 }
 
 #endif  // CONFIGFILE_H

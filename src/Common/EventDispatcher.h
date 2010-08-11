@@ -64,11 +64,11 @@ typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
 typedef std::priority_queue<IEventPtr, std::vector<IEventPtr>, CompareEventWeightLessThanPredicate> EventQueue;
 
-class EventDispatcher {
+class COMMON_API EventDispatcher {
 public:
-    COMMON_API EventDispatcher();
-    COMMON_API explicit EventDispatcher(uint64_t current_time);
-    COMMON_API ~EventDispatcher();
+    EventDispatcher();
+    explicit EventDispatcher(uint64_t current_time);
+    ~EventDispatcher();
 
     /**
      * Connects an event listener to an event. 
@@ -76,7 +76,7 @@ public:
      * \param event_type The event type to check for connected listeners.
      * \param listener The listener interested in the event specified.
      */
-    COMMON_API void Connect(const EventType& event_type, EventListener listener);
+    void Connect(const EventType& event_type, EventListener listener);
 
     /**
      * Disconnects an event listener from an event.
@@ -84,14 +84,14 @@ public:
      * \param event_type The event type to disconnect from.
      * \param event_listener_type The type of the event listener being disconnected.
      */
-    COMMON_API void Disconnect(const EventType& event_type, const EventListenerType& event_listener_type);
+    void Disconnect(const EventType& event_type, const EventListenerType& event_listener_type);
 
     /**
      * Disconnects an event listener from all events.
      *
      * \param event_listener_type The type of the event listener being disconnected.
      */
-    COMMON_API void DisconnectFromAll(const EventListenerType& event_listener_type);
+    void DisconnectFromAll(const EventListenerType& event_listener_type);
 
     /**
      * Gets all of the listeners connected to a specific event type.
@@ -99,47 +99,47 @@ public:
      * \param event_type The event type to check for connected listeners.
      * \return A list of the connected listeners to the specified event.
      */
-    COMMON_API boost::unique_future<std::vector<EventListener>> GetListeners(const EventType& event_type);
+    boost::unique_future<std::vector<EventListener>> GetListeners(const EventType& event_type);
 
     /**
      * Gets a list of all of the registered events.
      * 
      * \returns A list of all the registered events.
      */
-    COMMON_API boost::unique_future<std::vector<EventType>> GetRegisteredEvents();
+    boost::unique_future<std::vector<EventType>> GetRegisteredEvents();
 
     /**
      * Notifies all interested listeners asynchronously that an event has occurred.
      *
      * \param triggered_event The triggered event to be delivered.
      */
-    COMMON_API void Notify(IEventPtr triggered_event);
+    void Notify(IEventPtr triggered_event);
 
     /**
      * Delivers an event immediately to all interested listeners.
      *
      * \param triggered_event The triggered event to be delivered.
      */
-    COMMON_API boost::unique_future<bool> Deliver(IEventPtr triggered_event);
+    boost::unique_future<bool> Deliver(IEventPtr triggered_event);
 
     /**
      * A check to see if there are any events waiting to be processed.
      *
      * \returns Returns true if their are events waiting, false if not.
      */
-    COMMON_API boost::unique_future<bool> HasEvents();
+    boost::unique_future<bool> HasEvents();
 
     /**
      * Processes all queued events.
      */
-    COMMON_API boost::unique_future<bool> Tick(uint64_t new_timestep);
+    boost::unique_future<bool> Tick(uint64_t new_timestep);
 
     /**
      * Returns the current timestep as provided by the most recent call to Tick.
      *
      * \returns The current timestep.
      */
-    COMMON_API boost::unique_future<uint64_t> current_timestep();
+    boost::unique_future<uint64_t> current_timestep();
 
 private:
     /// Disable the default copy constructor.
@@ -153,7 +153,11 @@ private:
     bool AddEventType_(const EventType& event_type);    
     void Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type);
     bool Deliver_(IEventPtr triggered_event);
-
+    
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     EventTypeSet event_type_set_;
     
     EventListenerMap event_listener_map_;
@@ -170,6 +174,10 @@ private:
     int active_queue_;
 
     ::boost::atomic<uint64_t> current_timestep_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 
     ::utils::ActiveObject active_;
 };

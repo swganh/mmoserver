@@ -41,17 +41,17 @@ class DatabaseImplementation;
 
 
 //======================================================================================================================
-class DatabaseWorkerThread
+class DBMANAGER_API DatabaseWorkerThread
 {
 public:
-  DBMANAGER_API                             DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-  DBMANAGER_API                             ~DatabaseWorkerThread(void);
+                              DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
+                              ~DatabaseWorkerThread(void);
 
-  DBMANAGER_API virtual void				  run(); 
+  virtual void				  run(); 
 
-  DBMANAGER_API void                        ExecuteJob(DatabaseJob* job);
+  void                        ExecuteJob(DatabaseJob* job);
 
-  DBMANAGER_API void						  requestExit(){ mExit = true; }
+  void						  requestExit(){ mExit = true; }
 
 protected:
   int8                        mHostname[256];
@@ -69,10 +69,19 @@ private:
   DatabaseImplementation*     mDatabaseImplementation;
 
   DatabaseJob*                mCurrentJob;
-  DBType                      mDatabaseImplementationType;
+  DBType                      mDatabaseImplementationType;  
 
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
   boost::mutex              mWorkerThreadMutex;
   boost::thread			    mThread;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
   bool						  mExit;
 };
 

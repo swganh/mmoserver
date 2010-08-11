@@ -42,18 +42,26 @@ typedef std::list<Database*>           DatabaseList;
 
 
 //======================================================================================================================
-class DatabaseManager
+class DBMANAGER_API DatabaseManager
 {
 public:
-  DBMANAGER_API                                 DatabaseManager(void);
-  DBMANAGER_API                                 ~DatabaseManager(void);
+                                  DatabaseManager(void);
+                                  ~DatabaseManager(void);
 
-  DBMANAGER_API void                            Process(void);
+  void                            Process(void);
 
-  DBMANAGER_API Database*                       Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* dbname);
+  Database*                       Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* dbname);
 
 private:
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
   DatabaseList                    mDatabaseList;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 };
 
 

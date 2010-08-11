@@ -56,7 +56,7 @@ namespace utils {
  *
  * @see http://www.drdobbs.com/go-parallel/article/showArticle.jhtml?articleID=225700095
  */
-class ActiveObject {
+class UTILS_API ActiveObject {
 public:
     /// Messages are implemented as std::function to allow maximum flexibility for
     /// how a message can be created with support for functions, functors, class members,
@@ -65,26 +65,34 @@ public:
 
 public:
     /// Default constructor kicks off the private thread that listens for incoming messages.
-    UTILS_API ActiveObject();
+    ActiveObject();
 
     /// Default destructor sends an end message and waits for the private thread to complete.
-    UTILS_API ~ActiveObject();
+    ~ActiveObject();
 
     /**
      * Sends a message to be handled by the ActiveObject's private thread.
      *
      * \param Message The message to process on the private thread.
      */
-    UTILS_API void Send(Message message);
+    void Send(Message message);
 
 private:
-    ::utils::ConcurrentQueue<Message> message_queue_;
-    std::unique_ptr<boost::thread> thread_;
-    bool done_;
-
-
     /// Runs the ActiveObject's message loop until an end message is received.
     void Run();
+    
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+    ::utils::ConcurrentQueue<Message> message_queue_;
+    std::unique_ptr<boost::thread> thread_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
+    bool done_;
 };
 
 }

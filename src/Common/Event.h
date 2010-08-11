@@ -46,7 +46,7 @@ typedef std::function<void ()> EventCallback;
 class IEvent;
 typedef std::shared_ptr<IEvent> IEventPtr;
 
-class COMMON_API IEvent {
+class IEvent {
 public:  
     virtual const EventType& event_type() const = 0;
     virtual EventSubject subject() const = 0;
@@ -62,32 +62,32 @@ public:
     virtual void deserialize(ByteBuffer& in) = 0;
 };
 
-class BaseEvent : public IEvent {
+class COMMON_API BaseEvent : public IEvent {
 public:
-    COMMON_API BaseEvent(EventSubject subject = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
-    COMMON_API BaseEvent(EventSubject subject, uint64_t timestamp, uint64_t delay_ms, EventCallback callback);
+    BaseEvent(EventSubject subject = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
+    BaseEvent(EventSubject subject, uint64_t timestamp, uint64_t delay_ms, EventCallback callback);
 
-    COMMON_API virtual ~BaseEvent();
+    virtual ~BaseEvent();
 
-    COMMON_API bool hasSubject() const;
-    COMMON_API EventSubject subject() const;
+    EventSubject subject() const;
+    void subject(EventSubject subject);
     
-    COMMON_API EventPriority priority() const;
-    COMMON_API void priority(EventPriority priority);
+    EventPriority priority() const;
+    void priority(EventPriority priority);
 
-    COMMON_API uint64_t timestamp() const;
-    COMMON_API void timestamp(uint64_t timestamp);
+    uint64_t timestamp() const;
+    void timestamp(uint64_t timestamp);
 
-    COMMON_API uint64_t delay_ms() const;
-    COMMON_API void delay_ms(uint64_t delay_ms);
+    uint64_t delay_ms() const;
+    void delay_ms(uint64_t delay_ms);
 
-    COMMON_API IEventPtr next() const;
-    COMMON_API void next(IEventPtr next);
-        
-    COMMON_API void serialize(ByteBuffer& out) const;
-    COMMON_API void deserialize(ByteBuffer& in);
+    IEventPtr next() const;
+    void next(IEventPtr next);
     
-    COMMON_API void consume(bool handled) const;
+    void serialize(ByteBuffer& out) const;
+    void deserialize(ByteBuffer& in);
+    
+    void consume(bool handled) const;
 
 protected:
     virtual bool onConsume(bool handled) const = 0;
@@ -99,10 +99,18 @@ private:
     EventPriority priority_;
     uint64_t timestamp_;
     uint64_t delay_ms_;
-
+    
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     IEventPtr next_;
 
     std::unique_ptr<EventCallback> callback_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 };
 
 /**

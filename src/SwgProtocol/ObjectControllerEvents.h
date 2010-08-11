@@ -40,42 +40,44 @@ namespace swg_protocol {
 
 namespace object_controller {
     
-class PreCommandEvent : public ::common::BaseEvent {
+class SWGPROTOCOL_API PreCommandEvent : public ::common::BaseEvent {
 public:
-    SWGPROTOCOL_API explicit PreCommandEvent(::common::ByteBuffer& in);
-    SWGPROTOCOL_API explicit PreCommandEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
-    SWGPROTOCOL_API PreCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
-        
-    SWGPROTOCOL_API ~PreCommandEvent();
+    static const ::common::EventType type;
 
-    SWGPROTOCOL_API const ::common::EventType& event_type() const;
+public:
+    explicit PreCommandEvent(::common::ByteBuffer& in);
+    explicit PreCommandEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
+    PreCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
+    
+    ~PreCommandEvent();
+
+    const ::common::EventType& event_type() const;
 
 private:
     void onSerialize(::common::ByteBuffer& out) const;
     void onDeserialize(::common::ByteBuffer& in);
 
     bool onConsume(bool handled) const;
-
-    static const ::common::EventType event_type_;
 };
 
-class PostCommandEvent : public ::common::BaseEvent {
+class SWGPROTOCOL_API PostCommandEvent : public ::common::BaseEvent {
 public:
-    SWGPROTOCOL_API explicit PostCommandEvent(::common::ByteBuffer& in);
-    SWGPROTOCOL_API explicit PostCommandEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
-    SWGPROTOCOL_API PostCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
-        
-    SWGPROTOCOL_API ~PostCommandEvent();
+    static const ::common::EventType type;
 
-    SWGPROTOCOL_API const ::common::EventType& event_type() const;
+public:
+    explicit PostCommandEvent(::common::ByteBuffer& in);
+    explicit PostCommandEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
+    PostCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
+    
+    ~PostCommandEvent();
+
+    const ::common::EventType& event_type() const;
 
 private:
     void onSerialize(::common::ByteBuffer& out) const;
     void onDeserialize(::common::ByteBuffer& in);
 
     bool onConsume(bool handled) const;
-
-    static const ::common::EventType event_type_;
 };
 
 }  // namespace object_controller

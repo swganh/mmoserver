@@ -52,49 +52,53 @@ typedef Anh_Utils::concurrent_queue<DatabaseWorkerThread*>		DatabaseWorkerThread
 
 //======================================================================================================================
 
-class Database
+class DBMANAGER_API Database
 {
   public:
-  DBMANAGER_API                                         Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-  DBMANAGER_API                                         ~Database(void);
+                                          Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
+                                          ~Database(void);
 
-  DBMANAGER_API void                                    Process(void);
+  void                                    Process(void);
 
-  DBMANAGER_API DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);
+  DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);
   //DatabaseResult*                         ExecuteSql(int8* sql, ...);
-  DBMANAGER_API void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
-  DBMANAGER_API void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
+  void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+  void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
 
-  DBMANAGER_API DatabaseResult*                         ExecuteProcedure(const int8* sql, ...);
-  DBMANAGER_API void                                    ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+  DatabaseResult*                         ExecuteProcedure(const int8* sql, ...);
+  void                                    ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
 
-  DBMANAGER_API uint32								  Escape_String(int8* target,const int8* source,uint32 length);
+  uint32								  Escape_String(int8* target,const int8* source,uint32 length);
 
-  DBMANAGER_API void									  DestroyResult(DatabaseResult* result);
+  void									  DestroyResult(DatabaseResult* result);
 
-  DBMANAGER_API DataBinding*                            CreateDataBinding(uint16 fieldCount);
-  DBMANAGER_API void									  DestroyDataBinding(DataBinding* binding);
+  DataBinding*                            CreateDataBinding(uint16 fieldCount);
+  void									  DestroyDataBinding(DataBinding* binding);
 
-  DBMANAGER_API DatabaseWorkerThread*                   popIdleWorker();
-  DBMANAGER_API void									  pushIdleWorker(DatabaseWorkerThread* worker);
+  DatabaseWorkerThread*                   popIdleWorker();
+  void									  pushIdleWorker(DatabaseWorkerThread* worker);
 
-  DBMANAGER_API void									  pushDatabaseJobComplete(DatabaseJob* job);
+  void									  pushDatabaseJobComplete(DatabaseJob* job);
 
-  DBMANAGER_API Transaction*							  startTransaction(DatabaseCallback* callback, void* ref);
-  DBMANAGER_API void									  destroyTransaction(Transaction* t);
+  Transaction*							  startTransaction(DatabaseCallback* callback, void* ref);
+  void									  destroyTransaction(Transaction* t);
 
-  DBMANAGER_API bool									  releaseResultPoolMemory();	
-  DBMANAGER_API bool									  releaseJobPoolMemory(){ return(mJobPool.release_memory()); }
-  DBMANAGER_API bool									  releaseTransactionPoolMemory(){ return(mTransactionPool.release_memory()); }
-  DBMANAGER_API bool									  releaseBindingPoolMemory(){ return(mDataBindingFactory->releasePoolMemory()); }
-  DBMANAGER_API int									  GetCount(const int8* tablename);
-  DBMANAGER_API int									  GetSingleValueSync(const int8* sql);
+  bool									  releaseResultPoolMemory();	
+  bool									  releaseJobPoolMemory(){ return(mJobPool.release_memory()); }
+  bool									  releaseTransactionPoolMemory(){ return(mTransactionPool.release_memory()); }
+  bool									  releaseBindingPoolMemory(){ return(mDataBindingFactory->releasePoolMemory()); }
+  int									  GetCount(const int8* tablename);
+  int									  GetSingleValueSync(const int8* sql);
 private:
 
   DBType                                  mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.
 
   DataBindingFactory*                     mDataBindingFactory;
-
+  
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
   DatabaseJobQueue                        mJobPendingQueue;
   DatabaseJobQueue                        mJobCompleteQueue;
   DatabaseWorkerThreadQueue               mWorkerIdleQueue;
@@ -103,9 +107,13 @@ private:
 
   uint32                                  mMinThreads;
   uint32                                  mMaxThreads;
-
+  
   boost::pool<boost::default_user_allocator_malloc_free>							  mJobPool;
   boost::pool<boost::default_user_allocator_malloc_free>							  mTransactionPool;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 protected:
     DatabaseResult*                         ExecuteSql(const int8* sql, ...);
 };

@@ -40,11 +40,11 @@ class Scheduler;
 
 namespace Anh_Utils
 {
-	class UTILS_API Clock	//: public TimerCallback
-	{
+    class UTILS_API Clock	//: public TimerCallback
+    {
     public:
-		static Clock* getSingleton(){return mSingleton;}
-		static Clock* Init();
+        static Clock* getSingleton(){return mSingleton;}
+        static Clock* Init();
         static void	destroySingleton(void); 
 
 
@@ -60,23 +60,23 @@ namespace Anh_Utils
 
         void	setGlobalDrift(int64 drift);
 
-		//timegettime uses 8µs to execute
-		//by stamping our timestamp every second and using it instead
-		//we have a much lower resolution but save a lot of processing time
-		uint64	getStoredTime(){return mStoredTime;}
-		bool	_setStoredTime(uint64 callTime, void* ref){mStoredTime = getLocalTime(); return true;}
-		void	process();
+        //timegettime uses 8µs to execute
+        //by stamping our timestamp every second and using it instead
+        //we have a much lower resolution but save a lot of processing time
+        uint64	getStoredTime(){return mStoredTime;}
+        bool	_setStoredTime(uint64 callTime, void* ref){mStoredTime = getLocalTime(); return true;}
+        void	process();
 
     private:
         
-		
-		int64			mGlobalDrift;      // The amount of time the local clock is from the global system clock
-		uint64			mStoredTime;
-		Scheduler*		mClockScheduler;
+        
+        int64			mGlobalDrift;      // The amount of time the local clock is from the global system clock
+        uint64			mStoredTime;
+        Scheduler*		mClockScheduler;
 
         static Clock*	mSingleton;
-		static bool		mInsFlag;
-	};
+        static bool		mInsFlag;
+    };
 }
 
 //==============================================================================================================================

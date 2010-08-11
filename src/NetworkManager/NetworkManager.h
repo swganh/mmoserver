@@ -48,28 +48,37 @@ typedef Anh_Utils::concurrent_queue<Service*>	ServiceQueue;
 
 //======================================================================================================================
 
-class NetworkManager
+class NET_API NetworkManager
 {
-	public:
+    public:
 
-		NET_API NetworkManager(void);
-		NET_API ~NetworkManager(void);
+        NetworkManager(void);
+        ~NetworkManager(void);
 
-		NET_API void		Process(void);
+        void		Process(void);
 
-		NET_API Service*	GenerateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);
-		NET_API void		DestroyService(Service* service);
-		NET_API Client*		Connect(void);
+        Service*	GenerateService(int8* address, uint16 port,uint32 mfHeapSize, bool serverservice);
+        void		DestroyService(Service* service);
+        Client*		Connect(void);
 
-		NET_API void		RegisterCallback(NetworkCallback* callback);
-		NET_API void		UnregisterCallback(NetworkCallback* callback);
+        void		RegisterCallback(NetworkCallback* callback);
+        void		UnregisterCallback(NetworkCallback* callback);
 
-		NET_API void		AddServiceToProcessQueue(Service* service);
+        void		AddServiceToProcessQueue(Service* service);
 
-	private:
+    private:
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+      ServiceQueue		mServiceProcessQueue;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 
-	  ServiceQueue		mServiceProcessQueue;
-	  uint32			mServiceIdIndex;
+      uint32			mServiceIdIndex;
 };
 
 
@@ -77,12 +86,12 @@ class NetworkManager
 
 inline void NetworkManager::AddServiceToProcessQueue(Service* service)
 {
-	if(!service->isQueued())
-	{
-		service->setQueued(true);
+    if(!service->isQueued())
+    {
+        service->setQueued(true);
 
-		mServiceProcessQueue.push(service);
-	}
+        mServiceProcessQueue.push(service);
+    }
 }
 
 //======================================================================================================================

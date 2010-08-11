@@ -48,9 +48,9 @@ class TypeInfo;
 
 class UTILS_API Event
 {
-	public:
+    public:
 
-		virtual ~Event(){};
+        virtual ~Event(){};
 };
 
 //======================================================================================================================
@@ -60,12 +60,12 @@ class UTILS_API Event
 
 class UTILS_API HandlerFunctionBase
 {
-	public:
+    public:
 
-		virtual ~HandlerFunctionBase(){};
-		void execute(const Event* event){ call(event); }
+        virtual ~HandlerFunctionBase(){};
+        void execute(const Event* event){ call(event); }
 
-	private:
+    private:
 
         virtual void call(const Event*) {}
 };
@@ -78,20 +78,20 @@ class UTILS_API HandlerFunctionBase
 template <class T,class EventT>
 class MemberFunctionHandler : public HandlerFunctionBase
 {
-	public:
+    public:
 
-		typedef void (T::*MemberFunc)(const EventT*);
-		MemberFunctionHandler(T* instance,MemberFunc memFn) : mInstance(instance),mFunction(memFn){}
+        typedef void (T::*MemberFunc)(const EventT*);
+        MemberFunctionHandler(T* instance,MemberFunc memFn) : mInstance(instance),mFunction(memFn){}
 
-		void call(const Event* event)
-		{
-			(mInstance->*mFunction)(static_cast<const EventT*>(event));
-		}
+        void call(const Event* event)
+        {
+            (mInstance->*mFunction)(static_cast<const EventT*>(event));
+        }
 
-	private:
+    private:
 
-		T*			mInstance;
-		MemberFunc	mFunction;
+        T*			mInstance;
+        MemberFunc	mFunction;
 };
 
 //======================================================================================================================
@@ -99,19 +99,28 @@ class MemberFunctionHandler : public HandlerFunctionBase
 // EventHandler
 //
 
-class EventHandler
+class UTILS_API EventHandler
 {
 public:
-	UTILS_API virtual ~EventHandler();
+    virtual ~EventHandler();
 
-	UTILS_API void handleEvent(const Event*);
+    void handleEvent(const Event*);
 
-	template <class T,class EventT>
-	void registerEventFunction(T*,void(T::*memFn)(const EventT*));
+    template <class T,class EventT>
+    void registerEventFunction(T*,void(T::*memFn)(const EventT*));
 
 private:
-	typedef boost::ptr_map<const TypeInfo, HandlerFunctionBase> Handlers;
-	Handlers mHandlers;
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+    typedef boost::ptr_map<const TypeInfo, HandlerFunctionBase> Handlers;
+    Handlers mHandlers;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 };
 
 //======================================================================================================================
@@ -122,7 +131,7 @@ private:
 template <class T,class EventT>
 void EventHandler::registerEventFunction(T* obj,void (T::*memFn)(const EventT*))
 {
-	mHandlers.insert(TypeInfo(typeid(EventT)), new MemberFunctionHandler<T,EventT>(obj,memFn));
+    mHandlers.insert(TypeInfo(typeid(EventT)), new MemberFunctionHandler<T,EventT>(obj,memFn));
 }
 
 //======================================================================================================================
@@ -132,16 +141,16 @@ void EventHandler::registerEventFunction(T* obj,void (T::*memFn)(const EventT*))
 
 class TypeInfo
 {
-	public:
+    public:
 
         explicit TypeInfo(const std::type_info& info) : mTypeInfo(info) {}
 
-		bool operator < (const TypeInfo& rhs) const
-		{
-			return mTypeInfo.before(rhs.mTypeInfo) != 0;
-		}
+        bool operator < (const TypeInfo& rhs) const
+        {
+            return mTypeInfo.before(rhs.mTypeInfo) != 0;
+        }
 
-	private:
+    private:
 
         const std::type_info& mTypeInfo;
 };

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 
 namespace common {
-
+    
 BaseEvent::BaseEvent(EventSubject subject, uint64_t timestamp, uint64_t delay_ms) 
 : subject_(subject)
 , priority_(0)
@@ -49,12 +49,12 @@ BaseEvent::BaseEvent(EventSubject subject, uint64_t timestamp, uint64_t delay_ms
 
 BaseEvent::~BaseEvent() {}
 
-bool BaseEvent::hasSubject() const {
-    return (subject_ != 0) ? true : false;
-}
-
 EventSubject BaseEvent::subject() const { 
     return subject_;
+}
+
+void BaseEvent::subject(uint64_t subject) {
+    subject_ = subject;
 }
 
 uint64_t BaseEvent::timestamp() const { 

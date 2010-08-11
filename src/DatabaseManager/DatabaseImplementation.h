@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseResult.h"
 #include "Utils/typedefs.h"
 #include <boost/pool/singleton_pool.hpp>
+#include "DatabaseManager/declspec.h"
 
 
 //======================================================================================================================
@@ -41,7 +42,7 @@ class DatabaseWorkerThread;
 typedef boost::singleton_pool<DatabaseResult,sizeof(DatabaseResult),boost::default_user_allocator_malloc_free> ResultPool;
 
 //======================================================================================================================
-class DatabaseImplementation
+class DBMANAGER_API DatabaseImplementation
 {
 public:
 									DatabaseImplementation(char* host, uint16 port, char* user, char* pass, char* schema) {};

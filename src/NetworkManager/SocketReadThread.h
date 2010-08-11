@@ -69,20 +69,20 @@ class NewConnection
 
 //======================================================================================================================
 
-class SocketReadThread
+class NET_API SocketReadThread
 {
     public:
-      NET_API                               SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice);
-      NET_API                               ~SocketReadThread();
+                                    SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice);
+                                    ~SocketReadThread();
 
-      NET_API virtual void					run();
+      virtual void					run();
 
-      NET_API void                          NewOutgoingConnection(int8* address, uint16 port);
-      NET_API void                          RemoveAndDestroySession(Session* session);
+      void                          NewOutgoingConnection(int8* address, uint16 port);
+      void                          RemoveAndDestroySession(Session* session);
 
-      NET_API NewConnection*                getNewConnectionInfo(void)  { return &mNewConnection; };
-      NET_API bool                          getIsRunning(void)          { return mIsRunning; }
-      NET_API void							requestExit()				{ mExit = true; }
+      NewConnection*                getNewConnectionInfo(void)  { return &mNewConnection; };
+      bool                          getIsRunning(void)          { return mIsRunning; }
+      void							requestExit()				{ mExit = true; }
 
     protected:
 
@@ -105,9 +105,18 @@ class SocketReadThread
       bool							mIsRunning;
 
       uint32						mSessionResendWindowSize;
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
       boost::thread 				mThread;
       boost::mutex					mSocketReadMutex;
       AddressSessionMap             mAddressSessionMap;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
       
       bool							mExit;
 };

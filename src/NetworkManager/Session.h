@@ -83,68 +83,68 @@ enum SessionCommand
 
 //======================================================================================================================
 
-class Session
+class NET_API Session
 {
     public:
-      NET_API                             Session(void);
-      NET_API                             ~Session(void);
+                                  Session(void);
+                                  ~Session(void);
 
-      NET_API void                        ProcessReadThread(void);
-      NET_API void                        ProcessWriteThread(void);
+      void                        ProcessReadThread(void);
+      void                        ProcessWriteThread(void);
 
-      NET_API void                        HandleSessionPacket(Packet* packet);
-      NET_API void                        SortSessionPacket(Packet* packet, uint16 type);
-      NET_API void                        HandleFastpathPacket(Packet* packet);
+      void                        HandleSessionPacket(Packet* packet);
+      void                        SortSessionPacket(Packet* packet, uint16 type);
+      void                        HandleFastpathPacket(Packet* packet);
       
-      NET_API void                        SendChannelA(Message* message);
+      void                        SendChannelA(Message* message);
     
-      NET_API void						  SendChannelAUnreliable(Message* message);
-      NET_API void                        DestroyIncomingMessage(Message* message);
-      NET_API void                        DestroyPacket(Packet* packet);
+      void						  SendChannelAUnreliable(Message* message);
+      void                        DestroyIncomingMessage(Message* message);
+      void                        DestroyPacket(Packet* packet);
       
       
       // Accessor methods
-      NET_API NetworkClient*              getClient(void)                                 { return mClient; }
-      NET_API Service*                    getService(void)                                { return mService; }
-      NET_API uint32                      getId(void)                                     { return mId; }
-      NET_API uint32                      getAddress(void)                                { return mAddress; }
-      NET_API int8*                       getAddressString(void);
-      NET_API uint16                      getPort(void)                                   { return mPort; }
-      NET_API uint16                      getPortHost(void);
-      NET_API uint32                      getOutgoingReliablePacketCount(void)            { return mOutgoingReliablePacketQueue.size(); }
-      NET_API Packet*                     getOutgoingReliablePacket(void);
-      NET_API uint32                      getOutgoingUnreliablePacketCount(void)          { return mOutgoingUnreliablePacketQueue.size(); }
-      NET_API Packet*                     getOutgoingUnreliablePacket(void);
-      NET_API uint32                      getIncomingQueueMessageCount()    { return mIncomingMessageQueue.size(); }
-      NET_API Message*                    getIncomingQueueMessage();
-      NET_API uint32                      getEncryptKey(void)                             { return mEncryptKey; }
-      NET_API SessionStatus               getStatus(void)                                 { return mStatus; }
-      NET_API SessionCommand              getCommand(void)                                { return mCommand; }
-      NET_API bool                        getInOutgoingQueue(void)                        { return mInOutgoingQueue; }
-      NET_API bool                        getInIncomingQueue(void)                        { return mInIncomingQueue; }
-      NET_API uint32					  getResendWindowSize()							  { return mWindowResendSize; }
+      NetworkClient*              getClient(void)                                 { return mClient; }
+      Service*                    getService(void)                                { return mService; }
+      uint32                      getId(void)                                     { return mId; }
+      uint32                      getAddress(void)                                { return mAddress; }
+      int8*                       getAddressString(void);
+      uint16                      getPort(void)                                   { return mPort; }
+      uint16                      getPortHost(void);
+      uint32                      getOutgoingReliablePacketCount(void)            { return mOutgoingReliablePacketQueue.size(); }
+      Packet*                     getOutgoingReliablePacket(void);
+      uint32                      getOutgoingUnreliablePacketCount(void)          { return mOutgoingUnreliablePacketQueue.size(); }
+      Packet*                     getOutgoingUnreliablePacket(void);
+      uint32                      getIncomingQueueMessageCount()    { return mIncomingMessageQueue.size(); }
+      Message*                    getIncomingQueueMessage();
+      uint32                      getEncryptKey(void)                             { return mEncryptKey; }
+      SessionStatus               getStatus(void)                                 { return mStatus; }
+      SessionCommand              getCommand(void)                                { return mCommand; }
+      bool                        getInOutgoingQueue(void)                        { return mInOutgoingQueue; }
+      bool                        getInIncomingQueue(void)                        { return mInIncomingQueue; }
+      uint32					  getResendWindowSize()							  { return mWindowResendSize; }
 
 
-      NET_API void						  setResendWindowSize(uint32 resendWindowSize)	  { mWindowResendSize = resendWindowSize;  mWindowSizeCurrent = resendWindowSize; }
-      NET_API void                        setClient(NetworkClient* client)                { mClient = client; }
-      NET_API void                        setService(Service* service)                    { mService = service; }
-      NET_API void                        setSocketReadThread(SocketReadThread* thread)   { mSocketReadThread = thread; }
-      NET_API void                        setSocketWriteThread(SocketWriteThread* thread) { mSocketWriteThread = thread; }
-      NET_API void                        setPacketFactory(PacketFactory* factory)        { mPacketFactory = factory; }
-      NET_API void                        setMessageFactory(MessageFactory* factory)      { mMessageFactory = factory; }
-      NET_API void                        setId(uint32 id)                                { mId = id; }
-      NET_API void                        setAddress(uint32 address)					  { mAddress = address; }
-      NET_API void                        setPort(uint16 port)                            { mPort = port; }
-      NET_API void                        setEncryptKey(uint32 key)                       { mEncryptKey = key; }
-      NET_API void                        setStatus(SessionStatus status)                 { mStatus = status; }
-      NET_API void                        setCommand(SessionCommand command)              { mCommand = command; }
-      NET_API void                        setInOutgoingQueue(bool in)                     { mInOutgoingQueue = in; }
-      NET_API void                        setInIncomingQueue(bool in)                     { mInIncomingQueue = in; }
-      NET_API void                        setPacketSize(uint16 size)					  { mMaxPacketSize = size;}
-      NET_API void                        setUnreliableSize(uint16 size)				  { mMaxUnreliableSize = size;}
+      void						  setResendWindowSize(uint32 resendWindowSize)	  { mWindowResendSize = resendWindowSize;  mWindowSizeCurrent = resendWindowSize; }
+      void                        setClient(NetworkClient* client)                { mClient = client; }
+      void                        setService(Service* service)                    { mService = service; }
+      void                        setSocketReadThread(SocketReadThread* thread)   { mSocketReadThread = thread; }
+      void                        setSocketWriteThread(SocketWriteThread* thread) { mSocketWriteThread = thread; }
+      void                        setPacketFactory(PacketFactory* factory)        { mPacketFactory = factory; }
+      void                        setMessageFactory(MessageFactory* factory)      { mMessageFactory = factory; }
+      void                        setId(uint32 id)                                { mId = id; }
+      void                        setAddress(uint32 address)					  { mAddress = address; }
+      void                        setPort(uint16 port)                            { mPort = port; }
+      void                        setEncryptKey(uint32 key)                       { mEncryptKey = key; }
+      void                        setStatus(SessionStatus status)                 { mStatus = status; }
+      void                        setCommand(SessionCommand command)              { mCommand = command; }
+      void                        setInOutgoingQueue(bool in)                     { mInOutgoingQueue = in; }
+      void                        setInIncomingQueue(bool in)                     { mInIncomingQueue = in; }
+      void                        setPacketSize(uint16 size)					  { mMaxPacketSize = size;}
+      void                        setUnreliableSize(uint16 size)				  { mMaxUnreliableSize = size;}
 
-      NET_API void						  setServerService(bool yes){mServerService = yes;}
-      NET_API bool						  getServerService(){return mServerService;}
+      void						  setServerService(bool yes){mServerService = yes;}
+      bool						  getServerService(){return mServerService;}
 
       uint64					  mLastPacketDestroyed;
       uint64					  mHash;
@@ -264,7 +264,12 @@ private:
 
       SessionStatus               mStatus;
       SessionCommand              mCommand;
-
+      
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
       // Message queues.
       MessageQueue                mOutgoingMessageQueue;		//here we store the messages given to us by the messagelib
       MessageQueue                mUnreliableMessageQueue;
@@ -288,6 +293,10 @@ private:
       PacketWindowList            mIncomingPacketList;				
       
       boost::recursive_mutex	  mSessionMutex;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 
       uint64					  lasttime;
       uint64					  avgTime;

@@ -41,7 +41,7 @@ typedef boost::pool<boost::default_user_allocator_malloc_free> PacketPool;
 
 //======================================================================================================================
 
-class PacketFactory
+class NET_API PacketFactory
 {
     public:
 
@@ -57,9 +57,17 @@ class PacketFactory
 
     private:
         uint32							mPacketCount;
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
         PacketPool						mPacketPool;
         boost::recursive_mutex			mPacketFactoryMutex;
-      
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif      
 };
 
 //======================================================================================================================

@@ -39,18 +39,27 @@ class TimerCallback;
 
 //==============================================================================================================================
 
-class Timer
+class UTILS_API Timer
 {
 public:
-    UTILS_API Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container);
-    UTILS_API ~Timer();
+    Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container);
+    ~Timer();
 
-    UTILS_API virtual	void	Run();
+    virtual	void	Run();
 
-    UTILS_API uint32			getId(){ return mId; }
+    uint32			getId(){ return mId; }
 
 private:
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     boost::thread   mThread;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
     void*						mContainer;
     TimerCallback*	mCallback;
     uint32					mId;

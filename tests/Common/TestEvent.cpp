@@ -49,7 +49,7 @@ TEST(EventTests, EventHasAnEventType) {
  */
 TEST(EventTests, EventHasNoSubjectByDefault) {
     MockEvent test_event;
-    EXPECT_EQ(false, test_event.hasSubject());
+    EXPECT_EQ(0, test_event.subject());
 }
 
 /*! An event's subject should be specified at the point of event creation.
@@ -60,7 +60,6 @@ TEST(EventTests, CanSetAndRetrieveSubjectForEvent) {
     MockEvent test_event(some_subject_id);
 
     // Make sure that the event now has a subject and that it returns the correct value.
-    EXPECT_EQ(true, test_event.hasSubject());
     EXPECT_EQ(some_subject_id, test_event.subject());
 }
 

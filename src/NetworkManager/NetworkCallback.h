@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_NETWORKMANAGER_NETWORKCALLBACK_H
 #define ANH_NETWORKMANAGER_NETWORKCALLBACK_H
 
+#include "NetworkManager/declspec.h"
+
 //======================================================================================================================
 
 class Session;
@@ -37,7 +39,7 @@ class Message;
 
 //======================================================================================================================
 
-class NetworkCallback
+class NET_API NetworkCallback
 {
 	public:
 

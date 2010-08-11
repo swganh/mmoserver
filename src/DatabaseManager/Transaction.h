@@ -40,22 +40,31 @@ class Database;
 
 //======================================================================================================================
 
-class Transaction
+class DBMANAGER_API Transaction
 {
-	public:
+    public:
 
-		DBMANAGER_API Transaction(Database* database,DatabaseCallback* callback,void* ref);
-		DBMANAGER_API ~Transaction();
+        Transaction(Database* database,DatabaseCallback* callback,void* ref);
+        ~Transaction();
 
-		DBMANAGER_API void		execute();
-		DBMANAGER_API void		addQuery(int8* query,...);
+        void		execute();
+        void		addQuery(int8* query,...);
 
-	private:
+    private:
 
-		Database*				mDatabase;
-		DatabaseCallback*		mCallback;
-		void*					mReference;
-		std::ostringstream		mQueries;
+        Database*				mDatabase;
+        DatabaseCallback*		mCallback;
+        void*					mReference;
+
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+        std::ostringstream		mQueries;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 };
 
 //======================================================================================================================

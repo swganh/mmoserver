@@ -53,51 +53,59 @@ namespace boost {
 
 #define gLogger LogManager::getSingleton()
 
-class LogManager
+class COMMON_API LogManager
 {
 public:
     
     enum LOG_PRIORITY 
-	{
-		EMERGENCY		= 1,
-		ALERT			= 2,
-		CRITICAL		= 3,
-		ERR				= 4,
-		WARNING			= 5,
-		NOTICE			= 6,
-		INFORMATION		= 7,
-		DEBUG			= 8
-	};
+    {
+        EMERGENCY		= 1,
+        ALERT			= 2,
+        CRITICAL		= 3,
+        ERR				= 4,
+        WARNING			= 5,
+        NOTICE			= 6,
+        INFORMATION		= 7,
+        DEBUG			= 8
+    };
 
-	COMMON_API static LogManager*	getSingleton() { return mSingleton;}
-	COMMON_API static void			Init(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename) { mSingleton = new LogManager(console_priority, file_priority, filename);}
-	
-	COMMON_API void log(LOG_PRIORITY priority, std::string format, ...);
-	COMMON_API void logCont(LOG_PRIORITY priority, std::string format, ...);
+    static LogManager*	getSingleton() { return mSingleton;}
+    static void			Init(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename) { mSingleton = new LogManager(console_priority, file_priority, filename);}
+    
+    void log(LOG_PRIORITY priority, std::string format, ...);
+    void logCont(LOG_PRIORITY priority, std::string format, ...);
 
-	COMMON_API void logS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
-	COMMON_API void logContS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
+    void logS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
+    void logContS(LOG_PRIORITY priority, uint8_t channels, std::string format, ...);
 
-	static LogManager* mSingleton;
+    static LogManager* mSingleton;
 
 private:
-	LogManager(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename);
-	LogManager(const LogManager&);
-	LogManager& operator=(const LogManager&);
+    LogManager(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename);
+    LogManager(const LogManager&);
+    LogManager& operator=(const LogManager&);
     ~LogManager();
 
-	void _printLogo();
-	void _LoggerThread();
+    void _printLogo();
+    void _LoggerThread();
+    
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+    std::queue<LOG_ENTRY*>		mEntries;
 
-	std::queue<LOG_ENTRY*>		mEntries;
 
+    uint8_t						mMinPriorities[3];
+    std::string					mFileName;
 
-	uint8_t						mMinPriorities[3];
-	std::string					mFileName;
-
-	std::unique_ptr<std::ofstream> mOutputFile;
+    std::unique_ptr<std::ofstream> mOutputFile;
     std::unique_ptr<boost::thread> mThread;
     std::unique_ptr<boost::mutex> mEntriesMutex;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 };
 
 #endif

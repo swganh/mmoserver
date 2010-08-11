@@ -48,19 +48,19 @@ typedef Anh_Utils::concurrent_queue<Session*>    SessionQueue;
 
 //======================================================================================================================
 
-class SocketWriteThread
+class NET_API SocketWriteThread
 {
     public:
 
-        NET_API SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
-        NET_API ~SocketWriteThread();
+        SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
+        ~SocketWriteThread();
 
-        NET_API virtual void	run();
+        virtual void	run();
 
-        NET_API void			NewSession(Session* session);
+        void			NewSession(Session* session);
 
-        NET_API bool			getIsRunning(void){ return mIsRunning; }
-        NET_API void			requestExit(){ mExit = true; }
+        bool			getIsRunning(void){ return mIsRunning; }
+        void			requestExit(){ mExit = true; }
 
     private:
 
@@ -88,12 +88,21 @@ class SocketWriteThread
         uint32				unCount;
         uint32				reCount;
         bool				mServerService;
-        // Anh_Utils::Clock*	mClock;
-
+        // Anh_Utils::Clock*	mClock;        
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
         SessionQueue				mSessionQueue;
 
         boost::thread   			mThread;
         boost::recursive_mutex      mSocketWriteMutex;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
         bool						mExit;
 };
 

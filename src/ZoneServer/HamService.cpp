@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/LogManager.h"
 
+#include "SwgProtocol/ObjectControllerEvents.h"
+
 using ::common::ApplicationService;
 using ::common::IEventPtr;
 using ::common::EventType;
@@ -43,7 +45,7 @@ HamService::HamService(::common::EventDispatcher& event_dispatcher)
 HamService::~HamService() {}
 
 void HamService::onInitialize() {
-    event_dispatcher_.Connect(EventType("PreCommandProcess"), EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handleSuccessfulObjectControllerCommand, this, std::placeholders::_1)));
+    event_dispatcher_.Connect(::swg_protocol::object_controller::PreCommandEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handleSuccessfulObjectControllerCommand, this, std::placeholders::_1)));
 }
 
 bool HamService::handleSuccessfulObjectControllerCommand(IEventPtr triggered_event) {

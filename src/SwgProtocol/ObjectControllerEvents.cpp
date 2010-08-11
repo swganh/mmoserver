@@ -31,8 +31,8 @@ namespace swg_protocol {
 
 namespace object_controller {
 
-const ::common::EventType PreCommandEvent::event_type_ = ::common::EventType("PreCommandEvent");
-const ::common::EventType PostCommandEvent::event_type_ = ::common::EventType("PostCommandEvent");
+const ::common::EventType PreCommandEvent::type = ::common::EventType("PreCommandEvent");
+const ::common::EventType PostCommandEvent::type = ::common::EventType("PostCommandEvent");
 
 PreCommandEvent::PreCommandEvent(::common::ByteBuffer& in) {
     deserialize(in);
@@ -47,7 +47,7 @@ PreCommandEvent::PreCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64
 PreCommandEvent::~PreCommandEvent() {}
 
 const ::common::EventType& PreCommandEvent::event_type() const { 
-    return event_type_; 
+    return type; 
 }
 
 void PreCommandEvent::onSerialize(::common::ByteBuffer& out) const {}
@@ -70,7 +70,7 @@ PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t timestamp, uint
 PostCommandEvent::~PostCommandEvent() {}
 
 const ::common::EventType& PostCommandEvent::event_type() const { 
-    return event_type_; 
+    return type; 
 }
 
 void PostCommandEvent::onSerialize(::common::ByteBuffer& out) const {}

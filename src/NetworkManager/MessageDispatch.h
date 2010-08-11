@@ -54,33 +54,42 @@ typedef std::map<uint32, DispatchClient*>            AccountClientMap;
 
 //======================================================================================================================
 
-class MessageDispatch : public NetworkCallback
+class NET_API MessageDispatch : public NetworkCallback
 {
     public:
 
-        NET_API MessageDispatch(Service* service);
-        NET_API ~MessageDispatch(void);
+        MessageDispatch(Service* service);
+        ~MessageDispatch(void);
 
-        NET_API void						Process(void);
+        void						Process(void);
 
-        NET_API void						RegisterMessageCallback(uint32 opcode, std::function<void (Message*,DispatchClient*)> callback);
-        NET_API void						UnregisterMessageCallback(uint32 opcode);
-        NET_API AccountClientMap*			getClientMap(){return(&mAccountClientMap);}
+        void						RegisterMessageCallback(uint32 opcode, std::function<void (Message*,DispatchClient*)> callback);
+        void						UnregisterMessageCallback(uint32 opcode);
+        AccountClientMap*			getClientMap(){return(&mAccountClientMap);}
 
         // Inherited NetworkCallback
-        NET_API virtual NetworkClient*		handleSessionConnect(Session* session, Service* service);
-        NET_API virtual void				handleSessionDisconnect(NetworkClient* client);
-        NET_API virtual void				handleSessionMessage(NetworkClient* client, Message* message);
+        virtual NetworkClient*		handleSessionConnect(Session* session, Service* service);
+        virtual void				handleSessionDisconnect(NetworkClient* client);
+        virtual void				handleSessionMessage(NetworkClient* client, Message* message);
 
         // Sessionless clients
-        NET_API void						registerSessionlessDispatchClient(uint32 accountId);
-        NET_API void						unregisterSessionlessDispatchClient(uint32 accountId);
+        void						registerSessionlessDispatchClient(uint32 accountId);
+        void						unregisterSessionlessDispatchClient(uint32 accountId);
     private:
 
         Service*					mRouterService;
+
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
         MessageCallbackMap			mMessageCallbackMap;
         AccountClientMap			mAccountClientMap;
         boost::recursive_mutex		mSessionMutex;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 };
 
 //======================================================================================================================

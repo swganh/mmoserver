@@ -456,8 +456,9 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
 {
 	client->setState(CCSTATE_AllowedChars);
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u',client->getAccountId());"); // SQL Debug Log
 	mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u'",client->getAccountId());
-	
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0; , client->getAccountId());"); // SQL Debug Log
 	mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 }
 

@@ -87,7 +87,9 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 		(char*)(gConfig->read<std::string>("DBName")).c_str());
 
 
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'chat'");
+	//mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'chat'");
+	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);");
+	gLogger->log(LogManager::DEBUG, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);"); // SQL Debug Log
 
 	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
@@ -193,8 +195,10 @@ void ChatServer::Process()
 
 void ChatServer::_updateDBServerList(uint32 status)
 {
-  // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='chat';", mRouterService->getLocalAddress(), mRouterService->getLocalPort(), status));
+	// Update the DB with our status.  This must be synchronous as the connection server relies on this data.
+	//mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='chat';", mRouterService->getLocalAddress(), mRouterService->getLocalPort(), status));
+	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', %u, '%s', %u);", status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL - Update server status
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('chat', %u, '%s', %u);", status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL Debug Log
 }
 
 //======================================================================================================================

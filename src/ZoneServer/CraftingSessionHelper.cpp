@@ -60,33 +60,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
-//=============================================================================
-//
-// get the serials crc for a (filled)crafting slot
-//
-
-uint32 CraftingSession::getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory)
-{
-
-	Item*		filledComponent;
-	FilledResources::iterator filledResIt = manSlot->mFilledResources.begin();
-	while(filledResIt != manSlot->mFilledResources.end())
-	{
-		uint64		itemId = (*filledResIt).first;
-		BString filledSerial;
-
-		filledComponent = dynamic_cast<Item*>(inventory->getObjectById(itemId));
-		if(filledComponent->hasAttribute("serial"))
-			filledSerial = filledComponent->getAttribute<std::string>("serial").c_str();
-		else
-			filledSerial ="";
-
-		return(filledSerial.getCrc());
-		++filledResIt;
-
-	}
-	return(0);
-}
 
 //=============================================================================
 //
@@ -414,9 +387,8 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 
 	Item*		component	= dynamic_cast<Item*>(gWorldManager->getObjectById(componentId));
 
-	Inventory* inventory = dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-
-	//remove the component out of the inventory and attach it to the man schematic
+	//remove the component out of its container and attach it to the man schematic
+	//alternatively remove the amount necessary from a stack / crate
 
 
 	uint32				availableAmount		= 0;

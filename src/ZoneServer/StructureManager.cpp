@@ -1018,7 +1018,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			//return the old schematic to the Datapad
 			Datapad* datapad			= player->getDataPad();
-			//Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 			
 			if(!datapad->getCapacity())
 			{
@@ -1059,7 +1058,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 				//first return the old schematic to the Datapad
 				Datapad* datapad			= player->getDataPad();
-				//Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 				
 				//change the ManSchems Owner ID and load it into the datapad
 				gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);

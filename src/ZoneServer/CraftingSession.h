@@ -90,7 +90,6 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		uint32					getComponentOffer(Item* component, uint32 needed);
 		BString					ComponentGetSerial(Item* component);
 
-		uint32					getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory);
 		bool					AdjustComponentStack(Item* item, uint32 uses);
 		uint32					AdjustFactoryCrate(FactoryCrate* crate, uint32 uses);
 		void					destroyComponents();

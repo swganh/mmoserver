@@ -130,8 +130,6 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 	PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
 	ResourceContainer*	selectedContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(targetId));
 
-	Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-
 	gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: Container : %I64u",targetId);
 
 	if(!selectedContainer)
@@ -158,46 +156,29 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 	uint64	parentId		= boost::lexical_cast<uint64>(dataElements[1].getAnsi());
 
 
-	if(selectedContainer->getParentId() == inventory->getId())
+	TangibleObject* parentContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(parentId));
+	if(!parentContainer)
 	{
-		//check if we can fit an additional resource container in our inventory
-		if(!inventory->checkSlots(1))
-		{
-            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "inv_full"), playerObject);
-			return;
-		}
-
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedContainer->getAmount(),selectedContainer->getId());
-
-		// create a new one
-		// update selected container contents
-		selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
-		gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
-
-		gObjectFactory->requestNewResourceContainer(inventory,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
-		return;
-	}
-
-	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(parentId));
-	if(!item)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_ExtractObject: resourcecontainers parent does not exist!");
-		assert(false && "ObjectController::_ExtractObject resourcecontainers parent does not exist");
+		gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: resourcecontainers parent does not exist!");
+		assert(false && "ObjectController::_handleResourceContainerSplitresourcecontainers parent does not exist");
 		return;
 	}
 	
-	if(!item->checkCapacity())
+	//res container is 1 slot
+	if(!parentContainer->checkCapacity(1,playerObject))
 	{
 		//check if we can fit an additional item in our inventory
-        gMessageLib->SendSystemMessage(::common::OutOfBand("container_error_message", "container3"), playerObject);
+		//sends sysmessage automatically
+        //gMessageLib->SendSystemMessage(::common::OutOfBand("container_error_message", "container3"), playerObject);
 		return;
 	}
 	// update selected container contents
 	selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
+	mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedContainer->getAmount(),selectedContainer->getId());
 
 	gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 
-	gObjectFactory->requestNewResourceContainer(item,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
+	gObjectFactory->requestNewResourceContainer(parentContainer,(selectedContainer->getResource())->getId(),parentId,99,splitOffAmount);
 	
 }
 

@@ -50,12 +50,36 @@ const ::common::EventType& PreCommandEvent::event_type() const {
     return type; 
 }
 
-void PreCommandEvent::onSerialize(::common::ByteBuffer& out) const {}
-void PreCommandEvent::onDeserialize(::common::ByteBuffer& in) {}
+void PreCommandEvent::onSerialize(::common::ByteBuffer& out) const {
+    out << target_id_;
+    out << command_crc_;
+}
+
+void PreCommandEvent::onDeserialize(::common::ByteBuffer& in) {
+    target_id_ = in.Read<uint64_t>();
+    command_crc_ = in.Read<uint32_t>();
+}
 
 bool PreCommandEvent::onConsume(bool handled) const {
     return true;
 }
+
+uint64_t PreCommandEvent::target_id() const {
+    return target_id_;
+}
+
+void PreCommandEvent::target_id(uint64_t target_id) {
+    target_id_ = target_id;
+}
+
+uint32_t PreCommandEvent::command_crc() const {
+    return command_crc_;
+}
+
+void PreCommandEvent::command_crc(uint32_t command_crc) {
+    command_crc_ = command_crc;
+}
+
 
 PostCommandEvent::PostCommandEvent(::common::ByteBuffer& in) {
     deserialize(in);

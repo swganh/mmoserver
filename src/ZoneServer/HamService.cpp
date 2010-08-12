@@ -40,16 +40,31 @@ using ::common::EventListenerType;
 namespace zone {
 
 HamService::HamService(::common::EventDispatcher& event_dispatcher)
-: ::common::ApplicationService(event_dispatcher) {}
+: ::common::ApplicationService(event_dispatcher)
+, command_property_map_(gObjControllerCmdPropertyMap) {}
 
 HamService::~HamService() {}
 
 void HamService::onInitialize() {
-    event_dispatcher_.Connect(::swg_protocol::object_controller::PreCommandEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handleSuccessfulObjectControllerCommand, this, std::placeholders::_1)));
+    event_dispatcher_.Connect(::swg_protocol::object_controller::PreCommandEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handlePreCommandEvent, this, std::placeholders::_1)));
 }
 
-bool HamService::handleSuccessfulObjectControllerCommand(IEventPtr triggered_event) {
-    gLogger->log(LogManager::CRITICAL, "HAM Service processed successful ObjectController command");
+bool HamService::handlePreCommandEvent(IEventPtr triggered_event) {
+    // Cast the IEvent to the PreCommandEvent.
+    std::shared_ptr<::swg_protocol::object_controller::PreCommandEvent> pre_event = std::dynamic_pointer_cast<::swg_protocol::object_controller::PreCommandEvent>(triggered_event);
+
+    if (!pre_event) {
+        assert(!"Received an invalid event!");
+        return false;
+    }
+    
+    // This command doesn't exist in the properties map and shouldn't be executed further.
+    CmdPropertyMap::const_iterator it = command_property_map_.find(pre_event->command_crc());
+    if (it == command_property_map_.end()) {
+        return false;
+    }
+
+    gLogger->log(LogManager::CRITICAL, "HAM Service - PreCommandEvent successfully processed");
 
     return true;
 }

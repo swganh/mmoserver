@@ -382,17 +382,14 @@ bool ObjectController::_processCommandQueue()
 
                         // If a new style handler is found process it.
                         if (message && it != gObjectControllerCommands->getCommandMap().end()) {
+                            // Create a pre-command processing event.
                             std::shared_ptr<::swg_protocol::object_controller::PreCommandEvent> pre_event = std::make_shared<::swg_protocol::object_controller::PreCommandEvent>(mObject->getId(), Anh_Utils::Clock::getSingleton()->getGlobalTime(), 0);
+                            pre_event->target_id(targetId);
+                            pre_event->command_crc(cmdProperties->mCmdCrc);
                             
                             // Trigger a pre-command processing event and get the result. This allows
                             // any listeners to veto the processing of the command (such as validators).
                             bool process_command_check = gEventDispatcher.Deliver(pre_event).get();
-
-                            //std::shared_ptr<ObjectController::PreCommandEvent> pre_event = std::make_shared<ObjectController::PreCommandEvent>(new Event(EventType("object_controller.pre_command_process")));
-                            //pre_event->object_id(mObject->getId());
-                            //pre_event->target_id(target->getId());
-                            //pre_event->message(message);
-                            //pre_event->command_properties(cmdProperties);
 
                             // Only process the command if it passed validation from the above.
                             if (process_command_check) {

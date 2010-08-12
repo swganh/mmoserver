@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/ApplicationService.h"
 #include "Common/EventDispatcher.h"
 
+#include "ZoneServer/ObjectControllerCommandMap.h"
+
 namespace zone {
 
 class HamService : public ::common::ApplicationService {
@@ -46,7 +48,9 @@ private:
 
     virtual void onInitialize();
 
-    bool handleSuccessfulObjectControllerCommand(::common::IEventPtr triggered_event);
+    bool handlePreCommandEvent(::common::IEventPtr triggered_event);
+
+    const CmdPropertyMap& command_property_map_;
 };
 
 } // namespace zone

@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "NetworkManager/Message.h"
 #include "ArtisanManager.h"
+#include "OCCommonHandlers.h"
 #include "OCStructureHandlers.h"
 #include "CraftingManager.h"
 #include "StructureManager.h"
@@ -228,7 +229,6 @@ void ObjectControllerCommandMap::_registerCppHooks()
 	mCommandMap.insert(std::make_pair(opOCNewbieSelectStartingLocation, std::bind(&ObjectController::_handleNewbieSelectStartingLocation, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 
 	mCommandMap.insert(std::make_pair(opOCLogoutClient, std::bind(&ObjectController::_handleClientLogout, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	mCommandMap.insert(std::make_pair(opOCburstrun, std::bind(&ObjectController::_BurstRun, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 
 	mCommandMap.insert(std::make_pair(opOCFactoryCrateSplit, std::bind(&ObjectController::_handleFactoryCrateSplit, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCExtractObject, std::bind(&ObjectController::_ExtractObject, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
@@ -520,6 +520,9 @@ void ObjectControllerCommandMap::RegisterCppHooks_()
 	
 	command_map_.insert(std::make_pair(opMoveFurniture, std::bind(&HandleMoveFurniture, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
 	
+	command_map_.insert(std::make_pair(opOCburstrun, std::bind(&HandleBurstRun, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));	
+	
+
 	command_map_.insert(std::make_pair(opOCPlaceStructure, std::bind(&StructureManager::HandlePlaceStructure, gStructureManager, std::placeholders::_1, std::placeholders::_2,std::placeholders::_3, std::placeholders::_4)));
 }
 

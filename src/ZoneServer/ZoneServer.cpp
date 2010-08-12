@@ -202,7 +202,7 @@ ham_service_(nullptr)
     // Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(gEventDispatcher));
+    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(gEventDispatcher, gObjControllerCmdPropertyMap));
     ham_service_->initialize();
 
     ScriptEngine::Init();

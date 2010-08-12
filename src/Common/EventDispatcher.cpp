@@ -362,6 +362,9 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
     if (!ValidateEventType_(triggered_event->event_type())) {
         return false;
     }
+      
+    // By default if an event isn't handled this method returns true.
+    bool delivered = true;
 
     // Find the list of global listeners.
     auto listener_it = event_listener_map_.find(EventType(kWildCardHashString));
@@ -382,7 +385,7 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
     // If no listeners were found return false.
     if (listener_it == event_listener_map_.end()) {
         // Callbacks should be called here if no specific listeners were found.
-        triggered_event->consume(false);
+        triggered_event->consume(delivered);
 
         IEventPtr next_event = triggered_event->next();
 
@@ -390,24 +393,21 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
             Notify(next_event);
         }
 
-        return false;
+        return delivered;
     }
 
     // Get the list of listeners to iterate over.
     auto listeners = listener_it->second;
-    
-    // By default if an event isn't handled this method returns false.
-    bool processed = false;
 
     // Allow each listener the opportunity to process the event, if it does set processed to true.
     for (auto it = listeners.begin(), end = listeners.end(); it != end; ++it) {
-        if ((*it).second(triggered_event)) {
-            processed = true;
+        if (!(*it).second(triggered_event)) {
+            delivered = false;
         }
     }
 
     // If processing got this far then nothing failed so invoke the callback on the event.
-    triggered_event->consume(processed);
+    triggered_event->consume(delivered);
     
     IEventPtr next_event = triggered_event->next();
 
@@ -415,7 +415,7 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
         Notify(next_event);
     }
 
-    return processed;
+    return delivered;
 }
 
 }  // namespace common

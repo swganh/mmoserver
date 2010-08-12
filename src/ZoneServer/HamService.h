@@ -37,7 +37,7 @@ namespace zone {
 
 class HamService : public ::common::ApplicationService {
 public:
-    explicit HamService(::common::EventDispatcher& event_dispatcher);
+    explicit HamService(::common::EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map);
     ~HamService();
 
 private:
@@ -48,7 +48,7 @@ private:
 
     virtual void onInitialize();
 
-    bool handlePreCommandEvent(::common::IEventPtr triggered_event);
+    bool handlePreCommandExecuteEvent(::common::IEventPtr triggered_event);
 
     const CmdPropertyMap& command_property_map_;
 };

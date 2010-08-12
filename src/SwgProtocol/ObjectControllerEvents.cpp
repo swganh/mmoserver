@@ -31,8 +31,9 @@ namespace swg_protocol {
 
 namespace object_controller {
 
-const ::common::EventType PreCommandEvent::type = ::common::EventType("PreCommandEvent");
-const ::common::EventType PostCommandEvent::type = ::common::EventType("PostCommandEvent");
+const ::common::EventType PreCommandEvent::type         = ::common::EventType("PreCommandEvent");
+const ::common::EventType PreCommandExecuteEvent::type  = ::common::EventType("PreCommandExecuteEvent");
+const ::common::EventType PostCommandEvent::type        = ::common::EventType("PostCommandEvent");
 
 PreCommandEvent::PreCommandEvent(::common::ByteBuffer& in) {
     deserialize(in);
@@ -79,6 +80,56 @@ uint32_t PreCommandEvent::command_crc() const {
 void PreCommandEvent::command_crc(uint32_t command_crc) {
     command_crc_ = command_crc;
 }
+
+
+
+
+PreCommandExecuteEvent::PreCommandExecuteEvent(::common::ByteBuffer& in) {
+    deserialize(in);
+}
+
+PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms) :
+::common::BaseEvent(subject_id, timestamp, delay_ms) {}
+
+PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
+    : ::common::BaseEvent(subject_id, timestamp, delay_ms, callback) {}
+    
+PreCommandExecuteEvent::~PreCommandExecuteEvent() {}
+
+const ::common::EventType& PreCommandExecuteEvent::event_type() const { 
+    return type; 
+}
+
+void PreCommandExecuteEvent::onSerialize(::common::ByteBuffer& out) const {
+    out << target_id_;
+    out << command_crc_;
+}
+
+void PreCommandExecuteEvent::onDeserialize(::common::ByteBuffer& in) {
+    target_id_ = in.Read<uint64_t>();
+    command_crc_ = in.Read<uint32_t>();
+}
+
+bool PreCommandExecuteEvent::onConsume(bool handled) const {
+    return true;
+}
+
+uint64_t PreCommandExecuteEvent::target_id() const {
+    return target_id_;
+}
+
+void PreCommandExecuteEvent::target_id(uint64_t target_id) {
+    target_id_ = target_id;
+}
+
+uint32_t PreCommandExecuteEvent::command_crc() const {
+    return command_crc_;
+}
+
+void PreCommandExecuteEvent::command_crc(uint32_t command_crc) {
+    command_crc_ = command_crc;
+}
+
 
 
 PostCommandEvent::PostCommandEvent(::common::ByteBuffer& in) {

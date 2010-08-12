@@ -69,6 +69,36 @@ private:
     uint32_t command_crc_;
 };
 
+
+class SWGPROTOCOL_API PreCommandExecuteEvent : public ::common::BaseEvent {
+public:
+    static const ::common::EventType type;
+
+public:
+    explicit PreCommandExecuteEvent(::common::ByteBuffer& in);
+    explicit PreCommandExecuteEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
+    PreCommandExecuteEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback);
+    
+    ~PreCommandExecuteEvent();
+
+    const ::common::EventType& event_type() const;
+
+    uint64_t target_id() const;
+    void target_id(uint64_t target_id);
+    
+    uint32_t command_crc() const;
+    void command_crc(uint32_t command_crc);
+
+private:
+    void onSerialize(::common::ByteBuffer& out) const;
+    void onDeserialize(::common::ByteBuffer& in);
+
+    bool onConsume(bool handled) const;
+
+    uint64_t target_id_;
+    uint32_t command_crc_;
+};
+
 class SWGPROTOCOL_API PostCommandEvent : public ::common::BaseEvent {
 public:
     static const ::common::EventType type;

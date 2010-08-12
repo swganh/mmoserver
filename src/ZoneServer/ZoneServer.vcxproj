@@ -384,6 +384,7 @@
     <ClInclude Include="CloningTerminal.h" />
     <ClInclude Include="CMWeaponGroup.h" />
     <ClInclude Include="CombatManager.h" />
+    <ClInclude Include="OCCommonHandlers.h" />
     <ClInclude Include="Container.h" />
     <ClInclude Include="ContainerObjectFactory.h" />
     <ClInclude Include="Conversation.h" />

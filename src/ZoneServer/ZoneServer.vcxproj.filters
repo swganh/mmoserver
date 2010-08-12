@@ -1483,5 +1483,8 @@
     <ClInclude Include="HamService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="OCCommonHandlers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

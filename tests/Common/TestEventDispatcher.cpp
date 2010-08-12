@@ -226,7 +226,7 @@ TEST(EventDispatcherTests, DeliveringEventCallsAppropriateListener) {
     EXPECT_EQ(true, listener.triggered());
 }
 
-TEST(EventDispatcherTests, DeliveringEventOfUnknownTypeFails) {
+TEST(EventDispatcherTests, DeliveringEventOfUnknownTypeIsSuccessful) {
     // Create the EventDispatcher and a MockListener to use for testing.
     EventDispatcher dispatcher;   
     MockListener listener;
@@ -239,7 +239,7 @@ TEST(EventDispatcherTests, DeliveringEventOfUnknownTypeFails) {
     IEventPtr my_event = std::make_shared<MockEvent>();
 
     // Deliver the event.
-    EXPECT_EQ(false, dispatcher.Deliver(my_event).get());
+    EXPECT_EQ(true, dispatcher.Deliver(my_event).get());
 }
 
 TEST(EventDispatcherTests, DeliveringEventCallsGlobalListeners) {
@@ -257,22 +257,6 @@ TEST(EventDispatcherTests, DeliveringEventCallsGlobalListeners) {
     // Deliver the event and verify the global listener was called.
     dispatcher.Deliver(my_event).get();
     EXPECT_EQ(true, listener.triggered());
-}
-
-TEST(EventDispatcherTests, GlobalListenersDoNotCountTowardsValidDelivery) {
-    // Create the EventDispatcher and a MockListener to use for testing.
-    EventDispatcher dispatcher;   
-    MockListener listener;
-   
-    // Connect the listener to a test event.
-    EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType(::common::kWildCardHashString), EventListener(EventListenerType("MockListener"), callback));
-    
-    // Create a new event.
-    IEventPtr my_event = std::make_shared<MockEvent>();
-
-    // Deliver the event, even though the global listener gets called this should return false.
-    EXPECT_EQ(false, dispatcher.Deliver(my_event).get());
 }
 
 TEST(EventDispatcherTests, CallingTickProcessesQueuedEvents) {

@@ -26,10 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer/HamService.h"
-
 #include "Common/LogManager.h"
-
 #include "SwgProtocol/ObjectControllerEvents.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldManager.h"
 
 using ::common::ApplicationService;
 using ::common::IEventPtr;
@@ -39,20 +39,19 @@ using ::common::EventListenerType;
 
 namespace zone {
 
-HamService::HamService(::common::EventDispatcher& event_dispatcher)
+HamService::HamService(::common::EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map)
 : ::common::ApplicationService(event_dispatcher)
-, command_property_map_(gObjControllerCmdPropertyMap) {}
+, command_property_map_(command_property_map) {}
 
 HamService::~HamService() {}
 
 void HamService::onInitialize() {
-    event_dispatcher_.Connect(::swg_protocol::object_controller::PreCommandEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handlePreCommandEvent, this, std::placeholders::_1)));
+    event_dispatcher_.Connect(::swg_protocol::object_controller::PreCommandExecuteEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handlePreCommandExecuteEvent, this, std::placeholders::_1)));
 }
 
-bool HamService::handlePreCommandEvent(IEventPtr triggered_event) {
+bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {
     // Cast the IEvent to the PreCommandEvent.
-    std::shared_ptr<::swg_protocol::object_controller::PreCommandEvent> pre_event = std::dynamic_pointer_cast<::swg_protocol::object_controller::PreCommandEvent>(triggered_event);
-
+    std::shared_ptr<::swg_protocol::object_controller::PreCommandExecuteEvent> pre_event = std::dynamic_pointer_cast<::swg_protocol::object_controller::PreCommandExecuteEvent>(triggered_event);
     if (!pre_event) {
         assert(!"Received an invalid event!");
         return false;
@@ -63,6 +62,25 @@ bool HamService::handlePreCommandEvent(IEventPtr triggered_event) {
     if (it == command_property_map_.end()) {
         return false;
     }
+
+    // Lookup the creature and ensure it is a valid object.
+    PlayerObject* object = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(pre_event->subject()));
+    if (!object) {
+        return false;
+    }
+    
+    uint32 actioncost = (*it).second->mActionCost;
+    uint32 healthcost = (*it).second->mHealthCost;
+    uint32 mindcost	  = (*it).second->mMindCost;
+
+    if (!object->getHam()->checkMainPools(healthcost, actioncost, mindcost)) {
+        gMessageLib->SendSystemMessage(L"You cannot <insert command> right now.", object); // the stf doesn't work!
+        return false;
+    }
+
+    object->getHam()->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, -static_cast<int32>(actioncost), true);
+    object->getHam()->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, -static_cast<int32>(healthcost), true);
+    object->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -static_cast<int32>(mindcost), true);
 
     gLogger->log(LogManager::CRITICAL, "HAM Service - PreCommandEvent successfully processed");
 

@@ -43,7 +43,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/Event.h"
 #include "Common/declspec.h"
 
-
+/*! \brief Common is a catch-all library containing primarily base classes and
+ * classes used for maintaining application lifetimes.
+ */
 namespace common {
 
 class EventDispatcher;
@@ -64,6 +66,10 @@ typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
 typedef std::priority_queue<IEventPtr, std::vector<IEventPtr>, CompareEventWeightLessThanPredicate> EventQueue;
 
+/*! \brief The event dispatcher is a facility for triggering events and passing messages
+ * between different "modules" of code that may or may not be running on separate
+ * processes or even separate physical machines.
+ */
 class COMMON_API EventDispatcher {
 public:
     EventDispatcher();

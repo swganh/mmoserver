@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
 
-using ::common::ApplicationService;
+using ::common::BaseApplicationService;
 using ::common::IEventPtr;
 using ::common::EventDispatcher;
 using ::common::EventType;
@@ -42,13 +42,16 @@ using ::swg_protocol::object_controller::PreCommandExecuteEvent;
 namespace zone {
 
 HamService::HamService(EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map)
-: ApplicationService(event_dispatcher)
-, command_property_map_(command_property_map) {}
+: BaseApplicationService(event_dispatcher)
+, command_property_map_(command_property_map) {
+    event_dispatcher_.Connect(PreCommandExecuteEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handlePreCommandExecuteEvent, this, std::placeholders::_1)));
+
+}
 
 HamService::~HamService() {}
 
-void HamService::onInitialize() {
-    event_dispatcher_.Connect(PreCommandExecuteEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handlePreCommandExecuteEvent, this, std::placeholders::_1)));
+void HamService::onTick() {
+
 }
 
 bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {

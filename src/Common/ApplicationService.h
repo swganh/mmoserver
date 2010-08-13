@@ -28,29 +28,85 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_COMMON_APPLICATION_SERVICE_H_
 #define SRC_COMMON_APPLICATION_SERVICE_H_
 
+#include <cstdint>
+#include <memory>
+
+#include "Utils/ActiveObject.h"
+
 #include "Common/declspec.h"
 
+/*! \brief Common is a catch-all library containing primarily base classes and
+ * classes used for maintaining application lifetimes.
+ */
 namespace common {
 
 class EventDispatcher;
 
-class COMMON_API ApplicationService {
+/*! \brief An interface class that defines the concept of the ApplicationService.
+ *
+ * Applications, especially server applications such as an MMO, consist of many
+ * separately running entities that exist throughout the entire course of their
+ * lifetimes.
+ */
+class IApplicationService {
 public:
-    explicit ApplicationService(EventDispatcher& event_dispatcher);
-    ~ApplicationService();
+    virtual void tick(uint64_t new_timestamp) = 0;
+};
 
-    void initialize();
-    
+/*! \brief The BaseApplicationService is an implementation of the IApplicationService
+ * interface that provides concrete instances with the ability to run entirely 
+ * in their own threads of execution.
+ *
+ * An example of an ApplicationService would be the HamService which
+ * manages the Heath, Action and Mind pools in Star Wars Galaxies. This service
+ * runs on it's own thread and is entirely responsible for maintaining and
+ * persisting the HAM data. It communicates with other services via an event/messaging
+ * system which allows it to run independently on it's own thread without contention
+ * from locks.
+ */
+class COMMON_API BaseApplicationService : public IApplicationService {
+public:
+    /*! \brief The only available constructor for BaseApplicationService.
+     *
+     * \param event_dispatcher An instance of an ApplicationService level event dispatcher.
+     */
+    explicit BaseApplicationService(EventDispatcher& event_dispatcher);
+
+    /// Default deconstructor.
+    virtual ~BaseApplicationService();
+
+    /*! \brief Allows the ApplicationService an opportunity to move time dependent
+    * actions forward.
+    *
+    * \param new_timestamp The new current time expressed in milliseconds since startup.
+    */
+    void tick(uint64_t new_timestamp);
+
+    /*! \returns The current time expressed in milliseconds since startup.
+     */
+    uint64_t current_timestamp() const;
+
 protected:
-    EventDispatcher& event_dispatcher_;
+    EventDispatcher& event_dispatcher_;    
+    ::utils::ActiveObject active_;
+
+    virtual void onTick() = 0;
 
 private:
     // Disable compiler generated methods.
-    ApplicationService();
-    ApplicationService(const ApplicationService&);
-    const ApplicationService& operator=(const ApplicationService&);
-
-    virtual void onInitialize() = 0;
+    BaseApplicationService();
+    BaseApplicationService(const BaseApplicationService&);
+    const BaseApplicationService& operator=(const BaseApplicationService&);
+    
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+    ::boost::atomic<uint64_t> current_timestamp_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 };
 
 } // namespace common

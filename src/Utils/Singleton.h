@@ -30,6 +30,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace utils {
 
+/*! \brief This implementation of the Meyer's singleton is meant to provide singleton
+ * capabilities non-intrusively to client classes.
+ *
+ * This is a limited implementation that only works with classes that provide a
+ * default constructor and which are intended to be kept alive for the remainder
+ * of the host application's lifetime.
+ *
+ * \code
+ * class Foo {
+ * public:
+ *   void bar();
+ * };
+ *
+ * ...
+ *
+ * // Use the singleton to directly access the classes member function.
+ * Singleton<Foo>::Instance().bar();
+ *
+ * ...
+ *
+ * // Or get a handle to the singleton class and access it directly.
+ * Foo& foo = Singleton<Foo>::Instance();
+ * foo.bar(); * 
+ * \endcode
+ */
 template <class T>
 class Singleton
 {

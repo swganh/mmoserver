@@ -35,6 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/HashString.h"
 #include "Common/declspec.h"
 
+/*! \brief Common is a catch-all library containing primarily base classes and
+ * classes used for maintaining application lifetimes.
+ */
 namespace common {
     
 // Use a HashString as the basis for EventType's.
@@ -46,22 +49,64 @@ typedef std::function<void ()> EventCallback;
 class IEvent;
 typedef std::shared_ptr<IEvent> IEventPtr;
 
+/*! \brief Events are messages that are passed from a source location and consumed by
+ * one or more listeners. The IEvent defines a common interface for all events.
+ */
 class IEvent {
 public:  
+    /*! \returns The type of this event.     
+     * \see EventType
+     */
     virtual const EventType& event_type() const = 0;
+
+    /*! \returns The identifier for the subject of the event.
+     * \see EventSubject
+     */
     virtual EventSubject subject() const = 0;
+
+    /*! \returns The priority of the event.
+     * \see EventPriority
+     */
     virtual EventPriority priority() const = 0;
+
+    /// \returns The timestamp indicating when the event was triggered.
     virtual uint64_t timestamp() const = 0;
-    virtual void timestamp(uint64_t) = 0;
+
+    /*! Manually sets a timestamp for the event.
+     *
+     * \param timestamp The new timestamp for the event.
+     */
+    virtual void timestamp(uint64_t timestamp) = 0;
+
+    /// \returns The time in milliseconds that this event should be delayed.
     virtual uint64_t delay_ms() const = 0;
 
+    /// \returns The optional next event in a chain of events.
     virtual IEventPtr next() const = 0;
 
+    /*! This is called after an event has been passed around to all listeners.
+     *
+     * \param handled Indicates whether or not the event was successfully handled by listeners.
+     */
     virtual void consume(bool handled) const = 0;
+
+    /*! Serializes an event, usually for transfer over the network.
+     *
+     * \param out The ByteBuffer instance to stream the event data to.
+     */
     virtual void serialize(ByteBuffer& out) const = 0;
+
+    /*! Deserializes an event, usually from a network message.
+     *
+     * \param in The buffer to deserialize the message from.
+     */
     virtual void deserialize(ByteBuffer& in) = 0;
 };
 
+/*! \brief BaseEvent is an implementation of the IEvent interface that provides
+ * concrete instances with the ability to specify a callback that gets invoked
+ * after the listeners have had an opportunity to process it.
+ */
 class COMMON_API BaseEvent : public IEvent {
 public:
     BaseEvent(EventSubject subject = 0, uint64_t delay_ms = 0);

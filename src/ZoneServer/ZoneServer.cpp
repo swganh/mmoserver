@@ -95,21 +95,19 @@ ZoneServer* gZoneServer = NULL;
 
 //======================================================================================================================
 
-ZoneServer::ZoneServer(int8* zoneName) :
-mZoneName(zoneName),
-mNetworkManager(0),
-mDatabaseManager(0),
-mRouterService(0),
-mLastHeartbeat(0),
-mDatabase(0),
-ham_service_(nullptr)
+ZoneServer::ZoneServer(int8* zoneName) 
+: mZoneName(zoneName)
+, mNetworkManager(0)
+, mDatabaseManager(0)
+, mRouterService(0)
+, mLastHeartbeat(0)
+, mDatabase(0)
+, ham_service_(nullptr)
 {
     Anh_Utils::Clock::Init();
     
     // gLogger->log(LogManager::DEBUG,"ZoneServer - %s Startup %s",zoneName,GetBuildString());
     gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", zoneName);
-
-    Singleton<EventDispatcher>::Instance();
 
     // Create and startup our core services.
     mDatabaseManager = new DatabaseManager();
@@ -162,10 +160,10 @@ ham_service_(nullptr)
     MessageLib::Init();
     ObjectFactory::Init(mDatabase);
     
-    //attribute commands for foodbuffs
+    //attribute commands for food buffs
     FoodCommandMapClass::Init();
     
-    //structuremanager callback functions 
+    //structure manager callback functions 
     StructureManagerCommandMapClass::Init();
 
     WorldManager::Init(zoneId,this,mDatabase);
@@ -202,8 +200,7 @@ ham_service_(nullptr)
     // Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(gEventDispatcher, gObjControllerCmdPropertyMap));
-    ham_service_->initialize();
+    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
 

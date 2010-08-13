@@ -35,9 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace zone {
 
-class HamService : public ::common::ApplicationService {
+class HamService : public ::common::BaseApplicationService {
 public:
-    explicit HamService(::common::EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map);
+    HamService(::common::EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map);
     ~HamService();
 
 private:
@@ -45,8 +45,8 @@ private:
     HamService();
     HamService(const HamService&);
     const HamService& operator=(const HamService&);
-
-    virtual void onInitialize();
+    
+    void onTick();
 
     bool handlePreCommandExecuteEvent(::common::IEventPtr triggered_event);
 

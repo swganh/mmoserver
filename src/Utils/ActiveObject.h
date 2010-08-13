@@ -73,7 +73,7 @@ public:
     /**
      * Sends a message to be handled by the ActiveObject's private thread.
      *
-     * \param Message The message to process on the private thread.
+     * \param message The message to process on the private thread.
      */
     void Send(Message message);
 

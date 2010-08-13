@@ -51,6 +51,12 @@ public:
 	bool addLocomotionState(LocomotionState* state);
 	bool addPostureState(PostureState* state);
 
+	StateList returnCurrentStates(){ return mCurrentStates;}
+
+private:
+
+	StateList		mCurrentStates;
+
 	
 };
 

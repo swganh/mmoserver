@@ -97,6 +97,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AbstractState.cpp" />
     <ClCompile Include="ActiveConversation.cpp" />
     <ClCompile Include="AdminManager.cpp" />
     <ClCompile Include="ArtisanManager.cpp" />
@@ -122,6 +123,7 @@
     <ClCompile Include="ChanceCube.cpp" />
     <ClCompile Include="CharacterBuilderTerminal.cpp" />
     <ClCompile Include="CharacterLoginHandler.cpp" />
+    <ClCompile Include="ActionState.cpp" />
     <ClCompile Include="CharSheetManager.cpp" />
     <ClCompile Include="City.cpp" />
     <ClCompile Include="CityFactory.cpp" />
@@ -190,6 +192,7 @@
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="ItemFactory.cpp" />
     <ClCompile Include="LairObject.cpp" />
+    <ClCompile Include="LocomotionState.cpp" />
     <ClCompile Include="ManufacturingSchematic.cpp" />
     <ClCompile Include="Medicine.cpp" />
     <ClCompile Include="MedicManager.cpp" />
@@ -267,6 +270,7 @@
     <ClCompile Include="PlayerObjectFactory.cpp" />
     <ClCompile Include="PlayerStructure.cpp" />
     <ClCompile Include="PlayerStructureTerminal.cpp" />
+    <ClCompile Include="PostureState.cpp" />
     <ClCompile Include="ProcessValidator.cpp" />
     <ClCompile Include="PVHam.cpp" />
     <ClCompile Include="PVPosture.cpp" />
@@ -299,6 +303,7 @@
     <ClCompile Include="SkillManager.cpp" />
     <ClCompile Include="SpawnRegion.cpp" />
     <ClCompile Include="SpawnRegionFactory.cpp" />
+    <ClCompile Include="StateManager.cpp" />
     <ClCompile Include="StaticObject.cpp" />
     <ClCompile Include="Stomach.cpp" />
     <ClCompile Include="StructureManager.cpp" />
@@ -348,6 +353,7 @@
     <ClCompile Include="ZoneTree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AbstractState.h" />
     <ClInclude Include="ActiveConversation.h" />
     <ClInclude Include="AdminManager.h" />
     <ClInclude Include="ArtisanHeightmapAsyncContainer.h" />
@@ -378,6 +384,7 @@
     <ClInclude Include="ChanceCube.h" />
     <ClInclude Include="CharacterBuilderTerminal.h" />
     <ClInclude Include="CharacterLoginHandler.h" />
+    <ClInclude Include="ActionState.h" />
     <ClInclude Include="CharSheetManager.h" />
     <ClInclude Include="City.h" />
     <ClInclude Include="CityFactory.h" />
@@ -457,6 +464,7 @@
     <ClInclude Include="ItemFactory.h" />
     <ClInclude Include="Item_Enums.h" />
     <ClInclude Include="LairObject.h" />
+    <ClInclude Include="LocomotionState.h" />
     <ClInclude Include="LogOutEvent.h" />
     <ClInclude Include="ManufacturingSchematic.h" />
     <ClInclude Include="Medicine.h" />
@@ -495,6 +503,7 @@
     <ClInclude Include="PlayerObjectFactory.h" />
     <ClInclude Include="PlayerStructure.h" />
     <ClInclude Include="PlayerStructureTerminal.h" />
+    <ClInclude Include="PostureState.h" />
     <ClInclude Include="ProcessValidator.h" />
     <ClInclude Include="PVHam.h" />
     <ClInclude Include="PVPosture.h" />
@@ -512,6 +521,7 @@
     <ClInclude Include="RegionFactory.h" />
     <ClInclude Include="RegionObject.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="resource1.h" />
     <ClInclude Include="ResourceCategory.h" />
     <ClInclude Include="ResourceCollectionCommand.h" />
     <ClInclude Include="ResourceCollectionManager.h" />
@@ -534,6 +544,7 @@
     <ClInclude Include="SpawnPoint.h" />
     <ClInclude Include="SpawnRegion.h" />
     <ClInclude Include="SpawnRegionFactory.h" />
+    <ClInclude Include="StateManager.h" />
     <ClInclude Include="StaticObject.h" />
     <ClInclude Include="Stomach.h" />
     <ClInclude Include="StructureHeightmapAsyncContainer.h" />
@@ -612,6 +623,9 @@
     <ProjectReference Include="..\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ZoneServer.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

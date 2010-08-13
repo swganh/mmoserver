@@ -303,7 +303,7 @@ TEST(EventDispatcherTests, SuccessfullDeliveryInvokesEventCallback) {
     EventDispatcher dispatcher;
 
     // Create a new event.
-    IEventPtr my_event = std::make_shared<MockEvent>(0, 0, 0, [=] {
+    IEventPtr my_event = std::make_shared<MockEvent>(0, 0, [=] {
         *someval = 1;
     });
 
@@ -331,11 +331,11 @@ TEST(EventDispatcherTests, ChainedEventsAreAddedToQueueOnSuccessfulDelivery) {
 
     // Create a new event.
     
-    IEventPtr my_event1 = std::make_shared<MockEvent>(0, 0, 0, [=] {
+    auto my_event1 = std::make_shared<MockEvent>(0, 0, [=] {
         *someval = 1;
     });
         
-    IEventPtr my_event2 = std::make_shared<MockEvent>(0, 0, 0, [=] {
+    auto my_event2 = std::make_shared<MockEvent>(0, 0, [=] {
         *someval = 2;
     });
 
@@ -370,7 +370,7 @@ TEST(EventDispatcherTests, DelayedEventsAreOnlyProcessedAfterTimeoutHasBeenReach
     dispatcher.Connect(EventType("mock_event"), EventListener(EventListenerType("MockListener"), callback));
     
     // Create a new event with a delay of 5 milliseconds.
-    IEventPtr my_event = std::make_shared<MockEvent>(0, 0, 5);
+    auto my_event = std::make_shared<MockEvent>(0, 5);
 
     // Trigger the event.
     dispatcher.Notify(my_event);
@@ -407,6 +407,33 @@ TEST(EventDispatcherTests, TriggeringNullEventDoesNothing) {
 
     // Notify the dispatcher with a null event.
     dispatcher.Notify(nullptr);
+}
+
+TEST(EventDispatcherTests, NotifyingListenersSetsTimestamp) {
+    // Create the EventDispatcher and initialize it with a current timestamp.
+    EventDispatcher dispatcher(100);
+
+    // Create a new event.
+    auto my_event = std::make_shared<MockEvent>();
+
+    // Trigger the event and block on the future until the result is returned.
+    dispatcher.Notify(my_event);    
+    dispatcher.Tick(1).get();
+
+    EXPECT_EQ(100, my_event->timestamp());
+}
+
+TEST(EventDispatcherTests, DeliveringEventsSetsTimestamp) {
+    // Create the EventDispatcher and initialize it with a current timestamp.
+    EventDispatcher dispatcher(100);
+
+    // Create a new event.
+    auto my_event = std::make_shared<MockEvent>();
+
+    // Deliver the event.
+    dispatcher.Deliver(my_event).get();    
+
+    EXPECT_EQ(100, my_event->timestamp());
 }
 
 }

@@ -31,18 +31,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace common {
     
-BaseEvent::BaseEvent(EventSubject subject, uint64_t timestamp, uint64_t delay_ms) 
+BaseEvent::BaseEvent(EventSubject subject, uint64_t delay_ms) 
 : subject_(subject)
 , priority_(0)
-, timestamp_(timestamp)
+, timestamp_(0)
 , delay_ms_(delay_ms)
 , next_(nullptr)
 , callback_(nullptr) {}
 
-BaseEvent::BaseEvent(EventSubject subject, uint64_t timestamp, uint64_t delay_ms, EventCallback callback) 
+BaseEvent::BaseEvent(EventSubject subject, uint64_t delay_ms, EventCallback callback) 
 : subject_(subject)
 , priority_(0)
-, timestamp_(timestamp)
+, timestamp_(0)
 , delay_ms_(delay_ms)
 , next_(nullptr)
 , callback_(new EventCallback(callback)) {}
@@ -118,7 +118,7 @@ void BaseEvent::consume(bool handled) const {
 // Helper function implementations
 
 bool CompareEventWeightLessThan(const IEvent& lhs, const IEvent& rhs) {
-    return ((lhs.timestamp() + lhs.priority()) < (rhs.timestamp() + rhs.priority()));
+    return (((lhs.timestamp() + lhs.delay_ms())+ lhs.priority()) < ((rhs.timestamp() + rhs.delay_ms()) + rhs.priority()));
 }
 
 bool CompareEventWeightLessThan(const std::shared_ptr<IEvent>& lhs, const std::shared_ptr<IEvent>& rhs) {
@@ -126,7 +126,7 @@ bool CompareEventWeightLessThan(const std::shared_ptr<IEvent>& lhs, const std::s
 }
 
 bool CompareEventWeightGreaterThan(const IEvent& lhs, const IEvent& rhs) {
-    return ((lhs.timestamp() + lhs.priority()) > (rhs.timestamp() + rhs.priority()));
+    return (((lhs.timestamp() + lhs.delay_ms()) + lhs.priority()) > ((rhs.timestamp() + rhs.delay_ms()) + rhs.priority()));
 }
 
 bool CompareEventWeightGreaterThan(const std::shared_ptr<IEvent>& lhs, const std::shared_ptr<IEvent>& rhs) {

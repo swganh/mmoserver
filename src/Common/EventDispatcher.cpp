@@ -90,7 +90,7 @@ void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_
                                                                                
 boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(const EventType& event_type) {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<std::vector<EventListener>>> task = std::make_shared<boost::packaged_task<std::vector<EventListener>>>([=]()->std::vector<EventListener> {   
+    auto task = std::make_shared<boost::packaged_task<std::vector<EventListener>>>([=]()->std::vector<EventListener> {   
 
         if (! ValidateEventType_(event_type)) {
             return std::vector<EventListener>();
@@ -133,7 +133,7 @@ boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(c
 
 boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvents() {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<std::vector<EventType>>> task = std::make_shared<boost::packaged_task<std::vector<EventType>>>([=]()->std::vector<EventType> {   
+    auto task = std::make_shared<boost::packaged_task<std::vector<EventType>>>([=]()->std::vector<EventType> {   
 
         std::vector<EventType> event_types;
         event_types.reserve(event_type_set_.size());
@@ -161,13 +161,18 @@ void EventDispatcher::Notify(IEventPtr triggered_event) {
     if (!triggered_event) return;
 
     active_.Send([=] {
+        // If the timestamp for the event has not yet been set then set it.
+        if (!triggered_event->timestamp()) {
+            triggered_event->timestamp(current_timestep_.load());
+        }
+
         event_queue_[active_queue_].push(triggered_event);
     }); 
 }
 
 boost::unique_future<bool> EventDispatcher::Deliver(IEventPtr triggered_event) {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
+    auto task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
     
     // Add the message to the active object's queue that runs the task which in turn
     // updates the future.
@@ -181,7 +186,7 @@ boost::unique_future<bool> EventDispatcher::Deliver(IEventPtr triggered_event) {
 
 boost::unique_future<bool> EventDispatcher::HasEvents() {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {   
+    auto task = std::make_shared<boost::packaged_task<bool>>([=] {   
         return (event_queue_[active_queue_].size() != 0);
     } );    
     
@@ -197,7 +202,7 @@ boost::unique_future<bool> EventDispatcher::HasEvents() {
 
 boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {     
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {
+    auto task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {
         // If we were passed the same time or a time in the past return false.
         if (current_timestep_.load() >= new_timestep) return false;
 
@@ -234,7 +239,7 @@ boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
 
 boost::unique_future<uint64_t> EventDispatcher::current_timestep() {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<uint64_t>> task = std::make_shared<boost::packaged_task<uint64_t>>([=] {   
+    auto task = std::make_shared<boost::packaged_task<uint64_t>>([=] {   
         return current_timestep_.load();
     } );    
     
@@ -362,7 +367,12 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
     if (!ValidateEventType_(triggered_event->event_type())) {
         return false;
     }
-      
+
+    // If the event's timestamp has not been set then set it.
+    if (!triggered_event->timestamp()) {
+        triggered_event->timestamp(current_timestep_.load());
+    }
+
     // By default if an event isn't handled this method returns true.
     bool delivered = true;
 

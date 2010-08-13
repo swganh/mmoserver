@@ -52,9 +52,9 @@ public:
     virtual EventSubject subject() const = 0;
     virtual EventPriority priority() const = 0;
     virtual uint64_t timestamp() const = 0;
+    virtual void timestamp(uint64_t) = 0;
     virtual uint64_t delay_ms() const = 0;
 
-    virtual void next(IEventPtr) = 0;
     virtual IEventPtr next() const = 0;
 
     virtual void consume(bool handled) const = 0;
@@ -64,8 +64,8 @@ public:
 
 class COMMON_API BaseEvent : public IEvent {
 public:
-    BaseEvent(EventSubject subject = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0);
-    BaseEvent(EventSubject subject, uint64_t timestamp, uint64_t delay_ms, EventCallback callback);
+    BaseEvent(EventSubject subject = 0, uint64_t delay_ms = 0);
+    BaseEvent(EventSubject subject, uint64_t delay_ms, EventCallback callback);
 
     virtual ~BaseEvent();
 

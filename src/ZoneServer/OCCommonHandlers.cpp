@@ -78,6 +78,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 
 using ::common::IEventPtr;
+using ::common::OutOfBand;
+using ::swg_protocol::BurstRunEndEvent;
+using ::swg_protocol::BurstRunCooldownEndEvent;
+using ::swg_protocol::object_controller::PreCommandExecuteEvent;
 
 //=============================================================================
 
@@ -1667,22 +1671,23 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 
 bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectControllerCmdProperties* cmd_properties) {    
     PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+    if (!player) {
+        return false;
+    }
 
     //can we burst run right now ??
-    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun))
-    {
+    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun)) {
         gMessageLib->SendSystemMessage(L"You are already running as hard as you can.", player);
         return false;
     }
 
-    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
-    {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_wait"), player);
+    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD)) {
+        gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_wait"), player);
         return false;
     }
     
     // Create a pre-command processing event.
-    std::shared_ptr<::swg_protocol::object_controller::PreCommandExecuteEvent> pre_execute_event = std::make_shared<::swg_protocol::object_controller::PreCommandExecuteEvent>(object->getId(), Anh_Utils::Clock::getSingleton()->getGlobalTime(), 0);
+    auto pre_execute_event = std::make_shared<PreCommandExecuteEvent>(object->getId());
     pre_execute_event->target_id(0); // This command never has a target.
     pre_execute_event->command_crc(cmd_properties->mCmdCrc);
     
@@ -1711,15 +1716,10 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
 
     // Duration of the burst run effect in seconds.
     uint32_t effect_duration_sec = gWorldConfig->getConfiguration<uint32_t>("Player_BurstRun_Time", 60);
-
-    // Cool-down duration for the burst run command in seconds.
-    uint32_t cooldown_duration_sec = gWorldConfig->getConfiguration<uint32_t>("Player_BurstRun_CoolDown", 600);
-    
-    uint64_t current_time = Anh_Utils::Clock::getSingleton()->getGlobalTime();
     
     // Create a delayed event for the end of the burst run and attach a custom
     // callback to be executed 60 seconds after being triggered.
-    IEventPtr burst_end_event = std::make_shared<::swg_protocol::BurstRunEndEvent>(object->getId(), current_time, effect_duration_sec * 1000, [player] {
+    auto burst_end_event = std::make_shared<BurstRunEndEvent>(object->getId(), effect_duration_sec * 1000, [player] {
         // Make sure the target for the event is still valid and that their burst run flag is still set.
         if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun)) {
             // Return the player to normal movement.
@@ -1733,21 +1733,20 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
             player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);
             
             // Alert the player the burst run has ended and that they are now tired.
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cbt_spam", "burstrun_stop_single"), player);
+            gMessageLib->SendSystemMessage(OutOfBand("cbt_spam", "burstrun_stop_single"), player);
             gMessageLib->sendCombatSpam(player, player, 0, "cbt_spam", "burstrun_stop");            
-            gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_tired"), player);
-
+            gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_tired"), player);
         }
     });
     
     // Create a delayed event for the end of the burst run cool-down timer and attach
     // a custom callback to be executed 6 minutes after being triggered.
-    IEventPtr burst_cooldown_end_event = std::make_shared<::swg_protocol::BurstRunCooldownEndEvent>(object->getId(), current_time, cooldown_duration_sec * 1000, [player] {
+    auto burst_cooldown_end_event = std::make_shared<BurstRunCooldownEndEvent>(object->getId(), static_cast<uint64_t>(cmd_properties->mDelayMultiplier) * 1000, [player] {
         // Make sure the target for the event is still valid and that their burst run cool-down flag is still set.
         if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD)) {
             // Turn off the burst run cool-down flag and alert the player.
             player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRunCD);	
-            gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_not_tired"), player);
+            gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_not_tired"), player);
         }
     });
     

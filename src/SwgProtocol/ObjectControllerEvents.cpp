@@ -27,36 +27,48 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SwgProtocol/ObjectControllerEvents.h"
 
+using ::common::BaseEvent;
+using ::common::ByteBuffer;
+using ::common::EventCallback;
+using ::common::EventType;
+
 namespace swg_protocol {
 
 namespace object_controller {
 
-const ::common::EventType PreCommandEvent::type         = ::common::EventType("PreCommandEvent");
-const ::common::EventType PreCommandExecuteEvent::type  = ::common::EventType("PreCommandExecuteEvent");
-const ::common::EventType PostCommandEvent::type        = ::common::EventType("PostCommandEvent");
+const EventType PreCommandEvent::type        = EventType("PreCommandEvent");
+const EventType PreCommandExecuteEvent::type = EventType("PreCommandExecuteEvent");
+const EventType PostCommandEvent::type       = EventType("PostCommandEvent");
 
-PreCommandEvent::PreCommandEvent(::common::ByteBuffer& in) {
+PreCommandEvent::PreCommandEvent(ByteBuffer& in)
+: BaseEvent()
+, target_id_(0)
+, command_crc_(0) {
     deserialize(in);
 }
 
-PreCommandEvent::PreCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms) :
-::common::BaseEvent(subject_id, timestamp, delay_ms) {}
+PreCommandEvent::PreCommandEvent(uint64_t subject_id, uint64_t delay_ms) 
+: BaseEvent(subject_id, delay_ms)
+, target_id_(0)
+, command_crc_(0) {}
 
-PreCommandEvent::PreCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
-    : ::common::BaseEvent(subject_id, timestamp, delay_ms, callback) {}
+PreCommandEvent::PreCommandEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+: BaseEvent(subject_id, delay_ms, callback)
+, target_id_(0)
+, command_crc_(0) {}
     
 PreCommandEvent::~PreCommandEvent() {}
 
-const ::common::EventType& PreCommandEvent::event_type() const { 
+const EventType& PreCommandEvent::event_type() const { 
     return type; 
 }
 
-void PreCommandEvent::onSerialize(::common::ByteBuffer& out) const {
+void PreCommandEvent::onSerialize(ByteBuffer& out) const {
     out << target_id_;
     out << command_crc_;
 }
 
-void PreCommandEvent::onDeserialize(::common::ByteBuffer& in) {
+void PreCommandEvent::onDeserialize(ByteBuffer& in) {
     target_id_ = in.Read<uint64_t>();
     command_crc_ = in.Read<uint32_t>();
 }
@@ -84,28 +96,35 @@ void PreCommandEvent::command_crc(uint32_t command_crc) {
 
 
 
-PreCommandExecuteEvent::PreCommandExecuteEvent(::common::ByteBuffer& in) {
+PreCommandExecuteEvent::PreCommandExecuteEvent(ByteBuffer& in)
+: BaseEvent()
+, target_id_(0)
+, command_crc_(0) {
     deserialize(in);
 }
 
-PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms) :
-::common::BaseEvent(subject_id, timestamp, delay_ms) {}
+PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t delay_ms) 
+: BaseEvent(subject_id, delay_ms)
+, target_id_(0)
+, command_crc_(0) {}
 
-PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
-    : ::common::BaseEvent(subject_id, timestamp, delay_ms, callback) {}
+PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
+: BaseEvent(subject_id, delay_ms, callback)
+, target_id_(0)
+, command_crc_(0) {}
     
 PreCommandExecuteEvent::~PreCommandExecuteEvent() {}
 
-const ::common::EventType& PreCommandExecuteEvent::event_type() const { 
+const EventType& PreCommandExecuteEvent::event_type() const { 
     return type; 
 }
 
-void PreCommandExecuteEvent::onSerialize(::common::ByteBuffer& out) const {
+void PreCommandExecuteEvent::onSerialize(ByteBuffer& out) const {
     out << target_id_;
     out << command_crc_;
 }
 
-void PreCommandExecuteEvent::onDeserialize(::common::ByteBuffer& in) {
+void PreCommandExecuteEvent::onDeserialize(ByteBuffer& in) {
     target_id_ = in.Read<uint64_t>();
     command_crc_ = in.Read<uint32_t>();
 }
@@ -132,27 +151,44 @@ void PreCommandExecuteEvent::command_crc(uint32_t command_crc) {
 
 
 
-PostCommandEvent::PostCommandEvent(::common::ByteBuffer& in) {
+PostCommandEvent::PostCommandEvent(ByteBuffer& in)
+: BaseEvent()
+, command_processed_(false) {
     deserialize(in);
 }
 
-PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms) :
-::common::BaseEvent(subject_id, timestamp, delay_ms) {}
+PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t delay_ms) 
+: BaseEvent(subject_id, delay_ms)
+, command_processed_(false) {}
 
-PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
-    : ::common::BaseEvent(subject_id, timestamp, delay_ms, callback) {}
+PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
+: BaseEvent(subject_id, delay_ms, callback)
+, command_processed_(false) {}
     
 PostCommandEvent::~PostCommandEvent() {}
 
-const ::common::EventType& PostCommandEvent::event_type() const { 
+const EventType& PostCommandEvent::event_type() const { 
     return type; 
 }
 
-void PostCommandEvent::onSerialize(::common::ByteBuffer& out) const {}
-void PostCommandEvent::onDeserialize(::common::ByteBuffer& in) {}
+void PostCommandEvent::onSerialize(ByteBuffer& out) const {
+    out << command_processed_;
+}
+
+void PostCommandEvent::onDeserialize(ByteBuffer& in) {
+    command_processed_ = in.Read<bool>();
+}
 
 bool PostCommandEvent::onConsume(bool handled) const {
     return true;
+}
+
+bool PostCommandEvent::command_processed() const {
+    return command_processed_;
+}
+
+void PostCommandEvent::command_processed(bool command_processed) {
+    command_processed_ = command_processed;
 }
 
 }  // namespace object_controller

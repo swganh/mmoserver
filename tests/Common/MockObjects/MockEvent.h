@@ -29,12 +29,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class MockEvent : public ::common::BaseEvent {
 public:
-    explicit MockEvent(uint64_t subject_id = 0, uint64_t timestamp = 0, uint64_t delay_ms = 0) 
-        : BaseEvent(subject_id, timestamp, delay_ms)
+    explicit MockEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0) 
+        : BaseEvent(subject_id, delay_ms)
     , some_event_val_(0) {}
 
-    explicit MockEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
-        : BaseEvent(subject_id, timestamp, delay_ms, callback)
+    explicit MockEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback) 
+        : BaseEvent(subject_id, delay_ms, callback)
     , some_event_val_(0) {}
 
     explicit MockEvent(::common::ByteBuffer& in) {

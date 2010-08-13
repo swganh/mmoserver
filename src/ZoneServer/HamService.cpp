@@ -33,25 +33,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using ::common::ApplicationService;
 using ::common::IEventPtr;
+using ::common::EventDispatcher;
 using ::common::EventType;
 using ::common::EventListener;
 using ::common::EventListenerType;
+using ::swg_protocol::object_controller::PreCommandExecuteEvent;
 
 namespace zone {
 
-HamService::HamService(::common::EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map)
-: ::common::ApplicationService(event_dispatcher)
+HamService::HamService(EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map)
+: ApplicationService(event_dispatcher)
 , command_property_map_(command_property_map) {}
 
 HamService::~HamService() {}
 
 void HamService::onInitialize() {
-    event_dispatcher_.Connect(::swg_protocol::object_controller::PreCommandExecuteEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handlePreCommandExecuteEvent, this, std::placeholders::_1)));
+    event_dispatcher_.Connect(PreCommandExecuteEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handlePreCommandExecuteEvent, this, std::placeholders::_1)));
 }
 
 bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {
     // Cast the IEvent to the PreCommandEvent.
-    std::shared_ptr<::swg_protocol::object_controller::PreCommandExecuteEvent> pre_event = std::dynamic_pointer_cast<::swg_protocol::object_controller::PreCommandExecuteEvent>(triggered_event);
+    auto pre_event = std::dynamic_pointer_cast<PreCommandExecuteEvent>(triggered_event);
     if (!pre_event) {
         assert(!"Received an invalid event!");
         return false;
@@ -81,8 +83,6 @@ bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {
     object->getHam()->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, -static_cast<int32>(actioncost), true);
     object->getHam()->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, -static_cast<int32>(healthcost), true);
     object->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -static_cast<int32>(mindcost), true);
-
-    gLogger->log(LogManager::CRITICAL, "HAM Service - PreCommandEvent successfully processed");
 
     return true;
 }

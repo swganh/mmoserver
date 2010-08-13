@@ -27,52 +27,58 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SwgProtocol/BurstRunEvents.h"
 
+using ::common::BaseEvent;
+using ::common::ByteBuffer;
+using ::common::EventCallback;
+using ::common::EventType;
+
 namespace swg_protocol {
 
-const ::common::EventType BurstRunEndEvent::event_type_ = ::common::EventType("BurstRunEndEvent");
-const ::common::EventType BurstRunCooldownEndEvent::event_type_ = ::common::EventType("BurstRunCooldownEndEvent");
+const EventType BurstRunEndEvent::event_type_         = EventType("BurstRunEndEvent");
+const EventType BurstRunCooldownEndEvent::event_type_ = EventType("BurstRunCooldownEndEvent");
 
-BurstRunEndEvent::BurstRunEndEvent(::common::ByteBuffer& in) {
+BurstRunEndEvent::BurstRunEndEvent(ByteBuffer& in)
+: BaseEvent() {
     deserialize(in);
 }
 
-BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms) :
-::common::BaseEvent(subject_id, timestamp, delay_ms) {}
+BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t delay_ms) 
+: BaseEvent(subject_id, delay_ms) {}
 
-BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
-    : ::common::BaseEvent(subject_id, timestamp, delay_ms, callback) {}
-    
+BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
+: BaseEvent(subject_id, delay_ms, callback) {}
+   
 BurstRunEndEvent::~BurstRunEndEvent() {}
 
-const ::common::EventType& BurstRunEndEvent::event_type() const { 
+const EventType& BurstRunEndEvent::event_type() const { 
     return event_type_; 
 }
 
-void BurstRunEndEvent::onSerialize(::common::ByteBuffer& out) const {}
-void BurstRunEndEvent::onDeserialize(::common::ByteBuffer& in) {}
+void BurstRunEndEvent::onSerialize(ByteBuffer& out) const {}
+void BurstRunEndEvent::onDeserialize(ByteBuffer& in) {}
 
 bool BurstRunEndEvent::onConsume(bool handled) const {
     return true;
 }
 
-BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(::common::ByteBuffer& in) {
+BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(ByteBuffer& in) {
     deserialize(in);
 }
 
-BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms) :
-::common::BaseEvent(subject_id, timestamp, delay_ms) {}
+BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t delay_ms) 
+: BaseEvent(subject_id, delay_ms) {}
 
-BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t timestamp, uint64_t delay_ms, ::common::EventCallback callback) 
-    : ::common::BaseEvent(subject_id, timestamp, delay_ms, callback) {}
+BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
+: BaseEvent(subject_id, delay_ms, callback) {}
     
 BurstRunCooldownEndEvent::~BurstRunCooldownEndEvent() {}
 
-const ::common::EventType& BurstRunCooldownEndEvent::event_type() const { 
+const EventType& BurstRunCooldownEndEvent::event_type() const { 
     return event_type_; 
 }
 
-void BurstRunCooldownEndEvent::onSerialize(::common::ByteBuffer& out) const {}
-void BurstRunCooldownEndEvent::onDeserialize(::common::ByteBuffer& in) {}
+void BurstRunCooldownEndEvent::onSerialize(ByteBuffer& out) const {}
+void BurstRunCooldownEndEvent::onDeserialize(ByteBuffer& in) {}
 
 bool BurstRunCooldownEndEvent::onConsume(bool handled) const {
     return true;

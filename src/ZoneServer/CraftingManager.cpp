@@ -290,13 +290,13 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 		else
             gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "crafting_tool_creating_prototype"), playerObject);
 
-		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
+		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse, 0, 0, playerObject);
 
 		return false;
 	}
 
 	gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: new session :)");
-	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(),playerObject,tool,station,expFlag));
+	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(), playerObject, tool, station, expFlag));
 	return true;
 }
 
@@ -340,8 +340,8 @@ bool CraftingManager::HandleCancelCraftingSession(Object* object,Object* target,
 
 	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
 
-	gLogger->log(LogManager::DEBUG,"session canceled");
-	//client complains over crafting tool already hacing an item when we go out of the slot screen!!!!!
+	gLogger->log(LogManager::DEBUG, "session canceled");
+	//client complains over crafting tool already having an item when we go out of the slot screen!!!!!
 	return true;
 }
 
@@ -363,12 +363,12 @@ void CraftingManager::handleCraftFillSlot(Object* object,Message* message)
 	// make sure we have a valid session and are in the assembly stage
 	if(session && player->getCraftingStage() == 2)
 	{
-		session->handleFillSlot(resContainerId,slotId,unknownId,counter);
+		session->handleFillSlot(resContainerId, slotId, unknownId, counter);
 	}
 	// it failed
 	else
 	{
-		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Not_In_Assembly_Stage,counter,player);
+		gMessageLib->sendCraftAcknowledge(opCraftFillSlot, CraftError_Not_In_Assembly_Stage, counter, player);
 	}
 }
 
@@ -388,12 +388,12 @@ void CraftingManager::handleCraftEmptySlot(Object* object,Message* message)
 	// make sure we have a valid session and are in the assembly stage
 	if(session && player->getCraftingStage() == 2)
 	{
-		session->handleEmptySlot(slotId,containerId,counter);
+		session->handleEmptySlot(slotId, containerId, counter);
 	}
 	// it failed
 	else
 	{
-		gMessageLib->sendCraftAcknowledge(opCraftEmptySlot,CraftError_Not_In_Assembly_Stage,counter,player);
+		gMessageLib->sendCraftAcknowledge(opCraftEmptySlot, CraftError_Not_In_Assembly_Stage, counter, player);
 	}
 }
 
@@ -464,8 +464,8 @@ void CraftingManager::handleCraftCustomization(Object* object,Message* message)
 
 
 	int8 sql[550];
-	sprintf(sql,"INSERT INTO item_customization VALUES(%"PRIu64", %u, %u)",session->getItem()->getId(),session->getItem()->getCustomization(1),session->getItem()->getCustomization(2));
-	mDatabase->ExecuteSqlAsync(0,0,sql);
+	sprintf(sql, "INSERT INTO item_customization VALUES (%"PRIu64", %u, %u)",session->getItem()->getId(), session->getItem()->getCustomization(1), session->getItem()->getCustomization(2));
+	mDatabase->ExecuteSqlAsync(0, 0, sql);
 
 	session->setProductionAmount(amount);
 	session->customize(itemName.getAnsi());
@@ -476,7 +476,7 @@ void CraftingManager::handleCraftCustomization(Object* object,Message* message)
 // nextcraftingstage
 //
 
-bool CraftingManager::HandleNextCraftingStage(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
+bool CraftingManager::HandleNextCraftingStage(Object* object, Object* target,Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(object);
 	CraftingSession*	session			= playerObject->getCraftingSession();
@@ -541,7 +541,7 @@ bool CraftingManager::HandleNextCraftingStage(Object* object,Object* target,Mess
 
 		default:
 		{
-			gLogger->log(LogManager::NOTICE,"ObjController::_handlenextcraftingstage: unhandled stage %u",session->getStage());
+			gLogger->log(LogManager::NOTICE,"ObjController::_handlenextcraftingstage: unhandled stage %u", session->getStage());
 		}
 		break;
 	}
@@ -553,7 +553,7 @@ bool CraftingManager::HandleNextCraftingStage(Object* object,Object* target,Mess
 // createprototype
 //
 
-bool CraftingManager::HandleCreatePrototype(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
+bool CraftingManager::HandleCreatePrototype(Object* object, Object* target,Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*		player	= dynamic_cast<PlayerObject*>(object);
 	CraftingSession*	session	= player->getCraftingSession();
@@ -565,13 +565,13 @@ bool CraftingManager::HandleCreatePrototype(Object* object,Object* target,Messag
 
 	message->getStringUnicode16(dataStr);
 
-	if(swscanf(dataStr.getUnicode16(),L"%u %u",&counter,&mode) != 2)
+	if(swscanf(dataStr.getUnicode16(), L"%u %u", &counter, &mode) != 2)
 	{
 		gCraftingSessionFactory->destroySession(player->getCraftingSession());
 		return false;
 	}
 
-	session->createPrototype(mode,counter);
+	session->createPrototype(mode, counter);
 	return true;
 }
 
@@ -580,7 +580,7 @@ bool CraftingManager::HandleCreatePrototype(Object* object,Object* target,Messag
 // create manufacture schematic
 //
 
-bool CraftingManager::HandleCreateManufactureSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
+bool CraftingManager::HandleCreateManufactureSchematic(Object* object, Object* target,Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*		player	= dynamic_cast<PlayerObject*>(object);
 	CraftingSession*	session	= player->getCraftingSession();

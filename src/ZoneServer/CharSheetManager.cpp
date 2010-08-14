@@ -60,7 +60,7 @@ mDBAsyncPool(sizeof(CSAsyncContainer))
 	_registerCallbacks();
 
 	//gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
-	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions),"SELECT * FROM faction ORDER BY id");
+	mDatabase->ExecuteSqlAsync(this, new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions), "SELECT * FROM faction ORDER BY id;");
 	gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM faction ORDER BY id"); // SQL Debug Log
 }
 

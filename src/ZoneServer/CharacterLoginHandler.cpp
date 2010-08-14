@@ -396,14 +396,14 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 		destination.y = dstPoint->spawnY;
 		destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
-		gLogger->log(LogManager::DEBUG,"CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket : (x)%f:(z)%f:(y)%f",destination.x,destination.y,destination.z);
+		gLogger->log(LogManager::DEBUG,"CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket : (x)%f:(z)%f:(y)%f", destination.x, destination.y, destination.z);
 
-		// reset to standing
+		// Reset to standing
 		playerObject->setPosture(CreaturePosture_Upright);
 		playerObject->updateMovementProperties();
 
 
-		//delete the ticket then save the position then the player
+		// Delete the ticket then save the position then the player
 		CharacterLoadingContainer* asyncContainer = new(CharacterLoadingContainer);
 
 		asyncContainer->destination = destination;

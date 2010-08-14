@@ -433,15 +433,23 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
     gMessageFactory->addUint32(opClientPermissionsMessage);
     gMessageFactory->addUint8(1);             // Galaxy Available
 
-	// Checks the Clients Characters allowed against how many they have and sends the flag accordingly for char creation
-	if (client->getCharsAllowed() > client->getCurrentChars()){
+	// Checks the Clients Characters allowed against how many they have and sends the flag accordingly for char creation Also checks Unlimited Char Creation
+	if (client->getCharsAllowed() > client->getCurrentChars() && client->getCharsAllowed() != 0){
 		gMessageFactory->addUint8(1);             // Character creation allowed
+		gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
 	}
-	else{
+	else if(client->getCharsAllowed() < client->getCurrentChars() && client->getCharsAllowed() != 0){
 		gMessageFactory->addUint8(0);             // Character creation disabled
+		gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
 	}
-	// \todo add in unlimited char check with server config changes
-    gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag
+	else if(client->getCharsAllowed() = 0){
+		gMessageFactory->addUint8(1);             // Character creation allowed
+		gMessageFactory->addUint8(1);             // Unlimited Character Creation Flag DISABLED
+	}
+	else {
+		gMessageFactory->addUint8(0);             // Character creation disabled
+		gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
+	}
     Message* message = gMessageFactory->EndMessage();
 
     // Send our message to the client.
@@ -458,7 +466,9 @@ void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionCl
 {
 	client->setState(CCSTATE_AllowedChars);
 	gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u',client->getAccountId());"); // SQL Debug Log
-	mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u'",client->getAccountId());
+
+	mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where characters.archived = '0' AND account.account_id = '%u'",client->getAccountId());
+
 	gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0; , client->getAccountId());"); // SQL Debug Log
 	mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
 }

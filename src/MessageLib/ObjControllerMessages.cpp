@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/CharSheetManager.h"
 #include "ZoneServer/Conversation.h"
 #include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/CraftingStation.h"
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/DraftWeight.h"
 #include "ZoneServer/DraftSlot.h"

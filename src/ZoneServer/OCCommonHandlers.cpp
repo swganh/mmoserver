@@ -736,7 +736,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
         return playerObject->getEquipManager()->unEquipItem(itemObject);	
     }
     else
-    //its our inventory
+    //its OUR(!) inventory
     if (tangible->getParentId() == inventory->getId())
     {
         //gMessageLib->sendDestroyObject(targetId,playerObject);

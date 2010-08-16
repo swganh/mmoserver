@@ -1207,9 +1207,12 @@ void MessageLib::sendInventory(PlayerObject* playerObject)
     Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
     //uint64		parentId	= inventory->getParentId();
 
-    //to stop the server from crashing.
-    if(!inventory)
-        return;
+	//to stop the server from crashing.
+	if(!inventory)
+	{
+		assert(false && "MessageLib::sendInventory - Player has no inventory ???? :(");
+		return;
+	}
 
     inventory->setTypeOptions(256);
 

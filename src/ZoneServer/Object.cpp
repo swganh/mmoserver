@@ -118,7 +118,7 @@ glm::vec3 Object::getWorldPosition() const
 //        Object instance hold a reference to it's parent.
 // objects reference their parents - we just do not know who is the final (permissiongiving) container
 // as it is it will return either the player or the building owning the item regardless in what container it is
-
+//  @TODO: what if the player is in a building ???
 const Object* Object::getRootParent() const 
 {
     // If there's no parent id then this is the root object.

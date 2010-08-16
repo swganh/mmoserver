@@ -88,6 +88,7 @@ class Item : public TangibleObject
 		
 	protected:
 
+		
 		uint32	mItemFamily;
 		uint32	mItemType;
 		uint32	mDynamicInt32;

@@ -266,6 +266,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		inline uint64			getPrivateOwner() { return mPrivateOwner; }
 		inline void				setPrivateOwner(uint64 owner) { mPrivateOwner = owner; }
+		
 		bool					isOwnedBy(PlayerObject* player);
 		const glm::vec3&		getLastUpdatePosition(){ return mLastUpdatePosition; }
 		void					setLastUpdatePosition(const glm::vec3& pos ){mLastUpdatePosition = pos; }
@@ -307,6 +308,8 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		uint32					mSubZoneId;
 		uint32					mTypeOptions;
 		uint32					mDataTransformCounter;
+
+
 	private:
 		glm::vec3		        mLastUpdatePosition;	// Position where SI was updated.
 

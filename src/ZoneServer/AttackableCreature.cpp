@@ -169,18 +169,10 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 									// send the creates, if we are not owned by any player OR by exactly this player.
 									if (playerObject)
 									{
+										//TODO SCH what does this mean ?? why should we know these items already ???
 										if (!object->getPrivateOwner() || (object->isOwnedBy(playerObject)))
 										{
-											// could be a resource container, need to check this first, since it inherits from tangible
-											if (ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object))
-											{
-												gMessageLib->sendCreateResourceContainer(resCont,playerObject);
-											}
-											// or a tangible
-											else
-											{
-												gMessageLib->sendCreateTangible(tangibleObject,playerObject);
-											}
+											gMessageLib->sendCreateTangible(tangibleObject,playerObject);
 										}
 									}
 								}
@@ -812,6 +804,7 @@ void AttackableCreature::unequipWeapon(void)
 		Inventory* inventory = dynamic_cast<Inventory*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 		if (inventory)
 		{
+			inventory->addObject(weapon);
 			weapon->setParentId(inventory->getId());
 		}
 		*/

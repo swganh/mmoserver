@@ -475,7 +475,6 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 //
 Object* ObjectContainer::getObjectMainParent(Object* object)
 {
-
     uint64 parentID = object->getParentId();
 
     Object* ob = dynamic_cast<Object*>(gWorldManager->getObjectById(parentID));
@@ -490,13 +489,6 @@ Object* ObjectContainer::getObjectMainParent(Object* object)
     {
         return player;
     }
-
-    //the object is in the inventory - the mainparent is the inventory - NO ITS THE PLAYER
-    //Inventory* inventory = dynamic_cast<Inventory*>(ob);
-    //if(inventory)
-    //{
-        //return inventory;
-    //}
 
     //the object is in the cell - the mainparent is the structure
     CellObject* cell = dynamic_cast<CellObject*>(ob);
@@ -528,7 +520,6 @@ Object* ObjectContainer::getObjectMainParent(Object* object)
 
 uint64 ObjectContainer::getIDMainParent(Object* object)
 {
-
     uint64 parentID = object->getParentId();
 
     Object* ob = dynamic_cast<Object*>(gWorldManager->getObjectById(parentID));
@@ -540,13 +531,6 @@ uint64 ObjectContainer::getIDMainParent(Object* object)
     //the object is equipped - the mainparent is the player
     PlayerObject* player = dynamic_cast<PlayerObject*>(ob);
     if(player)
-    {
-        return parentID;
-    }
-
-    //the object is in the inventory - the mainparent is the inventory
-    Inventory* inventory = dynamic_cast<Inventory*>(ob);
-    if(inventory)
     {
         return parentID;
     }

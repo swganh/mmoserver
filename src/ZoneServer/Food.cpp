@@ -158,10 +158,10 @@ void Food::handleFoodUse(Object* srcObject)
 	{
 		_handleUses_Remaining(playerObject);
 	}
-
-	if(this->hasAttribute("stomach_food"))
+	bool drink = (this->hasAttribute("stomach_drink"));
+	bool food = (this->hasAttribute("stomach_food"));
+	if(food)
 	{
-
 		filling = this->getAttribute<float>("stomach_food");					
 		
 		//do we still have place for it ?
@@ -174,11 +174,8 @@ void Food::handleFoodUse(Object* srcObject)
         gMessageLib->SendSystemMessage(OutOfBand("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
 
 		playerObject->getStomach()->incFood(filling);
-
-		gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(548),playerObject->mPosition,playerObject);	
 	}
-
-	if(this->hasAttribute("stomach_drink"))
+	if(drink)
 	{
 		float filling = 0;
 		filling = this->getAttribute<float>("stomach_drink");					
@@ -193,15 +190,6 @@ void Food::handleFoodUse(Object* srcObject)
         gMessageLib->SendSystemMessage(OutOfBand("base_player", "prose_consume_item", 0, this->getId(), 0), playerObject);
 		
 		playerObject->getStomach()->incDrink(filling);
-	
-		if(playerObject->getGender())
-		{
-			gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female,playerObject);
-		}
-		else
-		{
-			gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male,playerObject);
-		}
 
 	}
 	if(this->hasAttribute("duration"))
@@ -214,7 +202,8 @@ void Food::handleFoodUse(Object* srcObject)
 	} else {
 		_handleInstant(playerObject);
 	}
-
+	// play sounds
+	playerObject->playFoodSound(food, drink);
 	//when empty delete
 	if(toDelete)
 	{

@@ -91,7 +91,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.3.0
+set DEPENDENCIES_VERSION=0.3.2
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"

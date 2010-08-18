@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/CharSheetManager.h"
 #include "ZoneServer/Conversation.h"
 #include "ZoneServer/CraftingTool.h"
+#include "ZoneServer/CraftingStation.h"
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/DraftWeight.h"
 #include "ZoneServer/DraftSlot.h"
@@ -1314,24 +1315,21 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
     SchematicsIdList::iterator	schemIt		= schemIdList->begin();
     DraftSchematic*				schematic;
 
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opObjControllerMessage);
-    mMessageFactory->addUint32(0x0000000B);
-    mMessageFactory->addUint32(opDraftSchematics);
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addUint32(0);
-    mMessageFactory->addUint64(tool->getId());
-    mMessageFactory->addUint64(0); // station ?
+	// filter by tool / station properties
+	uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");
 
-    // filter by tool / station properties
-    uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");
-
-    uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + stationComplexity
-    if(playerObject->getNearestCraftingStation())
-    {
-        //TODO check for private stations!!
-        availableComplexity = 25;
-    }
+	uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + stationComplexity
+	uint64 station = playerObject->getNearestCraftingStation();
+	if(station)
+	{
+		//TODO: check for droids
+		if(playerObject->isNearestCraftingStationPrivate(station))
+		{
+			availableComplexity = 60;
+		}
+		else
+			availableComplexity = 25;
+	}
 
 
     uint32 filteredCount		= 0;

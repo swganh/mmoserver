@@ -1482,6 +1482,9 @@ void Session::_processDataChannelAck(Packet* packet)
 //======================================================================================================================
 void Session::_processDataOrderPacket(Packet* packet)
 {
+	
+  boost::recursive_mutex::scoped_lock lk(mSessionMutex); // mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+
   packet->setReadIndex(2);
   uint16 sequence = ntohs(packet->getUint16());
 
@@ -1514,7 +1517,6 @@ void Session::_processDataOrderPacket(Packet* packet)
   }
     
     //The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
-
 
     if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
     {

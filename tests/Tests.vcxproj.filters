@@ -60,8 +60,12 @@
     <ClInclude Include="Utils\MockObjects\MockActiveObjectImpl.h">
       <Filter>Utils\MockObjects</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="Common\MockObjects\MockEvent.h">
       <Filter>Common\MockObjects</Filter>
     </ClInclude>
+=======
+    <ClInclude Include="..\deps\boost\atomic.hpp" />
+>>>>>>> exp-event_dispatcher
   </ItemGroup>
 </Project>

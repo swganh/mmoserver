@@ -74,7 +74,7 @@ class RCMAsyncContainer
 };
 
 //======================================================================================================================
-class ResourceCollectionManager : public DatabaseCallback,public  UICallback
+class ResourceCollectionManager : public DatabaseCallback
 {
 	public:
 

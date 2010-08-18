@@ -339,7 +339,8 @@ class PlayerObject : public CreatureObject
         void				setExperimentationFlag(uint32 expFlag){ mExperimentationFlag = expFlag; }
         uint32				getExperimentationPoints(){ return mExperimentationPoints; }
         void				setExperimentationPoints(uint32 points){mExperimentationPoints = points; }
-        uint64				getNearestCraftingStation(){ return mNearestCraftingStation; }
+        bool				isNearestCraftingStationPrivate(uint64 station);
+		uint64				getNearestCraftingStation(){ return mNearestCraftingStation; }
         void				setNearestCraftingStation(uint64 station){ mNearestCraftingStation = station; }
         CraftingSession*	getCraftingSession(){ return mCraftingSession; }
         void				setCraftingSession(CraftingSession* craftingSession){ mCraftingSession = craftingSession; }

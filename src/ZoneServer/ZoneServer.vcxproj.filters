@@ -554,12 +554,6 @@
     <ClCompile Include="ResourceCategory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceCollectionCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceCollectionManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ResourceContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1226,12 +1220,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ResourceCategory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceCollectionCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceCollectionManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ResourceContainer.h">

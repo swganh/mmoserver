@@ -75,8 +75,8 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
     PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 
-    if(!(playerObject->isConnected()))
-        return;
+	if( !(playerObject->isConnected()) || playerObject->isDead())
+		return;
 
     // bring up the surve ui
     switch(messageType)

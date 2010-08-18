@@ -502,10 +502,10 @@ void ObjectControllerCommandMap::_registerCppHooks()
 void ObjectControllerCommandMap::RegisterCppHooks_()
 {
 	//Artisan
-	command_map_.insert(std::make_pair(opOCrequestsurvey, std::bind(&ArtisanManager::handleRequestSurvey, gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	command_map_.insert(std::make_pair(opOCsurvey, std::bind(&ArtisanManager::handleSurvey,gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	command_map_.insert(std::make_pair(opOCrequestcoresample, std::bind(&ArtisanManager::handleRequestCoreSample,gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	command_map_.insert(std::make_pair(opOCsample, std::bind(&ArtisanManager::handleSample,gArtisanManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	command_map_.insert(std::make_pair(opOCrequestsurvey, std::bind(&ArtisanManager::handleRequestSurvey, &(gArtisanManager), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	command_map_.insert(std::make_pair(opOCsurvey, std::bind(&ArtisanManager::handleSurvey,&(gArtisanManager), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	command_map_.insert(std::make_pair(opOCrequestcoresample, std::bind(&ArtisanManager::handleRequestCoreSample,&(gArtisanManager), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	command_map_.insert(std::make_pair(opOCsample, std::bind(&ArtisanManager::handleSample,&(gArtisanManager), std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 
 	//crafting
 	command_map_.insert(std::make_pair(opOCRequestCraftingSession, std::bind(&CraftingManager::HandleRequestCraftingSession,gCraftingManager, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));

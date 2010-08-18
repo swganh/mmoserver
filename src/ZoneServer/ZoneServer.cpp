@@ -137,8 +137,8 @@ ZoneServer::ZoneServer(int8* zoneName)
         gLogger->log(LogManager::CRITICAL, "FATAL: Map \'%s\' not found.  Aborting startup.", zoneName);
         abort();
     }
-
-    //  Yea, I'm getting annoyed with the DataBinding for such simple tasks.  Will implement a simple interface soon.
+    
+	//  Yea, I'm getting annoyed with the DataBinding for such simple tasks.  Will implement a simple interface soon.
 
     DataBinding* binding = mDatabase->CreateDataBinding(1);
     binding->addField(DFT_uint32, 0, 4);
@@ -181,7 +181,6 @@ ZoneServer::ZoneServer(int8* zoneName)
     (void)NonPersistantObjectFactory::Instance();
 
     //ArtisanManager callback
-    ArtisanManager::Init();
     CraftingManager::Init(mDatabase);
 
     UIManager::Init(mDatabase,mMessageDispatch);
@@ -246,12 +245,10 @@ ZoneServer::~ZoneServer(void)
     mNetworkManager->DestroyService(mRouterService);
     delete mNetworkManager;
 
-    delete mDatabaseManager;
-    delete gCraftingManager->getSingletonPtr();
-    delete gArtisanManager->getSingletonPtr();
-    delete gSkillManager->getSingletonPtr();
-    delete gMedicManager->getSingletonPtr();
-    delete gBuffManager->getSingletonPtr();
+	delete mDatabaseManager;
+	delete gSkillManager->getSingletonPtr();
+	delete gMedicManager->getSingletonPtr();
+	delete gBuffManager->getSingletonPtr();
 
     // NOW, I can feel that it should be safe to delete the data holding messages.
     gMessageFactory->destroySingleton();

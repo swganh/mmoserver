@@ -47,7 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SchematicManager.h"
 #include "SpawnPoint.h"
 #include "StructureManager.h"
-#include "ResourceCollectionManager.h"
 #include "Tutorial.h"
 #include "UIManager.h"
 #include "UISkillSelectBox.h"
@@ -127,16 +126,14 @@ PlayerObject::PlayerObject()
     mMarriage			= L"";					// Unmarried
     mTrade				= new Trade(this);
 
-    // register event functions
-    registerEventFunction(this,&PlayerObject::onSurvey);
-    registerEventFunction(this,&PlayerObject::onSample);
-    registerEventFunction(this,&PlayerObject::onLogout);
-    registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
-    registerEventFunction(this,&PlayerObject::onInjuryTreatment);
-    registerEventFunction(this,&PlayerObject::onWoundTreatment);
-    registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
-    
-    mLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
+	// register event functions
+	registerEventFunction(this,&PlayerObject::onLogout);
+	registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
+	registerEventFunction(this,&PlayerObject::onInjuryTreatment);
+	registerEventFunction(this,&PlayerObject::onWoundTreatment);
+	registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
+	
+	mLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 
     mPermissionId = 0;
 
@@ -1613,100 +1610,119 @@ void PlayerObject::addToDuelList(PlayerObject* player)
 //
 CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, ItemType toolType)
 {
-    ObjectSet::iterator it = inRangeObjects->begin();
+	ObjectSet::iterator it = inRangeObjects->begin();
 
-    mNearestCraftingStation = 0;
+	mNearestCraftingStation = 0;
+	
+	while(it != inRangeObjects->end())
+	{
+		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
+		{
+			uint32 stationType = station->getItemType();
 
-    while(it != inRangeObjects->end())
-    {
-        if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
-        {
-            uint32 stationType = station->getItemType();
+			// check whether the station fits to our tool
+			switch(toolType)
+			{
+				case ItemType_ClothingTool:
+				{
+					if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
+					{
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
+					}
+				}
+				break;
 
-            // check whether the station fits to our tool
-            switch(toolType)
-            {
-                case ItemType_ClothingTool:
-                {
-                    if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
-                    {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
-                    }
-                }
-                break;
+				case ItemType_WeaponTool:
+				{
+					if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
+					{
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
+					}
+				}
+				break;
 
-                case ItemType_WeaponTool:
-                {
-                    if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
-                    {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
-                    }
-                }
-                break;
+				case ItemType_FoodTool:
+				{
+					if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
+					{
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
+					}
+				}
+				break;
 
-                case ItemType_FoodTool:
-                {
-                    if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
-                    {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
-                    }
-                }
-                break;
+				case ItemType_StructureTool:
+				{
+					if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
+					{
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
+					}
+				}
+				break;
 
-                case ItemType_StructureTool:
-                {
-                    if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
-                    {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
-                    }
-                }
-                break;
+				case ItemType_SpaceTool:
+				{
+					if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
+					{
+						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+						{
+							mNearestCraftingStation = station->getId();
+							return(station);
+						}
+					}
+				}	
+				break;
 
-                case ItemType_SpaceTool:
-                {
-                    if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
-                    {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
-                    }
-                }
-                break;
+				case ItemType_GenericTool:
+				case ItemType_JediTool:
+				default:
+				{
+					return(NULL);
+				}
+				break;
+			}
+		}
 
-                case ItemType_GenericTool:
-                case ItemType_JediTool:
-                default:
-                {
-                    return(NULL);
-                }
-                break;
-            }
-        }
+		++it;
+	}
 
-        ++it;
-    }
-
-    return(NULL);
+	return(NULL);
 }
-
+//=============================================================================
+bool PlayerObject::isNearestCraftingStationPrivate(uint64 station)
+{
+	CraftingStation* craftStation = dynamic_cast<CraftingStation*>(gWorldManager->getObjectById(station));
+	if(craftStation)
+	{
+		switch(craftStation->getItemType())
+		{
+			case ItemType_ClothingStation:
+			case ItemType_WeaponStation:
+			case ItemType_FoodStation:
+			case ItemType_StructureStation:
+			case ItemType_SpaceStation:
+				return true;
+			default:
+				return false;
+		}
+	}
+	return false;
+}
 //=============================================================================
 
 void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3& pos, bool preDesignatedFacility)
@@ -2263,4 +2279,69 @@ void PlayerObject::setCrouched()
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_kneel"), this);
     }
+}
+
+void PlayerObject::playFoodSound(bool food, bool drink)
+{
+	bool gender = getGender();
+	switch (getRaceId())
+	{
+		// wookiee
+		case 4:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(545),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(552),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Male, this);	
+			}
+			break;
+		// reptile aka Trandoshan
+		case 6:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Male, this);	
+			}
+			break;
+		// all else
+		default:
+			if (gender)
+			{
+				// female
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);	
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female, this);	
+			}
+			else
+			{
+				// male
+				if (food)
+					gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
+				if (drink)
+					gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male, this);	
+			}
+			break;
+	}
 }

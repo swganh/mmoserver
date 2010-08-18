@@ -333,7 +333,6 @@ if exist "deps\boost" call :BUILD_BOOST
 if exist "deps\gtest" call :BUILD_GTEST
 if exist "deps\gmock" call :BUILD_GMOCK
 if exist "deps\lua" call :BUILD_LUA
-if exist "deps\mysql++" call :BUILD_MYSQLPP
 if exist "deps\mysql-connector-cpp" call :BUILD_MYSQLCONN
 if exist "deps\noise" call :BUILD_NOISE
 if exist "deps\spatialindex" call :BUILD_SPATIALINDEX
@@ -734,75 +733,6 @@ cd "%PROJECT_BASE%"
 
 goto :eof
 rem --- End of BUILD_MYSQLCONN -------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_MYSQLPP -------------------------------------------------
-rem --- Builds the mysql c++ library for use with this project.              ---
-:BUILD_MYSQLPP
-
-echo BUILDING: Mysql++ - http://tangentsoft.net/mysql++/
-
-cd "%PROJECT_BASE%deps\mysql++\vc2010"
-
-rem Only build mysql++ if it hasn't been built already.
-if "%BUILD_TYPE%" == "debug" (
-	if exist "Debug\mysqlpp_d.lib" (
-		echo Mysql++ already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-if "%BUILD_TYPE%" == "release" (
-	if exist "Release\mysqlpp.lib" (
-		echo Mysql++ already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-if "%BUILD_TYPE%" == "all" (
-	if exist "Debug\mysqlpp_d.lib" (
-		if exist "Release\mysqlpp.lib" (
-			echo Mysql++ already built ... skipping
-			echo.
-			cd "%PROJECT_BASE%"
-			goto :eof
-		)
-	)
-)
-
-rem Build the mysql++ library we need.
-
-rem VS likes to create these .cache files and then complain about them existing afterwards.
-rem Removing it as it's not needed.
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-if "%BUILD_TYPE%" == "debug" (
-	"%MSBUILD%" "mysql++.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-if "%BUILD_TYPE%" == "release" (
-	"%MSBUILD%" "mysql++.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-if "%BUILD_TYPE%" == "all" (
-	"%MSBUILD%" "mysql++.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-
-	"%MSBUILD%" "mysql++.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_MYSQLPP ---------------------------------------------------
 rem ----------------------------------------------------------------------------
 
 

@@ -115,6 +115,27 @@ void BaseEvent::consume(bool handled) const {
     }
 }
 
+SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms) 
+: BaseEvent(subject_id, delay_ms)
+, event_type_(event_type) {}
+
+SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
+: BaseEvent(subject_id, delay_ms, callback)
+, event_type_(event_type) {}
+   
+SimpleEvent::~SimpleEvent() {}
+
+const EventType& SimpleEvent::event_type() const { 
+    return event_type_; 
+}
+
+void SimpleEvent::onSerialize(ByteBuffer& out) const {}
+void SimpleEvent::onDeserialize(ByteBuffer& in) {}
+
+bool SimpleEvent::onConsume(bool handled) const {
+    return true;
+}
+
 // Helper function implementations
 
 bool CompareEventWeightLessThan(const IEvent& lhs, const IEvent& rhs) {

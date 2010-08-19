@@ -103,6 +103,7 @@ public:
     virtual void deserialize(ByteBuffer& in) = 0;
 };
 
+
 /*! \brief BaseEvent is an implementation of the IEvent interface that provides
  * concrete instances with the ability to specify a callback that gets invoked
  * after the listeners have had an opportunity to process it.
@@ -157,6 +158,26 @@ private:
 #pragma warning (default : 4251)
 #endif
 };
+
+
+class COMMON_API SimpleEvent : public BaseEvent {
+public:
+    explicit SimpleEvent(::common::EventType& event_type, uint64_t subject_id = 0, uint64_t delay_ms = 0);
+    SimpleEvent(::common::EventType& event_type, uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    
+    ~SimpleEvent();
+
+    const ::common::EventType& event_type() const;
+
+private:
+    void onSerialize(::common::ByteBuffer& out) const;
+    void onDeserialize(::common::ByteBuffer& in);
+
+    bool onConsume(bool handled) const;
+
+    ::common::EventType event_type_;
+};
+
 
 /**
  * Compares the weight of two events based on priority and timestamp.

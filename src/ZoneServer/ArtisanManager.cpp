@@ -60,12 +60,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "ArtisanHeightmapAsyncContainer.h"
 #include "Common/EventDispatcher.h"
+#include "Common/Event.h"
 #include "Utils/rand.h"
 #include "Utils/clock.h"
 
 
 ArtisanManager::ArtisanManager(): mSurveyMindCost(0),mSampleActionCost(0){};
 ArtisanManager::~ArtisanManager(){};
+using ::common::SimpleEvent;
+using ::common::EventType;
 
 //======================================================================================================================
 //
@@ -75,7 +78,7 @@ ArtisanManager::~ArtisanManager(){};
 bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     PlayerObject*		player = dynamic_cast<PlayerObject*>(playerObject);
-    std::shared_ptr<Event> start_survey_event = nullptr;
+    std::shared_ptr<SimpleEvent> start_survey_event = nullptr;
 
     if(cmdProperties)
         mSurveyMindCost = cmdProperties->mMindCost;
@@ -158,8 +161,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_survey", L"", L"", resourceName.getUnicode16()), player);
 
         // schedule execution
-        //player->getController()->addEvent(new SurveyEvent(tool,resource),5000);
-        start_survey_event = std::make_shared<Event>(EventType("start_survey"), 5000, 
+        start_survey_event = std::make_shared<SimpleEvent>(EventType("start_survey"),0, 5000, 
             std::bind(&ArtisanManager::surveyEvent, this, player, resource, tool));
         
     }
@@ -265,7 +267,7 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
 void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 {
         ArtisanHeightmapAsyncContainer* container = static_cast<ArtisanHeightmapAsyncContainer*>(ref);
-        std::shared_ptr<Event> start_sample_event = nullptr;
+        std::shared_ptr<SimpleEvent> start_sample_event = nullptr;
 
         HeightResultMap* mapping = container->getResults();
         HeightResultMap::iterator it = mapping->begin();
@@ -289,7 +291,7 @@ void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
             gWorldManager->getClientEffect(container->tool->getInternalAttribute<uint32>("sample_effect"));
             // schedule execution
             //container->playerObject->getController()->addEvent(new SampleEvent(container->playerObject,container->tool,container->resource),2000);
-            start_sample_event = std::make_shared<Event>(EventType("start_sample"), 2000, 
+            start_sample_event = std::make_shared<SimpleEvent>(EventType("start_sample"), 0, 2000, 
             std::bind(&ArtisanManager::sampleEvent,this, container->playerObject, container->resource, container->tool));
         }
         // notify any listeners
@@ -497,7 +499,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     if(!stopSampling(player, resource, tool))
     {
         player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 18000;
-        std::shared_ptr<Event> start_sample_event = std::make_shared<Event>(EventType("start_sample"), 18000, 
+        std::shared_ptr<SimpleEvent> start_sample_event = std::make_shared<SimpleEvent>(EventType("start_sample"),0, 18000, 
             std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
         gEventDispatcher.Notify(start_sample_event);
     }
@@ -805,7 +807,7 @@ void ArtisanManager::surveyEvent(PlayerObject* player, CurrentResource* resource
 void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
     PlayerObject* player = window->getOwner();
-    std::shared_ptr<Event> sample_UI_event = nullptr;
+    std::shared_ptr<SimpleEvent> sample_UI_event = nullptr;
     if(!player)
     {
         return;
@@ -854,7 +856,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     CurrentResource*	resource				= (CurrentResource*)asyncContainer->CurrentResource;
                     player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getLocalTime() + 4000;
 
-                    sample_UI_event = std::make_shared<Event>(EventType("sample_radioactive"), 4000, 
+                    sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_radioactive"),0, 4000, 
                         std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
 
                 }
@@ -893,7 +895,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
                     player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
                 
-                    sample_UI_event = std::make_shared<Event>(EventType("sample_gamble"), 1000, 
+                    sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_gamble"),0, 1000, 
                         std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
                     
                 }
@@ -934,7 +936,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
                     player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
                     
-                    sample_UI_event = std::make_shared<Event>(EventType("sample_gamble"), 1000, 
+                    sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_gamble"),0, 1000, 
                         std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
                     
                 }
@@ -981,7 +983,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
                     player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
                     
-                    sample_UI_event = std::make_shared<Event>(EventType("sample_continue"), 10000, 
+                    sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_continue"),0, 10000, 
                         std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
                     
                 }

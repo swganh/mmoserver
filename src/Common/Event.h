@@ -164,6 +164,9 @@ private:
  * particular events that don't have any data related to them. 
  *
  * \code
+ * using ::common::SimpleEvent;
+ * using ::common::EventType;
+ *
  * std::shared_ptr<SimpleEvent> some_event = std::make_shared<SimpleEvent>(EventType("custom_event"), 0, 0, [=] {
  *
  * ... // Some callback code to execute at the end of the event.

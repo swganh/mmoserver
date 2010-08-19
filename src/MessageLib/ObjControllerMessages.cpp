@@ -1314,6 +1314,15 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
     SchematicsIdList*			filteredIdList = playerObject->getFilteredSchematicsIdList();
     SchematicsIdList::iterator	schemIt		= schemIdList->begin();
     DraftSchematic*				schematic;
+	
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opObjControllerMessage);
+	mMessageFactory->addUint32(0x0000000B);
+	mMessageFactory->addUint32(opDraftSchematics);
+	mMessageFactory->addUint64(playerObject->getId());
+	mMessageFactory->addUint32(0);
+	mMessageFactory->addUint64(tool->getId());
+	mMessageFactory->addUint64(0); // station ?
 
 	// filter by tool / station properties
 	uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");

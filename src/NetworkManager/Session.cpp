@@ -1482,7 +1482,7 @@ void Session::_processDataChannelAck(Packet* packet)
 //======================================================================================================================
 void Session::_processDataOrderPacket(Packet* packet)
 {
-	
+    
   boost::recursive_mutex::scoped_lock lk(mSessionMutex); // mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
 
   packet->setReadIndex(2);
@@ -1509,19 +1509,20 @@ void Session::_processDataOrderPacket(Packet* packet)
   if (sequence < windowSequence)
   {
       gLogger->log(LogManager::WARNING,"Out-Of-Order packet sequence too small, may be a duplicate or we handled our acks wrong.  seq: %u, expect >: %u", sequence, windowSequence);
+
   }
 
   if (sequence > windowSequence + mWindowPacketList.size())
   {
       gLogger->log(LogManager::WARNING, "Rollover Out-Of-Order packet  seq: %u, expect >: %u", sequence, windowSequence);
+
+      return;
   }
     
     //The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
-
     if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
     {
         //jupp its on the rolloverlist
-        boost::recursive_mutex::scoped_lock lk(mSessionMutex); // mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
 
         uint16 count = 0;
         for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mRolloverWindowPacketList.end(); iterRoll++)
@@ -1534,10 +1535,7 @@ void Session::_processDataOrderPacket(Packet* packet)
             // If it's smaller than the order packet send it, otherwise break;
             if (windowRollSequence < sequence )
             {
-                //count++;
-                //if(count > 50)
-                //	break;
-                    
+                                
                 if(Anh_Utils::Clock::getSingleton()->getLocalTime() - windowPacket->getTimeOOHSent() < 200)
                     break;
                 
@@ -1555,9 +1553,7 @@ void Session::_processDataOrderPacket(Packet* packet)
      uint16 count = 0;
      uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
      for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
-     {
-         boost::recursive_mutex::scoped_lock lk(mSessionMutex);//			   mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
-     
+     {	
         // Grab our window packet
         windowPacket = (*iter);
         windowPacket->setReadIndex(2);
@@ -1584,7 +1580,7 @@ void Session::_processDataOrderPacket(Packet* packet)
             mPacketFactory->DestroyPacket(packet);
             return;
         }
-    }  
+    } 
 
   // Destroy our incoming packet, it's not needed any longer.
   mPacketFactory->DestroyPacket(packet);
@@ -1599,6 +1595,9 @@ void Session::_processDataOrderPacket(Packet* packet)
 
 void Session::_resendData()
 {
+
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex); // mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
+
     PacketWindowList::iterator	iter			= mWindowPacketList.begin();
     PacketWindowList::iterator	iterRoll = mRolloverWindowPacketList.begin();
 
@@ -1614,7 +1613,6 @@ void Session::_resendData()
     uint64 waitTime = 0;
     uint64 oooTime = 0;
     uint32 packetsSend = 0;
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex); // mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
 
     for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mRolloverWindowPacketList.end(); iterRoll++)
     {

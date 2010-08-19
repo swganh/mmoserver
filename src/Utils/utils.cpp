@@ -42,42 +42,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 uint64 swap64(uint64 value)
 {
-	uint8 arr[8];
+    uint8 arr[8];
 
-	memcpy(arr, &value, 8);
+    memcpy(arr, &value, 8);
 
-	for(int x = 0; x < 4; x++)
-	{
-		uint8 temp = arr[x];
-		arr[x] = arr[7-x];
-		arr[7-x] = temp;
-	}
+    for(int x = 0; x < 4; x++)
+    {
+        uint8 temp = arr[x];
+        arr[x] = arr[7-x];
+        arr[7-x] = temp;
+    }
 
-	memcpy(&value, arr, 8);
-	return value;
+    memcpy(&value, arr, 8);
+    return value;
 }
 
 //==========================================================================
 
 std::string strRep(std::string a,std::string b,std::string c)
 {
-	std::string d;
-	std::string::size_type p;
-	bool found;
+    std::string d;
+    std::string::size_type p;
+    bool found;
 
-	do
-	{
-		if((found = (p = a.find(b)) != std::string::npos))
-		{
-			d += a.substr(0,p) + c;
-			a = a.substr(p+b.size());
-		}
-	}
-	while(found);
+    do
+    {
+        if((found = (p = a.find(b)) != std::string::npos))
+        {
+            d += a.substr(0,p) + c;
+            a = a.substr(p+b.size());
+        }
+    }
+    while(found);
 
-	d += a;
+    d += a;
 
-	return d;
+    return d;
 }
 
 //==========================================================================

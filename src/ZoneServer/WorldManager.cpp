@@ -93,83 +93,6 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 , mTotalObjectCount(0)
 , mZoneId(zoneId)
 {
-<<<<<<< HEAD
-    #if !defined(_DEBUG)
-    #endif
-    #if defined(_DEBUG)
-        gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
-    #endif
-    
-
-    // set up spatial index
-    mSpatialIndex = new ZoneTree();
-    mSpatialIndex->Init(gConfig->read<float>("FillFactor"),
-                        gConfig->read<int>("IndexCap"),
-                        gConfig->read<int>("LeafCap"),
-                        2,
-                        gConfig->read<float>("Horizon"));
-
-    try
-    {
-        mDebug = gConfig->read<bool>("LoadReduceDebug");
-    }
-    catch (...)
-    {
-        mDebug = false;
-    }
-
-    // load planet names and terrain files so we can start heightmap loading
-    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
-    
-
-    // create schedulers
-    mSubsystemScheduler		= new Anh_Utils::Scheduler();
-    mObjControllerScheduler = new Anh_Utils::Scheduler();
-    mHamRegenScheduler		= new Anh_Utils::Scheduler();
-    mStomachFillingScheduler= new Anh_Utils::Scheduler();
-    mPlayerScheduler		= new Anh_Utils::Scheduler();
-    mEntertainerScheduler	= new Anh_Utils::Scheduler();
-    //mImagedesignerScheduler	= new Anh_Utils::Scheduler();
-    mBuffScheduler			= new Anh_Utils::VariableTimeScheduler(100, 100);
-    mMissionScheduler		= new Anh_Utils::Scheduler();
-    mNpcManagerScheduler	= new Anh_Utils::Scheduler();
-    mAdminScheduler			= new Anh_Utils::Scheduler();
-
-    LoadCurrentGlobalTick();
-
-    // load up subsystems
-
-    SkillManager::Init(database);
-    SchematicManager::Init(database);
-    
-    //the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client 
-    //it will have to be initialized in the tutorial, too
-    if(zoneId != 41)
-        ResourceManager::Init(database,mZoneId);
-    else
-    {
-        //by not assigning a db we force the resourcemanager to not load db data
-        ResourceManager::Init(NULL,mZoneId);
-    }
-    ResourceCollectionManager::Init(database);
-    TreasuryManager::Init(database);
-    ConversationManager::Init(database);
-    CraftingSessionFactory::Init(database);
-    if(zoneId != 41)
-        MissionManager::Init(database,mZoneId);
-
-    // register world script hooks
-    _registerScriptHooks();
-
-    // initiate loading of objects
-    if(mDebug)
-    {
-        gLogger->log(LogManager::INFORMATION,"World Manager Debug StartUp with culled items, npcs, resources and stuff");
-        mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCountDebug(%i);",mZoneId);
-    }
-    else
-        mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
-=======
 	#if !defined(_DEBUG)
 	#endif
 	#if defined(_DEBUG)
@@ -244,7 +167,6 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	}
 	else
 		mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
->>>>>>> exp-event_dispatcher
 
 #if defined(_MSC_VER)
     mNonPersistantId =   422212465065984;

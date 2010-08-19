@@ -76,8 +76,18 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     {
                         gVehicleControllerFactory->createVehicle(this->getItemType(),player);
 
-                        Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-                        inventory->removeObject(this);
+                        //parent container can be every backpack / inventory / cell // chest
+                        //cave - we shouldnt be able to use it in a cell otherwise we need to think about sending updates to all players watching
+                        
+                        ObjectContainer* parentContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(this->getParentId()));
+                        if(!parentContainer)
+                        {
+                            gLogger->log(LogManager::DEBUG,"Deed::handleObjectMenuSelect: couldnt cast deeds parent %I64u !",this->getParentId());
+                            return;
+                        }
+                        parentContainer->removeObject(this);
+
+                        //cave if were in a cell or it is an opened container we need to identify all onlookers and update them
                         gMessageLib->sendDestroyObject(this->getId(),player);
                         gObjectFactory->deleteObjectFromDB(this);
                         gWorldManager->destroyObject(this);

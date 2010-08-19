@@ -75,8 +75,8 @@ void Scout::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 					if(gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player))
 					{
-						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-						inventory->removeObject(this);
+						TangibleObject* parentContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
+						parentContainer->removeObject(this);
 						gMessageLib->sendDestroyObject(this->getId(),player);
 						gObjectFactory->deleteObjectFromDB(this);
 						gWorldManager->destroyObject(this);

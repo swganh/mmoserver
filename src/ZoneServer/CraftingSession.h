@@ -87,13 +87,12 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		void					handleFillSlotComponent(uint64 componentId,uint32 slotId,uint32 unknown,uint8 counter);
 		void					handleFillSlotResourceRewrite(uint64 resContainerId,uint32 slotId,uint32 unknown,uint8 counter);
 
-		bool					prepareComponentOffer(Item* component, uint32 needed, ManufactureSlot* manSlot);
+		bool					prepareComponent(Item* component, uint32 needed, ManufactureSlot* manSlot);
 		uint32					getComponentOffer(Item* component, uint32 needed);
 		BString					ComponentGetSerial(Item* component);
 
-		uint32					getComponentSerial(ManufactureSlot*	manSlot, Inventory* inventory);
 		bool					AdjustComponentStack(Item* item, uint32 uses);
-		bool					AdjustFactoryCrate(FactoryCrate* crate, uint32 uses);
+		uint32					AdjustFactoryCrate(FactoryCrate* crate, uint32 uses);
 		void					destroyComponents();
 
 		void					handleEmptySlot(uint32 slotId,uint64 containerId,uint8 counter);
@@ -222,6 +221,18 @@ class CraftingSession : public DatabaseCallback, public ObjectFactoryCallback
 		uint32							mSchematicCRC;
 		bool							mFirstFill;
 		uint32							mCounter;
+
+		// makes it that we know that the next item we load is a component to be attached to a slot
+		bool							mItemLoaded;
+
+		//dirty and ugly but we can do it as the crafting process stalls until the item is added to the slot
+		//fact is we dont have asynccontainers with Objectcreates :(
+		uint32							mAsyncComponentAmount;
+		uint32							mAsyncStackSize;
+		ManufactureSlot*				mAsyncManSlot;
+		uint32							mAsyncSlotId;
+		uint8							mAsyncCounter;
+		bool							mAsyncSmallUpdate;
 };
 
 //=============================================================================

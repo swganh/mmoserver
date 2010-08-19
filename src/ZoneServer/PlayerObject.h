@@ -286,7 +286,9 @@ class PlayerObject : public CreatureObject
 
         uint8				getGroupMusicXp(){return static_cast<uint8>(mGroupXp);}
         void				setGroupMusicXp(uint8 groupXp){mGroupXp = groupXp;}
-
+        // sounds
+        // simple check to determine what food consumption sound to play. drink doesn't work currently
+        void				playFoodSound(bool food, bool drink);
         // ID
         void				setImageDesignerTaskId(uint64 taskId){mImageDesignerId = taskId;}
         bool				UpdateIdAttributes(BString attribute,float value);

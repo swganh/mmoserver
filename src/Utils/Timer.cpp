@@ -36,10 +36,10 @@ Timer::Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container)
 , mId(id)
 , mInterval(interval)
 {
-	if(mInterval < 100)
-		mInterval = 100;
+    if(mInterval < 100)
+        mInterval = 100;
 
-	mLastTick = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    mLastTick = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
     boost::thread t(&Timer::Run, this);
     mThread = boost::move(t);
@@ -57,20 +57,20 @@ Timer::~Timer()
 
 void Timer::Run()
 {
-	uint64 currentTick;
+    uint64 currentTick;
 
-	while(true)
-	{
-		currentTick = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    while(true)
+    {
+        currentTick = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-		if(currentTick - mLastTick >= mInterval)
-		{
-			mCallback->handleTimer(mId,mContainer);
-			mLastTick = currentTick;
-		}
+        if(currentTick - mLastTick >= mInterval)
+        {
+            mCallback->handleTimer(mId,mContainer);
+            mLastTick = currentTick;
+        }
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-	}
+    }
 }
 
 //==============================================================================================================================

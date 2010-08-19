@@ -82,7 +82,7 @@ class ClientManager : public NetworkCallback, public ConnectionDispatchCallback,
 		void                        _processClusterZoneTransferCharacter(ConnectionClient* client, Message* message);
 
 		void                        _handleQueryAuth(ConnectionClient* client, DatabaseResult* result);
-
+		void                        _processAllowedChars(DatabaseCallback* callback,ConnectionClient* client);
 
 		Service*                    mClientService;
 		Database*                   mDatabase;

@@ -160,6 +160,19 @@ private:
 };
 
 
+/*! \brief This is an event that can be used to trigger off trivial events, in 
+ * particular events that don't have any data related to them. 
+ *
+ * \code
+ * std::shared_ptr<SimpleEvent> some_event = std::make_shared<SimpleEvent>(EventType("custom_event"), 0, 0, [=] {
+ *
+ * ... // Some callback code to execute at the end of the event.
+ *
+ * }); 
+ * 
+ * event_dispatcher.Notify(some_event);
+ * \endcode
+ */
 class COMMON_API SimpleEvent : public BaseEvent {
 public:
     explicit SimpleEvent(::common::EventType& event_type, uint64_t subject_id = 0, uint64_t delay_ms = 0);

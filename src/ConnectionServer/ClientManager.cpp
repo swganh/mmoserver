@@ -254,8 +254,8 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
 
   // Start our auth query
   client->setState(CCSTATE_QueryAuth);
-  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
-  gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId()); // SQL Debug Log
+  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0;", client->getAccountId());
+  gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0;", client->getAccountId()); // SQL Debug Log
 }
 
 

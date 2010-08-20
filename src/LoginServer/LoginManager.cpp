@@ -274,7 +274,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
 	if (strlen(username.getAnsi()) == 0) //SessionID Login With ANH Launcher
 	{
-		sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key, csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0 AND session_key='");
+		sprintf(sql,"SELECT account_id, account_username, account_password, station_id, account_banned, account_active, account_characters_allowed, account_session_key, account_csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0 AND session_key='");
 		// sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND loggedin=0   AND session_key='");
 		sqlPointer = sql + strlen(sql);
 		sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());

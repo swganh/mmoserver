@@ -110,8 +110,8 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 								QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,TFQuery_ElevatorData,asyncContainer->mClient);
 								asContainer->mObject = elTerminal;
 
-								mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction",elTerminal->getId());	
-								gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction",elTerminal->getId()); // SQL Debug Log	
+								mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction", elTerminal->getId());	
+								gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction", elTerminal->getId()); // SQL Debug Log	
 							}
 							break;
 
@@ -135,14 +135,14 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 			// we order by direction in select, though up is first
 			if(terminal->mTanType == TanType_ElevatorUpTerminal || terminal->mTanType == TanType_ElevatorTerminal)
-				result->GetNextRow(mElevetorDataUpBinding,(void*)terminal);
+				result->GetNextRow(mElevetorDataUpBinding, (void*)terminal);
 
 			if(terminal->mTanType == TanType_ElevatorDownTerminal || terminal->mTanType == TanType_ElevatorTerminal)
-				result->GetNextRow(mElevetorDataDownBinding,(void*)terminal);
+				result->GetNextRow(mElevetorDataDownBinding, (void*)terminal);
 
 			terminal->setLoadState(LoadState_Loaded);
 
-			asyncContainer->mOfCallback->handleObjectReady(terminal,asyncContainer->mClient);
+			asyncContainer->mOfCallback->handleObjectReady(terminal, asyncContainer->mClient);
 		}
 		break;
 
@@ -157,16 +157,16 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 void TerminalFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,TFQuery_MainData,client),
-					"SELECT terminals.id,terminals.parent_id,terminals.oX,terminals.oY,terminals.oZ,terminals.oW,terminals.x,"
-					"terminals.y,terminals.z,terminals.terminal_type,terminal_types.object_string,terminal_types.name,terminal_types.file,"
-					"terminals.dataStr,terminals.dataInt1,terminals.customName"
-					" FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
-					" WHERE (terminals.id = %"PRIu64")",id);
+		"SELECT terminals.id, terminals.parent_id, terminals.oX, terminals.oY, terminals.oZ,terminals.oW,terminals.x,"
+		"terminals.y,terminals.z,terminals.terminal_type,terminal_types.object_string,terminal_types.name,terminal_types.file,"
+		"terminals.dataStr,terminals.dataInt1,terminals.customName"
+		" FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
+		" WHERE (terminals.id = %"PRIu64")", id);
 	gLogger->log(LogManager::DEBUG, "SQL :: SELECT terminals.id,terminals.parent_id,terminals.oX,terminals.oY,terminals.oZ,terminals.oW,terminals.x,"
 		"terminals.y,terminals.z,terminals.terminal_type,terminal_types.object_string,terminal_types.name,terminal_types.file,"
 		"terminals.dataStr,terminals.dataInt1,terminals.customName"
 		" FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
-		" WHERE (terminals.id = %"PRIu64")",id); // SQL Debug Log
+		" WHERE (terminals.id = %"PRIu64")", id); // SQL Debug Log
 }
 
 //=============================================================================
@@ -177,11 +177,11 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 	TangibleType	tanType;
 
 	DataBinding* typeBinding = mDatabase->CreateDataBinding(1);
-	typeBinding->addField(DFT_uint32,0,4,9);
+	typeBinding->addField(DFT_uint32, 0, 4, 9);
 
 	uint64 count = result->getRowCount();
 
-	result->GetNextRow(typeBinding,&tanType);
+	result->GetNextRow(typeBinding, &tanType);
 	result->ResetRowIndex();
 
 	mDatabase->DestroyDataBinding(typeBinding);
@@ -585,4 +585,3 @@ void TerminalFactory::_destroyDatabindings()
 }
 
 //=============================================================================
-

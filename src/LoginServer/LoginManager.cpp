@@ -273,8 +273,10 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
     if (strlen(username.getAnsi()) == 0) //SessionID Login With ANH Launcher
     {
-        sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key, csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0 AND session_key='");
-        // sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND loggedin=0   AND session_key='");
+        sprintf(sql,"SELECT account_id, account_username, account_password, account_station_id, account_banned, account_active,account_characters_allowed,"
+            "account_session_key, account_csr FROM account WHERE account_banned=0 AND account_authenticated=0 AND account_loggedin=0 AND account_session_key='");
+        // sprintf(sql,"SELECT account_id, account_username, account_password, account_station_id, account_banned, account_active,account_characters_allowed,"
+       //"account_session_key, account_csr FROM account WHERE account_banned=0 AND account_authenticated=0 AND account_loggedin=0 AND account_session_key=' AND session_key='");
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
         *sqlPointer++ = '\'';
@@ -286,8 +288,6 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
         //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
 
         sprintf(sql,"CALL swganh.sp_ReturnUserAccount('");
-
-        //sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND loggedin=0   AND username='");
 
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
@@ -644,7 +644,7 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
     int8 sql[512];
 
     //call the session_key creation sproc
-    sprintf(sql,"SELECT account_id FROM account WHERE username='%s' AND password = SHA1('%s');\0", client->getUsername().getAnsi(), client->getPassword().getAnsi());
+    sprintf(sql,"SELECT account_id FROM account WHERE account_username='%s' AND account_password = SHA1('%s');\0", client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
     //set the state
     client->setState(LCSTATE_RetrieveAccountId);

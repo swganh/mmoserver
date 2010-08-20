@@ -100,11 +100,12 @@ mLocked(false)
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
     gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // SQL Debug Log
 
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);");
+    mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
+    //mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);");
     gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);"); // SQL Debug Log
 
     // In case of a crash, we need to cleanup the DB a little.
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET loggedin=0 WHERE loggedin=%u;", mClusterId);
+    DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
     gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId); // SQL Debug Log
 
     // Status:  0=offline, 1=loading, 2=online

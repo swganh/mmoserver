@@ -165,11 +165,11 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
     // Create a ClusterClientDisconnect message and send it to the servers
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opClusterClientDisconnect);
-    gMessageFactory->addUint32(0);												// Reason: Disconnected
+    gMessageFactory->addUint32(0);                        // Reason: Disconnected
     message = gMessageFactory->EndMessage();
 
     message->setAccountId(connClient->getAccountId());
-    message->setDestinationId(static_cast<uint8>(connClient->getServerId()));	// Zone server
+    message->setDestinationId(static_cast<uint8>(connClient->getServerId()));  // zone server
     message->setRouted(true);
     mMessageRouter->RouteMessage(message, connClient);
 
@@ -187,6 +187,7 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
         mPlayerClientMap.erase(iter);
     }
 }
+
 
 //======================================================================================================================
 
@@ -225,6 +226,7 @@ void ClientManager::handleDispatchMessage(uint32 opcode, Message* message, Conne
   }
 }
 
+
 //======================================================================================================================
 void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
@@ -262,6 +264,7 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
   }
 }
 
+
 //======================================================================================================================
 void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* message)
 {
@@ -271,10 +274,7 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
   message->setIndex(message->getIndex() + (uint16)dataSize - 4);
   client->setAccountId(message->getUint32());
 
-  // Start our auth query
-  client->setState(CCSTATE_QueryAuth);
-  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
-  gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId()); // SQL Debug Log
+  _processAllowedChars(this, client);
 }
 
 //======================================================================================================================
@@ -412,9 +412,10 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   if (result->getRowCount())
   {
     // Update the account record that it is now logged in and last login date.
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId()); // SQL Debug Log
 
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+     
     // finally add them to our accountId map.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
     mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));
@@ -468,12 +469,11 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
 {
     client->setState(CCSTATE_AllowedChars);
+    mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS account_current_characters, account_characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where characters.archived = '0' AND account.account_id = '%u'",client->getAccountId());
     gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u',client->getAccountId());"); // SQL Debug Log
 
-    mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where characters.archived = '0' AND account.account_id = '%u'",client->getAccountId());
-
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0; , client->getAccountId());"); // SQL Debug Log
-    mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+    mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0;", client->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT * FROM account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0; , client->getAccountId());"); // SQL Debug Log
 }
 
 

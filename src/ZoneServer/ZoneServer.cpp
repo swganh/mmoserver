@@ -126,9 +126,6 @@ ZoneServer::ZoneServer(int8* zoneName)
 	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL", zoneName);
 	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL", zoneName); // SQL Debug Log
 
-	//increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like \'%s\'",zoneName);
-
 	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 	
 	// Grab our zoneId out of the DB for this zonename.

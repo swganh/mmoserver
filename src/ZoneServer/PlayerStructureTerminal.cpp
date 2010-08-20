@@ -74,10 +74,6 @@ void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, ui
 		radial->addItem(8,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"@player_structure:permission_admin");
 		radial->addItem(9,3,radId_serverTerminalPermissionsBanned,radAction_ObjCallback,"@player_structure:permission_banned");
 		radial->addItem(10,3,radId_serverTerminalPermissionsEnter,radAction_ObjCallback,"@player_structure:permission_enter");
-
-		 
-		
-
 	}
   
 	RadialMenuPtr radialPtr(radial);

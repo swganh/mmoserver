@@ -131,7 +131,9 @@ void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
 				inventory->setCredits(0);
 				// save to the db
 				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()));
+				gLogger->log(LogManager::DEBUG, "SQL :: UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()); // SQL Debug Log
 				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()));
+				gLogger->log(LogManager::DEBUG, "SQL :: UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()); // SQL Debug Log
 
 				//send the appropriate deltas.
 				gMessageLib->sendInventoryCreditsUpdate(playerObject);
@@ -167,7 +169,9 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
 
 				// save to the db
 				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()));
+				gLogger->log(LogManager::DEBUG, "SQL :: UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()); // SQL Debug Log
 				mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()));
+				gLogger->log(LogManager::DEBUG, "SQL :: UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()); // SQL Debug Log
 
 				//send the appropriate deltas.
 				gMessageLib->sendInventoryCreditsUpdate(playerObject);
@@ -324,6 +328,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 {
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1));
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1); // SQL Debug Log
 	gMessageLib->sendInventoryCreditsUpdate(playerObject);
 }
 
@@ -332,6 +337,7 @@ void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 void TreasuryManager::saveAndUpdateBankCredits(PlayerObject* playerObject)
 {
 	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits(), playerObject->getId() + 4));
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE banks SET credits=%u WHERE id=%"PRIu64"",dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits(), playerObject->getId() + 4); // SQL Debug Log
 	gMessageLib->sendBankCreditsUpdate(playerObject);
 }
 
@@ -453,6 +459,7 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 	sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->targetId + BANK_OFFSET);
 	mTransaction->addQuery(sql);
 	mTransaction->execute();
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 }
 
@@ -568,6 +575,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipUpdateGalaxyAccount,0);
 				
 				mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+				gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 			}
 			else
 			{

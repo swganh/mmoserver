@@ -92,6 +92,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
                 gMessageLib->sendResourceContainerUpdateAmount(targetContainer,playerObject);
 
                 mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,targetContainer->getId());
+                gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,targetContainer->getId()); // SQL Debug Log
 
                 // delete old container
                 gMessageLib->sendDestroyObject(selectedContainer->getId(),playerObject);
@@ -114,7 +115,9 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
                 gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 
                 mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,targetContainer->getId());
+                gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,targetContainer->getId()); // SQL Debug Log
                 mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedNewAmount,selectedContainer->getId());
+                gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedNewAmount,selectedContainer->getId()); // SQL Debug Log
             }
         }
     }
@@ -175,6 +178,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
     // update selected container contents
     selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
     mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedContainer->getAmount(),selectedContainer->getId());
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedContainer->getAmount(),selectedContainer->getId()); // SQL Debug Log
 
     gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 

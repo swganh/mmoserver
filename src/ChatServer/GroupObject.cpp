@@ -64,7 +64,7 @@ GroupObject::GroupObject(Player* leader, uint64 groupId)
 
 	mMembers.push_back(leader);
 
-	gLogger->log(LogManager::DEBUG,"New group created by %s with id %"PRIu64".",leader->getName().getAnsi(),groupId);
+	gLogger->log(LogManager::DEBUG, "New group created by %s with id %"PRIu64".",leader->getName().getAnsi(),groupId);
 }
 
 
@@ -78,7 +78,7 @@ GroupObject::~GroupObject()
 		delete mChannel;
 		gLogger->log(LogManager::DEBUG,"Group Channel destroyed.");
 	}
-	gLogger->log(LogManager::DEBUG,"Group destroyed.");
+	gLogger->log(LogManager::DEBUG, "Group destroyed.");
 }
 
 //======================================================================================================================

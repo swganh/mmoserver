@@ -73,7 +73,7 @@ BadgeRegionFactory::~BadgeRegionFactory()
 
 //=============================================================================
 
-void BadgeRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
+void BadgeRegionFactory::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
 	QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
 
@@ -84,7 +84,7 @@ void BadgeRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 			BadgeRegion* badgeRegion = _createBadgeRegion(result);
 
 			if(badgeRegion->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-				asyncContainer->mOfCallback->handleObjectReady(badgeRegion,asyncContainer->mClient);
+				asyncContainer->mOfCallback->handleObjectReady(badgeRegion, asyncContainer->mClient);
 			else
 			{
 
@@ -100,14 +100,11 @@ void BadgeRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
 //=============================================================================
 
-void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
+void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,BadgeFQuery_MainData,client),
-								"SELECT badge_regions.id,badge_regions.badge_id,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-								"planet_regions.width,planet_regions.height,badge_regions.parent_id"
-								" FROM badge_regions"
-								" INNER JOIN planet_regions ON (badge_regions.region_id = planet_regions.region_id)"
-								" WHERE (badge_regions.id = %"PRIu64")",id);
+	// Get our badge based on the regionID
+	mDatabase->ExecuteProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, BadgeFQuery_MainData, client), "CALL sp_BadgeGetByRegion(%"PRIu64");", id);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_BadgeGetByRegion(%"PRIu64");", id); // SQL Debug Log
 }
 
 //=============================================================================
@@ -118,7 +115,7 @@ BadgeRegion* BadgeRegionFactory::_createBadgeRegion(DatabaseResult* result)
 
 	uint64 count = result->getRowCount();
 
-	result->GetNextRow(mBadgeRegionBinding,badgeRegion);
+	result->GetNextRow(mBadgeRegionBinding, badgeRegion);
 
 	badgeRegion->setLoadState(LoadState_Loaded);
 
@@ -130,15 +127,15 @@ BadgeRegion* BadgeRegionFactory::_createBadgeRegion(DatabaseResult* result)
 void BadgeRegionFactory::_setupDatabindings()
 {
 	mBadgeRegionBinding = mDatabase->CreateDataBinding(9);
-	mBadgeRegionBinding->addField(DFT_uint64,offsetof(BadgeRegion,mId),8,0);
-	mBadgeRegionBinding->addField(DFT_uint32,offsetof(BadgeRegion,mBadgeId),4,1);
-	mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion,mRegionName),64,2);
-	mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion,mNameFile),64,3);
-	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mPosition.x),4,4);
-	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mPosition.z),4,5);
-	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mWidth),4,6);
-	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion,mHeight),4,7);
-	mBadgeRegionBinding->addField(DFT_uint64,offsetof(BadgeRegion,mParentId),8,8);
+	mBadgeRegionBinding->addField(DFT_uint64,offsetof(BadgeRegion, mId), 8, 0);
+	mBadgeRegionBinding->addField(DFT_uint32,offsetof(BadgeRegion, mBadgeId), 4, 1);
+	mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion, mRegionName), 64, 2);
+	mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion, mNameFile), 64, 3);
+	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion, mPosition.x), 4, 4);
+	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion, mPosition.z), 4, 5);
+	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion, mWidth), 4, 6);
+	mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion, mHeight), 4, 7);
+	mBadgeRegionBinding->addField(DFT_uint64,offsetof(BadgeRegion, mParentId), 8, 8);
 }
 
 //=============================================================================

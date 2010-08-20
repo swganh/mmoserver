@@ -165,16 +165,17 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
     // Create a ClusterClientDisconnect message and send it to the servers
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opClusterClientDisconnect);
-    gMessageFactory->addUint32(0);                        // Reason: Disconnected
+    gMessageFactory->addUint32(0);												// Reason: Disconnected
     message = gMessageFactory->EndMessage();
 
     message->setAccountId(connClient->getAccountId());
-    message->setDestinationId(static_cast<uint8>(connClient->getServerId()));  // zone server
+    message->setDestinationId(static_cast<uint8>(connClient->getServerId()));	// Zone server
     message->setRouted(true);
     mMessageRouter->RouteMessage(message, connClient);
 
     // Update the account record that the account is logged out.
-    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET loggedin=0 WHERE account_id=%u;", connClient->getAccountId());
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", 0, connClient->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", 0, connClient->getAccountId()); // SQL Debug Log
 
     // Client has disconnected.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
@@ -186,7 +187,6 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
         mPlayerClientMap.erase(iter);
     }
 }
-
 
 //======================================================================================================================
 
@@ -225,7 +225,6 @@ void ClientManager::handleDispatchMessage(uint32 opcode, Message* message, Conne
   }
 }
 
-
 //======================================================================================================================
 void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
@@ -263,17 +262,19 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
   }
 }
 
-
 //======================================================================================================================
 void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* message)
 {
   // We only need the account data that is at the end of the message.
-  message->getUint32();  // unkown.
+  message->getUint32();  // unknown.
   uint32 dataSize = message->getUint32();
   message->setIndex(message->getIndex() + (uint16)dataSize - 4);
   client->setAccountId(message->getUint32());
 
-  _processAllowedChars(this, client);
+  // Start our auth query
+  client->setState(CCSTATE_QueryAuth);
+  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+  gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId()); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -282,6 +283,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
   uint64 characterId = message->getUint64();
 
   DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM characters WHERE id=%I64u;", characterId);
+  gLogger->log(LogManager::DEBUG, "SQL :: SELECT planet_id FROM characters WHERE id=%I64u;", characterId); // SQL Debug Log
 
   uint32 serverId;
   DataBinding* binding = mDatabase->CreateDataBinding(1);
@@ -410,8 +412,9 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   if (result->getRowCount())
   {
     // Update the account record that it is now logged in and last login date.
-    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET lastlogin=NOW(), loggedin=%u WHERE account_id=%u;", gConfig->read<uint32>("ClusterId"), client->getAccountId());
-     
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId()); // SQL Debug Log
+
     // finally add them to our accountId map.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
     mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));

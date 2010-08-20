@@ -88,7 +88,8 @@ void VehicleControllerFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 {
 
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleControllerFactoryQuery_TypesId,client,id),
-		"SELECT vehicle_types_id FROM vehicles WHERE id = %"PRIu64"",id);
+		"SELECT vehicle_types_id FROM vehicles WHERE id = %"PRIu64"",id);	
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT vehicle_types_id FROM vehicles WHERE id = %"PRIu64"",id); // SQL Debug Log	
 
 
 }
@@ -144,8 +145,8 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_ItnoData,asyncContainer->mClient,asyncContainer->mId);
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM vehicle_types WHERE id = %u",vehicleType);
-
+			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM vehicle_types WHERE id = %u",vehicleType);	
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM vehicle_types WHERE id = %u",vehicleType); // SQL Debug Log
 		}
 		break;
 
@@ -163,9 +164,8 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 			aContainer->mObject = (Object*)(IntangibleObject*)vehicleController;
 
 
-			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss, vehicle_incline_acceleration, vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",vehicleController->getId());
-
-
+			mDatabase->ExecuteSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss, vehicle_incline_acceleration, vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",vehicleController->getId());		
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT vehicle_types_id, parent, vehicle_hitpoint_loss, vehicle_incline_acceleration, vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",vehicleController->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -186,7 +186,11 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 				mDatabase->ExecuteSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
 					" FROM attributes"
 					" INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
-					" WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order", asyncContainer->mId);
+					" WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order", asyncContainer->mId);			
+				gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
+					" FROM attributes"
+					" INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
+					" WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order", asyncContainer->mId);	 // SQL Debug Log
 			}
 
 		}
@@ -220,7 +224,8 @@ void VehicleControllerFactory::createVehicle(uint32 vehicle_type,PlayerObject* t
 
 	sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",vehicle_type,targetPlayer->getId());
 	 gLogger->log(LogManager::DEBUG,"VehicleControllerFactory::createVehicle query %s",  sql);
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),sql);
+	 mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),sql);				
+	 gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log	
 }
 //=============================================================================
 

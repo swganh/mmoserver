@@ -184,7 +184,7 @@ void TangibleObject::buildTanoCustomization(uint8 len)
 }
 
 //=============================================================================
-//assign the item a new custom name
+// assign the item a new custom name
 //
 void TangibleObject::setCustomNameIncDB(const int8* name)
 {
@@ -200,13 +200,14 @@ void TangibleObject::setCustomNameIncDB(const int8* name)
 }
 
 //=============================================================================
-//assign the item a new parentid
+// assign the item a new parentid
 //
 
 void TangibleObject::setParentIdIncDB(uint64 parentId)
 { 
 	mParentId = parentId; 
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());		
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId()); // SQL Debug Log	
 }
 
 

@@ -76,15 +76,19 @@ mNetworkManager(0)
                                          (char*)(gConfig->read<std::string>("DBUser")).c_str(),
                                          (char*)(gConfig->read<std::string>("DBPass")).c_str(),
                                          (char*)(gConfig->read<std::string>("DBName")).c_str());
+    
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL - Update Server Start ID
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 1); // SQL - Update Server Status
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL Debug Log
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 1); // SQL Debug Log
 
-  mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'login'");
-  mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET status=%u WHERE name='login';", 1));
-
-  // In case of a crash, we need to cleanup the DB a little.
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET authenticated=0 WHERE authenticated=1;"));
+    // In case of a crash, we need to cleanup the DB a little.
+    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET account_authenticated = 0 WHERE account_authenticated = 1;"));
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_authenticated = 0 WHERE account_authenticated = 1;"); // SQL Debug Log
 
     //and session_key now as well
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET session_key='';"));
+    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET account_session_key = '';"));
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_session_key = '';"); // SQL Debug Log
 
     // Instant the messageFactory. It will also run the Startup ().
     (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced. 
@@ -96,7 +100,8 @@ mNetworkManager(0)
     mService->AddNetworkCallback(mLoginManager);
 
     // We're done initializing.
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='login';", mService->getLocalAddress(), mService->getLocalPort(), 2));
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, '%s', %u);", 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', %u, '%s', %u);", 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL Debug Log
 
     gLogger->log(LogManager::CRITICAL, "Login Server startup complete");
     //gLogger->printLogo();
@@ -110,7 +115,8 @@ mNetworkManager(0)
 //======================================================================================================================
 LoginServer::~LoginServer(void)
 {
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET status=%u WHERE name='login';", 0));
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 2); // SQL - Update server status
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 2); // SQL Debug Log
     gLogger->log(LogManager::CRITICAL, "LoginServer shutting down...");
 
     delete mLoginManager;

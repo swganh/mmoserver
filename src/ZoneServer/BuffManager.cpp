@@ -105,6 +105,10 @@ void BuffManager::handleDatabaseJobComplete(void *ref, DatabaseResult *result)
 									,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
 									,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
 									,gWorldManager->getZoneId(),playerObject->getJediState(),playerObject->getId());
+				gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+					,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+					,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+					,gWorldManager->getZoneId(),playerObject->getJediState(),playerObject->getId()); // SQL Debug Log
 			
 				//Free up Memory
 				SAFE_DELETE(asyncContainer);
@@ -209,6 +213,7 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
 	int8 sql2[550];
 	sprintf(sql2, "delete from character_buffs where character_id = %"PRIu64";", player->getId());
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql2);
+	gLogger->log(LogManager::DEBUG, "SQL :: delete from character_buffs where character_id = %"PRIu64";", player->getId()); // SQL Debug Log
 }
 
 //=============================================================================
@@ -243,6 +248,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
 	asyncContainer->mQueryType=BMQuery_Delete;
 	int8 sql2[550];
 	sprintf(sql2, "delete from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", asyncContainer->player->getId(), asyncContainer->buff->GetDBID());
+	gLogger->log(LogManager::DEBUG, "SQL :: delete from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", asyncContainer->player->getId(), asyncContainer->buff->GetDBID()); // SQL Debug Log
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql2);
 	
 	//we use the asyncContainer again the line above
@@ -341,6 +347,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
 	int8 sql[550];
 	sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %"PRIu64"", playerObject->getId());
 	mDatabase->ExecuteSqlAsync(this,envelope,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //=============================================================================
@@ -360,6 +367,7 @@ void BuffManager::LoadBuffAttributes(buffAsyncContainer* envelope)
 	int8 sql[550];
 	sprintf(sql, "SELECT type,initial,tick,final from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", envelope->player->getId(), envelope->buff->GetDBID());
 	mDatabase->ExecuteSqlAsync(this,temp,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //=============================================================================
@@ -423,6 +431,7 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 
 
 		mDatabase->ExecuteSqlAsync(this,asContainer,sql);
+		gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 
 		int8 sql2[550];
@@ -464,6 +473,7 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 		asContainer->callBack		= callback;
 
 		mDatabase->ExecuteSqlAsync(this,asContainer,sql2);
+		gLogger->log(LogManager::DEBUG, "SQL :: ", sql2); // SQL Debug Log
 
 		return true;
 	}
@@ -562,6 +572,7 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 
 		//Lloydyboy Changed Save SQL back to Sync, not ASync to ensure this is saved, before new zone loads
 		//mDatabase->ExecuteSqlAsync(this,envelope,sql2);
+		gLogger->log(LogManager::DEBUG, "SQL :: ", sql2); // SQL Debug Log
 		mDatabase->DestroyResult(mDatabase->ExecuteSynchSql(sql2));
 	}
 }

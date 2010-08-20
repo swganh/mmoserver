@@ -97,6 +97,10 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 															" FROM object_attributes"
 															" INNER JOIN attributes ON (object_attributes.attribute_id = attributes.id)"
 															" WHERE object_attributes.object_id = %"PRIu64" ORDER BY object_attributes.order",container->getId());
+				gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,object_attributes.value,attributes.internal"
+					" FROM object_attributes"
+					" INNER JOIN attributes ON (object_attributes.attribute_id = attributes.id)"
+					" WHERE object_attributes.object_id = %"PRIu64" ORDER BY object_attributes.order",container->getId()); // SQL Debug Log
 			}
 		}
 		break;
@@ -121,6 +125,7 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 void ResourceContainerFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM resource_containers WHERE id=%"PRIu64"",id);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM resource_containers WHERE id=%"PRIu64"",id); // SQL Debug Log
 }
 
 //=============================================================================>>

@@ -159,8 +159,6 @@ void AdminManager::unregisterCallbacks(void)
 
 //======================================================================================================================
 
-
-
 void AdminManager::addAdminRequest(uint64 requestType, BString message, int32 ttl)
 {
     // We will only handle one request at the time for each type.

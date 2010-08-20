@@ -111,6 +111,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			asContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT skill_id FROM character_skills WHERE character_id=%"PRIu64"",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT skill_id FROM character_skills WHERE character_id=%"PRIu64"",playerObject->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -143,6 +144,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			asContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT badge_id FROM character_badges WHERE character_id=%"PRIu64"",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT badge_id FROM character_badges WHERE character_id=%"PRIu64"",playerObject->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -168,6 +170,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			asContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT faction_id,value FROM character_faction WHERE character_id=%"PRIu64" ORDER BY faction_id",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT faction_id,value FROM character_faction WHERE character_id=%"PRIu64" ORDER BY faction_id",playerObject->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -197,6 +200,9 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
 														"INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
 														"WHERE (chat_friendlist.character_id = %"PRIu64")",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT characters.firstname FROM chat_friendlist "
+				"INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
+				"WHERE (chat_friendlist.character_id = %"PRIu64")",playerObject->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -228,6 +234,9 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
 														"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
 														"WHERE (chat_ignorelist.character_id = %"PRIu64")",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT characters.firstname FROM chat_ignorelist "
+				"INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
+				"WHERE (chat_ignorelist.character_id = %"PRIu64")",playerObject->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -254,21 +263,25 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			asContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT xp_id,value FROM character_xp WHERE character_id=%"PRIu64"",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT xp_id,value FROM character_xp WHERE character_id=%"PRIu64"",playerObject->getId()); // SQL Debug Log
 
 			QueryContainerBase* outcastContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_DenyService,asyncContainer->mClient);
 			outcastContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,outcastContainer,"SELECT outcast_id FROM entertainer_deny_service WHERE entertainer_id=%"PRIu64"",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT outcast_id FROM entertainer_deny_service WHERE entertainer_id=%"PRIu64"",playerObject->getId()); // SQL Debug Log
 
 			QueryContainerBase* cloneDestIdContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_PreDefCloningFacility,asyncContainer->mClient);
 			cloneDestIdContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM character_clone WHERE character_id=%"PRIu64"",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT spawn_facility_id, x, y, z, planet_id FROM character_clone WHERE character_id=%"PRIu64"",playerObject->getId()); // SQL Debug Log
 
 			QueryContainerBase* LotsContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Lots,asyncContainer->mClient);
 			LotsContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,LotsContainer,"SELECT sf_getLotCount(%I64u)",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getLotCount(%I64u)",playerObject->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -296,6 +309,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 			asContainer->mObject = playerObject;
 
 			mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %I64u",playerObject->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %I64u",playerObject->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -511,11 +525,10 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 		" INNER JOIN faction ON (character_attributes.faction_id = faction.id)"
 		" INNER JOIN character_biography ON (characters.id = character_biography.character_id)"
 		" INNER JOIN character_matchmaking ON (characters.id = character_matchmaking.character_id)"
-		" WHERE"
-
-		" (characters.id = %"PRIu64");",id + BANK_OFFSET,id);
+		" WHERE (characters.id = %"PRIu64");", id + BANK_OFFSET, id);
 
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //=============================================================================
@@ -843,6 +856,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 		asContainer->mObject = playerObject;
 
 		mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id  FROM items WHERE parent_id=%"PRIu64"",playerObject->getId());
+		gLogger->log(LogManager::DEBUG, "SQL :: SELECT id  FROM items WHERE parent_id=%"PRIu64"",playerObject->getId()); // SQL Debug Log
 
 	}
 	else

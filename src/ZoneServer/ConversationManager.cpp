@@ -52,6 +52,7 @@ mActiveConversationPool(sizeof(ActiveConversation)),
 mDBAsyncPool(sizeof(CVAsyncContainer))
 {
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM conversations ORDER BY id");	
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM conversations ORDER BY id"); // SQL Debug Log
 }
 
 //=========================================================================================
@@ -106,7 +107,8 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 				asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Pages);
 				asCont->mConversation = conv;
 
-				mDatabase->ExecuteSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page",insertId);
+				mDatabase->ExecuteSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId);
+				gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId); // SQL Debug Log
 			}
 
 			if(result->getRowCount())
@@ -159,7 +161,14 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
 														"conversation_option_batches "
 														"INNER JOIN conversation_options ON (conversation_option_batches.option_id = conversation_options.id) "
 														"WHERE "
-														"(conversation_option_batches.id = %u) ORDER BY conversation_option_batches.option_id",batchId);
+														"(conversation_option_batches.id = %u) ORDER BY conversation_option_batches.option_id", batchId);
+				gLogger->log(LogManager::DEBUG, "SQL :: SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
+														"conversation_options.stf_variable,conversation_options.event,conversation_options.pageLink "
+														"FROM "
+														"conversation_option_batches "
+														"INNER JOIN conversation_options ON (conversation_option_batches.option_id = conversation_options.id) "
+														"WHERE "
+														"(conversation_option_batches.id = %u) ORDER BY conversation_option_batches.option_id", batchId); // SQL Debug Log
 
 			}
 

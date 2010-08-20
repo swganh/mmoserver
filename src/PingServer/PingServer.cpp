@@ -126,8 +126,6 @@ void PingServer::HandleSend(const boost::system::error_code& error, size_t bytes
 
 
 //======================================================================================================================
-
-
 int main(int argc, char* argv[])
 {
 	//set stdout buffers to 0 to force instant flush
@@ -176,4 +174,3 @@ int main(int argc, char* argv[])
 }
 
 //======================================================================================================================
-

@@ -97,12 +97,15 @@ mLocked(false)
 
     mClusterId = gConfig->read<uint32>("ClusterId");
     
-    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE galaxy SET status=1, last_update=NOW() WHERE galaxy_id=%u;", mClusterId);
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // SQL Debug Log
 
-    mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);");
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);"); // SQL Debug Log
+
     // In case of a crash, we need to cleanup the DB a little.
     DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET loggedin=0 WHERE loggedin=%u;", mClusterId);
-    mDatabase->DestroyResult(result);
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId); // SQL Debug Log
 
     // Status:  0=offline, 1=loading, 2=online
     _updateDBServerList(1);
@@ -113,17 +116,13 @@ mLocked(false)
 
     // Startup our router modules.
     mConnectionDispatch = new ConnectionDispatch();
-
     mMessageRouter = new MessageRouter(mDatabase, mConnectionDispatch);
-
     mClientManager = new ClientManager(mClientService, mDatabase, mMessageRouter, mConnectionDispatch);
-
     mServerManager = new ServerManager(mServerService, mDatabase, mMessageRouter, mConnectionDispatch,mClientManager);
   
     // We're done initiailizing.
     _updateDBServerList(2);
     gLogger->log(LogManager::CRITICAL, "Connection Server Boot Complete");
-    //gLogger->printLogo();
     // std::string BuildString(GetBuildString());	
 
     gLogger->log(LogManager::INFORMATION,"Connection Server - Build %s",ConfigManager::getBuildString().c_str());
@@ -137,7 +136,8 @@ ConnectionServer::~ConnectionServer(void)
     gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutting down...");
 
     // Update our status for the LoginServer
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=0 WHERE galaxy_id=%u;",mClusterId));
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 0, mClusterId); // Status set to offline
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 0, mClusterId); // SQL Debug Log
 
     // We're shuttind down, so update the DB again.
     _updateDBServerList(0);
@@ -145,7 +145,6 @@ ConnectionServer::~ConnectionServer(void)
     delete mClientManager;
     delete mServerManager;
     delete mMessageRouter;
-
     delete mConnectionDispatch;
 
     // Destroy our network services.
@@ -194,7 +193,8 @@ void ConnectionServer::Process(void)
 void ConnectionServer::_updateDBServerList(uint32 status)
 {
     // Execute our query
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='connection';",mServerService->getLocalAddress(), mServerService->getLocalPort(), status));
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', %u, '%s', %u);", status, mServerService->getLocalAddress(), mServerService->getLocalPort());
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('connection', %u, '%s', %u);", status, mServerService->getLocalAddress(), mServerService->getLocalPort()); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -205,11 +205,13 @@ void ConnectionServer::ToggleLock()
     if(mLocked)
     {
         // Update our status for the LoginServer
-        mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=3,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
+        mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 3, mClusterId); // Status set to online (DEV / CSR Only)
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 3, mClusterId); // SQL Debug Log
         gLogger->log(LogManager::INFORMATION,"Locking server to normal users");
     } else {
         // Update our status for the LoginServer
-        mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE galaxy SET status=2,last_update=NOW() WHERE galaxy_id=%u;",mClusterId));
+        mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Status set to online
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // SQL Debug Log
         gLogger->log(LogManager::INFORMATION,"unlocking server to normal users");
     }
 }
@@ -264,10 +266,3 @@ int main(int argc, char* argv[])
 }
 
 //======================================================================================================================
-
-
-
-
-
-
-

@@ -237,6 +237,7 @@ void ResourceContainer::setParentIdIncDB(uint64 parentId)
 { 
     mParentId = parentId; 
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId()); // SQL Debug Log
 }
 
 void ResourceContainer::upDateFactoryVolume(BString amount)
@@ -271,7 +272,7 @@ void ResourceContainer::upDateFactoryVolume(BString amount)
 void ResourceContainer::updateWorldPosition()
 {
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
-    
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId()); // SQL Debug Log
 }
 
 void ResourceContainer::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount)

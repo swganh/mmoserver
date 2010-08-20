@@ -71,91 +71,91 @@ typedef std::map<uint32_t,ObjectControllerCmdProperties*>	CmdPropertyMap;
 
 class ObjectControllerCommandMap : public DatabaseCallback
 {
-	public:
+    public:
 
-		static ObjectControllerCommandMap*  getSingletonPtr() { return mSingleton; }
-		static ObjectControllerCommandMap*	Init(Database* database);
+        static ObjectControllerCommandMap*  getSingletonPtr() { return mSingleton; }
+        static ObjectControllerCommandMap*	Init(Database* database);
 
-		void								handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+        void								handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		void								ScriptRegisterEvent(void* script,std::string eventFunction);
+        void								ScriptRegisterEvent(void* script,std::string eventFunction);
 
     const CommandMap& getCommandMap();
 
-		~ObjectControllerCommandMap();
+        ~ObjectControllerCommandMap();
 
-		OriginalCommandMap				mCommandMap;
-		CmdPropertyMap			mCmdPropertyMap;
-		ScriptEventListener		mCmdScriptListener;
-		
-	private:
+        OriginalCommandMap				mCommandMap;
+        CmdPropertyMap			mCmdPropertyMap;
+        ScriptEventListener		mCmdScriptListener;
+        
+    private:
 
-		ObjectControllerCommandMap(Database* database);
+        ObjectControllerCommandMap(Database* database);
 
-		void								_registerCppHooks();
+        void								_registerCppHooks();
 
     // This is here for utility purposes during the transition and is used to load
     // up the new command map.
     void RegisterCppHooks_();
 
-		static bool							mInsFlag;
-		static ObjectControllerCommandMap*	mSingleton;
+        static bool							mInsFlag;
+        static ObjectControllerCommandMap*	mSingleton;
     CommandMap  command_map_;
-		Database*							mDatabase;
+        Database*							mDatabase;
 };
 
 //======================================================================================================================
 
 class ObjectControllerCmdProperties
 {
-	public:
+    public:
 
-		ObjectControllerCmdProperties()
-			:mCmdCrc(0),mAbilityCrc(0),mStates(0),mCmdGroup(0){}
+        ObjectControllerCmdProperties()
+            :mCmdCrc(0),mAbilityCrc(0),mStates(0),mCmdGroup(0){}
 
-		ObjectControllerCmdProperties(uint32 cmdCrc,uint32 abilityCrc,uint64 states,uint8 cmdGroup) 
-			: mCmdCrc(cmdCrc),mAbilityCrc(abilityCrc),mStates(states),mCmdGroup(cmdGroup){}
+        ObjectControllerCmdProperties(uint32 cmdCrc,uint32 abilityCrc,uint64 states,uint8 cmdGroup) 
+            : mCmdCrc(cmdCrc),mAbilityCrc(abilityCrc),mStates(states),mCmdGroup(cmdGroup){}
 
-		~ObjectControllerCmdProperties(){}
+        ~ObjectControllerCmdProperties(){}
 
-		Script*	mScript;
+        Script*	mScript;
 
-		// generic
-		uint32	mCmdCrc;
-		uint32	mAbilityCrc;
-		uint64	mStates;
-		uint8	mCmdGroup;
-		BString	mScriptHook;
-		BString	mFailScriptHook;
-		BString	mCommandStr;
-		BString	mAbilityStr;
-		uint64	mDefaultTime;
-		float	mMaxRangeToTarget;
-		uint8	mAddToCombatQueue;
-		int32	mHealthCost;
-		int32	mActionCost;
-		int32	mMindCost;
-		uint64	mPostureMask;
-		uint64	mLocomotionMask;
+        // generic
+        uint32	mCmdCrc;
+        uint32	mAbilityCrc;
+        uint64	mStates;
+        uint8	mCmdGroup;
+        BString	mScriptHook;
+        BString	mFailScriptHook;
+        BString	mCommandStr;
+        BString	mAbilityStr;
+        uint64	mDefaultTime;
+        float	mMaxRangeToTarget;
+        uint8	mAddToCombatQueue;
+        int32	mHealthCost;
+        int32	mActionCost;
+        int32	mMindCost;
+        uint64	mPostureMask;
+        uint64	mLocomotionMask;
 
-		// combat
-		uint32	mAnimationCrc;
-		uint32	mRequiredWeaponGroup;
-		BString	mCbtSpam;
-		uint8	mTrail1;
-		uint8	mTrail2;
-		float	mHealthHitChance;
-		float	mActionHitChance;
-		float	mMindHitChance;
-		float	mKnockdownChance;
-		float	mDizzyChance;
-		float	mBlindChance;
-		float	mStunChance;
-		float	mIntimidateChance;
-		float	mPostureDownChance;
-		float	mExtendedRange;
-		float	mDamageMultiplier;
-		float	mDelayMultiplier;
+        // combat
+        uint32	mAnimationCrc;
+        uint32	mRequiredWeaponGroup;
+        BString	mCbtSpam;
+        uint8	mTrail1;
+        uint8	mTrail2;
+        float	mHealthHitChance;
+        float	mActionHitChance;
+        float	mMindHitChance;
+        float	mKnockdownChance;
+        float	mDizzyChance;
+        float	mBlindChance;
+        float	mStunChance;
+        float	mIntimidateChance;
+        float	mPostureDownChance;
+        float	mExtendedRange;
+        float	mDamageMultiplier;
+        float	mDelayMultiplier;
 };
 
 //======================================================================================================================

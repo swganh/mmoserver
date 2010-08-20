@@ -27,15 +27,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/ApplicationService.h"
 
+#include <cassert>
+
 namespace common {
 
-ApplicationService::ApplicationService(EventDispatcher& event_dispatcher)
-: event_dispatcher_(event_dispatcher) {}
+BaseApplicationService::BaseApplicationService(EventDispatcher& event_dispatcher)
+: event_dispatcher_(event_dispatcher)
+, current_timestamp_(0) {}
 
-ApplicationService::~ApplicationService() {}
+BaseApplicationService::~BaseApplicationService() {}
 
-void ApplicationService::initialize() {
-    onInitialize();
+void BaseApplicationService::tick(uint64_t new_timestamp) { active_.Send([=] {
+    if (! (new_timestamp >= current_timestamp_)) {
+        assert(!"New timestamp given is older than the currently stored timestamp!");
+        return;
+    }
+
+    current_timestamp_.exchange(new_timestamp);
+
+    onTick();
+} ); }
+
+uint64_t BaseApplicationService::current_timestamp() const {
+    return current_timestamp_.load();
 }
 
 }  // namespace common

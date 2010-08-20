@@ -139,7 +139,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
 				Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 				
-				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(deed->getParentId()));
+				ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
 				//destroy it in the client
 				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
 	
@@ -191,8 +191,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				//destroy it in the client
 				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
 	
-				//delete it out of the inventory
-				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(deed->getParentId()));
+				//delete it out of the container
+				ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
 				tO->deleteObject(deed);
 
 				Datapad* datapad			= player->getDataPad();
@@ -232,14 +232,14 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				if(player)
 				{
 					gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-					Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-					Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
+					
+					Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 					
 					//destroy it in the client
 					gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
 		
 					//delete it out of the inventory
-					TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(deed->getParentId()));
+					ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
 					tO->deleteObject(deed);
 
 					Datapad* datapad			= player->getDataPad();

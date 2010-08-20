@@ -1,29 +1,29 @@
-///*
-//---------------------------------------------------------------------------------------
-//This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
-//
-//For more information, visit http://www.swganh.com
-//
-//Copyright (c) 2006 - 2010 The SWG:ANH Team
-//---------------------------------------------------------------------------------------
-//Use of this source code is governed by the GPL v3 license that can be found
-//in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
-//
-//This library is free software; you can redistribute it and/or
-//modify it under the terms of the GNU Lesser General Public
-//License as published by the Free Software Foundation; either
-//version 2.1 of the License, or (at your option) any later version.
-//
-//This library is distributed in the hope that it will be useful,
-//but WITHOUT ANY WARRANTY; without even the implied warranty of
-//MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//Lesser General Public License for more details.
-//
-//You should have received a copy of the GNU Lesser General Public
-//License along with this library; if not, write to the Free Software
-//Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-//---------------------------------------------------------------------------------------
-//*/
+/*
+---------------------------------------------------------------------------------------
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
+
+For more information, visit http://www.swganh.com
+
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+---------------------------------------------------------------------------------------
+*/
 
 #ifndef SRC_COMMON_OUTOFBAND_H_
 #define SRC_COMMON_OUTOFBAND_H_
@@ -34,12 +34,15 @@
 
 #include "Common/declspec.h"
 
+/*! \brief Common is a catch-all library containing primarily base classes and
+ * classes used for maintaining application lifetimes.
+ */
 namespace common {
 
 class ByteBuffer;
 
 /**
- * The ProsePackage is part of the OutOfBand attachment and is used to send custom STF strings.
+ * \brief The ProsePackage is part of the OutOfBand attachment and is used to send custom STF strings.
  *
  * Several types of text responses such as spatial chat and system messages use 
  * this package for displaying custom text or text from an STF file. Once initialized
@@ -58,13 +61,13 @@ class ByteBuffer;
  *
  * Credit to Xenozephyr for information.
  */
-struct ProsePackage {
+struct COMMON_API ProsePackage {
     /**
      * Default constructor.
      *
      * This default constructor creates an empty ProsePackage.
      */
-    COMMON_API ProsePackage();
+    ProsePackage();
 
     /** 
      * Custom constructor taking the message STF.
@@ -75,14 +78,14 @@ struct ProsePackage {
      * @param stf_file The file containing the STF message.
      * @param stf_label The label of the STF message.
      */
-    COMMON_API ProsePackage(std::string stf_file, std::string stf_label);
+    ProsePackage(std::string stf_file, std::string stf_label);
     
     /// Default deconstructor.
-    COMMON_API ~ProsePackage();
+    ~ProsePackage();
 
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
-#pragma warning (disable : 4231)
+#pragma warning (disable : 4251)
 #endif
 
     std::string  base_stf_file;  ///< File containing the STF message.
@@ -105,7 +108,7 @@ struct ProsePackage {
 
     // Re-enable the warning.
 #ifdef _WIN32
-#pragma warning (default : 4231)
+#pragma warning (default : 4251)
 #endif
 
     int32_t di_integer; ///< Decimal value: integer
@@ -128,31 +131,33 @@ struct WaypointPackage {
 };
 
 /**
- * The OutOfBand attachment is used in multiple places to send out customized data
- * to the client. The OutOfBand attachment is actually made up of several sub-types,
+ * \brief The OutOfBand attachment is used in multiple places to send out 
+ * customized data to the client. 
+ *
+ * The OutOfBand attachment is actually made up of several sub-types,
  * for further information on each sub-type supported see it's related struct.
  *
  * @see ProsePackage
  * @see WaypointPackage
  */
-class OutOfBand {
+class COMMON_API OutOfBand {
 public:
     /// Default constructor, generates an empty OutOfBand package.
-    COMMON_API OutOfBand();    
+    OutOfBand();    
 
     /**
      * Constructor overload for OutOfBand taking a ProsePackage.
      *
      * @see ProsePackage for further information on parameters.
      */
-    COMMON_API explicit OutOfBand(const ProsePackage& prose);
+    explicit OutOfBand(const ProsePackage& prose);
 
     /**
      * Constructor overload for OutOfBand taking a ProsePackage.
      *
      * @see ProsePackage for further information on parameters.
      */
-    COMMON_API OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
+    OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         uint64_t tu_object_id = 0, const std::string& tu_stf_file = "", const std::string& tu_stf_string ="", const std::wstring& tu_custom_string = L"",
         uint64_t tt_object_id = 0, const std::string& tt_stf_file = "", const std::string& tt_stf_string ="", const std::wstring& tt_custom_string = L"",
         uint64_t to_object_id = 0, const std::string& to_stf_file = "", const std::string& to_stf_string ="", const std::wstring& to_custom_string = L"",
@@ -163,7 +168,7 @@ public:
      *
      * @see ProsePackage for further information on parameters.
      */
-    COMMON_API OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
+    OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         uint64_t tu_object_id, uint64_t tt_object_id, uint64_t to_object_id,
         int32_t di_integer = 0, float df_float = 0.0f, bool display_flag = 0);
 
@@ -173,7 +178,7 @@ public:
      *
      * @see ProsePackage for further information on parameters.
      */
-    COMMON_API OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
+    OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         const std::string& tu_stf_file, const std::string& tu_stf_string,
         const std::string& tt_stf_file, const std::string& tt_stf_string,
         const std::string& to_stf_file, const std::string& to_stf_string,
@@ -184,19 +189,19 @@ public:
      *
      * @see ProsePackage for further information on parameters.
      */
-    COMMON_API OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
+    OutOfBand(const std::string& base_stf_file, const std::string& base_stf_string, 
         const std::wstring& tu_custom_string, const std::wstring& tt_custom_string, const std::wstring& to_custom_string,
         int32_t di_integer = 0, float df_float = 0.0f, bool display_flag = 0);
 
     /// Default deconstructor.
-    COMMON_API ~OutOfBand();
+    ~OutOfBand();
 
     /**
      * Returns a count of the packages contained in this OutOfBand attachment.
      *
      * @returns Count of packages in the OutOfBand attachment.
      */
-    COMMON_API uint16_t Count() const;
+    uint16_t Count() const;
 
     /**
      * Returns the length of the OutOfBand attachment.
@@ -207,14 +212,14 @@ public:
      *
      * @returns Length of the OutOfBand attachment.
      */
-    COMMON_API uint32_t Length() const;
+    uint32_t Length() const;
 
     /**
      * Adds a prose package to the OutOfBand attachment.
      *
      * @param prose A reference to a prebuilt prose package..
      */
-    COMMON_API void AddProsePackage(const ProsePackage& prose);
+    void AddProsePackage(const ProsePackage& prose);
 
     /**
      * Adds a prose package to the OutOfBand attachment.
@@ -222,7 +227,7 @@ public:
      * @param stf_file The stf file containing the referenced text.
      * @param stf_label The label used to identify the referenced text in the stf file.
      */
-    COMMON_API void AddProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+    void AddProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
         uint64_t tu_object_id = 0, const std::string& tu_stf_file = "", const std::string& tu_stf_label ="", const std::wstring& tu_custom_string = L"",
         uint64_t tt_object_id = 0, const std::string& tt_stf_file = "", const std::string& tt_stf_label ="", const std::wstring& tt_custom_string = L"",
         uint64_t to_object_id = 0, const std::string& to_stf_file = "", const std::string& to_stf_label ="", const std::wstring& to_custom_string = L"",
@@ -234,7 +239,7 @@ public:
      * @param stf_file The stf file containing the referenced text.
      * @param stf_label The label used to identify the referenced text in the stf file.
      */
-    COMMON_API void AddProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+    void AddProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
         uint64_t tu_object_id, uint64_t tt_object_id, uint64_t to_object_id,
         int32_t di_integer = 0, float df_float = 0.0f, bool display_flag = 0);
 
@@ -244,7 +249,7 @@ public:
      * @param stf_file The stf file containing the referenced text.
      * @param stf_label The label used to identify the referenced text in the stf file.
      */
-    COMMON_API void AddProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+    void AddProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
         const std::string& tu_stf_file, const std::string& tu_stf_label,
         const std::string& tt_stf_file, const std::string& tt_stf_label,
         const std::string& to_stf_file, const std::string& to_stf_label,
@@ -256,7 +261,7 @@ public:
      * @param stf_file The stf file containing the referenced text.
      * @param stf_label The label used to identify the referenced text in the stf file.
      */
-    COMMON_API void AddProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
+    void AddProsePackage(const std::string& base_stf_file, const std::string& base_stf_string, 
         const std::wstring& tu_custom_string, const std::wstring& tt_custom_string, const std::wstring& to_custom_string,
         int32_t di_integer = 0, float df_float = 0.0f, bool display_flag = 0);
 
@@ -265,7 +270,7 @@ public:
      *
      * @returns A const pointer to a ByteBuffer instance containing the OutOfBand data.
      */
-    COMMON_API const ByteBuffer* Pack() const;
+    const ByteBuffer* Pack() const;
 
 private:
     void Initialize_();
@@ -273,8 +278,16 @@ private:
     void SetLength_(ByteBuffer& buffer);
 
     uint16_t count_;
-
+    
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     std::unique_ptr<ByteBuffer> data_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 };
 
 }  // namespace common

@@ -111,16 +111,32 @@ enum WMTimer
 //======================================================================================================================
 //
 // Sound Ids
-//
+// from sounds table
 enum WMSound
 {
+
 	WMSound_use_food				= 934,
 	WMSound_pl_Hum_F_eat			= 1591,
 	WMSound_pl_Hum_M_eat			= 3823,
+	WMSound_pl_Reptile_F_eat		= 1156,
+	WMSound_pl_Reptile_M_eat		= 3284,
+	WMSound_pl_Wke_F_eat			= 2367,
+	WMSound_pl_Wke_M_eat			= 90,
+
 	WMSound_Eat_Human_Female		= 1803,
 	WMSound_Eat_Human_Male			= 1822,
+	WMSound_Eat_Wookiee_Female		= 2075,
+	WMSound_Eat_Wookiee_Male		= 1477,
+	WMSound_Eat_Reptile_Female		= 181,
+	WMSound_Eat_Reptile_Male		= 3226,
+
 	WMSound_Drink_Human_Female		= 1146,
 	WMSound_Drink_Human_Male		= 2286,
+	WMSound_Drink_Reptile_Female	= 2458,
+	WMSound_Drink_Reptile_Male		= 1921,
+	WMSound_Drink_Wookiee_Female	= 3264,
+	WMSound_Drink_Wookiee_Male		= 124,
+
 	WMSound_Mission_Accepted		= 3887
 
 };

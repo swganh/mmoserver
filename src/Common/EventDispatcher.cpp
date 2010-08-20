@@ -90,7 +90,7 @@ void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_
                                                                                
 boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(const EventType& event_type) {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<std::vector<EventListener>>> task = std::make_shared<boost::packaged_task<std::vector<EventListener>>>([=]()->std::vector<EventListener> {   
+    auto task = std::make_shared<boost::packaged_task<std::vector<EventListener>>>([=]()->std::vector<EventListener> {   
 
         if (! ValidateEventType_(event_type)) {
             return std::vector<EventListener>();
@@ -133,7 +133,7 @@ boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(c
 
 boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvents() {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<std::vector<EventType>>> task = std::make_shared<boost::packaged_task<std::vector<EventType>>>([=]()->std::vector<EventType> {   
+    auto task = std::make_shared<boost::packaged_task<std::vector<EventType>>>([=]()->std::vector<EventType> {   
 
         std::vector<EventType> event_types;
         event_types.reserve(event_type_set_.size());
@@ -161,13 +161,18 @@ void EventDispatcher::Notify(IEventPtr triggered_event) {
     if (!triggered_event) return;
 
     active_.Send([=] {
+        // If the timestamp for the event has not yet been set then set it.
+        if (!triggered_event->timestamp()) {
+            triggered_event->timestamp(current_timestep_.load());
+        }
+
         event_queue_[active_queue_].push(triggered_event);
     }); 
 }
 
 boost::unique_future<bool> EventDispatcher::Deliver(IEventPtr triggered_event) {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
+    auto task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
     
     // Add the message to the active object's queue that runs the task which in turn
     // updates the future.
@@ -181,7 +186,7 @@ boost::unique_future<bool> EventDispatcher::Deliver(IEventPtr triggered_event) {
 
 boost::unique_future<bool> EventDispatcher::HasEvents() {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {   
+    auto task = std::make_shared<boost::packaged_task<bool>>([=] {   
         return (event_queue_[active_queue_].size() != 0);
     } );    
     
@@ -197,7 +202,7 @@ boost::unique_future<bool> EventDispatcher::HasEvents() {
 
 boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {     
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<bool>> task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {
+    auto task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {
         // If we were passed the same time or a time in the past return false.
         if (current_timestep_.load() >= new_timestep) return false;
 
@@ -234,7 +239,7 @@ boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
 
 boost::unique_future<uint64_t> EventDispatcher::current_timestep() {
     // Create a packaged task for retrieving the value.
-    std::shared_ptr<boost::packaged_task<uint64_t>> task = std::make_shared<boost::packaged_task<uint64_t>>([=] {   
+    auto task = std::make_shared<boost::packaged_task<uint64_t>>([=] {   
         return current_timestep_.load();
     } );    
     
@@ -363,6 +368,14 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
         return false;
     }
 
+    // If the event's timestamp has not been set then set it.
+    if (!triggered_event->timestamp()) {
+        triggered_event->timestamp(current_timestep_.load());
+    }
+
+    // By default if an event isn't handled this method returns true.
+    bool delivered = true;
+
     // Find the list of global listeners.
     auto listener_it = event_listener_map_.find(EventType(kWildCardHashString));
     
@@ -382,7 +395,7 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
     // If no listeners were found return false.
     if (listener_it == event_listener_map_.end()) {
         // Callbacks should be called here if no specific listeners were found.
-        triggered_event->consume(false);
+        triggered_event->consume(delivered);
 
         IEventPtr next_event = triggered_event->next();
 
@@ -390,24 +403,21 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
             Notify(next_event);
         }
 
-        return false;
+        return delivered;
     }
 
     // Get the list of listeners to iterate over.
     auto listeners = listener_it->second;
-    
-    // By default if an event isn't handled this method returns false.
-    bool processed = false;
 
     // Allow each listener the opportunity to process the event, if it does set processed to true.
     for (auto it = listeners.begin(), end = listeners.end(); it != end; ++it) {
-        if ((*it).second(triggered_event)) {
-            processed = true;
+        if (!(*it).second(triggered_event)) {
+            delivered = false;
         }
     }
 
     // If processing got this far then nothing failed so invoke the callback on the event.
-    triggered_event->consume(processed);
+    triggered_event->consume(delivered);
     
     IEventPtr next_event = triggered_event->next();
 
@@ -415,7 +425,7 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
         Notify(next_event);
     }
 
-    return processed;
+    return delivered;
 }
 
 }  // namespace common

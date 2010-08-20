@@ -554,12 +554,6 @@
     <ClCompile Include="ResourceCategory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ResourceCollectionCommand.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceCollectionManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ResourceContainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1243,12 +1237,6 @@
     <ClInclude Include="ResourceCategory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceCollectionCommand.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceCollectionManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1516,8 +1504,9 @@
     <ClInclude Include="StateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="ZoneServer.rc" />
+    <ClInclude Include="OCCommonHandlers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

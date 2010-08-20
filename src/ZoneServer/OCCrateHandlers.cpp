@@ -70,24 +70,19 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 		return;
 	}
 
-	//get the crates containing container - inventory is a tangible, too - we can use the unified interface thks to virtual functions :)
-	//add inventories to worldmanager ?
+	//get the crates containing container  we can use the unified interface thks to virtual functions :)
 	TangibleObject* tO = dynamic_cast<TangibleObject* >(gWorldManager->getObjectById(crate->getParentId()));
 	if(!tO)
 	{
-		tO = dynamic_cast<TangibleObject* >(inventory);
-		if(!tO)
-		{
-			gLogger->log(LogManager::CRITICAL,"ObjectController::_ExtractObject: Crates parent does not exist!");
-			assert(false && "ObjectController::_ExtractObject inventory must be a tangible object");
-			return;
-		}
+		gLogger->log(LogManager::CRITICAL,"ObjectController::_ExtractObject: Crates parent does not exist!");
+		assert(false && "ObjectController::_ExtractObject inventory must be a tangible object");
+		return;
 	}
 	
 	if(!tO->checkCapacity())
 	{
 		//check if we can fit an additional item in our inventory
-		
+		//TODO: say something
 		return;
 	}
 

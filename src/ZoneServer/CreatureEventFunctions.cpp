@@ -50,8 +50,9 @@ void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 		mCurrentIncapTime = 0;
 		gMessageLib->sendIncapTimerUpdate(this);
 
-		// update the posture
+		// update the posture and locomotion (this needs to be reworked)
 		mPosture = CreaturePosture_Upright;
+		setLocomotionByPosture(mPosture);
 
 		// reset ham regeneration
 		mHam.updateRegenRates();

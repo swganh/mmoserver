@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MissionObject.h"
 #include "NPCObject.h"
 #include "PlayerObject.h"
-#include "ResourceCollectionManager.h"
 #include "ResourceManager.h"
 #include "ResourceType.h"
 #include "Terminal.h"

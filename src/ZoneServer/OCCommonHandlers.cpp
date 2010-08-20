@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#include "OCCommonHandlers.h"
 #include "Bank.h"
 #include "BankTerminal.h"
 #include "CellObject.h"
@@ -72,10 +73,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CraftingSession.h"
 
 #include "SwgProtocol/BurstRunEvents.h"
+#include "SwgProtocol/ObjectControllerEvents.h"
 
 #include <cassert>
 
 using ::common::IEventPtr;
+using ::common::OutOfBand;
+using ::swg_protocol::BurstRunEndEvent;
+using ::swg_protocol::BurstRunCooldownEndEvent;
+using ::swg_protocol::object_controller::PreCommandExecuteEvent;
 
 //=============================================================================
 
@@ -730,7 +736,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
         return playerObject->getEquipManager()->unEquipItem(itemObject);	
     }
     else
-    //its our inventory
+    //its OUR(!) inventory
     if (tangible->getParentId() == inventory->getId())
     {
         //gMessageLib->sendDestroyObject(targetId,playerObject);
@@ -1663,37 +1669,33 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 // start burst run
 //
 
-void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-    
-    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectControllerCmdProperties* cmd_properties) {    
+    PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+    if (!player) {
+        return false;
+    }
 
-    //can we burstrun right now ??
-    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun))
-    {
+    //can we burst run right now ??
+    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun)) {
         gMessageLib->SendSystemMessage(L"You are already running as hard as you can.", player);
-        return;
+        return false;
     }
 
-    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
-    {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_wait"), player);
-        return;
+    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD)) {
+        gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_wait"), player);
+        return false;
     }
-
-    uint32 actioncost = gWorldConfig->getConfiguration<uint32>("Player_BurstRun_Action",(uint32)300);
-    uint32 healthcost = gWorldConfig->getConfiguration<uint32>("Player_BurstRun_Health",(uint32)300);
-    uint32 mindcost	  = gWorldConfig->getConfiguration<uint32>("Player_BurstRun_Mind",(uint32)0);
-
-    if(!player->getHam()->checkMainPools(healthcost,actioncost,mindcost))
-    {
-        gMessageLib->SendSystemMessage(L"You cannot burst run right now.", player); // the stf doesn't work!
-        return;
+    
+    // Create a pre-command processing event.
+    auto pre_execute_event = std::make_shared<PreCommandExecuteEvent>(object->getId());
+    pre_execute_event->target_id(0); // This command never has a target.
+    pre_execute_event->command_crc(cmd_properties->mCmdCrc);
+    
+    // Trigger a pre-command execute event and get the result. This allows
+    // any listeners a last chance to veto the processing of the command.
+    if (!gEventDispatcher.Deliver(pre_execute_event).get()) {
+        return false;
     }
-
-    player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actioncost,true);
-    player->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-(int32)healthcost,true);
-    player->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(int32)mindcost,true);
 
     // Update the player's speed modifier.
     player->setCurrentSpeedModifier(player->getCurrentSpeedModifier()*2);
@@ -1702,7 +1704,7 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
     // Update the player's locomotion to a running state.
     player->setLocomotion(kLocomotionRunning);
     
-    // Toggle the flags for the burst run effect and the cooldown timer on the corrisponding command.
+    // Toggle the flags for the burst run effect and the cool-down timer on the corresponding command.
     player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRunCD);	
     player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRun);	
     
@@ -1714,15 +1716,10 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
 
     // Duration of the burst run effect in seconds.
     uint32_t effect_duration_sec = gWorldConfig->getConfiguration<uint32_t>("Player_BurstRun_Time", 60);
-
-    // Cooldown duration for the burst run command in seconds.
-    uint32_t cooldown_duration_sec = gWorldConfig->getConfiguration<uint32_t>("Player_BurstRun_CoolDown", 600);
-    
-    uint64_t current_time = Anh_Utils::Clock::getSingleton()->getGlobalTime();
     
     // Create a delayed event for the end of the burst run and attach a custom
     // callback to be executed 60 seconds after being triggered.
-    IEventPtr burst_end_event = std::make_shared<::swg_protocol::BurstRunEndEvent>(mObject->getId(), current_time, effect_duration_sec * 1000, [player] {
+    auto burst_end_event = std::make_shared<BurstRunEndEvent>(object->getId(), effect_duration_sec * 1000, [player] {
         // Make sure the target for the event is still valid and that their burst run flag is still set.
         if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun)) {
             // Return the player to normal movement.
@@ -1736,21 +1733,20 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
             player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);
             
             // Alert the player the burst run has ended and that they are now tired.
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cbt_spam", "burstrun_stop_single"), player);
+            gMessageLib->SendSystemMessage(OutOfBand("cbt_spam", "burstrun_stop_single"), player);
             gMessageLib->sendCombatSpam(player, player, 0, "cbt_spam", "burstrun_stop");            
-            gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_tired"), player);
-
+            gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_tired"), player);
         }
     });
     
-    // Create a delayed event for the end of the burst run cooldown timer and attach
+    // Create a delayed event for the end of the burst run cool-down timer and attach
     // a custom callback to be executed 6 minutes after being triggered.
-    IEventPtr burst_cooldown_end_event = std::make_shared<::swg_protocol::BurstRunCooldownEndEvent>(mObject->getId(), current_time, cooldown_duration_sec * 1000, [player] {
-        // Make sure the target for the event is still valid and that their burst run cooldown flag is still set.
+    auto burst_cooldown_end_event = std::make_shared<BurstRunCooldownEndEvent>(object->getId(), static_cast<uint64_t>(cmd_properties->mDelayMultiplier) * 1000, [player] {
+        // Make sure the target for the event is still valid and that their burst run cool-down flag is still set.
         if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD)) {
-            // Turn off the burst run cooldown flag and alert the player.
+            // Turn off the burst run cool-down flag and alert the player.
             player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRunCD);	
-            gMessageLib->SendSystemMessage(::common::OutOfBand("combat_effects", "burst_run_not_tired"), player);
+            gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_not_tired"), player);
         }
     });
     
@@ -1759,4 +1755,6 @@ void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControll
     
     // Notify any curious listeners of the event.
     gEventDispatcher.Notify(burst_end_event);
+
+    return true;
 }

@@ -31,11 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/ApplicationService.h"
 #include "Common/EventDispatcher.h"
 
+#include "ZoneServer/ObjectControllerCommandMap.h"
+
 namespace zone {
 
-class HamService : public ::common::ApplicationService {
+class HamService : public ::common::BaseApplicationService {
 public:
-    explicit HamService(::common::EventDispatcher& event_dispatcher);
+    HamService(::common::EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map);
     ~HamService();
 
 private:
@@ -43,10 +45,12 @@ private:
     HamService();
     HamService(const HamService&);
     const HamService& operator=(const HamService&);
+    
+    void onTick();
 
-    virtual void onInitialize();
+    bool handlePreCommandExecuteEvent(::common::IEventPtr triggered_event);
 
-    bool handleSuccessfulObjectControllerCommand(::common::IEventPtr triggered_event);
+    const CmdPropertyMap& command_property_map_;
 };
 
 } // namespace zone

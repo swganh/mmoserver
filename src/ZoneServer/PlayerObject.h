@@ -286,7 +286,9 @@ class PlayerObject : public CreatureObject
 
         uint8				getGroupMusicXp(){return static_cast<uint8>(mGroupXp);}
         void				setGroupMusicXp(uint8 groupXp){mGroupXp = groupXp;}
-
+        // sounds
+        // simple check to determine what food consumption sound to play. drink doesn't work currently
+        void				playFoodSound(bool food, bool drink);
         // ID
         void				setImageDesignerTaskId(uint64 taskId){mImageDesignerId = taskId;}
         bool				UpdateIdAttributes(BString attribute,float value);
@@ -339,7 +341,8 @@ class PlayerObject : public CreatureObject
         void				setExperimentationFlag(uint32 expFlag){ mExperimentationFlag = expFlag; }
         uint32				getExperimentationPoints(){ return mExperimentationPoints; }
         void				setExperimentationPoints(uint32 points){mExperimentationPoints = points; }
-        uint64				getNearestCraftingStation(){ return mNearestCraftingStation; }
+        bool				isNearestCraftingStationPrivate(uint64 station);
+		uint64				getNearestCraftingStation(){ return mNearestCraftingStation; }
         void				setNearestCraftingStation(uint64 station){ mNearestCraftingStation = station; }
         CraftingSession*	getCraftingSession(){ return mCraftingSession; }
         void				setCraftingSession(CraftingSession* craftingSession){ mCraftingSession = craftingSession; }

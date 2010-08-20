@@ -95,21 +95,19 @@ ZoneServer* gZoneServer = NULL;
 
 //======================================================================================================================
 
-ZoneServer::ZoneServer(int8* zoneName) :
-mZoneName(zoneName),
-mNetworkManager(0),
-mDatabaseManager(0),
-mRouterService(0),
-mLastHeartbeat(0),
-mDatabase(0),
-ham_service_(nullptr)
+ZoneServer::ZoneServer(int8* zoneName) 
+: mZoneName(zoneName)
+, mNetworkManager(0)
+, mDatabaseManager(0)
+, mRouterService(0)
+, mLastHeartbeat(0)
+, mDatabase(0)
+, ham_service_(nullptr)
 {
     Anh_Utils::Clock::Init();
     
     // gLogger->log(LogManager::DEBUG,"ZoneServer - %s Startup %s",zoneName,GetBuildString());
     gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", zoneName);
-
-    Singleton<EventDispatcher>::Instance();
 
     // Create and startup our core services.
     mDatabaseManager = new DatabaseManager();
@@ -139,8 +137,8 @@ ham_service_(nullptr)
         gLogger->log(LogManager::CRITICAL, "FATAL: Map \'%s\' not found.  Aborting startup.", zoneName);
         abort();
     }
-
-    //  Yea, I'm getting annoyed with the DataBinding for such simple tasks.  Will implement a simple interface soon.
+    
+	//  Yea, I'm getting annoyed with the DataBinding for such simple tasks.  Will implement a simple interface soon.
 
     DataBinding* binding = mDatabase->CreateDataBinding(1);
     binding->addField(DFT_uint32, 0, 4);
@@ -162,10 +160,10 @@ ham_service_(nullptr)
     MessageLib::Init();
     ObjectFactory::Init(mDatabase);
     
-    //attribute commands for foodbuffs
+    //attribute commands for food buffs
     FoodCommandMapClass::Init();
     
-    //structuremanager callback functions 
+    //structure manager callback functions 
     StructureManagerCommandMapClass::Init();
 
     WorldManager::Init(zoneId,this,mDatabase);
@@ -183,7 +181,6 @@ ham_service_(nullptr)
     (void)NonPersistantObjectFactory::Instance();
 
     //ArtisanManager callback
-    ArtisanManager::Init();
     CraftingManager::Init(mDatabase);
 
     UIManager::Init(mDatabase,mMessageDispatch);
@@ -202,8 +199,7 @@ ham_service_(nullptr)
     // Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(gEventDispatcher));
-    ham_service_->initialize();
+    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
 
@@ -249,12 +245,10 @@ ZoneServer::~ZoneServer(void)
     mNetworkManager->DestroyService(mRouterService);
     delete mNetworkManager;
 
-    delete mDatabaseManager;
-    delete gCraftingManager->getSingletonPtr();
-    delete gArtisanManager->getSingletonPtr();
-    delete gSkillManager->getSingletonPtr();
-    delete gMedicManager->getSingletonPtr();
-    delete gBuffManager->getSingletonPtr();
+	delete mDatabaseManager;
+	delete gSkillManager->getSingletonPtr();
+	delete gMedicManager->getSingletonPtr();
+	delete gBuffManager->getSingletonPtr();
 
     // NOW, I can feel that it should be safe to delete the data holding messages.
     gMessageFactory->destroySingleton();

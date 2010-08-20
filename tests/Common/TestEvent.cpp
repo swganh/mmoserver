@@ -102,11 +102,30 @@ TEST(EventTests, ComparingEventsConsidersTimestamp) {
     // Create two events with differing timestamps.
     EventSubject some_subject_id = 2234;
 
-    MockEvent test_event1(some_subject_id, 100);
-    MockEvent test_event2(some_subject_id, 200);
+    MockEvent test_event1(some_subject_id);
+    test_event1.timestamp(100);
+
+    MockEvent test_event2(some_subject_id);
+    test_event2.timestamp(200);
 
     EXPECT_EQ(true, CompareEventWeightLessThan(test_event1, test_event2));
     EXPECT_EQ(true, CompareEventWeightGreaterThan(test_event2, test_event1));
+}
+
+TEST(EventTests, ComparingEventsConsidersDelayWithTimestamp) {
+    // Create two events with differing timestamps.
+    EventSubject some_subject_id = 2234;
+
+    // Create an event with a low timestamp but a long delay
+    MockEvent test_event1(some_subject_id, 400);
+    test_event1.timestamp(100);
+
+    // Create an event with a future timestamp but a short delay
+    MockEvent test_event2(some_subject_id, 100);
+    test_event2.timestamp(200);
+
+    EXPECT_EQ(true, CompareEventWeightLessThan(test_event2, test_event1));
+    EXPECT_EQ(true, CompareEventWeightGreaterThan(test_event1, test_event2));
 }
 
 TEST(EventTests, ComparingEventsConsidersPriority) {
@@ -126,7 +145,7 @@ TEST(EventTests, CanSetCallbackForEvent) {
     std::shared_ptr<int> someval = std::make_shared<int>(0);
     
     // Create an event with a callback that updates our local value.
-    MockEvent test_event1(0, 0, 0, [=] {
+    MockEvent test_event1(0, 0, [=] {
         *someval = 1;
     });
 

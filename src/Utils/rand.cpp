@@ -88,12 +88,12 @@ Anh_Utils::Random*	Anh_Utils::Random::mSingleton = NULL;
 
 Anh_Utils::Random* Anh_Utils::Random::getSingleton()
 {
-	if (!mSingleton)
-	{
-		mSingleton = new Anh_Utils::Random();
-		srand((uint32)(Anh_Utils::Clock::getSingleton()->getLocalTime()));
-	}
-	return mSingleton;
+    if (!mSingleton)
+    {
+        mSingleton = new Anh_Utils::Random();
+        srand((uint32)(Anh_Utils::Clock::getSingleton()->getLocalTime()));
+    }
+    return mSingleton;
 }
 
 //==============================================================================================================================
@@ -111,7 +111,7 @@ Anh_Utils::Random::~Random()
 
 void Anh_Utils::Random::seedRand(const uint32 seed) const
 {
-	srand(seed);
+    srand(seed);
 }
 
 //======================================================================================================================

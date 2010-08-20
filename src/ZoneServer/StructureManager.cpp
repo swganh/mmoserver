@@ -853,6 +853,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
             house->setPublic(true);
             gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_public"), player);
+
             mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
             updateKownPlayerPermissions(house);
         }
@@ -1018,7 +1019,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
             //return the old schematic to the Datapad
             Datapad* datapad			= player->getDataPad();
-            //Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
             
             if(!datapad->getCapacity())
             {
@@ -1059,7 +1059,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
                 //first return the old schematic to the Datapad
                 Datapad* datapad			= player->getDataPad();
-                //Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
                 
                 //change the ManSchems Owner ID and load it into the datapad
                 gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
@@ -1101,8 +1100,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
             datapad->removeManufacturingSchematic(command.SchematicId);
             gMessageLib->sendDestroyObject(command.SchematicId,player);
-
-            
+                        
             gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_building_for_delete", 0, tO->getId(), 0), player);
             //gMessageLib->sendSystemMessage(player,
             

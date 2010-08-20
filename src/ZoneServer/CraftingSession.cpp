@@ -75,6 +75,7 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,Database* database,Play
 , mStage(1)
 , mCounter(2)
 , mFirstFill(false)
+, mItemLoaded(false)
 {
 
 	// update player variables
@@ -279,7 +280,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 				gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Success,qContainer->mCounter,mOwner);
 
 				// schedule item for creation and update the tool timer
-				mTool->initTimer((int32)(mDraftSchematic->getComplexity() * 3.0f),3000,mClock->getStoredTime());
+				mTool->initTimer((int32)(mManufacturingSchematic->getComplexity() * 3.0f),3000,mClock->getStoredTime());
 
 				mTool->setAttributeIncDB("craft_tool_status","@crafting:tool_status_working");
 		
@@ -353,7 +354,10 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 	// its the manufacturing schematic
 	if(item->getItemFamily() == ItemFamily_ManufacturingSchematic)
 	{
-		//Manufacturingschematic couldnt be created!!! possibly(!) db threading issue
+		//reset - we just started from scratch
+		mItemLoaded = false;
+
+		gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded schematic.");
 		mManufacturingSchematic = dynamic_cast<ManufacturingSchematic*>(item);
 		if(!mManufacturingSchematic)
 		{
@@ -376,9 +380,12 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		// now request the (temporary) item, based on the draft schematic defaults
         gObjectFactory->requestNewDefaultItem(this, (mDraftSchematic->getId() >> 32), mTool->getId(), 99, glm::vec3());
 	}
-	// its the item
-	else
+	// its the item we load 
+	else if(!mItemLoaded)
 	{
+		gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded item.");
+		//mark it as loaded the next item we might receive will be a component 
+		mItemLoaded = true;
 		mItem = item;
 
 		// link item data
@@ -402,6 +409,94 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 		//% just upsets the standard query
 		mDatabase->ExecuteSqlAsyncNoArguments(this,container,sql);
 		//mDatabase->ExecuteSqlAsync(this,container,sql);
+		return;
+	}
+	//as the main item has been loaded we can now only receive components when we fill slots with stack-/crate- content
+	else if(mItemLoaded)
+	{
+		gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded component.");
+		uint32 maxsize = mAsyncStackSize;
+
+		//make sure we have the proper stacksizes
+		if(item->hasAttribute("stacksize"))
+		{
+			
+			if(maxsize > mAsyncComponentAmount)
+			{
+				item->setAttribute("stacksize",boost::lexical_cast<std::string>(mAsyncComponentAmount));
+				maxsize = mAsyncComponentAmount;
+			}
+			else
+			{
+				item->setAttribute("stacksize",boost::lexical_cast<std::string>(maxsize));
+				mAsyncComponentAmount -= maxsize;
+			}
+		}
+		else
+		{
+			// when we use a crate with components that are not stacks we add every component individually
+			// only when the last component is added we want to continue execution
+			mAsyncComponentAmount--;
+		}
+
+		gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: stacksize : %u",mAsyncComponentAmount);
+
+		if(!mAsyncManSlot)
+		{
+			gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Couldnt find Slot!!!.");
+
+			mManufacturingSchematic = NULL;
+			gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
+			// end the session
+			gCraftingSessionFactory->destroySession(this);
+			return;
+
+		}
+
+		gWorldManager->addObject(item,true);
+		gMessageLib->sendCreateObject(item,mOwner);
+
+		//add the necessary information to the slot
+		mAsyncManSlot->mUsedComponentStacks.push_back(std::make_pair(item,maxsize));
+		mAsyncManSlot->addComponenttoSlot(item->getId(),maxsize,mAsyncManSlot->mDraftSlot->getType());
+
+		// update the slot total resource amount
+		mAsyncManSlot->setFilledAmount(mAsyncManSlot->getFilledAmount()+maxsize);
+
+
+		if(mAsyncComponentAmount == 0)
+		{
+			if(mAsyncManSlot->getFilledAmount() == mAsyncManSlot->mDraftSlot->getNecessaryAmount())
+			{
+				// update the total count of filled slots
+				mManufacturingSchematic->addFilledSlot();
+				gMessageLib->sendUpdateFilledManufactureSlots(mManufacturingSchematic,mOwner);
+			}
+
+			// update the slot contents, send all slots on first fill
+			// we need to make sure we only update lists with changes, so the lists dont desynchronize!
+			if(!mFirstFill)
+			{
+				mFirstFill = true;
+				gMessageLib->sendDeltasMSCO_7(mManufacturingSchematic,mOwner);
+			}
+			else if(mAsyncSmallUpdate == true)
+			{
+				gMessageLib->sendManufactureSlotUpdateSmall(mManufacturingSchematic,static_cast<uint8>(mAsyncSlotId),mOwner);
+			}
+			else
+			{
+				gMessageLib->sendManufactureSlotUpdate(mManufacturingSchematic,static_cast<uint8>(mAsyncSlotId),mOwner);
+			
+				//after the first big update we want to send small ones to not desynchronize
+				mAsyncSmallUpdate = true;
+			}
+
+			// done
+			gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_None,mAsyncCounter,mOwner);
+		}
+
+
 	}
 }
 

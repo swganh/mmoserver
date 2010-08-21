@@ -301,6 +301,7 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 		
 			if(!tO)
 			{
+				assert(false);
 				return 0;
 			}
 		
@@ -319,7 +320,7 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 	//no stacksize or crate - do not bother with temporaries
 	if(!component->hasAttribute("stacksize"))
 	{
-		gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponent no stacksize attribute ");
+		gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponent no stacksize attribute : %I64u",component->getId());
 
 		// remove it out of the inventory so we cant use it several times
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(component->getParentId()));
@@ -431,17 +432,23 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		return;
 	}
 
+	//mmh somehow some components are added several times
+	if(component->getParentId() == mManufacturingSchematic->getId())
+	{
+		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Ingredient_Not_In_Inventory,counter,mOwner);
+		return;
+	}
+
 	//ok we probably have a deal here - if its a crate we need to get a stack out - or more ?
 
 	// see how much this component stack /crate has to offer
 	mAsyncComponentAmount = getComponentOffer(component,totalNeededAmount); 
 	if(!mAsyncComponentAmount)
 	{
-		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Ingredient_Not_In_Inventory,counter,mOwner);
+		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient_Size,counter,mOwner);
 		return;
 	}
 
-	
 	//============================================================0
 	// deal - get the new items
 	// the callback will hit the handleObjectReady in craftingsession.cpp
@@ -453,9 +460,11 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		return;
 	}
 
+		component->setParentId(mManufacturingSchematic->getId());
+
 	//it wasnt a crate / stack - process right here
 	
-	gLogger->log(LogManager::DEBUG,"CraftingSession::handleFillSlotComponent no callback mAsyncComponentAmount : %u",mAsyncComponentAmount);
+	gLogger->log(LogManager::DEBUG,"CraftingSession::handleFillSlotComponent no callback %I64u mAsyncComponentAmount : %u",component->getId(), mAsyncComponentAmount);
 
 	//add the necessary information to the slot
 	manSlot->mUsedComponentStacks.push_back(std::make_pair(component,mAsyncComponentAmount));
@@ -815,6 +824,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 	while(compIt != manSlot->mUsedComponentStacks.end())
 	{
 		Item*	filledComponent	= dynamic_cast<Item*>((*compIt).first);
+		gLogger->log(LogManager::DEBUG,"CraftingSession::bagComponent %I64u",filledComponent->getId());
 
 		uint32 amount = (*compIt).second;
 
@@ -861,7 +871,7 @@ void CraftingSession::destroyComponents()
 			
 
 			gLogger->log(LogManager::DEBUG,"CraftingSession::destroyComponents remove stack %I64u",filledComponent->getId());
-			mManufacturingSchematic->removeObject((*compIt).first);
+			
 			gObjectFactory->deleteObjectFromDB(filledComponent);
 			gMessageLib->sendDestroyObject(filledComponent->getId(),mOwner);
 			gWorldManager->destroyObject(filledComponent);
@@ -978,6 +988,8 @@ void CraftingSession::emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 co
 
 	// update the slot
 	manSlot->mFilledResources.clear();
+	manSlot->mUsedComponentStacks.clear();
+
 	manSlot->setFilledType(DST_Empty);
 
 	// if it was completely filled, update the total amount of filled slots

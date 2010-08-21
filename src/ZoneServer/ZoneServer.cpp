@@ -305,7 +305,7 @@ void ZoneServer::Process(void)
 void ZoneServer::_updateDBServerList(uint32 status)
 {
 	// Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', %u, '%s', %u);", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
+	mDatabase->ExecuteProcedure("CALL sp_ServerStatusUpdate('%s', %u, '%s', %u)", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
 	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('%s', %u, '%s', %u);", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL Debug Log
 }
 

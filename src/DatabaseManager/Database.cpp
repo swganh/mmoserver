@@ -252,6 +252,7 @@ DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
 	va_list args;
 	va_start(args, sql);
 	int8    localSql[20192];
+	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
 	//int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
 	// Run our query and return our result set.

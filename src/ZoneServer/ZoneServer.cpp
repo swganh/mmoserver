@@ -123,7 +123,7 @@ ZoneServer::ZoneServer(int8* zoneName)
 										   (int8*)(gConfig->read<std::string>("DBName")).c_str());
 
 	// increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL", zoneName);
+	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", zoneName);
 	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL", zoneName); // SQL Debug Log
 
 	mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
@@ -305,7 +305,7 @@ void ZoneServer::Process(void)
 void ZoneServer::_updateDBServerList(uint32 status)
 {
 	// Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-	mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', %u, '%s', %u);", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
+	mDatabase->ExecuteProcedure("CALL sp_ServerStatusUpdate('%s', %u, '%s', %u)", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
 	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('%s', %u, '%s', %u);", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL Debug Log
 }
 

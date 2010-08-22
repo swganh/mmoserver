@@ -174,7 +174,8 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
     mMessageRouter->RouteMessage(message, connClient);
 
     // Update the account record that the account is logged out.
-    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET loggedin=0 WHERE account_id=%u;", connClient->getAccountId());
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", 0, connClient->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", 0, connClient->getAccountId()); // SQL Debug Log
 
     // Client has disconnected.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
@@ -268,7 +269,7 @@ void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* message)
 {
   // We only need the account data that is at the end of the message.
-  message->getUint32();  // unkown.
+  message->getUint32();  // unknown.
   uint32 dataSize = message->getUint32();
   message->setIndex(message->getIndex() + (uint16)dataSize - 4);
   client->setAccountId(message->getUint32());
@@ -282,6 +283,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
   uint64 characterId = message->getUint64();
 
   DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM characters WHERE id=%I64u;", characterId);
+  gLogger->log(LogManager::DEBUG, "SQL :: SELECT planet_id FROM characters WHERE id=%I64u;", characterId); // SQL Debug Log
 
   uint32 serverId;
   DataBinding* binding = mDatabase->CreateDataBinding(1);
@@ -410,7 +412,9 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   if (result->getRowCount())
   {
     // Update the account record that it is now logged in and last login date.
-    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET lastlogin=NOW(), loggedin=%u WHERE account_id=%u;", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+
+    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
      
     // finally add them to our accountId map.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
@@ -465,12 +469,11 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
 {
     client->setState(CCSTATE_AllowedChars);
+    mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS account_current_characters, account_characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where characters.archived = '0' AND account.account_id = '%u'",client->getAccountId());
     gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where account.account_id = '%u',client->getAccountId());"); // SQL Debug Log
 
-    mDatabase->ExecuteSqlAsync(this, client,"SELECT COUNT(characters.id) AS current_characters, characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where characters.archived = '0' AND account.account_id = '%u'",client->getAccountId());
-
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0; , client->getAccountId());"); // SQL Debug Log
-    mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+    mDatabase->ExecuteSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0;", client->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", "SELECT * FROM account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0; , client->getAccountId());"); // SQL Debug Log
 }
 
 

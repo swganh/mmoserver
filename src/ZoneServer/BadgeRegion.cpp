@@ -55,9 +55,9 @@ void BadgeRegion::update()
 {
 	if(!mSubZoneId)
 	{
-		mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
+		mQTRegion	= mSI->getQTRegion(mPosition.x, mPosition.z);
 		mSubZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth * 2,mHeight * 2);
+		mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth, mPosition.z - mHeight, mWidth * 2, mHeight * 2);
 	}
 
 	Object*		object;
@@ -65,12 +65,12 @@ void BadgeRegion::update()
 
 	if(mParentId)
 	{
-		mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
+		mSI->getObjectsInRange(this, &objList, ObjType_Player, mWidth);
 	}
 
 	if(mQTRegion)
 	{
-		mQTRegion->mTree->getObjectsInRange(this,&objList,ObjType_Player,&mQueryRect);
+		mQTRegion->mTree->getObjectsInRange(this, &objList, ObjType_Player, &mQueryRect);
 	}
 
 	ObjectSet::iterator objIt = objList.begin();

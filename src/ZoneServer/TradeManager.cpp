@@ -85,12 +85,14 @@ TradeManager::TradeManager(Database* database, MessageDispatch* dispatch)
     // load our bazaar terminals
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_LoadBazaar, 0);
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT * FROM commerce_bazaar");
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM commerce_bazaar"); // SQL Debug Log
     //AuctionHandler = new AuctionClass;
 
 
     //load the itemtable for the character builder terminal
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ItemTableFrogQuery, 0);
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id");
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id"); // SQL Debug Log
 }
 
 
@@ -277,6 +279,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             sprintf(query,"INSERT INTO commerce_auction SET auction_id = %"PRIu64", owner_id = %"PRIu64", bazaar_id = %"PRIu64", type = %u, start = %u ,premium = %u, category = 0, itemtype = %u, price = %u, name = '%s', description = '%s', region_id = 0, planet_id = 0, bidder_name = '', object_string = '%s'", asynContainer->tangible->getId(),playerObject->getId(),asynContainer->BazaarID,asynContainer->auctionType,asynContainer->time,asynContainer->premium,asynContainer->itemType,asynContainer->price, asynContainer->name.getAnsi(),asynContainer->description.getAnsi(),asynContainer->tang.getAnsi());
             mTransaction->addQuery(query);
             mTransaction->execute();
+            gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
         }
         break;
@@ -475,7 +478,6 @@ void TradeManager::_processFindFriendRequestPositionMessage(Message* message,Dis
 //=======================================================================================================================
 void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* client)
 {
-
     uint64	buyerID		= message->getUint64();//new owner
     uint64	sellerID	= message->getUint64();//old owner - receives the money
     uint64	itemID		= message->getUint64();
@@ -531,6 +533,7 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
     //set owner id to new owner. the item will be taken out of the bazaar in the next step IF the buyer is near
     sprintf(sql,"UPDATE commerce_auction SET owner_id = %"PRIu64", type = %u,start = %u WHERE auction_id = %"PRIu64"",buyerID,TRMVendor_Cancelled,time,itemID);
     mTransaction->addQuery(sql);
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
     mTransaction->execute();
 }
@@ -848,6 +851,7 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
         //playerObject->getTradePartner()->getTrade()->processTradeList();
 
         mTransaction->execute();
+        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
     }
     else
     {

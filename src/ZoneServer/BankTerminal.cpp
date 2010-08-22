@@ -48,7 +48,7 @@ BankTerminal::~BankTerminal()
 }
 
 //=============================================================================
-void BankTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
+void BankTerminal::handleObjectMenuSelect(uint8 messageType, Object* srcObject)
 {
 	PlayerObject* playerObject = (PlayerObject*)srcObject;
 	
@@ -72,7 +72,7 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		case radId_itemUse:
 		case radId_bankTransfer: // deposit - withdraw
 
-			gUIManager->createNewTransferBox(this,"handleDepositWithdraw","@base_player:bank_title"
+			gUIManager->createNewTransferBox(this,"handleDepositWithdraw", "@base_player:bank_title"
 				,"@base_player:bank_prompt", "Cash", "Bank"
 				,dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits()
 				,dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits()
@@ -104,7 +104,7 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 		default:
 
-			gLogger->log(LogManager::NOTICE,"BankTerminal: Unhandled MenuSelect: %u",messageType);
+			gLogger->log(LogManager::NOTICE,"BankTerminal: Unhandled MenuSelect: %u", messageType);
 		
 		break;
 	}

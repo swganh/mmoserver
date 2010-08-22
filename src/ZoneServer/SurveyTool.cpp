@@ -75,8 +75,8 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
     PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 
-	if( !(playerObject->isConnected()) || playerObject->isDead())
-		return;
+    if( !(playerObject->isConnected()) || playerObject->isDead())
+        return;
 
     // bring up the surve ui
     switch(messageType)
@@ -192,8 +192,10 @@ void SurveyTool::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWi
         setInternalAttribute("survey_range",boost::lexical_cast<std::string>(range));
         setInternalAttribute("survey_points",boost::lexical_cast<std::string>(points));
 
-        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId);
-        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);
+        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId);				
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId); // SQL Debug Log
+        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);					
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);	 // SQL Debug Log	
     }
     else
         // make the player set the range before they can use the tool

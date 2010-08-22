@@ -396,14 +396,14 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         destination.y = dstPoint->spawnY;
         destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
-        gLogger->log(LogManager::DEBUG,"CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket : (x)%f:(z)%f:(y)%f",destination.x,destination.y,destination.z);
+        gLogger->log(LogManager::DEBUG,"CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket : (x)%f:(z)%f:(y)%f", destination.x, destination.y, destination.z);
 
-        // reset to standing
+        // Reset to standing
         playerObject->setPosture(CreaturePosture_Upright);
         playerObject->updateMovementProperties();
 
 
-        //delete the ticket then save the position then the player
+        // Delete the ticket then save the position then the player
         CharacterLoadingContainer* asyncContainer = new(CharacterLoadingContainer);
 
         asyncContainer->destination = destination;
@@ -412,7 +412,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         asyncContainer->callBack	= CLHCallBack_Transfer_Ticket;
 
         mDatabase->ExecuteSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRIu64"", ticket->getId());
-
+        gLogger->log(LogManager::DEBUG, "SQL :: DELETE FROM items WHERE id = %"PRIu64"", ticket->getId()); // SQL Debug Log
 
     }
 }
@@ -437,6 +437,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
 
         // Now update the DB with the new location/planetId
         mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%I64u';",x,z,planetId,playerObject->getId()));
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%I64u';",x,z,planetId,playerObject->getId()); // SQL Debug Log
 
         gMessageLib->sendClusterZoneTransferCharacter(playerObject,planetId);
 

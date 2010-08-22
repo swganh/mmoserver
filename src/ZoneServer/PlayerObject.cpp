@@ -126,14 +126,14 @@ PlayerObject::PlayerObject()
     mMarriage			= L"";					// Unmarried
     mTrade				= new Trade(this);
 
-	// register event functions
-	registerEventFunction(this,&PlayerObject::onLogout);
-	registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
-	registerEventFunction(this,&PlayerObject::onInjuryTreatment);
-	registerEventFunction(this,&PlayerObject::onWoundTreatment);
-	registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
-	
-	mLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
+    // register event functions
+    registerEventFunction(this,&PlayerObject::onLogout);
+    registerEventFunction(this,&PlayerObject::onItemDeleteEvent);
+    registerEventFunction(this,&PlayerObject::onInjuryTreatment);
+    registerEventFunction(this,&PlayerObject::onWoundTreatment);
+    registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
+    
+    mLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 
     mPermissionId = 0;
 
@@ -901,6 +901,7 @@ void PlayerObject::addBadge(uint32 badgeId)
         gMessageLib->SendSystemMessage(::common::OutOfBand("badge_n", "prose_grant", "", "", "", "", "badge_n", badge->getName().getAnsi()), this);
 
         (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
+        gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId); // SQL Debug Log
 
         gLogger->log(LogManager::DEBUG,"Badge %u granted to %"PRIu64"",badgeId,mId);
 
@@ -1610,98 +1611,98 @@ void PlayerObject::addToDuelList(PlayerObject* player)
 //
 CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, ItemType toolType)
 {
-	ObjectSet::iterator it = inRangeObjects->begin();
+    ObjectSet::iterator it = inRangeObjects->begin();
 
-	mNearestCraftingStation = 0;
-	
-	while(it != inRangeObjects->end())
-	{
-		if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
-		{
-			uint32 stationType = station->getItemType();
+    mNearestCraftingStation = 0;
+    
+    while(it != inRangeObjects->end())
+    {
+        if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
+        {
+            uint32 stationType = station->getItemType();
 
-			// check whether the station fits to our tool
-			switch(toolType)
-			{
-				case ItemType_ClothingTool:
-				{
-					if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
-					{
-						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-						{
-							mNearestCraftingStation = station->getId();
-							return(station);
-						}
-					}
-				}
-				break;
+            // check whether the station fits to our tool
+            switch(toolType)
+            {
+                case ItemType_ClothingTool:
+                {
+                    if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
+                    {
+                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+                        {
+                            mNearestCraftingStation = station->getId();
+                            return(station);
+                        }
+                    }
+                }
+                break;
 
-				case ItemType_WeaponTool:
-				{
-					if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
-					{
-						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-						{
-							mNearestCraftingStation = station->getId();
-							return(station);
-						}
-					}
-				}
-				break;
+                case ItemType_WeaponTool:
+                {
+                    if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
+                    {
+                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+                        {
+                            mNearestCraftingStation = station->getId();
+                            return(station);
+                        }
+                    }
+                }
+                break;
 
-				case ItemType_FoodTool:
-				{
-					if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
-					{
-						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-						{
-							mNearestCraftingStation = station->getId();
-							return(station);
-						}
-					}
-				}
-				break;
+                case ItemType_FoodTool:
+                {
+                    if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
+                    {
+                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+                        {
+                            mNearestCraftingStation = station->getId();
+                            return(station);
+                        }
+                    }
+                }
+                break;
 
-				case ItemType_StructureTool:
-				{
-					if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
-					{
-						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-						{
-							mNearestCraftingStation = station->getId();
-							return(station);
-						}
-					}
-				}
-				break;
+                case ItemType_StructureTool:
+                {
+                    if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
+                    {
+                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+                        {
+                            mNearestCraftingStation = station->getId();
+                            return(station);
+                        }
+                    }
+                }
+                break;
 
-				case ItemType_SpaceTool:
-				{
-					if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
-					{
-						if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-						{
-							mNearestCraftingStation = station->getId();
-							return(station);
-						}
-					}
-				}	
-				break;
+                case ItemType_SpaceTool:
+                {
+                    if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
+                    {
+                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
+                        {
+                            mNearestCraftingStation = station->getId();
+                            return(station);
+                        }
+                    }
+                }	
+                break;
 
-				case ItemType_GenericTool:
-				case ItemType_JediTool:
-				default:
-				{
-					return(NULL);
-				}
-				break;
-			}
-		}
+                case ItemType_GenericTool:
+                case ItemType_JediTool:
+                default:
+                {
+                    return(NULL);
+                }
+                break;
+            }
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	return(NULL);
+    return(NULL);
 }
 //=============================================================================
 bool PlayerObject::isNearestCraftingStationPrivate(uint64 station)
@@ -1780,6 +1781,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
                         // Remove insurance.
                         tangibleObject->setInternalAttribute("insured","0");
                         gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=0 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
+                        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value=0 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270); // SQL Debug Log
 
                         tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() & ~((uint32)4));
 
@@ -2037,6 +2039,7 @@ void PlayerObject::setParentIdIncDB(uint64 parentId)
     mParentId = parentId; 
 
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId()); // SQL Debug Log
 }
 
 //=============================================================================

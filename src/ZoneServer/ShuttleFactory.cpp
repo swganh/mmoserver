@@ -104,8 +104,9 @@ void ShuttleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 //=============================================================================
 
-void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
+void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
 {
+	//mDatabase->ExecuteProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, SHFQuery_MainData, client), "CALL sp_ShuttleDetailGet(%"PRIu64");", id);
 	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,SHFQuery_MainData,client),
 								"SELECT shuttles.id,shuttles.parentId,shuttles.firstName,shuttles.lastName,"
 								"shuttles.oX,shuttles.oY,shuttles.oZ,shuttles.oW,shuttles.x,shuttles.y,shuttles.z,"
@@ -113,6 +114,7 @@ void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 								"FROM shuttles "
 								"INNER JOIN shuttle_types ON (shuttles.shuttle_type = shuttle_types.id) "
 								"WHERE (shuttles.id = %"PRIu64")",id);
+	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ShuttleDetailGet(%"PRIu64");", id); // SQL Debug Log	
 }
 
 //=============================================================================
@@ -183,13 +185,13 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 
 		if (shuttleTimeExpired <= shuttle->getInPortInterval())
 		{
-			// gLogger->log(LogManager::DEBUG,"Shuttlee start InPort, time expired %u", shuttleTimeExpired);
+			// gLogger->log(LogManager::DEBUG,"Shuttle start InPort, time expired %u", shuttleTimeExpired);
 			shuttle->setShuttleState(ShuttleState_InPort);
 			shuttle->setInPortTime(shuttleTimeExpired);
 		}
 		else
 		{
-			// gLogger->log(LogManager::DEBUG,"Shuttlee start Away, time expired %u", shuttleTimeExpired - shuttle->getInPortInterval());
+			// gLogger->log(LogManager::DEBUG,"Shuttle start Away, time expired %u", shuttleTimeExpired - shuttle->getInPortInterval());
 			shuttle->setShuttleState(ShuttleState_Away);
 			shuttle->setAwayTime(shuttleTimeExpired - shuttle->getInPortInterval()); // Set the part corresponding to this state only.
 		}

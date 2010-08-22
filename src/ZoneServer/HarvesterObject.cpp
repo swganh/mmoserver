@@ -329,6 +329,7 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
 					gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
 					gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId());
+					gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId()); // SQL Debug Log
 				}
 			}
 		}
@@ -394,7 +395,8 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			asyncContainer->mPlayerId		= asynContainer->mPlayerId;	
 			asyncContainer->command			= asynContainer->command;
 
-			gWorldManager->getDatabase()->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			gWorldManager->getDatabase()->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ", harvester->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ", harvester->getId()); // SQL Debug Log
 
 		}
 		break;
@@ -431,6 +433,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			asyncContainer->command			= asyncContainer->command;
 			
 			gWorldManager->getDatabase()->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId()); // SQL Debug Log
 		}
 		break;
 
@@ -545,7 +548,8 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 			int8 sql[250];
 			sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",this->getId());
 			
-			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asyncContainer,sql);	
+			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asyncContainer,sql);
+			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 		
 		}

@@ -120,9 +120,11 @@ mDatabase(database)
 	MissionManagerAsyncContainer* asyncContainer;
 	asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Types, 0);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT id, type, content, name FROM swganh.mission_types");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT id, type, content, name FROM swganh.mission_types"); // SQL Debug Log
 
 	asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names, 0);
 	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT name FROM swganh.mission_names WHERE planet = %u", zone);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT name FROM swganh.mission_names WHERE planet = %u", zone); // SQL Debug Log
 
 }
 
@@ -250,9 +252,11 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 			MissionManagerAsyncContainer*  asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Terminal_Type, 0);
 			mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT mtmt.id, mtmt.terminal, mtmt.mission_type,mt.content, mt.name FROM swganh.mission_terminal_mission_types mtmt INNER JOIN swganh.mission_types mt ON (mt.id = mtmt.mission_type)");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT mtmt.id, mtmt.terminal, mtmt.mission_type,mt.content, mt.name FROM swganh.mission_terminal_mission_types mtmt INNER JOIN swganh.mission_types mt ON (mt.id = mtmt.mission_type)"); // SQL Debug Log
 
 			asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names_File, 0);
 			mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')"); // SQL Debug Log
 
 			if(result->getRowCount())
 				gLogger->log(LogManager::NOTICE,"Loaded mission types.");

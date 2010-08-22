@@ -50,21 +50,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 //======================================================================================================================
-
 LoginManager::LoginManager(Database* database) :
-mDatabase(database),
-// mClock(0),
-mSendServerList(false),
-mLastStatusQuery(0),
-mLastHeartbeat(0),
-mNumClientsProcessed(0),
-mLoginClientPool(sizeof(LoginClient))
-{
-
-}
+    mDatabase(database),
+    // mClock(0),
+    mSendServerList(false),
+    mLastStatusQuery(0),
+    mLastHeartbeat(0),
+    mNumClientsProcessed(0),
+    mLoginClientPool(sizeof(LoginClient))
+    {
+    }
 
 //======================================================================================================================
-
 LoginManager::~LoginManager(void)
 {
     LoginClientList::iterator iter = mLoginClientList.begin();
@@ -76,15 +73,14 @@ LoginManager::~LoginManager(void)
 }
 
 //======================================================================================================================
-
 void LoginManager::Process(void)
 {
-
     // Update our galaxy status list once in a while.
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery > 5000)
     {
         mLastStatusQuery = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
         mDatabase->ExecuteProcedureAsync(this, (void*)1, "CALL swganh.sp_ReturnGalaxyStatus;");
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL swganh.sp_ReturnGalaxyStatus;"); // SQL Debug Log
     }
 
     // Heartbeat once in awhile
@@ -96,7 +92,6 @@ void LoginManager::Process(void)
 }
 
 //======================================================================================================================
-
 NetworkClient* LoginManager::handleSessionConnect(Session* session, Service* service)
 {
     LoginClient* newClient = new(mLoginClientPool.malloc()) LoginClient();
@@ -111,13 +106,13 @@ NetworkClient* LoginManager::handleSessionConnect(Session* session, Service* ser
 }
 
 //======================================================================================================================
-
 void LoginManager::handleSessionDisconnect(NetworkClient* client)
 {
     LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
 
     // Client has disconnected.  Update the db to show they are no longer authenticated.
-    mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
+    mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id=%u;", loginClient->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_authenticated = 0 WHERE account_id=%u;", loginClient->getAccountId()); // SQL Debug Log
 
     LoginClientList::iterator iter = mLoginClientList.begin();
 
@@ -135,7 +130,6 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
 }
 
 //======================================================================================================================
-
 void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
 {
   LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
@@ -180,7 +174,6 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
 }
 
 //======================================================================================================================
-
 void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
   // Stupid simple hack since we don't have a client for this query
@@ -209,6 +202,7 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
           // Execute our query
           client->setState(LCSTATE_QueryCharacterList);
           mDatabase->ExecuteProcedureAsync(this, ref, "CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId());
+          gLogger->log(LogManager::DEBUG, "SQL :: CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId()); // SQL Debug Log
           break;
         }
       case LCSTATE_QueryCharacterList:
@@ -272,42 +266,44 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
         return;
     }
 
-  client->setUsername(username);
-  client->setPassword(password);
+    client->setUsername(username);
+    client->setPassword(password);
 
     int8 sql[512],*sqlPointer;
 
-  if (strlen(username.getAnsi()) == 0) //SessionID Login With ANH Launcher
-  {
-    sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key, csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND session_key='");
-//	  sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND loggedin=0   AND session_key='");
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
-  *sqlPointer++ = '\'';
-  *sqlPointer++ = '\0';
-  }
-  else //regular login the client login screen
-  {
-      //the problem with the marked authentication is, that if a connection drops without a sessiondisconnect packet
-      //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
-    sprintf(sql,"CALL swganh.sp_ReturnUserAccount('");
-    //sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed FROM account WHERE banned=0 AND loggedin=0   AND username='");
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
-    strcat(sql,"' , '");
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
-  *sqlPointer++ = '\'';
-  *sqlPointer++ = ')';
-  *sqlPointer++ = '\0';
-  }
+    if (strlen(username.getAnsi()) == 0) //SessionID Login With ANH Launcher
+    {
+        sprintf(sql,"SELECT account_id, account_username, account_password, account_station_id, account_banned, account_active,account_characters_allowed,"
+            "account_session_key, account_csr FROM account WHERE account_banned=0 AND account_authenticated=0 AND account_loggedin=0 AND account_session_key='");
+        // sprintf(sql,"SELECT account_id, account_username, account_password, account_station_id, account_banned, account_active,account_characters_allowed,"
+       //"account_session_key, account_csr FROM account WHERE account_banned=0 AND account_authenticated=0 AND account_loggedin=0 AND account_session_key=' AND session_key='");
+        sqlPointer = sql + strlen(sql);
+        sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
+        *sqlPointer++ = '\'';
+        *sqlPointer++ = '\0';
+    }
+    else //	regular login the client login screen
+    {
+        //the problem with the marked authentication is, that if a connection drops without a sessiondisconnect packet
+        //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
+
+        sprintf(sql,"CALL swganh.sp_ReturnUserAccount('");
+
+        sqlPointer = sql + strlen(sql);
+        sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
+        strcat(sql,"' , '");
+        sqlPointer = sql + strlen(sql);
+        sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
+        *sqlPointer++ = '\'';
+        *sqlPointer++ = ')';
+        *sqlPointer++ = '\0';
+    }
 
  // Setup an async query for checking authentication.
   client->setState(LCSTATE_QueryAuth);
   mDatabase->ExecuteProcedureAsync(this,client,sql);
+  gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
-
-
 
 //======================================================================================================================
 void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* result)
@@ -330,18 +326,18 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
   {
     result->GetNextRow(binding, (void*)&data);
     client->setAccountId(data.mId);
-      client->setCharsAllowed(data.mCharsAllowed);
-      client->setCsr(data.mCsr);
+    client->setCharsAllowed(data.mCharsAllowed);
+    client->setCsr(data.mCsr);
     gLogger->log(LogManager::DEBUG,"void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",data.mId,data.mUsername);
-        _sendAuthSucceeded(client);
+    _sendAuthSucceeded(client);
   }
   else
   {
       Message* newMessage;
 
-    BString errType, errMsg;
-    errType = "@cpt_login_fail";
-    errMsg = "@msg_login_fail";
+      BString errType, errMsg;
+      errType = "@cpt_login_fail";
+      errMsg = "@msg_login_fail";
 
     gLogger->log(LogManager::DEBUG," Login failed for username: %s, password: ********", client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
@@ -360,7 +356,6 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
   // Destroy our database object
   mDatabase->DestroyDataBinding(binding);
 }
-
 
 //======================================================================================================================
 void LoginManager::_sendAuthSucceeded(LoginClient* client)
@@ -388,13 +383,14 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
   client->SendChannelA(message, 4,false);
 
   // Update the account record so we know they authenticated properly.
-  mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET authenticated=1 WHERE account_id=%u;", client->getAccountId());
+  mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET account_authenticated = 1 WHERE account_id = %u;", client->getAccountId());
+  gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_authenticated = 1 WHERE account_id = %u;", client->getAccountId()); // SQL Debug Log
 
   // Execute our query for sending the server list.
   client->setState(LCSTATE_QueryServerList);
   mDatabase->ExecuteProcedureAsync(this, (void*)client, "CALL swganh.sp_ReturnServerList;");
+  gLogger->log(LogManager::DEBUG, "SQL :: CALL swganh.sp_ReturnServerList;"); // SQL Debug Log
 }
-
 
 //======================================================================================================================
 void LoginManager::_sendServerList(LoginClient* client, DatabaseResult* result)
@@ -439,7 +435,6 @@ void LoginManager::_sendServerList(LoginClient* client, DatabaseResult* result)
   // Destroy our database object stuff thigns
   mDatabase->DestroyDataBinding(binding);
 }
-
 
 //======================================================================================================================
 void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* result)
@@ -495,19 +490,17 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
 }
 
 //======================================================================================================================
-
 void LoginManager::_processDeleteCharacter(Message* message,LoginClient* client)
 {
     /*uint32 galaxyId = */message->getUint32();
     uint64 characterId = message->getUint64();
 
     client->setState(LCSTATE_DeleteCharacter);
-    // mDatabase->ExecuteSqlAsync(this,(void*)client,"DELETE FROM characters WHERE id=%"PRIu64" AND galaxy_id=%u AND account_id=%u",characterId,galaxyId,client->getAccountId());
-    mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%"PRIu64"\')",characterId);
+    mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%"PRIu64"\')", characterId);
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_CharacterDelete(\'%"PRIu64"\')", characterId); // SQL Debug Log
 }
 
 //======================================================================================================================
-
 void LoginManager::_sendDeleteCharacterReply(uint32 result,LoginClient* client)
 {
     gMessageFactory->StartMessage();
@@ -520,30 +513,30 @@ void LoginManager::_sendDeleteCharacterReply(uint32 result,LoginClient* client)
     // Set the account authenticated to 0 (the server will attempt to relogin for any further processing). 
     // Set the state to the end state to prevent character deletion infinite loop.
     client->setState(LCSTATE_End);
-    mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", client->getAccountId());
+    mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id = %u;", client->getAccountId());
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_authenticated = 0 WHERE account_id = %u;", client->getAccountId()); // SQL Debug Log
 }
 
 //======================================================================================================================
-
 void LoginManager::_sendServerStatus(LoginClient* client)
 {
   // Create our server list message
-  gMessageFactory->StartMessage();                            // Opcode group number
-  gMessageFactory->addUint32(opLoginClusterStatus);
-  gMessageFactory->addUint32(mServerDataList.size());                      // Server count
+  gMessageFactory->StartMessage();										// Opcode group number
+  gMessageFactory->addUint32(opLoginClusterStatus);						// Opcode
+  gMessageFactory->addUint32(mServerDataList.size());					// Server count
 
   ServerDataList::iterator iter;
   for (iter = mServerDataList.begin(); iter != mServerDataList.end(); iter++)
   {
-    gMessageFactory->addUint32((*iter)->mId);                         // Server Id.
-    gMessageFactory->addString((*iter)->mAddress);                    // server address
-    gMessageFactory->addUint16((*iter)->mConnectionPort);             // connection port
-    gMessageFactory->addUint16((*iter)->mPingPort);                   // ping port
-    gMessageFactory->addUint32((*iter)->mPopulation);                 // population
-    gMessageFactory->addUint32(0x00000cb2);
-    gMessageFactory->addUint32(client->getCharsAllowed());
+    gMessageFactory->addUint32((*iter)->mId);							// Server id
+    gMessageFactory->addString((*iter)->mAddress);						// Server address
+    gMessageFactory->addUint16((*iter)->mConnectionPort);				// Connection port
+    gMessageFactory->addUint16((*iter)->mPingPort);						// Ping port
+    gMessageFactory->addUint32((*iter)->mPopulation);					// Population
+    gMessageFactory->addUint32(0x00000cb2);								// 
+    gMessageFactory->addUint32(client->getCharsAllowed());				// Characters Allowed
     gMessageFactory->addUint32(0xffff8f80);
-    if((*iter)->mStatus==3 && client->getCsr()>0)// server status 0=offline, 1=loading, 2=online, 3=locked
+    if((*iter)->mStatus==3 && client->getCsr()>0)						// server status 0=offline, 1=loading, 2=online, 3=locked
     {
         gMessageFactory->addUint32(2);  
     } else {
@@ -559,7 +552,6 @@ void LoginManager::_sendServerStatus(LoginClient* client)
 }
 
 //======================================================================================================================
-
 void LoginManager::_updateServerStatus(DatabaseResult* result)
 {
   uint32 serverCount = 1;
@@ -629,7 +621,8 @@ void LoginManager::_updateServerStatus(DatabaseResult* result)
     }
 }
 
-//Launcher Functions
+// Launcher Functions
+//======================================================================================================================
 void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
 {
     // Extract our username, password, and id string
@@ -651,15 +644,17 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
     int8 sql[512];
 
     //call the session_key creation sproc
-    sprintf(sql,"SELECT account_id FROM account WHERE username='%s' AND password = SHA1('%s');\0",client->getUsername().getAnsi(),client->getPassword().getAnsi());
+    sprintf(sql,"SELECT account_id FROM account WHERE account_username='%s' AND account_password = SHA1('%s');\0", client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
     //set the state
     client->setState(LCSTATE_RetrieveAccountId);
 
     //and execute
-    mDatabase->ExecuteProcedureAsync(this,client,sql);
+    mDatabase->ExecuteProcedureAsync(this, client, sql);
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
+//======================================================================================================================
 void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* result)
 {
     AccountData data;
@@ -673,14 +668,15 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
         client->setAccountId(data.mId);
 
         //log it
-        gLogger->log(LogManager::DEBUG,"void LoginManager::_sendLauncherSessionKey Login: AccountId: %u Name: %s",data.mId,client->getUsername().getAnsi());
+        gLogger->log(LogManager::DEBUG,"void LoginManager::_sendLauncherSessionKey Login: AccountId: %u Name: %s", data.mId, client->getUsername().getAnsi());
         
         //get the session_key made and returned
         int8 sql[512];
         sprintf(sql,"CALL swganh.sp_AccountSessionKeyGenerate(%d);\0", data.mId);
 
         client->setState(LCSTATE_RetrieveSessionKey);
-        mDatabase->ExecuteProcedureAsync(this,client,sql);
+        mDatabase->ExecuteProcedureAsync(this, client, sql);
+        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
     }
     else
     {
@@ -707,6 +703,8 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
       // Destroy our database object
       mDatabase->DestroyDataBinding(binding);
 }
+
+//======================================================================================================================
 void LoginManager::_sendLauncherSessionKey(LoginClient* client, DatabaseResult* result)
 {
     SessionKeyData data;
@@ -731,8 +729,3 @@ void LoginManager::_sendLauncherSessionKey(LoginClient* client, DatabaseResult* 
 
 
 //======================================================================================================================
-
-
-
-
-

@@ -85,6 +85,7 @@ bool Inventory::updateCredits(int32 amount)
 		gMessageLib->sendInventoryCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
 
 	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE inventories set credits=credits+%i WHERE id=%"PRIu64"",amount,mId);
+	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE inventories set credits=credits+%i WHERE id=%"PRIu64"",amount,mId); // SQL Debug Log
 
 	return(true);
 }

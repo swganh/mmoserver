@@ -365,7 +365,8 @@ void StructureManager::_HandleStructureDestruction(StructureManagerAsyncContaine
 			//the parent is the structure and the item family is 15
 			int8 sql[100];
 			sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);					
+			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 			//delete harvester db side with all power and all resources
 			gObjectFactory->deleteObjectFromDB(structure);
@@ -467,9 +468,12 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
 	{
 		//yay we were succesful
 		structure->setOwner(asynContainer->mTargetId);
-		mDatabase->ExecuteSqlAsync(0,0,"UPDATE structures SET structures.owner = %I64u WHERE structures.id = %I64u",asynContainer->mTargetId,asynContainer->mStructureId);
-		mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM structure_admin_data where playerId = %I64u AND StructureID = %I64u",asynContainer->mPlayerId,asynContainer->mStructureId);
-		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO structure_admin_data VALUES (NULL,%I64u,%I64u,'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId);
+		mDatabase->ExecuteSqlAsync(0,0,"UPDATE structures SET structures.owner = %I64u WHERE structures.id = %I64u",asynContainer->mTargetId,asynContainer->mStructureId);					
+		gLogger->log(LogManager::DEBUG, "SQL :: UPDATE structures SET structures.owner = %I64u WHERE structures.id = %I64u",asynContainer->mTargetId,asynContainer->mStructureId);	 // SQL Debug Log
+		mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM structure_admin_data where playerId = %I64u AND StructureID = %I64u",asynContainer->mPlayerId,asynContainer->mStructureId);					
+		gLogger->log(LogManager::DEBUG, "SQL :: DELETE FROM structure_admin_data where playerId = %I64u AND StructureID = %I64u",asynContainer->mPlayerId,asynContainer->mStructureId);	 // SQL Debug Log
+		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO structure_admin_data VALUES (NULL,%I64u,%I64u,'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId);					
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO structure_admin_data VALUES (NULL,%I64u,%I64u,'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId); // SQL Debug Log
 		        
 
 		//update the administration list
@@ -573,7 +577,8 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 			StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
 			asContainer->mStructureId = asynContainer->mStructureId;
 
-			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId);
+			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId);					
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId); // SQL Debug Log	
 		}
 	}
 
@@ -690,7 +695,8 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
 			StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
 			asContainer->mStructureId = asynContainer->mStructureId;
 
-			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId);
+			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId);				
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId); // SQL Debug Log
 		}
 	}
 

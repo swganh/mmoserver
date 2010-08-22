@@ -93,80 +93,83 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 , mTotalObjectCount(0)
 , mZoneId(zoneId)
 {
-	#if !defined(_DEBUG)
-	#endif
-	#if defined(_DEBUG)
-		gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
-	#endif
-	
+    #if !defined(_DEBUG)
+    #endif
+    #if defined(_DEBUG)
+        gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
+    #endif
+    
 
-	// set up spatial index
-	mSpatialIndex = new ZoneTree();
-	mSpatialIndex->Init(gConfig->read<float>("FillFactor"),
-						gConfig->read<int>("IndexCap"),
-						gConfig->read<int>("LeafCap"),
-						2,
-						gConfig->read<float>("Horizon"));
+    // set up spatial index
+    mSpatialIndex = new ZoneTree();
+    mSpatialIndex->Init(gConfig->read<float>("FillFactor"),
+                        gConfig->read<int>("IndexCap"),
+                        gConfig->read<int>("LeafCap"),
+                        2,
+                        gConfig->read<float>("Horizon"));
 
-	try
-	{
-		mDebug = gConfig->read<bool>("LoadReduceDebug");
-	}
-	catch (...)
-	{
-		mDebug = false;
-	}
+    try
+    {
+        mDebug = gConfig->read<bool>("LoadReduceDebug");
+    }
+    catch (...)
+    {
+        mDebug = false;
+    }
 
-	// load planet names and terrain files so we can start heightmap loading
-	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
-	
+    // load planet names and terrain files so we can start heightmap loading
+    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM planet ORDER BY planet_id;"); // SQL Debug Log	
+    
 
-	// create schedulers
-	mSubsystemScheduler		= new Anh_Utils::Scheduler();
-	mObjControllerScheduler = new Anh_Utils::Scheduler();
-	mHamRegenScheduler		= new Anh_Utils::Scheduler();
-	mStomachFillingScheduler= new Anh_Utils::Scheduler();
-	mPlayerScheduler		= new Anh_Utils::Scheduler();
-	mEntertainerScheduler	= new Anh_Utils::Scheduler();
-	//mImagedesignerScheduler	= new Anh_Utils::Scheduler();
-	mBuffScheduler			= new Anh_Utils::VariableTimeScheduler(100, 100);
-	mMissionScheduler		= new Anh_Utils::Scheduler();
-	mNpcManagerScheduler	= new Anh_Utils::Scheduler();
-	mAdminScheduler			= new Anh_Utils::Scheduler();
+    // create schedulers
+    mSubsystemScheduler		= new Anh_Utils::Scheduler();
+    mObjControllerScheduler = new Anh_Utils::Scheduler();
+    mHamRegenScheduler		= new Anh_Utils::Scheduler();
+    mStomachFillingScheduler= new Anh_Utils::Scheduler();
+    mPlayerScheduler		= new Anh_Utils::Scheduler();
+    mEntertainerScheduler	= new Anh_Utils::Scheduler();
+    //mImagedesignerScheduler	= new Anh_Utils::Scheduler();
+    mBuffScheduler			= new Anh_Utils::VariableTimeScheduler(100, 100);
+    mMissionScheduler		= new Anh_Utils::Scheduler();
+    mNpcManagerScheduler	= new Anh_Utils::Scheduler();
+    mAdminScheduler			= new Anh_Utils::Scheduler();
 
-	LoadCurrentGlobalTick();
+    LoadCurrentGlobalTick();
 
-	// load up subsystems
+    // load up subsystems
 
-	SkillManager::Init(database);
-	SchematicManager::Init(database);
-	
-	//the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client 
-	//it will have to be initialized in the tutorial, too
-	if(zoneId != 41)
-		ResourceManager::Init(database,mZoneId);
-	else
-	{
-		//by not assigning a db we force the resourcemanager to not load db data
-		ResourceManager::Init(NULL,mZoneId);
-	}
-	TreasuryManager::Init(database);
-	ConversationManager::Init(database);
-	CraftingSessionFactory::Init(database);
-	if(zoneId != 41)
-		MissionManager::Init(database,mZoneId);
+    SkillManager::Init(database);
+    SchematicManager::Init(database);
+    
+    //the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client 
+    //it will have to be initialized in the tutorial, too
+    if(zoneId != 41)
+        ResourceManager::Init(database,mZoneId);
+    else
+    {
+        //by not assigning a db we force the resourcemanager to not load db data
+        ResourceManager::Init(NULL,mZoneId);
+    }
+    TreasuryManager::Init(database);
+    ConversationManager::Init(database);
+    CraftingSessionFactory::Init(database);
+    if(zoneId != 41)
+        MissionManager::Init(database,mZoneId);
 
-	// register world script hooks
-	_registerScriptHooks();
+    // register world script hooks
+    _registerScriptHooks();
 
-	// initiate loading of objects
-	if(mDebug)
-	{
-		gLogger->log(LogManager::INFORMATION,"World Manager Debug StartUp with culled items, npcs, resources and stuff");
-		mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCountDebug(%i);",mZoneId);
-	}
-	else
-		mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    // initiate loading of objects
+    if(mDebug)
+    {
+        gLogger->log(LogManager::INFORMATION,"World Manager Debug StartUp with culled items, npcs, resources and stuff");
+        mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCountDebug(%i);",mZoneId);
+        gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getZoneObjectCountDebug(%i);",mZoneId); // SQL Debug Log	
+    }
+    else
+        mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getZoneObjectCount(%i);",mZoneId); // SQL Debug Log	
 
 #if defined(_MSC_VER)
     mNonPersistantId =   422212465065984;
@@ -324,8 +327,8 @@ WorldManager::~WorldManager()
 void WorldManager::_loadBuildings()
 {
     WMAsyncContainer* asynContainer = new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_All_Buildings);
-
     mDatabase->ExecuteSqlAsync(this,asynContainer,"SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM buildings WHERE planet_id = %u;",mZoneId); // SQL Debug Log	
 }
 
 
@@ -385,6 +388,7 @@ void WorldManager::LoadCurrentGlobalTick()
 {
     uint64 Tick;
     DatabaseResult* temp = mDatabase->ExecuteSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'"); // SQL Debug Log	
 
     DataBinding*	tickbinding = mDatabase->CreateDataBinding(1);
     tickbinding->addField(DFT_uint64,0,8,0);
@@ -666,9 +670,11 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
                 it = mBusyCraftTools.erase(it);
                 tool->setAttribute("craft_tool_status","@crafting:tool_status_ready");
                 mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId());
+                gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId()); // SQL Debug Log
 
                 tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
-                gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+                gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);	
+                gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);	 // SQL Debug Log	
 
                 continue;
             }
@@ -677,7 +683,8 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
             tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
             //gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
-            gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+            gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);	
+            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime); // SQL Debug Log	
         }
 
         ++it;

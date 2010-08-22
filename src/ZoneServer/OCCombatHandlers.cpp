@@ -401,6 +401,7 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
 			" (character_id = %"PRIu64");",player->getId());
 
 		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+		gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 	}
 }
 

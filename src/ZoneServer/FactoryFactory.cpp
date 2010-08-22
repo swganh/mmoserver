@@ -42,30 +42,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/utils.h"
 #include <cassert>
 
-//itemtypes
-/*
-weapons = 1
-armor = 2
-food 4
-clothing 8
-vehicle 16
-droid 32
-chemical 64
-tissue 128
+	// itemtypes
 
-creatures 256
-furniture 512
-installation 1024
-lightsaber 2048
-generic 4096
-genetics   8192
-starshipcomponents131072
-mand droid		65536
-mand armor 32768
-mand tailor	 16384
-ship tools 262144
-misc   524288
- */
+	// weapons				1
+	// armor				2
+	// food					4
+	// clothing				8
+	// vehicle				16
+	// droid				32
+	// chemical				64
+	// tissue				128
+	// creatures			256
+	// furniture			512
+	// installation			1024
+	// lightsaber			2048
+	// generic				4096
+	// genetics				8192
+	// mand tailor			16384
+	// mand armor			32768
+	// mand droid			65536
+	// starshipcomponents	131072
+	// ship tools			262144
+	// misc					524288
+
 //=============================================================================
 
 bool				FactoryFactory::mInsFlag    = false;
@@ -208,10 +207,8 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						asynContainer->mObject = asyncContainer->mObject;
 						asynContainer->mHopper = asyncContainer->mHopper;
 						
-						mDatabase->ExecuteSqlAsync(this,asynContainer,
-								//"(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64")"
-								"SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400"
-								,queryContainer.mId);
+						mDatabase->ExecuteSqlAsync(this,asynContainer, "SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId);
+						gLogger->log(LogManager::DEBUG, "SQL :: SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId); // SQL Debug Log
 					}
 				}
 
@@ -230,10 +227,8 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						asynContainer->mObject = asyncContainer->mObject;
 						asynContainer->mHopper = asyncContainer->mHopper;
 						
-						mDatabase->ExecuteSqlAsync(this,asynContainer,
-								//"(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64")"
-								"SELECT amount FROM resource_containers WHERE id= %"PRIu64""
-								,queryContainer.mId);
+						mDatabase->ExecuteSqlAsync(this,asynContainer, "SELECT amount FROM resource_containers WHERE id= %"PRIu64"", queryContainer.mId);
+						gLogger->log(LogManager::DEBUG, "SQL :: SELECT amount FROM resource_containers WHERE id= %"PRIu64"", queryContainer.mId); // SQL Debug Log
 					}
 				}
 			}
@@ -262,10 +257,8 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,FFQuery_Hopper,asyncContainer->mClient);
 			asContainer->mObject = factory;
 
-			mDatabase->ExecuteSqlAsync(this,asContainer,
-						"(SELECT \'input\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2773)"
-						" UNION (SELECT \'output\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2774)"
-						,factory->getId(),factory->getId());
+			mDatabase->ExecuteSqlAsync(this,asContainer, "(SELECT \'input\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2773) UNION (SELECT \'output\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2774)", factory->getId(), factory->getId());
+			gLogger->log(LogManager::DEBUG, "(SELECT \'input\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2773) UNION (SELECT \'output\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2774)", factory->getId(), factory->getId()); // SQL Debug Log
 
 			
 		}
@@ -330,7 +323,10 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 															 " FROM structure_attributes sa"
 															 " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
 															 " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",factory->getId());
-
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,sa.value,attributes.internal"
+													" FROM structure_attributes sa"
+													" INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
+													" WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",factory->getId()); // SQL Debug Log
 			
 		}
 		break;
@@ -365,15 +361,16 @@ void FactoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 {
 	//request the harvesters Data first
 	
-	int8 hmm[1024];
-	sprintf(hmm,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,"
+	int8 sql[1024];
+	sprintf(sql,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,"
 					"std.type,std.object_string,std.stf_name, std.stf_file, s.name,"
 					"std.lots_used, f.active, std.maint_cost_wk, std.power_used, std.schematicMask, s.condition, std.max_condition, f.ManSchematicId "
 					"FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN factories f ON (s.id = f.id) " 
 					"WHERE (s.id = %"PRIu64")",id);
 	QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,FFQuery_MainData,client,id);
 
-	mDatabase->ExecuteSqlAsync(this,asynContainer,hmm);
+	mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
+	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //the factories hopper is accessed - update the hoppers contents
@@ -383,10 +380,8 @@ void FactoryFactory::upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hoppe
 	asynContainer->mObject = factory;
 	asynContainer->mHopper = hopperId;
 
-	mDatabase->ExecuteSqlAsync(this,asynContainer,
-			"(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64")"
-			" UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")"
-			,hopperId,hopperId);
+	mDatabase->ExecuteSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId);
+	gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId); // SQL Debug Log
 }
 //=============================================================================
 

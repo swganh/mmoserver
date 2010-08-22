@@ -301,6 +301,7 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 		
 			if(!tO)
 			{
+				assert(false);
 				return 0;
 			}
 		
@@ -319,7 +320,7 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 	//no stacksize or crate - do not bother with temporaries
 	if(!component->hasAttribute("stacksize"))
 	{
-		gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponent no stacksize attribute ");
+		gLogger->log(LogManager::DEBUG,"CraftingSession::prepareComponent no stacksize attribute : %I64u",component->getId());
 
 		// remove it out of the inventory so we cant use it several times
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(component->getParentId()));
@@ -431,17 +432,23 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		return;
 	}
 
+	//mmh somehow some components are added several times
+	if(component->getParentId() == mManufacturingSchematic->getId())
+	{
+		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Ingredient_Not_In_Inventory,counter,mOwner);
+		return;
+	}
+
 	//ok we probably have a deal here - if its a crate we need to get a stack out - or more ?
 
 	// see how much this component stack /crate has to offer
 	mAsyncComponentAmount = getComponentOffer(component,totalNeededAmount); 
 	if(!mAsyncComponentAmount)
 	{
-		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Ingredient_Not_In_Inventory,counter,mOwner);
+		gMessageLib->sendCraftAcknowledge(opCraftFillSlot,CraftError_Internal_Invalid_Ingredient_Size,counter,mOwner);
 		return;
 	}
 
-	
 	//============================================================0
 	// deal - get the new items
 	// the callback will hit the handleObjectReady in craftingsession.cpp
@@ -453,9 +460,11 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 		return;
 	}
 
+		component->setParentId(mManufacturingSchematic->getId());
+
 	//it wasnt a crate / stack - process right here
 	
-	gLogger->log(LogManager::DEBUG,"CraftingSession::handleFillSlotComponent no callback mAsyncComponentAmount : %u",mAsyncComponentAmount);
+	gLogger->log(LogManager::DEBUG,"CraftingSession::handleFillSlotComponent no callback %I64u mAsyncComponentAmount : %u",component->getId(), mAsyncComponentAmount);
 
 	//add the necessary information to the slot
 	manSlot->mUsedComponentStacks.push_back(std::make_pair(component,mAsyncComponentAmount));
@@ -608,6 +617,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
 			resContainer->setAmount(newContainerAmount);
 			gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
 			mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newContainerAmount,resContainer->getId());
+			gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newContainerAmount,resContainer->getId()); // SQL Debug Log
 		}
 
 		// update the slot total resource amount
@@ -815,6 +825,7 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
 	while(compIt != manSlot->mUsedComponentStacks.end())
 	{
 		Item*	filledComponent	= dynamic_cast<Item*>((*compIt).first);
+		gLogger->log(LogManager::DEBUG,"CraftingSession::bagComponent %I64u",filledComponent->getId());
 
 		uint32 amount = (*compIt).second;
 
@@ -861,7 +872,7 @@ void CraftingSession::destroyComponents()
 			
 
 			gLogger->log(LogManager::DEBUG,"CraftingSession::destroyComponents remove stack %I64u",filledComponent->getId());
-			mManufacturingSchematic->removeObject((*compIt).first);
+			
 			gObjectFactory->deleteObjectFromDB(filledComponent);
 			gMessageLib->sendDestroyObject(filledComponent->getId(),mOwner);
 			gWorldManager->destroyObject(filledComponent);
@@ -927,6 +938,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 						gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
 
 						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId());
+						gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId()); // SQL Debug Log
 					}
 					// target container full, put in what fits, create a new one
 					else if(newAmount > maxAmount)
@@ -937,6 +949,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 
 						gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
 						gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%I64u",maxAmount,resCont->getId());
+						gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%I64u",maxAmount,resCont->getId()); // SQL Debug Log
 
 						gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),(*resIt).first,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,selectedNewAmount);
 					}
@@ -978,6 +991,8 @@ void CraftingSession::emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 co
 
 	// update the slot
 	manSlot->mFilledResources.clear();
+	manSlot->mUsedComponentStacks.clear();
+
 	manSlot->setFilledType(DST_Empty);
 
 	// if it was completely filled, update the total amount of filled slots
@@ -1298,9 +1313,11 @@ void CraftingSession::collectResources()
 		//enter it slotdependent as we dont want to clot our attributes table with resources
 		//173  is cat_manf_schem_resource
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str); // SQL Debug Log
 		
 		//now enter it in the relevant manschem table so we can use it in factories
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second); // SQL Debug Log
 
 		checkResIt  ++;
 	}
@@ -1400,9 +1417,11 @@ void CraftingSession::collectComponents()
 		//enter it slotdependent as we dont want to clot our attributes table with resources
 		//173  is cat_manf_schem_resource
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str); // SQL Debug Log
 		
 		//now enter it in the relevant manschem table so we can use it in factories
 		mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial,(*checkResIt).second);
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial,(*checkResIt).second); // SQL Debug Log
 
 		checkResIt  ++;
 	}
@@ -1438,6 +1457,7 @@ void CraftingSession::updateResourceContainer(uint64 containerID, uint32 newAmou
 		resContainer->setAmount(newAmount);
 		gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resContainer->getId());
+		gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resContainer->getId()); // SQL Debug Log
 	}
 
 }

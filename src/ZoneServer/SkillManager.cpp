@@ -58,22 +58,27 @@ SkillManager::SkillManager(Database* database)
 	// load skillmods
 	//gLogger->log(LogManager::DEBUG,"Start Loading Skill Mods.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillMods),"SELECT * FROM skillmods ORDER BY skillmod_id");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skillmods ORDER BY skillmod_id"); // SQL Debug Log	
 
 	// load skillcommands
 	//gLogger->log(LogManager::DEBUG,"Start Loading Skill Commands.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillCommands),"SELECT * FROM skillcommands ORDER BY id");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skillcommands ORDER BY id"); // SQL Debug Log	
 
 	// load xp types
 	//gLogger->log(LogManager::DEBUG,"Start Loading Skill XP Types.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_XpTypes),"SELECT * FROM xp_types ORDER BY id");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM xp_types ORDER BY id"); // SQL Debug Log	
 
 	// load skills
 	//gLogger->log(LogManager::DEBUG,"Start Loading Skills.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_Skills),"SELECT * FROM skills ORDER BY skill_id");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills ORDER BY skill_id"); // SQL Debug Log	
 
 	// load extended skill information (tex)
 	//gLogger->log(LogManager::DEBUG,"Start Loading Skill Descriptions.");
 	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillDescriptions),"SELECT * FROM skills_description ORDER BY skill_id");
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills_description ORDER BY skill_id"); // SQL Debug Log	
 }
 
 //======================================================================================================================
@@ -221,30 +226,37 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			// query required species
 			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Species Requirements.");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSpecies),"SELECT * FROM skills_species_required ORDER BY skill_id");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills_species_required ORDER BY skill_id"); // SQL Debug Log	
 
 			// query skill preclusions
 			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Preclusions");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillPreclusions),"SELECT * FROM skills_preclusions ORDER BY skill_id");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills_preclusions ORDER BY skill_id"); // SQL Debug Log	
 
 			// query required skills
 			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Requirements.");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillRequiredSkills),"SELECT * FROM skills_skill_skillsrequired ORDER BY skill_id");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills_skill_skillsrequired ORDER BY skill_id"); // SQL Debug Log	
 
 			// query skill commands
 			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Commands Granted.");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillCommands),"SELECT * FROM skills_skillcommands ORDER BY skill_id");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills_skillcommands ORDER BY skill_id"); // SQL Debug Log	
 
 			// query skill mods
 			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Mods Granted");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillMods),"SELECT * FROM skills_skillmods ORDER BY skill_id");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills_skillmods ORDER BY skill_id"); // SQL Debug Log	
 
 			// query skill schematic groups
 			//gLogger->log(LogManager::DEBUG,"Start Loading Skill Schematics Granted");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillSchematicGroups),"SELECT * FROM skills_schematicsgranted ORDER BY skill_id");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills_schematicsgranted ORDER BY skill_id"); // SQL Debug Log	
 
 			// query skill xp types
 			//gLogger->log(LogManager::DEBUG,"Start Loading Skill XP Types");
 			mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillXpTypes),"SELECT * FROM skills_base_xp_groups ORDER BY skill_id");
+			gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM skills_base_xp_groups ORDER BY skill_id"); // SQL Debug Log
 			
 			mDatabase->DestroyDataBinding(binding);
 
@@ -484,7 +496,8 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		//finding all the new schems for the skill!
 		//player->addSchematicIds(skill);
 
-		mDatabase->ExecuteSqlAsync(NULL,NULL,"INSERT INTO character_skills VALUES (%"PRIu64",%u)",player->getId(),skillId);
+		mDatabase->ExecuteSqlAsync(NULL,NULL,"INSERT INTO character_skills VALUES (%"PRIu64",%u)",player->getId(),skillId);	
+		gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO character_skills VALUES (%"PRIu64",%u)",player->getId(),skillId);	 // SQL Debug Log	
 
 		creatureObject->prepareSkillMods();
 		creatureObject->prepareSkillCommands();
@@ -528,7 +541,8 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 		    (void)player->UpdateXp(skill->mXpType, newXpCost);
 
 		    // gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: Removing %i xp of type %u", -newXpCost, skill->mXpType);
-		    mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",newXpCost, skill->mXpType, player->getId());
+			mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",newXpCost, skill->mXpType, player->getId());		
+			gLogger->log(LogManager::DEBUG, "SQL :: UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",newXpCost, skill->mXpType, player->getId()); // SQL Debug Log		
 		    gMessageLib->sendXpUpdate(skill->mXpType,player);
         }
 	}
@@ -816,6 +830,7 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 		player->prepareSchematicIds();
 
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"DELETE FROM character_skills WHERE character_id=%"PRIu64" AND skill_id=%u",player->getId(),skillId);
+		gLogger->log(LogManager::DEBUG, "SQL :: DELETE FROM character_skills WHERE character_id=%"PRIu64" AND skill_id=%u",player->getId(),skillId); // SQL Debug Log
 
 		gMessageLib->sendSkillDeltasCreo1(skill,SMSkillRemove,player);
 
@@ -930,6 +945,7 @@ void SkillManager::initExperience(PlayerObject* playerObject)
 
 				// Create entry in DB.
 				mDatabase->ExecuteSqlAsync(NULL,NULL,"INSERT INTO character_xp VALUES (%"PRIu64",%u,0)",playerObject->getId(),xpType);
+				gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO character_xp VALUES (%"PRIu64",%u,0)",playerObject->getId(),xpType); // SQL Debug Log
 
 				// Add this type of xp cap.
 				int32 newXpCap = getXpCap(playerObject, xpType);
@@ -1111,6 +1127,7 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
 		// gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: Adding %u xp of type %u to database", newXpBoost, xpType);
 
 		mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE character_id=%"PRIu64" AND xp_id=%u", newXpBoost, playerObject->getId(), xpType);
+		gLogger->log(LogManager::DEBUG, "SQL :: UPDATE character_xp SET value=value+%i WHERE character_id=%"PRIu64" AND xp_id=%u", newXpBoost, playerObject->getId(), xpType); // SQL Debug Log
 
 		// ...THEN we get any messages of new skills qualifications.
 		gMessageLib->sendXpUpdate(xpType,playerObject);

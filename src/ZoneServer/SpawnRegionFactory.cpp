@@ -108,6 +108,11 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
 								" FROM spawn_regions"
 								" INNER JOIN planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
 								" WHERE (spawn_regions.id = %"PRIu64")",id);
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT spawn_regions.id,spawn_regions.spawn_type,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+		"planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
+		" FROM spawn_regions"
+		" INNER JOIN planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
+		" WHERE (spawn_regions.id = %"PRIu64")",id); // SQL Debug Log
 }
 
 //=============================================================================

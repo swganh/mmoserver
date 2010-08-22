@@ -78,7 +78,6 @@ bool Shuttle::availableInPort(void)
 	{
 		port = collector->getPortDescriptor();
 	}
-
 	return ((mShuttleState == ShuttleState_InPort) || (port.getCrc() == BString("Theed Spaceport").getCrc()));
 }
 
@@ -96,14 +95,14 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 
 	if(!collector)
 	{
-		int8 sql[128];
-		sprintf(sql,"No ticket collector on duty error : %"PRIu64,mTicketCollectorId);
-		BString u = BString(sql);
+		int8 errmsg[128];
+		sprintf(errmsg, "No ticket collector on duty error : %"PRIu64, mTicketCollectorId);
+		BString u = BString(errmsg);
 		u.convert(BSTRType_Unicode16);
 
 		gMessageLib->SendSystemMessage(u.getUnicode16(), playerObject);
 
-		gLogger->log(LogManager::DEBUG,sql);
+		gLogger->log(LogManager::DEBUG, errmsg);
 
 		return;
 	}
@@ -187,4 +186,3 @@ void Shuttle::ticketCollectorEnable()
 {
 	mTicketCollectorEnabled = true;
 }
-

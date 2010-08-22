@@ -334,10 +334,10 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
   strcat(sql, sql2);
 
   //Logging the character create sql for debugging purposes,beware this contains binary data
-  gLogger->log(LogManager::DEBUG,"CharacterCreate: %s", sql);
+  gLogger->log(LogManager::DEBUG,"SQL :: %s", sql);
 
   CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
-  mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+  mDatabase->ExecuteProcedureAsync(this, asyncContainer, sql);
 }
 
 //======================================================================================================================
@@ -579,110 +579,110 @@ void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,Dispa
 
 void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client)
 {
-    if(!client)
-    {
-        return;
-    }
+	if(!client)
+	{
+		return;
+	}
 
-    BString unknown = L"o_O";
-    BString stfFile = "ui";
-    BString errorString;
+	BString unknown = L"o_O";
+	BString stfFile = "ui";
+	BString errorString;
 
-    switch(errorCode)
-    {
-        case 0:
-            errorString = "name_declined_developer";
-            break;
+	switch(errorCode)
+	{
+		case 0:
+			errorString = "name_declined_developer";
+			break;
 
-        case 1:
-            errorString = "name_declined_empty";
-            break;
+		case 1:
+			errorString = "name_declined_empty";
+			break;
 
-        case 2:
-            errorString = "name_declined_fictionally_reserved";
-            break;
+		case 2:
+			errorString = "name_declined_fictionally_reserved";
+			break;
 
-        case 3:
-            errorString = "name_declined_in_use";
-            break;
+		case 3:
+			errorString = "name_declined_in_use";
+			break;
 
-        case 4:
-            errorString = "name_declined_internal_error";
-            break;
+		case 4:
+			errorString = "name_declined_internal_error";
+			break;
 
-        case 5:
-            errorString = "name_declined_no_name_generator";
-            break;
+		case 5:
+			errorString = "name_declined_no_name_generator";
+			break;
 
-        case 6:
-            errorString = "name_declined_no_template";
-            break;
+		case 6:
+			errorString = "name_declined_no_template";
+			break;
 
-        case 7:
-            errorString = "name_declined_not_authorized_for_species";
-            break;
+		case 7:
+			errorString = "name_declined_not_authorized_for_species";
+			break;
 
-        case 8:
-            errorString = "name_declined_not_creature_template";
-            break;
+		case 8:
+			errorString = "name_declined_not_creature_template";
+			break;
 
-        case 9:
-            errorString = "name_declined_not_authorized_for_species";
-            break;
+		case 9:
+			errorString = "name_declined_not_authorized_for_species";
+			break;
 
-        case 10:
-            errorString = "name_declined_number";
-            break;
+		case 10:
+			errorString = "name_declined_number";
+			break;
 
-        case 11:
-            errorString = "name_declined_profane";
-            break;
+		case 11:
+			errorString = "name_declined_profane";
+			break;
 
-        case 12:
-            errorString = "name_declined_racially_inappropriate";
-            break;
+		case 12:
+			errorString = "name_declined_racially_inappropriate";
+			break;
 
-        case 13:
-            errorString = "name_declined_reserved";
-            break;
+		case 13:
+			errorString = "name_declined_reserved";
+			break;
 
-        case 14:
-            errorString = "name_declined_retry";
-            break;
+		case 14:
+			errorString = "name_declined_retry";
+			break;
 
-        case 15:
-            errorString = "name_declined_syntax";
-            break;
+		case 15:
+			errorString = "name_declined_syntax";
+			break;
 
-        case 16:
-            errorString = "name_declined_too_fast";
-            break;
+		case 16:
+			errorString = "name_declined_too_fast";
+			break;
 
-        case 17:
-            errorString = "name_declined_cant_create_avatar";
-            break;
+		case 17:
+			errorString = "name_declined_cant_create_avatar";
+			break;
 
-        default:
-            errorString = "name_declined_internal_error";
-            gLogger->log(LogManager::DEBUG,"CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: %u",errorCode);
-            break;
-    }
+		default:
+			errorString = "name_declined_internal_error";
+			gLogger->log(LogManager::DEBUG,"CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: %u", errorCode);
+			break;
+	}
 
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opHeartBeat);
-    Message* newMessage = gMessageFactory->EndMessage();
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opHeartBeat);
+	Message* newMessage = gMessageFactory->EndMessage();
 
-    client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
+	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opClientCreateCharacterFailed);
-    gMessageFactory->addString(unknown);
-    gMessageFactory->addString(stfFile);
-    gMessageFactory->addUint32(0);            // unknown
-    gMessageFactory->addString(errorString);
-    newMessage = gMessageFactory->EndMessage();
+	gMessageFactory->StartMessage();
+	gMessageFactory->addUint32(opClientCreateCharacterFailed);
+	gMessageFactory->addString(unknown);
+	gMessageFactory->addString(stfFile);
+	gMessageFactory->addUint32(0);            // unknown
+	gMessageFactory->addString(errorString);
+	newMessage = gMessageFactory->EndMessage();
 
-    client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 3);
+	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 3);
 }
 
 //======================================================================================================================

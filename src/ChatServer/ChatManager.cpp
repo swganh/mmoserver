@@ -73,12 +73,15 @@ mMessageDispatch(dispatch)
     // Commented out the filter for now, at a later time this needs to be updated to not be bound to a single galaxy
     // mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT name FROM galaxy;"); // WHERE galaxy_id=3");
     mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnGalaxyName(2);");
+    gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatChannelMod(2);"); // SQL Debug Log
 
     asyncContainer = new ChatAsyncContainer(ChatQuery_Channels);
-    mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnChatChannels;");
+    mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnChatChannels();");
+    gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatChannels();"); // SQL Debug Log
 
     asyncContainer = new ChatAsyncContainer(ChatQuery_PlanetNames);
-    mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnChatPlanetNames;");
+    mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnChatPlanetNames();");
+    gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatPlanetNames();"); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -171,8 +174,11 @@ void ChatManager::_loadChannels(DatabaseResult* result)
         inviteContainer->mChannel = channel;
 
         mDatabase->ExecuteProcedureAsync(this, modContainer, "CALL swganh.sp_ReturnChatChannelMod(%u);", channel->getId());
+        gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatChannelMod(%u);", channel->getId()); // SQL Debug Log
         mDatabase->ExecuteProcedureAsync(this, bannedContainer, "CALL swganh.sp_ReturnChatChannelBan(%u);", channel->getId());
+        gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatChannelBan(%u);", channel->getId()); // SQL Debug Log
         mDatabase->ExecuteProcedureAsync(this, inviteContainer, "CALL swganh.sp_ReturnChatChannelInvite(%u);", channel->getId());
+        gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatChannelInvite(%u);", channel->getId()); // SQL Debug Log
     }
 }
 
@@ -384,6 +390,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 asContainer->mReceiver	= player;
 
                 mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatFriendlist(%"PRIu64");",asContainer->mReceiver->getCharId());
+                gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatFriendlist(%"PRIu64");", asContainer->mReceiver->getCharId()); // SQL Debug Log
             }
             else
                 gLogger->log(LogManager::NOTICE,"Could not find account %u",asyncContainer->mClient->getAccountId());
@@ -488,7 +495,8 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             asContainer->mMailCounter = asyncContainer->mMailCounter;
             asContainer->mReceiverId = asyncContainer->mReceiverId;
 
-            mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnoreList(%"PRIu64");",asyncContainer->mReceiverId);
+            mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnoreList(%"PRIu64");", asyncContainer->mReceiverId);
+            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatIgnoreList(%"PRIu64");", asyncContainer->mReceiverId); // SQL Debug Log
             mDatabase->DestroyDataBinding(binding);
         }
         break;
@@ -531,7 +539,8 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 bIgnore = (it != ignoreList.end());
                 if (bIgnore)
                 {
-                    mDatabase->ExecuteSqlAsync(NULL,NULL,"DELETE FROM chat_mail WHERE id=%u",asyncContainer->mRequestId);
+                    mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_DeleteMail(%u);", asyncContainer->mRequestId);
+                    gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_MailDelete(%u);", asyncContainer->mRequestId); // SQL Debug Log
                 }
             }
             if ((receiver != NULL) && (!bIgnore))
@@ -577,7 +586,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
             result->GetNextRow(mMailBinding,&mail);
 
-            memcpy(mail.mAttachments.getRawData(),mail.mAttachmentRaw,mail.mAttachmentSize);
+            memcpy(mail.mAttachments.getRawData(), mail.mAttachmentRaw, mail.mAttachmentSize);
 
             mail.mAttachments.setLength(static_cast<uint16>(mail.mAttachmentSize >> 1));
             mail.mSubject.convert(BSTRType_Unicode16);
@@ -585,7 +594,10 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
             gChatMessageLib->sendChatPersistantMessagetoClient(asyncContainer->mClient,&mail);
 
-            mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE chat_mail SET status = 1 WHERE id=%u",mail.mId);
+            //mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE chat_mail SET status = 1 WHERE id=%u", mail.mId);
+            mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_MailStatusUpdate(%u)", mail.mId);
+            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_MailStatusUpdate(%u);", asyncContainer->mRequestId); // SQL Debug Log
+
         }
         break;
 
@@ -646,6 +658,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             asContainer->mReceiver	= asyncContainer->mReceiver;
 
             mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnorelist(%"PRIu64");",asContainer->mReceiver->getCharId());
+            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatIgnorelist(%"PRIu64");",asContainer->mReceiver->getCharId()); // SQL Debug Log
         }
         break;
 
@@ -675,7 +688,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             Player* currentPlayer = getPlayerByAccId(asyncContainer->mClient->getAccountId());
 
             mDatabase->ExecuteProcedureAsync(this, asContainer,"CALL swganh.sp_ReturnChatCharChannels(%"PRIu64");", currentPlayer->getCharId());
-
+            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatCharChannels(%"PRIu64");", currentPlayer->getCharId()); // SQL Debug Log
         }
         break;
 
@@ -888,6 +901,7 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
     asyncContainer->mClient = client;
 
     mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnCharacterName(%"PRIu64")",charId);
+    gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnCharacterName(%"PRIu64")",charId); // SQL Debug Log
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opChatOnConnectAvatar);
@@ -1049,6 +1063,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
                 updateFriendsOnline(asContainer->mReceiver,true);
 
                 mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatMailHeaders(%"PRIu64");",asContainer->mReceiver->getCharId());
+                gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatMailHeaders(%"PRIu64");",asContainer->mReceiver->getCharId()); // SQL Debug Log
             }
         }
         GroupObject* group = gGroupManager->getGroupById(player->getGroupId());
@@ -1206,6 +1221,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     int8 sql_2[128];
     mDatabase->Escape_String(sql_2, title.getAnsi(), title.getLength());
     mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT sf_CreateChannel('%s', %u, %u, '%s', '%s');", modpath.getAnsi(), channel->isPrivate(), moderatedFlag, sql /* playername->getAnsi() */, sql_2 /* title.getAnsi()*/ );
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sf_CreateChannel('%s', %u, %u, '%s', '%s');", modpath.getAnsi(), channel->isPrivate(), moderatedFlag, sql /* playername->getAnsi() */, sql_2 /* title.getAnsi()*/ ); // SQL Debug Log
 
     // TEST
     gLogger->log(LogManager::DEBUG,"Channel %s created at %s\n", title.getAnsi(), modpath.getAnsi());
@@ -1286,13 +1302,8 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
     delete(channel);
 
     // If we delete the channel, we need to delete all related objects too.
-    mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels WHERE id = %u", roomId);
-
-    // Moderators, invited, banned and characters.
-    mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_moderators WHERE channel_id = %u", roomId);
-    mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_invited WHERE channel_id = %u;", roomId);
-    mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_banned WHERE channel_id = %u;", roomId);
-    mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u;", roomId);
+    mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomDelete(%u);", roomId);
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomDelete(%u);", roomId); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -1481,7 +1492,9 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
     */
     channel->addUser(avatar);
     gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
-    mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%"PRIu64", %u);", player->getCharId(), channel->getId());
+
+    mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserAdd(%"PRIu64", %u);", player->getCharId(), channel->getId());
+    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserAdd(%"PRIu64", %u);", player->getCharId(), channel->getId()); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -1637,7 +1650,11 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
         int8 sql[128];
         mDatabase->Escape_String(sql, realPlayerName.getAnsi(), realPlayerName.getLength());
 
-        mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_moderators VALUES (%u, '%s');", channel->getId(), sql /* realPlayerName.getAnsi() */);
+        // mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_moderators VALUES (%u, '%s');", channel->getId(), sql /* realPlayerName.getAnsi() */);
+        
+        mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomModeratorAdd(%u, '%s');", channel->getId(), sql);
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomModeratorAdd(%u, '%s');", channel->getId(), sql); // SQL Debug Log
+
         gChatMessageLib->sendChatOnAddModeratorToRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
     }
 #ifdef DISP_REAL_FIRST_NAME
@@ -1744,8 +1761,10 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
         int8 sql[128];
         mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
 
-        mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_invited VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi() */);
-        gLogger->log(LogManager::DEBUG,"Player %s is added to database for invited", playerName.getAnsi());
+        //mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_invited VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi() */);
+        mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserInvite(%u, '%s');", channel->getId(), sql);
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserInvite(%u, '%s');", channel->getId(), sql);
+        gLogger->log(LogManager::DEBUG, "Player %s is added to database for invited", playerName.getAnsi());
 
         gChatMessageLib->sendChatOnInviteToRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
         gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
@@ -1855,7 +1874,11 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
         int8 sql[128];
         mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
 
-        mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_invited WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
+        //	mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_invited WHERE char_name = '%s' AND channel_id = %u;", channel->getId(), sql);
+
+        mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserUnInvite(%u, '%s');", channel->getId(), sql);
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserUnInvite(%u, '%s');", channel->getId(), sql);
+
         gChatMessageLib->sendChatOnUninviteFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
         gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
     }
@@ -1972,7 +1995,11 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
         int8 sql[128];
         mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
 
-        mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_moderators WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
+        // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_moderators WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
+
+        mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomModeratorRemove(%u, '%s');", channel->getId(), sql);
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomModeratorRemove(%u, '%s');", channel->getId(), sql);
+
         gChatMessageLib->sendChatOnRemoveModeratorFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
     }
 #ifdef DISP_REAL_FIRST_NAME
@@ -2016,7 +2043,10 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
     }
     else
     {
-        mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
+        //mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
+        
+        mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserRemove(%u, %"PRIu64");", avatar->getPlayer()->getCharId(), channel->getId());
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserRemove(%u, %"PRIu64");", avatar->getPlayer()->getCharId(), channel->getId());
         gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
     }
     channel->removeUser(playerName);
@@ -2119,7 +2149,11 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
         ChatAvatarId* avatar = channel->findUser(playerName);
         if (avatar)
         {
-            mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
+            // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
+            
+            mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserRemove(%u, %"PRIu64");", avatar->getPlayer()->getCharId(), channel->getId());
+            gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserRemove(%u, %"PRIu64");", avatar->getPlayer()->getCharId(), channel->getId());
+            
             gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
             // gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);	// Update clients before we remove the poor banned one.
             channel->removeUser(playerName);
@@ -2132,7 +2166,11 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
             (void)channel->removeInvitedUser(playerName);
             mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
 
-            mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_invited WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
+            // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_invited WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
+
+            mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserUnInvite(%u, '%s');", channel->getId(), sql);
+            gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserUnInvite(%u, '%s');", channel->getId(), sql);
+
             // Removed since it gives un-wanted spam back to client.
             // gChatMessageLib->sendChatOnUninviteFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, 0);
 
@@ -2143,7 +2181,11 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
         channel->banUser(&playerName);
         // int8 sql[128];
         mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
-        mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_banned VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi()*/);
+        // mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_banned VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi()*/);
+
+        mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserBan(%u, '%s');", channel->getId(), sql);
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserBan(%u, '%s');", channel->getId(), sql);
+
         gChatMessageLib->sendChatOnBanAvatarFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
         gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
     }
@@ -2240,7 +2282,11 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
         int8 sql[128];
         mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
 
-        mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_banned WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
+        // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_banned WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
+
+        mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserUnBan(%u, '%s');", channel->getId(), sql);
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserUnBan(%u, '%s');", channel->getId(), sql);
+
         gChatMessageLib->sendChatOnUnBanAvatarFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
     }
 #ifdef DISP_REAL_FIRST_NAME
@@ -2252,11 +2298,12 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
 
 void ChatManager::_processAvatarId(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"Avatar Id");
+    gLogger->log(LogManager::DEBUG, "Avatar Id");
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
-//allows the trademanager to send EMails even if neither sender nor recipient is logged in
+//allows the trade manager to send EMails even if neither sender nor recipient is logged in
 //which is necessary for auctions
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
@@ -2268,9 +2315,10 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
     asyncContainer->mClient = NULL;
 
     int8 sql[100];
-    sprintf(sql,"SELECT firstname FROM characters WHERE id LIKE %"PRIu64"",recipient);
+    sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", recipient);
 
-    mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,sql);
+    mDatabase->ExecuteSqlAsyncNoArguments(this, asyncContainer, sql);
+    gLogger->log(LogManager::DEBUG, "SQL :: ", sql);
 }
 
 
@@ -2280,7 +2328,6 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
 // and retrieved with RequestPersistentMessage
 // TODO: attachments
 //
-
 
 void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* client)
 {
@@ -2319,7 +2366,7 @@ void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* cli
     asyncContainer->mClient = client;
 
     int8 sql[100];
-    sprintf(sql,"SELECT firstname FROM characters WHERE id LIKE %"PRIu64"",ReceiverID);
+    sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", ReceiverID);
 
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
 
@@ -2377,7 +2424,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         *sqlPointer++ = '\0';
         strcat(sql,footer);
 
-        mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,sql);
+        mDatabase->ExecuteSqlAsyncNoArguments(this, asyncContainer, sql);
 
     }
     else
@@ -2391,11 +2438,11 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         int8 sql[256],*sqlPointer;
         sprintf(sql,"SELECT id FROM characters WHERE LOWER(firstname) LIKE '");
         sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->Escape_String(sqlPointer,receiverStr.getAnsi(),receiverStr.getLength());
+        sqlPointer += mDatabase->Escape_String(sqlPointer, receiverStr.getAnsi(), receiverStr.getLength());
         *sqlPointer++ = '\'';
         *sqlPointer++ = '\0';
 
-        mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,sql);
+        mDatabase->ExecuteSqlAsyncNoArguments(this, asyncContainer, sql);
     }
 }
 
@@ -2527,7 +2574,7 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
     asyncContainer->mRequestId = dbMailId;
 
     int8 sql[256];
-    sprintf(sql,"CALL swganh.sp_ReturnChatMailById(%"PRIu32");",dbMailId);
+    sprintf(sql,"CALL sp_ReturnChatMailById(%"PRIu32");",dbMailId);
 
     mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
 }
@@ -2544,7 +2591,8 @@ void ChatManager::_processDeletePersistentMessage(Message* message,DispatchClien
 
     message->getUint8();             // unknown, attachments ?
 
-    mDatabase->ExecuteSqlAsync(NULL,NULL,"DELETE FROM chat_mail WHERE id=%u",dbMailId);
+    mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_DeleteMail(%u);", dbMailId);
+    gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_MailDelete(%u);", dbMailId); // SQL Debug Log
 
     // acknowledge
     gMessageFactory->StartMessage();
@@ -2870,9 +2918,8 @@ void ChatManager::_processFindFriendGotPosition(Message* message,DispatchClient*
     friendObject->setPositionZ(z);
 
     //now create a waypoint for the querying player
-    gChatMessageLib->sendSystemMessageProper(playerObject,false, "","ui_cmnty","friend_location","","","",0,"","","",0,0,0,"","",unicodeName.getUnicode16());
-    gChatMessageLib->sendFindFriendCreateWaypoint(playerObject->getClient(),playerObject, friendObject);
-
+    gChatMessageLib->sendSystemMessageProper(playerObject, false, "", "ui_cmnty","friend_location", "", "", "", 0, "", "", "", 0, 0, 0, "", "", unicodeName.getUnicode16());
+    gChatMessageLib->sendFindFriendCreateWaypoint(playerObject->getClient(), playerObject, friendObject);
 
 }
 
@@ -2894,7 +2941,7 @@ void ChatManager::_processFindFriendMessage(Message* message,DispatchClient* cli
     asyncContainer->mName = friendName.getAnsi();
     asyncContainer->mSender = playerObject;
 
-    sprintf(sql,"SELECT id from swganh.characters where firstname like '");
+    sprintf(sql,"SELECT id FROM swganh.characters WHERE firstname LIKE '");
     sprintf(end,"'");
     sqlPointer = sql + strlen(sql);
     sqlPointer += mDatabase->Escape_String(sqlPointer,friendName.getAnsi(),friendName.getLength());

@@ -139,24 +139,7 @@ void StructureManagerChatHandler::Shutdown()
 void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
-    Player* player(0);
-     /*
-    if (!asynContainer->mClient) 
-    {
-        return;
-    }
-
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(asynContainer->mClient->getAccountId());
-
-    if(accIt != mPlayerAccountMap.end())
-        player = (*accIt).second;
-    else
-    {
-        return;
-    }
-
-    */
-    
+    Player* player(0);    
 
     switch(asynContainer->mQueryType)
     {
@@ -575,7 +558,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
                 int8 sql[100];
 
                 // then use maintenance
-                sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)",harvesterID);
+                sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%I64u)", harvesterID);
                 StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneStructureMaintenance,0);
                 asyncContainer->harvesterID = harvesterID;
                 
@@ -694,7 +677,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
     default:break;
     }
     SAFE_DELETE(asynContainer);
-
 }
 
 //=======================================================================================================================

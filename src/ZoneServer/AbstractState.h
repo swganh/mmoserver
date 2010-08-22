@@ -27,25 +27,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CreatureObject.h"
 //#include "StatemManager"
 
+//#define list<AbstractState*> TransitionList;
+
 #pragma once
-class AbstractState
+class IState
 {
 public:
-	AbstractState(void);
-	~AbstractState(void);
+	virtual ~IState();	
 	
 	/* Activates the Enter process for the given state
 	*  
 	*/
-	virtual bool Enter();
+	virtual bool Enter(IState* targetState) = 0;
 	/* Activates the Exit process for the given state
 	*  
 	*/
-	virtual bool Exit();
+	virtual bool Exit(IState* targetState) = 0;
 	/* Determines if the player can transition to the state
 	*  
 	*/
-	virtual bool CanTransition();
+	virtual bool CanTransition(IState* targetState) = 0;
+	/* sets the current state
+	*  
+	*/
+	virtual void setCurrentState(IState* targetState) = 0;
 	/* gets the ID for the given state
 	*  
 	*/
@@ -54,10 +59,9 @@ public:
 
 	bool hidden(){return mHidden;}
 
-
-private:
-	uint32		mStateID;
-	bool		mHidden;
+protected:
+	uint32					mStateID;
+	bool					mHidden;
 
 };
 

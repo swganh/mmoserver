@@ -36,20 +36,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <list>
 
 #define gStateManager ::utils::Singleton<::common::StateManager>::Instance()
-typedef std::list<AbstractState> StateList;
+typedef std::list<IState> StateList;
 class StateManager
 {
 public:
 	StateManager(void);
 	~StateManager(void);
 
-	void setCurrentActionState(ActionState* state);
+	void setCurrentActionState(Object* object, ActionState* state);
 	void setCurrentLocomotionState(LocomotionState* state);
 	void setCurrentPostureState(PostureState* state);
 
-	bool addActionState(ActionState* state);
-	bool addLocomotionState(LocomotionState* state);
-	bool addPostureState(PostureState* state);
+	void addActionState(ActionState* state);
+	//void addLocomotionState(LocomotionState* state);
+	//void addPostureState(PostureState* state);
+
+	void removeActionState(ActionState* state);
 
 	StateList returnCurrentStates(){ return mCurrentStates;}
 
@@ -57,7 +59,6 @@ private:
 
 	StateList		mCurrentStates;
 
-	
 };
 
 #endif

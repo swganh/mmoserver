@@ -26,10 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "LocomotionState.h"
+#include "AbstractState.h"
 
 
 LocomotionState::LocomotionState(void)
 {
+	mStateID = 0;
+	//load transition list here
+	mTransitionList = 0;
 }
 
 
@@ -37,15 +41,41 @@ LocomotionState::~LocomotionState(void)
 {
 }
 
-bool LocomotionState::Enter()
+bool LocomotionState::Enter(LocomotionState* targetState)
 {
+	if (CanTransition(targetState))
+	{
+		return true;
+	}
+	
+	return false;
+}
+bool LocomotionState::Exit(LocomotionState* targetState)
+{
+	this->setID(0);
 	return true;
 }
-bool LocomotionState::Exit()
+bool LocomotionState::CanTransition(LocomotionState* targetState)
 {
-	return true;
+	bool transition = false;
+	// first check to see if the transition is in the vector
+	std::vector<LocomotionState>::iterator it = mTransitionList->begin();
+	while (it != mTransitionList->end() && !transition)
+	{
+		if (targetState->GetID() == (*it).GetID())
+		{
+			transition = true;
+		}
+		++it;
+	}
+	return transition;
 }
-bool LocomotionState::CanTransition()
+
+
+LocomotionStanding::LocomotionStanding()
 {
-	return true;
+	this->mStateID = 0;
+	// set valid moves
+	/*mTransitionList->push_back(LocomotionWalking.GetID());
+	mTransitionlist->push_back(LocomotionRunning.GetID());*/
 }

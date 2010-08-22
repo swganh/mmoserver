@@ -27,23 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "AbstractState.h"
 
-AbstractState::AbstractState(void)
+IState::~IState()
 {
 }
-
-
-AbstractState::~AbstractState(void)
+IState::~IState()
 {
-}
-bool AbstractState::Enter()
-{
-	return true;
-}
-bool AbstractState::Exit()
-{
-	return true;
-}
-bool AbstractState::CanTransition()
-{
-	return true;
 }

@@ -133,6 +133,9 @@
     <ProjectReference Include="..\src\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\src\ZoneServer\ZoneServer.vcxproj">
+      <Project>{fc533e81-c227-43d3-b68e-4a23241dd997}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\MockObjects\MockEvent.h" />

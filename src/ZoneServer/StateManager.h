@@ -33,32 +33,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ActionState.h"
 #include "LocomotionState.h"
 #include "PostureState.h"
-#include <list>
+#include <map>
 
 #define gStateManager ::utils::Singleton<::common::StateManager>::Instance()
-typedef std::list<IState> StateList;
+
+// add a map for each type of State here
+typedef std::map<int, std::unique_ptr<ActionState>> ActionStateMap;
+typedef std::map<int, std::unique_ptr<LocomotionState>> LocomotionStateMap;
+typedef std::map<int, std::unique_ptr<PostureState>> PostureStateMap;
+
 class StateManager
 {
 public:
-	StateManager(void);
-	~StateManager(void);
+	/*	@short State Manager is the state machine system that converts the object to and from a state.
+	**
+	**
+	*/
+	StateManager();
+	~StateManager();
 
-	void setCurrentActionState(Object* object, ActionState* state);
-	void setCurrentLocomotionState(LocomotionState* state);
-	void setCurrentPostureState(PostureState* state);
-
-	void addActionState(ActionState* state);
+	void setCurrentActionState(Object* object, ActionState* currState, ActionState* newState);
+	void setCurrentLocomotionState(Object* object, LocomotionState* currState, LocomotionState* newState);
+	void setCurrentPostureState(Object* object, PostureState* currState, PostureState* newState);
+	
 	//void addLocomotionState(LocomotionState* state);
 	//void addPostureState(PostureState* state);
 
-	void removeActionState(ActionState* state);
+	void removeActionState(Object* object, ActionState* currState);
 
-	StateList returnCurrentStates(){ return mCurrentStates;}
 
+	ActionStateMap		mActionStateMap;
+	PostureStateMap		mPostureStateMap;
+	LocomotionStateMap	mLocomotionStateMap;
 private:
-
-	StateList		mCurrentStates;
-
+	void addActionState(Object* object, ActionState* newState);
+	ActionStateMap		loadActionStateMap();
+	PostureStateMap		loadPostureStateMap();
+	LocomotionStateMap	loadLocomotionStateMap();
 };
 
 #endif

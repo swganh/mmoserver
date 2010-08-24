@@ -31,20 +31,28 @@ ActionState::ActionState(void)
 {
 }
 
-
-ActionState::~ActionState(void)
-{
-}
-
-bool ActionState::Enter()
+bool ActionState::Enter(Object* obj)
 {
 	return true;
 }
-bool ActionState::Exit()
+bool ActionState::Exit(Object* obj)
 {
 	return true;
 }
-bool ActionState::CanTransition()
+bool ActionState::CanTransition(Object* obj)
+{
+	return true;
+}
+
+bool StateCover::Enter(Object* obj)
+{
+	return true;
+}
+bool StateCover::Exit(Object* obj)
+{
+	return true;
+}
+bool StateCover::CanTransition(Object* obj)
 {
 	return true;
 }

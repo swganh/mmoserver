@@ -26,14 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "LocomotionState.h"
-#include "AbstractState.h"
 
 
 LocomotionState::LocomotionState(void)
 {
 	mStateID = 0;
 	//load transition list here
-	mTransitionList = 0;
 }
 
 
@@ -41,41 +39,28 @@ LocomotionState::~LocomotionState(void)
 {
 }
 
-bool LocomotionState::Enter(LocomotionState* targetState)
+bool LocomotionState::Enter(Object* obj)
 {
-	if (CanTransition(targetState))
-	{
-		return true;
-	}
-	
-	return false;
-}
-bool LocomotionState::Exit(LocomotionState* targetState)
-{
-	this->setID(0);
 	return true;
 }
-bool LocomotionState::CanTransition(LocomotionState* targetState)
+bool LocomotionState::Exit(Object* obj)
 {
-	bool transition = false;
-	// first check to see if the transition is in the vector
-	std::vector<LocomotionState>::iterator it = mTransitionList->begin();
-	while (it != mTransitionList->end() && !transition)
-	{
-		if (targetState->GetID() == (*it).GetID())
-		{
-			transition = true;
-		}
-		++it;
-	}
-	return transition;
+	return true;
+}
+bool LocomotionState::CanTransition(Object* obj)
+{
+	return true;
 }
 
-
-LocomotionStanding::LocomotionStanding()
+bool LocomotionStanding::Enter(Object* obj)
 {
-	this->mStateID = 0;
-	// set valid moves
-	/*mTransitionList->push_back(LocomotionWalking.GetID());
-	mTransitionlist->push_back(LocomotionRunning.GetID());*/
+	return true;
+}
+bool LocomotionStanding::Exit(Object* obj)
+{
+	return true;
+}
+bool LocomotionStanding::CanTransition(Object* obj)
+{
+	return true;
 }

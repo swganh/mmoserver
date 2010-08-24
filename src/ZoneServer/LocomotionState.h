@@ -30,29 +30,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_LOCOMOTION_STATE_H
 
 #include "AbstractState.h"
-#include <vector>
 
 class LocomotionState :
 	public IState
 {
 public:
 	LocomotionState(void);
-	~LocomotionState(void);
+	virtual ~LocomotionState(void);
 	/* Activates the Enter process for the character Locomotion
 	*  
 	*/
-	virtual bool Enter(LocomotionState* targetState);
+	virtual bool Enter(Object* obj);
 	/* Activates the Exit process for the given Locomotion
 	*  
 	*/
-	virtual bool Exit(LocomotionState* targetState);
+	virtual bool Exit(Object* obj);
 	/* Determines if the player can transition to the Locomotion
 	*  
 	*/
-	virtual bool CanTransition(LocomotionState* targetState);
-protected:
-	std::vector<LocomotionState>*	mTransitionList;
+	virtual bool CanTransition(Object* obj);
 };
+#endif
 /* Standing Locomotion
 *
 */
@@ -60,228 +58,235 @@ class LocomotionStanding:
 	public LocomotionState
 {
 public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
+	virtual bool Enter(Object* obj);
+	virtual bool Exit(Object* obj);
+	virtual bool CanTransition(Object* obj);
 };
-/*	Sneaking Locomotion
-*
-*/
-class LocomotionSneaking:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Walking Locomotion
-*
-*/
-class LocomotionWalking:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Running Locomotion
-*
-*/
-class LocomotionKneeling:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	CrouchSneaking Locomotion
-*
-*/
-class LocomotionCrouchSneaking:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	CrouchWalking Locomotion
-*
-*/
-class LocomotionCrouchWalking:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Prone Locomotion
-*
-*/
-class LocomotionProne:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Crawling Locomotion
-*
-*/
-class LocomotionCrawling:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	ClimbingStationary Locomotion
-*
-*/
-class LocomotionClimbingStationary:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Climbing Locomotion
-*
-*/
-class LocomotionClimbing:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Hovering Locomotion
-*
-*/
-class LocomotionHovering:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Flying Locomotion
-*
-*/
-class LocomotionFlying:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	LyingDown Locomotion
-*
-*/
-class LocomotionLyingDown:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Sitting Locomotion
-*
-*/
-class LocomotionSitting:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	SkillAnimating Locomotion
-*
-*/
-class LocomotionSkillAnimating:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	DrivingVehicle Locomotion
-*
-*/
-class LocomotionDrivingVehicle:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	RidingCreature Locomotion
-*
-*/
-class LocomotionRidingCreature:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	KnockedDown Locomotion
-*
-*/
-class LocomotionKnockedDown:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Incapacitated Locomotion
-*
-*/
-class LocomotionIncapacitated:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Dead Locomotion
-*
-*/
-class LocomotionDead:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-/*	Blocking Locomotion
-*
-*/
-class LocomotionBlocking:
-	public LocomotionState
-{
-public:
-	virtual bool Enter(LocomotionState* targetState);
-	virtual bool Exit(LocomotionState* targetState);
-	virtual bool CanTransition(LocomotionState* targetState);
-};
-#endif
+///*	Sneaking Locomotion
+//*
+//*/
+//class LocomotionSneaking:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Walking Locomotion
+//*
+//*/
+//class LocomotionWalking:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Running Locomotion
+//*
+//*/
+//class LocomotionRunning:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+//class LocomotionKneeling:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	CrouchSneaking Locomotion
+//*
+//*/
+//class LocomotionCrouchSneaking:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	CrouchWalking Locomotion
+//*
+//*/
+//class LocomotionCrouchWalking:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Prone Locomotion
+//*
+//*/
+//class LocomotionProne:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Crawling Locomotion
+//*
+//*/
+//class LocomotionCrawling:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	ClimbingStationary Locomotion
+//*
+//*/
+//class LocomotionClimbingStationary:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Climbing Locomotion
+//*
+//*/
+//class LocomotionClimbing:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Hovering Locomotion
+//*
+//*/
+//class LocomotionHovering:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Flying Locomotion
+//*
+//*/
+//class LocomotionFlying:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	LyingDown Locomotion
+//*
+//*/
+//class LocomotionLyingDown:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Sitting Locomotion
+//*
+//*/
+//class LocomotionSitting:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	SkillAnimating Locomotion
+//*
+//*/
+//class LocomotionSkillAnimating:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	DrivingVehicle Locomotion
+//*
+//*/
+//class LocomotionDrivingVehicle:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	RidingCreature Locomotion
+//*
+//*/
+//class LocomotionRidingCreature:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	KnockedDown Locomotion
+//*
+//*/
+//class LocomotionKnockedDown:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Incapacitated Locomotion
+//*
+//*/
+//class LocomotionIncapacitated:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Dead Locomotion
+//*
+//*/
+//class LocomotionDead:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Blocking Locomotion
+//*
+//*/
+//class LocomotionBlocking:
+//	public LocomotionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};

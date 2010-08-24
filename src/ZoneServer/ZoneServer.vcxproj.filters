@@ -752,9 +752,6 @@
     <ClCompile Include="HamService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AbstractState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LocomotionState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

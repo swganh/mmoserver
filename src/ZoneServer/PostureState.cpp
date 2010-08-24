@@ -37,15 +37,28 @@ PostureState::~PostureState(void)
 {
 }
 
-bool PostureState::Enter()
+bool PostureState::Enter(Object* obj)
 {
 	return true;
 }
-bool PostureState::Exit()
+bool PostureState::Exit(Object* obj)
 {
 	return true;
 }
-bool PostureState::CanTransition()
+bool PostureState::CanTransition(Object* obj)
+{
+	return true;
+}
+
+bool PostureUpright::Enter(Object* obj)
+{
+	return true;
+}
+bool PostureUpright::Exit(Object* obj)
+{
+	return true;
+}
+bool PostureUpright::CanTransition(Object* obj)
 {
 	return true;
 }

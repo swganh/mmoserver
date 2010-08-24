@@ -109,6 +109,7 @@
     <ClCompile Include="Common\TestHashString.cpp" />
     <ClCompile Include="Common\TestOutOfBand.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TestStateManager.cpp" />
     <ClCompile Include="Utils\TestActiveObject.cpp" />
     <ClCompile Include="Utils\TestCmpistr.cpp" />
     <ClCompile Include="Utils\TestConcurrentQueue.cpp" />
@@ -141,6 +142,7 @@
     <ClInclude Include="Common\MockObjects\MockEvent.h" />
     <ClInclude Include="Common\MockObjects\MockListener.h" />
     <ClInclude Include="Common\MockObjects\MockListenerAlt.h" />
+    <ClInclude Include="MockStateManager.h" />
     <ClInclude Include="Utils\MockObjects\MockActiveObjectImpl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

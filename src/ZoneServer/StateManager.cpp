@@ -28,12 +28,54 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "StateManager.h"
 
-
-StateManager::StateManager(void)
+StateManager::StateManager()
 {
+	mActionStateMap = loadActionStateMap();
+	mPostureStateMap = loadPostureStateMap();
+	mLocomotionStateMap = loadLocomotionStateMap();
+}
+StateManager::~StateManager()
+{
+	mActionStateMap.empty();
+	mPostureStateMap.empty();
+	mLocomotionStateMap.empty();
 }
 
-
-StateManager::~StateManager(void)
+ActionStateMap StateManager::loadActionStateMap()
 {
+	ActionStateMap map;
+
+	//map.insert(std::make_pair<int, std::unique_ptr<IState>>(-1, std::unique_ptr<IState>(new EmptyState())));
+	map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(0, std::unique_ptr<ActionState>(new StateCover())));
+	/*map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(1, std::unique_ptr<ActionState>(new StateCombat())));
+	map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(2, std::unique_ptr<ActionState>(new StatePeace())));
+	map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(3, std::unique_ptr<ActionState>(new StateAiming())));*/
+
+	return map;
+}
+PostureStateMap StateManager::loadPostureStateMap()
+{
+	PostureStateMap map;
+
+	//map.insert(std::make_pair<int, std::unique_ptr<IState>>(-1, std::unique_ptr<IState>(new EmptyState())));
+	map.insert(std::make_pair<int, std::unique_ptr<PostureState>>(0, std::unique_ptr<PostureState>(new PostureUpright())));
+	/*map.insert(std::make_pair<int, std::unique_ptr<PostureState>>(1, std::unique_ptr<PostureState>(new PostureCrouched())));
+	map.insert(std::make_pair<int, std::unique_ptr<PostureState>>(2, std::unique_ptr<PostureState>(new PostureSneaking())));
+	map.insert(std::make_pair<int, std::unique_ptr<PostureState>>(3, std::unique_ptr<PostureState>(new PostureBlocking())));*/
+
+	return map;
+}
+
+LocomotionStateMap StateManager::loadLocomotionStateMap()
+{
+	LocomotionStateMap map;
+
+	//map.insert(std::make_pair<int, std::unique_ptr<IState>>(-1, std::unique_ptr<IState>(new EmptyState())));
+	map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(0, std::unique_ptr<LocomotionState>(new LocomotionStanding())));
+	/*map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(1, std::unique_ptr<LocomotionState>(new LocomotionSneaking())));
+	map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(2, std::unique_ptr<LocomotionState>(new LocomotionWalking())));
+	map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(2, std::unique_ptr<LocomotionState>(new LocomotionRunning())));
+	map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(4, std::unique_ptr<LocomotionState>(new LocomotionKneeling())));*/
+
+	return map;
 }

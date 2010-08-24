@@ -99,7 +99,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AbstractState.cpp" />
     <ClCompile Include="ActiveConversation.cpp" />
     <ClCompile Include="AdminManager.cpp" />
     <ClCompile Include="ArtisanManager.cpp" />

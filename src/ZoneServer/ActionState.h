@@ -27,29 +27,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 #ifndef ANH_ZONESERVER_ACTION_STATE_H
 #define ANH_ZONESERVER_ACTION_STATE_H
-#include "abstractstate.h"
-#include "CreatureObject.h"
+#include "AbstractState.h"
+
 class ActionState :
 	public IState
 {
 public:
 	ActionState(void);
-	~ActionState(void);
+	virtual ~ActionState(void){};
 
 	/* Activates the Enter process for the character state
 	*  
 	*/
-	virtual bool Enter();
+	virtual bool Enter(Object* obj);
 	/* Activates the Exit process for the given state
 	*  
 	*/
-	virtual bool Exit();
+	virtual bool Exit(Object* obj);
 	/* Determines if the player can transition to the state
 	*  
 	*/
-	virtual bool CanTransition();
+	virtual bool CanTransition(Object* obj);
 
 };
+#endif
+
 /*	Cover State
 *
 */
@@ -57,371 +59,373 @@ class StateCover:
 	public ActionState
 {
 public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
+	virtual bool Enter(Object* obj);
+	virtual bool Exit(Object* obj);
+	virtual bool CanTransition(Object* obj);
+private:
+	uint32 mStateID;
 };
-/*	Combat State
-*
-*/
-class StateCombat:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Peace State
-*
-*/
-class StatePeace:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Aiming State
-*
-*/
-class StateAiming:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Alert State
-*
-*/
-class StateAlert:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Bersker State
-*
-*/
-class StateBerserk:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Feign Death State
-*
-*/
-class StateFeign:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	CombatAttitudeEvasive State
-*
-*/
-class StateCombatEvasive:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	CombatAttitudeNormal State
-*
-*/
-class StateCombatNormal:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	CombatAttitudeAggressive State
-*
-*/
-class StateCombatAggressive:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Tumbling State
-*
-*/
-class StateTumbling:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Rallied State
-*
-*/
-class StateRallied:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Stunned State
-*
-*/
-class StateStunned:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Blinded State
-*
-*/
-class StateBlinded:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Dizzy State
-*
-*/
-class StateDizzy:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Intimidated State
-*
-*/
-class StateIntimidated:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Immobolized State
-*
-*/
-class StateImmobolized:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Frozen State
-*
-*/
-class StateFrozen:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Swimming State
-*
-*/
-class StateSwimming:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	SittingOnChair State
-*
-*/
-class StateSittingOnChair:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Crafting State
-*
-*/
-class StateCrafting:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	GlowingJedi State
-*
-*/
-class StateGlowingJedi:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	MaskScent State
-*
-*/
-class StateMaskScent:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Poisoined State
-*
-*/
-class StatePoisoined:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Bleeding State
-*
-*/
-class StateBleeding:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Diseased State
-*
-*/
-class StateDiseased:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	OnFire State
-*
-*/
-class StateOnFire:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	RidingMount State
-*
-*/
-class StateRidingMount:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	MountedCreature State
-*
-*/
-class StateMountedCreature:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	PilotingShip State
-*
-*/
-class StatePilotingShip:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	ShipOperations State
-*
-*/
-class StateShipOperations:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	ShipGunner State
-*
-*/
-class StateShipGunner:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	ShipInterior State
-*
-*/
-class StateShipInterior:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	PilotingPobShip State
-*
-*/
-class StatePilotingPobShip:
-	public ActionState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-#endif
+//
+///*	Combat State
+//*
+//*/
+//class StateCombat:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Peace State
+//*
+//*/
+//class StatePeace:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Aiming State
+//*
+//*/
+//class StateAiming:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Alert State
+//*
+//*/
+//class StateAlert:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Bersker State
+//*
+//*/
+//class StateBerserk:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Feign Death State
+//*
+//*/
+//class StateFeign:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	CombatAttitudeEvasive State
+//*
+//*/
+//class StateCombatEvasive:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	CombatAttitudeNormal State
+//*
+//*/
+//class StateCombatNormal:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	CombatAttitudeAggressive State
+//*
+//*/
+//class StateCombatAggressive:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Tumbling State
+//*
+//*/
+//class StateTumbling:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Rallied State
+//*
+//*/
+//class StateRallied:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Stunned State
+//*
+//*/
+//class StateStunned:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Blinded State
+//*
+//*/
+//class StateBlinded:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Dizzy State
+//*
+//*/
+//class StateDizzy:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Intimidated State
+//*
+//*/
+//class StateIntimidated:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Immobolized State
+//*
+//*/
+//class StateImmobolized:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Frozen State
+//*
+//*/
+//class StateFrozen:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Swimming State
+//*
+//*/
+//class StateSwimming:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	SittingOnChair State
+//*
+//*/
+//class StateSittingOnChair:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Crafting State
+//*
+//*/
+//class StateCrafting:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	GlowingJedi State
+//*
+//*/
+//class StateGlowingJedi:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	MaskScent State
+//*
+//*/
+//class StateMaskScent:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Poisoined State
+//*
+//*/
+//class StatePoisoined:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Bleeding State
+//*
+//*/
+//class StateBleeding:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Diseased State
+//*
+//*/
+//class StateDiseased:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	OnFire State
+//*
+//*/
+//class StateOnFire:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	RidingMount State
+//*
+//*/
+//class StateRidingMount:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	MountedCreature State
+//*
+//*/
+//class StateMountedCreature:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	PilotingShip State
+//*
+//*/
+//class StatePilotingShip:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	ShipOperations State
+//*
+//*/
+//class StateShipOperations:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	ShipGunner State
+//*
+//*/
+//class StateShipGunner:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	ShipInterior State
+//*
+//*/
+//class StateShipInterior:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	PilotingPobShip State
+//*
+//*/
+//class StatePilotingPobShip:
+//	public ActionState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};

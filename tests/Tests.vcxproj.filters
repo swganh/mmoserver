@@ -13,6 +13,9 @@
     <Filter Include="Utils\MockObjects">
       <UniqueIdentifier>{7ea6d2ef-4037-48ac-9adf-2211491b8ebf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ZoneServer">
+      <UniqueIdentifier>{91d7c3fb-0506-4d72-9f41-582439f2d3ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Utils\TestCmpistr.cpp">
@@ -46,6 +49,9 @@
     <ClCompile Include="Common\MockObjects\MockEvent.cpp">
       <Filter>Common\MockObjects</Filter>
     </ClCompile>
+    <ClCompile Include="TestStateManager.cpp">
+      <Filter>ZoneServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common\MockObjects\MockListener.h">
@@ -61,6 +67,9 @@
       <Filter>Utils\MockObjects</Filter>
     </ClInclude>
     <ClInclude Include="Common\MockObjects\MockEvent.h">
+      <Filter>Common\MockObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="MockStateManager.h">
       <Filter>Common\MockObjects</Filter>
     </ClInclude>
   </ItemGroup>

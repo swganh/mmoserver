@@ -35,19 +35,19 @@ class PostureState :
 {
 public:
 	PostureState(void);
-	~PostureState(void);
+	virtual ~PostureState(void);
 	/* Activates the Enter process for the character Posture
 	*  
 	*/
-	virtual bool Enter();
+	virtual bool Enter(Object* obj);
 	/* Activates the Exit process for the given Posture
 	*  
 	*/
-	virtual bool Exit();
+	virtual bool Exit(Object* obj);
 	/* Determines if the player can transition to the Posture
 	*  
 	*/
-	virtual bool CanTransition();
+	virtual bool CanTransition(Object* obj);
 };
 /*	Upright Posture
 *
@@ -56,162 +56,162 @@ class PostureUpright:
 	public PostureState
 {
 public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Crouched Posture
-*
-*/
-class PostureCrouched:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Prone Posture
-*
-*/
-class PostureProne:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Sneaking Posture
-*
-*/
-class PostureSneaking:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Blocking Posture
-*
-*/
-class PostureBlocking:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Climbing Posture
-*
-*/
-class PostureClimbing:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Flying Posture
-*
-*/
-class PostureFlying:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	LyingDown Posture
-*
-*/
-class PostureLyingDown:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Sitting Posture
-*
-*/
-class PostureSitting:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	SkillAnimating Posture
-*
-*/
-class PostureSkillAnimating:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	DrivingVehicle Posture
-*
-*/
-class PostureDrivingVehicle:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	RidingCreature Posture
-*
-*/
-class PostureRidingCreature:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	KnockedDown Posture
-*
-*/
-class PostureKnockedDown:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Incapacitated Posture
-*
-*/
-class PostureIncapacitated:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
-};
-/*	Dead Posture
-*
-*/
-class PostureDead:
-	public PostureState
-{
-public:
-	virtual bool Enter();
-	virtual bool Exit();
-	virtual bool CanTransition();
+	virtual bool Enter(Object* obj);
+	virtual bool Exit(Object* obj);
+	virtual bool CanTransition(Object* obj);
 };
 #endif
+///*	Crouched Posture
+//*
+//*/
+//class PostureCrouched:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Prone Posture
+//*
+//*/
+//class PostureProne:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Sneaking Posture
+//*
+//*/
+//class PostureSneaking:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Blocking Posture
+//*
+//*/
+//class PostureBlocking:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Climbing Posture
+//*
+//*/
+//class PostureClimbing:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Flying Posture
+//*
+//*/
+//class PostureFlying:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	LyingDown Posture
+//*
+//*/
+//class PostureLyingDown:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Sitting Posture
+//*
+//*/
+//class PostureSitting:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	SkillAnimating Posture
+//*
+//*/
+//class PostureSkillAnimating:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	DrivingVehicle Posture
+//*
+//*/
+//class PostureDrivingVehicle:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	RidingCreature Posture
+//*
+//*/
+//class PostureRidingCreature:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	KnockedDown Posture
+//*
+//*/
+//class PostureKnockedDown:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Incapacitated Posture
+//*
+//*/
+//class PostureIncapacitated:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};
+///*	Dead Posture
+//*
+//*/
+//class PostureDead:
+//	public PostureState
+//{
+//public:
+//	virtual bool Enter(Object* obj);
+//	virtual bool Exit(Object* obj);
+//	virtual bool CanTransition(Object* obj);
+//};

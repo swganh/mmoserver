@@ -24,41 +24,53 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#include "CreatureObject.h"
-
 #pragma once
+#include "Object.h"
+
+class Object;
+
 class IState
 {
 public:
-	virtual ~IState();	
-	
+	virtual ~IState(void){};	
+
 	/* Activates the Enter process for the given state
 	*  
 	*/
-	virtual bool Enter(IState* targetState) = 0;
+	virtual bool Enter(Object* obj) = 0 ;
 	/* Activates the Exit process for the given state
 	*  
 	*/
-	virtual bool Exit(IState* targetState) = 0;
+	virtual bool Exit(Object* obj) = 0;
 	/* Determines if the player can transition to the state
 	*  
 	*/
-	virtual bool CanTransition(IState* targetState) = 0;
+	virtual bool CanTransition(Object* obj) = 0;
 	/* sets the current state
 	*  
 	*/
-	virtual void setCurrentState(IState* targetState) = 0;
+	//virtual void setCurrentState(Object* obj) = 0;
 	/* gets the ID for the given state
 	*  
 	*/
-	virtual uint32 GetID(){return mStateID;}
-	void setID(uint32 id){id = mStateID;}
+	virtual uint32 GetID(IState* state){return state->mStateID;}
 
-	bool hidden(){return mHidden;}
+	//virtual bool hidden(){return mHidden;}
 
 protected:
 	uint32					mStateID;
 	bool					mHidden;
-
+};
+/* Empty State
+*
+*/
+class EmptyState:
+	public IState
+{
+public:
+	EmptyState(){mStateID = -1;}
+	virtual bool Enter(Object* obj);
+	virtual bool Exit(Object* obj);
+	virtual bool CanTransition(Object* obj);
 };
 

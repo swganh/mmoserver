@@ -27,9 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 #ifndef ANH_ZONESERVER_ACTION_STATE_H
 #define ANH_ZONESERVER_ACTION_STATE_H
+
+#include "ZoneServer/declspec.h"
 #include "AbstractState.h"
 
-class ActionState :
+class ZONE_API ActionState :
 	public IState
 {
 public:
@@ -57,7 +59,7 @@ protected:
 /*	Cover State
 *
 */
-class StateCover:
+class ZONE_API StateCover:
 	public ActionState
 {
 public:

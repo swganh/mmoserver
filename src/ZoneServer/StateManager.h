@@ -24,12 +24,11 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-
-
 #pragma once
 #ifndef ANH_ZONESERVER_STATE_MANAGER_H
 #define ANH_ZONESERVER_STATE_MANAGER_H
 
+#include "ZoneServer/declspec.h"
 #include "ActionState.h"
 #include "LocomotionState.h"
 #include "PostureState.h"
@@ -42,7 +41,7 @@ typedef std::map<int, std::unique_ptr<ActionState>> ActionStateMap;
 typedef std::map<int, std::unique_ptr<LocomotionState>> LocomotionStateMap;
 typedef std::map<int, std::unique_ptr<PostureState>> PostureStateMap;
 
-class StateManager
+class ZONE_API StateManager
 {
 public:
 	/*	@short State Manager is the state machine system that converts the object to and from a state.
@@ -61,7 +60,6 @@ public:
 
 	void removeActionState(Object* object, ActionState* currState);
 
-
 	ActionStateMap		mActionStateMap;
 	PostureStateMap		mPostureStateMap;
 	LocomotionStateMap	mLocomotionStateMap;
@@ -71,5 +69,4 @@ private:
 	PostureStateMap		loadPostureStateMap();
 	LocomotionStateMap	loadLocomotionStateMap();
 };
-
 #endif

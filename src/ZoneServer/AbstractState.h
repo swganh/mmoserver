@@ -25,10 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #pragma once
+#include "ZoneServer/declspec.h"
 #include "CreatureObject.h"
 #include "CreatureEnums.h"
 
-class IState
+class ZONE_API IState
 {
 public:
 	virtual ~IState(void){};	
@@ -63,7 +64,7 @@ protected:
 /* Empty State
 *
 */
-class EmptyState:
+class ZONE_API EmptyState:
 	public IState
 {
 public:

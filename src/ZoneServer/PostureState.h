@@ -29,8 +29,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_POSTURE_STATE_H
 #define ANH_ZONESERVER_POSTURE_STATE_H
 
+#include "ZoneServer/declspec.h"
 #include "abstractstate.h"
-class PostureState :
+
+
+class ZONE_API PostureState :
 	public IState
 {
 public:
@@ -52,7 +55,7 @@ public:
 /*	Upright Posture
 *
 */
-class PostureUpright:
+class ZONE_API PostureUpright:
 	public PostureState
 {
 public:

@@ -52,9 +52,9 @@ public:
 	StateManager();
 	~StateManager();
 
-	void setCurrentActionState(Object* object, ActionState* currState, ActionState* newState);
-	void setCurrentLocomotionState(Object* object, LocomotionState* currState, LocomotionState* newState);
-	void setCurrentPostureState(Object* object, PostureState* currState, PostureState* newState);
+	void setCurrentActionState(CreatureObject* object, ActionState* currState, ActionState* newState);
+	void setCurrentLocomotionState(CreatureObject* object, LocomotionState* currState, LocomotionState* newState);
+	void setCurrentPostureState(CreatureObject* object, PostureState* currState, PostureState* newState);
 	
 	//void addLocomotionState(LocomotionState* state);
 	//void addPostureState(PostureState* state);

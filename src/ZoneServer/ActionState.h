@@ -39,16 +39,18 @@ public:
 	/* Activates the Enter process for the character state
 	*  
 	*/
-	virtual bool Enter(Object* obj);
+	virtual bool Enter(CreatureObject* obj);
 	/* Activates the Exit process for the given state
 	*  
 	*/
-	virtual bool Exit(Object* obj);
+	virtual bool Exit(CreatureObject* obj);
 	/* Determines if the player can transition to the state
 	*  
 	*/
-	virtual bool CanTransition(Object* obj);
+	virtual bool CanTransition(CreatureObject* obj);
 
+protected:
+	CreatureState	mStateID;
 };
 #endif
 
@@ -59,11 +61,10 @@ class StateCover:
 	public ActionState
 {
 public:
-	virtual bool Enter(Object* obj);
-	virtual bool Exit(Object* obj);
-	virtual bool CanTransition(Object* obj);
-private:
-	uint32 mStateID;
+	StateCover();
+	virtual bool Enter(CreatureObject* obj);
+	virtual bool Exit(CreatureObject* obj);
+	virtual bool CanTransition(CreatureObject* obj);
 };
 //
 ///*	Combat State

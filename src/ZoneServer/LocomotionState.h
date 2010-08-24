@@ -40,15 +40,15 @@ public:
 	/* Activates the Enter process for the character Locomotion
 	*  
 	*/
-	virtual bool Enter(Object* obj);
+	virtual bool Enter(CreatureObject* obj);
 	/* Activates the Exit process for the given Locomotion
 	*  
 	*/
-	virtual bool Exit(Object* obj);
+	virtual bool Exit(CreatureObject* obj);
 	/* Determines if the player can transition to the Locomotion
 	*  
 	*/
-	virtual bool CanTransition(Object* obj);
+	virtual bool CanTransition(CreatureObject* obj);
 };
 #endif
 /* Standing Locomotion
@@ -58,9 +58,9 @@ class LocomotionStanding:
 	public LocomotionState
 {
 public:
-	virtual bool Enter(Object* obj);
-	virtual bool Exit(Object* obj);
-	virtual bool CanTransition(Object* obj);
+	virtual bool Enter(CreatureObject* obj);
+	virtual bool Exit(CreatureObject* obj);
+	virtual bool CanTransition(CreatureObject* obj);
 };
 ///*	Sneaking Locomotion
 //*

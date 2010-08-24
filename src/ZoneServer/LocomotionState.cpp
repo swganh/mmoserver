@@ -39,28 +39,28 @@ LocomotionState::~LocomotionState(void)
 {
 }
 
-bool LocomotionState::Enter(Object* obj)
+bool LocomotionState::Enter(CreatureObject* obj)
 {
 	return true;
 }
-bool LocomotionState::Exit(Object* obj)
+bool LocomotionState::Exit(CreatureObject* obj)
 {
 	return true;
 }
-bool LocomotionState::CanTransition(Object* obj)
+bool LocomotionState::CanTransition(CreatureObject* obj)
 {
 	return true;
 }
 
-bool LocomotionStanding::Enter(Object* obj)
+bool LocomotionStanding::Enter(CreatureObject* obj)
 {
 	return true;
 }
-bool LocomotionStanding::Exit(Object* obj)
+bool LocomotionStanding::Exit(CreatureObject* obj)
 {
 	return true;
 }
-bool LocomotionStanding::CanTransition(Object* obj)
+bool LocomotionStanding::CanTransition(CreatureObject* obj)
 {
 	return true;
 }

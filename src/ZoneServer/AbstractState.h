@@ -25,9 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #pragma once
-#include "Object.h"
-
-class Object;
+#include "CreatureObject.h"
+#include "CreatureEnums.h"
 
 class IState
 {
@@ -37,15 +36,15 @@ public:
 	/* Activates the Enter process for the given state
 	*  
 	*/
-	virtual bool Enter(Object* obj) = 0 ;
+	virtual bool Enter(CreatureObject* obj) = 0 ;
 	/* Activates the Exit process for the given state
 	*  
 	*/
-	virtual bool Exit(Object* obj) = 0;
+	virtual bool Exit(CreatureObject* obj) = 0;
 	/* Determines if the player can transition to the state
 	*  
 	*/
-	virtual bool CanTransition(Object* obj) = 0;
+	virtual bool CanTransition(CreatureObject* obj) = 0;
 	/* sets the current state
 	*  
 	*/
@@ -58,7 +57,7 @@ public:
 	//virtual bool hidden(){return mHidden;}
 
 protected:
-	uint32					mStateID;
+	uint64					mStateID;
 	bool					mHidden;
 };
 /* Empty State
@@ -69,8 +68,8 @@ class EmptyState:
 {
 public:
 	EmptyState(){mStateID = -1;}
-	virtual bool Enter(Object* obj);
-	virtual bool Exit(Object* obj);
-	virtual bool CanTransition(Object* obj);
+	virtual bool Enter(CreatureObject* obj);
+	virtual bool Exit(CreatureObject* obj);
+	virtual bool CanTransition(CreatureObject* obj);
 };
 

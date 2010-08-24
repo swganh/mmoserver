@@ -31,28 +31,35 @@ ActionState::ActionState(void)
 {
 }
 
-bool ActionState::Enter(Object* obj)
+bool ActionState::Enter(CreatureObject* obj)
 {
 	return true;
 }
-bool ActionState::Exit(Object* obj)
+bool ActionState::Exit(CreatureObject* obj)
 {
 	return true;
 }
-bool ActionState::CanTransition(Object* obj)
+bool ActionState::CanTransition(CreatureObject* obj)
 {
 	return true;
 }
 
-bool StateCover::Enter(Object* obj)
+// StateCover
+StateCover::StateCover() : ActionState()
+{
+	mStateID = CreatureState_Cover;
+}
+bool StateCover::Enter(CreatureObject* obj)
+{
+	obj->toggleStateOn(mStateID);
+	return true;
+}
+bool StateCover::Exit(CreatureObject* obj)
 {
 	return true;
 }
-bool StateCover::Exit(Object* obj)
+bool StateCover::CanTransition(CreatureObject* obj)
 {
-	return true;
-}
-bool StateCover::CanTransition(Object* obj)
-{
+	// check the transition list
 	return true;
 }

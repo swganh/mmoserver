@@ -79,3 +79,17 @@ LocomotionStateMap StateManager::loadLocomotionStateMap()
 
 	return map;
 }
+
+void StateManager::setCurrentActionState(CreatureObject* object, ActionState* currState, ActionState* newState)
+{
+	// check if we can transition to the new state
+	if (currState->CanTransition(object))
+	{
+		// Exit old State
+		currState->Exit(object);
+
+		// Enter new State
+		newState->Enter(object);
+	}
+
+}

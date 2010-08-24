@@ -39,15 +39,15 @@ public:
 	/* Activates the Enter process for the character Posture
 	*  
 	*/
-	virtual bool Enter(Object* obj);
+	virtual bool Enter(CreatureObject* obj);
 	/* Activates the Exit process for the given Posture
 	*  
 	*/
-	virtual bool Exit(Object* obj);
+	virtual bool Exit(CreatureObject* obj);
 	/* Determines if the player can transition to the Posture
 	*  
 	*/
-	virtual bool CanTransition(Object* obj);
+	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Upright Posture
 *
@@ -56,9 +56,9 @@ class PostureUpright:
 	public PostureState
 {
 public:
-	virtual bool Enter(Object* obj);
-	virtual bool Exit(Object* obj);
-	virtual bool CanTransition(Object* obj);
+	virtual bool Enter(CreatureObject* obj);
+	virtual bool Exit(CreatureObject* obj);
+	virtual bool CanTransition(CreatureObject* obj);
 };
 #endif
 ///*	Crouched Posture

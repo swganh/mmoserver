@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CMWeaponGroup.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "Weapon.h"
 #include "VehicleController.h"
 #include "WorldManager.h"
@@ -225,17 +226,23 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			}
 
 			// put us in combat state
-			if (!playerAttacker->checkState(CreatureState_Combat))
+			/*if (!playerAttacker->checkState(CreatureState_Combat))
 			{
 				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
 				gMessageLib->sendStateUpdate(playerAttacker);
-			}
+			}*/
+
+			// TEST STATE MANAGER!
+			gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
 
 			// put our target in combat state
 			if(!defenderPlayer->checkState(CreatureState_Combat))
 			{
-				defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(defenderPlayer);
+				/*defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+				gMessageLib->sendStateUpdate(defenderPlayer);*/
+
+				// TEST STATE MANAGER!
+				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
 			}
 
 			// update our defender list
@@ -285,8 +292,11 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				// playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
 				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() | CreaturePvPStatus_Attackable);
 
-				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(playerAttacker);
+				// TEST STATE MANAGER!
+				gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
+				
+				//playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+				//gMessageLib->sendStateUpdate(playerAttacker);
 
 				// playerAttacker->toggleStateOn(CreatureState_Combat);
 				// gMessageLib->sendStateUpdate(playerAttacker);
@@ -300,8 +310,10 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				gWorldManager->forceHandlingOfReadyNpc(defender->getId());
 
 				// Creature may need some aggro built up before going into combat state??
-				defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(defender);
+				// TEST STATE MANAGER!
+				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
+				//defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+				//gMessageLib->sendStateUpdate(defender);
 			}
 
 			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Enemy);
@@ -325,7 +337,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 	{
 		return(false);
 	}
-
+	 
 	return(true);
 }
 

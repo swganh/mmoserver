@@ -28,10 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_ACTION_STATE_H
 #define ANH_ZONESERVER_ACTION_STATE_H
 
-#include "ZoneServer/declspec.h"
 #include "AbstractState.h"
 
-class ZONE_API ActionState :
+class ActionState :
 	public IState
 {
 public:
@@ -59,7 +58,7 @@ protected:
 /*	Cover State
 *
 */
-class ZONE_API StateCover:
+class StateCover:
 	public ActionState
 {
 public:
@@ -68,21 +67,23 @@ public:
 	virtual bool Exit(CreatureObject* obj);
 	virtual bool CanTransition(CreatureObject* obj);
 };
-//
-///*	Combat State
-//*
-//*/
-//class StateCombat:
-//	public ActionState
-//{
-//public:
-//	virtual bool Enter(Object* obj);
-//	virtual bool Exit(Object* obj);
-//	virtual bool CanTransition(Object* obj);
-//};
-///*	Peace State
-//*
-//*/
+/*
+*	Combat State
+*
+*/
+class StateCombat:
+	public ActionState
+{
+public:
+	StateCombat();
+	virtual bool Enter(CreatureObject* obj);
+	virtual bool Exit(CreatureObject* obj);
+	virtual bool CanTransition(CreatureObject* obj);
+};
+/*
+*	Peace State
+*
+*/
 //class StatePeace:
 //	public ActionState
 //{

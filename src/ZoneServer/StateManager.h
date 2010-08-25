@@ -28,20 +28,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_STATE_MANAGER_H
 #define ANH_ZONESERVER_STATE_MANAGER_H
 
-#include "ZoneServer/declspec.h"
 #include "ActionState.h"
 #include "LocomotionState.h"
 #include "PostureState.h"
+#include "CreatureEnums.h"
 #include <map>
 
-#define gStateManager ::utils::Singleton<::common::StateManager>::Instance()
+#define gStateManager ::utils::Singleton<StateManager>::Instance()
 
 // add a map for each type of State here
-typedef std::map<int, std::unique_ptr<ActionState>> ActionStateMap;
-typedef std::map<int, std::unique_ptr<LocomotionState>> LocomotionStateMap;
-typedef std::map<int, std::unique_ptr<PostureState>> PostureStateMap;
+typedef std::map<uint64, std::unique_ptr<ActionState>> ActionStateMap;
+typedef std::map<uint64, std::unique_ptr<LocomotionState>> LocomotionStateMap;
+typedef std::map<uint64, std::unique_ptr<PostureState>> PostureStateMap;
 
-class ZONE_API StateManager
+class StateManager
 {
 public:
 	/*	@short State Manager is the state machine system that converts the object to and from a state.
@@ -51,9 +51,11 @@ public:
 	StateManager();
 	~StateManager();
 
-	void setCurrentActionState(CreatureObject* object, ActionState* currState, ActionState* newState);
+	void setCurrentActionState(CreatureObject* object, CreatureState);
 	void setCurrentLocomotionState(CreatureObject* object, LocomotionState* currState, LocomotionState* newState);
 	void setCurrentPostureState(CreatureObject* object, PostureState* currState, PostureState* newState);
+
+	CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
 	
 	//void addLocomotionState(LocomotionState* state);
 	//void addPostureState(PostureState* state);
@@ -63,6 +65,8 @@ public:
 	ActionStateMap		mActionStateMap;
 	PostureStateMap		mPostureStateMap;
 	LocomotionStateMap	mLocomotionStateMap;
+	
+
 private:
 	void addActionState(Object* object, ActionState* newState);
 	ActionStateMap		loadActionStateMap();

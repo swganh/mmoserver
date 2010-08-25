@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/declspec.h"
 #include "AbstractState.h"
 
-class ZONE_API LocomotionState :
+class LocomotionState :
 	public IState
 {
 public:
@@ -55,7 +55,7 @@ public:
 /* Standing Locomotion
 *
 */
-class ZONE_API LocomotionStanding:
+class LocomotionStanding:
 	public LocomotionState
 {
 public:

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ActionState.h"
+#include "PlayerObject.h"
 
 
 ActionState::ActionState(void)
@@ -51,14 +52,40 @@ StateCover::StateCover() : ActionState()
 }
 bool StateCover::Enter(CreatureObject* obj)
 {
+	// check take cover mod
+	// do appropriate actions
 	obj->toggleStateOn(mStateID);
 	return true;
 }
 bool StateCover::Exit(CreatureObject* obj)
 {
+	obj->toggleStateOff(mStateID);
 	return true;
 }
 bool StateCover::CanTransition(CreatureObject* obj)
+{
+	// check the transition list
+	return true;
+}
+
+// State Combat
+StateCombat::StateCombat() : ActionState()
+{
+	mStateID = CreatureState_Combat;
+}
+bool StateCombat::Enter(CreatureObject* obj)
+{
+	obj->toggleStateOn(mStateID);
+
+	return true;
+}
+bool StateCombat::Exit(CreatureObject* obj)
+{
+	obj->toggleStateOff(mStateID);
+
+	return true;
+}
+bool StateCombat::CanTransition(CreatureObject* obj)
 {
 	// check the transition list
 	return true;

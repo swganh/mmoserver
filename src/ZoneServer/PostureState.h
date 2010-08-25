@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "abstractstate.h"
 
 
-class ZONE_API PostureState :
+class PostureState :
 	public IState
 {
 public:
@@ -55,7 +55,7 @@ public:
 /*	Upright Posture
 *
 */
-class ZONE_API PostureUpright:
+class PostureUpright:
 	public PostureState
 {
 public:

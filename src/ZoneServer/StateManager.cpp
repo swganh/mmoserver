@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "StateManager.h"
+#include "MessageLib/MessageLib.h"
 
 StateManager::StateManager()
 {
@@ -44,9 +45,9 @@ ActionStateMap StateManager::loadActionStateMap()
 	ActionStateMap map;
 
 	//map.insert(std::make_pair<int, std::unique_ptr<IState>>(-1, std::unique_ptr<IState>(new EmptyState())));
-	map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(0, std::unique_ptr<ActionState>(new StateCover())));
-	/*map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(1, std::unique_ptr<ActionState>(new StateCombat())));
-	map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(2, std::unique_ptr<ActionState>(new StatePeace())));
+	map.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_Cover, std::unique_ptr<ActionState>(new StateCover())));
+	map.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_Combat, std::unique_ptr<ActionState>(new StateCombat())));
+	/*map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(2, std::unique_ptr<ActionState>(new StatePeace())));
 	map.insert(std::make_pair<int, std::unique_ptr<ActionState>>(3, std::unique_ptr<ActionState>(new StateAiming())));*/
 
 	return map;
@@ -56,7 +57,7 @@ PostureStateMap StateManager::loadPostureStateMap()
 	PostureStateMap map;
 
 	//map.insert(std::make_pair<int, std::unique_ptr<IState>>(-1, std::unique_ptr<IState>(new EmptyState())));
-	map.insert(std::make_pair<int, std::unique_ptr<PostureState>>(0, std::unique_ptr<PostureState>(new PostureUpright())));
+	//map.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(0, std::unique_ptr<PostureState>(new PostureUpright())));
 	/*map.insert(std::make_pair<int, std::unique_ptr<PostureState>>(1, std::unique_ptr<PostureState>(new PostureCrouched())));
 	map.insert(std::make_pair<int, std::unique_ptr<PostureState>>(2, std::unique_ptr<PostureState>(new PostureSneaking())));
 	map.insert(std::make_pair<int, std::unique_ptr<PostureState>>(3, std::unique_ptr<PostureState>(new PostureBlocking())));*/
@@ -69,7 +70,7 @@ LocomotionStateMap StateManager::loadLocomotionStateMap()
 	LocomotionStateMap map;
 
 	//map.insert(std::make_pair<int, std::unique_ptr<IState>>(-1, std::unique_ptr<IState>(new EmptyState())));
-	map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(0, std::unique_ptr<LocomotionState>(new LocomotionStanding())));
+	//map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(0, std::unique_ptr<LocomotionState>(new LocomotionStanding())));
 	/*map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(1, std::unique_ptr<LocomotionState>(new LocomotionSneaking())));
 	map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(2, std::unique_ptr<LocomotionState>(new LocomotionWalking())));
 	map.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(2, std::unique_ptr<LocomotionState>(new LocomotionRunning())));
@@ -78,16 +79,42 @@ LocomotionStateMap StateManager::loadLocomotionStateMap()
 	return map;
 }
 
-void StateManager::setCurrentActionState(CreatureObject* object, ActionState* currState, ActionState* newState)
+void StateManager::setCurrentActionState(CreatureObject* object, CreatureState newState)
 {
-	// check if we can transition to the new state
-	if (currState->CanTransition(object))
-	{
-		// Exit old State
-		currState->Exit(object);
+	bool canTransition = false;
+	// get our current states
+	uint64 currStates = object->getState();
+	
+	// nothing to check out transition against
+	if (currStates = 0)
+		canTransition = true;
 
+	while (currStates)
+	{
+		uint64 currState = 1 << currStates;
+		ActionStateMap::iterator iter = mActionStateMap.find(currState);
+		if (iter != mActionStateMap.end())
+		{
+			// check if we can transition to the new state
+			if ((*iter).second->CanTransition(object))
+			{
+				canTransition = true;
+			}
+			else
+				canTransition = false;
+		}
+
+	}
+	// Exit old State
+	//currState->Exit(object);
+	if (canTransition)
+	{
 		// Enter new State
-		newState->Enter(object);
+		mActionStateMap[newState]->Enter(object);
+
+		//notify the client
+		gMessageLib->sendPostureAndStateUpdate(object);
 	}
 
 }
+

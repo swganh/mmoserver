@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CreatureObject.h"
 #include "CreatureEnums.h"
 
-class ZONE_API IState
+class IState
 {
 public:
 	virtual ~IState(void){};	
@@ -53,7 +53,8 @@ public:
 	/* gets the ID for the given state
 	*  
 	*/
-	virtual uint32 GetID(IState* state){return state->mStateID;}
+	virtual uint64 GetID(IState* state){return state->mStateID;}
+
 
 	//virtual bool hidden(){return mHidden;}
 
@@ -64,7 +65,7 @@ protected:
 /* Empty State
 *
 */
-class ZONE_API EmptyState:
+class EmptyState:
 	public IState
 {
 public:

@@ -212,9 +212,7 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
     // don't allow more than one sample at a time
     if(playerObject->getSamplingState())
     {
-        playerObject->getSampleData()->mPendingSample = false;
-        playerObject->setNextSampleTime(localTime + 18000);
-        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "tool_recharge_time", 0, 0, 0, (int32)(playerObject->getNextSampleTime() - localTime) / 1000), playerObject);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_cant"), playerObject);
         return false;
     }
 

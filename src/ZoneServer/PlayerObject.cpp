@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SchematicGroup.h"
 #include "SchematicManager.h"
 #include "SpawnPoint.h"
+#include "StateManager.h"
 #include "StructureManager.h"
 #include "Tutorial.h"
 #include "UIManager.h"
@@ -2180,38 +2181,42 @@ void PlayerObject::setSitting(Message* message)
 
 void PlayerObject::setUpright()
 {
-    if(this->isConnected())
-        gMessageLib->sendHeartBeat(this->getClient());
+	// STATE MANAGER TEST
+	gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
+	
 
-    // see if we need to get out of sampling mode
-    if(this->getSamplingState())
-    {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
-        this->setSamplingState(false);
-    }
+    //if(this->isConnected())
+    //    gMessageLib->sendHeartBeat(this->getClient());
 
-    if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
-    {
-        this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
-        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
-    }
+    //// see if we need to get out of sampling mode
+    //if(this->getSamplingState())
+    //{
+    //    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
+    //    this->setSamplingState(false);
+    //}
 
-    this->toggleStateOff(CreatureState_SittingOnChair);
+    //if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+    //{
+    //    this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+    //    gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
+    //}
 
-    this->setPosture(CreaturePosture_Upright);
-    this->getHam()->updateRegenRates();
-    this->updateMovementProperties();
+    //this->toggleStateOff(CreatureState_SittingOnChair);
 
-    gMessageLib->sendUpdateMovementProperties(this);
-    gMessageLib->sendPostureAndStateUpdate(this);
-    gMessageLib->sendSelfPostureUpdate(this);
+    //this->setPosture(CreaturePosture_Upright);
+    //this->getHam()->updateRegenRates();
+    //this->updateMovementProperties();
 
-    //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
-    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
-    if(IsSeatedOnChair)
-    {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);	
-    }
+    //gMessageLib->sendUpdateMovementProperties(this);
+    //gMessageLib->sendPostureAndStateUpdate(this);
+    //gMessageLib->sendSelfPostureUpdate(this);
+
+    ////if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+    //bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+    //if(IsSeatedOnChair)
+    //{
+    //    gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);	
+    //}
 }
 
 void PlayerObject::setProne()

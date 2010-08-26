@@ -109,7 +109,6 @@
     <ClCompile Include="Common\TestHashString.cpp" />
     <ClCompile Include="Common\TestOutOfBand.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="TestStateManager.cpp" />
     <ClCompile Include="Utils\TestActiveObject.cpp" />
     <ClCompile Include="Utils\TestCmpistr.cpp" />
     <ClCompile Include="Utils\TestConcurrentQueue.cpp" />

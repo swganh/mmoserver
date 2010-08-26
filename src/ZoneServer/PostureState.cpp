@@ -50,8 +50,47 @@ bool PostureState::CanTransition(CreatureObject* obj)
 	return true;
 }
 
+
 bool PostureUpright::Enter(CreatureObject* obj)
 {
+	obj->setPosture(this->mStateID);
+	obj->updateMovementProperties();
+
+	PlayerObject*  player = dynamic_cast<PlayerObject*>(obj);
+
+	if(player)
+	{
+		// see if we need to get out of sampling mode
+		if(player->getSamplingState())
+		{
+			gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), player);
+			player->setSamplingState(false);
+		}
+
+		if(player->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+		{
+			player->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+			gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), player);	
+		}
+
+		player->toggleStateOff(CreatureState_SittingOnChair);
+
+		player->setPosture(CreaturePosture_Upright);
+		player->getHam()->updateRegenRates();
+		player->updateMovementProperties();
+
+		gMessageLib->sendUpdateMovementProperties(player);
+		gMessageLib->sendPostureAndStateUpdate(player);
+		gMessageLib->sendSelfPostureUpdate(player);
+
+		//if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+		bool IsSeatedOnChair = player->checkState(CreatureState_SittingOnChair);
+		if(IsSeatedOnChair)
+		{
+			gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), player);	
+		}
+	}
+
 	return true;
 }
 bool PostureUpright::Exit(CreatureObject* obj)

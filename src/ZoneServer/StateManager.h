@@ -32,14 +32,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "LocomotionState.h"
 #include "PostureState.h"
 #include "CreatureEnums.h"
-#include <map>
+#include <unordered_map>
 
 #define gStateManager ::utils::Singleton<StateManager>::Instance()
 
 // add a map for each type of State here
-typedef std::map<uint64, std::unique_ptr<ActionState>> ActionStateMap;
-typedef std::map<uint64, std::unique_ptr<LocomotionState>> LocomotionStateMap;
-typedef std::map<uint64, std::unique_ptr<PostureState>> PostureStateMap;
+typedef std::unordered_map<uint64, std::unique_ptr<ActionState>> ActionStateMap;
+typedef std::unordered_map<uint64, std::unique_ptr<LocomotionState>> LocomotionStateMap;
+typedef std::unordered_map<uint64, std::unique_ptr<PostureState>> PostureStateMap;
 
 class StateManager
 {
@@ -52,8 +52,8 @@ public:
 	~StateManager();
 
 	void setCurrentActionState(CreatureObject* object, CreatureState);
-	void setCurrentLocomotionState(CreatureObject* object, LocomotionState* currState, LocomotionState* newState);
-	void setCurrentPostureState(CreatureObject* object, PostureState* currState, PostureState* newState);
+	void setCurrentLocomotionState(CreatureObject* object, CreatureLocomotion);
+	void setCurrentPostureState(CreatureObject* object, CreaturePosture);
 
 	CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
 	

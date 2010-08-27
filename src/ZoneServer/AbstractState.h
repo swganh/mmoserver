@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #pragma once
-#include "ZoneServer/declspec.h"
 #include "CreatureObject.h"
 #include "CreatureEnums.h"
 
@@ -62,16 +61,3 @@ protected:
 	uint64					mStateID;
 	bool					mHidden;
 };
-/* Empty State
-*
-*/
-class EmptyState:
-	public IState
-{
-public:
-	EmptyState(){mStateID = -1;}
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
-	virtual bool CanTransition(CreatureObject* obj);
-};
-

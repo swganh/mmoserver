@@ -99,6 +99,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ActionStateEvent.cpp" />
     <ClCompile Include="ActiveConversation.cpp" />
     <ClCompile Include="AdminManager.cpp" />
     <ClCompile Include="ArtisanManager.cpp" />
@@ -271,6 +272,7 @@
     <ClCompile Include="PlayerObjectFactory.cpp" />
     <ClCompile Include="PlayerStructure.cpp" />
     <ClCompile Include="PlayerStructureTerminal.cpp" />
+    <ClCompile Include="PostureEvent.cpp" />
     <ClCompile Include="PostureState.cpp" />
     <ClCompile Include="ProcessValidator.cpp" />
     <ClCompile Include="PVHam.cpp" />
@@ -353,6 +355,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractState.h" />
+    <ClInclude Include="ActionStateEvent.h" />
     <ClInclude Include="ActiveConversation.h" />
     <ClInclude Include="AdminManager.h" />
     <ClInclude Include="ArtisanHeightmapAsyncContainer.h" />
@@ -504,6 +507,7 @@
     <ClInclude Include="PlayerObjectFactory.h" />
     <ClInclude Include="PlayerStructure.h" />
     <ClInclude Include="PlayerStructureTerminal.h" />
+    <ClInclude Include="PostureEvent.h" />
     <ClInclude Include="PostureState.h" />
     <ClInclude Include="ProcessValidator.h" />
     <ClInclude Include="PVHam.h" />

@@ -2075,8 +2075,8 @@ void PlayerObject::setSitting(Message* message)
 
     message->getStringUnicode16(data); //Should be okay even if data is null! (I hope)
 
-    this->setPosture(CreaturePosture_Sitting);
-    this->getHam()->updateRegenRates();
+    //this->setPosture(CreaturePosture_Sitting);
+    gStateManager.setCurrentPostureState(this, CreaturePosture_Sitting);
 
     // sitting on chair
     if(data.getLength())
@@ -2174,119 +2174,24 @@ void PlayerObject::setSitting(Message* message)
         gMessageLib->sendPostureUpdate(this);
         gMessageLib->sendSelfPostureUpdate(this);
     }
-
     //hack-fix clientside bug by manually sending client message
     gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_sit"), this);
 }
 
 void PlayerObject::setUpright()
 {
-	// STATE MANAGER TEST
-	gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
-	
-
-    //if(this->isConnected())
-    //    gMessageLib->sendHeartBeat(this->getClient());
-
-    //// see if we need to get out of sampling mode
-    //if(this->getSamplingState())
-    //{
-    //    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
-    //    this->setSamplingState(false);
-    //}
-
-    //if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
-    //{
-    //    this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
-    //    gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
-    //}
-
-    //this->toggleStateOff(CreatureState_SittingOnChair);
-
-    //this->setPosture(CreaturePosture_Upright);
-    //this->getHam()->updateRegenRates();
-    //this->updateMovementProperties();
-
-    //gMessageLib->sendUpdateMovementProperties(this);
-    //gMessageLib->sendPostureAndStateUpdate(this);
-    //gMessageLib->sendSelfPostureUpdate(this);
-
-    ////if player is seated on an a chair, hack-fix clientside bug by manually sending client message
-    //bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
-    //if(IsSeatedOnChair)
-    //{
-    //    gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);	
-    //}
+    // STATE MANAGER TEST
+    gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
 }
 
 void PlayerObject::setProne()
 {
-    if(this->isConnected())
-        gMessageLib->sendHeartBeat(this->getClient());
-
-    // see if we need to get out of sampling mode
-    if(this->getSamplingState())
-    {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
-        this->setSamplingState(false);
-    }
-
-    if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
-    {
-        this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
-        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
-    }
-
-    this->toggleStateOff(CreatureState_SittingOnChair);
-    
-
-    // Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
-    
-
-    this->setPosture(CreaturePosture_Prone);
-    this->getHam()->updateRegenRates();
-    this->updateMovementProperties();
-
-    gMessageLib->sendUpdateMovementProperties(this);
-    gMessageLib->sendPostureAndStateUpdate(this);
-    gMessageLib->sendSelfPostureUpdate(this);
-
-    //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
-    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
-    if(IsSeatedOnChair)
-    {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_prone"), this);
-    }
+    gStateManager.setCurrentPostureState(this, CreaturePosture_Prone);
 }
 
 void PlayerObject::setCrouched()
 {
-    if(this->isConnected())
-        gMessageLib->sendHeartBeat(this->getClient());
-
-    //Get whether player is seated on a chair before we toggle it
-    // Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
-    // bool IsSeatedOnChair = (playerObject->getState() == CreatureState_SittingOnChair);
-    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
-
-    //make sure we end states
-    //the logoff states is an invention of mine btw 
-    
-    this->toggleStateOff(CreatureState_SittingOnChair);
-
-    this->setPosture(CreaturePosture_Crouched);
-    this->getHam()->updateRegenRates();
-    this->updateMovementProperties();
-
-    gMessageLib->sendUpdateMovementProperties(this);
-    gMessageLib->sendPostureAndStateUpdate(this);
-    gMessageLib->sendSelfPostureUpdate(this);
-
-    //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
-    if(IsSeatedOnChair)
-    {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_kneel"), this);
-    }
+    gStateManager.setCurrentPostureState(this, CreaturePosture_Crouched);
 }
 
 void PlayerObject::playFoodSound(bool food, bool drink)

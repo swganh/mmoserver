@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 // add a map for each type of State here
 typedef std::unordered_map<uint64, std::unique_ptr<ActionState>> ActionStateMap;
-typedef std::unordered_map<uint64, std::unique_ptr<LocomotionState>> LocomotionStateMap;
 typedef std::unordered_map<uint64, std::unique_ptr<PostureState>> PostureStateMap;
 
 class StateManager
@@ -52,7 +51,6 @@ public:
 	~StateManager();
 
 	void setCurrentActionState(CreatureObject* object, CreatureState);
-	void setCurrentLocomotionState(CreatureObject* object, CreatureLocomotion);
 	void setCurrentPostureState(CreatureObject* object, CreaturePosture);
 
 	CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
@@ -64,13 +62,11 @@ public:
 
 	ActionStateMap		mActionStateMap;
 	PostureStateMap		mPostureStateMap;
-	LocomotionStateMap	mLocomotionStateMap;
 	
 
 private:
 	void addActionState(Object* object, ActionState* newState);
 	ActionStateMap		loadActionStateMap();
 	PostureStateMap		loadPostureStateMap();
-	LocomotionStateMap	loadLocomotionStateMap();
 };
 #endif

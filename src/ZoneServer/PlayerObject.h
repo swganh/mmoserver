@@ -437,7 +437,7 @@ class PlayerObject : public CreatureObject
 
         //Posture
         void				setUpright();
-        void				setSitting(Message* message=NULL);
+        void				setSitting();
         void				setProne();
         void				setCrouched();
 

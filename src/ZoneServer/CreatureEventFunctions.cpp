@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
 #include "Common/LogManager.h"
+#include "StateManager.h"
 
 
 //=============================================================================
@@ -50,30 +51,13 @@ void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 		mCurrentIncapTime = 0;
 		gMessageLib->sendIncapTimerUpdate(this);
 
-		// update the posture and locomotion (this needs to be reworked)
-		mPosture = CreaturePosture_Upright;
-		setLocomotionByPosture(mPosture);
+		gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
 
 		// reset ham regeneration
-		mHam.updateRegenRates();
 		if (mHam.getTaskId() == 0)
 		{
 			mHam.setTaskId(gWorldManager->addCreatureHamToProccess(&mHam));
 		}
-
-		updateMovementProperties();
-
-		gMessageLib->sendPostureAndStateUpdate(this);
-
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
-		{
-			gMessageLib->sendUpdateMovementProperties(player);
-			gMessageLib->sendSelfPostureUpdate(player);
-		}
-	}
-	else if (this->getType() == ObjType_Creature)
-	{
-		// Placeholder for debug purpose only.
 	}
 	
 }

@@ -766,17 +766,7 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 
 	if(cmdProperties->mPostureDownChance)
 	{
-		defender->toggleStateOff(CreatureState_SittingOnChair);
-		defender->setPosture(CreaturePosture_Crouched);
-		defender->updateMovementProperties();
-		defender->getHam()->updateRegenRates();
-
-		gMessageLib->sendPostureAndStateUpdate(defender);
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
-		{
-			gMessageLib->sendUpdateMovementProperties(player);
-			gMessageLib->sendSelfPostureUpdate(player);
-		}
+		gStateManager.setCurrentPostureState(defender, CreaturePosture_Crouched);
 	}
 
 	return(0);

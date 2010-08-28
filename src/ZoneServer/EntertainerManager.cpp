@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "nonPersistantObjectFactory.h"
 #include "PlayerObject.h"
 #include "PlayerEnums.h"
+#include "StateManager.h"
 #include "UIManager.h"
 #include "WorldManager.h"
 #include "Weapon.h"
@@ -1006,9 +1007,7 @@ void EntertainerManager::stopEntertaining(PlayerObject* entertainer)
 	//posture
 	if(entertainer->getPosture() == CreaturePosture_SkillAnimating)
 	{
-		entertainer->setPosture(CreaturePosture_Upright);
-		gMessageLib->sendPostureUpdate(entertainer);
-		gMessageLib->sendSelfPostureUpdate(entertainer);
+		gStateManager.setCurrentPostureState(entertainer, CreaturePosture_Upright);
 	}
 
 	//gMessageLib->sendAnimationString(entertainer);
@@ -1929,7 +1928,7 @@ void EntertainerManager::handlePerformancePause(CreatureObject* mObject)
 		gMessageLib->sendCreatureAnimation(entertainer, BString(animation));
 		gMessageLib->sendperformFlourish(entertainer, 0);
 
-		entertainer->setPosture(CreaturePosture_Upright);
+		gStateManager.setCurrentPostureState(entertainer, CreaturePosture_Upright);
 		gMessageLib->sendPostureUpdate(entertainer);
 		gMessageLib->sendSelfPostureUpdate(entertainer);
 

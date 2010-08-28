@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceContainer.h"
 #include "ResourceType.h"
 #include "SurveyTool.h"
+#include "StateManager.h"
 #include "UIManager.h"
 #include "Heightmap.h"
 #include "WorldConfig.h"
@@ -286,7 +287,7 @@ void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
             gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_sampling", L"", L"", container->resourceName.getUnicode16()), container->playerObject);
 
             // change posture
-            container->playerObject->setCrouched();
+            gStateManager.setCurrentPostureState(container->playerObject, CreaturePosture_Crouched);
             // play animation
             gWorldManager->getClientEffect(container->tool->getInternalAttribute<uint32>("sample_effect"));
             // schedule execution
@@ -340,8 +341,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     if (stopSampling(player, resource, tool))
         return;
     //if we're not kneeling do so now
-    if (player->getPosture() != CreaturePosture_Crouched)
-        player->setCrouched();
+    gStateManager.setCurrentPostureState(player, CreaturePosture_Crouched);
 
     BString					effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
     float					ratio			= (resource->getDistribution((int)player->mPosition.x + 8192,(int)player->mPosition.z + 8192));
@@ -747,14 +747,7 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
     if (stop)
     {
         player->setSamplingState(false);
-        player->setUpright();
-
-        ham->updateRegenRates();
-        player->updateMovementProperties();
-
-        gMessageLib->sendUpdateMovementProperties(player);
-        gMessageLib->sendPostureAndStateUpdate(player);
-        gMessageLib->sendSelfPostureUpdate(player);
+        gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
     }
     return stop;
 }
@@ -837,7 +830,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
             {
                 player->getSampleData()->mPassRadioactive = false;
                 player->getSampleData()->mPendingSample = false;
-                player->setPosture(CreaturePosture_Upright);
+                gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
                 player->updateMovementProperties();
                 gMessageLib->sendUpdateMovementProperties(player);
                 gMessageLib->sendPostureAndStateUpdate(player);
@@ -878,7 +871,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
             {
                 player->getSampleData()->mPendingSample = false;
                 player->getSampleData()->mSampleGambleFlag = false;
-                player->setPosture(CreaturePosture_Upright);
+                gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
                 player->updateMovementProperties();
                 gMessageLib->sendUpdateMovementProperties(player);
                 gMessageLib->sendPostureAndStateUpdate(player);
@@ -907,7 +900,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     //action costs
                     if(!ham->checkMainPools(0,mSampleActionCost*2,0))
                     {
-                        player->setPosture(CreaturePosture_Upright);
+                        gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
                         player->updateMovementProperties();
                         gMessageLib->sendUpdateMovementProperties(player);
                         gMessageLib->sendPostureAndStateUpdate(player);
@@ -966,7 +959,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     datapad->requestNewWaypoint("Resource Node", player->getSampleData()->Position ,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_waypoint"), player);
 
-                    player->setPosture(CreaturePosture_Upright);
+                    gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
                     player->updateMovementProperties();
                     gMessageLib->sendUpdateMovementProperties(player);
                     gMessageLib->sendPostureAndStateUpdate(player);
@@ -1000,7 +993,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 player->getSampleData()->resource	= NULL;
                 player->getSampleData()->zone		= 0;
 
-                player->setPosture(CreaturePosture_Upright);
+                gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
                 player->updateMovementProperties();
                 gMessageLib->sendUpdateMovementProperties(player);
                 gMessageLib->sendPostureAndStateUpdate(player);

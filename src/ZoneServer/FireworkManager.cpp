@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "PlayerObject.h"
 #include "StaticObject.h"
+#include "StateManager.h"
 #include "UIManager.h"
 
 #include "MessageLib/MessageLib.h"
@@ -157,7 +158,7 @@ void FireworkManager::Process()
 		{
 			if((*it)->player->getPosture() == CreaturePosture_Crouched)
 			{
-				(*it)->player->setUpright();
+				gStateManager.setCurrentPostureState((*it)->player, CreaturePosture_Upright);
 				(*it)->playerToldToStand = true;
 			}
 			++it;

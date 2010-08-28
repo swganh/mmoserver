@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 
 
 //=============================================================================
@@ -37,11 +38,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 
-	if(playerObject)
-		playerObject->setSitting(message);
+    if(playerObject)
+    {
+        playerObject->setSitting(message);
+    }
+    
 }
 
 //=============================================================================
@@ -51,12 +55,10 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// FIXME: for now assume only players send chat
-	//???LOL WUT???
-	PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	if(playerObject)
-		playerObject->setUpright();
+    if(playerObject)
+        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Upright);
 }
 
 //=============================================================================
@@ -66,10 +68,10 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 
-	if(playerObject)
-		playerObject->setProne();
+    if(playerObject)
+        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Prone);
 }
 
 //=============================================================================
@@ -79,10 +81,10 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	if(playerObject) 
-		playerObject->setCrouched();
+    if(playerObject) 
+        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Crouched);
 }
 
 //=============================================================================

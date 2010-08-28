@@ -194,7 +194,6 @@
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="ItemFactory.cpp" />
     <ClCompile Include="LairObject.cpp" />
-    <ClCompile Include="LocomotionState.cpp" />
     <ClCompile Include="ManufacturingSchematic.cpp" />
     <ClCompile Include="Medicine.cpp" />
     <ClCompile Include="MedicManager.cpp" />
@@ -468,7 +467,6 @@
     <ClInclude Include="ItemFactory.h" />
     <ClInclude Include="Item_Enums.h" />
     <ClInclude Include="LairObject.h" />
-    <ClInclude Include="LocomotionState.h" />
     <ClInclude Include="LogOutEvent.h" />
     <ClInclude Include="ManufacturingSchematic.h" />
     <ClInclude Include="Medicine.h" />

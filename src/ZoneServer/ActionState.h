@@ -40,11 +40,11 @@ public:
 	/* Activates the Enter process for the character state
 	*  
 	*/
-	virtual bool Enter(CreatureObject* obj);
+	virtual void Enter(CreatureObject* obj);
 	/* Activates the Exit process for the given state
 	*  
 	*/
-	virtual bool Exit(CreatureObject* obj);
+	virtual void Exit(CreatureObject* obj);
 	/* Determines if the player can transition to the state
 	*  
 	*/
@@ -63,8 +63,8 @@ class StateCover:
 {
 public:
 	StateCover();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*
@@ -76,8 +76,8 @@ class StateCombat:
 {
 public:
 	StateCombat();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*
@@ -89,8 +89,8 @@ class StatePeace:
 {
 public:
 	StatePeace();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Aiming State
@@ -101,8 +101,8 @@ class StateAiming:
 {
 public:
 	StateAiming();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Alert State
@@ -113,8 +113,8 @@ class StateAlert:
 {
 public:
 	StateAlert();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Bersker State
@@ -125,8 +125,8 @@ class StateBerserk:
 {
 public:
 	StateBerserk();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Feign Death State
@@ -137,8 +137,8 @@ class StateFeign:
 {
 public:
 	StateFeign();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	CombatAttitudeEvasive State
@@ -149,8 +149,8 @@ class StateCombatEvasive:
 {
 public:
 	StateCombatEvasive();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	CombatAttitudeNormal State
@@ -161,8 +161,8 @@ class StateCombatNormal:
 {
 public:
 	StateCombatNormal();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	CombatAttitudeAggressive State
@@ -173,8 +173,8 @@ class StateCombatAggressive:
 {
 public:
 	StateCombatAggressive();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Tumbling State
@@ -185,8 +185,8 @@ class StateTumbling:
 {
 public:
 	StateTumbling();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Rallied State
@@ -197,8 +197,8 @@ class StateRallied:
 {
 public:
 	StateRallied();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Stunned State
@@ -209,8 +209,8 @@ class StateStunned:
 {
 public:
 	StateStunned();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Blinded State
@@ -221,8 +221,8 @@ class StateBlinded:
 {
 public:
 	StateBlinded();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Dizzy State
@@ -233,8 +233,8 @@ class StateDizzy:
 {
 public:
 	StateDizzy();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Intimidated State
@@ -245,8 +245,8 @@ class StateIntimidated:
 {
 public:
 	StateIntimidated();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Immobolized State
@@ -257,8 +257,8 @@ class StateImmobolized:
 {
 public:
 	StateImmobolized();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Frozen State
@@ -269,8 +269,8 @@ class StateFrozen:
 {
 public:
 	StateFrozen();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Swimming State
@@ -281,8 +281,8 @@ class StateSwimming:
 {
 public:
 	StateSwimming();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	SittingOnChair State
@@ -293,8 +293,8 @@ class StateSittingOnChair:
 {
 public:
 	StateSittingOnChair();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Crafting State
@@ -305,8 +305,8 @@ class StateCrafting:
 {
 public:
 	StateCrafting();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	GlowingJedi State
@@ -317,8 +317,8 @@ class StateGlowingJedi:
 {
 public:
 	StateGlowingJedi();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	MaskScent State
@@ -329,8 +329,8 @@ class StateMaskScent:
 {
 public:
 	StateMaskScent();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Poisoined State
@@ -341,8 +341,8 @@ class StatePoisoined:
 {
 public:
 	StatePoisoined();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Bleeding State
@@ -353,8 +353,8 @@ class StateBleeding:
 {
 public:
 	StateBleeding();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Diseased State
@@ -365,8 +365,8 @@ class StateDiseased:
 {
 public:
 	StateDiseased();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	OnFire State
@@ -377,8 +377,8 @@ class StateOnFire:
 {
 public:
 	StateOnFire();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	RidingMount State
@@ -389,8 +389,8 @@ class StateRidingMount:
 {
 public:
 	StateRidingMount();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	MountedCreature State
@@ -401,8 +401,8 @@ class StateMountedCreature:
 {
 public:
 	StateMountedCreature();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	PilotingShip State
@@ -413,8 +413,8 @@ class StatePilotingShip:
 {
 public:
 	StatePilotingShip();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	ShipOperations State
@@ -425,8 +425,8 @@ class StateShipOperations:
 {
 public:
 	StateShipOperations();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	ShipGunner State
@@ -437,8 +437,8 @@ class StateShipGunner:
 {
 public:
 	StateShipGunner();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	ShipInterior State
@@ -449,8 +449,8 @@ class StateShipInterior:
 {
 public:
 	StateShipInterior();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	PilotingPobShip State
@@ -461,7 +461,7 @@ class StatePilotingPobShip:
 {
 public:
 	StatePilotingPobShip();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };

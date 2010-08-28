@@ -24,48 +24,39 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#pragma once
-#ifndef ANH_ZONESERVER_STATE_MANAGER_H
-#define ANH_ZONESERVER_STATE_MANAGER_H
 
-#include "ActionState.h"
-#include "PostureState.h"
+#ifndef ANH_ZONESERVER_POSTURE_EVENTS_H
+#define ANH_ZONESERVER_POSTURE_EVENTS_H
+
+#include "Common/Event.h"
+#include "CreatureObject.h"
 #include "CreatureEnums.h"
-#include <unordered_map>
 
-#define gStateManager ::utils::Singleton<StateManager>::Instance()
-
-// add a map for each type of State here
-typedef std::unordered_map<uint64, std::unique_ptr<ActionState>> ActionStateMap;
-typedef std::unordered_map<uint64, std::unique_ptr<PostureState>> PostureStateMap;
-
-class StateManager
+class PostureUpdateEvent : public ::common::BaseEvent
 {
 public:
-	/*	@short State Manager is the state machine system that converts the object to and from a state.
-	**
-	**
-	*/
-	StateManager();
-	~StateManager();
+    static const ::common::EventType type;
 
-	void setCurrentActionState(CreatureObject* object, CreatureState);
-	void setCurrentPostureState(CreatureObject* object, CreaturePosture);
+    explicit PostureUpdateEvent(CreatureObject* obj, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id=0, uint64_t delay_ms=0);
+    PostureUpdateEvent(CreatureObject* obj, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    
+    ~PostureUpdateEvent(void);
 
-	CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
-	
-	//void addLocomotionState(LocomotionState* state);
-	//void addPostureState(PostureState* state);
+    const ::common::EventType& event_type() const;
 
-	void removeActionState(Object* object, ActionState* currState);
-
-	ActionStateMap		mActionStateMap;
-	PostureStateMap		mPostureStateMap;
-	
+    CreatureObject* getCreatureObject()     { return mObj;}
+    CreaturePosture getOldPostureState()    { return mOldPos;}
+    CreaturePosture getNewPostureState()    { return mNewPos;}
 
 private:
-	void addActionState(Object* object, ActionState* newState);
-	ActionStateMap		loadActionStateMap();
-	PostureStateMap		loadPostureStateMap();
+    void onSerialize(::common::ByteBuffer& out) const;
+    void onDeserialize(::common::ByteBuffer& in);
+
+    bool onConsume(bool handled) const;
+
+    CreatureObject*             mObj;
+    CreaturePosture             mOldPos;
+    CreaturePosture             mNewPos;
 };
+
 #endif

@@ -36,11 +36,11 @@ public:
 	/* Activates the Enter process for the given state
 	*  
 	*/
-	virtual bool Enter(CreatureObject* obj) = 0 ;
+	virtual void Enter(CreatureObject* obj) = 0 ;
 	/* Activates the Exit process for the given state
 	*  
 	*/
-	virtual bool Exit(CreatureObject* obj) = 0;
+	virtual void Exit(CreatureObject* obj) = 0;
 	/* Determines if the player can transition to the state
 	*  
 	*/

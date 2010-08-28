@@ -1,7 +1,4 @@
 /*
----------------------------------------------------------------------------------------
-This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
-
 For more information, visit http://www.swganh.com
 
 Copyright (c) 2006 - 2010 The SWG:ANH Team
@@ -25,42 +22,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "LocomotionState.h"
+#ifndef SRC_COMMON_MOCKOBJECTS_MOCKSTATEMANAGER_H_
+#define SRC_COMMON_MOCKOBJECTS_MOCKSTATEMANAGER_H_
 
+#include "ZoneServer/StateManager.h"
 
-LocomotionState::LocomotionState(void)
-{
-	mStateID = 0;
-	//load transition list here
-}
+class MockStateManager: public StateManager {
+public:
 
+private:
 
-LocomotionState::~LocomotionState(void)
-{
-}
+};
 
-bool LocomotionState::Enter(CreatureObject* obj)
-{
-	return true;
-}
-bool LocomotionState::Exit(CreatureObject* obj)
-{
-	return true;
-}
-bool LocomotionState::CanTransition(CreatureObject* obj)
-{
-	return true;
-}
-
-bool LocomotionStanding::Enter(CreatureObject* obj)
-{
-	return true;
-}
-bool LocomotionStanding::Exit(CreatureObject* obj)
-{
-	return true;
-}
-bool LocomotionStanding::CanTransition(CreatureObject* obj)
-{
-	return true;
-}
+#endif  // SRC_COMMON_MOCKOBJECTS_MOCKSTATEMANAGER_H

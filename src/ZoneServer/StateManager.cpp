@@ -110,6 +110,8 @@ PostureStateMap StateManager::loadPostureStateMap()
 
 void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePosture newPosture)
 {
+    auto posture_update_event = std::make_shared<PostureUpdateEvent>(object, (CreaturePosture)object->getPosture(), newPosture);
+
     PostureStateMap::iterator iter = mPostureStateMap.find(object->getPosture());
     if (iter != mPostureStateMap.end())
     {
@@ -120,28 +122,9 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
 
             // ENTER NEW STATE
             mPostureStateMap[newPosture]->Enter(object);
-
-            // send creature object
-            object->getHam()->updateRegenRates();
-            object->updateMovementProperties();
-
-            PlayerObject*  player = dynamic_cast<PlayerObject*>(object);
-            // send player update
-            if (player)
-            {
-                auto posture_update_event = std::make_shared<SimpleEvent>(EventType("posture_update_event"),0, 0, [player]
-                {
-                    if(player->isConnected())
-                     gMessageLib->sendHeartBeat(player->getClient());
-
-                    gMessageLib->sendUpdateMovementProperties(player);
-                    gMessageLib->sendPostureAndStateUpdate(player);
-                    gMessageLib->sendSelfPostureUpdate(player);
-                });
-                gEventDispatcher.Notify(posture_update_event);
-            }
         }
     } 
+    gEventDispatcher.Notify(posture_update_event);
 }
 
 

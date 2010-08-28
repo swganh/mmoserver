@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "QuickHealInjuryTreatmentEvent.h"
 #include "WoundTreatmentEvent.h"
 #include "NetworkManager/DispatchClient.h"
+#include "Common/Event.h"
 #include <map>
 
 class BazaarTerminal;
@@ -231,6 +232,8 @@ class PlayerObject : public CreatureObject
         const glm::vec3&	getHomeCoords(){ return mHomeCoords; }
         void				setHomeCoords(const glm::vec3& coords){ mHomeCoords = coords; }
 
+        // Event handler
+        bool                handlePostureUpdate(::common::IEventPtr triggered_event);
         // UI Windows
         void				handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
         UIWindowList*		getUIWindowList(){ return &mUIWindowList; }
@@ -342,7 +345,7 @@ class PlayerObject : public CreatureObject
         uint32				getExperimentationPoints(){ return mExperimentationPoints; }
         void				setExperimentationPoints(uint32 points){mExperimentationPoints = points; }
         bool				isNearestCraftingStationPrivate(uint64 station);
-		uint64				getNearestCraftingStation(){ return mNearestCraftingStation; }
+        uint64				getNearestCraftingStation(){ return mNearestCraftingStation; }
         void				setNearestCraftingStation(uint64 station){ mNearestCraftingStation = station; }
         CraftingSession*	getCraftingSession(){ return mCraftingSession; }
         void				setCraftingSession(CraftingSession* craftingSession){ mCraftingSession = craftingSession; }
@@ -371,7 +374,7 @@ class PlayerObject : public CreatureObject
         // reset properties on zoning
         void				resetProperties();
 
-        // event functions
+        // old event functions
         void				onSurvey(const SurveyEvent* event);
         void				onSample(const SampleEvent* event);
         void				onLogout(const LogOutEvent* event);

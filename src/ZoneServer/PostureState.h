@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_POSTURE_STATE_H
 #define ANH_ZONESERVER_POSTURE_STATE_H
 
-#include "ZoneServer/declspec.h"
 #include "abstractstate.h"
 #include "PlayerObject.h"
 
@@ -43,11 +42,11 @@ public:
 	/* Activates the Enter process for the character Posture
 	*  
 	*/
-	virtual bool Enter(CreatureObject* obj);
+	virtual void Enter(CreatureObject* obj);
 	/* Activates the Exit process for the given Posture
 	*  
 	*/
-	virtual bool Exit(CreatureObject* obj);
+	virtual void Exit(CreatureObject* obj);
 	/* Determines if the player can transition to the Posture
 	*  
 	*/
@@ -61,8 +60,8 @@ class PostureUpright:
 {
 public:
 	PostureUpright();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 #endif
@@ -74,8 +73,8 @@ class PostureCrouched:
 {
 public:
 	PostureCrouched();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Prone Posture
@@ -86,8 +85,8 @@ class PostureProne:
 {
 public:
 	PostureProne();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Sneaking Posture
@@ -98,8 +97,8 @@ class PostureSneaking:
 {
 public:
 	PostureSneaking();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Blocking Posture
@@ -110,8 +109,8 @@ class PostureBlocking:
 {
 public:
 	PostureBlocking();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Climbing Posture
@@ -122,8 +121,8 @@ class PostureClimbing:
 {
 public:
 	PostureClimbing();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Flying Posture
@@ -134,8 +133,8 @@ class PostureFlying:
 {
 public:
 	PostureFlying();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	LyingDown Posture
@@ -146,8 +145,8 @@ class PostureLyingDown:
 {
 public:
 	PostureLyingDown();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Sitting Posture
@@ -158,8 +157,8 @@ class PostureSitting:
 {
 public:
 	PostureSitting();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	SkillAnimating Posture
@@ -170,8 +169,8 @@ class PostureSkillAnimating:
 {
 public:
 	PostureSkillAnimating();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	DrivingVehicle Posture
@@ -182,8 +181,8 @@ class PostureDrivingVehicle:
 {
 public:
 	PostureDrivingVehicle();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	RidingCreature Posture
@@ -194,8 +193,8 @@ class PostureRidingCreature:
 {
 public:
 	PostureRidingCreature();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	KnockedDown Posture
@@ -206,8 +205,8 @@ class PostureKnockedDown:
 {
 public:
 	PostureKnockedDown();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Incapacitated Posture
@@ -218,8 +217,8 @@ class PostureIncapacitated:
 {
 public:
 	PostureIncapacitated();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };
 /*	Dead Posture
@@ -230,7 +229,7 @@ class PostureDead:
 {
 public:
 	PostureDead();
-	virtual bool Enter(CreatureObject* obj);
-	virtual bool Exit(CreatureObject* obj);
+	
+	
 	virtual bool CanTransition(CreatureObject* obj);
 };

@@ -752,9 +752,6 @@
     <ClCompile Include="HamService.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LocomotionState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ActionState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1493,9 +1490,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LocomotionState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ActionState.h">

@@ -24,48 +24,31 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#pragma once
-#ifndef ANH_ZONESERVER_STATE_MANAGER_H
-#define ANH_ZONESERVER_STATE_MANAGER_H
 
-#include "ActionState.h"
-#include "PostureState.h"
-#include "CreatureEnums.h"
-#include <unordered_map>
+#ifndef ANH_ZONESERVER_ACTION_STATE_EVENTS_H
+#define ANH_ZONESERVER_ACTION_STATE_EVENTS_H
 
-#define gStateManager ::utils::Singleton<StateManager>::Instance()
+#include "Common/Event.h"
+#include "PlayerObject.h"
 
-// add a map for each type of State here
-typedef std::unordered_map<uint64, std::unique_ptr<ActionState>> ActionStateMap;
-typedef std::unordered_map<uint64, std::unique_ptr<PostureState>> PostureStateMap;
-
-class StateManager
+class ActionStateUpdateEvent : public ::common::BaseEvent
 {
 public:
-	/*	@short State Manager is the state machine system that converts the object to and from a state.
-	**
-	**
-	*/
-	StateManager();
-	~StateManager();
+    explicit ActionStateUpdateEvent(PlayerObject* player, uint64_t subject_id, uint64_t delay_ms);
+    ActionStateUpdateEvent(PlayerObject* player,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    
+    ~ActionStateUpdateEvent(void);
 
-	void setCurrentActionState(CreatureObject* object, CreatureState);
-	void setCurrentPostureState(CreatureObject* object, CreaturePosture);
-
-	CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
-	
-	//void addLocomotionState(LocomotionState* state);
-	//void addPostureState(PostureState* state);
-
-	void removeActionState(Object* object, ActionState* currState);
-
-	ActionStateMap		mActionStateMap;
-	PostureStateMap		mPostureStateMap;
-	
+    const ::common::EventType& event_type() const;
 
 private:
-	void addActionState(Object* object, ActionState* newState);
-	ActionStateMap		loadActionStateMap();
-	PostureStateMap		loadPostureStateMap();
+    void onSerialize(::common::ByteBuffer& out) const;
+    void onDeserialize(::common::ByteBuffer& in);
+
+    bool onConsume(bool handled) const;
+
+    static const ::common::EventType event_type_;
+    PlayerObject*   mPlayer;
 };
+
 #endif

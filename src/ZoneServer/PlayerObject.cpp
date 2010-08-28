@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "QuadTree.h"
 
+#include "PostureEvent.h"
 #include "SampleEvent.h"
 #include "SchematicGroup.h"
 #include "SchematicManager.h"
@@ -65,10 +66,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "Common/atMacroString.h"
+#include "Common/EventDispatcher.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 #include "Utils/clock.h"
 #include "Utils/EventHandler.h"
+
+using ::common::IEventPtr;
+using ::common::EventDispatcher;
+using ::common::EventType;
+using ::common::EventListener;
+using ::common::EventListenerType;
 
 
 //=============================================================================
@@ -148,6 +156,8 @@ PlayerObject::PlayerObject()
     getSampleData()->mSampleNodeFlag	= false;
     getSampleData()->mSampleNodeRecovery= false;
     getSampleData()->mNextSampleTime	= 0;
+
+    gEventDispatcher.Connect(PostureUpdateEvent::type, EventListener(EventListenerType("PostureUpdate::handlePostureUpdate"), std::bind(&PlayerObject::handlePostureUpdate, this, std::placeholders::_1)));
 }
 
 //=============================================================================
@@ -2047,10 +2057,53 @@ void PlayerObject::setParentIdIncDB(uint64 parentId)
 //
 // Posture Commands
 //
+bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
+{
+    // Cast the IEvent to the PostureUpdateEvent.
+    auto pre_event = std::dynamic_pointer_cast<PostureUpdateEvent>(triggered_event);
+    if (!pre_event) {
+        gMessageLib->SendSystemMessage(L"Received an invalid event!", this);
+        return false;
+    }
+    // Lookup the creature and ensure it is a valid object.
+    PlayerObject* object = dynamic_cast<PlayerObject*>(pre_event->getCreatureObject());
+    if (!object) {
+        return false;
+    }
+    // process the appropriate command.
+    switch (pre_event->getNewPostureState())
+    {
+        case CreaturePosture_Upright:
+            setUpright();
+            break;
+        case CreaturePosture_Crouched:
+            setCrouched();
+            break;
+        case CreaturePosture_Prone:
+            setProne();
+            break;
+        case CreaturePosture_Sitting:
+            setSitting();
+            break;
+        default:
+            break;
+    }
+    
+    // update client
+     if(isConnected())
+        gMessageLib->sendHeartBeat(getClient());
+
+    this->getHam()->updateRegenRates();
+    this->updateMovementProperties();
+    gMessageLib->sendUpdateMovementProperties(this);
+    gMessageLib->sendPostureAndStateUpdate(this);
+    gMessageLib->sendSelfPostureUpdate(this);
+
+    return true;
+}
 
 void PlayerObject::setSitting(Message* message)
-{
-    //uint8			currentPosture	= this->getPosture();
+{    
     BString			data;
     glm::vec3       chair_position;
     uint64			chairCell		= 0;
@@ -2063,9 +2116,6 @@ void PlayerObject::setSitting(Message* message)
         gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);
     }
 
-    if(this->isConnected())
-        gMessageLib->sendHeartBeat(this->getClient());
-
     // see if we need to get out of sampling mode
     if(this->getSamplingState())
     {
@@ -2073,10 +2123,7 @@ void PlayerObject::setSitting(Message* message)
         this->setSamplingState(false);
     }
 
-    message->getStringUnicode16(data); //Should be okay even if data is null! (I hope)
-
-    //this->setPosture(CreaturePosture_Sitting);
-    gStateManager.setCurrentPostureState(this, CreaturePosture_Sitting);
+    message->getStringUnicode16(data); //Should be okay even if data is null! (I hope)  
 
     // sitting on chair
     if(data.getLength())
@@ -2148,9 +2195,7 @@ void PlayerObject::setSitting(Message* message)
             }
 
             //this->mDirection = Anh_Math::Quaternion();
-            this->toggleStateOn(CreatureState_SittingOnChair);
-
-            this->updateMovementProperties();
+            gStateManager.setCurrentActionState(this, CreatureState_SittingOnChair);
 
             // TODO: check if we need to send transforms to others
             if(chairCell)
@@ -2161,10 +2206,6 @@ void PlayerObject::setSitting(Message* message)
             {
                 gMessageLib->sendDataTransform053(this);
             }
-
-            gMessageLib->sendUpdateMovementProperties(this);
-            gMessageLib->sendPostureAndStateUpdate(this);
-
             gMessageLib->sendSitOnObject(this);
         }
     }
@@ -2176,22 +2217,72 @@ void PlayerObject::setSitting(Message* message)
     }
     //hack-fix clientside bug by manually sending client message
     gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_sit"), this);
+
+    gStateManager.setCurrentPostureState(this, CreaturePosture_Sitting);
 }
 
 void PlayerObject::setUpright()
 {
-    // STATE MANAGER TEST
-    gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
+    // see if we need to get out of sampling mode
+    if(this->getSamplingState())
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
+        this->setSamplingState(false);
+    }
+
+    if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+    {
+        this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
+    }
+
+    //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+    if(IsSeatedOnChair)
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);	
+    }
 }
 
 void PlayerObject::setProne()
 {
-    gStateManager.setCurrentPostureState(this, CreaturePosture_Prone);
+   if(this->isConnected())
+        gMessageLib->sendHeartBeat(this->getClient());
+
+    // see if we need to get out of sampling mode
+    if(this->getSamplingState())
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), this);
+        this->setSamplingState(false);
+    }
+
+    if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+    {
+        this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
+    }
+
+    //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+    if(IsSeatedOnChair)
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_prone"), this);
+    }
 }
 
 void PlayerObject::setCrouched()
 {
-    gStateManager.setCurrentPostureState(this, CreaturePosture_Crouched);
+    if(this->isConnected())
+        gMessageLib->sendHeartBeat(this->getClient());
+
+    //Get whether player is seated on a chair before we toggle it
+    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+
+    //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
+    if(IsSeatedOnChair)
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_kneel"), this);
+    }
 }
 
 void PlayerObject::playFoodSound(bool food, bool drink)

@@ -119,11 +119,11 @@ enum CreatureLocomotion : unsigned long long
 	CreatureLocomotion_Sitting							=	0x0000000000004000,
 	CreatureLocomotion_SkillAnimating					=	0x0000000000008000,
 	CreatureLocomotion_DrivingVehicle					=	0x0000000000010000,
-	CreatureLocomotion_RidingCreature					=	0x0000000000200000,
-	CreatureLocomotion_KnockedDown						=	0x0000000000400000,
-	CreatureLocomotion_Incapacitated					=	0x0000000000800000,
-	CreatureLocomotion_Dead								=	0x0000000010000000,
-	CreatureLocomotion_Blocking							=	0x0000000020000000,
+	CreatureLocomotion_RidingCreature					=	0x0000000000020000,
+	CreatureLocomotion_KnockedDown						=	0x0000000000040000,
+	CreatureLocomotion_Incapacitated					=	0x0000000000080000,
+	CreatureLocomotion_Dead								=	0x0000000000100000,
+	CreatureLocomotion_Blocking							=	0x0000000000200000,
 };
 //=============================================================================
 enum CreaturePosture

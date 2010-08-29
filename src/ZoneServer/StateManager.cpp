@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "StateManager.h"
 #include "PostureEvent.h"
+#include "ActionStateEvent.h"
+#include "LocomotionStateEvent.h"
 #include "MessageLib/MessageLib.h"
 #include "Common/EventDispatcher.h"
 
@@ -130,7 +132,7 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
 {
     auto posture_update_event = std::make_shared<PostureUpdateEvent>(object, (CreaturePosture)object->getPosture(), newPosture);
 
-    PostureStateMap::iterator iter = mPostureStateMap.find(object->getPosture());
+    PostureStateMap::iterator iter = mPostureStateMap.find(newPosture);
     if (iter != mPostureStateMap.end())
     {
         if (mPostureStateMap[object->getPosture()]->CanTransition(newPosture))
@@ -147,41 +149,38 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
 
 
 void StateManager::setCurrentActionState(CreatureObject* object, CreatureState newState)
-{
-    bool canTransition = false;
-    // get our current states
-    uint64 currStates = object->getState();
-    
-    // nothing to check out transition against
-    if (currStates = 0)
-        canTransition = true;
-
-    while (currStates)
+{    
+    auto action_update_event = std::make_shared<ActionStateUpdateEvent>(object, object->getState(), newState);
+    ActionStateMap::iterator iter = mActionStateMap.find(newState);
+    if (iter != mActionStateMap.end())
     {
-        uint64 currState = 1 << currStates;
-        ActionStateMap::iterator iter = mActionStateMap.find(currState);
-        if (iter != mActionStateMap.end())
+        // check if we can transition to the new state
+        if (mActionStateMap[newState]->CanTransition(newState))
         {
-            // check if we can transition to the new state
-            if ((*iter).second->CanTransition(newState))
-            {
-                canTransition = true;
-            }
-            else
-                canTransition = false;
+            // Exit old State
+            //currState->Exit(object);
+            // Enter new State
+            mActionStateMap[newState]->Enter(object);
         }
-
     }
-    // Exit old State
-    //currState->Exit(object);
-    if (canTransition)
+    gEventDispatcher.Notify(action_update_event);
+}
+
+void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLocomotion newLocomotion)
+{
+    auto locomotion_update_event = std::make_shared<LocomotionStateUpdateEvent>(object, (CreatureLocomotion)object->getLocomotion(), newLocomotion);
+    LocomotionStateMap::iterator iter = mLocomotionStateMap.find(newLocomotion);
+    if (iter != mLocomotionStateMap.end())
     {
-        // Enter new State
-        mActionStateMap[newState]->Enter(object);
-
-        //notify the client
-        gMessageLib->sendPostureAndStateUpdate(object);
+        // check if we can transition to the new state
+        if (mActionStateMap[newLocomotion]->CanTransition(newLocomotion))
+        {
+            // Exit old State
+            //currState->Exit(object);
+            // Enter new State
+            mActionStateMap[newLocomotion]->Enter(object);
+        }
     }
-
+    gEventDispatcher.Notify(locomotion_update_event);
 }
 

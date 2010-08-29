@@ -27,9 +27,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 #include "CreatureObject.h"
 #include "CreatureEnums.h"
-#include <vector>
+#include <map>
 
-typedef std::vector<uint64> transitionList;
+enum StateTypes
+{
+    State_Action     = 0,
+    State_Posture    = 1,
+    State_Locomotion = 2
+};
+
+typedef std::map<StateTypes, uint64> transitionList;
 class IState
 {
 public:

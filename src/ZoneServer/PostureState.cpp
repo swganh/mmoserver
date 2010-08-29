@@ -50,23 +50,42 @@ void PostureState::Exit(CreatureObject* obj)
 }
 bool PostureState::CanTransition(uint64 newPosture)
 {
-    if((std::find(mTransitionList.begin(), mTransitionList.end(), newPosture)) == mTransitionList.end())
-        return true;
+    transitionList::iterator itPosture = mTransitionList.find(State_Posture);
+    transitionList::iterator itAction = mTransitionList.find(State_Action);
+    transitionList::iterator itLocomotion = mTransitionList.find(State_Locomotion);
+    // check each state type
+    if (itPosture != mTransitionList.end())
+    {
+        // check the bitmask to see if we're allowed
+        uint32 bitmask = itPosture->second;
+        if((newPosture & bitmask) == 0)
+            return false;
+    }
+    else if (itAction != mTransitionList.end())
+    {
+        // check the bitmask to see if we're allowed
+        uint32 bitmask = itAction->second;
+        if((newPosture & bitmask) != 0)
+            return false;
+    }
+    else if (itLocomotion != mTransitionList.end())
+    {
+        // check the bitmask to see if we're allowed
+        uint32 bitmask = itLocomotion->second;
+        if((newPosture & bitmask) != 0)
+            return false;
+    }
 
-    return false;
+    return true;
 }
 
 PostureUpright::PostureUpright() : PostureState()
 {
-    // pulled from
     mStateID = CreaturePosture_Upright;
-    mTransitionList.push_back(CreaturePosture_Crouched);
-    mTransitionList.push_back(CreaturePosture_Sneaking);
-    mTransitionList.push_back(CreaturePosture_Prone);
-    mTransitionList.push_back(CreaturePosture_Climbing);
-    mTransitionList.push_back(CreaturePosture_Sitting);
-    mTransitionList.push_back(CreaturePosture_KnockedDown);
-    mTransitionList.push_back(CreaturePosture_Blocking);
+    
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,5055));
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894542336));
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Locomotion,1783808));
 }
 
 bool PostureUpright::CanTransition(uint64 newPosture)
@@ -77,13 +96,8 @@ bool PostureUpright::CanTransition(uint64 newPosture)
 PostureCrouched::PostureCrouched() : PostureState()
 {
     mStateID = CreaturePosture_Crouched;
-    mTransitionList.push_back(CreaturePosture_Crouched);
-    mTransitionList.push_back(CreaturePosture_Sneaking);
-    mTransitionList.push_back(CreaturePosture_Prone);
-    mTransitionList.push_back(CreaturePosture_Climbing);
-    mTransitionList.push_back(CreaturePosture_Sitting);
-    mTransitionList.push_back(CreaturePosture_KnockedDown);
-    mTransitionList.push_back(CreaturePosture_Blocking);
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,4415));
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894804480));
 }
 
 bool PostureCrouched::CanTransition(uint64 newPosture)
@@ -94,13 +108,8 @@ bool PostureCrouched::CanTransition(uint64 newPosture)
 PostureProne::PostureProne() : PostureState()
 {
     mStateID = CreaturePosture_Prone;
-    mTransitionList.push_back(CreaturePosture_Crouched);
-    mTransitionList.push_back(CreaturePosture_Sneaking);
-    mTransitionList.push_back(CreaturePosture_Prone);
-    mTransitionList.push_back(CreaturePosture_Climbing);
-    mTransitionList.push_back(CreaturePosture_Sitting);
-    mTransitionList.push_back(CreaturePosture_KnockedDown);
-    mTransitionList.push_back(CreaturePosture_Blocking);
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,4415));
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894804480));
 }
 
 bool PostureProne::CanTransition(uint64 newPosture)
@@ -111,13 +120,6 @@ bool PostureProne::CanTransition(uint64 newPosture)
 PostureSneaking::PostureSneaking() : PostureState()
 {
     mStateID = CreaturePosture_Sneaking;
-    mTransitionList.push_back(CreaturePosture_Crouched);
-    mTransitionList.push_back(CreaturePosture_Sneaking);
-    mTransitionList.push_back(CreaturePosture_Prone);
-    mTransitionList.push_back(CreaturePosture_Climbing);
-    mTransitionList.push_back(CreaturePosture_Sitting);
-    mTransitionList.push_back(CreaturePosture_KnockedDown);
-    mTransitionList.push_back(CreaturePosture_Blocking);
 }
 
 bool PostureSneaking::CanTransition(uint64 newPosture)

@@ -42,10 +42,33 @@ void ActionState::Exit(CreatureObject* obj)
 }
 bool ActionState::CanTransition(uint64 newState)
 {
-    if((std::find(mTransitionList.begin(), mTransitionList.end(), newState)) == mTransitionList.end())
-        return true;
+    transitionList::iterator itPosture = mTransitionList.find(State_Posture);
+    transitionList::iterator itAction = mTransitionList.find(State_Action);
+    transitionList::iterator itLocomotion = mTransitionList.find(State_Locomotion);
+    // check each state type
+    if (itPosture != mTransitionList.end())
+    {
+        // check the bitmask to see if we're allowed
+        uint32 bitmask = itPosture->second;
+        if((newState & bitmask) == 0)
+            return false;
+    }
+    else if (itAction != mTransitionList.end())
+    {
+        // check the bitmask to see if we're allowed
+        uint32 bitmask = itAction->second;
+        if((newState & bitmask) != 0)
+            return false;
+    }
+    else if (itLocomotion != mTransitionList.end())
+    {
+        // check the bitmask to see if we're allowed
+        uint32 bitmask = itLocomotion->second;
+        if((newState & bitmask) != 0)
+            return false;
+    }
 
-    return false;
+    return true;
 }
 
 // StateCover

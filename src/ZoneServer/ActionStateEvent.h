@@ -36,16 +36,16 @@ class ActionStateUpdateEvent : public ::common::BaseEvent
 public:
     static const ::common::EventType type;
 
-    explicit ActionStateUpdateEvent(CreatureObject* obj, CreatureState oldState,CreatureState newState,uint64_t subject_id=0, uint64_t delay_ms=0);
-    ActionStateUpdateEvent(CreatureObject* obj, CreatureState oldState,CreatureState newState,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    explicit ActionStateUpdateEvent(CreatureObject* obj, uint64 oldStates,CreatureState newState,uint64_t subject_id=0, uint64_t delay_ms=0);
+    ActionStateUpdateEvent(CreatureObject* obj, uint64 oldStates,CreatureState newState,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
     
     ~ActionStateUpdateEvent(void);
 
     const ::common::EventType& event_type() const;
 
     CreatureObject* getCreatureObject()     { return mObj;}
-    CreatureState getOldPostureState()    { return mOldState;}
-    CreatureState getNewPostureState()    { return mNewState;}
+    uint64 getOldPostureState()             { return mOldStates;}
+    CreatureState getNewPostureState()      { return mNewState;}
 
 private:
     void onSerialize(::common::ByteBuffer& out) const;
@@ -53,9 +53,9 @@ private:
 
     bool onConsume(bool handled) const;
     
-    CreatureObject*           mObj;
-    CreatureState             mOldState;
-    CreatureState             mNewState;
+    CreatureObject*             mObj;
+    uint64                      mOldStates;
+    CreatureState               mNewState;
 };
 
 #endif

@@ -80,11 +80,17 @@ bool LocomotionState::CanTransition(uint64 newLocomotionState)
 LocomotionStanding::LocomotionStanding()
 {
     mStateID = CreatureLocomotion_Standing;
+
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,5055));
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894542336));
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Locomotion,1783808));
 }
 LocomotionSneaking::LocomotionSneaking()
 {
     mStateID = CreatureLocomotion_Sneaking;
 
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,4415));
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894804480));
 }
 LocomotionWalking::LocomotionWalking()
 {
@@ -109,6 +115,9 @@ LocomotionCrouchWalking::LocomotionCrouchWalking()
 LocomotionProne::LocomotionProne()
 {
     mStateID = CreatureLocomotion_Prone;
+
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,4415));
+    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894804480));
 }
 LocomotionCrawling::LocomotionCrawling()
 {

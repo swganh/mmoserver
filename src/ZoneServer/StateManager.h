@@ -30,7 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ActionState.h"
 #include "PostureState.h"
-#include "CreatureEnums.h"
+#include "LocomotionState.h"
+#include "CreatureObject.h"
 #include <unordered_map>
 
 #define gStateManager ::utils::Singleton<StateManager>::Instance()
@@ -38,34 +39,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // add a map for each type of State here
 typedef std::unordered_map<uint64, std::unique_ptr<ActionState>> ActionStateMap;
 typedef std::unordered_map<uint64, std::unique_ptr<PostureState>> PostureStateMap;
+typedef std::unordered_map<uint64, std::unique_ptr<LocomotionState>> LocomotionStateMap;
 
 class StateManager
 {
 public:
-	/*	@short State Manager is the state machine system that converts the object to and from a state.
-	**
-	**
-	*/
-	StateManager();
-	~StateManager();
+    /*	@short State Manager is the state machine system that converts the object to and from a state.
+    **
+    **
+    */
+    StateManager();
+    ~StateManager();
 
-	void setCurrentActionState(CreatureObject* object, CreatureState);
-	void setCurrentPostureState(CreatureObject* object, CreaturePosture);
+    void setCurrentActionState(CreatureObject* object, CreatureState);
+    void setCurrentPostureState(CreatureObject* object, CreaturePosture);
+    void setCurrentLocomotionState(CreatureObject* object, CreatureLocomotion);
 
-	CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
-	
-	//void addLocomotionState(LocomotionState* state);
-	//void addPostureState(PostureState* state);
+    CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
+    
+    void removeActionState(Object* object, ActionState* currState);
 
-	void removeActionState(Object* object, ActionState* currState);
-
-	ActionStateMap		mActionStateMap;
-	PostureStateMap		mPostureStateMap;
-	
+    ActionStateMap		    mActionStateMap;
+    PostureStateMap		    mPostureStateMap;
+    LocomotionStateMap      mLocomotionStateMap;
+    
 
 private:
-	void addActionState(Object* object, ActionState* newState);
-	ActionStateMap		loadActionStateMap();
-	PostureStateMap		loadPostureStateMap();
+    void            addActionState(Object* object, ActionState* newState);
+    void		    loadActionStateMap();
+    void            loadPostureStateMap();
+    void    		loadLocomotionStateMap();
 };
 #endif

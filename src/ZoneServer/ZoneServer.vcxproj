@@ -194,6 +194,7 @@
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="ItemFactory.cpp" />
     <ClCompile Include="LairObject.cpp" />
+    <ClCompile Include="LocomotionState.cpp" />
     <ClCompile Include="ManufacturingSchematic.cpp" />
     <ClCompile Include="Medicine.cpp" />
     <ClCompile Include="MedicManager.cpp" />
@@ -393,6 +394,7 @@
     <ClInclude Include="CMWeaponGroup.h" />
     <ClInclude Include="CombatManager.h" />
     <ClInclude Include="declspec.h" />
+    <ClInclude Include="LocomotionState.h" />
     <ClInclude Include="OCCommonHandlers.h" />
     <ClInclude Include="Container.h" />
     <ClInclude Include="ContainerObjectFactory.h" />

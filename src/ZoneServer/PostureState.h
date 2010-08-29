@@ -34,202 +34,204 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 class PostureState :
-	public IState
+    public IState
 {
 public:
-	PostureState(void);
-	virtual ~PostureState(void);
-	/* Activates the Enter process for the character Posture
-	*  
-	*/
-	virtual void Enter(CreatureObject* obj);
-	/* Activates the Exit process for the given Posture
-	*  
-	*/
-	virtual void Exit(CreatureObject* obj);
-	/* Determines if the player can transition to the Posture
-	*  
-	*/
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureState(void);
+    virtual ~PostureState(void);
+    /* Activates the Enter process for the character Posture
+    *  
+    */
+    virtual void Enter(CreatureObject* obj);
+    /* Activates the Exit process for the given Posture
+    *  
+    */
+    virtual void Exit(CreatureObject* obj);
+    /* Determines if the player can transition to the Posture
+    *  
+    */
+    virtual bool CanTransition(uint64 newPosture);
+protected:
+    transitionList  mTransitionList;
 };
 /*	Upright Posture
 *
 */
 class PostureUpright:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureUpright();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureUpright();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 #endif
 /*	Crouched Posture
 *
 */
 class PostureCrouched:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureCrouched();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureCrouched();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Prone Posture
 *
 */
 class PostureProne:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureProne();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureProne();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Sneaking Posture
 *
 */
 class PostureSneaking:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureSneaking();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureSneaking();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Blocking Posture
 *
 */
 class PostureBlocking:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureBlocking();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureBlocking();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Climbing Posture
 *
 */
 class PostureClimbing:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureClimbing();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureClimbing();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Flying Posture
 *
 */
 class PostureFlying:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureFlying();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureFlying();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	LyingDown Posture
 *
 */
 class PostureLyingDown:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureLyingDown();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureLyingDown();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Sitting Posture
 *
 */
 class PostureSitting:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureSitting();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureSitting();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	SkillAnimating Posture
 *
 */
 class PostureSkillAnimating:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureSkillAnimating();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureSkillAnimating();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	DrivingVehicle Posture
 *
 */
 class PostureDrivingVehicle:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureDrivingVehicle();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureDrivingVehicle();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	RidingCreature Posture
 *
 */
 class PostureRidingCreature:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureRidingCreature();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureRidingCreature();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	KnockedDown Posture
 *
 */
 class PostureKnockedDown:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureKnockedDown();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureKnockedDown();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Incapacitated Posture
 *
 */
 class PostureIncapacitated:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureIncapacitated();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureIncapacitated();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Dead Posture
 *
 */
 class PostureDead:
-	public PostureState
+    public PostureState
 {
 public:
-	PostureDead();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    PostureDead();
+    
+    
+    virtual bool CanTransition(uint64 newPosture);
 };

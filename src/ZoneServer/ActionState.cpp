@@ -40,9 +40,12 @@ void ActionState::Exit(CreatureObject* obj)
 {
     obj->toggleStateOff(mStateID);
 }
-bool ActionState::CanTransition(CreatureObject* obj)
+bool ActionState::CanTransition(uint64 newState)
 {
-    return true;
+    if((std::find(mTransitionList.begin(), mTransitionList.end(), newState)) == mTransitionList.end())
+        return true;
+
+    return false;
 }
 
 // StateCover
@@ -50,7 +53,7 @@ StateCover::StateCover() : ActionState()
 {
     mStateID = CreatureState_Cover;
 }
-bool StateCover::CanTransition(CreatureObject* obj)
+bool StateCover::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -61,7 +64,7 @@ StateCombat::StateCombat() : ActionState()
 {
     mStateID = CreatureState_Combat;
 }
-bool StateCombat::CanTransition(CreatureObject* obj)
+bool StateCombat::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -72,7 +75,7 @@ StatePeace::StatePeace() : ActionState()
 {
     mStateID = CreatureState_Combat;
 }
-bool StatePeace::CanTransition(CreatureObject* obj)
+bool StatePeace::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -83,7 +86,7 @@ StateAiming::StateAiming() : ActionState()
 {
     mStateID = CreatureState_Aiming;
 }
-bool StateAiming::CanTransition(CreatureObject* obj)
+bool StateAiming::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -95,7 +98,7 @@ StateAlert::StateAlert() : ActionState()
     mStateID = CreatureState_Alert;
 }
 
-bool StateAlert::CanTransition(CreatureObject* obj)
+bool StateAlert::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -107,7 +110,7 @@ StateBerserk::StateBerserk() : ActionState()
     mStateID = CreatureState_Berserk;
 }
 
-bool StateBerserk::CanTransition(CreatureObject* obj)
+bool StateBerserk::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -119,7 +122,7 @@ StateFeign::StateFeign() : ActionState()
     mStateID = CreatureState_FeignDeath;
 }
 
-bool StateFeign::CanTransition(CreatureObject* obj)
+bool StateFeign::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -131,7 +134,7 @@ StateCombatEvasive::StateCombatEvasive() : ActionState()
     mStateID = CreatureState_CombatAttitudeEvasive;
 }
 
-bool StateCombatEvasive::CanTransition(CreatureObject* obj)
+bool StateCombatEvasive::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -142,7 +145,7 @@ StateCombatNormal::StateCombatNormal() : ActionState()
 {
     mStateID = CreatureState_CombatAttitudeNormal;
 }
-bool StateCombatNormal::CanTransition(CreatureObject* obj)
+bool StateCombatNormal::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -153,7 +156,7 @@ StateCombatAggressive::StateCombatAggressive() : ActionState()
 {
     mStateID = CreatureState_CombatAttitudeAggressive;
 }
-bool StateCombatAggressive::CanTransition(CreatureObject* obj)
+bool StateCombatAggressive::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -164,7 +167,7 @@ StateTumbling::StateTumbling() : ActionState()
 {
     mStateID = CreatureState_Tumbling;
 }
-bool StateTumbling::CanTransition(CreatureObject* obj)
+bool StateTumbling::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -174,7 +177,7 @@ StateRallied::StateRallied() : ActionState()
 {
     mStateID = CreatureState_Rallied;
 }
-bool StateRallied::CanTransition(CreatureObject* obj)
+bool StateRallied::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -184,7 +187,7 @@ StateStunned::StateStunned() : ActionState()
 {
     mStateID = CreatureState_Stunned;
 }
-bool StateStunned::CanTransition(CreatureObject* obj)
+bool StateStunned::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -194,7 +197,7 @@ StateBlinded::StateBlinded() : ActionState()
 {
     mStateID = CreatureState_Blinded;
 }
-bool StateBlinded::CanTransition(CreatureObject* obj)
+bool StateBlinded::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -204,7 +207,7 @@ StateDizzy::StateDizzy() : ActionState()
 {
     mStateID = CreatureState_Dizzy;
 }
-bool StateDizzy::CanTransition(CreatureObject* obj)
+bool StateDizzy::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -214,7 +217,7 @@ StateIntimidated::StateIntimidated() : ActionState()
 {
     mStateID = CreatureState_Intimidated;
 }
-bool StateIntimidated::CanTransition(CreatureObject* obj)
+bool StateIntimidated::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -224,7 +227,7 @@ StateImmobolized::StateImmobolized() : ActionState()
 {
     mStateID = CreatureState_Immobilized;
 }
-bool StateImmobolized::CanTransition(CreatureObject* obj)
+bool StateImmobolized::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -234,7 +237,7 @@ StateFrozen::StateFrozen() : ActionState()
 {
     mStateID = CreatureState_Frozen;
 }
-bool StateFrozen::CanTransition(CreatureObject* obj)
+bool StateFrozen::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -244,7 +247,7 @@ StateSwimming::StateSwimming() : ActionState()
 {
     mStateID = CreatureState_Swimming;
 }
-bool StateSwimming::CanTransition(CreatureObject* obj)
+bool StateSwimming::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -254,7 +257,7 @@ StateSittingOnChair::StateSittingOnChair() : ActionState()
 {
     mStateID = CreatureState_SittingOnChair;
 }
-bool StateSittingOnChair::CanTransition(CreatureObject* obj)
+bool StateSittingOnChair::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -264,7 +267,7 @@ StateCrafting::StateCrafting() : ActionState()
 {
     mStateID = CreatureState_Crafting;
 }
-bool StateCrafting::CanTransition(CreatureObject* obj)
+bool StateCrafting::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -274,7 +277,7 @@ StateGlowingJedi::StateGlowingJedi() : ActionState()
 {
     mStateID = CreatureState_GlowingJedi;
 }
-bool StateGlowingJedi::CanTransition(CreatureObject* obj)
+bool StateGlowingJedi::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -284,7 +287,7 @@ StateMaskScent::StateMaskScent() : ActionState()
 {
     mStateID = CreatureState_MaskScent;
 }
-bool StateMaskScent::CanTransition(CreatureObject* obj)
+bool StateMaskScent::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -294,7 +297,7 @@ StatePoisoined::StatePoisoined() : ActionState()
 {
     mStateID = CreatureState_Poisoned;
 }
-bool StatePoisoined::CanTransition(CreatureObject* obj)
+bool StatePoisoined::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -304,7 +307,7 @@ StateBleeding::StateBleeding() : ActionState()
 {
     mStateID = CreatureState_Bleeding;
 }
-bool StateBleeding::CanTransition(CreatureObject* obj)
+bool StateBleeding::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -314,7 +317,7 @@ StateDiseased::StateDiseased() : ActionState()
 {
     mStateID = CreatureState_Diseased;
 }
-bool StateDiseased::CanTransition(CreatureObject* obj)
+bool StateDiseased::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -324,7 +327,7 @@ StateOnFire::StateOnFire() : ActionState()
 {
     mStateID = CreatureState_OnFire;
 }
-bool StateOnFire::CanTransition(CreatureObject* obj)
+bool StateOnFire::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -334,7 +337,7 @@ StateRidingMount::StateRidingMount() : ActionState()
 {
     mStateID = CreatureState_RidingMount;
 }
-bool StateRidingMount::CanTransition(CreatureObject* obj)
+bool StateRidingMount::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -344,7 +347,7 @@ StateMountedCreature::StateMountedCreature() : ActionState()
 {
     mStateID = CreatureState_MountedCreature;
 }
-bool StateMountedCreature::CanTransition(CreatureObject* obj)
+bool StateMountedCreature::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -354,7 +357,7 @@ StatePilotingShip::StatePilotingShip() : ActionState()
 {
     mStateID = CreatureState_PilotingShip;
 }
-bool StatePilotingShip::CanTransition(CreatureObject* obj)
+bool StatePilotingShip::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -364,7 +367,7 @@ StateShipOperations::StateShipOperations() : ActionState()
 {
     mStateID = CreatureState_ShipOperations;
 }
-bool StateShipOperations::CanTransition(CreatureObject* obj)
+bool StateShipOperations::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -374,7 +377,7 @@ StateShipGunner::StateShipGunner() : ActionState()
 {
     mStateID = CreatureState_ShipGunner;
 }
-bool StateShipGunner::CanTransition(CreatureObject* obj)
+bool StateShipGunner::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -384,7 +387,7 @@ StateShipInterior::StateShipInterior() : ActionState()
 {
     mStateID = CreatureState_ShipOperations;
 }
-bool StateShipInterior::CanTransition(CreatureObject* obj)
+bool StateShipInterior::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;
@@ -394,7 +397,7 @@ StatePilotingPobShip::StatePilotingPobShip() : ActionState()
 {
     mStateID = CreatureState_PilotingShip;
 }
-bool StatePilotingPobShip::CanTransition(CreatureObject* obj)
+bool StatePilotingPobShip::CanTransition(uint64 newState)
 {
     // check the transition list
     return true;

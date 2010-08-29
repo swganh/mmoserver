@@ -1023,28 +1023,28 @@ uint32 ObjectController::getLocoValidator(uint64 locomotion)
     uint32 locoValidator = 0;
     switch(locomotion)
     {
-        case kLocomotionStanding: locoValidator = kLocoValidStanding; break;
-        case kLocomotionSneaking: locoValidator = kLocoValidSneaking; break;
-        case kLocomotionWalking: locoValidator = kLocoValidWalking; break;
-        case kLocomotionRunning: locoValidator = kLocoValidRunning; break;
-        case kLocomotionKneeling: locoValidator = kLocoValidKneeling; break;
-        case kLocomotionCrouchSneaking: locoValidator = kLocoValidCrouchWalking; break;
-        case kLocomotionCrouchWalking: locoValidator = kLocoValidProne; break;
-        case kLocomotionProne: locoValidator = kLocoValidProne; break;
-        case kLocomotionCrawling: locoValidator = kLocoValidCrawling; break;
-        case kLocomotionClimbingStationary: locoValidator = kLocoValidClimbingStationary; break;
-        case kLocomotionClimbing: locoValidator = kLocoValidClimbing; break;
-        case kLocomotionHovering: locoValidator = kLocoValidHovering; break;
-        case kLocomotionFlying: locoValidator = kLocoValidFlying; break;
-        case kLocomotionLyingDown: locoValidator = kLocoValidLyingDown; break;
-        case kLocomotionSitting: locoValidator = kLocoValidSitting; break;
-        case kLocomotionSkillAnimating: locoValidator = kLocoValidSkillAnimating; break;
-        case kLocomotionDrivingVehicle: locoValidator = kLocoValidDrivingVehicle; break;
-        case kLocomotionRidingCreature: locoValidator = kLocoValidRidingCreature; break;
-        case kLocomotionKnockedDown: locoValidator = kLocoValidKnockedDown; break;
-        case kLocomotionIncapacitated: locoValidator = kLocoValidIncapacitated; break;
-        case kLocomotionDead: locoValidator = kLocoValidDead; break;
-        case kLocomotionBlocking: locoValidator = kLocoValidBlocking; break;
+        case CreatureLocomotion_Standing: locoValidator = kLocoValidStanding; break;
+        case CreatureLocomotion_Sneaking: locoValidator = kLocoValidSneaking; break;
+        case CreatureLocomotion_Walking: locoValidator = kLocoValidWalking; break;
+        case CreatureLocomotion_Running: locoValidator = kLocoValidRunning; break;
+        case CreatureLocomotion_Kneeling: locoValidator = kLocoValidKneeling; break;
+        case CreatureLocomotion_CrouchSneaking: locoValidator = kLocoValidCrouchWalking; break;
+        case CreatureLocomotion_CrouchWalking: locoValidator = kLocoValidProne; break;
+        case CreatureLocomotion_Prone: locoValidator = kLocoValidProne; break;
+        case CreatureLocomotion_Crawling: locoValidator = kLocoValidCrawling; break;
+        case CreatureLocomotion_ClimbingStationary: locoValidator = kLocoValidClimbingStationary; break;
+        case CreatureLocomotion_Climbing: locoValidator = kLocoValidClimbing; break;
+        case CreatureLocomotion_Hovering: locoValidator = kLocoValidHovering; break;
+        case CreatureLocomotion_Flying: locoValidator = kLocoValidFlying; break;
+        case CreatureLocomotion_LyingDown: locoValidator = kLocoValidLyingDown; break;
+        case CreatureLocomotion_Sitting: locoValidator = kLocoValidSitting; break;
+        case CreatureLocomotion_SkillAnimating: locoValidator = kLocoValidSkillAnimating; break;
+        case CreatureLocomotion_DrivingVehicle: locoValidator = kLocoValidDrivingVehicle; break;
+        case CreatureLocomotion_RidingCreature: locoValidator = kLocoValidRidingCreature; break;
+        case CreatureLocomotion_KnockedDown: locoValidator = kLocoValidKnockedDown; break;
+        case CreatureLocomotion_Incapacitated: locoValidator = kLocoValidIncapacitated; break;
+        case CreatureLocomotion_Dead: locoValidator = kLocoValidDead; break;
+        case CreatureLocomotion_Blocking: locoValidator = kLocoValidBlocking; break;
     }
 
     return locoValidator;

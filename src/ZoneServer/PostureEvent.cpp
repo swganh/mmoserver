@@ -10,7 +10,7 @@ const EventType PostureUpdateEvent::type      = EventType("PostureUpdateEvent");
 PostureUpdateEvent::PostureUpdateEvent(CreatureObject* obj, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms) 
     : BaseEvent(subject_id, delay_ms)
 {
-    mObj = obj;
+    mObj    = obj;
     mOldPos = oldPosture;
     mNewPos = newPosture;
 }
@@ -18,7 +18,7 @@ PostureUpdateEvent::PostureUpdateEvent(CreatureObject* obj, CreaturePosture oldP
 PostureUpdateEvent::PostureUpdateEvent(CreatureObject* obj, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback)
     : BaseEvent(subject_id, delay_ms)
 {
-    mObj = obj;
+    mObj    = obj;
     mOldPos = oldPosture;
     mNewPos = newPosture;
 }

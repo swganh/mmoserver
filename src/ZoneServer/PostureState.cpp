@@ -30,11 +30,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 PostureState::PostureState(void)
 {
+    mStateID = 0;
+    mTransitionList.clear();
 }
-
 
 PostureState::~PostureState(void)
 {
+    mStateID = 0;
+    mTransitionList.clear();
 }
 
 void PostureState::Enter(CreatureObject* obj)
@@ -45,17 +48,28 @@ void PostureState::Exit(CreatureObject* obj)
 {
     obj->setPosture(0);
 }
-bool PostureState::CanTransition(CreatureObject* obj)
+bool PostureState::CanTransition(uint64 newPosture)
 {
-    return true;
+    if((std::find(mTransitionList.begin(), mTransitionList.end(), newPosture)) == mTransitionList.end())
+        return true;
+
+    return false;
 }
 
 PostureUpright::PostureUpright() : PostureState()
 {
+    // pulled from
     mStateID = CreaturePosture_Upright;
+    mTransitionList.push_back(CreaturePosture_Crouched);
+    mTransitionList.push_back(CreaturePosture_Sneaking);
+    mTransitionList.push_back(CreaturePosture_Prone);
+    mTransitionList.push_back(CreaturePosture_Climbing);
+    mTransitionList.push_back(CreaturePosture_Sitting);
+    mTransitionList.push_back(CreaturePosture_KnockedDown);
+    mTransitionList.push_back(CreaturePosture_Blocking);
 }
 
-bool PostureUpright::CanTransition(CreatureObject* obj)
+bool PostureUpright::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -63,9 +77,16 @@ bool PostureUpright::CanTransition(CreatureObject* obj)
 PostureCrouched::PostureCrouched() : PostureState()
 {
     mStateID = CreaturePosture_Crouched;
+    mTransitionList.push_back(CreaturePosture_Crouched);
+    mTransitionList.push_back(CreaturePosture_Sneaking);
+    mTransitionList.push_back(CreaturePosture_Prone);
+    mTransitionList.push_back(CreaturePosture_Climbing);
+    mTransitionList.push_back(CreaturePosture_Sitting);
+    mTransitionList.push_back(CreaturePosture_KnockedDown);
+    mTransitionList.push_back(CreaturePosture_Blocking);
 }
 
-bool PostureCrouched::CanTransition(CreatureObject* obj)
+bool PostureCrouched::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -73,9 +94,16 @@ bool PostureCrouched::CanTransition(CreatureObject* obj)
 PostureProne::PostureProne() : PostureState()
 {
     mStateID = CreaturePosture_Prone;
+    mTransitionList.push_back(CreaturePosture_Crouched);
+    mTransitionList.push_back(CreaturePosture_Sneaking);
+    mTransitionList.push_back(CreaturePosture_Prone);
+    mTransitionList.push_back(CreaturePosture_Climbing);
+    mTransitionList.push_back(CreaturePosture_Sitting);
+    mTransitionList.push_back(CreaturePosture_KnockedDown);
+    mTransitionList.push_back(CreaturePosture_Blocking);
 }
 
-bool PostureProne::CanTransition(CreatureObject* obj)
+bool PostureProne::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -83,9 +111,16 @@ bool PostureProne::CanTransition(CreatureObject* obj)
 PostureSneaking::PostureSneaking() : PostureState()
 {
     mStateID = CreaturePosture_Sneaking;
+    mTransitionList.push_back(CreaturePosture_Crouched);
+    mTransitionList.push_back(CreaturePosture_Sneaking);
+    mTransitionList.push_back(CreaturePosture_Prone);
+    mTransitionList.push_back(CreaturePosture_Climbing);
+    mTransitionList.push_back(CreaturePosture_Sitting);
+    mTransitionList.push_back(CreaturePosture_KnockedDown);
+    mTransitionList.push_back(CreaturePosture_Blocking);
 }
 
-bool PostureSneaking::CanTransition(CreatureObject* obj)
+bool PostureSneaking::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -95,7 +130,7 @@ PostureBlocking::PostureBlocking() : PostureState()
     mStateID = CreaturePosture_Blocking;
 }
 
-bool PostureBlocking::CanTransition(CreatureObject* obj)
+bool PostureBlocking::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -105,7 +140,7 @@ PostureClimbing::PostureClimbing() : PostureState()
     mStateID = CreaturePosture_Climbing;
 }
 
-bool PostureClimbing::CanTransition(CreatureObject* obj)
+bool PostureClimbing::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -115,7 +150,7 @@ PostureFlying::PostureFlying() : PostureState()
     mStateID = CreaturePosture_Flying;
 }
 
-bool PostureFlying::CanTransition(CreatureObject* obj)
+bool PostureFlying::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -125,7 +160,7 @@ PostureLyingDown::PostureLyingDown() : PostureState()
     mStateID = CreaturePosture_LyingDown;
 }
 
-bool PostureLyingDown::CanTransition(CreatureObject* obj)
+bool PostureLyingDown::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -135,7 +170,7 @@ PostureSitting::PostureSitting() : PostureState()
     mStateID = CreaturePosture_Sitting;
 }
 
-bool PostureSitting::CanTransition(CreatureObject* obj)
+bool PostureSitting::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -145,7 +180,7 @@ PostureSkillAnimating::PostureSkillAnimating() : PostureState()
     mStateID = CreaturePosture_SkillAnimating;
 }
 
-bool PostureSkillAnimating::CanTransition(CreatureObject* obj)
+bool PostureSkillAnimating::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -155,7 +190,7 @@ PostureDrivingVehicle::PostureDrivingVehicle() : PostureState()
     mStateID = CreaturePosture_DrivingVehicle;
 }
 
-bool PostureDrivingVehicle::CanTransition(CreatureObject* obj)
+bool PostureDrivingVehicle::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -165,7 +200,7 @@ PostureRidingCreature::PostureRidingCreature() : PostureState()
     mStateID = CreaturePosture_RidingCreature;
 }
 
-bool PostureRidingCreature::CanTransition(CreatureObject* obj)
+bool PostureRidingCreature::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -175,7 +210,7 @@ PostureKnockedDown::PostureKnockedDown() : PostureState()
     mStateID = CreaturePosture_KnockedDown;
 }
 
-bool PostureKnockedDown::CanTransition(CreatureObject* obj)
+bool PostureKnockedDown::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -185,7 +220,7 @@ PostureIncapacitated::PostureIncapacitated() : PostureState()
     mStateID = CreaturePosture_Incapacitated;
 }
 
-bool PostureIncapacitated::CanTransition(CreatureObject* obj)
+bool PostureIncapacitated::CanTransition(uint64 newPosture)
 {
     return true;
 }
@@ -194,7 +229,7 @@ PostureDead::PostureDead() : PostureState()
 {
     mStateID = CreaturePosture_Dead;
 }
-bool PostureDead::CanTransition(CreatureObject* obj)
+bool PostureDead::CanTransition(uint64 newPosture)
 {
     return true;
 }

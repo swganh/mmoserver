@@ -29,26 +29,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_ACTION_STATE_EVENTS_H
 
 #include "Common/Event.h"
-#include "PlayerObject.h"
+#include "CreatureObject.h"
 
 class ActionStateUpdateEvent : public ::common::BaseEvent
 {
 public:
-    explicit ActionStateUpdateEvent(PlayerObject* player, uint64_t subject_id, uint64_t delay_ms);
-    ActionStateUpdateEvent(PlayerObject* player,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    static const ::common::EventType type;
+
+    explicit ActionStateUpdateEvent(CreatureObject* obj, CreatureState oldState,CreatureState newState,uint64_t subject_id=0, uint64_t delay_ms=0);
+    ActionStateUpdateEvent(CreatureObject* obj, CreatureState oldState,CreatureState newState,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
     
     ~ActionStateUpdateEvent(void);
 
     const ::common::EventType& event_type() const;
+
+    CreatureObject* getCreatureObject()     { return mObj;}
+    CreatureState getOldPostureState()    { return mOldState;}
+    CreatureState getNewPostureState()    { return mNewState;}
 
 private:
     void onSerialize(::common::ByteBuffer& out) const;
     void onDeserialize(::common::ByteBuffer& in);
 
     bool onConsume(bool handled) const;
-
-    static const ::common::EventType event_type_;
-    PlayerObject*   mPlayer;
+    
+    CreatureObject*           mObj;
+    CreatureState             mOldState;
+    CreatureState             mNewState;
 };
 
 #endif

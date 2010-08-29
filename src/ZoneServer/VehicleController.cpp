@@ -62,9 +62,9 @@ VehicleController::VehicleController()
 }
 
 VehicleController::~VehicleController() {
-	if (body_)	{
-		gWorldManager->destroyObject(body_);
-	}
+    if (body_)	{
+        gWorldManager->destroyObject(body_);
+    }
 }
 
 //=============================================================================
@@ -72,27 +72,27 @@ VehicleController::~VehicleController() {
 
 void VehicleController::handleObjectMenuSelect(uint8_t message_type, Object* source_object) {
 
-	if(dynamic_cast<PlayerObject*>(source_object)) {
-		switch(message_type)	{
-			case radId_vehicleGenerate:
-			case radId_vehicleStore:
-			{
+    if(dynamic_cast<PlayerObject*>(source_object)) {
+        switch(message_type)	{
+            case radId_vehicleGenerate:
+            case radId_vehicleStore:
+            {
         // If a body for the vehicle exists then store it, if it doesn't then call it.
         if (body_) {
           Store();
         } else {
-				  Call();
+                  Call();
         }
-			}
-			break;
+            }
+            break;
 
-			default:
-			{
+            default:
+            {
         assert(false && "Vehicle::handleObjectMenuSelect Unknown radial selection!");
-			}
-			break;
-		}
-	}
+            }
+            break;
+        }
+    }
 }
 
 //=============================================================================
@@ -101,9 +101,9 @@ void VehicleController::prepareCustomRadialMenu(CreatureObject* creature, uint8_
   
   mRadialMenu = std::make_shared<RadialMenu>();
   
-	mRadialMenu->addItem(1, 0, radId_vehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
-	mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_Default);
-	mRadialMenu->addItem(3, 0, radId_examine, radAction_Default);
+    mRadialMenu->addItem(1, 0, radId_vehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
+    mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_Default);
+    mRadialMenu->addItem(3, 0, radId_examine, radAction_Default);
 }
 
 
@@ -112,86 +112,86 @@ void VehicleController::prepareCustomRadialMenu(CreatureObject* creature, uint8_
 
 void VehicleController::Call() {
   
-	if(body_)	{
-	  assert(false && "void Vehicle::call() body already exists");
+    if(body_)	{
+      assert(false && "void Vehicle::call() body already exists");
     return;
-	}
+    }
 
-	if(owner_->checkIfMountCalled()) {
-		gLogger->log(LogManager::DEBUG,"void Vehicle::call() mount already called");
-		return;
-	}
+    if(owner_->checkIfMountCalled()) {
+        gLogger->log(LogManager::DEBUG,"void Vehicle::call() mount already called");
+        return;
+    }
 
-	if(!owner_->isConnected() || owner_->isDead() || owner_->isIncapacitated()) {
-		return;
-	}
+    if(!owner_->isConnected() || owner_->isDead() || owner_->isIncapacitated()) {
+        return;
+    }
 
-	body_ = new MountObject();
+    body_ = new MountObject();
 
-	BString cust;
-	cust.initRawBSTR((int8*)Swoop_Customization, BSTRType_ANSI);
-	body_->setCustomizationStr(cust.getAnsi());
-	body_->setCreoGroup(CreoGroup_Vehicle);
-	body_->setTypeOptions(0x1080);
-	body_->setMoodId(0);
-	body_->setCL(0);
+    BString cust;
+    cust.initRawBSTR((int8*)Swoop_Customization, BSTRType_ANSI);
+    body_->setCustomizationStr(cust.getAnsi());
+    body_->setCreoGroup(CreoGroup_Vehicle);
+    body_->setTypeOptions(0x1080);
+    body_->setMoodId(0);
+    body_->setCL(0);
 
-	body_->setId(mId + 1);	// Vehicles are created by the VehicleControllerFactory with +2 step for IDs
+    body_->setId(mId + 1);	// Vehicles are created by the VehicleControllerFactory with +2 step for IDs
 
-	body_->set_controller(this->getId());
+    body_->set_controller(this->getId());
 
-	body_->set_owner(owner_->getId());
-	body_->setParentId(0);
-	body_->setModelString(mPhysicalModel);
-	body_->setSpeciesGroup(mNameFile.getAnsi());
-	body_->setSpeciesString(mName.getAnsi());
-	body_->setPosture(0);
-	body_->setScale(1.0f);
+    body_->set_owner(owner_->getId());
+    body_->setParentId(0);
+    body_->setModelString(mPhysicalModel);
+    body_->setSpeciesGroup(mNameFile.getAnsi());
+    body_->setSpeciesString(mName.getAnsi());
+    body_->setPosture(0);
+    body_->setScale(1.0f);
 
 
-	std::string con = this->getAttribute<std::string>("condition");
-	body_->getHam()->setPropertyValue(HamBar_Health, HamProperty_CurrentHitpoints,atoi(con.substr(0,con.find_first_of("/")).c_str()));
-	body_->getHam()->setPropertyValue(HamBar_Health, HamProperty_MaxHitpoints,atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
+    std::string con = this->getAttribute<std::string>("condition");
+    body_->getHam()->setPropertyValue(HamBar_Health, HamProperty_CurrentHitpoints,atoi(con.substr(0,con.find_first_of("/")).c_str()));
+    body_->getHam()->setPropertyValue(HamBar_Health, HamProperty_MaxHitpoints,atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
 
-	owner_->setMount(body_);
-	owner_->setMounted(false);
-	owner_->setMountCalled(false);
+    owner_->setMount(body_);
+    owner_->setMounted(false);
+    owner_->setMountCalled(false);
 
-	// Set default direction and position for the body.
-	body_->mDirection = owner_->mDirection;
+    // Set default direction and position for the body.
+    body_->mDirection = owner_->mDirection;
   body_->mPosition  = owner_->mPosition;
 
-	// Move it forward 2 meters
+    // Move it forward 2 meters
   body_->moveForward(2);
-	
-	// And drop it a little below the terrain to allow the client to normalize it.
-	//body_->mPosition.y = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
-	 //TODO: Remove this patch when heightmaps are corrected!
-	 if(owner_){
-		 float hmapHighest = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
-		 body_->mPosition.y = gHeightmap->compensateForInvalidHeightmap(hmapHighest, body_->mPosition.y, (float)10.0);
-		 if(hmapHighest != body_->mPosition.y){
-			 gLogger->log(LogManager::INFORMATION," VehicleController::Call: PlayerID(%u) calling vehicle... Heightmap found inconsistent, compensated height.", owner_->getId());
-		 }
-	 }//end TODO
+    
+    // And drop it a little below the terrain to allow the client to normalize it.
+    //body_->mPosition.y = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
+     //TODO: Remove this patch when heightmaps are corrected!
+     if(owner_){
+         float hmapHighest = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
+         body_->mPosition.y = gHeightmap->compensateForInvalidHeightmap(hmapHighest, body_->mPosition.y, (float)10.0);
+         if(hmapHighest != body_->mPosition.y){
+             gLogger->log(LogManager::INFORMATION," VehicleController::Call: PlayerID(%u) calling vehicle... Heightmap found inconsistent, compensated height.", owner_->getId());
+         }
+     }//end TODO
 
   // Finally rotate it perpendicular to the player.
   body_->rotateRight(90.0f);
 
-	// add to world
-	if(!gWorldManager->addObject(body_)) {
+    // add to world
+    if(!gWorldManager->addObject(body_)) {
     gLogger->log(LogManager::DEBUG,"void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", body_->getId());
-		SAFE_DELETE(body_);
-		return;
-	}
+        SAFE_DELETE(body_);
+        return;
+    }
 
-	gWorldManager->createObjectinWorld(owner_, body_);	
+    gWorldManager->createObjectinWorld(owner_, body_);	
 
-	gMessageLib->sendUpdateTransformMessage(body_);
+    gMessageLib->sendUpdateTransformMessage(body_);
 
-	owner_->setMountCalled(true);
-	
-	return;
+    owner_->setMountCalled(true);
+    
+    return;
 }
 
 
@@ -199,45 +199,45 @@ void VehicleController::Call() {
 //stores the physical body
 void VehicleController::Store()
 {
-	if(!body_)
-	{
-		gLogger->log(LogManager::DEBUG,"Vehicle::store() Error: Store was called for a nonexistant body object!");
-		return;
-	}
+    if(!body_)
+    {
+        gLogger->log(LogManager::DEBUG,"Vehicle::store() Error: Store was called for a nonexistant body object!");
+        return;
+    }
 
-	if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
-	{
-		gLogger->log(LogManager::DEBUG,"Vehicle::store() couldnt find owner");
-		return;
-	}
+    if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
+    {
+        gLogger->log(LogManager::DEBUG,"Vehicle::store() couldnt find owner");
+        return;
+    }
 
-	// todo auto dismount
-	if(owner_->checkIfMounted())
-	{
-		owner_->setLocomotion(kLocomotionStanding);
-		DismountPlayer();
-	}
+    // todo auto dismount
+    if(owner_->checkIfMounted())
+    {
+        owner_->setLocomotion(CreatureLocomotion_Standing);
+        DismountPlayer();
+    }
 
-	if(!owner_->checkIfMountCalled())
-	{
-		gLogger->log(LogManager::DEBUG,"Vehicle::store() Mount wasnt called !!!");
-		return;
-	}
+    if(!owner_->checkIfMountCalled())
+    {
+        gLogger->log(LogManager::DEBUG,"Vehicle::store() Mount wasnt called !!!");
+        return;
+    }
 
-	//the body is a creature_object!!!
-	gMessageLib->sendDestroyObject_InRangeofObject(body_);
+    //the body is a creature_object!!!
+    gMessageLib->sendDestroyObject_InRangeofObject(body_);
 
-	owner_->setMount(NULL);
+    owner_->setMount(NULL);
 
 
-	owner_->setMounted(false);
-	owner_->setMountCalled(false);
+    owner_->setMounted(false);
+    owner_->setMountCalled(false);
 
-	// finally unload & destroy the vehicle creature
-	gWorldManager->destroyObject(body_);
+    // finally unload & destroy the vehicle creature
+    gWorldManager->destroyObject(body_);
 
-	// null the reference
-	body_ = NULL;
+    // null the reference
+    body_ = NULL;
 
 }
 
@@ -246,28 +246,28 @@ void VehicleController::Store()
 //dismount the owner from the physical body
 
 void VehicleController::DismountPlayer() {
- 	if(!body_) {
+    if(!body_) {
     assert(false && "Vehicle::mountPlayer() no vehicle body!");
-		return;
-	}
+        return;
+    }
 
-	if(!owner_->checkIfMounted()) {
+    if(!owner_->checkIfMounted()) {
     assert(false && "Vehicle::mountPlayer() owner is not mounted!");
-		return;
-	}
+        return;
+    }
 
-	//For safe measures make the player equipped by nothing
-	gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
+    //For safe measures make the player equipped by nothing
+    gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
 
-	body_->toggleStateOff(CreatureState_MountedCreature);
-	gMessageLib->sendStateUpdate(body_);
+    body_->toggleStateOff(CreatureState_MountedCreature);
+    gMessageLib->sendStateUpdate(body_);
 
-	owner_->toggleStateOff(CreatureState_RidingMount);
-	gMessageLib->sendStateUpdate(owner_);
+    owner_->toggleStateOff(CreatureState_RidingMount);
+    gMessageLib->sendStateUpdate(owner_);
 
-	owner_->setMounted(false);
-	
-	gMessageLib->sendUpdateMovementProperties(owner_);
+    owner_->setMounted(false);
+    
+    gMessageLib->sendUpdateMovementProperties(owner_);
 }
 
 //===============================================================================================
@@ -281,19 +281,19 @@ void VehicleController::MountPlayer()
     return;
   }
 
-	//Make the mount equip the player
-	gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), 4, owner_);
-	gMessageLib->sendUpdateTransformMessage(body_);
+    //Make the mount equip the player
+    gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), 4, owner_);
+    gMessageLib->sendUpdateTransformMessage(body_);
   
-	body_->toggleStateOn(CreatureState_MountedCreature);
-	gMessageLib->sendStateUpdate(body_);
+    body_->toggleStateOn(CreatureState_MountedCreature);
+    gMessageLib->sendStateUpdate(body_);
 
-	owner_->toggleStateOn(CreatureState_RidingMount);
-	gMessageLib->sendStateUpdate(owner_);
+    owner_->toggleStateOn(CreatureState_RidingMount);
+    gMessageLib->sendStateUpdate(owner_);
 
-	owner_->setMounted(true);
-	
-	gMessageLib->sendUpdateMovementProperties(owner_);
+    owner_->setMounted(true);
+    
+    gMessageLib->sendUpdateMovementProperties(owner_);
 }
 
 //===============================================================================================

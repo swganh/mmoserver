@@ -1406,37 +1406,37 @@ void CreatureObject::setLocomotionByPosture(uint32 posture)
 {
 	switch (posture)
 	{
-		case CreaturePosture_Upright: mLocomotion = kLocomotionStanding; break;
+		case CreaturePosture_Upright: mLocomotion = CreatureLocomotion_Standing; break;
 		// not even sure if this is used.
 		case CreaturePosture_Crouched:
 		{
 			if(this->getCurrentSpeed() < this->getBaseAcceleration())
-				mLocomotion = kLocomotionCrouchWalking;
+				mLocomotion = CreatureLocomotion_CrouchWalking;
 			else
-				mLocomotion = kLocomotionCrouchSneaking;
+				mLocomotion = CreatureLocomotion_CrouchSneaking;
 			break;
 		}
-		case CreaturePosture_Prone: mLocomotion = kLocomotionProne; break;
-		case CreaturePosture_Sneaking: mLocomotion = kLocomotionSneaking; break;
+		case CreaturePosture_Prone: mLocomotion = CreatureLocomotion_Prone; break;
+		case CreaturePosture_Sneaking: mLocomotion = CreatureLocomotion_Sneaking; break;
 		// is this used?
-		case CreaturePosture_Blocking: mLocomotion = kLocomotionBlocking; break;
+		case CreaturePosture_Blocking: mLocomotion = CreatureLocomotion_Blocking; break;
 		// is this used?
 		case CreaturePosture_Climbing:
 		{
 				if(this->getCurrentSpeed() >0)
-					mLocomotion = kLocomotionClimbing;
+					mLocomotion = CreatureLocomotion_Climbing;
 				else
-					mLocomotion = kLocomotionClimbingStationary;
+					mLocomotion = CreatureLocomotion_ClimbingStationary;
 				break;
 		}
-		case CreaturePosture_Flying: mLocomotion = kLocomotionFlying; break;
-		case CreaturePosture_LyingDown:	mLocomotion = kLocomotionLyingDown; break;
-		case CreaturePosture_Sitting: mLocomotion = kLocomotionSitting; break;
-		case CreaturePosture_SkillAnimating: mLocomotion = kLocomotionSkillAnimating; break;
-		case CreaturePosture_DrivingVehicle: mLocomotion = kLocomotionDrivingVehicle; break;
-		case CreaturePosture_RidingCreature: mLocomotion = kLocomotionRidingCreature; break;
-		case CreaturePosture_KnockedDown: mLocomotion = kLocomotionKnockedDown; break;
-		case CreaturePosture_Incapacitated: mLocomotion = kLocomotionIncapacitated; break;
-		case CreaturePosture_Dead: mLocomotion = kLocomotionDead; break;
+		case CreaturePosture_Flying: mLocomotion = CreatureLocomotion_Flying; break;
+		case CreaturePosture_LyingDown:	mLocomotion = CreatureLocomotion_LyingDown; break;
+		case CreaturePosture_Sitting: mLocomotion = CreatureLocomotion_Sitting; break;
+		case CreaturePosture_SkillAnimating: mLocomotion = CreatureLocomotion_SkillAnimating; break;
+		case CreaturePosture_DrivingVehicle: mLocomotion = CreatureLocomotion_DrivingVehicle; break;
+		case CreaturePosture_RidingCreature: mLocomotion = CreatureLocomotion_RidingCreature; break;
+		case CreaturePosture_KnockedDown: mLocomotion = CreatureLocomotion_KnockedDown; break;
+		case CreaturePosture_Incapacitated: mLocomotion = CreatureLocomotion_Incapacitated; break;
+		case CreaturePosture_Dead: mLocomotion = CreatureLocomotion_Dead; break;
 	}
 }

@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/Event.h"
 #include "CreatureObject.h"
-#include "CreatureEnums.h"
 
 class PostureUpdateEvent : public ::common::BaseEvent
 {

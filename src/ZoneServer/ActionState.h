@@ -31,27 +31,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AbstractState.h"
 
 class ActionState :
-	public IState
+    public IState
 {
 public:
-	ActionState(void);
-	virtual ~ActionState(void){};
+    ActionState(void);
+    virtual ~ActionState(void){};
 
-	/* Activates the Enter process for the character state
-	*  
-	*/
-	virtual void Enter(CreatureObject* obj);
-	/* Activates the Exit process for the given state
-	*  
-	*/
-	virtual void Exit(CreatureObject* obj);
-	/* Determines if the player can transition to the state
-	*  
-	*/
-	virtual bool CanTransition(CreatureObject* obj);
+    /* Activates the Enter process for the character state
+    *  
+    */
+    virtual void Enter(CreatureObject* obj);
+    /* Activates the Exit process for the given state
+    *  
+    */
+    virtual void Exit(CreatureObject* obj);
+    /* Determines if the player can transition to the state
+    *  
+    */
+    virtual bool CanTransition(uint64 newState);
 
 protected:
-	CreatureState	mStateID;
+    transitionList  mTransitionList;
+    CreatureState	mStateID;
 };
 #endif
 
@@ -59,409 +60,407 @@ protected:
 *
 */
 class StateCover:
-	public ActionState
+    public ActionState
 {
 public:
-	StateCover();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateCover();
+    virtual bool CanTransition(uint64 newState);
 };
 /*
 *	Combat State
 *
 */
 class StateCombat:
-	public ActionState
+    public ActionState
 {
 public:
-	StateCombat();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateCombat();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*
 *	Peace State
 *
 */
 class StatePeace:
-	public ActionState
+    public ActionState
 {
 public:
-	StatePeace();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StatePeace();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Aiming State
 *
 */
 class StateAiming:
-	public ActionState
+    public ActionState
 {
 public:
-	StateAiming();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateAiming();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Alert State
 *
 */
 class StateAlert:
-	public ActionState
+    public ActionState
 {
 public:
-	StateAlert();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateAlert();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Bersker State
 *
 */
 class StateBerserk:
-	public ActionState
+    public ActionState
 {
 public:
-	StateBerserk();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateBerserk();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Feign Death State
 *
 */
 class StateFeign:
-	public ActionState
+    public ActionState
 {
 public:
-	StateFeign();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateFeign();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	CombatAttitudeEvasive State
 *
 */
 class StateCombatEvasive:
-	public ActionState
+    public ActionState
 {
 public:
-	StateCombatEvasive();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateCombatEvasive();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	CombatAttitudeNormal State
 *
 */
 class StateCombatNormal:
-	public ActionState
+    public ActionState
 {
 public:
-	StateCombatNormal();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateCombatNormal();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	CombatAttitudeAggressive State
 *
 */
 class StateCombatAggressive:
-	public ActionState
+    public ActionState
 {
 public:
-	StateCombatAggressive();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateCombatAggressive();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Tumbling State
 *
 */
 class StateTumbling:
-	public ActionState
+    public ActionState
 {
 public:
-	StateTumbling();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateTumbling();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Rallied State
 *
 */
 class StateRallied:
-	public ActionState
+    public ActionState
 {
 public:
-	StateRallied();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateRallied();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Stunned State
 *
 */
 class StateStunned:
-	public ActionState
+    public ActionState
 {
 public:
-	StateStunned();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateStunned();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Blinded State
 *
 */
 class StateBlinded:
-	public ActionState
+    public ActionState
 {
 public:
-	StateBlinded();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateBlinded();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Dizzy State
 *
 */
 class StateDizzy:
-	public ActionState
+    public ActionState
 {
 public:
-	StateDizzy();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateDizzy();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Intimidated State
 *
 */
 class StateIntimidated:
-	public ActionState
+    public ActionState
 {
 public:
-	StateIntimidated();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateIntimidated();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Immobolized State
 *
 */
 class StateImmobolized:
-	public ActionState
+    public ActionState
 {
 public:
-	StateImmobolized();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateImmobolized();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Frozen State
 *
 */
 class StateFrozen:
-	public ActionState
+    public ActionState
 {
 public:
-	StateFrozen();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateFrozen();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Swimming State
 *
 */
 class StateSwimming:
-	public ActionState
+    public ActionState
 {
 public:
-	StateSwimming();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateSwimming();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	SittingOnChair State
 *
 */
 class StateSittingOnChair:
-	public ActionState
+    public ActionState
 {
 public:
-	StateSittingOnChair();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateSittingOnChair();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Crafting State
 *
 */
 class StateCrafting:
-	public ActionState
+    public ActionState
 {
 public:
-	StateCrafting();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateCrafting();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	GlowingJedi State
 *
 */
 class StateGlowingJedi:
-	public ActionState
+    public ActionState
 {
 public:
-	StateGlowingJedi();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateGlowingJedi();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	MaskScent State
 *
 */
 class StateMaskScent:
-	public ActionState
+    public ActionState
 {
 public:
-	StateMaskScent();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateMaskScent();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Poisoined State
 *
 */
 class StatePoisoined:
-	public ActionState
+    public ActionState
 {
 public:
-	StatePoisoined();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StatePoisoined();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Bleeding State
 *
 */
 class StateBleeding:
-	public ActionState
+    public ActionState
 {
 public:
-	StateBleeding();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateBleeding();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	Diseased State
 *
 */
 class StateDiseased:
-	public ActionState
+    public ActionState
 {
 public:
-	StateDiseased();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateDiseased();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	OnFire State
 *
 */
 class StateOnFire:
-	public ActionState
+    public ActionState
 {
 public:
-	StateOnFire();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateOnFire();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	RidingMount State
 *
 */
 class StateRidingMount:
-	public ActionState
+    public ActionState
 {
 public:
-	StateRidingMount();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateRidingMount();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	MountedCreature State
 *
 */
 class StateMountedCreature:
-	public ActionState
+    public ActionState
 {
 public:
-	StateMountedCreature();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateMountedCreature();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	PilotingShip State
 *
 */
 class StatePilotingShip:
-	public ActionState
+    public ActionState
 {
 public:
-	StatePilotingShip();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StatePilotingShip();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	ShipOperations State
 *
 */
 class StateShipOperations:
-	public ActionState
+    public ActionState
 {
 public:
-	StateShipOperations();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateShipOperations();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	ShipGunner State
 *
 */
 class StateShipGunner:
-	public ActionState
+    public ActionState
 {
 public:
-	StateShipGunner();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateShipGunner();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	ShipInterior State
 *
 */
 class StateShipInterior:
-	public ActionState
+    public ActionState
 {
 public:
-	StateShipInterior();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StateShipInterior();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };
 /*	PilotingPobShip State
 *
 */
 class StatePilotingPobShip:
-	public ActionState
+    public ActionState
 {
 public:
-	StatePilotingPobShip();
-	
-	
-	virtual bool CanTransition(CreatureObject* obj);
+    StatePilotingPobShip();
+    
+    
+    virtual bool CanTransition(uint64 newState);
 };

@@ -27,37 +27,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma once
 #include "CreatureObject.h"
 #include "CreatureEnums.h"
+#include <vector>
 
+typedef std::vector<uint64> transitionList;
 class IState
 {
 public:
-	virtual ~IState(void){};	
+    virtual ~IState(void){};	
 
-	/* Activates the Enter process for the given state
-	*  
-	*/
-	virtual void Enter(CreatureObject* obj) = 0 ;
-	/* Activates the Exit process for the given state
-	*  
-	*/
-	virtual void Exit(CreatureObject* obj) = 0;
-	/* Determines if the player can transition to the state
-	*  
-	*/
-	virtual bool CanTransition(CreatureObject* obj) = 0;
-	/* sets the current state
-	*  
-	*/
-	//virtual void setCurrentState(Object* obj) = 0;
-	/* gets the ID for the given state
-	*  
-	*/
-	virtual uint64 GetID(IState* state){return state->mStateID;}
+    /* Activates the Enter process for the given state
+    *  
+    */
+    virtual void Enter(CreatureObject* obj) = 0 ;
+    /* Activates the Exit process for the given state
+    *  
+    */
+    virtual void Exit(CreatureObject* obj) = 0;
+    /* Determines if the player can transition to the state
+    *  
+    */
+    virtual bool CanTransition(uint64 newState) = 0;
+    /* sets the current state
+    *  
+    */
+    //virtual void setCurrentState(Object* obj) = 0;
+    /* gets the ID for the given state
+    *  
+    */
+    virtual uint64 GetID(IState* state){return state->mStateID;}
 
 
-	//virtual bool hidden(){return mHidden;}
+    //virtual bool hidden(){return mHidden;}
 
 protected:
-	uint64					mStateID;
-	bool					mHidden;
+    uint64					mStateID;
+    bool					mHidden;
 };

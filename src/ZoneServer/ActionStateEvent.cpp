@@ -5,19 +5,29 @@ using ::common::EventType;
 using ::common::EventCallback;
 using ::common::ByteBuffer;
 
-const EventType ActionStateUpdateEvent::event_type_       = EventType("ActionStateUpdateEvent");
+const EventType ActionStateUpdateEvent::type       = EventType("ActionStateUpdateEvent");
 
-ActionStateUpdateEvent::ActionStateUpdateEvent(PlayerObject* player, uint64_t subject_id = 0, uint64_t delay_ms = 0) 
-    : BaseEvent(subject_id, delay_ms){}
+ActionStateUpdateEvent::ActionStateUpdateEvent(CreatureObject* obj, CreatureState oldState,CreatureState newState,uint64_t subject_id, uint64_t delay_ms) 
+    : BaseEvent(subject_id, delay_ms)
+{
+    mObj        = obj;
+    mOldState   = oldState;
+    mNewState   = newState;
+}
 
-ActionStateUpdateEvent::ActionStateUpdateEvent(PlayerObject* player, uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback)
-    : BaseEvent(subject_id, delay_ms){}
+ActionStateUpdateEvent::ActionStateUpdateEvent(CreatureObject* obj, CreatureState oldState,CreatureState newState,uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+    : BaseEvent(subject_id, delay_ms)
+{
+    mObj        = obj;
+    mOldState   = oldState;
+    mNewState   = newState;
+}
 
 
 ActionStateUpdateEvent::~ActionStateUpdateEvent(void){}
 
 const EventType& ActionStateUpdateEvent::event_type() const { 
-    return event_type_; 
+    return type; 
 }
 
 void ActionStateUpdateEvent::onSerialize(ByteBuffer& out) const {}

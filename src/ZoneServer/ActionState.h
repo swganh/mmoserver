@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_ACTION_STATE_H
 
 #include "AbstractState.h"
+#include "CreatureObject.h"
 
 class ActionState :
     public IState
@@ -48,10 +49,10 @@ public:
     /* Determines if the player can transition to the state
     *  
     */
-    virtual bool CanTransition(uint64 newState);
+    virtual bool CanTransition(CreatureObject* obj, uint64 newState);
 
 protected:
-    transitionList  mTransitionList;
+    transitionList*  mTransitionList;
     CreatureState	mStateID;
 };
 #endif
@@ -64,7 +65,7 @@ class StateCover:
 {
 public:
     StateCover();
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*
 *	Combat State
@@ -77,7 +78,7 @@ public:
     StateCombat();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*
 *	Peace State
@@ -90,7 +91,7 @@ public:
     StatePeace();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Aiming State
 *
@@ -102,7 +103,7 @@ public:
     StateAiming();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Alert State
 *
@@ -114,7 +115,7 @@ public:
     StateAlert();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Bersker State
 *
@@ -126,7 +127,7 @@ public:
     StateBerserk();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Feign Death State
 *
@@ -138,7 +139,7 @@ public:
     StateFeign();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	CombatAttitudeEvasive State
 *
@@ -150,7 +151,7 @@ public:
     StateCombatEvasive();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	CombatAttitudeNormal State
 *
@@ -162,7 +163,7 @@ public:
     StateCombatNormal();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	CombatAttitudeAggressive State
 *
@@ -174,7 +175,7 @@ public:
     StateCombatAggressive();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Tumbling State
 *
@@ -186,7 +187,7 @@ public:
     StateTumbling();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Rallied State
 *
@@ -198,7 +199,7 @@ public:
     StateRallied();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Stunned State
 *
@@ -210,7 +211,7 @@ public:
     StateStunned();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Blinded State
 *
@@ -222,7 +223,7 @@ public:
     StateBlinded();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Dizzy State
 *
@@ -234,7 +235,7 @@ public:
     StateDizzy();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Intimidated State
 *
@@ -246,7 +247,7 @@ public:
     StateIntimidated();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Immobolized State
 *
@@ -258,7 +259,7 @@ public:
     StateImmobolized();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Frozen State
 *
@@ -270,7 +271,7 @@ public:
     StateFrozen();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Swimming State
 *
@@ -282,7 +283,7 @@ public:
     StateSwimming();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	SittingOnChair State
 *
@@ -294,7 +295,7 @@ public:
     StateSittingOnChair();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Crafting State
 *
@@ -306,7 +307,7 @@ public:
     StateCrafting();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	GlowingJedi State
 *
@@ -318,7 +319,7 @@ public:
     StateGlowingJedi();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	MaskScent State
 *
@@ -330,7 +331,7 @@ public:
     StateMaskScent();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Poisoined State
 *
@@ -342,7 +343,7 @@ public:
     StatePoisoined();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Bleeding State
 *
@@ -354,7 +355,7 @@ public:
     StateBleeding();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	Diseased State
 *
@@ -366,7 +367,7 @@ public:
     StateDiseased();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	OnFire State
 *
@@ -378,7 +379,7 @@ public:
     StateOnFire();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	RidingMount State
 *
@@ -390,7 +391,7 @@ public:
     StateRidingMount();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	MountedCreature State
 *
@@ -402,7 +403,7 @@ public:
     StateMountedCreature();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	PilotingShip State
 *
@@ -414,7 +415,7 @@ public:
     StatePilotingShip();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	ShipOperations State
 *
@@ -426,7 +427,7 @@ public:
     StateShipOperations();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	ShipGunner State
 *
@@ -438,7 +439,7 @@ public:
     StateShipGunner();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	ShipInterior State
 *
@@ -450,7 +451,7 @@ public:
     StateShipInterior();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };
 /*	PilotingPobShip State
 *
@@ -462,5 +463,5 @@ public:
     StatePilotingPobShip();
     
     
-    virtual bool CanTransition(uint64 newState);
+    
 };

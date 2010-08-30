@@ -135,7 +135,7 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
     PostureStateMap::iterator iter = mPostureStateMap.find(newPosture);
     if (iter != mPostureStateMap.end())
     {
-        if (mPostureStateMap[object->getPosture()]->CanTransition(newPosture))
+        if (mPostureStateMap[object->getPosture()]->CanTransition(object, newPosture))
         {
             // EXIT OLD STATE
             mPostureStateMap[object->getPosture()]->Exit(object);
@@ -155,7 +155,7 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
     if (iter != mActionStateMap.end())
     {
         // check if we can transition to the new state
-        if (mActionStateMap[newState]->CanTransition(newState))
+        if (mActionStateMap[newState]->CanTransition(object, newState))
         {
             // Exit old State
             //currState->Exit(object);
@@ -173,10 +173,10 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
     if (iter != mLocomotionStateMap.end())
     {
         // check if we can transition to the new state
-        if (mActionStateMap[newLocomotion]->CanTransition(newLocomotion))
+        if (mActionStateMap[newLocomotion]->CanTransition(object, newLocomotion))
         {
             // Exit old State
-            //currState->Exit(object);
+            mLocomotionStateMap[object->getLocomotion()]->Exit(object);
             // Enter new State
             mActionStateMap[newLocomotion]->Enter(object);
         }

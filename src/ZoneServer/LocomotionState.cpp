@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 LocomotionState::LocomotionState(void)
 {
     mStateID = 0;
-    mTransitionList.clear();
+    mTransitionList->clear();
 }
 
 LocomotionState::~LocomotionState(void)
@@ -46,54 +46,58 @@ void LocomotionState::Exit(CreatureObject* obj)
 {
     obj->setLocomotion(0);
 }
-bool LocomotionState::CanTransition(uint64 newLocomotionState)
+bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionState)
 {
+    bool transitionPosture    = false;
+    bool transitionAction     = false;
+    bool transitionLocomotion = false;
     // check to see if the layer is blocked
     if (mBlocked)
         return false;
-    transitionList::iterator itPosture = mTransitionList.find(State_Posture);
-    transitionList::iterator itAction = mTransitionList.find(State_Action);
-    transitionList::iterator itLocomotion = mTransitionList.find(State_Locomotion);
+    transitionList::iterator itPosture    = mTransitionList->find(State_Posture);
+    transitionList::iterator itAction     = mTransitionList->find(State_Action);
+    transitionList::iterator itLocomotion = mTransitionList->find(State_Locomotion);
     // check each state type
-    if (itPosture != mTransitionList.end())
+    while (itPosture != mTransitionList->end())
     {
-        // check the bitmask to see if we're allowed
-        uint32 bitmask = itPosture->second;
-        if((newLocomotionState & bitmask) == 0)
-            return false;
+        // are we allowed to transition based on posture?
+        CreaturePosture pos = (CreaturePosture)(*itPosture).second;
+        if (pos == obj->getPosture())
+        {
+            transitionPosture = true;
+            break;
+        }
     }
-    else if (itAction != mTransitionList.end())
+    while (itAction != mTransitionList->end())
     {
-        // check the bitmask to see if we're allowed
-        uint32 bitmask = itAction->second;
-        if((newLocomotionState & bitmask) != 0)
-            return false;
-    }
-    else if (itLocomotion != mTransitionList.end())
-    {
-        // check the bitmask to see if we're allowed
-        uint32 bitmask = itLocomotion->second;
-        if((newLocomotionState & bitmask) != 0)
-            return false;
-    }
+        // function here to go through states and pull one at a time to check
 
-    return true;
+        CreatureState state = (CreatureState)(*itAction).second;
+        if (state == obj->getState())
+        {
+            transitionAction = true;
+            break;
+        }
+    }
+    while (itLocomotion != mTransitionList->end())
+    {
+        CreatureLocomotion locomotion = (CreatureLocomotion)(*itAction).second;
+        if (locomotion == obj->getLocomotion())
+        {
+            transitionLocomotion = true;
+            break;
+        }
+    }
+    return transitionAction && transitionPosture && transitionLocomotion;
 }
 
 LocomotionStanding::LocomotionStanding()
 {
     mStateID = CreatureLocomotion_Standing;
-
-    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,5055));
-    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894542336));
-    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Locomotion,1783808));
 }
 LocomotionSneaking::LocomotionSneaking()
 {
     mStateID = CreatureLocomotion_Sneaking;
-
-    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,4415));
-    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894804480));
 }
 LocomotionWalking::LocomotionWalking()
 {
@@ -118,9 +122,6 @@ LocomotionCrouchWalking::LocomotionCrouchWalking()
 LocomotionProne::LocomotionProne()
 {
     mStateID = CreatureLocomotion_Prone;
-
-    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Posture,4415));
-    mTransitionList.insert(std::pair<StateTypes, uint64>(State_Action,3894804480));
 }
 LocomotionCrawling::LocomotionCrawling()
 {

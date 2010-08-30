@@ -49,9 +49,10 @@ public:
     /* Determines if the player can transition to the Posture
     *  
     */
-    virtual bool CanTransition(uint64 newPosture);
+    virtual bool CanTransition(CreatureObject* obj, uint64 newPosture);
+    
 protected:
-    transitionList  mTransitionList;
+    transitionList*  mTransitionList;
 };
 /*	Upright Posture
 *
@@ -61,9 +62,6 @@ class PostureUpright:
 {
 public:
     PostureUpright();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 #endif
 /*	Crouched Posture
@@ -74,9 +72,6 @@ class PostureCrouched:
 {
 public:
     PostureCrouched();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Prone Posture
 *
@@ -86,9 +81,6 @@ class PostureProne:
 {
 public:
     PostureProne();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Sneaking Posture
 *
@@ -98,9 +90,6 @@ class PostureSneaking:
 {
 public:
     PostureSneaking();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Blocking Posture
 *
@@ -110,9 +99,6 @@ class PostureBlocking:
 {
 public:
     PostureBlocking();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Climbing Posture
 *
@@ -122,9 +108,6 @@ class PostureClimbing:
 {
 public:
     PostureClimbing();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Flying Posture
 *
@@ -134,9 +117,6 @@ class PostureFlying:
 {
 public:
     PostureFlying();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	LyingDown Posture
 *
@@ -146,9 +126,6 @@ class PostureLyingDown:
 {
 public:
     PostureLyingDown();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Sitting Posture
 *
@@ -158,9 +135,6 @@ class PostureSitting:
 {
 public:
     PostureSitting();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	SkillAnimating Posture
 *
@@ -170,9 +144,6 @@ class PostureSkillAnimating:
 {
 public:
     PostureSkillAnimating();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	DrivingVehicle Posture
 *
@@ -182,9 +153,6 @@ class PostureDrivingVehicle:
 {
 public:
     PostureDrivingVehicle();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	RidingCreature Posture
 *
@@ -194,9 +162,6 @@ class PostureRidingCreature:
 {
 public:
     PostureRidingCreature();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	KnockedDown Posture
 *
@@ -206,9 +171,6 @@ class PostureKnockedDown:
 {
 public:
     PostureKnockedDown();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Incapacitated Posture
 *
@@ -218,9 +180,6 @@ class PostureIncapacitated:
 {
 public:
     PostureIncapacitated();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };
 /*	Dead Posture
 *
@@ -230,7 +189,4 @@ class PostureDead:
 {
 public:
     PostureDead();
-    
-    
-    virtual bool CanTransition(uint64 newPosture);
 };

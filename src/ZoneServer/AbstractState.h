@@ -53,23 +53,20 @@ public:
     /* Determines if the player can transition to the state
     *  
     */
-    virtual bool CanTransition(uint64 newState) = 0;
-    /* sets the current state
-    *  
-    */
-    //virtual void setCurrentState(Object* obj) = 0;
-    /* gets the ID for the given state
-    *  
-    */
+    virtual bool CanTransition(CreatureObject* obj, uint64 newState) = 0;
+    
     virtual uint64 GetID(IState* state){return state->mStateID;}
 
     virtual void    Block(){mBlocked = true;}
     virtual void    Unblock(){mBlocked = false;}
 
+    transitionList* returnTransitionList(){return mTransitionList;}
+
 
     //virtual bool hidden(){return mHidden;}
 
 protected:
+    transitionList*         mTransitionList;
     uint64					mStateID;
     bool					mHidden;
     bool                    mBlocked;

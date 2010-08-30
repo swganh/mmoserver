@@ -49,9 +49,9 @@ public:
     /* Determines if the player can transition to the Locomotion
     *  
     */
-    virtual bool CanTransition(uint64 newLocomotionState);
+    virtual bool CanTransition(CreatureObject* obj, uint64 newLocomotionState);
 protected:
-    transitionList  mTransitionList;
+    transitionList*  mTransitionList;
 };
 #endif
 /* Standing Locomotion

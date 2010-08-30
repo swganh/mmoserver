@@ -60,13 +60,21 @@ SurveyTool::~SurveyTool()
 
 void SurveyTool::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-    mRadialMenu	= RadialMenuPtr(new RadialMenu());
+    if (creatureObject->isDead() || creatureObject->isIncapacitated())
+    {
+        mRadialMenu	= RadialMenuPtr(new RadialMenu());
+        mRadialMenu->addItem(1,0,radId_examine,radAction_ObjCallback);
+    }
+    else
+    {
+        mRadialMenu	= RadialMenuPtr(new RadialMenu());
 
-    mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-    mRadialMenu->addItem(2,0,radId_examine,radAction_ObjCallback);
-    mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_Default);
-    mRadialMenu->addItem(4,0,radId_serverItemOptions,radAction_ObjCallback,"@sui:tool_options");
-    mRadialMenu->addItem(5,4,radId_serverSurveyToolRange,radAction_ObjCallback,"@sui:survey_range");
+        mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+        mRadialMenu->addItem(2,0,radId_examine,radAction_ObjCallback);
+        mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_Default);
+        mRadialMenu->addItem(4,0,radId_serverItemOptions,radAction_ObjCallback,"@sui:tool_options");
+        mRadialMenu->addItem(5,4,radId_serverSurveyToolRange,radAction_ObjCallback,"@sui:survey_range");
+    }
 }
 
 //=============================================================================

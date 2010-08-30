@@ -33,13 +33,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-SessionFactory::SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice) 
-:	mSessionIdNext(0),
-	mSocketWriteThread(writeThread),
-	mService(service),
-	mPacketFactory(packetFactory),
-	mMessageFactory(messageFactory),
-	mServerService(serverservice)
+SessionFactory::SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice)
+    :	mSessionIdNext(0),
+        mSocketWriteThread(writeThread),
+        mService(service),
+        mPacketFactory(packetFactory),
+        mMessageFactory(messageFactory),
+        mServerService(serverservice)
 {
 
 }
@@ -48,7 +48,7 @@ SessionFactory::SessionFactory(SocketWriteThread* writeThread, Service* service,
 
 SessionFactory::~SessionFactory(void)
 {
-	SessionPool::purge_memory();
+    SessionPool::purge_memory();
 }
 
 //======================================================================================================================
@@ -62,52 +62,52 @@ void SessionFactory::Process(void)
 
 Session* SessionFactory::CreateSession(void)
 {
-	Session* session = new(SessionPool::malloc()) Session();
+    Session* session = new(SessionPool::malloc()) Session();
 
-	session->setSocketWriteThread(mSocketWriteThread);
-	session->setService(mService);
-	session->setPacketFactory(mPacketFactory);
-	session->setMessageFactory(mMessageFactory);
-	session->setId(mSessionIdNext++);
+    session->setSocketWriteThread(mSocketWriteThread);
+    session->setService(mService);
+    session->setPacketFactory(mPacketFactory);
+    session->setMessageFactory(mMessageFactory);
+    session->setId(mSessionIdNext++);
 
-	session->setServerService(mServerService);
+    session->setServerService(mServerService);
 
-	if(mServerService)
-	{
-		uint16 unreliable = gNetConfig->getServerServerUnReliableSize();
-		uint16 reliable = gNetConfig->getServerServerReliableSize();
+    if(mServerService)
+    {
+        uint16 unreliable = gNetConfig->getServerServerUnReliableSize();
+        uint16 reliable = gNetConfig->getServerServerReliableSize();
 
-		if(reliable > MAX_SERVER_PACKET_SIZE)
-			reliable = MAX_SERVER_PACKET_SIZE;
-		if(unreliable > MAX_SERVER_PACKET_SIZE)
-			unreliable = MAX_SERVER_PACKET_SIZE;
+        if(reliable > MAX_SERVER_PACKET_SIZE)
+            reliable = MAX_SERVER_PACKET_SIZE;
+        if(unreliable > MAX_SERVER_PACKET_SIZE)
+            unreliable = MAX_SERVER_PACKET_SIZE;
 
-		session->setPacketSize(reliable);
-		session->setUnreliableSize(unreliable);
-	}
-	else
-	{
-		uint16 unreliable = gNetConfig->getServerClientUnReliableSize();
-		uint16 reliable = gNetConfig->getServerClientReliableSize();
+        session->setPacketSize(reliable);
+        session->setUnreliableSize(unreliable);
+    }
+    else
+    {
+        uint16 unreliable = gNetConfig->getServerClientUnReliableSize();
+        uint16 reliable = gNetConfig->getServerClientReliableSize();
 
-		if(reliable > MAX_CLIENT_PACKET_SIZE)
-			reliable = MAX_CLIENT_PACKET_SIZE;
-		if(unreliable > MAX_CLIENT_PACKET_SIZE)
-			unreliable = MAX_CLIENT_PACKET_SIZE;
+        if(reliable > MAX_CLIENT_PACKET_SIZE)
+            reliable = MAX_CLIENT_PACKET_SIZE;
+        if(unreliable > MAX_CLIENT_PACKET_SIZE)
+            unreliable = MAX_CLIENT_PACKET_SIZE;
 
-		session->setPacketSize(reliable);
-		session->setUnreliableSize(unreliable);
-	}
+        session->setPacketSize(reliable);
+        session->setUnreliableSize(unreliable);
+    }
 
-	return session;
+    return session;
 }
 
 //======================================================================================================================
 
 void SessionFactory::DestroySession(Session* session)
 {
-	session->~Session();
-	SessionPool::free(session);
+    session->~Session();
+    SessionPool::free(session);
 }
 
 //======================================================================================================================

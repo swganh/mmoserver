@@ -48,64 +48,77 @@ TangibleFactory*		TangibleFactory::mSingleton  = NULL;
 
 TangibleFactory*	TangibleFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new TangibleFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new TangibleFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 
 TangibleFactory::TangibleFactory(Database* database) : FactoryBase(database)
 {
-	mContainerFactory			= ContainerObjectFactory::Init(mDatabase);
-	mTerminalFactory			= TerminalFactory::Init(mDatabase);
-	mTicketCollectorFactory		= TicketCollectorFactory::Init(mDatabase);
-	mItemFactory				= ItemFactory::Init(mDatabase);
-	mResourceContainerFactory	= ResourceContainerFactory::Init(mDatabase);
+    mContainerFactory			= ContainerObjectFactory::Init(mDatabase);
+    mTerminalFactory			= TerminalFactory::Init(mDatabase);
+    mTicketCollectorFactory		= TicketCollectorFactory::Init(mDatabase);
+    mItemFactory				= ItemFactory::Init(mDatabase);
+    mResourceContainerFactory	= ResourceContainerFactory::Init(mDatabase);
 }
 
 //=============================================================================
 
 TangibleFactory::~TangibleFactory()
 {
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
 
 void TangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	switch(subGroup)
-	{
-		case TanGroup_Item:						mItemFactory->requestObject(ofCallback,id,subGroup,subType,client);				break;
-		case TanGroup_Terminal:					mTerminalFactory->requestObject(ofCallback,id,subGroup,subType,client);			break;
-		case TanGroup_Container:				mContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);			break;
-		case TanGroup_TicketCollector:			mTicketCollectorFactory->requestObject(ofCallback,id,subGroup,subType,client);		break;
-		case TanGroup_ResourceContainer:		mResourceContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);	break;
-		case TanGroup_ManufacturingSchematic:	gDatapadFactory->requestManufacturingSchematic(ofCallback,id);
-		case TanGroup_Hopper:					mItemFactory->requestObject(ofCallback,id,subGroup,subType,client);				break;
+    switch(subGroup)
+    {
+    case TanGroup_Item:
+        mItemFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+    case TanGroup_Terminal:
+        mTerminalFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+    case TanGroup_Container:
+        mContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+    case TanGroup_TicketCollector:
+        mTicketCollectorFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+    case TanGroup_ResourceContainer:
+        mResourceContainerFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+    case TanGroup_ManufacturingSchematic:
+        gDatapadFactory->requestManufacturingSchematic(ofCallback,id);
+    case TanGroup_Hopper:
+        mItemFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
 
-		default:
-			gLogger->log(LogManager::DEBUG,"TangibleFactory::requestObject Unknown Group");
-		break;
-	}
+    default:
+        gLogger->log(LogManager::DEBUG,"TangibleFactory::requestObject Unknown Group");
+        break;
+    }
 }
 
 //=============================================================================
 
 void TangibleFactory::releaseAllPoolsMemory()
 {
-	mItemFactory->releaseQueryContainerPoolMemory();
-	mTerminalFactory->releaseQueryContainerPoolMemory();
-	mContainerFactory->releaseQueryContainerPoolMemory();
-	mTicketCollectorFactory->releaseQueryContainerPoolMemory();
-	mResourceContainerFactory->releaseQueryContainerPoolMemory();
+    mItemFactory->releaseQueryContainerPoolMemory();
+    mTerminalFactory->releaseQueryContainerPoolMemory();
+    mContainerFactory->releaseQueryContainerPoolMemory();
+    mTicketCollectorFactory->releaseQueryContainerPoolMemory();
+    mResourceContainerFactory->releaseQueryContainerPoolMemory();
 }
 
 //=============================================================================

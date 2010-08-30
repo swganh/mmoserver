@@ -1,4 +1,4 @@
- /*
+/*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -38,41 +38,41 @@ class PlayerObject;
 
 class ResourceContainer : public TangibleObject
 {
-	friend class ObjectFactory;
-	friend class ResourceContainerFactory;
+    friend class ObjectFactory;
+    friend class ResourceContainerFactory;
 
-	public:
+public:
 
-		ResourceContainer();
-		~ResourceContainer();
+    ResourceContainer();
+    ~ResourceContainer();
 
-		virtual void	setParentIdIncDB(uint64 parentId);
-		virtual void	upDateFactoryVolume(BString amount);
-		virtual void	updateWorldPosition();
-		
-        void prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
-	
+    virtual void	setParentIdIncDB(uint64 parentId);
+    virtual void	upDateFactoryVolume(BString amount);
+    virtual void	updateWorldPosition();
 
-		uint64		getResourceId();
-		void		setResourceId(uint64 id);
-		Resource*	getResource();
-		void		setResource(Resource* resource);
-		uint32		getAmount();
-		void		setAmount(uint32 amount);
-		uint32		getMaxAmount();
-		void		setMaxAmount(uint32 max);
+    void prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 
-		void		sendAttributes(PlayerObject* playerObject);
-		BString		getBazaarName();
-		BString		getBazaarTang();
-		uint32		getCategoryBazaar();
 
-	private:
+    uint64		getResourceId();
+    void		setResourceId(uint64 id);
+    Resource*	getResource();
+    void		setResource(Resource* resource);
+    uint32		getAmount();
+    void		setAmount(uint32 amount);
+    uint32		getMaxAmount();
+    void		setMaxAmount(uint32 max);
 
-		uint64		mResourceId;
-		uint32		mAmount;
-		uint32		mMaxAmount;
-		Resource*	mResource;
+    void		sendAttributes(PlayerObject* playerObject);
+    BString		getBazaarName();
+    BString		getBazaarTang();
+    uint32		getCategoryBazaar();
+
+private:
+
+    uint64		mResourceId;
+    uint32		mAmount;
+    uint32		mMaxAmount;
+    Resource*	mResource;
 };
 
 //=============================================================================

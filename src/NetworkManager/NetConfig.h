@@ -39,42 +39,56 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-class NET_API NetConfig 
+class NET_API NetConfig
 {
-	public:
+public:
 
-		~NetConfig();
-		static NetConfig*	Init();
-		static NetConfig*	getSingletonPtr() { return mSingleton; }
+    ~NetConfig();
+    static NetConfig*	Init();
+    static NetConfig*	getSingletonPtr() {
+        return mSingleton;
+    }
 
-		uint16	getServerServerReliableSize(){ return mReliableSizeServerServer;}
-		uint16	getServerClientReliableSize(){ return mReliableSizeServerClient;}
-		uint16	getServerServerUnReliableSize(){ return mUnReliableSizeServerServer;}
-		uint16	getServerClientUnReliableSize(){ return mUnReliableSizeServerClient;}
+    uint16	getServerServerReliableSize() {
+        return mReliableSizeServerServer;
+    }
+    uint16	getServerClientReliableSize() {
+        return mReliableSizeServerClient;
+    }
+    uint16	getServerServerUnReliableSize() {
+        return mUnReliableSizeServerServer;
+    }
+    uint16	getServerClientUnReliableSize() {
+        return mUnReliableSizeServerClient;
+    }
 
-		uint32	getServerPacketWindow(){ return mServerPacketWindow;}
-		uint32	getClientPacketWindow(){ return mClientPacketWindow;}
-		
-	private:
+    uint32	getServerPacketWindow() {
+        return mServerPacketWindow;
+    }
+    uint32	getClientPacketWindow() {
+        return mClientPacketWindow;
+    }
 
-		NetConfig();
+private:
 
-		static bool				mInsFlag;
-		static NetConfig*		mSingleton;
+    NetConfig();
+
+    static bool				mInsFlag;
+    static NetConfig*		mSingleton;
 
 
-		//
-		// configuration variables
-		//
+    //
+    // configuration variables
+    //
 
-		//Packetsize
-		uint16					mReliableSizeServerServer;
-		uint16					mUnReliableSizeServerServer;
-		uint16					mReliableSizeServerClient;
-		uint16					mUnReliableSizeServerClient;
+    //Packetsize
+    uint16					mReliableSizeServerServer;
+    uint16					mUnReliableSizeServerServer;
+    uint16					mReliableSizeServerClient;
+    uint16					mUnReliableSizeServerClient;
 
-		uint32					mServerPacketWindow;
-		uint32					mClientPacketWindow;
+    uint32					mServerPacketWindow;
+    uint32					mClientPacketWindow;
 };
 
 #endif

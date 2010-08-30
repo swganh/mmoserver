@@ -113,7 +113,7 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
     } catch(boost::bad_lexical_cast &) {
         chat_target_id	= 0;
     }
-        
+
     SocialChatType chat_type_id = static_cast<SocialChatType>(atoi(chatElement[1]));
     MoodType mood_id = static_cast<MoodType>(atoi(chatElement[2]));
 

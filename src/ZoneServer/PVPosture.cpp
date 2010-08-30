@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 
 PVPosture::PVPosture(ObjectController* controller)
-: ProcessValidator(controller)
+    : ProcessValidator(controller)
 {}
 
 PVPosture::~PVPosture()
@@ -48,10 +48,10 @@ bool PVPosture::validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 op
         {
             reply1 = kCannotDoWhileLocomotion;
             reply2 = mController->getLowestCommonBit(creature->getPosture(),cmdProperties->mPostureMask);
-			return false;
+            return false;
         }
     }
-    
-	return true;
+
+    return true;
 }
 

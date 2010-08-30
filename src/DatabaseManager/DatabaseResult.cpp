@@ -38,17 +38,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 void DatabaseResult::GetNextRow(DataBinding* dataBinding, void* object)
 {
-  // Just shunt this method to the actual implementation method.  This might have thread problems right now.
-  mDatabaseImplementation->GetNextRow(this, dataBinding, object);
+    // Just shunt this method to the actual implementation method.  This might have thread problems right now.
+    mDatabaseImplementation->GetNextRow(this, dataBinding, object);
 }
 
 
 //======================================================================================================================
 void DatabaseResult::ResetRowIndex(int index)
 {
-  mDatabaseImplementation->ResetRowIndex(this,index);
+    mDatabaseImplementation->ResetRowIndex(this,index);
 }
 
-  
+
 
 

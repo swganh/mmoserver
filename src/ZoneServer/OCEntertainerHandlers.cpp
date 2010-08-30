@@ -262,7 +262,7 @@ void ObjectController::_handleChangeDance(uint64 targetId,Message* message,Objec
         {
             BString mDanceString = gSkillManager->getSkillCmdById((*dancerIt));
             //look for our selected dance
-            if(BString(danceStr).getCrc() == mDanceString.getCrc() ){
+            if(BString(danceStr).getCrc() == mDanceString.getCrc() ) {
                 //yay we are able to perform this dance :)
                 gEntertainerManager->changeDance(entertainer,dataStr);
                 found = true;
@@ -336,8 +336,7 @@ void ObjectController::_handleDenyService(uint64 targetId,Message* message,Objec
         }
 
     }
-    else
-    if(outcast)
+    else if(outcast)
     {
         //poor sod is near and will now be added to our list (or removed)
         gEntertainerManager->toggleOutcastId(entertainer,outcast->getId(),outcast->getFirstName());
@@ -441,7 +440,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
         return;
     }
 
-    
+
     if(performer->getSamplingState())
     {
         performer->getSampleData()->mPendingSample = false;
@@ -472,7 +471,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
         {
             BString mDanceString = gSkillManager->getSkillCmdById((*dancerIt));
             //look for our selected dance
-            if(BString(danceStr).getCrc() == mDanceString.getCrc() ){
+            if(BString(danceStr).getCrc() == mDanceString.getCrc() ) {
                 //yay we are able to perform this dance :)
                 performer->setPerformingState(PlayerPerformance_Dance);
                 gEntertainerManager->startDancePerformance(performer,dataStr);
@@ -704,7 +703,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
             if(entertainer->getAcceptBandFlourishes() == false)
             {
                 entertainer->setAcceptBandFlourishes(true);
-                
+
                 gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "band_flourish_on"), entertainer);
             }
             else
@@ -718,7 +717,7 @@ void ObjectController::_handleBandFlourish(uint64 targetId,Message* message,Obje
             if(entertainer->getAcceptBandFlourishes() == true)
             {
                 entertainer->setAcceptBandFlourishes(false);
-                
+
                 gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "band_flourish_off"), entertainer);
             }
             else
@@ -878,7 +877,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
     message->getUint32(AttributeCounter);
     BString attribute;
     float value;
-    for(uint32 i=0; i<AttributeCounter;i++)
+    for(uint32 i=0; i<AttributeCounter; i++)
     {
         message->getStringAnsi(attribute);
         value = message->getFloat();
@@ -888,7 +887,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
 
     uint32 colorvalue;
     message->getUint32(ColorCounter);
-    for(uint32 i=0; i<ColorCounter;i++)
+    for(uint32 i=0; i<ColorCounter; i++)
     {
         message->getStringAnsi(attribute);
         colorvalue = message->getUint32();
@@ -911,7 +910,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
         //changelists get deleted
         gEntertainerManager->commitIdChanges(customer,imageDesigner,hair,creditsOffered, statMigration,holoEmote,flagHair);
     }
-    
+
     if((imageDesigner == messageGenerator) && designerCommit)
     {
         uint32 idTimer	= gWorldConfig->getConfiguration<uint32>("Player_Timer_IDSessionTimeOut",(uint32)60000);
@@ -920,7 +919,7 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
     }
 
     //if(imageDesigner->getImageDesignSession() == IDSessionPREY)
-        //gMessageLib->sendIDChangeMessage(customer,customer,imageDesigner,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
+    //gMessageLib->sendIDChangeMessage(customer,customer,imageDesigner,hair, sessionId,creditsOffered, creditsDemanded,customerAccept,designerCommit,statMigration,smTimer,flagHair,buildingId,holoEmote);
 
     //if(imageDesigner->getImageDesignSession() == IDSessionID)
     //{
@@ -940,9 +939,9 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
     //the one who send the message - either id or customer
     PlayerObject*	messageGenerator	=	dynamic_cast<PlayerObject*>(mObject);
 
-    //the imagedesigner 
+    //the imagedesigner
     PlayerObject*	imageDesigner		=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(dsgObjectId));//
-    
+
     //the customer
     PlayerObject*	customer			=	dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(idObjectId));
 
@@ -991,7 +990,7 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
     if(messageGenerator->getImageDesignSession() == IDSessionID)
     {
         gMessageLib->sendIDEndMessage(customer,customer,imageDesigner,hair, counter2,creditsOffered, 0,unknown2,flag2,flag3,counter1);
-        
+
     }
 
     imageDesigner->setIDPartner(0);
@@ -1052,7 +1051,7 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
         if(currentAmount == nextAmount)
         {
             int32 value;
-            
+
             value = pHam->getTargetStatValue(HamBar_Health) - pHam->getPropertyValue(HamBar_Health,HamProperty_BaseHitpoints);
             pHam->updatePropertyValue(HamBar_Health,HamProperty_BaseHitpoints,value,true);
 
@@ -1086,7 +1085,7 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
 
             //now the db
             ObjControllerAsyncContainer* asyncContainer2;
-                    
+
             int8 sql[1024];
             asyncContainer2 = new ObjControllerAsyncContainer(OCQuery_Null);
             sprintf(sql,"UPDATE swganh.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",pHam->getTargetStatValue(HamBar_Health),pHam->getTargetStatValue(HamBar_Strength),pHam->getTargetStatValue(HamBar_Constitution), pHam->getTargetStatValue(HamBar_Action),pHam->getTargetStatValue(HamBar_Quickness),pHam->getTargetStatValue(HamBar_Stamina),pHam->getTargetStatValue(HamBar_Mind) ,pHam->getTargetStatValue(HamBar_Focus) ,pHam->getTargetStatValue(HamBar_Willpower) ,we->getId());
@@ -1179,25 +1178,25 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
         if(lotsOfStuff)
         {
             sprintf(sql1,"Your Holo-Emote generator can play all Holo-Emotes available. You have %u charges remaining."
-            "\xa To play your Holo-Emote type \x2fholoemote \x3cname\x3e.\xa To delete your Holo-Emote type \x2fholoemote delete. "
-            "\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",we->getHoloCharge());
+                    "\xa To play your Holo-Emote type \x2fholoemote \x3cname\x3e.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+                    "\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",we->getHoloCharge());
 
             sprintf(sql,"%s \xa \xa The available Holo-Emote names are: \xa \xa"
-            "Beehive \x9 \x9 Blossom \x9 Brainstorm \xa"
-            "Bubblehead \x9 Bullhorns \x9 Butterflies \xa"
-            "Champagne \x9 Haunted \x9 Hearts \xa"
-            "Hologlitter \x9 \x9 Holonotes \x9 Imperial \xa"
-            "Kitty \x9 \x9 \x9 Phonytail \x9 Rebel \xa"
-            "Sparky",sql1);
+                    "Beehive \x9 \x9 Blossom \x9 Brainstorm \xa"
+                    "Bubblehead \x9 Bullhorns \x9 Butterflies \xa"
+                    "Champagne \x9 Haunted \x9 Hearts \xa"
+                    "Hologlitter \x9 \x9 Holonotes \x9 Imperial \xa"
+                    "Kitty \x9 \x9 \x9 Phonytail \x9 Rebel \xa"
+                    "Sparky",sql1);
         }
         else
         {
             sprintf(sql,"Your current Holo Emote is %s.\xa You have %u charges remaining."
-            "\xa To play your Holo-Emote type \x2fholoemote %s.\xa To delete your Holo-Emote type \x2fholoemote delete. "
-            "\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",myEmote->pEmoteName,we->getHoloCharge(),myEmote->pEmoteName);
+                    "\xa To play your Holo-Emote type \x2fholoemote %s.\xa To delete your Holo-Emote type \x2fholoemote delete. "
+                    "\xa Purchasing a new Holo-Emote will automatically delete your current Holo-Emote.",myEmote->pEmoteName,we->getHoloCharge(),myEmote->pEmoteName);
         }
 
-        
+
 
         gUIManager->createNewMessageBox(NULL,"holoHelpOff","Holo-Emote Help",sql,we);
 
@@ -1215,7 +1214,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
     //its *not* all
     //only play if we own the relevant generator and havnt requested holoemote all
     if(((requestedEmote->pId == myEmote->pId)||(myEmote->pId == 0))&& (requestedEmote->pId != 0))
-    {			
+    {
         if(we->decHoloCharge())
         {
             BString effect = gWorldManager->getClientEffect(requestedEmote->pId);
@@ -1236,7 +1235,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
         gMessageLib->SendSystemMessage(::common::OutOfBand("image_designer", "holoemote_help"), we);
         return;
     }
-    
+
 }
 
 //======================================================================================================================
@@ -1697,7 +1696,7 @@ void ObjectController::_handleVentriloquism(uint64 targetId,Message* message,Obj
     }
 
     int8 effectStr[64];
-    
+
     gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "effect_perform_ventriloquism"), we);
 
     sprintf(effectStr,"clienteffect/entertainer_ventriloquism_level_%u.cef",effect);

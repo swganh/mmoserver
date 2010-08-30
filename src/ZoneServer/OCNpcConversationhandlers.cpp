@@ -128,12 +128,12 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 
         //check to see if he is part of a mission
         if(gMissionManager->checkDeliverMission(player,npc) ||
-           gMissionManager->checkCraftingMission(player,npc)
-          ) return;		
+                gMissionManager->checkCraftingMission(player,npc)
+          ) return;
 
         // we don't want him to talk
         if(npc->hasInternalAttribute("no_chat"))
-        return;
+            return;
 
         // initiate a conversation dialog
         if(npc->hasInternalAttribute("base_conversation"))
@@ -174,9 +174,9 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
             if(npc->hasInternalAttribute("npc_chat"))	{
                 std::string tmp = npc->getInternalAttribute<std::string>("npc_chat");
                 npc_chat = std::wstring(tmp.begin(), tmp.end());
-            } else {        
+            } else {
                 std::pair<std::wstring,uint32> chat = gWorldManager->getRandNpcChatter();
-                
+
                 npc_chat  = chat.first;
                 animation = chat.second;
             }

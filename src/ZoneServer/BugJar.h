@@ -34,16 +34,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class BugJar : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		BugJar();
-		virtual ~BugJar(void);
+    BugJar();
+    virtual ~BugJar(void);
 
-		void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		virtual void	ResetRadialMenu(){;}//RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
-		void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    virtual void	ResetRadialMenu() {
+        ;
+    }//RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
+    void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 };
 
 //=============================================================================

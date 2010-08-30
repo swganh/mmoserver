@@ -34,16 +34,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class BazaarTerminal : public Terminal
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		BazaarTerminal();
-		~BazaarTerminal();
+    BazaarTerminal();
+    ~BazaarTerminal();
 
-		void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-	private:
+private:
 };
 
 //=============================================================================

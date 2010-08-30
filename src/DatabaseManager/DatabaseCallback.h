@@ -36,7 +36,7 @@ class DatabaseResult;
 class DatabaseCallback
 {
 public:
-  virtual void                    handleDatabaseJobComplete(void* ref, DatabaseResult* result) {};
+    virtual void                    handleDatabaseJobComplete(void* ref, DatabaseResult* result) {};
 };
 
 

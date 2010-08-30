@@ -33,12 +33,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 WaypointObject::WaypointObject() : Object()
 {
-	mType = ObjType_Waypoint;
+    mType = ObjType_Waypoint;
     mCoords = glm::vec3();
-	mActive = false;
-	mName = L"";
-	mWPType = Waypoint_blue;
-	mPlanetCRC = 0;
+    mActive = false;
+    mName = L"";
+    mWPType = Waypoint_blue;
+    mPlanetCRC = 0;
 }
 
 //=============================================================================

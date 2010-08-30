@@ -89,12 +89,12 @@ const uint32_t kCrcTable[256] = {
 };
 
 uint32_t memcrc(char const * const source_string, uint32_t length) {
-  uint32_t crc = 0xffffffff;  // starting seed
-  for (uint32_t i = 0; i < length; ++i) {
-    crc = kCrcTable[source_string[i] ^ (crc >> 24)] ^ (crc << 8);
-  }
+    uint32_t crc = 0xffffffff;  // starting seed
+    for (uint32_t i = 0; i < length; ++i) {
+        crc = kCrcTable[source_string[i] ^ (crc >> 24)] ^ (crc << 8);
+    }
 
-  return ~crc;
+    return ~crc;
 }
 
 uint32_t memcrc(const std::string& source_string) {

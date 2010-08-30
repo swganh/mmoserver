@@ -48,12 +48,12 @@ bool	Clock::mInsFlag    = false;
 
 Clock::Clock()
 {
-	mStoredTime = getLocalTime();
-	mClockScheduler		= new Anh_Utils::Scheduler();
-	mClockScheduler->addTask(fastdelegate::MakeDelegate(this,&Clock::_setStoredTime),1,1000,NULL);
+    mStoredTime = getLocalTime();
+    mClockScheduler		= new Anh_Utils::Scheduler();
+    mClockScheduler->addTask(fastdelegate::MakeDelegate(this,&Clock::_setStoredTime),1,1000,NULL);
 
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-	timeBeginPeriod(1);
+    timeBeginPeriod(1);
 #endif
 }
 
@@ -61,70 +61,70 @@ Clock::Clock()
 
 Clock::~Clock()
 {
-	delete(mClockScheduler);
+    delete(mClockScheduler);
 
 }
 //======================================================================================================================
 
 void Clock::process()
-{ 
-	mClockScheduler->process();
+{
+    mClockScheduler->process();
 }
 
 Clock* Anh_Utils::Clock::Init()
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new Clock();
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new Clock();
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //==============================================================================================================================
 
 void Clock::destroySingleton()
 {
-  delete mSingleton;
-  mSingleton = 0;
+    delete mSingleton;
+    mSingleton = 0;
 }
 
 //==============================================================================================================================
 
 char* Clock::GetCurrentDateTimeString()
 {
-  time_t ltime;
-  time( &ltime);
-  return ctime(&ltime);
+    time_t ltime;
+    time( &ltime);
+    return ctime(&ltime);
 }
 
 //==============================================================================================================================
 
-uint64 Clock::getGlobalTime() const 
-{ 
-	return getLocalTime() + mGlobalDrift; 
-} 
+uint64 Clock::getGlobalTime() const
+{
+    return getLocalTime() + mGlobalDrift;
+}
 
 //==============================================================================================================================
 
-uint64 Clock::getLocalTime() const 
-{ 
+uint64 Clock::getLocalTime() const
+{
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-	return timeGetTime(); 
+    return timeGetTime();
 #else
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return tv.tv_usec / 1000;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_usec / 1000;
 #endif
 }
 
 //==============================================================================================================================
 
-void Clock::setGlobalDrift(int64 drift) 
-{ 
-	mGlobalDrift = drift; 
+void Clock::setGlobalDrift(int64 drift)
+{
+    mGlobalDrift = drift;
 }
 
 //==============================================================================================================================

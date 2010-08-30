@@ -41,18 +41,18 @@ class Database;
 //======================================================================================================================
 class LoginServer
 {
-	public:
-		LoginServer(void);
-		~LoginServer(void);
+public:
+    LoginServer(void);
+    ~LoginServer(void);
 
-		void	Process(void);
+    void	Process(void);
 
 private:
-	NetworkManager*									mNetworkManager;
-  Service*                        mService;
-	DatabaseManager*								mDatabaseManager;
-	Database*												mDatabase;
-  LoginManager*                   mLoginManager;
+    NetworkManager*									mNetworkManager;
+    Service*                        mService;
+    DatabaseManager*								mDatabaseManager;
+    Database*												mDatabase;
+    LoginManager*                   mLoginManager;
 };
 
 

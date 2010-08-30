@@ -56,17 +56,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // Set the initial compiler
 //
 #if defined(_MSC_VER)
-	#define ANH_COMPILER ANH_COMPILER_MSVC
-	#define ANH_COMP_VER _MSC_VER
-	#define snprintf _snprintf
-	#define localtime_r(a, b) localtime_s(b, a)
+#define ANH_COMPILER ANH_COMPILER_MSVC
+#define ANH_COMP_VER _MSC_VER
+#define snprintf _snprintf
+#define localtime_r(a, b) localtime_s(b, a)
 
 #elif defined(__GNUC__)
-	#define ANH_COMPILER ANH_COMPILER_GNUC
-	#define ANH_COMP_VER (((__GNUC__)*100) + (__GNUC_MINOR__*10) + \
+#define ANH_COMPILER ANH_COMPILER_GNUC
+#define ANH_COMP_VER (((__GNUC__)*100) + (__GNUC_MINOR__*10) + \
 		__GNUC_PATCHLEVEL__)
 #else
-	#pragma error "Compiler not supported!"
+#pragma error "Compiler not supported!"
 #endif
 
 //=====================================================================================
@@ -74,9 +74,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // Set the platform we are on
 //
 #if defined(__WIN32__) || defined(_WIN32)
-	#define ANH_PLATFORM ANH_PLATFORM_WIN32
+#define ANH_PLATFORM ANH_PLATFORM_WIN32
 #else
-	#define ANH_PLATFORM ANH_PLATFORM_LINUX
+#define ANH_PLATFORM ANH_PLATFORM_LINUX
 #endif
 
 //=====================================================================================

@@ -44,45 +44,47 @@ class DatabaseImplementation;
 class DBMANAGER_API DatabaseWorkerThread
 {
 public:
-                              DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-                              ~DatabaseWorkerThread(void);
+    DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
+    ~DatabaseWorkerThread(void);
 
-  virtual void				  run(); 
+    virtual void				  run();
 
-  void                        ExecuteJob(DatabaseJob* job);
+    void                        ExecuteJob(DatabaseJob* job);
 
-  void						  requestExit(){ mExit = true; }
+    void						  requestExit() {
+        mExit = true;
+    }
 
 protected:
-  int8                        mHostname[256];
-  int16                       mPort;
-  int8                        mUsername[64];
-  int8                        mPassword[64];
-  int8                        mSchema[64];
-  
+    int8                        mHostname[256];
+    int16                       mPort;
+    int8                        mUsername[64];
+    int8                        mPassword[64];
+    int8                        mSchema[64];
+
 private:
-  void                        _startup(void);
-  void                        _shutdown(void);
+    void                        _startup(void);
+    void                        _shutdown(void);
 
-  bool						  mIsDone;
-  Database*                   mDatabase;
-  DatabaseImplementation*     mDatabaseImplementation;
+    bool						  mIsDone;
+    Database*                   mDatabase;
+    DatabaseImplementation*     mDatabaseImplementation;
 
-  DatabaseJob*                mCurrentJob;
-  DBType                      mDatabaseImplementationType;  
+    DatabaseJob*                mCurrentJob;
+    DBType                      mDatabaseImplementationType;
 
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
-  boost::mutex              mWorkerThreadMutex;
-  boost::thread			    mThread;
+    boost::mutex              mWorkerThreadMutex;
+    boost::thread			    mThread;
     // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (default : 4251)
 #endif
 
-  bool						  mExit;
+    bool						  mExit;
 };
 
 

@@ -54,12 +54,12 @@ LoginServer* gLoginServer = 0;
 
 //======================================================================================================================
 LoginServer::LoginServer(void) :
-mNetworkManager(0)
+    mNetworkManager(0)
 {
     // log msg to default log
-  
-  Anh_Utils::Clock::Init();
-  gLogger->log(LogManager::INFORMATION, "Login Server Startup");
+
+    Anh_Utils::Clock::Init();
+    gLogger->log(LogManager::INFORMATION, "Login Server Startup");
 
     // Initialize our modules.
 
@@ -71,12 +71,12 @@ mNetworkManager(0)
 
     // Connect to our database and pass it off to our modules.
     mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
-                                         (char*)(gConfig->read<std::string>("DBServer")).c_str(),
-                                         gConfig->read<int>("DBPort"),
-                                         (char*)(gConfig->read<std::string>("DBUser")).c_str(),
-                                         (char*)(gConfig->read<std::string>("DBPass")).c_str(),
-                                         (char*)(gConfig->read<std::string>("DBName")).c_str());
-    
+                                          (char*)(gConfig->read<std::string>("DBServer")).c_str(),
+                                          gConfig->read<int>("DBPort"),
+                                          (char*)(gConfig->read<std::string>("DBUser")).c_str(),
+                                          (char*)(gConfig->read<std::string>("DBPass")).c_str(),
+                                          (char*)(gConfig->read<std::string>("DBName")).c_str());
+
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL - Update Server Start ID
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 1); // SQL - Update Server Status
     gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL Debug Log
@@ -91,8 +91,8 @@ mNetworkManager(0)
     gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_session_key = '';"); // SQL Debug Log
 
     // Instant the messageFactory. It will also run the Startup ().
-    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced. 
-                                                // The code itself here is not needed, since it will instance itself at first use.
+    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.
+    // The code itself here is not needed, since it will instance itself at first use.
 
     mLoginManager = new LoginManager(mDatabase);
 
@@ -105,7 +105,7 @@ mNetworkManager(0)
 
     gLogger->log(LogManager::CRITICAL, "Login Server startup complete");
     //gLogger->printLogo();
-    // std::string BuildString(GetBuildString());	
+    // std::string BuildString(GetBuildString());
 
     gLogger->log(LogManager::INFORMATION, "Login Server - Build %s", ConfigManager::getBuildString().c_str());
     gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
@@ -123,7 +123,7 @@ LoginServer::~LoginServer(void)
 
     mNetworkManager->DestroyService(mService);
     delete mNetworkManager;
-    
+
     MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
     delete mDatabaseManager;
@@ -144,7 +144,7 @@ void LoginServer::Process(void)
 //======================================================================================================================
 void handleExit(void)
 {
-  delete gLoginServer;
+    delete gLoginServer;
 }
 
 
@@ -171,14 +171,14 @@ int main(int argc, char* argv[])
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 
-  bool exit = false;
+    bool exit = false;
 
-  //We cannot startup Database Logging until we startup the Database.
+    //We cannot startup Database Logging until we startup the Database.
 
-  gLoginServer = new LoginServer();
+    gLoginServer = new LoginServer();
 
-  // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
-  //atexit(handleExit);
+    // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
+    //atexit(handleExit);
 
     // Main loop
     while (!exit)
@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
     // Shutdown things
     delete gLoginServer;
 
-  return 0;
+    return 0;
 }
 
 

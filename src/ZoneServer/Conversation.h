@@ -47,57 +47,63 @@ typedef std::vector<ConversationOption*>	ConversationOptions;
 
 enum ConversationEvent
 {
-		ConvEvent_FilterOptions	= 1,
-		ConvEvent_TrainSkill	= 2
+    ConvEvent_FilterOptions	= 1,
+    ConvEvent_TrainSkill	= 2
 };
 
 //=============================================================================
 
 class Conversation
 {
-	public:
+public:
 
-		friend class ConversationManager;
+    friend class ConversationManager;
 
-		Conversation();
-		~Conversation();
+    Conversation();
+    ~Conversation();
 
-		uint32				getId(){ return mId; }
-		ConversationPage*	getFirstPage(){ return(mPages[0]);}
-		ConversationPage*	getPage(uint32 pageNr){ return(mPages[pageNr - 1]);}
+    uint32				getId() {
+        return mId;
+    }
+    ConversationPage*	getFirstPage() {
+        return(mPages[0]);
+    }
+    ConversationPage*	getPage(uint32 pageNr) {
+        return(mPages[pageNr - 1]);
+    }
 
-	private:
+private:
 
-		uint32				mId;
-		ConversationPages	mPages;
+    uint32				mId;
+    ConversationPages	mPages;
 };
 
 //=============================================================================
 
 class ConversationOption
 {
-	public:
+public:
 
-		uint32	mId;
-		BString	mCustomText;
-		BString	mStfFile;
-		BString	mStfVariable;
-		uint32	mEvent;
-		uint32	mPageLinkId;
+    uint32	mId;
+    BString	mCustomText;
+    BString	mStfFile;
+    BString	mStfVariable;
+    uint32	mEvent;
+    uint32	mPageLinkId;
 };
 
 //=============================================================================
 
 class ConversationPage
 {
-	public:
+public:
 
-		uint32					mId;
-		BString					mCustomText;
-		BString					mStfFile;
-		BString					mStfVariable;
-		ConversationOptions		mOptions;
-		uint32					mAnimation;
+    uint32					mId;
+    BString					mCustomText;
+    BString					mStfFile;
+    BString					mStfVariable;
+    ConversationOptions		mOptions;
+    uint32					mAnimation;
 };
 
 //=============================================================================

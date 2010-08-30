@@ -88,48 +88,48 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
     switch(elementCount)
     {
         // warp on current planet
-        case 2:
-        {
-            // make sure we in bounds
-            if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
-                break;
+    case 2:
+    {
+        // make sure we in bounds
+        if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
+            break;
 
+        gWorldManager->warpPlanet(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
+    }
+    return;
+
+    // warp to other or current planet
+    case 3:
+    {
+        // make sure we in bounds
+        if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
+            break;
+
+        planetId = gWorldManager->getPlanetIdByName(planet);
+
+        if(planetId == -1)
+            break;
+
+        // warp on this planet
+        if(static_cast<uint32>(planetId) == gWorldManager->getZoneId())
+        {
             gWorldManager->warpPlanet(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
         }
-        return;
-
-        // warp to other or current planet
-        case 3:
+        // zone transfer request
+        else
         {
-            // make sure we in bounds
-            if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
-                break;
+            gMessageLib->SendSystemMessage(L"Requesting zone transfer...", player);
 
-            planetId = gWorldManager->getPlanetIdByName(planet);
-
-            if(planetId == -1)
-                break;
-
-            // warp on this planet
-            if(static_cast<uint32>(planetId) == gWorldManager->getZoneId())
-            {
-                gWorldManager->warpPlanet(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
-            }
-            // zone transfer request
-            else
-            {
-                gMessageLib->SendSystemMessage(L"Requesting zone transfer...", player);
-
-                gMessageLib->sendClusterZoneTransferRequestByPosition(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
-            }
+            gMessageLib->sendClusterZoneTransferRequestByPosition(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
         }
-        return;
+    }
+    return;
 
-        default:
-        {
-            gMessageLib->SendSystemMessage(L"[SYNTAX] /admin_warp_self <x> <z> <planet>", player);
-        }
-        return;
+    default:
+    {
+        gMessageLib->SendSystemMessage(L"[SYNTAX] /admin_warp_self <x> <z> <planet>", player);
+    }
+    return;
     }
 
     gMessageLib->SendSystemMessage(L"Error parsing parameters.", player);
@@ -154,11 +154,11 @@ typedef struct _AdminCommands
 
 #define noOfAdminCommands 5
 static AdminCommands adminCommands[noOfAdminCommands] = {
-        {"broadcast", 10}, // &ObjectController::handleBroadcast,
-        {"broadcastPlanet", 10}, // &ObjectController::handleBroadcastPlanet,
-        {"broadcastGalaxy", 10}, // &ObjectController::handleBroadcastGalaxy,
-        {"shutdownGalaxy", 9}, // &ObjectController::handleShutdownGalaxy,
-        {"cancelShutdownGalaxy", 15}, // &ObjectController::handleCancelShutdownGalaxy
+    {"broadcast", 10}, // &ObjectController::handleBroadcast,
+    {"broadcastPlanet", 10}, // &ObjectController::handleBroadcastPlanet,
+    {"broadcastGalaxy", 10}, // &ObjectController::handleBroadcastGalaxy,
+    {"shutdownGalaxy", 9}, // &ObjectController::handleShutdownGalaxy,
+    {"cancelShutdownGalaxy", 15}, // &ObjectController::handleCancelShutdownGalaxy
 };
 
 void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)

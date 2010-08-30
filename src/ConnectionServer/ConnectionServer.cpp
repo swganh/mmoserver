@@ -59,24 +59,24 @@ ConnectionServer* gConnectionServer = 0;
 //======================================================================================================================
 
 ConnectionServer::ConnectionServer(void) :
-mDatabaseManager(0),
-mDatabase(0),
-mNetworkManager(0),
-mMessageRouter(0),
-mClientManager(0),
-mServerManager(0),
-mConnectionDispatch(0),
-mClusterId(0),
-mClientService(0),
-mServerService(0),
-mLastHeartbeat(0),
-mLocked(false)
+    mDatabaseManager(0),
+    mDatabase(0),
+    mNetworkManager(0),
+    mMessageRouter(0),
+    mClientManager(0),
+    mServerManager(0),
+    mConnectionDispatch(0),
+    mClusterId(0),
+    mClientService(0),
+    mServerService(0),
+    mLastHeartbeat(0),
+    mLocked(false)
 {
     Anh_Utils::Clock::Init();
     // log msg to default log
     //gLogger->printSmallLogo();
     gLogger->log(LogManager::INFORMATION,"ConnectionServer Startup");
-    
+
     // Startup our core modules
     mNetworkManager = new NetworkManager();
 
@@ -89,14 +89,14 @@ mLocked(false)
     mDatabaseManager = new DatabaseManager();
 
     mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
-                                       (char*)(gConfig->read<std::string>("DBServer")).c_str(),
-                                       gConfig->read<int>("DBPort"),
-                                       (char*)(gConfig->read<std::string>("DBUser")).c_str(),
-                                       (char*)(gConfig->read<std::string>("DBPass")).c_str(),
-                                       (char*)(gConfig->read<std::string>("DBName")).c_str());
+                                          (char*)(gConfig->read<std::string>("DBServer")).c_str(),
+                                          gConfig->read<int>("DBPort"),
+                                          (char*)(gConfig->read<std::string>("DBUser")).c_str(),
+                                          (char*)(gConfig->read<std::string>("DBPass")).c_str(),
+                                          (char*)(gConfig->read<std::string>("DBName")).c_str());
 
     mClusterId = gConfig->read<uint32>("ClusterId");
-    
+
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
     gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // SQL Debug Log
 
@@ -111,19 +111,19 @@ mLocked(false)
     _updateDBServerList(1);
 
     // Instant the messageFactory. It will also run the Startup ().
-    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced. 
-                                                // The code itself here is not needed, since it will instance itself at first use.
+    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.
+    // The code itself here is not needed, since it will instance itself at first use.
 
     // Startup our router modules.
     mConnectionDispatch = new ConnectionDispatch();
     mMessageRouter = new MessageRouter(mDatabase, mConnectionDispatch);
     mClientManager = new ClientManager(mClientService, mDatabase, mMessageRouter, mConnectionDispatch);
     mServerManager = new ServerManager(mServerService, mDatabase, mMessageRouter, mConnectionDispatch,mClientManager);
-  
+
     // We're done initiailizing.
     _updateDBServerList(2);
     gLogger->log(LogManager::CRITICAL, "Connection Server Boot Complete");
-    // std::string BuildString(GetBuildString());	
+    // std::string BuildString(GetBuildString());
 
     gLogger->log(LogManager::INFORMATION,"Connection Server - Build %s",ConfigManager::getBuildString().c_str());
     gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
@@ -167,7 +167,7 @@ void ConnectionServer::Process(void)
     // Process our core services first.
     //mNetworkManager->Process();
     mDatabaseManager->Process();
-    
+
     //we dont want this stalled by the clients!!!
     mServerService->Process();
     mClientService->Process();
@@ -185,7 +185,7 @@ void ConnectionServer::Process(void)
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
         gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
     }
-    
+
 }
 
 //======================================================================================================================
@@ -245,16 +245,16 @@ int main(int argc, char* argv[])
     while(1)
     {
         gConnectionServer->Process();
-     
-                if(Anh_Utils::kbhit())
-                {
-                    char input = std::cin.get();
-                    if(input == 'q')
-                        break;
-                    else if(input == 'l')
-                        gConnectionServer->ToggleLock();
-                }
-                    
+
+        if(Anh_Utils::kbhit())
+        {
+            char input = std::cin.get();
+            if(input == 'q')
+                break;
+            else if(input == 'l')
+                gConnectionServer->ToggleLock();
+        }
+
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
     }

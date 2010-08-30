@@ -421,16 +421,9 @@ void Object::setAttributeIncDB(BString key,std::string value)
     sprintf(restStr,"'WHERE item_id=%I64u AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
-<<<<<<< HEAD
-    
     //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-=======
-	
-	//sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
->>>>>>> swganh/SQLCleanup
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
     
 
@@ -467,22 +460,13 @@ void Object::addAttributeIncDB(BString key,std::string value)
 //	int8 sql[1024]
     sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'",this->getId(),attributeID);
 
-<<<<<<< HEAD
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
     sprintf(restStr,"',%u,0)",static_cast<uint32>(this->getAttributeMap()->size()));
     strcat(sql,restStr);
     
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-=======
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
-	sprintf(restStr,"',%u,0)",static_cast<uint32>(this->getAttributeMap()->size()));
-	strcat(sql,restStr);
-	
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
->>>>>>> swganh/SQLCleanup
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
     //sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,%s,%u,0)",this->getId(),attributeID,value,mAttributeOrderList.size());
 }
@@ -547,16 +531,9 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
     sprintf(restStr,"'WHERE item_id=%I64u AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
-<<<<<<< HEAD
-    
     //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-=======
-	
-	//sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
->>>>>>> swganh/SQLCleanup
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 void	Object::setInternalAttribute(BString key,std::string value)
@@ -593,26 +570,15 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
     }
     int8 sql[512],*sqlPointer,restStr[128];
 //	int8 sql[1024]
-<<<<<<< HEAD
-    sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'",this->getId(),attributeID);
+    sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'", this->getId(), attributeID);
 
     sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
+    sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer, value.c_str(), value.length());
     sprintf(restStr,"',%u,0)",static_cast<uint32>(this->mInternalAttributeMap.size()));
     strcat(sql,restStr);
     
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-=======
-	sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'", this->getId(), attributeID);
-
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer, value.c_str(), value.length());
-	sprintf(restStr,"',%u,0)",static_cast<uint32>(this->mInternalAttributeMap.size()));
-	strcat(sql,restStr);
-	
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0, 0, sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
->>>>>>> swganh/SQLCleanup
+    gWorldManager->getDatabase()->ExecuteSqlAsync(0, 0, sql);
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
     //sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,%s,%u,0)",this->getId(),attributeID,value,mAttributeOrderList.size());
 }

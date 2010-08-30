@@ -44,36 +44,38 @@ class ObjectFactoryCallback;
 
 enum CityFQuery
 {
-	CityFQuery_MainData	= 1
+    CityFQuery_MainData	= 1
 };
 
 //=============================================================================
 
 class CityFactory : public FactoryBase
 {
-	public:
+public:
 
-		static CityFactory*	getSingletonPtr() { return mSingleton; }
-		static CityFactory*	Init(Database* database);
+    static CityFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static CityFactory*	Init(Database* database);
 
-		~CityFactory();
+    ~CityFactory();
 
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-	private:
+private:
 
-		CityFactory(Database* database);
+    CityFactory(Database* database);
 
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-		City*				_createCity(DatabaseResult* result);
+    City*				_createCity(DatabaseResult* result);
 
-		static CityFactory*		mSingleton;
-		static bool				mInsFlag;
+    static CityFactory*		mSingleton;
+    static bool				mInsFlag;
 
-		DataBinding*			mCityBinding;
+    DataBinding*			mCityBinding;
 };
 
 

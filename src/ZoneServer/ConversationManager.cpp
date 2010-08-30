@@ -47,321 +47,322 @@ ConversationManager*	ConversationManager::mSingleton = NULL;
 //=========================================================================================
 
 ConversationManager::ConversationManager(Database* database) :
-mDatabase(database),
-mActiveConversationPool(sizeof(ActiveConversation)),
-mDBAsyncPool(sizeof(CVAsyncContainer))
+    mDatabase(database),
+    mActiveConversationPool(sizeof(ActiveConversation)),
+    mDBAsyncPool(sizeof(CVAsyncContainer))
 {
-	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM conversations ORDER BY id");	
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM conversations ORDER BY id"); // SQL Debug Log
+    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM conversations ORDER BY id");
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM conversations ORDER BY id"); // SQL Debug Log
 }
 
 //=========================================================================================
 
 ConversationManager* ConversationManager::Init(Database* database)
 {
-	if(mInsFlag == false)
-	{
-		mSingleton = new ConversationManager(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(mInsFlag == false)
+    {
+        mSingleton = new ConversationManager(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=========================================================================================
 
 ConversationManager::~ConversationManager()
 {
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=========================================================================================
 
 void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
-	CVAsyncContainer* asyncContainer = reinterpret_cast<CVAsyncContainer*>(ref);
-	
-	switch(asyncContainer->mQuery)
-	{
-		case ConvQuery_Conversations:
-		{
-			Conversation*		conv;
-			CVAsyncContainer*	asCont;
-			uint32				insertId;
+    CVAsyncContainer* asyncContainer = reinterpret_cast<CVAsyncContainer*>(ref);
 
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint32,offsetof(Conversation,mId),4,0);
+    switch(asyncContainer->mQuery)
+    {
+    case ConvQuery_Conversations:
+    {
+        Conversation*		conv;
+        CVAsyncContainer*	asCont;
+        uint32				insertId;
 
-			uint64 count = result->getRowCount();
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_uint32,offsetof(Conversation,mId),4,0);
 
-			for(uint32 i = 0;i < count;i++)
-			{
-				conv = new Conversation();
-				result->GetNextRow(binding,conv);
+        uint64 count = result->getRowCount();
 
-				insertId = conv->getId();
-				mConversations.insert(insertId,conv);
+        for(uint32 i = 0; i < count; i++)
+        {
+            conv = new Conversation();
+            result->GetNextRow(binding,conv);
 
-				asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Pages);
-				asCont->mConversation = conv;
+            insertId = conv->getId();
+            mConversations.insert(insertId,conv);
 
-				mDatabase->ExecuteSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId);
-				gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId); // SQL Debug Log
-			}
+            asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Pages);
+            asCont->mConversation = conv;
 
-			if(result->getRowCount())
-				gLogger->log(LogManager::NOTICE,"Loaded conversations.");				
+            mDatabase->ExecuteSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId);
+            gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId); // SQL Debug Log
+        }
 
-			
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
-
-		case ConvQuery_Pages:
-		{
-			ConversationPage*	page;
-			CVAsyncContainer*	asCont;
-			uint32				batchId;
-
-			DataBinding*		pageBinding = mDatabase->CreateDataBinding(5);
-			pageBinding->addField(DFT_uint32,offsetof(ConversationPage,mId),4,1);
-			pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mCustomText),512,2);
-			pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mStfFile),255,3);
-			pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mStfVariable),255,4);
-			pageBinding->addField(DFT_uint32,offsetof(ConversationPage,mAnimation),4,6);
-
-			DataBinding*	batchBinding = mDatabase->CreateDataBinding(1);
-			batchBinding->addField(DFT_uint32,0,4,5);
-
-			uint32 count = static_cast<uint32>(result->getRowCount());
-
-			for(uint64 i = 0;i< count;i++)
-			{
-				page = new ConversationPage();
-				result->GetNextRow(pageBinding,page);
-
-				page->mCustomText.convert(BSTRType_Unicode16);
-
-				result->ResetRowIndex(static_cast<int>(i));
-
-				result->GetNextRow(batchBinding,&batchId);
-
-				asyncContainer->mConversation->mPages.push_back(page);
+        if(result->getRowCount())
+            gLogger->log(LogManager::NOTICE,"Loaded conversations.");
 
 
-				// query options
-				asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Page_OptionBatch);
-				asCont->mConversationPage = page;
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
 
-				mDatabase->ExecuteSqlAsync(this,asCont,"SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
-														"conversation_options.stf_variable,conversation_options.event,conversation_options.pageLink "
-														"FROM "
-														"conversation_option_batches "
-														"INNER JOIN conversation_options ON (conversation_option_batches.option_id = conversation_options.id) "
-														"WHERE "
-														"(conversation_option_batches.id = %u) ORDER BY conversation_option_batches.option_id", batchId);
-				gLogger->log(LogManager::DEBUG, "SQL :: SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
-														"conversation_options.stf_variable,conversation_options.event,conversation_options.pageLink "
-														"FROM "
-														"conversation_option_batches "
-														"INNER JOIN conversation_options ON (conversation_option_batches.option_id = conversation_options.id) "
-														"WHERE "
-														"(conversation_option_batches.id = %u) ORDER BY conversation_option_batches.option_id", batchId); // SQL Debug Log
+    case ConvQuery_Pages:
+    {
+        ConversationPage*	page;
+        CVAsyncContainer*	asCont;
+        uint32				batchId;
 
-			}
+        DataBinding*		pageBinding = mDatabase->CreateDataBinding(5);
+        pageBinding->addField(DFT_uint32,offsetof(ConversationPage,mId),4,1);
+        pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mCustomText),512,2);
+        pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mStfFile),255,3);
+        pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mStfVariable),255,4);
+        pageBinding->addField(DFT_uint32,offsetof(ConversationPage,mAnimation),4,6);
 
-			mDatabase->DestroyDataBinding(pageBinding);
-			mDatabase->DestroyDataBinding(batchBinding);
-		}
-		break;
+        DataBinding*	batchBinding = mDatabase->CreateDataBinding(1);
+        batchBinding->addField(DFT_uint32,0,4,5);
 
-		case ConvQuery_Page_OptionBatch:
-		{
-			ConversationOption*	option;
-			DataBinding*		binding = mDatabase->CreateDataBinding(6);
+        uint32 count = static_cast<uint32>(result->getRowCount());
 
-			binding->addField(DFT_uint32,offsetof(ConversationOption,mId),4,0);
-			binding->addField(DFT_bstring,offsetof(ConversationOption,mCustomText),512,1);
-			binding->addField(DFT_bstring,offsetof(ConversationOption,mStfFile),255,2);
-			binding->addField(DFT_bstring,offsetof(ConversationOption,mStfVariable),255,3);
-			binding->addField(DFT_uint32,offsetof(ConversationOption,mEvent),4,4);
-			binding->addField(DFT_uint32,offsetof(ConversationOption,mPageLinkId),4,5);
+        for(uint64 i = 0; i< count; i++)
+        {
+            page = new ConversationPage();
+            result->GetNextRow(pageBinding,page);
 
-			uint64 count = result->getRowCount();
+            page->mCustomText.convert(BSTRType_Unicode16);
 
-			for(uint32 i = 0;i < count;i++)
-			{
-				option = new ConversationOption();
+            result->ResetRowIndex(static_cast<int>(i));
 
-				result->GetNextRow(binding,option);
+            result->GetNextRow(batchBinding,&batchId);
 
-				option->mCustomText.convert(BSTRType_Unicode16);
+            asyncContainer->mConversation->mPages.push_back(page);
 
-				asyncContainer->mConversationPage->mOptions.push_back(option);
-			}
 
-			
-			mDatabase->DestroyDataBinding(binding);
-		}
-		break;
+            // query options
+            asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Page_OptionBatch);
+            asCont->mConversationPage = page;
 
-		default:break;
-	}
+            mDatabase->ExecuteSqlAsync(this,asCont,"SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
+                                       "conversation_options.stf_variable,conversation_options.event,conversation_options.pageLink "
+                                       "FROM "
+                                       "conversation_option_batches "
+                                       "INNER JOIN conversation_options ON (conversation_option_batches.option_id = conversation_options.id) "
+                                       "WHERE "
+                                       "(conversation_option_batches.id = %u) ORDER BY conversation_option_batches.option_id", batchId);
+            gLogger->log(LogManager::DEBUG, "SQL :: SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
+                         "conversation_options.stf_variable,conversation_options.event,conversation_options.pageLink "
+                         "FROM "
+                         "conversation_option_batches "
+                         "INNER JOIN conversation_options ON (conversation_option_batches.option_id = conversation_options.id) "
+                         "WHERE "
+                         "(conversation_option_batches.id = %u) ORDER BY conversation_option_batches.option_id", batchId); // SQL Debug Log
 
-	mDBAsyncPool.free(asyncContainer);
+        }
+
+        mDatabase->DestroyDataBinding(pageBinding);
+        mDatabase->DestroyDataBinding(batchBinding);
+    }
+    break;
+
+    case ConvQuery_Page_OptionBatch:
+    {
+        ConversationOption*	option;
+        DataBinding*		binding = mDatabase->CreateDataBinding(6);
+
+        binding->addField(DFT_uint32,offsetof(ConversationOption,mId),4,0);
+        binding->addField(DFT_bstring,offsetof(ConversationOption,mCustomText),512,1);
+        binding->addField(DFT_bstring,offsetof(ConversationOption,mStfFile),255,2);
+        binding->addField(DFT_bstring,offsetof(ConversationOption,mStfVariable),255,3);
+        binding->addField(DFT_uint32,offsetof(ConversationOption,mEvent),4,4);
+        binding->addField(DFT_uint32,offsetof(ConversationOption,mPageLinkId),4,5);
+
+        uint64 count = result->getRowCount();
+
+        for(uint32 i = 0; i < count; i++)
+        {
+            option = new ConversationOption();
+
+            result->GetNextRow(binding,option);
+
+            option->mCustomText.convert(BSTRType_Unicode16);
+
+            asyncContainer->mConversationPage->mOptions.push_back(option);
+        }
+
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+    default:
+        break;
+    }
+
+    mDBAsyncPool.free(asyncContainer);
 }
 
 //=========================================================================================
 
 Conversation* ConversationManager::getConversation(uint32 id)
 {
-	Conversations::iterator it = mConversations.find(id);
+    Conversations::iterator it = mConversations.find(id);
 
-	if(it != mConversations.end())
-		return((*it).second);
+    if(it != mConversations.end())
+        return((*it).second);
 
-	return(NULL);
+    return(NULL);
 }
 
 //=========================================================================================
 
 ActiveConversation* ConversationManager::getActiveConversation(uint64 id)
 {
-	ActiveConversations::iterator it = mActiveConversations.find(id);
+    ActiveConversations::iterator it = mActiveConversations.find(id);
 
-	if(it != mActiveConversations.end())
-		return((*it).second);
+    if(it != mActiveConversations.end())
+        return((*it).second);
 
-	return(NULL);
+    return(NULL);
 }
 
 //=========================================================================================
 
 void ConversationManager::startConversation(NPCObject* npc,PlayerObject* player)
 {
-	//we can't converse whilst in combat
-	/* commented out for preview as borked. client ctd ftl
-	if(player->checkState(CreatureState_Combat))
-	{
-		stopConversation(player,true);
-		gMessageLib->sendSystemMessage(player,"You may not start a Conversation whilst in Combat!");
-	}*/
+    //we can't converse whilst in combat
+    /* commented out for preview as borked. client ctd ftl
+    if(player->checkState(CreatureState_Combat))
+    {
+    	stopConversation(player,true);
+    	gMessageLib->sendSystemMessage(player,"You may not start a Conversation whilst in Combat!");
+    }*/
 
-	// make sure theres no conversation running yet
-	if(getActiveConversation(player->getId()) != NULL)
-	{
-		stopConversation(player);
-	}
+    // make sure theres no conversation running yet
+    if(getActiveConversation(player->getId()) != NULL)
+    {
+        stopConversation(player);
+    }
 
-	// initialize a new one
-	Conversation*		conv			= getConversation(npc->getInternalAttribute<uint32>("base_conversation"));
-	ActiveConversation*	av				= new(mActiveConversationPool.malloc()) ActiveConversation(conv,player,npc);
-	// ConversationPage*	currentPage		= av->getCurrentPage();
+    // initialize a new one
+    Conversation*		conv			= getConversation(npc->getInternalAttribute<uint32>("base_conversation"));
+    ActiveConversation*	av				= new(mActiveConversationPool.malloc()) ActiveConversation(conv,player,npc);
+    // ConversationPage*	currentPage		= av->getCurrentPage();
 
-	mActiveConversations.insert(std::make_pair(player->getId(),av));
+    mActiveConversations.insert(std::make_pair(player->getId(),av));
 
-	// In case of npc trainers, they may not always open a dialog, they just chat in spatial. (like traniers that you can not train from yet)
-	// We need a way to abort the dialog.
-	// Pre process npc conversation.
-	if (av->preProcessConversation())
-	{
-		ConversationPage* currentPage = av->getCurrentPage();
+    // In case of npc trainers, they may not always open a dialog, they just chat in spatial. (like traniers that you can not train from yet)
+    // We need a way to abort the dialog.
+    // Pre process npc conversation.
+    if (av->preProcessConversation())
+    {
+        ConversationPage* currentPage = av->getCurrentPage();
 
-		// Get the options dialog data.
-		av->prepareFilteredOptions();
+        // Get the options dialog data.
+        av->prepareFilteredOptions();
 
-		gMessageLib->sendStartNPCConversation(npc,player);
+        gMessageLib->sendStartNPCConversation(npc,player);
 
-		if(currentPage->mAnimation)
-		{
-			if (gWorldConfig->isInstance())
-			{
-				// We are running in an instance.
-				gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(currentPage->mAnimation), player);
-			}
-			else
-			{
-				gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(currentPage->mAnimation));
-			}
-		}
+        if(currentPage->mAnimation)
+        {
+            if (gWorldConfig->isInstance())
+            {
+                // We are running in an instance.
+                gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(currentPage->mAnimation), player);
+            }
+            else
+            {
+                gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(currentPage->mAnimation));
+            }
+        }
 
-		gMessageLib->sendNPCDialogMessage(av,player);
-		
-		gMessageLib->sendNPCDialogOptions(av->getFilteredOptions(),player);
-	}
-	else
-	{
-		// We terminate (do not start) this conversation.
-		stopConversation(player);
-	}
+        gMessageLib->sendNPCDialogMessage(av,player);
+
+        gMessageLib->sendNPCDialogOptions(av->getFilteredOptions(),player);
+    }
+    else
+    {
+        // We terminate (do not start) this conversation.
+        stopConversation(player);
+    }
 }
 
 //=========================================================================================
 
 void ConversationManager::stopConversation(PlayerObject* player,bool sendStop)
 {
-	ActiveConversations::iterator it = mActiveConversations.find(player->getId());
+    ActiveConversations::iterator it = mActiveConversations.find(player->getId());
 
-	if (it != mActiveConversations.end())
-	{
-		if(sendStop)
-		{
-			gMessageLib->sendStopNPCConversation((*it).second->getNpc(),player);
-		}
+    if (it != mActiveConversations.end())
+    {
+        if(sendStop)
+        {
+            gMessageLib->sendStopNPCConversation((*it).second->getNpc(),player);
+        }
 
-		// Notify NPC before destruction.
-		(*it).second->getNpc()->stopConversation(player);
+        // Notify NPC before destruction.
+        (*it).second->getNpc()->stopConversation(player);
 
-		mActiveConversationPool.free((*it).second);
-		mActiveConversations.erase(it);
+        mActiveConversationPool.free((*it).second);
+        mActiveConversations.erase(it);
 
-	}
+    }
 }
 
 //=========================================================================================
 
 void ConversationManager::updateConversation(uint32 selectId,PlayerObject* player)
 {
-	ActiveConversation* av	= getActiveConversation(player->getId());
-	
-	if(!av)
-	{
-		gLogger->log(LogManager::DEBUG,"ConversationManager::updateConversation: could not find conversation for %"PRIu64,player->getId());
-		return;
-	}
+    ActiveConversation* av	= getActiveConversation(player->getId());
 
-	av->updateCurrentPage(selectId);
+    if(!av)
+    {
+        gLogger->log(LogManager::DEBUG,"ConversationManager::updateConversation: could not find conversation for %"PRIu64,player->getId());
+        return;
+    }
 
-	ConversationPage*	currentPage = av->getCurrentPage();
+    av->updateCurrentPage(selectId);
 
-	if(!currentPage)
-	{
-		stopConversation(player,true);
-		return;
-	}
+    ConversationPage*	currentPage = av->getCurrentPage();
 
-	if(currentPage->mAnimation)
-	{
-		if (gWorldConfig->isInstance())
-		{
-			// We are running in an instance.
-			gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(currentPage->mAnimation), player);
-		}
-		else
-		{
-			gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(currentPage->mAnimation));
-		}
-		// gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(currentPage->mAnimation));
-	}
+    if(!currentPage)
+    {
+        stopConversation(player,true);
+        return;
+    }
 
-	gMessageLib->sendNPCDialogMessage(av,player);
+    if(currentPage->mAnimation)
+    {
+        if (gWorldConfig->isInstance())
+        {
+            // We are running in an instance.
+            gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(currentPage->mAnimation), player);
+        }
+        else
+        {
+            gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(currentPage->mAnimation));
+        }
+        // gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(currentPage->mAnimation));
+    }
 
-	gMessageLib->sendNPCDialogOptions(av->getFilteredOptions(),player);
+    gMessageLib->sendNPCDialogMessage(av,player);
 
-	// Post process npc conversation.
-	av->postProcessCurrentPage();
+    gMessageLib->sendNPCDialogOptions(av->getFilteredOptions(),player);
+
+    // Post process npc conversation.
+    av->postProcessCurrentPage();
 
 }
 

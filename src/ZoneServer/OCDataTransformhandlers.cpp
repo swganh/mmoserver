@@ -80,7 +80,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
     // get tick and move counters
     tickCount	= message->getUint32();
     inMoveCount = message->getUint32();
-  
+
     // only process if its in sequence
     if(player->getInMoveCount() >= inMoveCount)
     {
@@ -97,7 +97,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
     // get new direction, position and speed
     dir.x = message->getFloat();
-    dir.y = message->getFloat();	 
+    dir.y = message->getFloat();
     dir.z = message->getFloat();
     dir.w = message->getFloat();
 
@@ -150,7 +150,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         else
         {
             // we should never get here !
-            // it basically means we left the map 
+            // it basically means we left the map
             gLogger->log(LogManager::DEBUG,"ObjController::handleDataTransform: could not find zone region in map");
             gLogger->log(LogManager::DEBUG,"ObjController:: probably a bot : %i64u",static_cast<int>(player->getId()));
 
@@ -184,61 +184,61 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
             }
         }
         else
-        //do an intersectsWithQuery of objects in the si to find our new region -
-        //CAVE shouldnt it be a contains query ?
-        //what do we do if several regions overlap ?
-        if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
-        {
-            updateAll = true;
-
-            gLogger->log(LogManager::DEBUG,"ObjController::DataTransform: Changing subzone");
-            // remove from old
-            if(QTRegion* oldRegion = player->getSubZone())
+            //do an intersectsWithQuery of objects in the si to find our new region -
+            //CAVE shouldnt it be a contains query ?
+            //what do we do if several regions overlap ?
+            if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
             {
-                oldRegion->mTree->removeObject(player);
+                updateAll = true;
+
+                gLogger->log(LogManager::DEBUG,"ObjController::DataTransform: Changing subzone");
+                // remove from old
+                if(QTRegion* oldRegion = player->getSubZone())
+                {
+                    oldRegion->mTree->removeObject(player);
+                    //If our player is mounted lets update his mount aswell
+                    if(player->checkIfMounted() && player->getMount())
+                    {
+                        oldRegion->mTree->removeObject(player->getMount());
+                    }
+                }
+
+                // update players position
+                player->mPosition = pos;
                 //If our player is mounted lets update his mount aswell
                 if(player->checkIfMounted() && player->getMount())
                 {
-                    oldRegion->mTree->removeObject(player->getMount());
+                    player->getMount()->mPosition = pos;
+                }
+
+                // put into new
+                player->setSubZoneId((uint32)newRegion->getId());
+                player->setSubZone(newRegion);
+
+                newRegion->mTree->addObject(player);
+                //If our player is mounted lets update his mount aswell
+                if(player->checkIfMounted() && player->getMount())
+                {
+                    player->getMount()->setSubZoneId((uint32)newRegion->getId());
+                    newRegion->mTree->addObject(player->getMount());
                 }
             }
-
-            // update players position
-            player->mPosition = pos;
-            //If our player is mounted lets update his mount aswell
-            if(player->checkIfMounted() && player->getMount())
+            else
             {
-                player->getMount()->mPosition = pos;
+                // we should never get here !
+                gLogger->log(LogManager::DEBUG,"ObjController::DataTransform: could not find zone region in map");
+
+                gLogger->log(LogManager::DEBUG,"ObjController:: probably a bot : %I64u",static_cast<int>(player->getId()));
+
+                // hammertime !
+                // muglies botter sometimes sends us weird positions  with X or Y far out of possible regions
+                // however other 3rd party tools might do the same
+                // we need to get rid of the client at this point nad probably should ban the player / add him to
+                // a monitoring list when the coordinates were indeed out of bounds
+
+                gWorldManager->addDisconnectedPlayer(player);
+                return;
             }
-
-            // put into new
-            player->setSubZoneId((uint32)newRegion->getId());
-            player->setSubZone(newRegion);
-
-            newRegion->mTree->addObject(player);
-            //If our player is mounted lets update his mount aswell
-            if(player->checkIfMounted() && player->getMount())
-            {
-                player->getMount()->setSubZoneId((uint32)newRegion->getId());
-                newRegion->mTree->addObject(player->getMount());
-            }
-        }
-        else
-        {
-            // we should never get here !
-            gLogger->log(LogManager::DEBUG,"ObjController::DataTransform: could not find zone region in map");
-
-            gLogger->log(LogManager::DEBUG,"ObjController:: probably a bot : %I64u",static_cast<int>(player->getId()));
-
-            // hammertime !
-            // muglies botter sometimes sends us weird positions  with X or Y far out of possible regions
-            // however other 3rd party tools might do the same
-            // we need to get rid of the client at this point nad probably should ban the player / add him to
-            // a monitoring list when the coordinates were indeed out of bounds
-
-            gWorldManager->addDisconnectedPlayer(player);
-            return;
-        }
     }
 
     player->mDirection = dir;
@@ -291,8 +291,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
                 player->getMount()->setLastMoveTick(tickCount);
                 player->getMount()->setInMoveCount((inMoveCount)); // + 1 or nor does not matter, as long as we update inMoveCount.
                 gMessageLib->sendUpdateTransformMessage(player->getMount());
-    
-    
+
+
             }
             else
             {
@@ -302,7 +302,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
                 {*/
                 gMessageLib->sendUpdateTransformMessage(player);
                 //}
-        
+
 
             }
 
@@ -331,7 +331,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
     uint64			parentId;
     float			speed;
     bool			updateAll = false;
-  
+
     // get tick and move counters
     tickCount	= message->getUint32();
     inMoveCount = message->getUint32();
@@ -507,26 +507,21 @@ float ObjectController::_GetMessageHeapLoadViewingRange()
     //just send everything we have
     if(heapWarningLevel < 3)
         return (float)gWorldConfig->getPlayerViewingRange();
-    else
-    if(heapWarningLevel < 4)
+    else if(heapWarningLevel < 4)
         return 96.0;
-    else
-    if (heapWarningLevel < 5)
+    else if (heapWarningLevel < 5)
     {
         return 64.0;
     }
-    else
-    if (heapWarningLevel < 8)
+    else if (heapWarningLevel < 8)
     {
         return 32.0;
     }
-    else
-    if (heapWarningLevel <= 10)
+    else if (heapWarningLevel <= 10)
     {
         return 16.0;
     }
-    else
-    if (heapWarningLevel > 10)
+    else if (heapWarningLevel > 10)
         return 8.0;
 
     return (float)gWorldConfig->getPlayerViewingRange();
@@ -655,19 +650,19 @@ bool ObjectController::_updateInRangeObjectsOutside()
                 {
                     //if(!player->checkKnownObjects(object))
                     //{
-                        gMessageLib->sendCreateObject(object,player);
-                        player->addKnownObjectSafe(object);
-                        object->addKnownObjectSafe(player);
+                    gMessageLib->sendCreateObject(object,player);
+                    player->addKnownObjectSafe(object);
+                    object->addKnownObjectSafe(player);
 
-                        //If player has a mount make sure add to its known objects
-                        if(player->checkIfMountCalled() && player->getMount())
+                    //If player has a mount make sure add to its known objects
+                    if(player->checkIfMountCalled() && player->getMount())
+                    {
+                        if(player->getMount()->getId() != object->getId())
                         {
-                            if(player->getMount()->getId() != object->getId())
-                            {
-                                player->getMount()->addKnownObjectSafe(object);
-                                object->addKnownObjectSafe(player->getMount());
-                            }
+                            player->getMount()->addKnownObjectSafe(object);
+                            object->addKnownObjectSafe(player->getMount());
                         }
+                    }
                     //}
                     updatedObjects++;
                 }
@@ -709,7 +704,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
     // make sure we got a building
     if (!building)
     {
-        
+
         gLogger->log(LogManager::DEBUG,"ERROR: No building.");
         return;
     }
@@ -826,16 +821,16 @@ bool ObjectController::_updateInRangeObjectsInside()
                         player->addKnownObjectSafe(object);
                         object->addKnownObjectSafe(player);
                         updatedObjects++;
-        
+
                     }
                     else
                     {
                         //if(!player->checkKnownObjects(object))
                         //{
-                            gMessageLib->sendCreateObject(object,player);
-                            player->addKnownObjectSafe(object);
-                            object->addKnownObjectSafe(player);
-                            updatedObjects++;
+                        gMessageLib->sendCreateObject(object,player);
+                        player->addKnownObjectSafe(object);
+                        object->addKnownObjectSafe(player);
+                        updatedObjects++;
                         //}
                     }
                 }
@@ -881,10 +876,10 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
             if(playerObject->checkIfMounted() && playerObject->getMount())
             {
                 gMessageLib->sendDestroyObject(playerObject->getMount()->getId(),player);
-                
+
                 player->removeKnownObject(playerObject->getMount());
                 playerObject->getMount()->removeKnownObject(player);
-                
+
             }
 
             //send a destroy to him
@@ -896,7 +891,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
                 gMessageLib->sendDestroyObject(player->getMount()->getId(),playerObject);
                 playerObject->removeKnownObject(player->getMount());
                 player->getMount()->removeKnownObject(playerObject);
-                
+
             }
 
             // we don't know each other anymore
@@ -914,7 +909,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 
     // update objects
     //for(ObjectSet::const_iterator	objIt	= knownObjects->begin(); objIt != knownObjects->end(); objIt++)
-    
+
     //we access the list above so it needs to be reset to the beginning
     objIt		= knownObjects->begin();
     while(objIt != knownObjects->end())
@@ -927,7 +922,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 
             if(object->getType() == ObjType_Structure)//ObjType_Tangible
             {
-                
+
             }
             // send a destroy to us
             gMessageLib->sendDestroyObject(object->getId(),player);
@@ -960,7 +955,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 //
 //	This code fulfills 2 purposes
 //	1st we do full updates of our world around us when prompted
-//	2nd when the amount of update Objects is to big (>50) this function gets revisited 
+//	2nd when the amount of update Objects is to big (>50) this function gets revisited
 //		and _updateInRangeObjectsInside updates the remaining objects
 //		UNLESS we need to force another update
 
@@ -1041,7 +1036,7 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
             else
             {
                 mMovementInactivityTrigger = 2;		// We only check this when we are running idle with slow frequency
-                                                    // Need to be standstill for this amount of seconds * 5 (or whatever time we use for slow updates) before we update.
+                // Need to be standstill for this amount of seconds * 5 (or whatever time we use for slow updates) before we update.
             }
         }
 
@@ -1104,7 +1099,7 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
                             player->setTarget(0);
                             gMessageLib->sendTargetUpdateDeltasCreo6(player);
                         }
-                        
+
                     }
                 }
             }

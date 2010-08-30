@@ -36,14 +36,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class SpawnPoint
 {
- public:
-    SpawnPoint(){}
-	~SpawnPoint(){}
+public:
+    SpawnPoint() {}
+    ~SpawnPoint() {}
 
-	uint64		mCellId;
+    uint64		mCellId;
     glm::quat	mDirection;
     glm::vec3	mPosition;
-	BString		mName;
+    BString		mName;
 };
 
 //=============================================================================

@@ -41,51 +41,51 @@ ChatSystemAvatar*	ChatSystemAvatar::mSingleton = NULL;
 
 void ChatAvatarId::setPlayer(Player* player)
 {
-	mPlayer = player;
-	//string lcName = BString(BSTRType_ANSI, player->getName().getLength());
-	//memcpy(lcName.getRawData(), player->getName().getRawData(), lcName.getLength());
-	//lcName.toLower();
-	mName = player->getName();
-	mName.toLower();
-	gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s\n", mName.getAnsi());
+    mPlayer = player;
+    //string lcName = BString(BSTRType_ANSI, player->getName().getLength());
+    //memcpy(lcName.getRawData(), player->getName().getRawData(), lcName.getLength());
+    //lcName.toLower();
+    mName = player->getName();
+    mName.toLower();
+    gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s\n", mName.getAnsi());
 }
 
 //======================================================================================================================
 
 void ChatAvatarId::setPlayer(const BString player)
 {
-	gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s string only\n", mName.getAnsi());
-	mPlayer = gChatManager->getPlayerByName(player); 
-	
-	mName = player;
-	mName.toLower();
+    gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s string only\n", mName.getAnsi());
+    mPlayer = gChatManager->getPlayerByName(player);
+
+    mName = player;
+    mName.toLower();
 }
 
 //======================================================================================================================
 
 BString ChatAvatarId::getPath()
 {
-	BString path = "SWG.";
-	path << mGalaxy.getAnsi() << ".";
-	path << mName.getAnsi();
-	return path;
+    BString path = "SWG.";
+    path << mGalaxy.getAnsi() << ".";
+    path << mName.getAnsi();
+    return path;
 }
 
 //======================================================================================================================
 
 ChatSystemAvatar* ChatSystemAvatar::GetSingleton()
 {
-	if (!mInsFlag)
-	{
-		mSingleton = new ChatSystemAvatar();
-		mInsFlag = true;
-	}
-	return mSingleton;
+    if (!mInsFlag)
+    {
+        mSingleton = new ChatSystemAvatar();
+        mInsFlag = true;
+    }
+    return mSingleton;
 }
 
 //======================================================================================================================
 
 BString ChatSystemAvatar::getLoweredName()
 {
-	return BString("SYSTEM");
+    return BString("SYSTEM");
 }

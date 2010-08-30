@@ -50,52 +50,52 @@ class StructureManagerChatHandler;
 
 class ProcessAddress
 {
-	public:
+public:
 
-		uint32		mType;
-		int8        mAddress[16];
-		uint16      mPort;
-		uint32      mStatus;
-		uint32      mActive;
+    uint32		mType;
+    int8        mAddress[16];
+    uint16      mPort;
+    uint32      mStatus;
+    uint32      mActive;
 };
 
 //======================================================================================================================
 class ChatServer
 {
-	public:
+public:
 
-		ChatServer();
-		~ChatServer();
+    ChatServer();
+    ~ChatServer();
 
-		void    Process();
+    void    Process();
 
-	private:
+private:
 
-		void    _updateDBServerList(uint32 status);
-		void    _connectToConnectionServer();
+    void    _updateDBServerList(uint32 status);
+    void    _connectToConnectionServer();
 
-		NetworkManager*				  mNetworkManager;
-		DatabaseManager*              mDatabaseManager;
+    NetworkManager*				  mNetworkManager;
+    DatabaseManager*              mDatabaseManager;
 
-		Service*                      mRouterService;
-		Database*                     mDatabase;
+    Service*                      mRouterService;
+    Database*                     mDatabase;
 
-		MessageDispatch*              mMessageDispatch;
+    MessageDispatch*              mMessageDispatch;
 
-		CharacterAdminHandler*        mCharacterAdminHandler;
-		PlanetMapHandler*			  mPlanetMapHandler;
-		TradeManagerChatHandler*	  mTradeManagerChatHandler;
-		StructureManagerChatHandler*  mStructureManagerChatHandler;
-		ChatManager*				  mChatManager;
-		GroupManager*				  mGroupManager;
-		CSRManager*					  mCSRManager;
+    CharacterAdminHandler*        mCharacterAdminHandler;
+    PlanetMapHandler*			  mPlanetMapHandler;
+    TradeManagerChatHandler*	  mTradeManagerChatHandler;
+    StructureManagerChatHandler*  mStructureManagerChatHandler;
+    ChatManager*				  mChatManager;
+    GroupManager*				  mGroupManager;
+    CSRManager*					  mCSRManager;
 
-		DispatchClient*				  mClient;
-		uint32					      mLastHeartbeat;
+    DispatchClient*				  mClient;
+    uint32					      mLastHeartbeat;
 
 };
 
-#endif 
+#endif
 
 
 

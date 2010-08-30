@@ -45,23 +45,25 @@ typedef boost::singleton_pool<DatabaseResult,sizeof(DatabaseResult),boost::defau
 class DBMANAGER_API DatabaseImplementation
 {
 public:
-									DatabaseImplementation(char* host, uint16 port, char* user, char* pass, char* schema) {};
-  virtual							~DatabaseImplementation(void) {};
-  
-  virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false) = 0;
+    DatabaseImplementation(char* host, uint16 port, char* user, char* pass, char* schema) {};
+    virtual							~DatabaseImplementation(void) {};
 
-  virtual DatabaseWorkerThread*	DestroyResult(DatabaseResult* result) = 0;
-  
-  virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) = 0;
-  virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0) = 0;
+    virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false) = 0;
 
-  virtual uint32					Escape_String(int8* target,const int8* source,uint32 length) = 0;
+    virtual DatabaseWorkerThread*	DestroyResult(DatabaseResult* result) = 0;
 
-  bool								releaseResultPoolMemory(){ return(ResultPool::release_memory()); }
+    virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) = 0;
+    virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0) = 0;
 
-  virtual uint64					GetInsertId(void) = 0;
+    virtual uint32					Escape_String(int8* target,const int8* source,uint32 length) = 0;
 
-	protected:
+    bool								releaseResultPoolMemory() {
+        return(ResultPool::release_memory());
+    }
+
+    virtual uint64					GetInsertId(void) = 0;
+
+protected:
 };
 
 

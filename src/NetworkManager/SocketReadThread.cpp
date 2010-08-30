@@ -64,13 +64,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 
 SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice) :
-mReceivePacket(0),
-mDecompressPacket(0),
-mSessionFactory(0),
-mPacketFactory(0),
-mCompCryptor(0),
-mSocket(0),
-mIsRunning(false)
+    mReceivePacket(0),
+    mDecompressPacket(0),
+    mSessionFactory(0),
+    mPacketFactory(0),
+    mCompCryptor(0),
+    mSocket(0),
+    mIsRunning(false)
 {
     if(serverservice)
     {
@@ -107,8 +107,8 @@ mIsRunning(false)
     mThread = boost::move(t);
 
     HANDLE th =  mThread.native_handle();
-    SetPriorityClass(th,REALTIME_PRIORITY_CLASS);	
-    //SetPriorityClass(th,NORMAL_PRIORITY_CLASS);	
+    SetPriorityClass(th,REALTIME_PRIORITY_CLASS);
+    //SetPriorityClass(th,NORMAL_PRIORITY_CLASS);
 }
 
 //======================================================================================================================
@@ -122,9 +122,9 @@ SocketReadThread::~SocketReadThread()
 
     delete mPacketFactory;
     delete mSessionFactory;
-    
+
     delete mMessageFactory;
-    
+
     delete mCompCryptor;
 }
 
@@ -147,7 +147,7 @@ void SocketReadThread::run(void)
 
     while(!mExit)
     {
-        // Check to see if *WE* are about to connect to a remote server 
+        // Check to see if *WE* are about to connect to a remote server
         if(mNewConnection.mPort != 0)
         {
             Session* newSession = mSessionFactory->CreateSession();
@@ -203,7 +203,7 @@ void SocketReadThread::run(void)
                 {
                     gLogger->log(LogManager::WARNING, "Error(recvFrom): %i",errorNr);
                 }
-                    
+
 #elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
 
                 errorNr = recvLen;
@@ -279,108 +279,108 @@ void SocketReadThread::run(void)
             {
                 switch(packetType)
                 {
-                    case SESSIONOP_Disconnect:
-                    case SESSIONOP_DataAck1:
-                    case SESSIONOP_DataAck2:
-                    case SESSIONOP_DataAck3:
-                    case SESSIONOP_DataAck4:
-                    case SESSIONOP_DataOrder1:
-                    case SESSIONOP_DataOrder2:
-                    case SESSIONOP_DataOrder3:
-                    case SESSIONOP_DataOrder4:
-                    case SESSIONOP_Ping:
+                case SESSIONOP_Disconnect:
+                case SESSIONOP_DataAck1:
+                case SESSIONOP_DataAck2:
+                case SESSIONOP_DataAck3:
+                case SESSIONOP_DataAck4:
+                case SESSIONOP_DataOrder1:
+                case SESSIONOP_DataOrder2:
+                case SESSIONOP_DataOrder3:
+                case SESSIONOP_DataOrder4:
+                case SESSIONOP_Ping:
+                {
+                    // Before we do anything else, check the CRC.
+                    uint32 packetCrc = mCompCryptor->GenerateCRC(mReceivePacket->getData(), recvLen - 2, session->getEncryptKey());  // - 2 crc
+
+                    uint8 crcLow  = (uint8)*(mReceivePacket->getData() + recvLen - 1);
+                    uint8 crcHigh = (uint8)*(mReceivePacket->getData() + recvLen - 2);
+
+                    if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
                     {
-                        // Before we do anything else, check the CRC.
-                        uint32 packetCrc = mCompCryptor->GenerateCRC(mReceivePacket->getData(), recvLen - 2, session->getEncryptKey());  // - 2 crc
-
-                        uint8 crcLow  = (uint8)*(mReceivePacket->getData() + recvLen - 1);
-                        uint8 crcHigh = (uint8)*(mReceivePacket->getData() + recvLen - 2);
-
-                        if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
-                        {
-                            // CRC mismatch.  Dropping packet.
-                            //gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
-                            gLogger->log(LogManager::DEBUG, "DIS/ACK/ORDER/PING dropped.");
-                            continue;
-                        }
-
-                        // Decrypt the packet
-                        mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());
-
-                        // Send the packet to the session.
-                        session->HandleSessionPacket(mReceivePacket);
-                        mReceivePacket = mPacketFactory->CreatePacket();
+                        // CRC mismatch.  Dropping packet.
+                        //gLogger->hexDump(mReceivePacket->getData(),mReceivePacket->getSize());
+                        gLogger->log(LogManager::DEBUG, "DIS/ACK/ORDER/PING dropped.");
+                        continue;
                     }
-                    break;
 
-                    case SESSIONOP_MultiPacket:
-                    case SESSIONOP_NetStatRequest:
-                    case SESSIONOP_NetStatResponse:
-                    case SESSIONOP_DataChannel1:
-                    case SESSIONOP_DataChannel2:
-                    case SESSIONOP_DataChannel3:
-                    case SESSIONOP_DataChannel4:
-                    case SESSIONOP_DataFrag1:
-                    case SESSIONOP_DataFrag2:
-                    case SESSIONOP_DataFrag3:
-                    case SESSIONOP_DataFrag4:
+                    // Decrypt the packet
+                    mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());
+
+                    // Send the packet to the session.
+                    session->HandleSessionPacket(mReceivePacket);
+                    mReceivePacket = mPacketFactory->CreatePacket();
+                }
+                break;
+
+                case SESSIONOP_MultiPacket:
+                case SESSIONOP_NetStatRequest:
+                case SESSIONOP_NetStatResponse:
+                case SESSIONOP_DataChannel1:
+                case SESSIONOP_DataChannel2:
+                case SESSIONOP_DataChannel3:
+                case SESSIONOP_DataChannel4:
+                case SESSIONOP_DataFrag1:
+                case SESSIONOP_DataFrag2:
+                case SESSIONOP_DataFrag3:
+                case SESSIONOP_DataFrag4:
+                {
+                    // Before we do anything else, check the CRC.
+                    uint32 packetCrc = mCompCryptor->GenerateCRC(mReceivePacket->getData(), recvLen - 2, session->getEncryptKey());
+
+                    uint8 crcLow  = (uint8)*(mReceivePacket->getData() + recvLen - 1);
+                    uint8 crcHigh = (uint8)*(mReceivePacket->getData() + recvLen - 2);
+
+                    if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
                     {
-                        // Before we do anything else, check the CRC.
-                        uint32 packetCrc = mCompCryptor->GenerateCRC(mReceivePacket->getData(), recvLen - 2, session->getEncryptKey());
+                        // CRC mismatch.  Dropping packet.
 
-                        uint8 crcLow  = (uint8)*(mReceivePacket->getData() + recvLen - 1);
-                        uint8 crcHigh = (uint8)*(mReceivePacket->getData() + recvLen - 2);
-
-                        if (crcLow != (uint8)packetCrc || crcHigh != (uint8)(packetCrc >> 8))
-                        {
-                            // CRC mismatch.  Dropping packet.
-
-                            gLogger->log(LogManager::NOTICE, "Socket Read Thread: Reliable Packet dropped. %X CRC mismatch.", packetType);
-                            mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
-                            continue;
-                        }
-
-                        // Decrypt the packet
+                        gLogger->log(LogManager::NOTICE, "Socket Read Thread: Reliable Packet dropped. %X CRC mismatch.", packetType);
                         mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
-
-                        // Decompress the packet
-                        decompressLen = mCompCryptor->Decompress(mReceivePacket->getData() + 2, recvLen - 5, mDecompressPacket->getData() + 2, mDecompressPacket->getMaxPayload() - 5);
-
-                        if(decompressLen > 0)
-                        {
-                            mDecompressPacket->setIsCompressed(true);
-                            mDecompressPacket->setSize(decompressLen + 2); // add the packet header size
-                            *((uint16*)(mDecompressPacket->getData())) = *((uint16*)mReceivePacket->getData());
-                            session->HandleSessionPacket(mDecompressPacket);
-                            mDecompressPacket = mPacketFactory->CreatePacket();
-
-                            break;
-                        }
-                        else 
-                        {
-                            // we have to remove comp/crc
-                            mReceivePacket->setSize(mReceivePacket->getSize() - 3);
-                        }
+                        continue;
                     }
 
-                    case SESSIONOP_SessionRequest:
-                    case SESSIONOP_SessionResponse:
-                    case SESSIONOP_FatalError:
-                    case SESSIONOP_FatalErrorResponse:
+                    // Decrypt the packet
+                    mCompCryptor->Decrypt(mReceivePacket->getData() + 2, recvLen - 4, session->getEncryptKey());  // don't hardcode the header buffer or CRC len.
+
+                    // Decompress the packet
+                    decompressLen = mCompCryptor->Decompress(mReceivePacket->getData() + 2, recvLen - 5, mDecompressPacket->getData() + 2, mDecompressPacket->getMaxPayload() - 5);
+
+                    if(decompressLen > 0)
+                    {
+                        mDecompressPacket->setIsCompressed(true);
+                        mDecompressPacket->setSize(decompressLen + 2); // add the packet header size
+                        *((uint16*)(mDecompressPacket->getData())) = *((uint16*)mReceivePacket->getData());
+                        session->HandleSessionPacket(mDecompressPacket);
+                        mDecompressPacket = mPacketFactory->CreatePacket();
+
+                        break;
+                    }
+                    else
+                    {
+                        // we have to remove comp/crc
+                        mReceivePacket->setSize(mReceivePacket->getSize() - 3);
+                    }
+                }
+
+                case SESSIONOP_SessionRequest:
+                case SESSIONOP_SessionResponse:
+                case SESSIONOP_FatalError:
+                case SESSIONOP_FatalErrorResponse:
                     //case SESSIONOP_Reset:
-                    {
-                        // Send the packet to the session.
+                {
+                    // Send the packet to the session.
 
-                        session->HandleSessionPacket(mReceivePacket);
-                        mReceivePacket = mPacketFactory->CreatePacket();
-                    }
-                    break;
+                    session->HandleSessionPacket(mReceivePacket);
+                    mReceivePacket = mPacketFactory->CreatePacket();
+                }
+                break;
 
-                    default:
-                    {
-                        gLogger->log(LogManager::NOTICE, "SocketReadThread: Dont know what todo with this packet! --tmr <3");
-                    }
-                    break;
+                default:
+                {
+                    gLogger->log(LogManager::NOTICE, "SocketReadThread: Dont know what todo with this packet! --tmr <3");
+                }
+                break;
 
                 } //end switch(sessionOp)
             }
@@ -461,9 +461,9 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
     uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 
     gLogger->log(LogManager::INFORMATION, "Service %i: Removing Session(%s, %u), AddressMap: %i hash %I64u", mSessionFactory->getService()->getId(), inet_ntoa(*((in_addr*)(&hash))), ntohs(session->getPort()), mAddressSessionMap.size() - 1,hash);
-    
+
     boost::mutex::scoped_lock lk(mSocketReadMutex);
-                                        
+
     AddressSessionMap::iterator iter = mAddressSessionMap.find(hash);
 
     if(iter != mAddressSessionMap.end())

@@ -45,21 +45,21 @@ typedef struct st_mysql_rows MYSQL_ROWS;
 class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation
 {
 public:
-                                     DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema);
-  virtual							~DatabaseImplementationMySql(void);
-  
-  virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false);
-  virtual DatabaseWorkerThread*		DestroyResult(DatabaseResult* result);
+    DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema);
+    virtual							~DatabaseImplementationMySql(void);
 
-  virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object);
-  virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0);
-  virtual uint64					GetInsertId(void);
+    virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false);
+    virtual DatabaseWorkerThread*		DestroyResult(DatabaseResult* result);
 
-  virtual uint32					Escape_String(int8* target,const int8* source,uint32 length);
+    virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object);
+    virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0);
+    virtual uint64					GetInsertId(void);
+
+    virtual uint32					Escape_String(int8* target,const int8* source,uint32 length);
 
 private:
-  MYSQL*                      mConnection;
-  MYSQL_RES*                  mResultSet;
+    MYSQL*                      mConnection;
+    MYSQL_RES*                  mResultSet;
 };
 
 

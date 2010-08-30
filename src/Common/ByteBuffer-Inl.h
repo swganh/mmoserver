@@ -29,9 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define SRC_COMMON_BYTEBUFFERINL_H_
 
 namespace common {
-  
-template<typename T> void ByteBuffer::SwapEndian_(T& data) const { 
-    data; /* Only template specializations of swapEndian should be used */ 
+
+template<typename T> void ByteBuffer::SwapEndian_(T& data) const {
+    data; /* Only template specializations of swapEndian should be used */
 }
 
 template<typename T> ByteBuffer& ByteBuffer::Write(T data) {

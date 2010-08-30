@@ -391,7 +391,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
         return(false);
 
     Ham*			creatureHam		= creatureObject->getHam();
-    
+
     // Test ERU
     // If no mood is set, use neutral for avatar / npc, then they will look less angry as default.
     // This will NOT affect the chat-mood
@@ -401,7 +401,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
     {
         moodId = 74;
     }
-    
+
     BString			moodStr			= gWorldManager->getMood(moodId);
 
     ObjectList*		equippedObjects = creatureObject->getEquipManager()->getEquippedObjects();
@@ -409,7 +409,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 
     ObjectList::iterator eqIt = equippedObjects->begin();
 
-    
+
     mMessageFactory->StartMessage();
 
     mMessageFactory->addUint16(22);
@@ -1917,7 +1917,7 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 void MessageLib::sendStationaryFlagUpdate(PlayerObject* playerObject)
 {
     mMessageFactory->StartMessage();
-    
+
     mMessageFactory->addUint32(opDeltasMessage);
     mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opCREO);
@@ -1925,7 +1925,7 @@ void MessageLib::sendStationaryFlagUpdate(PlayerObject* playerObject)
     mMessageFactory->addUint32(5);
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(17);
-    
+
     if(playerObject->isStationary())
         mMessageFactory->addUint8(1);
     else

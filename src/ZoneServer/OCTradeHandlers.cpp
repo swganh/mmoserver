@@ -75,28 +75,28 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     switch(error)
     {
-        case error2:
-        {
-            // snd invitation returns error as 2 and the id of the invited as 0 :(
-            invitedPlayer = dynamic_cast<PlayerObject*>(invitingPlayer->getTarget());
-            error = 0;
-        }
-        break;
+    case error2:
+    {
+        // snd invitation returns error as 2 and the id of the invited as 0 :(
+        invitedPlayer = dynamic_cast<PlayerObject*>(invitingPlayer->getTarget());
+        error = 0;
+    }
+    break;
 
-        case error0:
-        {
-            //first invitation set the setInvite to the Inviter
-            //invitedPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(receiverId));
-        }
-        break;
+    case error0:
+    {
+        //first invitation set the setInvite to the Inviter
+        //invitedPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(receiverId));
+    }
+    break;
 
-        default:
-        {
-            // Always use a default if message damaged....
-            gLogger->log(LogManager::DEBUG,"ObjController:: Error in trade invitation");
-            // Since receiver is default NULL, we can use the error message below
-            // return;
-        }
+    default:
+    {
+        // Always use a default if message damaged....
+        gLogger->log(LogManager::DEBUG,"ObjController:: Error in trade invitation");
+        // Since receiver is default NULL, we can use the error message below
+        // return;
+    }
     }
 
     if(!invitedPlayer)
@@ -271,7 +271,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
         gMessageLib->SendSystemMessage(L"You may only /tip or /tip bank to other players.", player);
         return;
     }
-    
+
     gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_invalid_param", L"", L"", str.getUnicode16()), player);
     return;
 

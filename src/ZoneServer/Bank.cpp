@@ -35,42 +35,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 Bank::Bank() : TangibleObject(),
-mCredits(0),
-mPlanet(-1)
+    mCredits(0),
+    mPlanet(-1)
 {
-	mTanGroup	= TanGroup_PlayerInternal;
-	mTanType	= TanType_Bank;
+    mTanGroup	= TanGroup_PlayerInternal;
+    mTanType	= TanType_Bank;
 }
 
 //=============================================================================
 
 Bank::~Bank()
 {
-	ObjectList::iterator it = mObjects.begin();
-	while(it != mObjects.end())
-	{
-		delete(*it);
-		mObjects.erase(it);
-		it = mObjects.begin();
-	}
+    ObjectList::iterator it = mObjects.begin();
+    while(it != mObjects.end())
+    {
+        delete(*it);
+        mObjects.erase(it);
+        it = mObjects.begin();
+    }
 }
 
 //=============================================================================
 
 bool Bank::updateCredits(int32 amount)
 {
-	if(mCredits + amount < 0)
-		return(false);
+    if(mCredits + amount < 0)
+        return(false);
 
-	mCredits += amount;
+    mCredits += amount;
 
-	if(mParent->getType() == ObjType_Player)
-		gMessageLib->sendBankCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
+    if(mParent->getType() == ObjType_Player)
+        gMessageLib->sendBankCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
 
-	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId);
-	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId); // SQL Debug Log
+    gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId);
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId); // SQL Debug Log
 
-	return(true);
+    return(true);
 }
 
 //=============================================================================

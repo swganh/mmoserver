@@ -34,38 +34,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum WeaponGroup
 {
-	WeaponGroup_Unarmed			= 1,
-	WeaponGroup_1h				= 2,
-	WeaponGroup_2h				= 4,
-	WeaponGroup_Polearm			= 8,
-	WeaponGroup_Rifle			= 16,
-	WeaponGroup_Pistol			= 32,
-	WeaponGroup_Carbine			= 64,
-	WeaponGroup_Flamethrower	= 128,
-	WeaponGroup_Saber			= 256,
-	WeaponGroup_Launcher		= 512
+    WeaponGroup_Unarmed			= 1,
+    WeaponGroup_1h				= 2,
+    WeaponGroup_2h				= 4,
+    WeaponGroup_Polearm			= 8,
+    WeaponGroup_Rifle			= 16,
+    WeaponGroup_Pistol			= 32,
+    WeaponGroup_Carbine			= 64,
+    WeaponGroup_Flamethrower	= 128,
+    WeaponGroup_Saber			= 256,
+    WeaponGroup_Launcher		= 512
 };
 
 //=============================================================================
 
 class Weapon : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		Weapon();
-		virtual ~Weapon();
+    Weapon();
+    virtual ~Weapon();
 
-		void	setGroup(uint32 group){ mGroup = group; }
-		uint32	getGroup(){ return mGroup; }
+    void	setGroup(uint32 group) {
+        mGroup = group;
+    }
+    uint32	getGroup() {
+        return mGroup;
+    }
 
-		void	sendAttributes(PlayerObject* playerObject);
+    void	sendAttributes(PlayerObject* playerObject);
 
-	private:
+private:
 
-		uint32	mGroup;
-		uint8	mDamageType;
+    uint32	mGroup;
+    uint8	mDamageType;
 };
 
 //=============================================================================

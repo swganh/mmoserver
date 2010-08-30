@@ -35,7 +35,7 @@ namespace utils {
 
 ActiveObject::ActiveObject() : done_(false) {
     thread_ = std::unique_ptr<thread>(
-        new thread([=]{ this->Run(); }));
+                  new thread([=] { this->Run(); }));
 }
 
 ActiveObject::~ActiveObject() {
@@ -54,7 +54,7 @@ void ActiveObject::Run() {
         if (message_queue_.pop(message)) {
             message();
         }
-        
+
         // @note: Yield here to give the rest of the processing time back to the OS.
         boost::this_thread::yield();
     }

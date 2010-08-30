@@ -48,7 +48,8 @@ void ObjectController::handleMissionListRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
 
-    /*uint8           unknown     = */message->getUint8();
+    /*uint8           unknown     = */
+    message->getUint8();
     uint8           stale_flag  = message->getUint8();
     uint64          terminal_id = message->getUint64();
 

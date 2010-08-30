@@ -58,16 +58,16 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
     else if(!targetObject->isConnected()) return false;
 
     Message* message;
-     
+
     //####
     //HEAD
     //####
-    mMessageFactory->StartMessage();  
-    mMessageFactory->addUint32(opBaselinesMessage);   
-    mMessageFactory->addUint64(missionObject->getId()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBaselinesMessage);
+    mMessageFactory->addUint64(missionObject->getId());
     mMessageFactory->addUint32(opMISO);
-    mMessageFactory->addUint8(3);  
-    
+    mMessageFactory->addUint8(3);
+
     //158
     uint32 size = 158+missionObject->getNameFile().getLength() + missionObject->getName().getLength();
     size += missionObject->getDetailFile().getLength() + missionObject->getDetail().getLength();
@@ -77,7 +77,7 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
     size += missionObject->getTarget().getLength();
 
 
-    mMessageFactory->addUint32(size); //size 
+    mMessageFactory->addUint32(size); //size
     mMessageFactory->addUint16(17);  //Opperand/Variable count
 
     //####
@@ -163,13 +163,13 @@ bool MessageLib::sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* 
     mMessageFactory->addUint64(missionObject->getWaypoint()->getId()); //Waypoint ID (MISO3 ID +1)
     mMessageFactory->addUint8(missionObject->getWaypoint()->getWPType());  //Waypoint Type
     mMessageFactory->addUint8(missionObject->getWaypoint()->getActive());  //Activated Flag +42 =156
-        mMessageFactory->addUint32(0);
+    mMessageFactory->addUint32(0);
 
     message = mMessageFactory->EndMessage();
 
     (targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return true;
+    return true;
 }
 
 //======================================================================================================================
@@ -184,31 +184,31 @@ bool MessageLib::sendBaselinesMISO_6(MissionObject* missionObject,PlayerObject* 
     else if(!targetObject->isConnected()) return false;
 
     Message* message;
-     
+
     //####
     //HEAD
     //####
-    mMessageFactory->StartMessage();  
-    mMessageFactory->addUint32(opBaselinesMessage);   
-    mMessageFactory->addUint64(missionObject->getId()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBaselinesMessage);
+    mMessageFactory->addUint64(missionObject->getId());
     mMessageFactory->addUint32(opMISO);
-    mMessageFactory->addUint8(6);  
-    
+    mMessageFactory->addUint8(6);
+
     mMessageFactory->addUint32(15); //size
     mMessageFactory->addUint16(2);  //Opperand/Variable count
 
     //####
     //BODY
     //####
-    mMessageFactory->addUint64(0x86); 
-    mMessageFactory->addUint32(0);    
-    mMessageFactory->addUint8(0);    
+    mMessageFactory->addUint64(0x86);
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addUint8(0);
 
     message = mMessageFactory->EndMessage();
 
     (targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return true;
+    return true;
 }
 
 //======================================================================================================================
@@ -223,29 +223,29 @@ bool MessageLib::sendBaselinesMISO_8(MissionObject* missionObject,PlayerObject* 
     else if(!targetObject->isConnected()) return false;
 
     Message* message;
-     
+
     //####
     //HEAD
     //####
-    mMessageFactory->StartMessage();  
-    mMessageFactory->addUint32(opBaselinesMessage);   
-    mMessageFactory->addUint64(missionObject->getId()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBaselinesMessage);
+    mMessageFactory->addUint64(missionObject->getId());
     mMessageFactory->addUint32(opMISO);
-    mMessageFactory->addUint8(8);  
-    mMessageFactory->addUint32(2);    
+    mMessageFactory->addUint8(8);
+    mMessageFactory->addUint32(2);
     mMessageFactory->addUint16(0);  //Opperand count
-    
+
 
     //####
     //BODY
     //####
-    mMessageFactory->addUint32(0);    
+    mMessageFactory->addUint32(0);
 
     message = mMessageFactory->EndMessage();
 
     (targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return true;
+    return true;
 }
 
 //======================================================================================================================
@@ -257,32 +257,32 @@ return true;
 bool MessageLib::sendBaselinesMISO_9(MissionObject* missionObject,PlayerObject* targetObject)
 {
     if(!missionObject || !targetObject) return false;
-    else if(!targetObject->isConnected()) return false;	
+    else if(!targetObject->isConnected()) return false;
 
     Message* message;
-     
+
     //####
     //HEAD
     //####
-    mMessageFactory->StartMessage();  
-    mMessageFactory->addUint32(opBaselinesMessage);   
-    mMessageFactory->addUint64(missionObject->getId()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBaselinesMessage);
+    mMessageFactory->addUint64(missionObject->getId());
     mMessageFactory->addUint32(opMISO);
-    mMessageFactory->addUint8(9);  
-    
+    mMessageFactory->addUint8(9);
+
     mMessageFactory->addUint32(2);  //Opperand count
-    
+
 
     //####
     //BODY
     //####
-    mMessageFactory->addUint16(0);    
+    mMessageFactory->addUint16(0);
 
     message = mMessageFactory->EndMessage();
 
     (targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return true;
+    return true;
 }
 
 //======================================================================================================================
@@ -294,8 +294,8 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
 
     int update_count = 0;
     ByteBuffer body;
-    
-    //NOTE: Do not mess with the order these are in. Being mildly AR I  
+
+    //NOTE: Do not mess with the order these are in. Being mildly AR I
     //      arranged them in order according to vID and it stopped working!
 
     //NOTE
@@ -315,7 +315,7 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
     if(missionObject->getDetail().getDataLength() > 0)
     {
         update_count++;
-        body.Write<uint16_t>(0x0B); 
+        body.Write<uint16_t>(0x0B);
         body.Write<std::string>(missionObject->getDetailFile().getRawData());
         body.Write<uint32_t>(0);
         body.Write<std::string>(missionObject->getDetail().getRawData());
@@ -325,7 +325,7 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
     if(missionObject->getDifficulty() > 0)
     {
         update_count++;
-        body.Write<uint16_t>(0x05); 
+        body.Write<uint16_t>(0x05);
         body.Write<uint32_t>(missionObject->getDifficulty());
     }
 
@@ -345,7 +345,7 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
     if(missionObject->getCreator().getDataLength())
     {
         update_count++;
-        body.Write<uint16_t>(0x07);  
+        body.Write<uint16_t>(0x07);
         BString ha(missionObject->getCreator());
         ha.convert(BSTRType_Unicode16);
         body.Write<std::wstring>(ha.getUnicode16());
@@ -355,7 +355,7 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
     if(missionObject->getMissionType() > 0)
     {
         update_count++;
-        body.Write<uint16_t>(0x0E); 
+        body.Write<uint16_t>(0x0E);
         body.Write<uint32_t>(missionObject->getMissionType());
     }
 
@@ -386,12 +386,12 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
         body.Write<uint16_t>(0x0A);
         body.Write<uint32_t>(missionObject->getTargetModel());
     }
-               
+
     //vID 12 - Title
     if(missionObject->getTitle().getDataLength() > 0)
     {
         update_count++;
-        body.Write<uint16_t>(0x0C); 
+        body.Write<uint16_t>(0x0C);
         body.Write<std::string>(missionObject->getTitleFile().getRawData());
         body.Write<uint32_t>(0);
         body.Write<std::string>(missionObject->getTitle().getRawData());
@@ -409,7 +409,7 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
     if(missionObject->getTarget().getDataLength() > 0)
     {
         update_count++;
-        body.Write<uint16_t>(0x0F); 
+        body.Write<uint16_t>(0x0F);
         body.Write<std::string>(missionObject->getTarget().getRawData());
     }
 
@@ -434,31 +434,31 @@ bool MessageLib::sendMISO_Delta(MissionObject* missionObject,PlayerObject* targe
     }
 
     //Nothing to update
-    if(body.Size() <= 0) 
+    if(body.Size() <= 0)
     {
         return false;
     }
-     
+
     //####
     //HEAD
     //####
     Message* message;
-    mMessageFactory->StartMessage();               
-    mMessageFactory->addUint32(opDeltasMessage);  
-    mMessageFactory->addUint64(missionObject->getId()); 
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(missionObject->getId());
     mMessageFactory->addUint32(opMISO);
     mMessageFactory->addUint8(3);
     mMessageFactory->addUint32(body.Size()+2);
     mMessageFactory->addUint16(update_count);
     mMessageFactory->addData(body.Data(),(uint16)body.Size());
-    
-    
+
+
     message = mMessageFactory->EndMessage();
     //gLogger->hexDump(message->getData(),message->getSize());
 
     (targetObject->getClient())->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return true;
+    return true;
 }
 
 //======================================================================================================================
@@ -469,12 +469,12 @@ bool MessageLib::sendMissionGenericResponse(MissionObject* missionObject,PlayerO
     else if(!targetObject->isConnected()) return false;
 
     Message* message;
-    mMessageFactory->StartMessage();        
-    mMessageFactory->addUint32(opObjControllerMessage);  
-    mMessageFactory->addUint32(0x0000001B);           
-    mMessageFactory->addUint32(opMissionGenericResponse);           
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000001B);
+    mMessageFactory->addUint32(opMissionGenericResponse);
     mMessageFactory->addUint64(missionObject->getOwner()->getId());
-    mMessageFactory->addUint32(0);                    
+    mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(missionObject->getId());
     mMessageFactory->addUint8(0x01);
     mMessageFactory->addInt8(0x04);
@@ -483,7 +483,7 @@ bool MessageLib::sendMissionGenericResponse(MissionObject* missionObject,PlayerO
 
     targetObject->getClient()->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return true;
+    return true;
 }
 
 //======================================================================================================================
@@ -494,19 +494,19 @@ bool MessageLib::sendMissionAbort(MissionObject* missionObject,PlayerObject* tar
     else if(!targetObject->isConnected()) return false;
 
     Message* message;
-    mMessageFactory->StartMessage();          
-    mMessageFactory->addUint32(opObjControllerMessage);  
-    mMessageFactory->addUint32(0x0000000B);           
-    mMessageFactory->addUint32(opMissionAbort);           
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000000B);
+    mMessageFactory->addUint32(opMissionAbort);
     mMessageFactory->addUint64(missionObject->getOwner()->getPlayerObjId());
-    mMessageFactory->addUint32(0);  
+    mMessageFactory->addUint32(0);
     mMessageFactory->addUint64(missionObject->getId());
 
     message = mMessageFactory->EndMessage();
 
     targetObject->getClient()->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return true;
+    return true;
 }
 //======================================================================================================================
 
@@ -517,12 +517,12 @@ bool MessageLib::sendMissionComplete(PlayerObject* targetObject)
     else if(!targetObject->isConnected()) return false;
 
     Message* message;
-    mMessageFactory->StartMessage();          
-    mMessageFactory->addUint32(opObjControllerMessage);  
-    mMessageFactory->addUint32(0x00000083);           
-    mMessageFactory->addUint32(opMissionComplete);           
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x00000083);
+    mMessageFactory->addUint32(opMissionComplete);
     mMessageFactory->addUint64(targetObject->getPlayerObjId());
-    mMessageFactory->addUint64(0);  
+    mMessageFactory->addUint64(0);
     mMessageFactory->addUint16(0);
     mMessageFactory->addUint8(0);
 
@@ -530,7 +530,7 @@ bool MessageLib::sendMissionComplete(PlayerObject* targetObject)
 
     targetObject->getClient()->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return true;
+    return true;
 }
 
 

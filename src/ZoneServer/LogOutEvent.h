@@ -37,18 +37,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class LogOutEvent : public Anh_Utils::Event
 {
-	public:
+public:
 
-		LogOutEvent(uint64 time, uint32 spacer) : mLogOutTime(time), mLogOutSpacer(spacer){}
-		
-		uint64 getLogOutTime() const {return  mLogOutTime;}
-		uint32 getLogOutSpacer() const {return  mLogOutSpacer;}
+    LogOutEvent(uint64 time, uint32 spacer) : mLogOutTime(time), mLogOutSpacer(spacer) {}
+
+    uint64 getLogOutTime() const {
+        return  mLogOutTime;
+    }
+    uint32 getLogOutSpacer() const {
+        return  mLogOutSpacer;
+    }
 
 
-	private:
+private:
 
-		uint64				mLogOutTime;
-		uint32				mLogOutSpacer;
+    uint64				mLogOutTime;
+    uint32				mLogOutSpacer;
 };
 
 

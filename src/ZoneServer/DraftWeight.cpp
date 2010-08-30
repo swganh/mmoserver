@@ -44,7 +44,7 @@ DraftWeight::~DraftWeight()
 
 void DraftWeight::prepareData()
 {
-	mData = (mDataType << 4) | mDistribution;
+    mData = (mDataType << 4) | mDistribution;
 }
 
 //=============================================================================

@@ -54,243 +54,243 @@ Channel::~Channel()
 
 
 ChannelData* Channel::getChannelData()
-{ 
-	return &mChannelData; 
+{
+    return &mChannelData;
 }
 
 //======================================================================================================================
-	
+
 uint32 Channel::getId() const
-{ 
-	return mChannelData.id; 
+{
+    return mChannelData.id;
 }
 
 //======================================================================================================================
-	
+
 void Channel::setId(uint32 id)
-{ 
-	mChannelData.id = id; 
+{
+    mChannelData.id = id;
 }
 
 //======================================================================================================================
-	
+
 BString Channel::getName() const
-{ 
-	return mChannelData.name; 
+{
+    return mChannelData.name;
 }
 
 //======================================================================================================================
-	
+
 void Channel::setName(const BString name)
-{ 
-	mChannelData.name = name; 
+{
+    mChannelData.name = name;
 }
 
 //======================================================================================================================
-	
+
 BString Channel::getGalaxy() const
-{ 
-	return mGalaxy;
+{
+    return mGalaxy;
 }
 
 //======================================================================================================================
-	
+
 void Channel::setGalaxy(const BString galaxy)
-{ 
-	mGalaxy = galaxy; 
+{
+    mGalaxy = galaxy;
 }
 
 //======================================================================================================================
 
 BString Channel::getTitle() const
-{ 
-	BString title = mChannelData.title;
-	title.convert(BSTRType_Unicode16);
-	return title; 
+{
+    BString title = mChannelData.title;
+    title.convert(BSTRType_Unicode16);
+    return title;
 }
 
 //======================================================================================================================
-	
+
 void Channel::setTitle(const BString title)
-{ 
-	mChannelData.title = title; 
+{
+    mChannelData.title = title;
 }
 
 //======================================================================================================================
 
 ChatAvatarId* Channel::getOwner() const
-{ 
-	return mOwner; 
+{
+    return mOwner;
 }
 
 //======================================================================================================================
-	
+
 void Channel::setOwner(ChatAvatarId* owner)
-{ 
-	mOwner = owner; 
+{
+    mOwner = owner;
 }
 
 //======================================================================================================================
-	
+
 ChatAvatarId* Channel::getCreator() const
-{ 
-	return mCreator; 
+{
+    return mCreator;
 }
 
 //======================================================================================================================
-	
+
 void Channel::setCreator(ChatAvatarId* creator)
-{ 
-	mCreator = creator; 
+{
+    mCreator = creator;
 }
 
 //======================================================================================================================
-	
+
 uint8 Channel::isPrivate() const
 {
-	return mChannelData.is_private; 
+    return mChannelData.is_private;
 }
 
 //======================================================================================================================
-	
+
 void Channel::setPrivate(uint8 priv)
 {
-	mChannelData.is_private = priv; 
+    mChannelData.is_private = priv;
 }
 
 //======================================================================================================================
 
 uint8 Channel::isModerated() const
-{ 
-	return mChannelData.is_moderated;
+{
+    return mChannelData.is_moderated;
 }
 
 //======================================================================================================================
-	
+
 void Channel::setModerated(uint8 moderated)
 {
-	mChannelData.is_moderated = moderated;
+    mChannelData.is_moderated = moderated;
 }
 
 //======================================================================================================================
 
 ChatAvatarIdList* Channel::getUserList()
 {
-	return &mUsers;
+    return &mUsers;
 }
 
 //======================================================================================================================
-	
+
 NameByCrcMap* Channel::getModeratorList()
 {
-	return &mModerators;
+    return &mModerators;
 }
 
 //======================================================================================================================
-	
+
 NameByCrcMap* Channel::getBanned()
-{ 
-	return &mBanned; 
+{
+    return &mBanned;
 }
 
 //======================================================================================================================
-	
+
 NameByCrcMap* Channel::getInvited()
-{ 
-	return &mInvited;
+{
+    return &mInvited;
 }
 
 //======================================================================================================================
 
 void Channel::addUser(ChatAvatarId *avatar)
 {
-	mUsers.push_back(avatar);
-	BString key = avatar->getLoweredName();
-	// chat avatar id should be lowercase already avatar->getLoweredName().toLower();
-	//strcpy(key, avatar->getLoweredName().getAnsi());
-	mUserMap.insert(std::make_pair(key.getCrc(), avatar));
+    mUsers.push_back(avatar);
+    BString key = avatar->getLoweredName();
+    // chat avatar id should be lowercase already avatar->getLoweredName().toLower();
+    //strcpy(key, avatar->getLoweredName().getAnsi());
+    mUserMap.insert(std::make_pair(key.getCrc(), avatar));
 }
 
 //======================================================================================================================
 
 ChatAvatarId* Channel::findUser(BString name)
 {
-	// BString strname = name.getAnsi();		// Don't compare lowercase with mix of upper-lower.
-	// strname.toLower();
-	name.toLower();
+    // BString strname = name.getAnsi();		// Don't compare lowercase with mix of upper-lower.
+    // strname.toLower();
+    name.toLower();
 
-	AvatarNameMap::iterator iter = mUserMap.find(name.getCrc());
+    AvatarNameMap::iterator iter = mUserMap.find(name.getCrc());
 
-	if (iter != mUserMap.end())
-		return (*iter).second;
-	else
-		return NULL;
+    if (iter != mUserMap.end())
+        return (*iter).second;
+    else
+        return NULL;
 }
 //======================================================================================================================
 
 ChatAvatarId* Channel::findUser(Player* player)
 {
 
-	AvatarNameMap::iterator iter = mUserMap.find(player->getKey());
+    AvatarNameMap::iterator iter = mUserMap.find(player->getKey());
 
-	if (iter != mUserMap.end())
-		return (*iter).second;
-	else
-		return NULL;
+    if (iter != mUserMap.end())
+        return (*iter).second;
+    else
+        return NULL;
 }
 
 //======================================================================================================================
 
 void Channel::removeUser(Player* player)
 {
-	ChatAvatarIdList::iterator iter = mUsers.begin();
-	while (iter != mUsers.end())
-	{
-		if ((*iter)->getPlayer() == player)
-		{
-			mUsers.erase(iter);
-			break;
-		}
-		++iter;
-	}
+    ChatAvatarIdList::iterator iter = mUsers.begin();
+    while (iter != mUsers.end())
+    {
+        if ((*iter)->getPlayer() == player)
+        {
+            mUsers.erase(iter);
+            break;
+        }
+        ++iter;
+    }
 
-	AvatarNameMap::iterator mapiter = mUserMap.find(player->getKey());
-	if(mapiter != mUserMap.end())
-	{
-		mUserMap.erase(mapiter);
-		gLogger->log(LogManager::DEBUG,"Channel::remove user : removing player from channel user map : %s", player->getName().getAnsi());
-	}
-	else
-		gLogger->log(LogManager::DEBUG,"Channel::remove user : Can't find player on channel user map : %s",  player->getName().getAnsi());
+    AvatarNameMap::iterator mapiter = mUserMap.find(player->getKey());
+    if(mapiter != mUserMap.end())
+    {
+        mUserMap.erase(mapiter);
+        gLogger->log(LogManager::DEBUG,"Channel::remove user : removing player from channel user map : %s", player->getName().getAnsi());
+    }
+    else
+        gLogger->log(LogManager::DEBUG,"Channel::remove user : Can't find player on channel user map : %s",  player->getName().getAnsi());
 }
 
 //======================================================================================================================
 
 ChatAvatarId* Channel::removeUser(BString name)
 {
-	ChatAvatarIdList::iterator iter = mUsers.begin();
-	while (iter != mUsers.end())
-	{
-		if (strcmp((*iter)->getLoweredName().getRawData(), name.getRawData()) == 0)
-		{
-			mUsers.erase(iter);
-			break;
-		}
-		++iter;
-	}
+    ChatAvatarIdList::iterator iter = mUsers.begin();
+    while (iter != mUsers.end())
+    {
+        if (strcmp((*iter)->getLoweredName().getRawData(), name.getRawData()) == 0)
+        {
+            mUsers.erase(iter);
+            break;
+        }
+        ++iter;
+    }
 
-	name.toLower();
-	AvatarNameMap::iterator mapiter = mUserMap.find(name.getCrc());
+    name.toLower();
+    AvatarNameMap::iterator mapiter = mUserMap.find(name.getCrc());
 
-	ChatAvatarId* ret = NULL;
-	if (mapiter != mUserMap.end())
-	{
-		ret = (*mapiter).second;
-		mUserMap.erase(mapiter);
-		return ret;
-	}
+    ChatAvatarId* ret = NULL;
+    if (mapiter != mUserMap.end())
+    {
+        ret = (*mapiter).second;
+        mUserMap.erase(mapiter);
+        return ret;
+    }
 
-	return NULL;
+    return NULL;
 }
 
 
@@ -298,150 +298,150 @@ ChatAvatarId* Channel::removeUser(BString name)
 
 void Channel::addModerator(BString* name)
 {
-	BString* modName = new BString (name->getAnsi());
-	modName->toLower();
-	mModerators.insert(CrcStringPair(modName->getCrc(), modName));
+    BString* modName = new BString (name->getAnsi());
+    modName->toLower();
+    mModerators.insert(CrcStringPair(modName->getCrc(), modName));
 }
 
 //======================================================================================================================
 
 BString* Channel::removeModerator(BString name)
 {
-	NameByCrcMap::iterator iter = mModerators.find(name.getCrc());
-	BString* ret = NULL;
-	if (iter != mModerators.end())
-	{
-		ret = (*iter).second;
-		mModerators.erase(iter);
-	}
-	
-	return ret;
+    NameByCrcMap::iterator iter = mModerators.find(name.getCrc());
+    BString* ret = NULL;
+    if (iter != mModerators.end())
+    {
+        ret = (*iter).second;
+        mModerators.erase(iter);
+    }
+
+    return ret;
 }
 
 //======================================================================================================================
 
 bool Channel::isModerator(BString name) const
 {
-	// name.toLower(); // Always handle search-able names (data) as lowercase. 
-	NameByCrcMap::const_iterator iter = mModerators.find(name.getCrc());
-	return iter != mModerators.end();
+    // name.toLower(); // Always handle search-able names (data) as lowercase.
+    NameByCrcMap::const_iterator iter = mModerators.find(name.getCrc());
+    return iter != mModerators.end();
 }
 
 //======================================================================================================================
 
 bool Channel::isOwner(BString name) const
 {
-	return (strcmp(name.getAnsi(), mOwner->getLoweredName().getAnsi()) == 0);
+    return (strcmp(name.getAnsi(), mOwner->getLoweredName().getAnsi()) == 0);
 }
 
 //======================================================================================================================
 
 BString* Channel::removeInvitedUser(BString name)
 {
-	NameByCrcMap::iterator iter = mInvited.find(name.getCrc());
-	BString* ret = NULL;
-	if (iter != mInvited.end())
-	{
-		ret = (*iter).second;
-		mInvited.erase(iter);
-	}
+    NameByCrcMap::iterator iter = mInvited.find(name.getCrc());
+    BString* ret = NULL;
+    if (iter != mInvited.end())
+    {
+        ret = (*iter).second;
+        mInvited.erase(iter);
+    }
 
-	return ret;
+    return ret;
 }
 
 //======================================================================================================================
 
 bool Channel::isInvited(BString name) const
 {
-	// name.toLower(); // Always handle search-able names (data) as lowercase. 
-	NameByCrcMap::const_iterator iter = mInvited.find(name.getCrc());
-	return iter != mInvited.end();
+    // name.toLower(); // Always handle search-able names (data) as lowercase.
+    NameByCrcMap::const_iterator iter = mInvited.find(name.getCrc());
+    return iter != mInvited.end();
 }
 
 //======================================================================================================================
 
 BString* Channel::unBanUser(BString name)
 {
-	NameByCrcMap::iterator iter = mBanned.find(name.getCrc());
-	BString* ret = NULL;
-	if (iter != mBanned.end())
-	{
-		ret = (*iter).second;
-		mBanned.erase(iter);
-	}
+    NameByCrcMap::iterator iter = mBanned.find(name.getCrc());
+    BString* ret = NULL;
+    if (iter != mBanned.end())
+    {
+        ret = (*iter).second;
+        mBanned.erase(iter);
+    }
 
-	return ret;
+    return ret;
 }
 
 //======================================================================================================================
 
 void Channel::banUser(BString* name)
 {
-	BString* banName = new BString (name->getAnsi());
-	banName->toLower();
-	mBanned.insert(CrcStringPair(banName->getCrc(), banName));
+    BString* banName = new BString (name->getAnsi());
+    banName->toLower();
+    mBanned.insert(CrcStringPair(banName->getCrc(), banName));
 }
 
 //======================================================================================================================
 
 bool Channel::isBanned(BString name) const
 {
-	NameByCrcMap::const_iterator iter = mBanned.find(name.getCrc());
-	return iter != mBanned.end();
+    NameByCrcMap::const_iterator iter = mBanned.find(name.getCrc());
+    return iter != mBanned.end();
 }
 
 //======================================================================================================================
 
 void Channel::addInvitedUser(BString* name)
 {
-	BString* invName = new BString (name->getAnsi());
-	invName->toLower();
-	mInvited.insert(CrcStringPair(invName->getCrc(), invName));
+    BString* invName = new BString (name->getAnsi());
+    invName->toLower();
+    mInvited.insert(CrcStringPair(invName->getCrc(), invName));
 }
 
 //======================================================================================================================
 
 BString Channel::getFullPath() const
 {
-	BString path = "SWG.";
-	path << getGalaxy().getAnsi() << ".";
-	path << getName().getAnsi();
-	return path;
+    BString path = "SWG.";
+    path << getGalaxy().getAnsi() << ".";
+    path << getName().getAnsi();
+    return path;
 }
 
 //======================================================================================================================
 
 void Channel::clearChannel()
 {
-	ChatAvatarIdList::iterator iter = mUsers.begin();
-	while (!mUsers.empty())
-	{
-		delete (*iter);
-		mUsers.erase(iter);
-		iter = mUsers.begin();
-	}
+    ChatAvatarIdList::iterator iter = mUsers.begin();
+    while (!mUsers.empty())
+    {
+        delete (*iter);
+        mUsers.erase(iter);
+        iter = mUsers.begin();
+    }
 
-	NameByCrcMap::iterator seconditer = mModerators.begin();
-	while (!mModerators.empty())
-	{
-		delete (*seconditer).second;
-		mModerators.erase(seconditer);
-		seconditer = mModerators.begin();
-	}
+    NameByCrcMap::iterator seconditer = mModerators.begin();
+    while (!mModerators.empty())
+    {
+        delete (*seconditer).second;
+        mModerators.erase(seconditer);
+        seconditer = mModerators.begin();
+    }
 
-	seconditer = mInvited.begin();
-	while (!mInvited.empty())
-	{
-		delete (*seconditer).second;
-		mInvited.erase(seconditer);
-		seconditer = mInvited.begin();
-	}
+    seconditer = mInvited.begin();
+    while (!mInvited.empty())
+    {
+        delete (*seconditer).second;
+        mInvited.erase(seconditer);
+        seconditer = mInvited.begin();
+    }
 
-	seconditer = mBanned.begin();
-	while (!mBanned.empty())
-	{
-		delete (*seconditer).second;
-		mBanned.erase(seconditer);
-		seconditer = mBanned.begin();
-	}
+    seconditer = mBanned.begin();
+    while (!mBanned.empty())
+    {
+        delete (*seconditer).second;
+        mBanned.erase(seconditer);
+        seconditer = mBanned.begin();
+    }
 }

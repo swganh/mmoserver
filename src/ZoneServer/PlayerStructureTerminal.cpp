@@ -44,40 +44,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 PlayerStructureTerminal::PlayerStructureTerminal() : Terminal()
 {
-	mStructure = 0;
-	setStatic(true);
+    mStructure = 0;
+    setStatic(true);
 
-	
+
 }
 
 void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount)
 {
-	RadialMenu* radial	= new RadialMenu();
+    RadialMenu* radial	= new RadialMenu();
 
-	// any object with callbacks needs to handle those (received with menuselect messages) !
-	radial->addItem(1,0,radId_examine,radAction_Default,"");
-	radial->addItem(2,0,radId_serverTerminalManagement,radAction_ObjCallback,"@player_structure:management");
-	radial->addItem(3,0,radId_serverTerminalPermissions,radAction_ObjCallback, "@player_structure:permissions");
+    // any object with callbacks needs to handle those (received with menuselect messages) !
+    radial->addItem(1,0,radId_examine,radAction_Default,"");
+    radial->addItem(2,0,radId_serverTerminalManagement,radAction_ObjCallback,"@player_structure:management");
+    radial->addItem(3,0,radId_serverTerminalPermissions,radAction_ObjCallback, "@player_structure:permissions");
 
-	//test if the caller is on the permission list
+    //test if the caller is on the permission list
 
-	//radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"@player_structure:permission_destroy ");//destroy
+    //radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"@player_structure:permission_destroy ");//destroy
 
-	HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(this->getStructure()));
-	if(house)
-	{
-		radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"@player_structure:permission_destroy ");//destroy
-		radial->addItem(5,2,radId_serverTerminalManagementStatus,radAction_ObjCallback,"@player_structure:management_status");
-		radial->addItem(6,2,radId_serverTerminalManagementPay,radAction_ObjCallback,"@player_structure:management_pay");
-		radial->addItem(7,2,radId_serverTerminalManagementPrivacy,radAction_ObjCallback,"@player_structure:management_privacy");
+    HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(this->getStructure()));
+    if(house)
+    {
+        radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"@player_structure:permission_destroy ");//destroy
+        radial->addItem(5,2,radId_serverTerminalManagementStatus,radAction_ObjCallback,"@player_structure:management_status");
+        radial->addItem(6,2,radId_serverTerminalManagementPay,radAction_ObjCallback,"@player_structure:management_pay");
+        radial->addItem(7,2,radId_serverTerminalManagementPrivacy,radAction_ObjCallback,"@player_structure:management_privacy");
 
-		radial->addItem(8,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"@player_structure:permission_admin");
-		radial->addItem(9,3,radId_serverTerminalPermissionsBanned,radAction_ObjCallback,"@player_structure:permission_banned");
-		radial->addItem(10,3,radId_serverTerminalPermissionsEnter,radAction_ObjCallback,"@player_structure:permission_enter");
-	}
-  
-	RadialMenuPtr radialPtr(radial);
-	mRadialMenu = radialPtr;
+        radial->addItem(8,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"@player_structure:permission_admin");
+        radial->addItem(9,3,radId_serverTerminalPermissionsBanned,radAction_ObjCallback,"@player_structure:permission_banned");
+        radial->addItem(10,3,radId_serverTerminalPermissionsEnter,radAction_ObjCallback,"@player_structure:permission_enter");
+    }
+
+    RadialMenuPtr radialPtr(radial);
+    mRadialMenu = radialPtr;
 
 }
 
@@ -85,125 +85,125 @@ void PlayerStructureTerminal::prepareCustomRadialMenu(CreatureObject* player, ui
 
 PlayerStructureTerminal::~PlayerStructureTerminal()
 {
-	
+
 }
 
 //=============================================================================
 
 void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	PlayerObject* player = (PlayerObject*)srcObject;
+    PlayerObject* player = (PlayerObject*)srcObject;
 
-	if ((!player) ||(!player->isConnected()))
-	{
-		gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::could not find player");
-		return;
-	}
+    if ((!player) ||(!player->isConnected()))
+    {
+        gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::could not find player");
+        return;
+    }
 
-	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(this->getStructure()));
-	//this->getStructure()->toggleStateOn(PlayerStructureState_StartDestruction);
-	if(!structure)
-	{
-		gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::could not find structure %I64u",this->getStructure());
-		assert(false&&"PlayerStructureTerminal::handleObjectMenuSelect:: Panik!!! No structure");
-		return;
-	}
-	
-	switch(messageType)
-	{
-		case radId_serverTerminalPermissionsBanned:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionBan;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getStructure();
+    PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(this->getStructure()));
+    //this->getStructure()->toggleStateOn(PlayerStructureState_StartDestruction);
+    if(!structure)
+    {
+        gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::could not find structure %I64u",this->getStructure());
+        assert(false&&"PlayerStructureTerminal::handleObjectMenuSelect:: Panik!!! No structure");
+        return;
+    }
 
-			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
+    switch(messageType)
+    {
+    case radId_serverTerminalPermissionsBanned:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PermissionBan;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getStructure();
 
-		case radId_serverTerminalPermissionsEnter:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionEntry;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getStructure();
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
+    case radId_serverTerminalPermissionsEnter:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PermissionEntry;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getStructure();
 
-		case radId_serverTerminalPermissionsAdmin:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionAdmin;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getStructure();
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
+    case radId_serverTerminalPermissionsAdmin:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PermissionAdmin;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getStructure();
 
-		case radId_serverTerminalManagementPrivacy:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_Privacy;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getStructure();
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
+    case radId_serverTerminalManagementPrivacy:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_Privacy;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getStructure();
 
-		case radId_serverTerminalManagementDestroy: 
-		{
-			//one of the following states set???
-			if((structure->checkStatesEither(PlayerStructureState_Destroy)))
-			{
-				//dont start structure destruction more than once
-				gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::structure in the process of being deleted");
-				return;
-			}
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_Destroy;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getStructure();
+    case radId_serverTerminalManagementDestroy:
+    {
+        //one of the following states set???
+        if((structure->checkStatesEither(PlayerStructureState_Destroy)))
+        {
+            //dont start structure destruction more than once
+            gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::structure in the process of being deleted");
+            return;
+        }
 
-			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-			
-		}
-		break;
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_Destroy;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getStructure();
 
-		case radId_serverTerminalManagementStatus:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_ViewStatus;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getStructure();
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-			
-		}
-		break;
+    case radId_serverTerminalManagementStatus:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_ViewStatus;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getStructure();
 
-		case radId_serverTerminalManagementPay:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PayMaintenance;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getStructure();
-
-			gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-			
-		}
-		break;
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
 
-		default:
-			break;
-	}
+    }
+    break;
+
+    case radId_serverTerminalManagementPay:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PayMaintenance;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getStructure();
+
+        gStructureManager->checkNameOnPermissionList(this->getStructure(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+    }
+    break;
+
+
+    default:
+        break;
+    }
 
 }
 
@@ -212,34 +212,34 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 
 void PlayerStructureTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-	// gLogger->log(LogManager::DEBUG,"InsuranceTerminal::handleUIEvent You are here!",MSG_NORMAL);
+    // gLogger->log(LogManager::DEBUG,"InsuranceTerminal::handleUIEvent You are here!",MSG_NORMAL);
 
-	if(window == NULL)
-	{
-		return;
-	}
+    if(window == NULL)
+    {
+        return;
+    }
 
-	PlayerObject* playerObject = window->getOwner(); // window owner
+    PlayerObject* playerObject = window->getOwner(); // window owner
 
-	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
-	{
-		return;
-	}
-   /*
-	switch(window->getWindowType())
-	{
-		
-	
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
+    {
+        return;
+    }
+    /*
+    switch(window->getWindowType())
+    {
 
-	
 
-	
 
-		default:
-		{
-		}
-		break;
-	}
-	 */
-	// gLogger->log(LogManager::DEBUG,"CloningTerminal::handleUIEvent You sure handled this UI-event!, Action = %d", action);
+
+
+
+
+    	default:
+    	{
+    	}
+    	break;
+    }
+     */
+    // gLogger->log(LogManager::DEBUG,"CloningTerminal::handleUIEvent You sure handled this UI-event!, Action = %d", action);
 }

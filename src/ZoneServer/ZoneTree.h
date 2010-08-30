@@ -45,55 +45,57 @@ typedef std::list<Object*>	ObjectList;
 
 class MyVisitor : public SpatialIndex::IVisitor
 {
-	public:
+public:
 
-		MyVisitor(ObjectIdList* objList) { mvObjList = objList; }
-        void visitNode(const SpatialIndex::INode& n){}
+    MyVisitor(ObjectIdList* objList) {
+        mvObjList = objList;
+    }
+    void visitNode(const SpatialIndex::INode& n) {}
 
-        void visitData(const SpatialIndex::IData& d)
-		{
-			mvObjList->push_back(d.getIdentifier());
-		}
+    void visitData(const SpatialIndex::IData& d)
+    {
+        mvObjList->push_back(d.getIdentifier());
+    }
 
-        void visitData(std::vector<const SpatialIndex::IData*>& v) {}
+    void visitData(std::vector<const SpatialIndex::IData*>& v) {}
 
-	private:
+private:
 
-		ObjectIdList*	mvObjList;
+    ObjectIdList*	mvObjList;
 };
 
 //======================================================================================================================
 
 class ZoneTree
 {
-	public:
+public:
 
-		ZoneTree();
-		~ZoneTree();
+    ZoneTree();
+    ~ZoneTree();
 
-		void			Init(double fillFactor, uint32 indexCap, uint32 leafCap, uint32 dimensions, double horizon);
-		void			ShutDown();
+    void			Init(double fillFactor, uint32 indexCap, uint32 leafCap, uint32 dimensions, double horizon);
+    void			ShutDown();
 
-		void			DumpStats();
+    void			DumpStats();
 
-		void			insertQTRegion(int64 objId, double x, double z, double width, double height);
-		void			InsertPoint(int64 objId, double x, double z);
-		void			InsertRegion(int64 objId, double x, double z, double width, double height);
-		void			RemovePoint(int64 objId, double x, double z);
-		void			RemoveRegion(int64 objId, double xLow, double zLow, double xHigh, double zHigh);
+    void			insertQTRegion(int64 objId, double x, double z, double width, double height);
+    void			InsertPoint(int64 objId, double x, double z);
+    void			InsertRegion(int64 objId, double x, double z, double width, double height);
+    void			RemovePoint(int64 objId, double x, double z);
+    void			RemoveRegion(int64 objId, double xLow, double zLow, double xHigh, double zHigh);
 
-		void			getObjectsInRange(const Object* const object, ObjectSet* resultSet, uint32 objTypes, float range, bool cellContent = false);
-		void			getObjectsInRangeIntersection(Object* object, ObjectSet* resultSet, uint32 objTypes, float range);
-		void			getObjectsInRangeEx(Object* object, ObjectSet* resultSet, uint32 objTypes, float range);
-		QTRegion*		getQTRegion(double x, double z);
+    void			getObjectsInRange(const Object* const object, ObjectSet* resultSet, uint32 objTypes, float range, bool cellContent = false);
+    void			getObjectsInRangeIntersection(Object* object, ObjectSet* resultSet, uint32 objTypes, float range);
+    void			getObjectsInRangeEx(Object* object, ObjectSet* resultSet, uint32 objTypes, float range);
+    QTRegion*		getQTRegion(double x, double z);
 
-	private:
+private:
 
-        SpatialIndex::IStorageManager*			mStorageManager;
-        SpatialIndex::StorageManager::IBuffer*	mStorageBuffer;
-        SpatialIndex::ISpatialIndex*			mTree;
-		int64						            mIndexIdentifier;
-		Tools::ResourceUsage 		            mResourceUsage;
+    SpatialIndex::IStorageManager*			mStorageManager;
+    SpatialIndex::StorageManager::IBuffer*	mStorageBuffer;
+    SpatialIndex::ISpatialIndex*			mTree;
+    int64						            mIndexIdentifier;
+    Tools::ResourceUsage 		            mResourceUsage;
 };
 
 //======================================================================================================================

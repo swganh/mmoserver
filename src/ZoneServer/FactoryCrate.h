@@ -34,38 +34,60 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class FactoryCrate : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		FactoryCrate();
-		virtual ~FactoryCrate();
-		
+    FactoryCrate();
+    virtual ~FactoryCrate();
 
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void			sendAttributes(PlayerObject* playerObject);
 
-		virtual void	upDateFactoryVolume(BString amount);
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void			sendAttributes(PlayerObject* playerObject);
 
-		TangibleObject*	getLinkedObject();
-		int32			decreaseContent(uint32 amount);
-		
-		//the amount of stuff *virtually* in us while iterating through the slots while crafting
-		uint32			getTempAmount(){ return mTempAmount; }
-		uint32			decTempAmount(uint32 c){ if(c>mTempAmount) return 0; return mTempAmount-c; }
-		void			incTempAmount(uint32 c){ mTempAmount+=c; }
-		void			setTempAmount(uint32 c){ mTempAmount= c; }
+    virtual void	upDateFactoryVolume(BString amount);
 
-		//the amount of slots were linked to
-		uint32			getSlotCount(){ return mTempAmount; }
-		uint32			decSlotCount(uint32 c){ if(c>mTempAmount){mTempAmount = 0; return 0;} mTempAmount-=c; return mTempAmount-c; }
-		void			incSlotCount(uint32 c){ mTempAmount+=c; }
-		void			setSlotCount(uint32 c){ mTempAmount= c; }
+    TangibleObject*	getLinkedObject();
+    int32			decreaseContent(uint32 amount);
 
-	private:
-		uint32 mTempAmount;
-		uint32 mSlotCount;
+    //the amount of stuff *virtually* in us while iterating through the slots while crafting
+    uint32			getTempAmount() {
+        return mTempAmount;
+    }
+    uint32			decTempAmount(uint32 c) {
+        if(c>mTempAmount) return 0;
+        return mTempAmount-c;
+    }
+    void			incTempAmount(uint32 c) {
+        mTempAmount+=c;
+    }
+    void			setTempAmount(uint32 c) {
+        mTempAmount= c;
+    }
+
+    //the amount of slots were linked to
+    uint32			getSlotCount() {
+        return mTempAmount;
+    }
+    uint32			decSlotCount(uint32 c) {
+        if(c>mTempAmount) {
+            mTempAmount = 0;
+            return 0;
+        }
+        mTempAmount-=c;
+        return mTempAmount-c;
+    }
+    void			incSlotCount(uint32 c) {
+        mTempAmount+=c;
+    }
+    void			setSlotCount(uint32 c) {
+        mTempAmount= c;
+    }
+
+private:
+    uint32 mTempAmount;
+    uint32 mSlotCount;
 };
 
 //=============================================================================

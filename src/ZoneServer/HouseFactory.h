@@ -46,12 +46,12 @@ class HouseObject;
 
 enum HOFQuery
 {
-	HOFQuery_MainData					= 1,
+    HOFQuery_MainData					= 1,
     HOFQuery_AttributeData				= 2,
-	HOFQuery_AdminData					= 3,
-	HOFQuery_CellData					= 4
-	
-	
+    HOFQuery_AdminData					= 3,
+    HOFQuery_CellData					= 4
+
+
 
 };
 
@@ -59,34 +59,36 @@ enum HOFQuery
 
 class HouseFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static HouseFactory*	getSingletonPtr() { return mSingleton; }
-		static HouseFactory*	Init(Database* database);
+    static HouseFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static HouseFactory*	Init(Database* database);
 
-		~HouseFactory();
+    ~HouseFactory();
 
-		virtual void	handleObjectReady(Object* object,DispatchClient* client);
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void	handleObjectReady(Object* object,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-		void			releaseAllPoolsMemory();
+    void			releaseAllPoolsMemory();
 
-	private:
+private:
 
-		HouseFactory(Database* database);
+    HouseFactory(Database* database);
 
-		void			_setupDatabindings();
-		void			_destroyDatabindings();
+    void			_setupDatabindings();
+    void			_destroyDatabindings();
 
-		void			_createHouse(DatabaseResult* result, HouseObject* house);
+    void			_createHouse(DatabaseResult* result, HouseObject* house);
 
-		static HouseFactory*		mSingleton;
-		static bool					mInsFlag;
+    static HouseFactory*		mSingleton;
+    static bool					mInsFlag;
 
 
-		CellFactory*				mCellFactory;
-		DataBinding*				mHouseBinding;
+    CellFactory*				mCellFactory;
+    DataBinding*				mHouseBinding;
 
 };
 

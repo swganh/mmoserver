@@ -35,9 +35,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TimerCallback
 {
-	public:
-		virtual void	handleTimer(uint32 timerId, void* container) {};
+public:
+    virtual void	handleTimer(uint32 timerId, void* container) {};
 };
 
-#endif 
+#endif
 

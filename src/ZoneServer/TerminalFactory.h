@@ -44,8 +44,8 @@ class Terminal;
 
 enum TFQuery
 {
-	TFQuery_MainData		= 1,
-	TFQuery_ElevatorData	= 2
+    TFQuery_MainData		= 1,
+    TFQuery_ElevatorData	= 2
 };
 
 //=============================================================================
@@ -54,36 +54,38 @@ class TerminalFactory : public FactoryBase
 {
 public:
 
-	static TerminalFactory*	getSingletonPtr() { return mSingleton; }
-	static TerminalFactory*	Init(Database* database);
+    static TerminalFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static TerminalFactory*	Init(Database* database);
 
-	~TerminalFactory();
+    ~TerminalFactory();
 
-	void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-	void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
 private:
 
-	TerminalFactory(Database* database);
+    TerminalFactory(Database* database);
 
-	void			_setupDatabindings();
-	void			_destroyDatabindings();
+    void			_setupDatabindings();
+    void			_destroyDatabindings();
 
-	Terminal*		_createTerminal(DatabaseResult* result);
+    Terminal*		_createTerminal(DatabaseResult* result);
 
-	static TerminalFactory*		mSingleton;
-	static bool					mInsFlag;
+    static TerminalFactory*		mSingleton;
+    static bool					mInsFlag;
 
-	DataBinding*				mBazaarMainDataBinding;
-	DataBinding*				mCloningMainDataBinding;
-	DataBinding*				mInsuranceMainDataBinding;
-	DataBinding*				mCharacterBuilderMainDataBinding;
-	DataBinding*				mMissionMainDataBinding;
-	DataBinding*				mTravelMainDataBinding;
-	DataBinding*				mBankMainDataBinding;
-	DataBinding*				mElevatorMainDataBinding;
-	DataBinding*				mElevetorDataUpBinding;
-	DataBinding*				mElevetorDataDownBinding;
+    DataBinding*				mBazaarMainDataBinding;
+    DataBinding*				mCloningMainDataBinding;
+    DataBinding*				mInsuranceMainDataBinding;
+    DataBinding*				mCharacterBuilderMainDataBinding;
+    DataBinding*				mMissionMainDataBinding;
+    DataBinding*				mTravelMainDataBinding;
+    DataBinding*				mBankMainDataBinding;
+    DataBinding*				mElevatorMainDataBinding;
+    DataBinding*				mElevetorDataUpBinding;
+    DataBinding*				mElevetorDataDownBinding;
 };
 
 

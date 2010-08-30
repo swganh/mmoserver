@@ -31,11 +31,11 @@ bool IsPointInRectangle(const glm::vec2& check_point, const glm::vec2& rectangle
     // Get nobuild lower right and upper left corners.
     glm::vec2 lower_left(rectangle_center.x - (0.5*width), rectangle_center.y - (0.5*height));
     glm::vec2 upper_right(rectangle_center.x + (0.5*width), rectangle_center.y + (0.5*height));
-    
+
     // Check and see if the player is within this no build region.
     glm::vec2::bool_type greater_than = glm::greaterThanEqual(check_point, lower_left);
     glm::vec2::bool_type less_than = glm::lessThanEqual(check_point, upper_right);
-    
+
     if (greater_than.x && greater_than.y && less_than.x && less_than.y) {
         return true;
     }

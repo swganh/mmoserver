@@ -46,69 +46,99 @@ typedef std::set<uint64>						VisitorSet;
 class CampRegion : public RegionObject
 {
 
-	public:
+public:
 
-		CampRegion();
-		virtual ~CampRegion();
+    CampRegion();
+    virtual ~CampRegion();
 
 
-		virtual void	update();
-		virtual void	onObjectEnter(Object* object);
-		virtual void	onObjectLeave(Object* object);
+    virtual void	update();
+    virtual void	onObjectEnter(Object* object);
+    virtual void	onObjectLeave(Object* object);
 
-				void	setOwner(uint64 owner){mOwnerId = owner;}
-				uint64	getOwner(){return mOwnerId;}
+    void	setOwner(uint64 owner) {
+        mOwnerId = owner;
+    }
+    uint64	getOwner() {
+        return mOwnerId;
+    }
 
-				void	setAbandoned(bool mmh){mAbandoned = mmh;}
-				uint64	getAbandoned(){return mAbandoned;}
-				
-				void	setMaxXp(uint32 max){mXpMax = max;}
-				uint32	getMaxXp(){return mXpMax;}
+    void	setAbandoned(bool mmh) {
+        mAbandoned = mmh;
+    }
+    uint64	getAbandoned() {
+        return mAbandoned;
+    }
 
-				void	setCamp(uint64 id){mCampId = id;}
-				uint64	getCamp(){return mCampId;}
+    void	setMaxXp(uint32 max) {
+        mXpMax = max;
+    }
+    uint32	getMaxXp() {
+        return mXpMax;
+    }
 
-				uint64	getUpTime(){return((gWorldManager->GetCurrentGlobalTick() - mSetUpTime)/1000);}
-				
-				uint32	getVisitors(){return(mVisitorSet.size());}
-				uint32	getCurrentVisitors(){return(mKnownPlayers.size());}
-				
+    void	setCamp(uint64 id) {
+        mCampId = id;
+    }
+    uint64	getCamp() {
+        return mCampId;
+    }
 
-				void	setCampOwnerName(BString name){mOwnerName = name;}
-				BString	getCampOwnerName(){return mOwnerName;}
+    uint64	getUpTime() {
+        return((gWorldManager->GetCurrentGlobalTick() - mSetUpTime)/1000);
+    }
 
-				void	setHealingModifier(float mod){mHealingModifier = mod;}
-				float	getHealingModifier(){return mHealingModifier;}
+    uint32	getVisitors() {
+        return(mVisitorSet.size());
+    }
+    uint32	getCurrentVisitors() {
+        return(mKnownPlayers.size());
+    }
 
-				void	despawnCamp();
-				void	applyHAMHealing(Object* object);
-				void	applyWoundHealing(Object* object);
-				void	applyXp();
 
-	protected:
+    void	setCampOwnerName(BString name) {
+        mOwnerName = name;
+    }
+    BString	getCampOwnerName() {
+        return mOwnerName;
+    }
 
-		ZoneTree*			mSI;
-		QTRegion*			mQTRegion;
-		Anh_Math::Rectangle mQueryRect;
-		uint64				mCampId;
-		uint64				mOwnerId;
-		bool				mAbandoned;
-		uint64				mSetUpTime;
-		//uint64				mLeftTime;
-		uint64				mExpiresTime;
-		uint32				mXpMax;
-		uint32				mXp;
-		BString				mOwnerName;
-		float				mHealingModifier;
+    void	setHealingModifier(float mod) {
+        mHealingModifier = mod;
+    }
+    float	getHealingModifier() {
+        return mHealingModifier;
+    }
 
-		uint32				mHealingDone;
+    void	despawnCamp();
+    void	applyHAMHealing(Object* object);
+    void	applyWoundHealing(Object* object);
+    void	applyXp();
 
-		bool				mDestroyed;
+protected:
 
-		VisitorSet			mVisitorSet;
+    ZoneTree*			mSI;
+    QTRegion*			mQTRegion;
+    Anh_Math::Rectangle mQueryRect;
+    uint64				mCampId;
+    uint64				mOwnerId;
+    bool				mAbandoned;
+    uint64				mSetUpTime;
+    //uint64				mLeftTime;
+    uint64				mExpiresTime;
+    uint32				mXpMax;
+    uint32				mXp;
+    BString				mOwnerName;
+    float				mHealingModifier;
 
-		struct				campLink;
-		std::list<campLink*>	links;
+    uint32				mHealingDone;
+
+    bool				mDestroyed;
+
+    VisitorSet			mVisitorSet;
+
+    struct				campLink;
+    std::list<campLink*>	links;
 };
 
 

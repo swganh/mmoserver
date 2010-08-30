@@ -37,18 +37,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class SurveyEvent : public Anh_Utils::Event
 {
-	public:
+public:
 
-		SurveyEvent(/*PlayerObject* player,*/ SurveyTool* tool,CurrentResource* resource) : mTool(tool),mResource(resource){}//,mPlayer(player){}
+    SurveyEvent(/*PlayerObject* player,*/ SurveyTool* tool,CurrentResource* resource) : mTool(tool),mResource(resource) {} //,mPlayer(player){}
 
-		//PlayerObject*		getPlayer() const { return mPlayer;}
-		SurveyTool*			getTool() const { return mTool; }
-		CurrentResource*	getResource() const { return mResource; }
+    //PlayerObject*		getPlayer() const { return mPlayer;}
+    SurveyTool*			getTool() const {
+        return mTool;
+    }
+    CurrentResource*	getResource() const {
+        return mResource;
+    }
 
-	private:
-		//PlayerObject*		mPlayer;
-		SurveyTool*			mTool;
-		CurrentResource*	mResource;
+private:
+    //PlayerObject*		mPlayer;
+    SurveyTool*			mTool;
+    CurrentResource*	mResource;
 };
 
 

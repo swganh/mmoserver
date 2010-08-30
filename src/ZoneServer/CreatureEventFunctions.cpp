@@ -39,43 +39,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 {
-	if (mPosture == CreaturePosture_Dead)
-	{
-		// Forget it, you are dead!
-		return;
-	}
+    if (mPosture == CreaturePosture_Dead)
+    {
+        // Forget it, you are dead!
+        return;
+    }
 
-	if (this->getType() == ObjType_Player)
-	{
-		mCurrentIncapTime = 0;
-		gMessageLib->sendIncapTimerUpdate(this);
+    if (this->getType() == ObjType_Player)
+    {
+        mCurrentIncapTime = 0;
+        gMessageLib->sendIncapTimerUpdate(this);
 
-		// update the posture and locomotion (this needs to be reworked)
-		mPosture = CreaturePosture_Upright;
-		setLocomotionByPosture(mPosture);
+        // update the posture and locomotion (this needs to be reworked)
+        mPosture = CreaturePosture_Upright;
+        setLocomotionByPosture(mPosture);
 
-		// reset ham regeneration
-		mHam.updateRegenRates();
-		if (mHam.getTaskId() == 0)
-		{
-			mHam.setTaskId(gWorldManager->addCreatureHamToProccess(&mHam));
-		}
+        // reset ham regeneration
+        mHam.updateRegenRates();
+        if (mHam.getTaskId() == 0)
+        {
+            mHam.setTaskId(gWorldManager->addCreatureHamToProccess(&mHam));
+        }
 
-		updateMovementProperties();
+        updateMovementProperties();
 
-		gMessageLib->sendPostureAndStateUpdate(this);
+        gMessageLib->sendPostureAndStateUpdate(this);
 
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
-		{
-			gMessageLib->sendUpdateMovementProperties(player);
-			gMessageLib->sendSelfPostureUpdate(player);
-		}
-	}
-	else if (this->getType() == ObjType_Creature)
-	{
-		// Placeholder for debug purpose only.
-	}
-	
+        if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
+        {
+            gMessageLib->sendUpdateMovementProperties(player);
+            gMessageLib->sendSelfPostureUpdate(player);
+        }
+    }
+    else if (this->getType() == ObjType_Creature)
+    {
+        // Placeholder for debug purpose only.
+    }
+
 }
 
 //=============================================================================

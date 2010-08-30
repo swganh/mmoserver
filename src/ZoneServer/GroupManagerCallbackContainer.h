@@ -31,26 +31,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 
 #ifndef GROUP_MANAGER_CALLBACK_H
-	class GroupManagerCallback;
+class GroupManagerCallback;
 #endif
 
 enum GroupManagerCallback_OperationTypes
 {
-	GROUPMANAGERCALLBACK_STARTBAND		= 0,
-	GROUPMANAGERCALLBACK_STOPBAND		= 1,
-	GROUPMANAGERCALLBACK_BANDFLOURISH	= 2
+    GROUPMANAGERCALLBACK_STARTBAND		= 0,
+    GROUPMANAGERCALLBACK_STOPBAND		= 1,
+    GROUPMANAGERCALLBACK_BANDFLOURISH	= 2
 };
 
 class GroupManagerCallbackContainer
 {
 public:
-	uint32 operation;
-	bool isLeader;
-	BString arg;
-	uint32 flourishId;
-	uint64 requestingPlayer;
+    uint32 operation;
+    bool isLeader;
+    BString arg;
+    uint32 flourishId;
+    uint64 requestingPlayer;
 
-	GroupManagerCallback* callback;
+    GroupManagerCallback* callback;
 };
 
 #endif

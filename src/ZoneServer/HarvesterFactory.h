@@ -1,4 +1,4 @@
-	   /*
+/*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -45,11 +45,11 @@ class HarvesterObject;
 
 enum HFQuery
 {
-	HFQuery_MainData		= 1,
-	HFQuery_ResourceData	= 2,
-	HFQuery_byDeed			= 3,
-	HFQuery_AdminData		= 4,
-	HFQuery_AttributeData	= 5
+    HFQuery_MainData		= 1,
+    HFQuery_ResourceData	= 2,
+    HFQuery_byDeed			= 3,
+    HFQuery_AdminData		= 4,
+    HFQuery_AttributeData	= 5
 
 };
 
@@ -57,33 +57,35 @@ enum HFQuery
 
 class HarvesterFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static HarvesterFactory*	getSingletonPtr() { return mSingleton; }
-		static HarvesterFactory*	Init(Database* database);
+    static HarvesterFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static HarvesterFactory*	Init(Database* database);
 
-		~HarvesterFactory();
+    ~HarvesterFactory();
 
-		virtual void	handleObjectReady(Object* object,DispatchClient* client);
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void	handleObjectReady(Object* object,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-		void			releaseAllPoolsMemory();
+    void			releaseAllPoolsMemory();
 
-	private:
+private:
 
-		HarvesterFactory(Database* database);
+    HarvesterFactory(Database* database);
 
-		void			_setupDatabindings();
-		void			_destroyDatabindings();
+    void			_setupDatabindings();
+    void			_destroyDatabindings();
 
-		void			_createHarvester(DatabaseResult* result, HarvesterObject* harvester);
+    void			_createHarvester(DatabaseResult* result, HarvesterObject* harvester);
 
-		static HarvesterFactory*	mSingleton;
-		static bool					mInsFlag;
+    static HarvesterFactory*	mSingleton;
+    static bool					mInsFlag;
 
 
-		DataBinding*				mHarvesterBinding;
+    DataBinding*				mHarvesterBinding;
 
 };
 

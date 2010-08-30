@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 SurveyTool::SurveyTool() : Item()
 {
-    
+
 }
 
 //=============================================================================
@@ -89,55 +89,55 @@ void SurveyTool::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     // bring up the surve ui
     switch(messageType)
     {
-        case radId_itemUse:
+    case radId_itemUse:
+    {
+        //We only need to check this when using the tool's functions!
+
+        if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->isDead())
         {
-            //We only need to check this when using the tool's functions!
-
-            if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->isDead())
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_cant"), playerObject);
-                return;
-            }
-
-            // verify we are able to use this
-            if(!(playerObject->verifyAbility(opOCsurvey)))
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_skill"), playerObject);
-                return;
-            }
-
-            if(playerObject->getParentId())
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
-                return;
-            }
-
-            //check whether the tool is initialized already - if not initialize
-
-            int32	range	= getInternalAttribute<int32>("survey_range");
-            if(range < 0 )
-            {
-                _createRangeMenu(playerObject, true);
-                return;
-            }
-
-            StartUsing(playerObject);
-
-
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_cant"), playerObject);
+            return;
         }
-        break;
 
-        case radId_serverSurveyToolRange:
+        // verify we are able to use this
+        if(!(playerObject->verifyAbility(opOCsurvey)))
         {
-            if(!(playerObject->verifyAbility(opOCsurvey)))
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_skill"), playerObject);
-                return;
-            }
-
-            _createRangeMenu(playerObject);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_skill"), playerObject);
+            return;
         }
-        break;
+
+        if(playerObject->getParentId())
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
+            return;
+        }
+
+        //check whether the tool is initialized already - if not initialize
+
+        int32	range	= getInternalAttribute<int32>("survey_range");
+        if(range < 0 )
+        {
+            _createRangeMenu(playerObject, true);
+            return;
+        }
+
+        StartUsing(playerObject);
+
+
+    }
+    break;
+
+    case radId_serverSurveyToolRange:
+    {
+        if(!(playerObject->verifyAbility(opOCsurvey)))
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_skill"), playerObject);
+            return;
+        }
+
+        _createRangeMenu(playerObject);
+    }
+    break;
     }
 }
 
@@ -193,17 +193,23 @@ void SurveyTool::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWi
 
         switch(element)
         {
-            case 1: case 2: points = 4; break;
-            case 3: case 4: points = 5; break;
+        case 1:
+        case 2:
+            points = 4;
+            break;
+        case 3:
+        case 4:
+            points = 5;
+            break;
         }
 
         setInternalAttribute("survey_range",boost::lexical_cast<std::string>(range));
         setInternalAttribute("survey_points",boost::lexical_cast<std::string>(points));
 
-        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId);				
+        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId);
         gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=6",range,mId); // SQL Debug Log
-        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);					
-        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);	 // SQL Debug Log	
+        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value=%u WHERE item_id=%"PRIu64" AND attribute_id=7",points,mId);	 // SQL Debug Log
     }
     else
         // make the player set the range before they can use the tool

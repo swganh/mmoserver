@@ -36,13 +36,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 Stomach::Stomach(PlayerObject* parent)
 {
-	mParent = parent;
-	mFoodMax = 100;
-	mDrinkMax = 100;
-	mFood = 0;
-	mDrink = 0;
-	mDrinkTaskId=0;
-	mFoodTaskId=0;
+    mParent = parent;
+    mFoodMax = 100;
+    mDrinkMax = 100;
+    mFood = 0;
+    mDrink = 0;
+    mDrinkTaskId=0;
+    mFoodTaskId=0;
 }
 
 //=======================================================================
@@ -52,46 +52,46 @@ Stomach::~Stomach()
 }
 bool Stomach::regenDrink(uint64 time,void*)
 {
-	if(mDrink==0) 
-	{
-		return true;
-	}
+    if(mDrink==0)
+    {
+        return true;
+    }
 
-	if(mDrink >= (mDrinkMax/100)) 
-	{
-		mDrink-= (mDrinkMax/100); 
-	}
-	else {
-		mDrink = 0; 
-	}
-	gMessageLib->sendDrinkUpdate(mParent);
+    if(mDrink >= (mDrinkMax/100))
+    {
+        mDrink-= (mDrinkMax/100);
+    }
+    else {
+        mDrink = 0;
+    }
+    gMessageLib->sendDrinkUpdate(mParent);
 
-	return true; 
+    return true;
 }
 bool Stomach::regenFood(uint64 time,void*)
 {
-	if(mFood==0) {
-		return true;
-	}
+    if(mFood==0) {
+        return true;
+    }
 
-	if(mFood >= (mFoodMax/100))
-		mFood-= (mFoodMax/100); 
-	else 
-		mFood = 0; 
+    if(mFood >= (mFoodMax/100))
+        mFood-= (mFoodMax/100);
+    else
+        mFood = 0;
 
-	gMessageLib->sendFoodUpdate(mParent);
+    gMessageLib->sendFoodUpdate(mParent);
 
-	return true; 
+    return true;
 }
 //=======================================================================
 void Stomach::checkForRegen()
 {
-	if(!mDrinkTaskId)
-	{
-		mDrinkTaskId = gWorldManager->addCreatureDrinkToProccess(this);
-	}
-	if(!mFoodTaskId)
-	{
-		mFoodTaskId = gWorldManager->addCreatureFoodToProccess(this);
-	}
+    if(!mDrinkTaskId)
+    {
+        mDrinkTaskId = gWorldManager->addCreatureDrinkToProccess(this);
+    }
+    if(!mFoodTaskId)
+    {
+        mFoodTaskId = gWorldManager->addCreatureFoodToProccess(this);
+    }
 }

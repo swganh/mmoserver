@@ -48,32 +48,34 @@ class MessageDispatch;
 
 class GroupManagerHandler : public DatabaseCallback
 {
-	public:
+public:
 
-		static GroupManagerHandler*	getSingletonPtr() { return mSingleton; }
-		static GroupManagerHandler*	Init(Database* database,MessageDispatch* dispatch);
+    static GroupManagerHandler*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static GroupManagerHandler*	Init(Database* database,MessageDispatch* dispatch);
 
-		GroupManagerHandler(Database* database,MessageDispatch* dispatch);
-		~GroupManagerHandler();
+    GroupManagerHandler(Database* database,MessageDispatch* dispatch);
+    ~GroupManagerHandler();
 
-		void				Shutdown();
-		
+    void				Shutdown();
 
-	private:
 
-		void				_processIsmInviteRequest(Message* message, DispatchClient* client);
-		void				_processIsmGroupCREO6deltaGroupId(Message* message, DispatchClient* client);
-		void				_processIsmGroupLootModeResponse(Message* message, DispatchClient* client);
-		void				_processIsmGroupLootMasterResponse(Message* message, DispatchClient* client);
+private:
 
-		static GroupManagerHandler*	mSingleton;
-		static bool					mInsFlag;
+    void				_processIsmInviteRequest(Message* message, DispatchClient* client);
+    void				_processIsmGroupCREO6deltaGroupId(Message* message, DispatchClient* client);
+    void				_processIsmGroupLootModeResponse(Message* message, DispatchClient* client);
+    void				_processIsmGroupLootMasterResponse(Message* message, DispatchClient* client);
 
-		Database*					mDatabase;
-		MessageDispatch*			mMessageDispatch;
+    static GroupManagerHandler*	mSingleton;
+    static bool					mInsFlag;
 
-		
+    Database*					mDatabase;
+    MessageDispatch*			mMessageDispatch;
+
+
 };
 
-#endif 
+#endif
 

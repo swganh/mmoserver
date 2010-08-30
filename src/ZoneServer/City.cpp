@@ -35,11 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 City::City() : RegionObject(),
-mSI(gWorldManager->getSI()),
-mQTRegion(NULL)
+    mSI(gWorldManager->getSI()),
+    mQTRegion(NULL)
 {
-	mActive		= false;
-	mRegionType = Region_City;
+    mActive		= false;
+    mRegionType = Region_City;
 }
 
 //=============================================================================
@@ -52,63 +52,63 @@ City::~City()
 
 void City::update()
 {
-	if(!mSubZoneId)
-	{
-		mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
-		mSubZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth * 2,mHeight * 2);
-	}
+    if(!mSubZoneId)
+    {
+        mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
+        mSubZoneId	= (uint32)mQTRegion->getId();
+        mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth * 2,mHeight * 2);
+    }
 
-	Object*		object;
-	ObjectSet	objList;
-	
-	mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
+    Object*		object;
+    ObjectSet	objList;
 
-	if(mQTRegion)
-	{
-		mQTRegion->mTree->getObjectsInRange(this,&objList,ObjType_Player,&mQueryRect);
-	}
+    mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
 
-	ObjectSet::iterator objIt = objList.begin();
+    if(mQTRegion)
+    {
+        mQTRegion->mTree->getObjectsInRange(this,&objList,ObjType_Player,&mQueryRect);
+    }
 
-	while(objIt != objList.end())
-	{
-		object = (*objIt);
+    ObjectSet::iterator objIt = objList.begin();
 
-		if(!(checkKnownObjects(object)))
-		{
-			onObjectEnter(object);
-		}
+    while(objIt != objList.end())
+    {
+        object = (*objIt);
 
-		++objIt;
-	}
+        if(!(checkKnownObjects(object)))
+        {
+            onObjectEnter(object);
+        }
 
-	ObjectSet oldKnownObjects = mKnownObjects;
-	ObjectSet::iterator objSetIt = oldKnownObjects.begin();
+        ++objIt;
+    }
 
-	while(objSetIt != oldKnownObjects.end())
-	{
-		object = (*objSetIt);
+    ObjectSet oldKnownObjects = mKnownObjects;
+    ObjectSet::iterator objSetIt = oldKnownObjects.begin();
 
-		if(objList.find(object) == objList.end())
-		{
-			onObjectLeave(object);
-		}
+    while(objSetIt != oldKnownObjects.end())
+    {
+        object = (*objSetIt);
 
-		++objSetIt;
-	}
+        if(objList.find(object) == objList.end())
+        {
+            onObjectLeave(object);
+        }
+
+        ++objSetIt;
+    }
 }
 
 //=============================================================================
 
 void City::onObjectEnter(Object* object)
 {
-	PlayerObject* player = (PlayerObject*)object;
-	//player->setCityRegionId(this->getId());
+    PlayerObject* player = (PlayerObject*)object;
+    //player->setCityRegionId(this->getId());
 
-	addKnownObjectSafe(object);
+    addKnownObjectSafe(object);
 
-	gLogger->log(LogManager::INFORMATION,"%s entered %s (%u players in city)",player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
+    gLogger->log(LogManager::INFORMATION,"%s entered %s (%u players in city)",player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
 }
 
 //=============================================================================
@@ -116,14 +116,14 @@ void City::onObjectEnter(Object* object)
 void City::onObjectLeave(Object* object)
 {
 
-	PlayerObject* player = (PlayerObject*)object;
+    PlayerObject* player = (PlayerObject*)object;
 
-	//if(player->getCityRegionId() == this->getId())
-		//player->setCityRegionId(0);
+    //if(player->getCityRegionId() == this->getId())
+    //player->setCityRegionId(0);
 
-	removeKnownObject(object);
+    removeKnownObject(object);
 
-	gLogger->log(LogManager::DEBUG,"%s left %s (%u players in city)",player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
+    gLogger->log(LogManager::DEBUG,"%s left %s (%u players in city)",player->getFirstName().getAnsi(),mCityName.getAnsi(),mKnownPlayers.size());
 }
 
 //=============================================================================

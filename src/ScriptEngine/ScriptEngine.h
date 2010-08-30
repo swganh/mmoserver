@@ -30,11 +30,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-extern "C" 
+extern "C"
 {
-	#include "lua.h"
-	#include "lauxlib.h"
-	#include "lualib.h"
+#include "lua.h"
+#include "lauxlib.h"
+#include "lualib.h"
 }
 
 #include "Script.h"
@@ -54,42 +54,46 @@ typedef std::list<Script*>	ScriptList;
 
 class ScriptEngine
 {
-	public:
+public:
 
-		static ScriptEngine*	getSingletonPtr() { return mSingleton; }
-		static ScriptEngine*	Init();
+    static ScriptEngine*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static ScriptEngine*	Init();
 
-		lua_State*				getMasterState(){ return mMasterState; }
+    lua_State*				getMasterState() {
+        return mMasterState;
+    }
 
-		Script*					createScript();
-		void					removeScript(Script* script);
+    Script*					createScript();
+    void					removeScript(Script* script);
 
-		void 					shutdown();
-		void 					process();
+    void 					shutdown();
+    void 					process();
 
-		~ScriptEngine();
-		Tutorial*				getTutorial(void* script);
+    ~ScriptEngine();
+    Tutorial*				getTutorial(void* script);
 
 
-	private:
+private:
 
-		ScriptEngine();
+    ScriptEngine();
 
-		static ScriptEngine*	mSingleton;
-		static bool				mInsFlag;
+    static ScriptEngine*	mSingleton;
+    static bool				mInsFlag;
 
-		lua_State*				mMasterState;
-		// Anh_Utils::Clock*		mClock;
-		uint64					mLastProcessTime;
-        boost::mutex			mScriptMutex;
+    lua_State*				mMasterState;
+    // Anh_Utils::Clock*		mClock;
+    uint64					mLastProcessTime;
+    boost::mutex			mScriptMutex;
 
-		ScriptList				mScripts;
-		boost::pool<boost::default_user_allocator_malloc_free>	mScriptPool;
+    ScriptList				mScripts;
+    boost::pool<boost::default_user_allocator_malloc_free>	mScriptPool;
 };
 
 //======================================================================================================================
 
-#endif 
+#endif
 
 
 

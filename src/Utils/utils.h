@@ -41,9 +41,9 @@ UTILS_API std::string strRep(std::string a,std::string b,std::string c);
 
 namespace Anh_Utils
 {
-	UTILS_API int cmpistr(const char* s1, const char* s2);
-	UTILS_API int cmpnistr(const char* s1, const char* s2, size_t length);
-	UTILS_API int kbhit(void);
+UTILS_API int cmpistr(const char* s1, const char* s2);
+UTILS_API int cmpnistr(const char* s1, const char* s2, size_t length);
+UTILS_API int kbhit(void);
 }
 
 //==============================================================================================================================

@@ -30,25 +30,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Item.h"
 class Medicine : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 public:
-	virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-	virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-	void			handleStimpackMenuSelect(uint8 messageType, PlayerObject* player, std::string medpackType);
-	void			handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player, std::string medpackType);
-	bool			ConsumeUse(PlayerObject* playerObject);
-	uint			getUsesRemaining();
-	uint			getSkillRequired(BString skill);
-	uint			getHealthHeal();
-	uint			getActionHeal();
-	uint			getHealWoundAction();
-	uint			getHealWoundConstitution();
-	uint			getHealWoundHealth();
-	uint			getHealWoundQuickness();
-	uint			getHealWoundStamina();
-	uint			getHealWoundStrength();
-	uint			getHealWound(BString attribute);
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void			handleStimpackMenuSelect(uint8 messageType, PlayerObject* player, std::string medpackType);
+    void			handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player, std::string medpackType);
+    bool			ConsumeUse(PlayerObject* playerObject);
+    uint			getUsesRemaining();
+    uint			getSkillRequired(BString skill);
+    uint			getHealthHeal();
+    uint			getActionHeal();
+    uint			getHealWoundAction();
+    uint			getHealWoundConstitution();
+    uint			getHealWoundHealth();
+    uint			getHealWoundQuickness();
+    uint			getHealWoundStamina();
+    uint			getHealWoundStrength();
+    uint			getHealWound(BString attribute);
 
-	Medicine(void);
-	~Medicine(void);
+    Medicine(void);
+    ~Medicine(void);
 };

@@ -45,14 +45,14 @@ class FactoryObject;
 
 enum FFQuery
 {
-	FFQuery_MainData					= 1,
-	FFQuery_ResourceData				= 2,
-	FFQuery_byDeed						= 3,
-	FFQuery_AdminData					= 4,
-	FFQuery_AttributeData				= 5,
-	FFQuery_Hopper						= 6,
-	FFQuery_HopperUpdate				= 7,
-	FFQuery_HopperItemAttributeUpdate	= 8
+    FFQuery_MainData					= 1,
+    FFQuery_ResourceData				= 2,
+    FFQuery_byDeed						= 3,
+    FFQuery_AdminData					= 4,
+    FFQuery_AttributeData				= 5,
+    FFQuery_Hopper						= 6,
+    FFQuery_HopperUpdate				= 7,
+    FFQuery_HopperItemAttributeUpdate	= 8
 
 };
 
@@ -60,34 +60,36 @@ enum FFQuery
 
 class FactoryFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static FactoryFactory*	getSingletonPtr() { return mSingleton; }
-		static FactoryFactory*	Init(Database* database);
+    static FactoryFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static FactoryFactory*	Init(Database* database);
 
-		~FactoryFactory();
+    ~FactoryFactory();
 
-		virtual void	handleObjectReady(Object* object,DispatchClient* client);
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void			upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hopperId, DispatchClient* client, FactoryObject* factory);
+    virtual void	handleObjectReady(Object* object,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hopperId, DispatchClient* client, FactoryObject* factory);
 
-		void			releaseAllPoolsMemory();
+    void			releaseAllPoolsMemory();
 
-	private:
+private:
 
-		FactoryFactory(Database* database);
+    FactoryFactory(Database* database);
 
-		void			_setupDatabindings();
-		void			_destroyDatabindings();
+    void			_setupDatabindings();
+    void			_destroyDatabindings();
 
-		void			_createFactory(DatabaseResult* result, FactoryObject* factory);
+    void			_createFactory(DatabaseResult* result, FactoryObject* factory);
 
-		static FactoryFactory*		mSingleton;
-		static bool					mInsFlag;
+    static FactoryFactory*		mSingleton;
+    static bool					mInsFlag;
 
 
-		DataBinding*				mFactoryBinding;
+    DataBinding*				mFactoryBinding;
 
 };
 

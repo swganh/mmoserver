@@ -34,13 +34,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum waypoint_types
 {
-	Waypoint_blue	= 1,
-	Waypoint_green	= 2,
-	Waypoint_orange	= 3,
-	Waypoint_yellow	= 4,
-	Waypoint_red	= 5,
-	Waypoint_white	= 6,
-	Waypoint_JTL	= 7
+    Waypoint_blue	= 1,
+    Waypoint_green	= 2,
+    Waypoint_orange	= 3,
+    Waypoint_yellow	= 4,
+    Waypoint_red	= 5,
+    Waypoint_white	= 6,
+    Waypoint_JTL	= 7
 };
 
 
@@ -48,34 +48,56 @@ enum waypoint_types
 
 class WaypointObject : public Object
 {
-	friend class WaypointFactory;
+    friend class WaypointFactory;
 
-	public:
+public:
 
-		WaypointObject();
-		~WaypointObject();
+    WaypointObject();
+    ~WaypointObject();
 
-		bool				getActive(){ return mActive; }
-		void				setActive(bool active){ mActive = active; }
-		void				toggleActive(){ mActive = !mActive; };
-		BString				getName(){ return mName; }
-		void				setName(const BString name){ mName = name; }
-		uint8				getWPType(){ return mWPType; }
-		void				setWPType(uint8 type){ mWPType = type; }
+    bool				getActive() {
+        return mActive;
+    }
+    void				setActive(bool active) {
+        mActive = active;
+    }
+    void				toggleActive() {
+        mActive = !mActive;
+    };
+    BString				getName() {
+        return mName;
+    }
+    void				setName(const BString name) {
+        mName = name;
+    }
+    uint8				getWPType() {
+        return mWPType;
+    }
+    void				setWPType(uint8 type) {
+        mWPType = type;
+    }
 
-		void				setCoords(const glm::vec3& coords){ mCoords = coords; }
-        const glm::vec3&	getCoords(){ return mCoords; }
+    void				setCoords(const glm::vec3& coords) {
+        mCoords = coords;
+    }
+    const glm::vec3&	getCoords() {
+        return mCoords;
+    }
 
-		uint32				getPlanetCRC() { return mPlanetCRC; }
-		void				setPlanetCRC(uint32 planet_crc) { mPlanetCRC = planet_crc; }
+    uint32				getPlanetCRC() {
+        return mPlanetCRC;
+    }
+    void				setPlanetCRC(uint32 planet_crc) {
+        mPlanetCRC = planet_crc;
+    }
 
-	private:
+private:
 
-        glm::vec3	mCoords;
-		bool				mActive;
-		BString				mName;
-		uint8				mWPType;
-		uint32				mPlanetCRC;
+    glm::vec3	mCoords;
+    bool				mActive;
+    BString				mName;
+    uint8				mWPType;
+    uint32				mPlanetCRC;
 };
 
 //=============================================================================

@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleTumbleToKneeling(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -54,7 +54,7 @@ void ObjectController::_handleTumbleToKneeling(uint64 targetId,Message* message,
 
 void ObjectController::_handleTumbleToProne(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -63,7 +63,7 @@ void ObjectController::_handleTumbleToProne(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleTumbleToStanding(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -72,7 +72,7 @@ void ObjectController::_handleTumbleToStanding(uint64 targetId,Message* message,
 
 void ObjectController::_handleTakeCover(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -81,7 +81,7 @@ void ObjectController::_handleTakeCover(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleAim(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 

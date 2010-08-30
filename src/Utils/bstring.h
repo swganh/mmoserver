@@ -42,9 +42,9 @@ typedef std::vector<BString> BStringVector;
 
 enum BStringType
 {
-  BSTRType_ANSI,
-  BSTRType_Unicode16,
-  BSTRType_UTF8
+    BSTRType_ANSI,
+    BSTRType_Unicode16,
+    BSTRType_UTF8
 };
 
 //======================================================================================================================
@@ -84,7 +84,7 @@ public:
     // Accessor Methods
     int8* getAnsi();
     const int8* getAnsi() const;
-   // uint16* getUnicode16();
+    // uint16* getUnicode16();
     wchar_t* getUnicode16();
     const wchar_t* getUnicode16() const;
     int8*   getUTF8();

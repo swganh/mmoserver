@@ -61,8 +61,8 @@ ChatManager*	ChatManager::mSingleton = NULL;
 //======================================================================================================================
 
 ChatManager::ChatManager(Database* database,MessageDispatch* dispatch) :
-mDatabase(database),
-mMessageDispatch(dispatch)
+    mDatabase(database),
+    mMessageDispatch(dispatch)
 {
     mMainCategory = "SWG";
 
@@ -122,7 +122,7 @@ void ChatManager::_loadChannels(DatabaseResult* result)
 {
     uint64 count = result->getRowCount();
 
-    for(uint64 i = 0;i < count;i++)
+    for(uint64 i = 0; i < count; i++)
     {
         BString creator;
 
@@ -351,513 +351,515 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     switch(asyncContainer->mQueryType)
     {
 
-        case ChatQuery_FindFriend:
+    case ChatQuery_FindFriend:
+    {
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_uint64,0,8);
+
+        uint64	ret		= 0;
+        uint64	count	= result->getRowCount();
+
+        result->GetNextRow(binding,&ret);
+        if(count == 1)
+            count = ret;
+
+        mDatabase->DestroyDataBinding(binding);
+
+        _handleFindFriendDBReply(asyncContainer->mSender,count,asyncContainer->mName);
+
+    }
+    break;
+
+    case ChatQuery_Player:
+    {
+        PlayerAccountMap::iterator it = mPlayerAccountMap.find(asyncContainer->mClient->getAccountId());
+
+        if(it != mPlayerAccountMap.end())
         {
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_uint64,0,8);
+            Player* player = (*it).second;
 
-            uint64	ret		= 0;
-            uint64	count	= result->getRowCount();
+            result->GetNextRow(mPlayerBinding,player->getPlayerData());
 
-            result->GetNextRow(binding,&ret);
-            if(count == 1)
-                count = ret;
+            player->setKey();
 
-            mDatabase->DestroyDataBinding(binding);
+            mPlayerNameMap.insert(std::make_pair(player->getKey(),player));
 
-            _handleFindFriendDBReply(asyncContainer->mSender,count,asyncContainer->mName);
+            // query friendslist
+            ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_PlayerFriends);
+            asContainer->mClient = asyncContainer->mClient;
+            asContainer->mReceiver	= player;
 
+            mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatFriendlist(%"PRIu64");",asContainer->mReceiver->getCharId());
+            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatFriendlist(%"PRIu64");", asContainer->mReceiver->getCharId()); // SQL Debug Log
         }
-        break;
+        else
+            gLogger->log(LogManager::NOTICE,"Could not find account %u",asyncContainer->mClient->getAccountId());
+    }
+    break;
 
-        case ChatQuery_Player:
-        {
-            PlayerAccountMap::iterator it = mPlayerAccountMap.find(asyncContainer->mClient->getAccountId());
+    case ChatQuery_GalaxyName:
+    {
+        uint64 count = result->getRowCount();
 
-            if(it != mPlayerAccountMap.end())
-            {
-                Player* player = (*it).second;
-
-                result->GetNextRow(mPlayerBinding,player->getPlayerData());
-
-                player->setKey();
-
-                mPlayerNameMap.insert(std::make_pair(player->getKey(),player));
-
-                // query friendslist
-                ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_PlayerFriends);
-                asContainer->mClient = asyncContainer->mClient;
-                asContainer->mReceiver	= player;
-
-                mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatFriendlist(%"PRIu64");",asContainer->mReceiver->getCharId());
-                gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatFriendlist(%"PRIu64");", asContainer->mReceiver->getCharId()); // SQL Debug Log
-            }
-            else
-                gLogger->log(LogManager::NOTICE,"Could not find account %u",asyncContainer->mClient->getAccountId());
+        if (count == 0) {
+            gLogger->log(LogManager::NOTICE,"Could not find Galaxy ");
+            return;
         }
-        break;
 
-        case ChatQuery_GalaxyName:
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring,0,64);
+
+        result->GetNextRow(binding,&mGalaxyName);
+
+        gLogger->log(LogManager::DEBUG,"Main: [%s] Galaxy: [%s]",mMainCategory.getAnsi(),mGalaxyName.getAnsi());
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+
+    case ChatQuery_CheckCharacter:
+    {
+        uint64 receiverId = 0;
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_uint64,0,8);
+
+        if(result->getRowCount())
         {
-            uint64 count = result->getRowCount();
-            
-            if (count == 0) {
-                gLogger->log(LogManager::NOTICE,"Could not find Galaxy ");
-                return;
-            }
+            result->GetNextRow(binding,&receiverId);
 
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_bstring,0,64);
-
-            result->GetNextRow(binding,&mGalaxyName);
-
-            gLogger->log(LogManager::DEBUG,"Main: [%s] Galaxy: [%s]",mMainCategory.getAnsi(),mGalaxyName.getAnsi());
-
-            mDatabase->DestroyDataBinding(binding);
-        }
-        break;
-
-
-        case ChatQuery_CheckCharacter:
-        {
-            uint64 receiverId = 0;
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_uint64,0,8);
-
-            if(result->getRowCount())
-            {
-                result->GetNextRow(binding,&receiverId);
-
-                ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_CreateMail);
-                asContainer->mMail = asyncContainer->mMail;
-                asContainer->mMailCounter = asyncContainer->mMailCounter;	// Contains mailId
-                asContainer->mSender = asyncContainer->mSender;
-                asContainer->mReceiverId = receiverId;
-
-                int8 sql[20000],*sqlPointer;
-                int8 footer[64];
-                int8 receiverStr[64];
-                sprintf(receiverStr,"',%"PRIu64",'",receiverId);
-                sprintf(footer,",%u,%"PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
-                sprintf(sql,"SELECT sf_MailCreate('");
-
-                sqlPointer = sql + strlen(sql);
-
-                //if a system send Mail, the sender may be NULL
-
-
-                sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->getSender().getAnsi(),asyncContainer->mMail->getSender().getLength());
-
-                strcat(sql,receiverStr);
-                sqlPointer = sql + strlen(sql);
-                sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->mSubject.getAnsi(),asyncContainer->mMail->mSubject.getLength());
-                *sqlPointer++ = '\'';
-                *sqlPointer++ = ',';
-                *sqlPointer++ = '\'';
-                sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->mText.getAnsi(),asyncContainer->mMail->mText.getLength());
-                *sqlPointer++ = '\'';
-                *sqlPointer++ = ',';
-                *sqlPointer++ = '\'';
-                sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->mAttachments.getRawData(),(asyncContainer->mMail->mAttachments.getLength() << 1));
-                *sqlPointer++ = '\'';
-                *sqlPointer++ = '\0';
-                strcat(sql,footer);
-
-                mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-            }
-            else
-            {
-                if(asyncContainer->mSender)
-                    gChatMessageLib->sendChatonPersistantMessage((asyncContainer->mSender)->getClient(),asyncContainer->mMailCounter);
-
-                SAFE_DELETE(asyncContainer->mMail);
-            }
-
-            mDatabase->DestroyDataBinding(binding);
-        }
-        break;
-
-
-        case ChatQuery_CreateMail:
-        {
-            uint32 dbMailId = 0;
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_uint32,0,4);
-
-            result->GetNextRow(binding,&dbMailId);
-
-            // query ignoreslist
-            ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatMailQuery_PlayerIgnores);
-
+            ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_CreateMail);
             asContainer->mMail = asyncContainer->mMail;
+            asContainer->mMailCounter = asyncContainer->mMailCounter;	// Contains mailId
             asContainer->mSender = asyncContainer->mSender;
-            asContainer->mRequestId = dbMailId;
-            asContainer->mMailCounter = asyncContainer->mMailCounter;
-            asContainer->mReceiverId = asyncContainer->mReceiverId;
+            asContainer->mReceiverId = receiverId;
 
-            mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnoreList(%"PRIu64");", asyncContainer->mReceiverId);
-            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatIgnoreList(%"PRIu64");", asyncContainer->mReceiverId); // SQL Debug Log
-            mDatabase->DestroyDataBinding(binding);
+            int8 sql[20000],*sqlPointer;
+            int8 footer[64];
+            int8 receiverStr[64];
+            sprintf(receiverStr,"',%"PRIu64",'",receiverId);
+            sprintf(footer,",%u,%"PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
+            sprintf(sql,"SELECT sf_MailCreate('");
+
+            sqlPointer = sql + strlen(sql);
+
+            //if a system send Mail, the sender may be NULL
+
+
+            sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->getSender().getAnsi(),asyncContainer->mMail->getSender().getLength());
+
+            strcat(sql,receiverStr);
+            sqlPointer = sql + strlen(sql);
+            sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->mSubject.getAnsi(),asyncContainer->mMail->mSubject.getLength());
+            *sqlPointer++ = '\'';
+            *sqlPointer++ = ',';
+            *sqlPointer++ = '\'';
+            sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->mText.getAnsi(),asyncContainer->mMail->mText.getLength());
+            *sqlPointer++ = '\'';
+            *sqlPointer++ = ',';
+            *sqlPointer++ = '\'';
+            sqlPointer += mDatabase->Escape_String(sqlPointer,asyncContainer->mMail->mAttachments.getRawData(),(asyncContainer->mMail->mAttachments.getLength() << 1));
+            *sqlPointer++ = '\'';
+            *sqlPointer++ = '\0';
+            strcat(sql,footer);
+
+            mDatabase->ExecuteSqlAsync(this,asContainer,sql);
         }
-        break;
-
-
-        case ChatMailQuery_PlayerIgnores:
+        else
         {
-            Message* newMessage;
-            BString	name;
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_bstring,0,64);
-
-            uint64 count = result->getRowCount();
-
-            Player*	receiver = getPlayerbyId(asyncContainer->mReceiverId);
-
-            ContactMap ignoreList;
-
-            for(uint64 i = 0;i < count;i++)
-            {
-                result->GetNextRow(binding,&name);
-                name.toLower();
-                if (receiver)
-                {
-                    gLogger->log(LogManager::DEBUG," %s ChatMailQuery_PlayerIgnores [%s]", receiver->getName().getAnsi(), name.getAnsi());
-                }
-                ignoreList.insert(std::make_pair(name.getCrc(),name.getAnsi()));
-            }
-
-            bool bIgnore = false;
-
-            // If receiver have sender ignored, auto delete mail (don't send it and remove from db).
-            if (asyncContainer->mSender != NULL)
-            {
-                BString ignoreName = asyncContainer->mSender->getName();
-                ignoreName.toLower();
-
-                // check receivers ignorelist.
-                ContactMap::iterator it = ignoreList.find(ignoreName.getCrc());
-                bIgnore = (it != ignoreList.end());
-                if (bIgnore)
-                {
-                    mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_DeleteMail(%u);", asyncContainer->mRequestId);
-                    gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_MailDelete(%u);", asyncContainer->mRequestId); // SQL Debug Log
-                }
-            }
-            if ((receiver != NULL) && (!bIgnore))
-            {
-                // send out new mail notification, if not receiving mail from Ignored player.
-                asyncContainer->mMail->mSubject.convert(BSTRType_Unicode16);
-                // Note: asyncContainer->mRequestId is the mailId...
-                gChatMessageLib->sendChatPersistantMessagetoClient(receiver->getClient(),asyncContainer->mMail, asyncContainer->mRequestId,asyncContainer->mMailCounter,MailStatus_New);
-            }
-
-            //when we send a system Mail there will be no sender
-            if (asyncContainer->mSender != NULL)
-            {
-                //NEVER END A MESSAGE AND THEN DONT SEND IT !!!!!!!!!!!!!!!!!!!!!!!!!!!
-                // send status to sender
-                gMessageFactory->StartMessage();
-                gMessageFactory->addUint32(opChatOnSendPersistentMessage);
-                gMessageFactory->addUint32(0);
-                gMessageFactory->addUint32(asyncContainer->mMailCounter);
-                newMessage = gMessageFactory->EndMessage();
-
-
-                ((asyncContainer->mSender)->getClient())->SendChannelA(newMessage,((asyncContainer->mSender)->getClient())->getAccountId(),CR_Client,3);
-            }
+            if(asyncContainer->mSender)
+                gChatMessageLib->sendChatonPersistantMessage((asyncContainer->mSender)->getClient(),asyncContainer->mMailCounter);
 
             SAFE_DELETE(asyncContainer->mMail);
-
-            mDatabase->DestroyDataBinding(binding);
         }
-        break;
 
-        case ChatQuery_MailById:
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+
+    case ChatQuery_CreateMail:
+    {
+        uint32 dbMailId = 0;
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_uint32,0,4);
+
+        result->GetNextRow(binding,&dbMailId);
+
+        // query ignoreslist
+        ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatMailQuery_PlayerIgnores);
+
+        asContainer->mMail = asyncContainer->mMail;
+        asContainer->mSender = asyncContainer->mSender;
+        asContainer->mRequestId = dbMailId;
+        asContainer->mMailCounter = asyncContainer->mMailCounter;
+        asContainer->mReceiverId = asyncContainer->mReceiverId;
+
+        mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnoreList(%"PRIu64");", asyncContainer->mReceiverId);
+        gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatIgnoreList(%"PRIu64");", asyncContainer->mReceiverId); // SQL Debug Log
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+
+    case ChatMailQuery_PlayerIgnores:
+    {
+        Message* newMessage;
+        BString	name;
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring,0,64);
+
+        uint64 count = result->getRowCount();
+
+        Player*	receiver = getPlayerbyId(asyncContainer->mReceiverId);
+
+        ContactMap ignoreList;
+
+        for(uint64 i = 0; i < count; i++)
         {
-            if(!result->getRowCount())
-            {
-                gLogger->log(LogManager::DEBUG," not found mail with id %u",asyncContainer->mRequestId);
-                SAFE_DELETE(asyncContainer);
-                return;
-            }
-            Mail mail = Mail();
-            mail.mSubject.setLength(512);
-            mail.mText.setLength(8192);
-
-            result->GetNextRow(mMailBinding,&mail);
-
-            memcpy(mail.mAttachments.getRawData(), mail.mAttachmentRaw, mail.mAttachmentSize);
-
-            mail.mAttachments.setLength(static_cast<uint16>(mail.mAttachmentSize >> 1));
-            mail.mSubject.convert(BSTRType_Unicode16);
-            mail.mText.convert(BSTRType_Unicode16);
-
-            gChatMessageLib->sendChatPersistantMessagetoClient(asyncContainer->mClient,&mail);
-
-            //mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE chat_mail SET status = 1 WHERE id=%u", mail.mId);
-            mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_MailStatusUpdate(%u)", mail.mId);
-            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_MailStatusUpdate(%u);", asyncContainer->mRequestId); // SQL Debug Log
-
-        }
-        break;
-
-        case ChatQuery_MailHeaders:
-        {
-            Mail		mail;
-            uint64		count = result->getRowCount();
-
-            // Update client with all mail.
-            for(uint64 i = 0;i < count;i++)
-            {
-                result->GetNextRow(mMailHeaderBinding,&mail);
-                mail.mSubject.convert(BSTRType_Unicode16);
-
-                if(!mail.mStatus)
-                {
-                    gChatMessageLib->sendChatPersistantMessagetoClient(asyncContainer->mClient,&mail, mail.mId,1,MailStatus_New);
-                }
-                else
-                {
-                    gChatMessageLib->sendChatPersistantMessagetoClient(asyncContainer->mClient,&mail, mail.mId,1,MailStatus_Read);
-                }
-            }
-        }
-        break;
-
-        case ChatQuery_PlayerFriends:
-        {
-            BString	name;
-            Player*	player = asyncContainer->mReceiver;
-
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_bstring,0,64);
-
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0;i < count;i++)
-            {
-                result->GetNextRow(binding,&name);
-                name.toLower();
-                player->getFriendsList()->insert(std::make_pair(name.getCrc(),name.getAnsi()));
-            }
-
-            mDatabase->DestroyDataBinding(binding);
-
-            // check for online friends
-
-
-            // We are actually sending this info from CharacterLoginHandler::handleDispatchMessage at the opCmdSceneReady event.
-            // updateFriendsOnline(player,true);
-
-            // We should not send any info to self about all the friend in MY friends list.
-            // checkOnlineFriends(player);
-
-            // query ignoreslist
-            ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_PlayerIgnores);
-            asContainer->mClient	= asyncContainer->mClient;
-            asContainer->mReceiver	= asyncContainer->mReceiver;
-
-            mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnorelist(%"PRIu64");",asContainer->mReceiver->getCharId());
-            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatIgnorelist(%"PRIu64");",asContainer->mReceiver->getCharId()); // SQL Debug Log
-        }
-        break;
-
-        case ChatQuery_PlayerIgnores:
-        {
-            BString	name;
-            Player*	player = asyncContainer->mReceiver;
-
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_bstring,0,64);
-
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0;i < count;i++)
-            {
-                result->GetNextRow(binding,&name);
-                name.toLower();
-                player->getIgnoreList()->insert(std::make_pair(name.getCrc(),name.getAnsi()));
-            }
-
-            mDatabase->DestroyDataBinding(binding);
-
-            // Update channel info.
-            ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_CharChannels);
-            asContainer->mClient = asyncContainer->mClient;
-
-            Player* currentPlayer = getPlayerByAccId(asyncContainer->mClient->getAccountId());
-
-            mDatabase->ExecuteProcedureAsync(this, asContainer,"CALL swganh.sp_ReturnChatCharChannels(%"PRIu64");", currentPlayer->getCharId());
-            gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatCharChannels(%"PRIu64");", currentPlayer->getCharId()); // SQL Debug Log
-        }
-        break;
-
-        case ChatQuery_CharChannels:
-        {
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_uint32,0,4);
-            uint32 roomId;
-
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0;i < count;i++)
-            {
-                result->GetNextRow(binding,&roomId);
-                Channel* channel = getChannelById(roomId);
-                Player* player = getPlayerByAccId(asyncContainer->mClient->getAccountId());
-                if(player == NULL)
-                {
-                    gLogger->log(LogManager::DEBUG,"Error getting player from account map %u", asyncContainer->mClient->getAccountId());
-                    continue;
-                }
-                ChatAvatarId* avatar = new ChatAvatarId();
-                avatar->setPlayer(player);
-                avatar->setGalaxy(mGalaxyName);
-
-                //If I'm banned or not invited to a private channel then stay out.
-                if (channel->isBanned(avatar->getLoweredName()))
-                {
-                    gLogger->log(LogManager::DEBUG,"Player was banned\n");
-                    continue;
-                }
-                if (channel->isPrivate())
-                {
-                    if (!channel->isInvited(avatar->getLoweredName()))
-                    {
-                        gLogger->log(LogManager::DEBUG,"Player was not invited to private channel\n");
-                        continue;
-                    }
-                }
-                channel->addUser(avatar);
-                gChatMessageLib->sendChatQueryRoomResults(asyncContainer->mClient, channel, 0);
-                gChatMessageLib->sendChatOnEnteredRoom(asyncContainer->mClient, avatar, channel, 0);
-            }
-            mDatabase->DestroyDataBinding(binding);
-        }
-        break;
-
-
-        case ChatQuery_QueryFirstName:
-        {
-            BString	name;
-            //Player*	mReceiver = asyncContainer->mReceiver;
-
-            DataBinding* binding = mDatabase->CreateDataBinding(1);
-            binding->addField(DFT_bstring,0,64);
             result->GetNextRow(binding,&name);
-
-            //_processPersistentMessageToServer(asyncContainer->mMail,asyncContainer->mClient);
-            _PersistentMessagebySystem(asyncContainer->mMail,asyncContainer->mClient,name);
-
-            mDatabase->DestroyDataBinding(binding);
+            name.toLower();
+            if (receiver)
+            {
+                gLogger->log(LogManager::DEBUG," %s ChatMailQuery_PlayerIgnores [%s]", receiver->getName().getAnsi(), name.getAnsi());
+            }
+            ignoreList.insert(std::make_pair(name.getCrc(),name.getAnsi()));
         }
-        break;
 
-        case ChatQuery_Channels:
+        bool bIgnore = false;
+
+        // If receiver have sender ignored, auto delete mail (don't send it and remove from db).
+        if (asyncContainer->mSender != NULL)
         {
-            _loadChannels(result);
+            BString ignoreName = asyncContainer->mSender->getName();
+            ignoreName.toLower();
+
+            // check receivers ignorelist.
+            ContactMap::iterator it = ignoreList.find(ignoreName.getCrc());
+            bIgnore = (it != ignoreList.end());
+            if (bIgnore)
+            {
+                mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_DeleteMail(%u);", asyncContainer->mRequestId);
+                gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_MailDelete(%u);", asyncContainer->mRequestId); // SQL Debug Log
+            }
         }
-        break;
-
-        case ChatQuery_Moderators:
-            {
-                uint64 count = result->getRowCount();
-
-                DataBinding* binding = mDatabase->CreateDataBinding(1);
-                binding->addField(DFT_bstring, 0, 33);
-
-                for (uint i = 0; i < count; i++)
-                {
-                    BString* name = new BString();
-                    result->GetNextRow(binding, name);
-                    asyncContainer->mChannel->addModerator(name);
-                    delete name;
-                }
-
-                mDatabase->DestroyDataBinding(binding);
-            }
-            break;
-
-        case ChatQuery_Banned:
-            {
-                uint64 count = result->getRowCount();
-
-                DataBinding* binding = mDatabase->CreateDataBinding(1);
-                binding->addField(DFT_bstring, 0, 33);
-
-                for (uint i = 0; i < count; i++)
-                {
-                    BString* name = new BString();
-                    result->GetNextRow(binding, name);
-                    asyncContainer->mChannel->banUser(name);
-                    delete name;
-                }
-                mDatabase->DestroyDataBinding(binding);
-            }
-
-        case ChatQuery_Invited:
-            {
-                uint64 count = result->getRowCount();
-
-                DataBinding* binding = mDatabase->CreateDataBinding(1);
-                binding->addField(DFT_bstring, 0, 33);
-
-                for (uint i = 0; i < count; i++)
-                {
-                    BString* name = new BString();
-                    result->GetNextRow(binding, name);
-                    asyncContainer->mChannel->addInvitedUser(name);
-                    delete name;
-                }
-
-                mDatabase->DestroyDataBinding(binding);
-            }
-            break;
-
-        case ChatQuery_AddChannel:
-            {
-                uint64 count = result->getRowCount();
-                assert(count == 1); //There should only be one Id
-
-                /* Player* player = */getPlayerByAccId(asyncContainer->mClient->getAccountId());
-                DataBinding* binding = mDatabase->CreateDataBinding(1);
-                binding->addField(DFT_uint32, 0, 4, 0);
-
-                uint32 id;
-                result->GetNextRow(binding, &id);
-                mDatabase->DestroyDataBinding(binding);
-                asyncContainer->mChannel->setId(id); //Set the id
-
-                uint32 crc = asyncContainer->mChannel->getName().getCrc();
-
-                gChatMessageLib->sendChatOnCreateRoom(asyncContainer->mClient, asyncContainer->mChannel, asyncContainer->mRequestId);
-
-                mChannelMap.insert(std::make_pair(id, asyncContainer->mChannel));
-                mChannelNameMap.insert(std::make_pair(crc, asyncContainer->mChannel));
-                mvChannels.push_back(asyncContainer->mChannel);
-            }
-            break;
-
-        case ChatQuery_PlanetNames:
+        if ((receiver != NULL) && (!bIgnore))
         {
-            BString			tmp;
-            DataBinding*	nameBinding = mDatabase->CreateDataBinding(1);
-            nameBinding->addField(DFT_bstring,0,255,0);
-
-            uint64 rowCount = result->getRowCount();
-
-            for(uint64 i = 0;i < rowCount;i++)
-            {
-                result->GetNextRow(nameBinding,&tmp);
-                mvPlanetNames.push_back(BString(tmp.getAnsi()));
-
-            }
-
-            mDatabase->DestroyDataBinding(nameBinding);
+            // send out new mail notification, if not receiving mail from Ignored player.
+            asyncContainer->mMail->mSubject.convert(BSTRType_Unicode16);
+            // Note: asyncContainer->mRequestId is the mailId...
+            gChatMessageLib->sendChatPersistantMessagetoClient(receiver->getClient(),asyncContainer->mMail, asyncContainer->mRequestId,asyncContainer->mMailCounter,MailStatus_New);
         }
-        break;
 
-        default:break;
+        //when we send a system Mail there will be no sender
+        if (asyncContainer->mSender != NULL)
+        {
+            //NEVER END A MESSAGE AND THEN DONT SEND IT !!!!!!!!!!!!!!!!!!!!!!!!!!!
+            // send status to sender
+            gMessageFactory->StartMessage();
+            gMessageFactory->addUint32(opChatOnSendPersistentMessage);
+            gMessageFactory->addUint32(0);
+            gMessageFactory->addUint32(asyncContainer->mMailCounter);
+            newMessage = gMessageFactory->EndMessage();
+
+
+            ((asyncContainer->mSender)->getClient())->SendChannelA(newMessage,((asyncContainer->mSender)->getClient())->getAccountId(),CR_Client,3);
+        }
+
+        SAFE_DELETE(asyncContainer->mMail);
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+    case ChatQuery_MailById:
+    {
+        if(!result->getRowCount())
+        {
+            gLogger->log(LogManager::DEBUG," not found mail with id %u",asyncContainer->mRequestId);
+            SAFE_DELETE(asyncContainer);
+            return;
+        }
+        Mail mail = Mail();
+        mail.mSubject.setLength(512);
+        mail.mText.setLength(8192);
+
+        result->GetNextRow(mMailBinding,&mail);
+
+        memcpy(mail.mAttachments.getRawData(), mail.mAttachmentRaw, mail.mAttachmentSize);
+
+        mail.mAttachments.setLength(static_cast<uint16>(mail.mAttachmentSize >> 1));
+        mail.mSubject.convert(BSTRType_Unicode16);
+        mail.mText.convert(BSTRType_Unicode16);
+
+        gChatMessageLib->sendChatPersistantMessagetoClient(asyncContainer->mClient,&mail);
+
+        //mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE chat_mail SET status = 1 WHERE id=%u", mail.mId);
+        mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_MailStatusUpdate(%u)", mail.mId);
+        gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_MailStatusUpdate(%u);", asyncContainer->mRequestId); // SQL Debug Log
+
+    }
+    break;
+
+    case ChatQuery_MailHeaders:
+    {
+        Mail		mail;
+        uint64		count = result->getRowCount();
+
+        // Update client with all mail.
+        for(uint64 i = 0; i < count; i++)
+        {
+            result->GetNextRow(mMailHeaderBinding,&mail);
+            mail.mSubject.convert(BSTRType_Unicode16);
+
+            if(!mail.mStatus)
+            {
+                gChatMessageLib->sendChatPersistantMessagetoClient(asyncContainer->mClient,&mail, mail.mId,1,MailStatus_New);
+            }
+            else
+            {
+                gChatMessageLib->sendChatPersistantMessagetoClient(asyncContainer->mClient,&mail, mail.mId,1,MailStatus_Read);
+            }
+        }
+    }
+    break;
+
+    case ChatQuery_PlayerFriends:
+    {
+        BString	name;
+        Player*	player = asyncContainer->mReceiver;
+
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring,0,64);
+
+        uint64 count = result->getRowCount();
+
+        for(uint64 i = 0; i < count; i++)
+        {
+            result->GetNextRow(binding,&name);
+            name.toLower();
+            player->getFriendsList()->insert(std::make_pair(name.getCrc(),name.getAnsi()));
+        }
+
+        mDatabase->DestroyDataBinding(binding);
+
+        // check for online friends
+
+
+        // We are actually sending this info from CharacterLoginHandler::handleDispatchMessage at the opCmdSceneReady event.
+        // updateFriendsOnline(player,true);
+
+        // We should not send any info to self about all the friend in MY friends list.
+        // checkOnlineFriends(player);
+
+        // query ignoreslist
+        ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_PlayerIgnores);
+        asContainer->mClient	= asyncContainer->mClient;
+        asContainer->mReceiver	= asyncContainer->mReceiver;
+
+        mDatabase->ExecuteProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnorelist(%"PRIu64");",asContainer->mReceiver->getCharId());
+        gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatIgnorelist(%"PRIu64");",asContainer->mReceiver->getCharId()); // SQL Debug Log
+    }
+    break;
+
+    case ChatQuery_PlayerIgnores:
+    {
+        BString	name;
+        Player*	player = asyncContainer->mReceiver;
+
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring,0,64);
+
+        uint64 count = result->getRowCount();
+
+        for(uint64 i = 0; i < count; i++)
+        {
+            result->GetNextRow(binding,&name);
+            name.toLower();
+            player->getIgnoreList()->insert(std::make_pair(name.getCrc(),name.getAnsi()));
+        }
+
+        mDatabase->DestroyDataBinding(binding);
+
+        // Update channel info.
+        ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_CharChannels);
+        asContainer->mClient = asyncContainer->mClient;
+
+        Player* currentPlayer = getPlayerByAccId(asyncContainer->mClient->getAccountId());
+
+        mDatabase->ExecuteProcedureAsync(this, asContainer,"CALL swganh.sp_ReturnChatCharChannels(%"PRIu64");", currentPlayer->getCharId());
+        gLogger->log(LogManager::DEBUG,"SQL :: CALL sp_ReturnChatCharChannels(%"PRIu64");", currentPlayer->getCharId()); // SQL Debug Log
+    }
+    break;
+
+    case ChatQuery_CharChannels:
+    {
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_uint32,0,4);
+        uint32 roomId;
+
+        uint64 count = result->getRowCount();
+
+        for(uint64 i = 0; i < count; i++)
+        {
+            result->GetNextRow(binding,&roomId);
+            Channel* channel = getChannelById(roomId);
+            Player* player = getPlayerByAccId(asyncContainer->mClient->getAccountId());
+            if(player == NULL)
+            {
+                gLogger->log(LogManager::DEBUG,"Error getting player from account map %u", asyncContainer->mClient->getAccountId());
+                continue;
+            }
+            ChatAvatarId* avatar = new ChatAvatarId();
+            avatar->setPlayer(player);
+            avatar->setGalaxy(mGalaxyName);
+
+            //If I'm banned or not invited to a private channel then stay out.
+            if (channel->isBanned(avatar->getLoweredName()))
+            {
+                gLogger->log(LogManager::DEBUG,"Player was banned\n");
+                continue;
+            }
+            if (channel->isPrivate())
+            {
+                if (!channel->isInvited(avatar->getLoweredName()))
+                {
+                    gLogger->log(LogManager::DEBUG,"Player was not invited to private channel\n");
+                    continue;
+                }
+            }
+            channel->addUser(avatar);
+            gChatMessageLib->sendChatQueryRoomResults(asyncContainer->mClient, channel, 0);
+            gChatMessageLib->sendChatOnEnteredRoom(asyncContainer->mClient, avatar, channel, 0);
+        }
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+
+    case ChatQuery_QueryFirstName:
+    {
+        BString	name;
+        //Player*	mReceiver = asyncContainer->mReceiver;
+
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring,0,64);
+        result->GetNextRow(binding,&name);
+
+        //_processPersistentMessageToServer(asyncContainer->mMail,asyncContainer->mClient);
+        _PersistentMessagebySystem(asyncContainer->mMail,asyncContainer->mClient,name);
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+    case ChatQuery_Channels:
+    {
+        _loadChannels(result);
+    }
+    break;
+
+    case ChatQuery_Moderators:
+    {
+        uint64 count = result->getRowCount();
+
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring, 0, 33);
+
+        for (uint i = 0; i < count; i++)
+        {
+            BString* name = new BString();
+            result->GetNextRow(binding, name);
+            asyncContainer->mChannel->addModerator(name);
+            delete name;
+        }
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+    case ChatQuery_Banned:
+    {
+        uint64 count = result->getRowCount();
+
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring, 0, 33);
+
+        for (uint i = 0; i < count; i++)
+        {
+            BString* name = new BString();
+            result->GetNextRow(binding, name);
+            asyncContainer->mChannel->banUser(name);
+            delete name;
+        }
+        mDatabase->DestroyDataBinding(binding);
+    }
+
+    case ChatQuery_Invited:
+    {
+        uint64 count = result->getRowCount();
+
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring, 0, 33);
+
+        for (uint i = 0; i < count; i++)
+        {
+            BString* name = new BString();
+            result->GetNextRow(binding, name);
+            asyncContainer->mChannel->addInvitedUser(name);
+            delete name;
+        }
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+    case ChatQuery_AddChannel:
+    {
+        uint64 count = result->getRowCount();
+        assert(count == 1); //There should only be one Id
+
+        /* Player* player = */
+        getPlayerByAccId(asyncContainer->mClient->getAccountId());
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_uint32, 0, 4, 0);
+
+        uint32 id;
+        result->GetNextRow(binding, &id);
+        mDatabase->DestroyDataBinding(binding);
+        asyncContainer->mChannel->setId(id); //Set the id
+
+        uint32 crc = asyncContainer->mChannel->getName().getCrc();
+
+        gChatMessageLib->sendChatOnCreateRoom(asyncContainer->mClient, asyncContainer->mChannel, asyncContainer->mRequestId);
+
+        mChannelMap.insert(std::make_pair(id, asyncContainer->mChannel));
+        mChannelNameMap.insert(std::make_pair(crc, asyncContainer->mChannel));
+        mvChannels.push_back(asyncContainer->mChannel);
+    }
+    break;
+
+    case ChatQuery_PlanetNames:
+    {
+        BString			tmp;
+        DataBinding*	nameBinding = mDatabase->CreateDataBinding(1);
+        nameBinding->addField(DFT_bstring,0,255,0);
+
+        uint64 rowCount = result->getRowCount();
+
+        for(uint64 i = 0; i < rowCount; i++)
+        {
+            result->GetNextRow(nameBinding,&tmp);
+            mvPlanetNames.push_back(BString(tmp.getAnsi()));
+
+        }
+
+        mDatabase->DestroyDataBinding(nameBinding);
+    }
+    break;
+
+    default:
+        break;
     }
 
     SAFE_DELETE(asyncContainer);
@@ -1235,7 +1237,8 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
 {
     gLogger->log(LogManager::DEBUG,"DestroyRoom");
     uint32 roomId = message->getUint32();
-    /* uint32 requestId = */message->getUint32();
+    /* uint32 requestId = */
+    message->getUint32();
 
     Channel* channel = getChannelById(roomId);
     if (channel == NULL)
@@ -1651,7 +1654,7 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
         mDatabase->Escape_String(sql, realPlayerName.getAnsi(), realPlayerName.getLength());
 
         // mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_moderators VALUES (%u, '%s');", channel->getId(), sql /* realPlayerName.getAnsi() */);
-        
+
         mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomModeratorAdd(%u, '%s');", channel->getId(), sql);
         gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomModeratorAdd(%u, '%s');", channel->getId(), sql); // SQL Debug Log
 
@@ -2044,7 +2047,7 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
     else
     {
         //mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
-        
+
         mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserRemove(%u, %"PRIu64");", avatar->getPlayer()->getCharId(), channel->getId());
         gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserRemove(%u, %"PRIu64");", avatar->getPlayer()->getCharId(), channel->getId());
         gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
@@ -2150,10 +2153,10 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
         if (avatar)
         {
             // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
-            
+
             mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserRemove(%u, %"PRIu64");", avatar->getPlayer()->getCharId(), channel->getId());
             gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ChatRoomUserRemove(%u, %"PRIu64");", avatar->getPlayer()->getCharId(), channel->getId());
-            
+
             gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
             // gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);	// Update clients before we remove the poor banned one.
             channel->removeUser(playerName);
@@ -2563,7 +2566,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClient* client)
 {
     uint32 dbMailId;
-    
+
 
     message->getUint32();            // unknown
     dbMailId = message->getUint32();
@@ -2756,51 +2759,51 @@ void ChatManager::sendFriendList(Player* player)
 
 void ChatManager::sendIgnoreList(Player* player)
 {
-/* Since this command is not verified, we put it on hold for now.
-    ContactMap* ignoreList	= player->getIgnoreList();
-    ContactMap::iterator it	= ignoreList->begin();
+    /* Since this command is not verified, we put it on hold for now.
+        ContactMap* ignoreList	= player->getIgnoreList();
+        ContactMap::iterator it	= ignoreList->begin();
 
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opChatIgnoreList);
-    gMessageFactory->addUint64(player->getCharId());
-    gMessageFactory->addUint32(ignoreList->size());
+        gMessageFactory->StartMessage();
+        gMessageFactory->addUint32(opChatIgnoreList);
+        gMessageFactory->addUint64(player->getCharId());
+        gMessageFactory->addUint32(ignoreList->size());
 
-    while(it != ignoreList->end())
-    {
-        gMessageFactory->addString(mMainCategory);
-        gMessageFactory->addString(mGalaxyName);
-        gMessageFactory->addString((*it).second);
-        ++it;
-    }
+        while(it != ignoreList->end())
+        {
+            gMessageFactory->addString(mMainCategory);
+            gMessageFactory->addString(mGalaxyName);
+            gMessageFactory->addString((*it).second);
+            ++it;
+        }
 
-    Message* newMessage = gMessageFactory->EndMessage();
-    player->getClient()->SendChannelA(newMessage,player->getClient()->getAccountId(),CR_Client,3,false);
-*/
+        Message* newMessage = gMessageFactory->EndMessage();
+        player->getClient()->SendChannelA(newMessage,player->getClient()->getAccountId(),CR_Client,3,false);
+    */
 }
 
 //======================================================================================================================
 
 void ChatManager::checkOnlineFriends(Player* player)
 {
-/*
-    ContactMap* friendList	= player->getFriendsList();
-    ContactMap::iterator it	= friendList->begin();
+    /*
+        ContactMap* friendList	= player->getFriendsList();
+        ContactMap::iterator it	= friendList->begin();
 
-    while(it != friendList->end())
-    {
-        Player* theFriend = getPlayerByName((*it).second);
-
-        if(theFriend)
+        while(it != friendList->end())
         {
-            gChatMessageLib->sendFriendOnlineStatus(player,theFriend,FriendStatus_Online,mMainCategory,mGalaxyName);
-        }
-        else
-        {
-        }
+            Player* theFriend = getPlayerByName((*it).second);
 
-        ++it;
-    }
-*/
+            if(theFriend)
+            {
+                gChatMessageLib->sendFriendOnlineStatus(player,theFriend,FriendStatus_Online,mMainCategory,mGalaxyName);
+            }
+            else
+            {
+            }
+
+            ++it;
+        }
+    */
 }
 
 //======================================================================================================================
@@ -3120,7 +3123,8 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
     msg.setType(BSTRType_Unicode16);
     msg.setLength(512);
 
-    /* uint32 channelId = */message->getUint32();	// op-code for this command.
+    /* uint32 channelId = */
+    message->getUint32();	// op-code for this command.
     uint32 requestId = message->getUint32();
     message->getStringUnicode16(msg);
 
@@ -3177,7 +3181,8 @@ void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* clien
     msg.setType(BSTRType_Unicode16);
     msg.setLength(512);
 
-    /*uint32 opCode = */ message->getUint32();	// op-code for this command.
+    /*uint32 opCode = */
+    message->getUint32();	// op-code for this command.
     uint32 planetId = message->getUint32();
     message->getStringUnicode16(msg);
 
@@ -3186,7 +3191,7 @@ void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* clien
     while(listIt != mPlayerList.end())
     {
         if (/*(planetId == -1) ||*/ // planetId is an unsigned int which means it can't be negative.
-                (planetId == player->getPlanetId()))
+            (planetId == player->getPlanetId()))
         {
             gChatMessageLib->sendSystemMessage((*listIt), msg.getUnicode16());
         }
@@ -3209,7 +3214,8 @@ void ChatManager::_processScheduleShutdown(Message* message, DispatchClient* cli
     msg.setType(BSTRType_Unicode16);
     msg.setLength(512);
 
-    /*uint32 opCode = */message->getUint32();	// op-code for this command.
+    /*uint32 opCode = */
+    message->getUint32();	// op-code for this command.
     uint32 scheduledTime = message->getUint32();
     message->getStringUnicode16(msg);
 
@@ -3255,8 +3261,10 @@ void ChatManager::_processCancelScheduledShutdown(Message* message, DispatchClie
     msg.setType(BSTRType_Unicode16);
     msg.setLength(512);
 
-    /* uint32 opCode = */message->getUint32();
-    /* uint32 option = */message->getUint32();
+    /* uint32 opCode = */
+    message->getUint32();
+    /* uint32 option = */
+    message->getUint32();
     message->getStringUnicode16(msg);
 
     uint8 planetId;

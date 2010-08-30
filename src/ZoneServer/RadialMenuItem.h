@@ -34,15 +34,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class RadialMenuItem
 {
-	public:
-		RadialMenuItem(uint8 mIndex,uint8 parentItem,RadialIdentifier identifier,uint8 action,const int8* description);
-		~RadialMenuItem();
+public:
+    RadialMenuItem(uint8 mIndex,uint8 parentItem,RadialIdentifier identifier,uint8 action,const int8* description);
+    ~RadialMenuItem();
 
-		uint8				mIndex;
-		uint8				mParentItem;
-		RadialIdentifier	mIdentifier;
-		uint8				mAction;
-		BString				mExtendedDescription;
+    uint8				mIndex;
+    uint8				mParentItem;
+    RadialIdentifier	mIdentifier;
+    uint8				mAction;
+    BString				mExtendedDescription;
 };
 
 #endif

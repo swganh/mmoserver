@@ -1,4 +1,4 @@
- /*
+/*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -93,7 +93,7 @@ void ResourceContainer::setAmount(uint32 amount)
     //PLUS if it actually worked, it would send the destroyobject several times to the client, thus crashing the zone
     //right now it crashes the server randomly when we try to access / delete the resource stack
     //if (mAmount = 0)// -> ==
-        //ResourceContainer::deleteObject(this);//we are NOT a child of ourselves what you do is basically this->deleteObject(this);
+    //ResourceContainer::deleteObject(this);//we are NOT a child of ourselves what you do is basically this->deleteObject(this);
 }
 
 
@@ -148,7 +148,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 
     uint32 attrCount = 4;
 
-    for(uint8 i = 0;i < 11;i++)
+    for(uint8 i = 0; i < 11; i++)
     {
         if(mResource->getAttribute(i))
             ++attrCount;
@@ -191,7 +191,7 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
     gMessageFactory->addString(BString("resource_class"));
     gMessageFactory->addString(tmpValueStr);
 
-    for(uint8 i = 0;i < 11;i++)
+    for(uint8 i = 0; i < 11; i++)
     {
         uint16	attrValue = 0;
         BString	attrName;
@@ -200,17 +200,39 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
         {
             switch(i)
             {
-                case ResAttr_OQ: attrName = "res_quality";				break;
-                case ResAttr_CR: attrName = "res_cold_resist";			break;
-                case ResAttr_CD: attrName = "res_conductivity";			break;
-                case ResAttr_DR: attrName = "res_decay_resist";			break;
-                case ResAttr_HR: attrName = "res_heat_resist";			break;
-                case ResAttr_MA: attrName = "res_malleability";			break;
-                case ResAttr_SR: attrName = "res_shock_resistance";		break;
-                case ResAttr_UT: attrName = "res_toughness";			break;
-                case ResAttr_ER: attrName = "entangle_resistance";		break;
-                case ResAttr_PE: attrName = "res_potential_energy";		break;
-                case ResAttr_FL: attrName = "res_flavor";				break;
+            case ResAttr_OQ:
+                attrName = "res_quality";
+                break;
+            case ResAttr_CR:
+                attrName = "res_cold_resist";
+                break;
+            case ResAttr_CD:
+                attrName = "res_conductivity";
+                break;
+            case ResAttr_DR:
+                attrName = "res_decay_resist";
+                break;
+            case ResAttr_HR:
+                attrName = "res_heat_resist";
+                break;
+            case ResAttr_MA:
+                attrName = "res_malleability";
+                break;
+            case ResAttr_SR:
+                attrName = "res_shock_resistance";
+                break;
+            case ResAttr_UT:
+                attrName = "res_toughness";
+                break;
+            case ResAttr_ER:
+                attrName = "entangle_resistance";
+                break;
+            case ResAttr_PE:
+                attrName = "res_potential_energy";
+                break;
+            case ResAttr_FL:
+                attrName = "res_flavor";
+                break;
             }
 
             tmpValueStr = BString(BSTRType_Unicode16,64);
@@ -234,8 +256,8 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 //
 
 void ResourceContainer::setParentIdIncDB(uint64 parentId)
-{ 
-    mParentId = parentId; 
+{
+    mParentId = parentId;
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
     gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId()); // SQL Debug Log
 }
@@ -244,7 +266,7 @@ void ResourceContainer::upDateFactoryVolume(BString amount)
 {
     uint32 a = 0;
     a = boost::lexical_cast<uint32>(amount.getAnsi());
-    
+
     if(a == this->getAmount())
     {
         return;
@@ -253,7 +275,7 @@ void ResourceContainer::upDateFactoryVolume(BString amount)
     this->setAmount(a);
 
     TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
-    
+
     PlayerObjectSet*			knownPlayers	= hopper->getKnownPlayers();
     PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
 
@@ -287,20 +309,20 @@ void ResourceContainer::prepareCustomRadialMenuInCell(CreatureObject* creatureOb
     radial->addItem(i++,0,radId_examine,radAction_Default,"");
 
     radial->addItem(i++,0,radId_itemPickup,radAction_Default,"");
-    
+
     u = i;
-    radial->addItem(i++,0,radId_itemMove,radAction_Default, "");	
+    radial->addItem(i++,0,radId_itemMove,radAction_Default, "");
     radial->addItem(i++,u,radId_itemMoveForward,radAction_Default, "");//radAction_ObjCallback
     radial->addItem(i++,u,radId_ItemMoveBack,radAction_Default, "");
     radial->addItem(i++,u,radId_itemMoveUp,radAction_Default, "");
     radial->addItem(i++,u,radId_itemMoveDown,radAction_Default, "");
-    
+
     u = i;
     radial->addItem(i++,0,radId_itemRotate,radAction_Default, "");
     radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
     radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
 
-  
+
     RadialMenuPtr radialPtr(radial);
     mRadialMenu = radialPtr;
 

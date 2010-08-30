@@ -73,51 +73,51 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 PlayerObject::PlayerObject()
-: CreatureObject()
-, mDataPad(NULL)
-, mBazaarPoint(NULL)
-, mClient(NULL)
-, mCraftingSession(NULL)
-, mMount(NULL)
-, mNearestCloningFacility(NULL)
-, mTravelPoint(NULL)
-, mTutorial(NULL)
-, mCombatTargetId(0)
-, mEntertainerPauseId(0)
-, mEntertainerTaskId(0)
-, mEntertainerWatchToId(0)
-, mLastGroupMissionUpdateTime(0)
-, mNearestCraftingStation(0)
-, mPlacedInstrument(0)
-, mPlayerObjId(0)
-, mPreDesignatedCloningFacilityId(0)
-, mSelectedInstrument(0)
-, mTradePartner(NULL)
-, mAccountId(0)
-, mClientTickCount(0)
-, mCraftingStage(0)
-, mDConnTime(60)
-, mExperimentationFlag(0)
-, mExperimentationPoints(0)
-, mFriendsListUpdateCounter(0)
-, mHoloEmote(0)
-, mPlayerCustomFlags(0)
-, mIgnoresListUpdateCounter(0)
-, mPlayerFlags(0)
-, mMissionIdMask(0)
-, mBindPlanet(-1)
-, mHomePlanet(-1)
-, mHoloCharge(0)
-, mLots(10)
-, mNewPlayerExemptions(0)
-, mAutoAttack(false)
-, mContactListUpdatePending(false)
-, mMotdReceived(false)
-, mMountCalled(false)
-, mMounted(false)
-, mNewPlayerMessage(false)
-, mTrading(false)
-, mHasCamp(false)
+    : CreatureObject()
+    , mDataPad(NULL)
+    , mBazaarPoint(NULL)
+    , mClient(NULL)
+    , mCraftingSession(NULL)
+    , mMount(NULL)
+    , mNearestCloningFacility(NULL)
+    , mTravelPoint(NULL)
+    , mTutorial(NULL)
+    , mCombatTargetId(0)
+    , mEntertainerPauseId(0)
+    , mEntertainerTaskId(0)
+    , mEntertainerWatchToId(0)
+    , mLastGroupMissionUpdateTime(0)
+    , mNearestCraftingStation(0)
+    , mPlacedInstrument(0)
+    , mPlayerObjId(0)
+    , mPreDesignatedCloningFacilityId(0)
+    , mSelectedInstrument(0)
+    , mTradePartner(NULL)
+    , mAccountId(0)
+    , mClientTickCount(0)
+    , mCraftingStage(0)
+    , mDConnTime(60)
+    , mExperimentationFlag(0)
+    , mExperimentationPoints(0)
+    , mFriendsListUpdateCounter(0)
+    , mHoloEmote(0)
+    , mPlayerCustomFlags(0)
+    , mIgnoresListUpdateCounter(0)
+    , mPlayerFlags(0)
+    , mMissionIdMask(0)
+    , mBindPlanet(-1)
+    , mHomePlanet(-1)
+    , mHoloCharge(0)
+    , mLots(10)
+    , mNewPlayerExemptions(0)
+    , mAutoAttack(false)
+    , mContactListUpdatePending(false)
+    , mMotdReceived(false)
+    , mMountCalled(false)
+    , mMounted(false)
+    , mNewPlayerMessage(false)
+    , mTrading(false)
+    , mHasCamp(false)
 {
     mIsForaging			= false;
     mType				= ObjType_Player;
@@ -132,13 +132,13 @@ PlayerObject::PlayerObject()
     registerEventFunction(this,&PlayerObject::onInjuryTreatment);
     registerEventFunction(this,&PlayerObject::onWoundTreatment);
     registerEventFunction(this,&PlayerObject::onQuickHealInjuryTreatment);
-    
+
     mLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 
     mPermissionId = 0;
 
     mIDSession = IDSessionNONE;
-    
+
     getSampleData()->mPassRadioactive	= false;
     getSampleData()->mPendingSample		= false;
     getSampleData()->mPendingSurvey		= false;
@@ -216,7 +216,7 @@ PlayerObject::~PlayerObject()
 
     // update duel lists
     clearDuelList();
-    
+
 
     // update defender lists
     ObjectIDList::iterator defenderIt = mDefenders.begin();
@@ -267,7 +267,7 @@ PlayerObject::~PlayerObject()
 
     delete(mStomach);
     delete(mTrade);
-    
+
     delete getClient();
     setClient(NULL);
 }
@@ -312,8 +312,8 @@ void PlayerObject::resetProperties()
     getSampleData()->mPendingSample		= false;
     getSampleData()->mSampleNodeRecovery= false;
 
-    this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
-    this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);	
+    this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+    this->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);
 
     mDefenderUpdateCounter				= 0;
     mReady								= false;
@@ -383,7 +383,7 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
         while(it != menuItemList->end())
         {
             radId++;
-            
+
             radial->addItem((*it)->sItem,(*it)->sSubMenu,(RadialIdentifier)(*it)->sIdentifier,(*it)->sOption,"");
             it++;
         }
@@ -425,7 +425,7 @@ void PlayerObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8
     if(playerObject->getGroupId() && (mGroupId == playerObject->getGroupId()))
     {
         radial->addItem(radId++,0,radId_serverTeach,radAction_ObjCallback,"Teach");
-        
+
     }
 
     RadialMenuPtr radialPtr(radial);
@@ -664,9 +664,9 @@ bool PlayerObject::restrictedXpType(uint32 xpType)
     }
     // FS and Jedi
     else if ((xpType == 7) || (xpType == 8) || (xpType == 9) || // Lightsabers
-            (xpType == 10) || (xpType == 31) ||				// Jedi and (unknown right now).
-            (xpType == 42) ||									// Force Rank
-            (xpType == 43) || (xpType == 44) || (xpType == 45) || (xpType == 46))	// Force sensitive
+             (xpType == 10) || (xpType == 31) ||				// Jedi and (unknown right now).
+             (xpType == 42) ||									// Force Rank
+             (xpType == 43) || (xpType == 44) || (xpType == 45) || (xpType == 46))	// Force sensitive
     {
         restricted = true;
     }
@@ -940,13 +940,24 @@ void PlayerObject::_verifyExplorationBadges()
 
     switch(count)
     {
-        case 10: addBadge(100); break;
-        case 20: addBadge(101); break;
-        case 30: addBadge(102); break;
-        case 40: addBadge(103); break;
-        case 45: addBadge(104); break;
+    case 10:
+        addBadge(100);
+        break;
+    case 20:
+        addBadge(101);
+        break;
+    case 30:
+        addBadge(102);
+        break;
+    case 40:
+        addBadge(103);
+        break;
+    case 45:
+        addBadge(104);
+        break;
 
-        default: break;
+    default:
+        break;
     }
 
     _verifyBadges();
@@ -960,15 +971,30 @@ void PlayerObject::_verifyBadges()
 
     switch(count)
     {
-        case 5:		addBadge(0); break;
-        case 10:	addBadge(1); break;
-        case 25:	addBadge(2); break;
-        case 50:	addBadge(3); break;
-        case 75:	addBadge(4); break;
-        case 100:	addBadge(5); break;
-        case 125:	addBadge(6); break;
+    case 5:
+        addBadge(0);
+        break;
+    case 10:
+        addBadge(1);
+        break;
+    case 25:
+        addBadge(2);
+        break;
+    case 50:
+        addBadge(3);
+        break;
+    case 75:
+        addBadge(4);
+        break;
+    case 100:
+        addBadge(5);
+        break;
+    case 125:
+        addBadge(6);
+        break;
 
-        default:break;
+    default:
+        break;
     }
 }
 
@@ -1114,57 +1140,57 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
     switch(messageType)
     {
-        case radId_serverTeach:
+    case radId_serverTeach:
+    {
+        // todo : In theory - if someone breaks our encryption - we might get a botter
+        // in which case our checks need to be better! At this time we can *assume* that the client provided
+        // us with a teacher and pupil!
+
+        // check if our pupil already gets taught
+        if (!mTrade->getTeacher())
         {
-            // todo : In theory - if someone breaks our encryption - we might get a botter
-            // in which case our checks need to be better! At this time we can *assume* that the client provided
-            // us with a teacher and pupil!
-
-            // check if our pupil already gets taught
-            if (!mTrade->getTeacher())
-            {
-                mTrade->setTeacher(callingObject);
-                gSkillManager->teach(this,callingObject,"");
-            }
-            else
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "student_has_offer_to_learn", 0, mId, 0), callingObject);
-            }
+            mTrade->setTeacher(callingObject);
+            gSkillManager->teach(this,callingObject,"");
         }
-        break;
-
-        case radId_tradeStart:
-        break;
-
-        case radId_serverPerformanceWatch:
+        else
         {
-            gEntertainerManager->startWatching(callingObject,this);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "student_has_offer_to_learn", 0, mId, 0), callingObject);
         }
+    }
+    break;
+
+    case radId_tradeStart:
         break;
 
-        case radId_serverPerformanceWatchStop:
-        {
-            gEntertainerManager->stopWatching(callingObject);
-        }
-        break;
+    case radId_serverPerformanceWatch:
+    {
+        gEntertainerManager->startWatching(callingObject,this);
+    }
+    break;
 
-        case radId_serverPerformanceListen:
-        {
-            gEntertainerManager->startListening(callingObject,this);
-        }
-        break;
+    case radId_serverPerformanceWatchStop:
+    {
+        gEntertainerManager->stopWatching(callingObject);
+    }
+    break;
 
-        case radId_serverPerformanceListenStop:
-        {
-            gEntertainerManager->stopListening(callingObject);
-        }
-        break;
+    case radId_serverPerformanceListen:
+    {
+        gEntertainerManager->startListening(callingObject,this);
+    }
+    break;
 
-        default:
-        {
-            gLogger->log(LogManager::DEBUG,"PlayerObject: Unhandled MenuSelect: %u",messageType);
-        }
-        break;
+    case radId_serverPerformanceListenStop:
+    {
+        gEntertainerManager->stopListening(callingObject);
+    }
+    break;
+
+    default:
+    {
+        gLogger->log(LogManager::DEBUG,"PlayerObject: Unhandled MenuSelect: %u",messageType);
+    }
+    break;
     }
 }
 
@@ -1201,312 +1227,316 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
     switch(window->getWindowType())
     {
         // clone activation list box
-        case SUI_Window_CloneSelect_ListBox:
+    case SUI_Window_CloneSelect_ListBox:
+    {
+        // gLogger->log(LogManager::DEBUG,"PlayerObject::handleUIEvent element = %d",element);
+
+        // Handle non-selected response as if closest cloning facility was selected,
+        // until we learn how to restart the dialog when nothing selected.
+        if (element < 0 || element > 1)
         {
-            // gLogger->log(LogManager::DEBUG,"PlayerObject::handleUIEvent element = %d",element);
+            element = 0;
+            // No selection made, re-open the dialog.
+            // window->sendCreate();
+            // break;
+        }
 
-            // Handle non-selected response as if closest cloning facility was selected,
-            // until we learn how to restart the dialog when nothing selected.
-            if (element < 0 || element > 1)
+        UICloneSelectListBox* lb = dynamic_cast<UICloneSelectListBox*>(window);
+
+        if ((lb) && (lb->getBuildingList()->size() > 0))
+        {
+            if (BuildingObject* building = lb->getBuildingList()->at(element))
             {
-                element = 0;
-                // No selection made, re-open the dialog.
-                // window->sendCreate();
-                // break;
-            }
-
-            UICloneSelectListBox* lb = dynamic_cast<UICloneSelectListBox*>(window);
-
-            if ((lb) && (lb->getBuildingList()->size() > 0))
-            {
-                if (BuildingObject* building = lb->getBuildingList()->at(element))
+                if (SpawnPoint* sp = building->getRandomSpawnPoint())
                 {
-                    if (SpawnPoint* sp = building->getRandomSpawnPoint())
+                    if (element == 1)
                     {
-                        if (element == 1)
+                        // Clone at the pre-designated facility...
+                        mObjectController.cloneAtPreDesignatedFacility(this, sp);
+                    }
+                    else //  if (element == 0)  // Handle non-selected response as if closest cloning facility was selected,
+                        // until we learn how to restart the dialog when nothing selected.
+                    {
+                        // We selected the closest facility, but that CAN be the same as the pre-designated.
+                        if (lb->getBuildingList()->size() > 1)
                         {
-                            // Clone at the pre-designated facility...
-                            mObjectController.cloneAtPreDesignatedFacility(this, sp);
-                        }
-                        else //  if (element == 0)  // Handle non-selected response as if closest cloning facility was selected,
-                            // until we learn how to restart the dialog when nothing selected.
-                        {
-                            // We selected the closest facility, but that CAN be the same as the pre-designated.
-                            if (lb->getBuildingList()->size() > 1)
+                            // We do have more than one selection
+                            if (BuildingObject* preDesignatedBuilding = lb->getBuildingList()->at(1))
                             {
-                                // We do have more than one selection
-                                if (BuildingObject* preDesignatedBuilding = lb->getBuildingList()->at(1))
+                                if (preDesignatedBuilding == building)
                                 {
-                                    if (preDesignatedBuilding == building)
-                                    {
-                                        // Clone at the pre-designated facility...
-                                        mObjectController.cloneAtPreDesignatedFacility(this, sp);
-                                        break;
-                                    }
+                                    // Clone at the pre-designated facility...
+                                    mObjectController.cloneAtPreDesignatedFacility(this, sp);
+                                    break;
                                 }
                             }
-                            if (this->mNewPlayerExemptions == 0)
-                            {
-                                // Add wounds...
-                                this->getHam()->updatePrimaryWounds(100);
-
-                                // .. and some BF
-                                this->getHam()->updateBattleFatigue(100, true);
-                            }
-
-                            // Clone
-                            clone(sp->mCellId,sp->mDirection,sp->mPosition);
                         }
+                        if (this->mNewPlayerExemptions == 0)
+                        {
+                            // Add wounds...
+                            this->getHam()->updatePrimaryWounds(100);
+
+                            // .. and some BF
+                            this->getHam()->updateBattleFatigue(100, true);
+                        }
+
+                        // Clone
+                        clone(sp->mCellId,sp->mDirection,sp->mPosition);
                     }
                 }
             }
         }
-        break;
+    }
+    break;
 
-        // generic message box
-        case SUI_Window_MessageBox:
+    // generic message box
+    case SUI_Window_MessageBox:
+    {
+        // identify by event string, none needed yet
+        if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
         {
-            // identify by event string, none needed yet
-            if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
-            {
 
-            }
         }
-        break;
+    }
+    break;
 
-        // generic list box
-        case SUI_Window_ListBox:
+    // generic list box
+    case SUI_Window_ListBox:
+    {
+        // identify by event string, none needed yet
+        if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
         {
-            // identify by event string, none needed yet
-            if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
-            {
 
-            }
         }
-        break;
+    }
+    break;
 
-        // generix input box
-        case SUI_Window_InputBox:
+    // generix input box
+    case SUI_Window_InputBox:
+    {
+        // identify by event string, none needed yet
+        if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
         {
-            // identify by event string, none needed yet
-            if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
-            {
 
-            }
         }
-        break;
+    }
+    break;
 
-        // teaching, skill select box
-        case SUI_Window_Teach_SelectSkill_ListBox:
+    // teaching, skill select box
+    case SUI_Window_Teach_SelectSkill_ListBox:
+    {
+        UISkillSelectBox*	skillSelectBox	= dynamic_cast<UISkillSelectBox*>(window);
+        PlayerObject*		pupilObject		= skillSelectBox->getPupil();
+
+        if(action == 1)
         {
-            UISkillSelectBox*	skillSelectBox	= dynamic_cast<UISkillSelectBox*>(window);
-            PlayerObject*		pupilObject		= skillSelectBox->getPupil();
-
-            if(action == 1)
-            {
-                pupilObject->getTrade()->setTeacher(NULL);
-                return;
-            }
-
-            // WE are the teacher at this point deciding what to teach
-            BStringVector*		dataItems	= skillSelectBox->getDataItems();
-            BStringVector		splitSkill;
-            BStringVector		splitProf;
-            BString				skillString = dataItems->at(element);
-
-            if(!skillString.getLength() || skillString.split(splitSkill,':') < 2)
-            {
-                return;
-            }
-
-            Skill* skill = gSkillManager->getSkillByName(splitSkill[1]);
-
-            if(!skill)
-            {
-                gLogger->log(LogManager::DEBUG,"PlayerObject: teach skill : skill list surprisingly empty\n");
-                return;
-            }
-
-            // test whether its a profession
-            // in that case redo the box with the professions skills shown and any other profession reduced
-            int8 caption[128],text[128];
-
-            if(splitSkill[1].split(splitProf,'_') == 2)
-            {
-                // its a profession. Build the list new with the professions skills shown
-                gSkillManager->teach(pupilObject,this,splitSkill[1]);
-
-                return;
-            }
-
-            // its a skill - offer to teach it
-            sprintf(text,"@skl_n:%s",skill->mName.getAnsi());
-            sprintf(caption,"%s offers to teach you : %s",mFirstName.getAnsi(),text);
-
-            gUIManager->createNewSkillTeachMessageBox(this,"askteach",caption,text,pupilObject,SUI_MB_OKCANCEL,skillSelectBox->getPupil(),skill);
+            pupilObject->getTrade()->setTeacher(NULL);
+            return;
         }
-        break;
 
-        // teaching, accept / decline box
-        case SUI_Window_Teach_OfferSkill_MsgBox:
+        // WE are the teacher at this point deciding what to teach
+        BStringVector*		dataItems	= skillSelectBox->getDataItems();
+        BStringVector		splitSkill;
+        BStringVector		splitProf;
+        BString				skillString = dataItems->at(element);
+
+        if(!skillString.getLength() || skillString.split(splitSkill,':') < 2)
         {
-            UIOfferTeachBox* teachBox = dynamic_cast<UIOfferTeachBox*>(window);
+            return;
+        }
 
-            if(action == 1)
-            {
-                teachBox->getPupil()->getTrade()->setTeacher(NULL);
-                gUIManager->createNewMessageBox(NULL,"askteach","","@teaching:offer_refused",this);
-                return;
-            }
+        Skill* skill = gSkillManager->getSkillByName(splitSkill[1]);
 
+        if(!skill)
+        {
+            gLogger->log(LogManager::DEBUG,"PlayerObject: teach skill : skill list surprisingly empty\n");
+            return;
+        }
+
+        // test whether its a profession
+        // in that case redo the box with the professions skills shown and any other profession reduced
+        int8 caption[128],text[128];
+
+        if(splitSkill[1].split(splitProf,'_') == 2)
+        {
+            // its a profession. Build the list new with the professions skills shown
+            gSkillManager->teach(pupilObject,this,splitSkill[1]);
+
+            return;
+        }
+
+        // its a skill - offer to teach it
+        sprintf(text,"@skl_n:%s",skill->mName.getAnsi());
+        sprintf(caption,"%s offers to teach you : %s",mFirstName.getAnsi(),text);
+
+        gUIManager->createNewSkillTeachMessageBox(this,"askteach",caption,text,pupilObject,SUI_MB_OKCANCEL,skillSelectBox->getPupil(),skill);
+    }
+    break;
+
+    // teaching, accept / decline box
+    case SUI_Window_Teach_OfferSkill_MsgBox:
+    {
+        UIOfferTeachBox* teachBox = dynamic_cast<UIOfferTeachBox*>(window);
+
+        if(action == 1)
+        {
             teachBox->getPupil()->getTrade()->setTeacher(NULL);
-
-            //send mission accomplished to teacher
-            BString convName = teachBox->getPupil()->getFirstName().getAnsi();
-            convName.convert(BSTRType_Unicode16);
-            
-            ::common::ProsePackage prose("teaching", "teacher_skill_learned");
-            prose.to_stf_file = "skl_n";
-            prose.to_stf_label = teachBox->getSkill()->mName.getAnsi();
-            prose.tt_custom_string = convName.getUnicode16();
-
-            gMessageLib->SendSystemMessage(::common::OutOfBand(prose), this);
-
-            //add skill to our pupils repertoir and send mission accomplished to our pupil
-            gSkillManager->learnSkill(teachBox->getSkill()->mId,teachBox->getPupil(),true);
+            gUIManager->createNewMessageBox(NULL,"askteach","","@teaching:offer_refused",this);
+            return;
         }
-        break;
 
-        // dance select list box
-        case SUI_Window_SelectDance_Listbox:
+        teachBox->getPupil()->getTrade()->setTeacher(NULL);
+
+        //send mission accomplished to teacher
+        BString convName = teachBox->getPupil()->getFirstName().getAnsi();
+        convName.convert(BSTRType_Unicode16);
+
+        ::common::ProsePackage prose("teaching", "teacher_skill_learned");
+        prose.to_stf_file = "skl_n";
+        prose.to_stf_label = teachBox->getSkill()->mName.getAnsi();
+        prose.tt_custom_string = convName.getUnicode16();
+
+        gMessageLib->SendSystemMessage(::common::OutOfBand(prose), this);
+
+        //add skill to our pupils repertoir and send mission accomplished to our pupil
+        gSkillManager->learnSkill(teachBox->getSkill()->mId,teachBox->getPupil(),true);
+    }
+    break;
+
+    // dance select list box
+    case SUI_Window_SelectDance_Listbox:
+    {
+        if(action == 1)
+            return;
+
+        UIListBox*			danceSelectBox	= dynamic_cast<UIListBox*>(window);
+        BStringVector*		dataItems		= danceSelectBox->getDataItems();
+        BStringVector		splitDance;
+
+        if(element > -1)
         {
-            if(action == 1)
+            BString	danceString = dataItems->at(element);
+
+            if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
+            {
                 return;
+            }
 
-            UIListBox*			danceSelectBox	= dynamic_cast<UIListBox*>(window);
-            BStringVector*		dataItems		= danceSelectBox->getDataItems();
-            BStringVector		splitDance;
+            BString mDance = splitDance[1];
 
-            if(element > -1)
+            // if we are already dancing, only change the dance, otherwise start entertaining
+            if(mPendingPerform == PlayerPerformance_None)
             {
-                BString	danceString = dataItems->at(element);
-
-                if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
-                {
-                    return;
-                }
-
-                BString mDance = splitDance[1];
-
-                // if we are already dancing, only change the dance, otherwise start entertaining
-                if(mPendingPerform == PlayerPerformance_None)
-                {
-                    mPendingPerform = PlayerPerformance_Dance;
-                    gEntertainerManager->startDancePerformance(this,mDance);
-                }
-                else
-                {
-                    gEntertainerManager->changeDance(this,mDance);
-                }
+                mPendingPerform = PlayerPerformance_Dance;
+                gEntertainerManager->startDancePerformance(this,mDance);
+            }
+            else
+            {
+                gEntertainerManager->changeDance(this,mDance);
             }
         }
-        break;
+    }
+    break;
 
-        // outcast select listbox
-        case SUI_Window_SelectOutcast_Listbox:
+    // outcast select listbox
+    case SUI_Window_SelectOutcast_Listbox:
+    {
+        UIListBox*		outcastSelectBox	= dynamic_cast<UIListBox*>(window);
+        BStringVector*	dataItems			= outcastSelectBox->getDataItems();
+
+        if(element > -1)
         {
-            UIListBox*		outcastSelectBox	= dynamic_cast<UIListBox*>(window);
-            BStringVector*	dataItems			= outcastSelectBox->getDataItems();
+            BString outcastString = dataItems->at(element);
 
-            if(element > -1)
+            if(!outcastString.getLength())
             {
-                BString outcastString = dataItems->at(element);
-
-                if(!outcastString.getLength())
-                {
-                    return;
-                }
-
-                gEntertainerManager->verifyOutcastName(this,outcastString);
-            }
-        }
-        break;
-
-        // music select list box
-        case SUI_Window_SelectMusic_Listbox:
-        {
-            if(action == 1)
                 return;
-
-            UIListBox*		musicSelectBox	= dynamic_cast<UIListBox*>(window);
-            BStringVector*	dataItems		= musicSelectBox->getDataItems();
-            BStringVector	splitDance;
-
-            if(element > -1)
-            {
-                BString	danceString = dataItems->at(element);
-
-                if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
-                {
-                    return;
-                }
-
-                BString mDance = splitDance[1];
-
-                // if we are already making music, only change the piece, otherwise start entertaining
-                if(mPendingPerform == PlayerPerformance_None)
-                {
-                    mPendingPerform = PlayerPerformance_Music;
-                    gEntertainerManager->startMusicPerformance(this,mDance);
-                }
-                else
-                {
-                    gEntertainerManager->changeMusic(this,mDance);
-                }
-            }
-        }
-        break;
-
-        // group loot mode listbox
-        case SUI_Window_SelectGroupLootMode_Listbox:
-        {
-            // only 4 loot modes allowed
-            if (element < 0 || element > 3) { break; }
-
-            // advise the chat server
-            gMessageLib->sendGroupLootModeResponse(this,element);
-        }
-        break;
-
-        // group loot master listbox
-        case SUI_Window_SelectGroupLootMaster_Listbox:
-        {
-            if (element < 0) { break; }
-
-            UIPlayerSelectBox* selectionBox = dynamic_cast<UIPlayerSelectBox*>(window);
-            //PlayerObject* selectedPlayer = selectionBox->getPlayers()[];
-
-            //I realise this is not the FASTEST way to do this, but PlayerList is used as a list EVERYWHERE else.
-            PlayerList::iterator it = selectionBox->getPlayers().begin();
-            std::advance(it, element-1);
-
-            PlayerObject* selectedPlayer = *it;
-
-            if(selectedPlayer == NULL)
-            {
-                gLogger->log(LogManager::DEBUG,"SUI_Window_SelectGroupLootMaster_Listbox: Invalid player selection");
-                break;
             }
 
-            gMessageLib->sendGroupLootMasterResponse(selectedPlayer,this);
+            gEntertainerManager->verifyOutcastName(this,outcastString);
         }
-        break;
+    }
+    break;
 
-        default:
+    // music select list box
+    case SUI_Window_SelectMusic_Listbox:
+    {
+        if(action == 1)
+            return;
+
+        UIListBox*		musicSelectBox	= dynamic_cast<UIListBox*>(window);
+        BStringVector*	dataItems		= musicSelectBox->getDataItems();
+        BStringVector	splitDance;
+
+        if(element > -1)
         {
-            gLogger->log(LogManager::DEBUG,"handleUIEvent:Default: %u, %u, %s,", action, element, inputStr.getAnsi());
+            BString	danceString = dataItems->at(element);
+
+            if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
+            {
+                return;
+            }
+
+            BString mDance = splitDance[1];
+
+            // if we are already making music, only change the piece, otherwise start entertaining
+            if(mPendingPerform == PlayerPerformance_None)
+            {
+                mPendingPerform = PlayerPerformance_Music;
+                gEntertainerManager->startMusicPerformance(this,mDance);
+            }
+            else
+            {
+                gEntertainerManager->changeMusic(this,mDance);
+            }
         }
-        break;
+    }
+    break;
+
+    // group loot mode listbox
+    case SUI_Window_SelectGroupLootMode_Listbox:
+    {
+        // only 4 loot modes allowed
+        if (element < 0 || element > 3) {
+            break;
+        }
+
+        // advise the chat server
+        gMessageLib->sendGroupLootModeResponse(this,element);
+    }
+    break;
+
+    // group loot master listbox
+    case SUI_Window_SelectGroupLootMaster_Listbox:
+    {
+        if (element < 0) {
+            break;
+        }
+
+        UIPlayerSelectBox* selectionBox = dynamic_cast<UIPlayerSelectBox*>(window);
+        //PlayerObject* selectedPlayer = selectionBox->getPlayers()[];
+
+        //I realise this is not the FASTEST way to do this, but PlayerList is used as a list EVERYWHERE else.
+        PlayerList::iterator it = selectionBox->getPlayers().begin();
+        std::advance(it, element-1);
+
+        PlayerObject* selectedPlayer = *it;
+
+        if(selectedPlayer == NULL)
+        {
+            gLogger->log(LogManager::DEBUG,"SUI_Window_SelectGroupLootMaster_Listbox: Invalid player selection");
+            break;
+        }
+
+        gMessageLib->sendGroupLootMasterResponse(selectedPlayer,this);
+    }
+    break;
+
+    default:
+    {
+        gLogger->log(LogManager::DEBUG,"handleUIEvent:Default: %u, %u, %s,", action, element, inputStr.getAnsi());
+    }
+    break;
     }
 }
 
@@ -1525,11 +1555,11 @@ void PlayerObject::clearDuelList()
         //please note, that a challenge means, that only the challengers list is updated with the challenged players name
         // the challenged players list remains empty
         PlayerObject* duelPlayer;
-        try 
+        try
         {
-            duelPlayer = dynamic_cast<PlayerObject*>((*duelIt));   
-        } 
-        catch (...) 
+            duelPlayer = dynamic_cast<PlayerObject*>((*duelIt));
+        }
+        catch (...)
         {
             // The player might have logged out without accepting the duel
             duelPlayer = nullptr;
@@ -1544,7 +1574,7 @@ void PlayerObject::clearDuelList()
         }
 
         ++duelIt;
-    }		 
+    }
     mDuelList.clear();
 }
 
@@ -1595,13 +1625,13 @@ void PlayerObject::removeFromDuelList(PlayerObject* player)
 //
 //PlayerList::iterator PlayerObject::removeFromDuelList(PlayerList::iterator& it)
 //{
-//	return mDuelList.erase(it);		
+//	return mDuelList.erase(it);
 //}
 
 void PlayerObject::addToDuelList(PlayerObject* player)
-{ 
+{
     if(this->getId()!= player->getId())
-        mDuelList.push_back(player); 
+        mDuelList.push_back(player);
     else
         gLogger->log(LogManager::DEBUG,"PlayerObject::addToDuelList: %I64u wanted to add himself to his/her duel list", player->getId());
 }
@@ -1614,7 +1644,7 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, Ite
     ObjectSet::iterator it = inRangeObjects->begin();
 
     mNearestCraftingStation = 0;
-    
+
     while(it != inRangeObjects->end())
     {
         if(CraftingStation*	station = dynamic_cast<CraftingStation*>(*it))
@@ -1624,78 +1654,78 @@ CraftingStation* PlayerObject::getCraftingStation(ObjectSet*	inRangeObjects, Ite
             // check whether the station fits to our tool
             switch(toolType)
             {
-                case ItemType_ClothingTool:
+            case ItemType_ClothingTool:
+            {
+                if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
                 {
-                    if(stationType == ItemType_ClothingStation || stationType == ItemType_ClothingStationPublic)
+                    if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
                     {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
+                        mNearestCraftingStation = station->getId();
+                        return(station);
                     }
                 }
-                break;
+            }
+            break;
 
-                case ItemType_WeaponTool:
+            case ItemType_WeaponTool:
+            {
+                if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
                 {
-                    if(stationType == ItemType_WeaponStation || stationType == ItemType_WeaponStationPublic)
+                    if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
                     {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
+                        mNearestCraftingStation = station->getId();
+                        return(station);
                     }
                 }
-                break;
+            }
+            break;
 
-                case ItemType_FoodTool:
+            case ItemType_FoodTool:
+            {
+                if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
                 {
-                    if(stationType == ItemType_FoodStation || stationType == ItemType_FoodStationPublic)
+                    if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
                     {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
+                        mNearestCraftingStation = station->getId();
+                        return(station);
                     }
                 }
-                break;
+            }
+            break;
 
-                case ItemType_StructureTool:
+            case ItemType_StructureTool:
+            {
+                if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
                 {
-                    if(stationType == ItemType_StructureStation || stationType == ItemType_StructureStationPublic)
+                    if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
                     {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
+                        mNearestCraftingStation = station->getId();
+                        return(station);
                     }
                 }
-                break;
+            }
+            break;
 
-                case ItemType_SpaceTool:
+            case ItemType_SpaceTool:
+            {
+                if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
                 {
-                    if(stationType == ItemType_SpaceStation || stationType == ItemType_SpaceStationPublic)
+                    if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
                     {
-                        if (glm::distance(this->getWorldPosition(), station->getWorldPosition()) <= 25)
-                        {
-                            mNearestCraftingStation = station->getId();
-                            return(station);
-                        }
+                        mNearestCraftingStation = station->getId();
+                        return(station);
                     }
-                }	
-                break;
-
-                case ItemType_GenericTool:
-                case ItemType_JediTool:
-                default:
-                {
-                    return(NULL);
                 }
-                break;
+            }
+            break;
+
+            case ItemType_GenericTool:
+            case ItemType_JediTool:
+            default:
+            {
+                return(NULL);
+            }
+            break;
             }
         }
 
@@ -1712,14 +1742,14 @@ bool PlayerObject::isNearestCraftingStationPrivate(uint64 station)
     {
         switch(craftStation->getItemType())
         {
-            case ItemType_ClothingStation:
-            case ItemType_WeaponStation:
-            case ItemType_FoodStation:
-            case ItemType_StructureStation:
-            case ItemType_SpaceStation:
-                return true;
-            default:
-                return false;
+        case ItemType_ClothingStation:
+        case ItemType_WeaponStation:
+        case ItemType_FoodStation:
+        case ItemType_StructureStation:
+        case ItemType_SpaceStation:
+            return true;
+        default:
+            return false;
         }
     }
     return false;
@@ -1731,7 +1761,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
     // Remove revive timer, if any.
     gWorldManager->removePlayerObjectForTimedCloning(mId);
 
-    
+
 
     //reset buffs
     BuffList::iterator it = this->GetBuffList()->begin();
@@ -1871,7 +1901,7 @@ void PlayerObject::newPlayerMessage(void)
         }
         else if (mNewPlayerExemptions == 0)
         {
-            // New player exemption status has expired. You will now be required to insure your items if you wish to retain them after cloning.            
+            // New player exemption status has expired. You will now be required to insure your items if you wish to retain them after cloning.
             gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "newbie_expired"), this);
         }
 
@@ -2035,8 +2065,8 @@ bool PlayerObject::regainLots(uint8 lots)
 // assign the item a new parent id
 //
 void PlayerObject::setParentIdIncDB(uint64 parentId)
-{ 
-    mParentId = parentId; 
+{
+    mParentId = parentId;
 
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
     gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId()); // SQL Debug Log
@@ -2055,10 +2085,10 @@ void PlayerObject::setSitting(Message* message)
     uint64			chairCell		= 0;
     uint32			elementCount	= 0;
 
-    
+
     if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
     {
-        this->togglePlayerFlagOff(PlayerCustomFlag_LogOut);	
+        this->togglePlayerFlagOff(PlayerCustomFlag_LogOut);
         gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);
     }
 
@@ -2193,7 +2223,7 @@ void PlayerObject::setUpright()
     if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
     {
         this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
-        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
+        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);
     }
 
     this->toggleStateOff(CreatureState_SittingOnChair);
@@ -2210,7 +2240,7 @@ void PlayerObject::setUpright()
     bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
     if(IsSeatedOnChair)
     {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);	
+        gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);
     }
 }
 
@@ -2229,14 +2259,14 @@ void PlayerObject::setProne()
     if(this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
     {
         this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
-        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);	
+        gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), this);
     }
 
     this->toggleStateOff(CreatureState_SittingOnChair);
-    
+
 
     // Can not compare bitwise data with equality... the test below will only work if ALL other states = 0.
-    
+
 
     this->setPosture(CreaturePosture_Prone);
     this->getHam()->updateRegenRates();
@@ -2265,8 +2295,8 @@ void PlayerObject::setCrouched()
     bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
 
     //make sure we end states
-    //the logoff states is an invention of mine btw 
-    
+    //the logoff states is an invention of mine btw
+
     this->toggleStateOff(CreatureState_SittingOnChair);
 
     this->setPosture(CreaturePosture_Crouched);
@@ -2290,61 +2320,61 @@ void PlayerObject::playFoodSound(bool food, bool drink)
     switch (getRaceId())
     {
         // wookiee
-        case 4:
-            if (gender)
-            {
-                // female
-                if (food)
-                    gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(545),mPosition,this);	
-                if (drink)
-                    gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Female, this);	
-            }
-            else
-            {
-                // male
-                if (food)
-                    gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(552),mPosition,this);
-                if (drink)
-                    gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Male, this);	
-            }
-            break;
+    case 4:
+        if (gender)
+        {
+            // female
+            if (food)
+                gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(545),mPosition,this);
+            if (drink)
+                gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Female, this);
+        }
+        else
+        {
+            // male
+            if (food)
+                gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(552),mPosition,this);
+            if (drink)
+                gMessageLib->sendPlayMusicMessage(WMSound_Drink_Wookiee_Male, this);
+        }
+        break;
         // reptile aka Trandoshan
-        case 6:
-            if (gender)
-            {
-                // female
-                if (food)
-                    gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);	
-                if (drink)
-                    gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Female, this);	
-            }
-            else
-            {
-                // male
-                if (food)
-                    gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
-                if (drink)
-                    gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Male, this);	
-            }
-            break;
+    case 6:
+        if (gender)
+        {
+            // female
+            if (food)
+                gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);
+            if (drink)
+                gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Female, this);
+        }
+        else
+        {
+            // male
+            if (food)
+                gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
+            if (drink)
+                gMessageLib->sendPlayMusicMessage(WMSound_Drink_Reptile_Male, this);
+        }
+        break;
         // all else
-        default:
-            if (gender)
-            {
-                // female
-                if (food)
-                    gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);	
-                if (drink)
-                    gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female, this);	
-            }
-            else
-            {
-                // male
-                if (food)
-                    gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
-                if (drink)
-                    gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male, this);	
-            }
-            break;
+    default:
+        if (gender)
+        {
+            // female
+            if (food)
+                gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(560),mPosition,this);
+            if (drink)
+                gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Female, this);
+        }
+        else
+        {
+            // male
+            if (food)
+                gMessageLib->sendPlayClientEffectLocMessage(gWorldManager->getClientEffect(568),mPosition,this);
+            if (drink)
+                gMessageLib->sendPlayMusicMessage(WMSound_Drink_Human_Male, this);
+        }
+        break;
     }
 }

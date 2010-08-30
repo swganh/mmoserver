@@ -39,38 +39,38 @@ DatabaseManager::DatabaseManager(void)
 //======================================================================================================================
 DatabaseManager::~DatabaseManager(void)
 {
-	DatabaseList::iterator iter = mDatabaseList.begin();
+    DatabaseList::iterator iter = mDatabaseList.begin();
 
-	while(iter != mDatabaseList.end())
-	{
-		delete(*iter);
-		iter = mDatabaseList.erase(iter);
-	}
+    while(iter != mDatabaseList.end())
+    {
+        delete(*iter);
+        iter = mDatabaseList.erase(iter);
+    }
 }
 
 //======================================================================================================================
 void DatabaseManager::Process(void)
 {
-  DatabaseList::iterator iter;
-  for (iter = mDatabaseList.begin(); iter != mDatabaseList.end(); iter++)
-  {
-    (*iter)->Process();
-  }
+    DatabaseList::iterator iter;
+    for (iter = mDatabaseList.begin(); iter != mDatabaseList.end(); iter++)
+    {
+        (*iter)->Process();
+    }
 }
 
 
 //======================================================================================================================
 Database* DatabaseManager::Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* schema)
 {
-  Database* newDatabase = 0;
+    Database* newDatabase = 0;
 
-  // Create our new Database object and initiailzie it.
-  newDatabase = new Database(type, host, port, user, pass, schema);
+    // Create our new Database object and initiailzie it.
+    newDatabase = new Database(type, host, port, user, pass, schema);
 
-  // Add the new DB to our process list.
-  mDatabaseList.push_back(newDatabase);
+    // Add the new DB to our process list.
+    mDatabaseList.push_back(newDatabase);
 
-  return newDatabase;
+    return newDatabase;
 }
 
 

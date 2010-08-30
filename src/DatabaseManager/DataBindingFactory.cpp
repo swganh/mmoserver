@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 
 DataBindingFactory::DataBindingFactory(void) :
-mDataBindingPool(sizeof(DataBinding))
+    mDataBindingPool(sizeof(DataBinding))
 {
 
 }
@@ -48,14 +48,14 @@ DataBindingFactory::~DataBindingFactory(void)
 
 DataBinding* DataBindingFactory::CreateDataBinding(uint16 fieldCount)
 {
-	return(new (mDataBindingPool.ordered_malloc()) DataBinding(fieldCount));
+    return(new (mDataBindingPool.ordered_malloc()) DataBinding(fieldCount));
 }
 
 //======================================================================================================================
 
 void DataBindingFactory::DestroyDataBinding(DataBinding* binding)
 {
-	mDataBindingPool.ordered_free(binding);
+    mDataBindingPool.ordered_free(binding);
 }
 
 //======================================================================================================================

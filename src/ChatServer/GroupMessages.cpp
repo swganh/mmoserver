@@ -37,94 +37,94 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ChatMessageLib::sendIsmInviteRequest(Player* sender, Player* target) const
 {
-	// lets tell the zone to pop the invite window
-	Message* newMessage;
+    // lets tell the zone to pop the invite window
+    Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupInviteRequest);
-	gMessageFactory->addUint32(sender->getClient()->getAccountId());  // the sender's id
-	gMessageFactory->addUint32(target->getClient()->getAccountId()); // the reciever account id
-	gMessageFactory->addUint64(sender->getGroupId()); // the group id
-	newMessage = gMessageFactory->EndMessage();
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opIsmGroupInviteRequest);
+    gMessageFactory->addUint32(sender->getClient()->getAccountId());  // the sender's id
+    gMessageFactory->addUint32(target->getClient()->getAccountId()); // the reciever account id
+    gMessageFactory->addUint64(sender->getGroupId()); // the group id
+    newMessage = gMessageFactory->EndMessage();
 
-	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
+    target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
 }
 
 //======================================================================================================================
 
 void ChatMessageLib::sendIsmGroupLootModeResponse(Player* target) const
 {
-	// lets tell the zone to pop the invite window
-	Message* newMessage;
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupLootModeResponse);
-	gMessageFactory->addUint32(target->getClient()->getAccountId());  // the sender's id
-	newMessage = gMessageFactory->EndMessage();
-	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
+    // lets tell the zone to pop the invite window
+    Message* newMessage;
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opIsmGroupLootModeResponse);
+    gMessageFactory->addUint32(target->getClient()->getAccountId());  // the sender's id
+    newMessage = gMessageFactory->EndMessage();
+    target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
 }
 
 //======================================================================================================================
 
 void ChatMessageLib::sendIsmGroupLootMasterResponse(Player* target) const
 {
-	// lets tell the zone to pop the invite window
-	Message* newMessage;
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupLootMasterResponse);
-	gMessageFactory->addUint32(target->getClient()->getAccountId());  // the sender's id
-	newMessage = gMessageFactory->EndMessage();
-	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
+    // lets tell the zone to pop the invite window
+    Message* newMessage;
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opIsmGroupLootMasterResponse);
+    gMessageFactory->addUint32(target->getClient()->getAccountId());  // the sender's id
+    newMessage = gMessageFactory->EndMessage();
+    target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
 }
 
 void ChatMessageLib::sendIsmIsGroupLeaderResponse(Player* player, uint64 requestId, bool isLeader)
 {
-	gMessageFactory->StartMessage();
+    gMessageFactory->StartMessage();
 
-	gMessageFactory->addUint32(opIsmIsGroupLeaderResponse);
+    gMessageFactory->addUint32(opIsmIsGroupLeaderResponse);
 
-	gMessageFactory->addUint64(requestId);
-	gMessageFactory->addUint64(player->getCharId()); //Player Id
+    gMessageFactory->addUint64(requestId);
+    gMessageFactory->addUint64(player->getCharId()); //Player Id
 
-	if(isLeader)
-		gMessageFactory->addUint8(1);
-	else
-		gMessageFactory->addUint8(0);
+    if(isLeader)
+        gMessageFactory->addUint8(1);
+    else
+        gMessageFactory->addUint8(0);
 
-	Message* newMessage = gMessageFactory->EndMessage();
+    Message* newMessage = gMessageFactory->EndMessage();
 
-	player->getClient()->SendChannelA(newMessage, player->getClient()->getAccountId(), static_cast<uint8>(player->getPlanetId())+8, 3);
+    player->getClient()->SendChannelA(newMessage, player->getClient()->getAccountId(), static_cast<uint8>(player->getPlanetId())+8, 3);
 }
 
 //======================================================================================================================
 
 void ChatMessageLib::sendIsmGroupCREO6deltaGroupId(uint64 groupId, Player* target) const
 {
-	if(!target)
-		return;
-	// lets tell the zone to advise in-range players
-	Message* newMessage;
+    if(!target)
+        return;
+    // lets tell the zone to advise in-range players
+    Message* newMessage;
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupCREO6deltaGroupId);
-	gMessageFactory->addUint32(target->getClient()->getAccountId());  // the sender's id
-	gMessageFactory->addUint64(groupId); // the new group id
-	newMessage = gMessageFactory->EndMessage();
-	
-	target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opIsmGroupCREO6deltaGroupId);
+    gMessageFactory->addUint32(target->getClient()->getAccountId());  // the sender's id
+    gMessageFactory->addUint64(groupId); // the new group id
+    newMessage = gMessageFactory->EndMessage();
+
+    target->getClient()->SendChannelA(newMessage,target->getClient()->getAccountId(),static_cast<uint8>(target->getPlanetId())+8, 3);
 }
 
 //======================================================================================================================
 
 void ChatMessageLib::sendIsmInviteInRangeRequest(Player* sender, Player* target)
 {
-	Message* newMessage;
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opIsmGroupInviteInRangeRequest);
-	gMessageFactory->addUint32(sender->getClient()->getAccountId());
-	gMessageFactory->addUint32(target->getClient()->getAccountId());
-	newMessage = gMessageFactory->EndMessage();
+    Message* newMessage;
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opIsmGroupInviteInRangeRequest);
+    gMessageFactory->addUint32(sender->getClient()->getAccountId());
+    gMessageFactory->addUint32(target->getClient()->getAccountId());
+    newMessage = gMessageFactory->EndMessage();
 
-	sender->getClient()->SendChannelA(newMessage, sender->getClient()->getAccountId(), static_cast<uint8>(sender->getPlanetId())+8, 3);
+    sender->getClient()->SendChannelA(newMessage, sender->getClient()->getAccountId(), static_cast<uint8>(sender->getPlanetId())+8, 3);
 }
 
 //======================================================================================================================

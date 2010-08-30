@@ -192,12 +192,8 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope);
     sprintf(sql,"UPDATE swganh.character_attributes SET moodId = %u where character_id = %"PRIu64"",mood,playerObject->getId());
 
-<<<<<<< HEAD
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-=======
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
->>>>>>> swganh/SQLCleanup
+    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 }
 

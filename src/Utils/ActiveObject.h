@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/declspec.h"
 
 namespace boost {
-    class thread;
+class thread;
 }
 
 
@@ -45,7 +45,7 @@ namespace utils {
 
 /**
  * There are many times when it makes sense to break an object off and run it
- * concurrently while the rest of the application runs. The ActiveObject is a 
+ * concurrently while the rest of the application runs. The ActiveObject is a
  * reusable facility that encourages the encapsulation of data by using asynchronus
  * messages to process requests in a private thread. This implementation is based
  * on a design discussed by Herb Sutter.
@@ -80,7 +80,7 @@ public:
 private:
     /// Runs the ActiveObject's message loop until an end message is received.
     void Run();
-    
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)

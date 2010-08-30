@@ -28,99 +28,103 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/EventDispatcher.h"
 
 namespace common {
-    
+
 EventDispatcher::EventDispatcher()
-: current_timestep_(0)
-, active_queue_(0) {}
+    : current_timestep_(0)
+    , active_queue_(0) {}
 
 EventDispatcher::EventDispatcher(uint64_t current_time)
-: current_timestep_(current_time)
-, active_queue_(0) {}
+    : current_timestep_(current_time)
+    , active_queue_(0) {}
 
 EventDispatcher::~EventDispatcher() {}
 
-void EventDispatcher::Connect(const EventType& event_type, EventListener listener) { active_.Send([=] {
-    if (! ValidateEventType_(event_type)) {
-        return;
-    }
-    
-    if (! AddEventType_(event_type)) {
-        return;
-    }
-
-    // Look for an entry and
-    auto map_it = event_listener_map_.find(event_type);
-    
-    // Somehow the event type doesn't exist.
-    if (map_it == event_listener_map_.end()) {
-        return;
-    }
-
-    // Lookup the listener in the list to see if it already exists.
-    EventListenerList& listener_list = (*map_it).second;
-
-    for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
-        if ((*list_it).first.ident() == listener.first.ident()) {
+void EventDispatcher::Connect(const EventType& event_type, EventListener listener) {
+    active_.Send([=] {
+        if (! ValidateEventType_(event_type)) {
             return;
         }
-    }
 
-    // EventType has been validated, the listener validated and doesn't already exist, add it.
-    listener_list.push_back(listener);
+        if (! AddEventType_(event_type)) {
+            return;
+        }
 
-} ); }
+        // Look for an entry and
+        auto map_it = event_listener_map_.find(event_type);
+
+        // Somehow the event type doesn't exist.
+        if (map_it == event_listener_map_.end()) {
+            return;
+        }
+
+        // Lookup the listener in the list to see if it already exists.
+        EventListenerList& listener_list = (*map_it).second;
+
+        for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
+            if ((*list_it).first.ident() == listener.first.ident()) {
+                return;
+            }
+        }
+
+        // EventType has been validated, the listener validated and doesn't already exist, add it.
+        listener_list.push_back(listener);
+
+    } );
+}
 
 
-void EventDispatcher::Disconnect(const EventType& event_type, const EventListenerType& event_listener_type){ 
+void EventDispatcher::Disconnect(const EventType& event_type, const EventListenerType& event_listener_type) {
     active_.Send(std::bind(&EventDispatcher::Disconnect_, this, event_type, event_listener_type));
 }
 
-void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_type) { active_.Send([=] {
-    // Make sure a valid event listener type was passed in.
-    if (! ValidateEventListenerType_(event_listener_type)) {
-        return;
-    }
+void EventDispatcher::DisconnectFromAll(const EventListenerType& event_listener_type) {
+    active_.Send([=] {
+        // Make sure a valid event listener type was passed in.
+        if (! ValidateEventListenerType_(event_listener_type)) {
+            return;
+        }
 
-    // Use the known type lists to loop and call Disconnect for each.
-    for (auto type_it = event_type_set_.begin(), end = event_type_set_.end(); type_it != end; ++type_it) {
-        // Call the internal disconnect method so that each disconnect doesn't get queued.
-        Disconnect_(*type_it, event_listener_type);
-    }
-} ); }
-                                                                               
+        // Use the known type lists to loop and call Disconnect for each.
+        for (auto type_it = event_type_set_.begin(), end = event_type_set_.end(); type_it != end; ++type_it) {
+            // Call the internal disconnect method so that each disconnect doesn't get queued.
+            Disconnect_(*type_it, event_listener_type);
+        }
+    } );
+}
+
 boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(const EventType& event_type) {
     // Create a packaged task for retrieving the value.
-    auto task = std::make_shared<boost::packaged_task<std::vector<EventListener>>>([=]()->std::vector<EventListener> {   
+    auto task = std::make_shared<boost::packaged_task<std::vector<EventListener>>>([=]()->std::vector<EventListener> {
 
         if (! ValidateEventType_(event_type)) {
             return std::vector<EventListener>();
         }
 
         EventListenerMap::const_iterator map_it = event_listener_map_.find(event_type);
-        
+
         // no listeners currently for this event type, so sad
         if (map_it == event_listener_map_.end()) {
             return std::vector<EventListener>();
         }
-        
+
         const EventListenerList& listener_list = map_it->second;
-        
+
         // there was, but is not now, any listeners currently for
         // this event type, so sad
         if (listener_list.size() == 0) {
             return std::vector<EventListener>();
         }
-        
+
         // Build up the result set to return.
         std::vector<EventListener> result;
-            
+
         for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
             result.push_back(*list_it);
         }
-        
+
         return result;
     } );
-    
+
     // Add the message to the active object's queue that runs the task which in turn
     // updates the future.
     active_.Send([task] {
@@ -133,7 +137,7 @@ boost::unique_future<std::vector<EventListener>> EventDispatcher::GetListeners(c
 
 boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvents() {
     // Create a packaged task for retrieving the value.
-    auto task = std::make_shared<boost::packaged_task<std::vector<EventType>>>([=]()->std::vector<EventType> {   
+    auto task = std::make_shared<boost::packaged_task<std::vector<EventType>>>([=]()->std::vector<EventType> {
 
         std::vector<EventType> event_types;
         event_types.reserve(event_type_set_.size());
@@ -144,8 +148,8 @@ boost::unique_future<std::vector<EventType>> EventDispatcher::GetRegisteredEvent
         }
 
         return event_types;
-    } );    
-    
+    } );
+
     // Add the message to the active object's queue that runs the task which in turn
     // updates the future.
     active_.Send([task] {
@@ -167,13 +171,13 @@ void EventDispatcher::Notify(IEventPtr triggered_event) {
         }
 
         event_queue_[active_queue_].push(triggered_event);
-    }); 
+    });
 }
 
 boost::unique_future<bool> EventDispatcher::Deliver(IEventPtr triggered_event) {
     // Create a packaged task for retrieving the value.
     auto task = std::make_shared<boost::packaged_task<bool>>(std::bind(&EventDispatcher::Deliver_, this, triggered_event));
-    
+
     // Add the message to the active object's queue that runs the task which in turn
     // updates the future.
     active_.Send([task] {
@@ -186,10 +190,10 @@ boost::unique_future<bool> EventDispatcher::Deliver(IEventPtr triggered_event) {
 
 boost::unique_future<bool> EventDispatcher::HasEvents() {
     // Create a packaged task for retrieving the value.
-    auto task = std::make_shared<boost::packaged_task<bool>>([=] {   
+    auto task = std::make_shared<boost::packaged_task<bool>>([=] {
         return (event_queue_[active_queue_].size() != 0);
-    } );    
-    
+    } );
+
     // Add the message to the active object's queue that runs the task which in turn
     // updates the future.
     active_.Send([task] {
@@ -200,19 +204,19 @@ boost::unique_future<bool> EventDispatcher::HasEvents() {
     return task->get_future();
 }
 
-boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {     
+boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
     // Create a packaged task for retrieving the value.
     auto task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {
         // If we were passed the same time or a time in the past return false.
         if (current_timestep_.load() >= new_timestep) return false;
 
         current_timestep_.store(new_timestep);
-        
+
         int queue_to_process = active_queue_;
         active_queue_ = (active_queue_ + 1) % kNumQueues;
 
         while(event_queue_[queue_to_process].size() > 0) {
-            IEventPtr event_to_process = event_queue_[queue_to_process].top(); 
+            IEventPtr event_to_process = event_queue_[queue_to_process].top();
             event_queue_[queue_to_process].pop();
 
             // Check to to see if the event is ready for processing yet. If so deliver it, if not put it on the new queue.
@@ -225,8 +229,8 @@ boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
         }
 
         return true;
-    } );    
-    
+    } );
+
     // Add the message to the active object's queue that runs the task which in turn
     // updates the future.
     active_.Send([task] {
@@ -239,10 +243,10 @@ boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
 
 boost::unique_future<uint64_t> EventDispatcher::current_timestep() {
     // Create a packaged task for retrieving the value.
-    auto task = std::make_shared<boost::packaged_task<uint64_t>>([=] {   
+    auto task = std::make_shared<boost::packaged_task<uint64_t>>([=] {
         return current_timestep_.load();
-    } );    
-    
+    } );
+
     // Add the message to the active object's queue that runs the task which in turn
     // updates the future.
     active_.Send([task] {
@@ -262,7 +266,7 @@ bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
     // If an event_type already exists verify that the text is the same so
     // that no naming clashes occur.
     EventTypeSet::const_iterator it = event_type_set_.find(event_type);
-    
+
     // Check whether or not the event is known.
     if (it != event_type_set_.end()) {
         // If the ident's don't match for whatever reason we failed.
@@ -270,7 +274,7 @@ bool EventDispatcher::ValidateEventType_(const EventType& event_type) const {
             return false;
         }
     }
-    
+
     // If all the tests have passed then return true for validation.
     return true;
 }
@@ -285,10 +289,10 @@ bool EventDispatcher::ValidateEventListenerType_(const EventListenerType& event_
     return true;
 }
 
-bool EventDispatcher::AddEventType_(const EventType& event_type) {    
+bool EventDispatcher::AddEventType_(const EventType& event_type) {
     // check / update type list
     EventTypeSet::iterator it = event_type_set_.find(event_type);
-    
+
     // EventType already exists. Return true to indicate so.
     if (it != event_type_set_.end()) {
         return true;
@@ -296,12 +300,12 @@ bool EventDispatcher::AddEventType_(const EventType& event_type) {
 
     // The EventType hasn't been registered before, attempt to insert it into the set.
     std::pair<EventTypeSet::iterator, bool> set_insert_result = event_type_set_.insert(event_type);
-        
+
     // Insertion failed for some reason.
     if (set_insert_result.second == false) {
         return false;
     }
-    
+
     // Somehow the insertion left the list empty, bail out.
     if (set_insert_result.first == event_type_set_.end()) {
         return false;
@@ -309,13 +313,13 @@ bool EventDispatcher::AddEventType_(const EventType& event_type) {
 
     // Now ensure an empty list exists in the listener map for this type.
     std::pair<EventListenerMap::iterator, bool> map_insert_result = event_listener_map_.insert(
-        std::pair<EventType, EventListenerList>(event_type, EventListenerList()));
+                std::pair<EventType, EventListenerList>(event_type, EventListenerList()));
 
     // Could not insert into map.
     if (map_insert_result.second == false) {
-            return false;
+        return false;
     }
-    
+
     // Somehow the insertion left the map empty, bail out.
     if (map_insert_result.first == event_listener_map_.end()) {
         return false;
@@ -326,7 +330,7 @@ bool EventDispatcher::AddEventType_(const EventType& event_type) {
     return true;
 }
 
-void EventDispatcher::Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type){ 
+void EventDispatcher::Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type) {
     // Make sure a valid event type was passed in.
     if (! ValidateEventType_(event_type)) {
         return;
@@ -338,7 +342,7 @@ void EventDispatcher::Disconnect_(const EventType& event_type, const EventListen
 
     // Look for an entry and
     auto map_it = event_listener_map_.find(event_type);
-    
+
     // Somehow the event type doesn't exist.
     if (map_it == event_listener_map_.end()) {
         return;
@@ -346,7 +350,7 @@ void EventDispatcher::Disconnect_(const EventType& event_type, const EventListen
 
     // Lookup the listener in the list to see if it already exists.
     EventListenerList& listener_list = (*map_it).second;
-    
+
     // Loop through until we find it, no need to worry about invalidating the iterator
     // because after the erase it's never used again.
     for (auto list_it = listener_list.begin(), end = listener_list.end(); list_it != end; ++list_it) {
@@ -378,7 +382,7 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
 
     // Find the list of global listeners.
     auto listener_it = event_listener_map_.find(EventType(kWildCardHashString));
-    
+
     if (listener_it != event_listener_map_.end()) {
         // Get the list of global listeners to iterate over.
         auto listeners = listener_it->second;
@@ -388,7 +392,7 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
             (*it).second(triggered_event);
         }
     }
-    
+
     // Find the list of listeners for this event type.
     listener_it = event_listener_map_.find(triggered_event->event_type());
 
@@ -418,7 +422,7 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
 
     // If processing got this far then nothing failed so invoke the callback on the event.
     triggered_event->consume(delivered);
-    
+
     IEventPtr next_event = triggered_event->next();
 
     if (next_event) {

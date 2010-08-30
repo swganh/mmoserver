@@ -33,8 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 enum DBType
 {
-  DBTYPE_First = 0,
-  DBTYPE_MYSQL
+    DBTYPE_First = 0,
+    DBTYPE_MYSQL
 };
 
 

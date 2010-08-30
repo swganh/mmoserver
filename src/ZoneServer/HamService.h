@@ -45,7 +45,7 @@ private:
     HamService();
     HamService(const HamService&);
     const HamService& operator=(const HamService&);
-    
+
     void onTick();
 
     bool handlePreCommandExecuteEvent(::common::IEventPtr triggered_event);

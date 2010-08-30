@@ -94,7 +94,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
     }
     else
     {
-        for(uint i = 4;i < elementCount;i++)
+        for(uint i = 4; i < elementCount; i++)
         {
             nameStr	<< dataElements[i].getAnsi();
 
@@ -155,7 +155,7 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
     Datapad* datapad			= player->getDataPad();
     BString			waypoint_data;
     glm::vec3       waypoint_position;
-                    
+
     // Before anything else verify the datapad can hold another waypoint.
     if(! datapad->getCapacity()) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "too_many_waypoints"), player);
@@ -187,8 +187,8 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
 
         // Validate the position values.
         if (waypoint_position.x < -8192 || waypoint_position.x > 8192 ||
-            waypoint_position.y < -500 || waypoint_position.y > 500 ||
-            waypoint_position.z < -8192 || waypoint_position.z > 8192) {
+                waypoint_position.y < -500 || waypoint_position.y > 500 ||
+                waypoint_position.z < -8192 || waypoint_position.z > 8192) {
             gMessageLib->SendSystemMessage( L"[SYNTAX] Invalid range for /waypoint. x = -8192/8192 y = -500/500 z = -8192/8192", player);
             return;
         }
@@ -196,7 +196,7 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
         // If no parameters were passed to the /waypoint command use the current world position.
         waypoint_position = player->getWorldPosition();
     }
-                    
+
     datapad->requestNewWaypoint("Waypoint", waypoint_position, static_cast<uint16>(gWorldManager->getZoneId()), Waypoint_blue);
 }
 

@@ -1,4 +1,4 @@
- /*
+/*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -162,7 +162,7 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
     {
         PlayerObject* player = (*it);
         house->checkCellPermission(player);
-        
+
         it++;
     }
 
@@ -189,7 +189,7 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
     sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
     sprintf(restStr,"','%s')",list.getAnsi());
     strcat(sql,restStr);
-    
+
     gWorldManager->getDatabase()->ExecuteSqlAsync(this,asyncContainer,sql);
     gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
@@ -202,7 +202,7 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
     // 0 is Name on list
     // 1 name doesnt exist
     // 2 name not on list
-    // 3 Owner 
+    // 3 Owner
 }
 
 
@@ -276,7 +276,7 @@ void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uin
     mDatabase->ExecuteSqlAsync(this,asyncContainer, "(SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384) UNION (SELECT \'maintenance\'	, sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)  ",structureId, structureId);
     gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384) UNION (SELECT \'maintenance\'	, sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)  ",structureId, structureId); // SQL Debug Log
 
-    
+
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
     asyncContainer->command.Command = Structure_Command_Destroy;
@@ -567,13 +567,13 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
             PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById( structure->getTTS()->playerId ));
             if(!player)
-            {//Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
+            {   //Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
                 gLogger->log(LogManager::WARNING,"StructureManager::_handleStructureObjectTimers could not find the player with ID:%u.",structure->getTTS()->playerId);
                 it = objectList->erase(it);
                 continue;
             }
             if(structure->canRedeed())
-            {	
+            {
                 Inventory* inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
                 if((!inventory)||(!inventory->checkSlots(1)))
                 {
@@ -607,7 +607,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
             }
             else
-            //delete the deed
+                //delete the deed
             {
 
                 //if its a playerstructure boot all players and pets inside
@@ -622,7 +622,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
                     }
                     house->prepareDestruction();
                 }
-                
+
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_destroyed"), player);
                 int8 sql[200];
                 sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
@@ -632,7 +632,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
                 gWorldManager->destroyObject(structure);
                 UpdateCharacterLots(structure->getOwner());
 
-            }			
+            }
 
         }
 
@@ -671,7 +671,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
             gMessageLib->sendDestroyObject_InRangeofObject(fence);
             gWorldManager->destroyObject(fence);
 
-            gWorldManager->createObjectinWorld(player,structure);	
+            gWorldManager->createObjectinWorld(player,structure);
             gMessageLib->sendConstructionComplete(player,structure);
 
             /*
@@ -686,13 +686,13 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
                 house->setSign(sign);
             }
             */
-            
+
 
         }
 
 
         it = objectList->erase(it);
-    
+
     }
 
     return (false);
@@ -706,7 +706,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 playerId)
 {
     // load our structures Admin data
-    //	
+    //
 
     StructureManagerAsyncContainer* asyncContainer;
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Hopper_Permission_Data, 0);
@@ -794,606 +794,606 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
     switch(command.Command)
     {
 
-        case Structure_Command_CellEnterDenial:
+    case Structure_Command_CellEnterDenial:
+    {
+        //our structure is public
+        //we just queried the ban list
+        //make sure were not the owner, however
+        if(owner)
         {
-            //our structure is public
-            //we just queried the ban list
-            //make sure were not the owner, however
-            if(owner)
-            {
-                //building->updateCellPermissions(player,true);
-                return;
-            }
-
-            BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!building)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No building (Structure_Command_CellEnterDenial) ");
-                return;
-            }
-            //now send cell permission update to the player
-
-            building->updateCellPermissions(player,false);
-        
+            //building->updateCellPermissions(player,true);
+            return;
         }
-        break;
 
-        case Structure_Command_CellEnter:
+        BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!building)
         {
-            //we just queried the access list as the structure is private
-            //owner and everyone on entry and admin list may enter
-            
-            BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!building)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No building (Structure_Command_CellEnter) ");
-                return;
-            }
-            //now send cell permission update to the player
-
-            building->updateCellPermissions(player,true);
-        
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No building (Structure_Command_CellEnterDenial) ");
+            return;
         }
-        break;
+        //now send cell permission update to the player
 
-        case Structure_Command_Privacy:
+        building->updateCellPermissions(player,false);
+
+    }
+    break;
+
+    case Structure_Command_CellEnter:
+    {
+        //we just queried the access list as the structure is private
+        //owner and everyone on entry and admin list may enter
+
+        BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!building)
         {
-            HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!house)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Player Building ");
-                return;
-            }
-            //set to private
-            if(house->getPublic())
-            {
-                mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
-                house->setPublic(false);
-                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_private"), player);
-                updateKownPlayerPermissions(house);
-                return;
-            }
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No building (Structure_Command_CellEnter) ");
+            return;
+        }
+        //now send cell permission update to the player
 
-            house->setPublic(true);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_public"), player);
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
+        building->updateCellPermissions(player,true);
+
+    }
+    break;
+
+    case Structure_Command_Privacy:
+    {
+        HouseObject* house = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!house)
+        {
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Player Building ");
+            return;
+        }
+        //set to private
+        if(house->getPublic())
+        {
+            mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
+            house->setPublic(false);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_private"), player);
             updateKownPlayerPermissions(house);
-        }
-        break;
-
-        
-        case Structure_Command_StopFactory:
-        {
-            FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!factory)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_StopFactory) ");
-                return;
-            }
-
-            gMessageLib->SendSystemMessage(L"You stop manufacturing items", player);
-            factory->setActive(false);
-
-            //now turn the factory on - in db and otherwise
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 0 WHERE f.ID = %I64u",command.StructureId);
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE factories f SET f.active = 0 WHERE f.ID = %I64u",command.StructureId); // SQL Debug Log
-            gMessageLib->SendUpdateFactoryWorkAnimation(factory);
-
-        }
-        break;
-
-        case Structure_Command_StartFactory:
-        {
-            FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!factory)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
-                return;
-            }
-
-            //is a schematic installed?
-            if(!factory->getManSchemID())
-            {
-                gMessageLib->SendSystemMessage(L"You need to add a schematic before you can start producing items.", player);
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
-                return;
-            }
-
-            gMessageLib->SendSystemMessage(L"You start manufacturing items", player);
-            factory->setActive(true);
-
-            //now turn the factory on - in db and otherwise
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 1 WHERE f.ID = %I64u",command.StructureId);
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE factories f SET f.active = 1 WHERE f.ID = %I64u",command.StructureId); // SQL Debug Log
-            gMessageLib->SendUpdateFactoryWorkAnimation(factory);
-
-        }
-        break;
-
-        case Structure_Command_AccessOutHopper:
-        {
-            FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!factory)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
-                return;
-            }
-
-            //send the hopper as tangible if we havnt done that already ...
-            //add each other to the known objects list
-            Item* outHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getOutputHopper()));
-            if(!outHopper)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No outHopper (Structure_Command_AccessInHopper) ");
-                return;
-            }
-
-            ObjectIDList*			ol = outHopper->getObjects();
-            ObjectIDList::iterator	it = ol->begin();
-
-            while(it != ol->end())
-            {
-                TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-                if(!tO)
-                {
-                    assert(false && "StructureManager::processVerification Structure_Command_AccessOutHopper WorldManager unable to find tangible object");
-                }
-
-                //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-                if(!tO->checkKnownPlayer(player))
-                {
-                    gMessageLib->sendCreateObject(tO,player,false);
-                    tO->addKnownObjectSafe(player);
-                    player->addKnownObjectSafe(tO);
-                }
-                it++;
-            }
-
-            gFactoryFactory->upDateHopper(factory,factory->getOutputHopper(),player->getClient(),factory);
             return;
-
-
         }
-        break;
 
-        case Structure_Command_AccessInHopper:
+        house->setPublic(true);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_public"), player);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
+        updateKownPlayerPermissions(house);
+    }
+    break;
+
+
+    case Structure_Command_StopFactory:
+    {
+        FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!factory)
         {
-            FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!factory)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
-                return;
-            }
-
-            //send the hopper as tangible if we havnt done that already ...
-            //add each other to the known objects list
-            Item* inHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
-            if(!inHopper)
-            {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No inHopper (Structure_Command_AccessInHopper) ");
-                return;
-            }
-
-            //now create the hoppers content - put it on the knownobjectslist so it gets deleted once we move ... ?
-            ObjectIDList*			ol = inHopper->getObjects();
-            ObjectIDList::iterator	it = ol->begin();
-
-            while(it != ol->end())
-            {
-                TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-                if(!tO)
-                {
-                    assert(false && "StructureManager::processVerification Structure_Command_AccessInHopper WorldManager unable to find tangible object");
-                }
-
-                //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-                if(!tO->checkKnownPlayer(player))
-                {
-                    tO->addKnownObjectSafe(player);
-                    player->addKnownObjectSafe(tO);
-                    gMessageLib->sendCreateObject(tO,player,false);
-                                    
-                }
-                it++;
-            }
-
-
-            gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_StopFactory) ");
             return;
-        
         }
-        break;
 
-        case Structure_Command_RemoveSchem:
+        gMessageLib->SendSystemMessage(L"You stop manufacturing items", player);
+        factory->setActive(false);
+
+        //now turn the factory on - in db and otherwise
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 0 WHERE f.ID = %I64u",command.StructureId);
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE factories f SET f.active = 0 WHERE f.ID = %I64u",command.StructureId); // SQL Debug Log
+        gMessageLib->SendUpdateFactoryWorkAnimation(factory);
+
+    }
+    break;
+
+    case Structure_Command_StartFactory:
+    {
+        FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!factory)
         {
-            FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!factory)
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+            return;
+        }
+
+        //is a schematic installed?
+        if(!factory->getManSchemID())
+        {
+            gMessageLib->SendSystemMessage(L"You need to add a schematic before you can start producing items.", player);
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+            return;
+        }
+
+        gMessageLib->SendSystemMessage(L"You start manufacturing items", player);
+        factory->setActive(true);
+
+        //now turn the factory on - in db and otherwise
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 1 WHERE f.ID = %I64u",command.StructureId);
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE factories f SET f.active = 1 WHERE f.ID = %I64u",command.StructureId); // SQL Debug Log
+        gMessageLib->SendUpdateFactoryWorkAnimation(factory);
+
+    }
+    break;
+
+    case Structure_Command_AccessOutHopper:
+    {
+        FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!factory)
+        {
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+            return;
+        }
+
+        //send the hopper as tangible if we havnt done that already ...
+        //add each other to the known objects list
+        Item* outHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getOutputHopper()));
+        if(!outHopper)
+        {
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No outHopper (Structure_Command_AccessInHopper) ");
+            return;
+        }
+
+        ObjectIDList*			ol = outHopper->getObjects();
+        ObjectIDList::iterator	it = ol->begin();
+
+        while(it != ol->end())
+        {
+            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+            if(!tO)
             {
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ");
-                return;
+                assert(false && "StructureManager::processVerification Structure_Command_AccessOutHopper WorldManager unable to find tangible object");
             }
 
-            //do we have a schematic that needs to be put back into the inventory???
+            //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+            if(!tO->checkKnownPlayer(player))
+            {
+                gMessageLib->sendCreateObject(tO,player,false);
+                tO->addKnownObjectSafe(player);
+                player->addKnownObjectSafe(tO);
+            }
+            it++;
+        }
 
-            if(!factory->getManSchemID())
+        gFactoryFactory->upDateHopper(factory,factory->getOutputHopper(),player->getClient(),factory);
+        return;
+
+
+    }
+    break;
+
+    case Structure_Command_AccessInHopper:
+    {
+        FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!factory)
+        {
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AccessInHopper) ");
+            return;
+        }
+
+        //send the hopper as tangible if we havnt done that already ...
+        //add each other to the known objects list
+        Item* inHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
+        if(!inHopper)
+        {
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No inHopper (Structure_Command_AccessInHopper) ");
+            return;
+        }
+
+        //now create the hoppers content - put it on the knownobjectslist so it gets deleted once we move ... ?
+        ObjectIDList*			ol = inHopper->getObjects();
+        ObjectIDList::iterator	it = ol->begin();
+
+        while(it != ol->end())
+        {
+            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+            if(!tO)
+            {
+                assert(false && "StructureManager::processVerification Structure_Command_AccessInHopper WorldManager unable to find tangible object");
+            }
+
+            //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
+            if(!tO->checkKnownPlayer(player))
+            {
+                tO->addKnownObjectSafe(player);
+                player->addKnownObjectSafe(tO);
+                gMessageLib->sendCreateObject(tO,player,false);
+
+            }
+            it++;
+        }
+
+
+        gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);
+        return;
+
+    }
+    break;
+
+    case Structure_Command_RemoveSchem:
+    {
+        FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!factory)
+        {
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ");
+            return;
+        }
+
+        //do we have a schematic that needs to be put back into the inventory???
+
+        if(!factory->getManSchemID())
+        {
+            //nothing to do for us
+            return;
+        }
+
+        //return the old schematic to the Datapad
+        Datapad* datapad			= player->getDataPad();
+        //Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+        if(!datapad->getCapacity())
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_not_removed"), player);
+            return;
+        }
+
+        //change the ManSchems Owner ID and load it into the datapad
+        gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = 0 WHERE ID = %I64u",command.StructureId);
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE factories SET ManSchematicID = 0 WHERE ID = %I64u",command.StructureId); // SQL Debug Log
+
+        //finally reset the schem ID in the factory
+        factory->setManSchemID(0);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_removed"), player);
+
+    }
+    break;
+
+    case Structure_Command_AddSchem:
+    {
+        FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
+        if(!factory)
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_not_added"), player);
+            gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ");
+            return;
+        }
+
+        //do we have a schematic that needs to be put back into the inventory???
+
+        if(factory->getManSchemID())
+        {
+            if(factory->getManSchemID() == command.SchematicId)
             {
                 //nothing to do for us
                 return;
             }
 
-            //return the old schematic to the Datapad
+            //first return the old schematic to the Datapad
             Datapad* datapad			= player->getDataPad();
             //Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-            
-            if(!datapad->getCapacity())
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_not_removed"), player);
-                return;
-            }
-            
+
             //change the ManSchems Owner ID and load it into the datapad
             gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = 0 WHERE ID = %I64u",command.StructureId);
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE factories SET ManSchematicID = 0 WHERE ID = %I64u",command.StructureId); // SQL Debug Log
 
-            //finally reset the schem ID in the factory
-            factory->setManSchemID(0);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_removed"), player);
-            
         }
-        break;
 
-        case Structure_Command_AddSchem:
+
+        PlayerObject* player	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(command.PlayerId));
+        Datapad* datapad			= player->getDataPad();
+
+        TangibleObject* tO = dynamic_cast<TangibleObject*>(datapad->getManufacturingSchematicById(command.SchematicId));
+        if(!tO->hasInternalAttribute("craft_tool_typemask"))
+        {
+            gMessageLib->SendSystemMessage(L"old schematic it will be deprecated once factory schematic type checks are implemented", player);
+            tO->addInternalAttribute("craft_tool_typemask","0xffffffff");
+        }
+
+        uint32 mask = tO->getInternalAttribute<uint32>("craft_tool_typemask");
+
+        if((mask&&factory->getMask())!=mask)
+        {
+            gMessageLib->SendSystemMessage(L"this schematic will not fit into the factory anymore as soon as schematictype checks are implemented", player);
+
+            int8 s[512];
+            sprintf(s,"schematic Mask %u vs factory Mask %u",mask,factory->getMask());
+            BString message(s);
+            message.convert(BSTRType_Unicode16);
+            gMessageLib->SendSystemMessage(message.getUnicode16(), player);
+        }
+
+        factory->setManSchemID(command.SchematicId);
+
+        //link the schematic to the factory in the db
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = %I64u WHERE ID = %I64u",command.SchematicId,command.StructureId);
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE factories SET ManSchematicID = %I64u WHERE ID = %I64u",command.SchematicId,command.StructureId); // SQL Debug Log
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId);
+        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId); // SQL Debug Log
+
+        //remove the schematic from the player
+
+
+        datapad->removeManufacturingSchematic(command.SchematicId);
+        gMessageLib->sendDestroyObject(command.SchematicId,player);
+
+
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_building_for_delete", 0, tO->getId(), 0), player);
+        //gMessageLib->sendSystemMessage(player,
+
+        //remove the added Manufacturing schematic
+        datapad->removeManufacturingSchematic(command.SchematicId);
+
+    }
+    break;
+
+    case Structure_Command_AccessSchem:
+    {
+        PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
+        asyncContainer->mStructureId	= command.StructureId;
+        asyncContainer->mPlayerId		= command.PlayerId;
+        asyncContainer->command			= command;
+        //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        mDatabase->ExecuteSqlAsync(this,asyncContainer,
+                                   "		(SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
+                                   "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+                                   "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+                                   ,command.StructureId);
+        gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
+                     "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+                     "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+                     ,command.StructureId); // SQL Debug Log
+    }
+    break;
+
+    case Structure_Command_ViewStatus:
+    {
+        PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+
+        //the structure might have been deleted between the last and the current refresh
+        if(!structure)
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "no_valid_structurestatus"), player);
+            return;
+        }
+        if(player->getTargetId() != structure->getId())
+        {
+            PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(gWorldManager->getObjectById(player->getTargetId()));
+            if(!terminal||(terminal->getStructure() != command.StructureId))
+            {
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "changed_structurestatus"), player);
+                return;
+            }
+        }
+
+        //read the relevant attributes in then display the status page
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
+        asyncContainer->mStructureId	= command.StructureId;
+        asyncContainer->mPlayerId		= command.PlayerId;
+        asyncContainer->command			= command;
+
+        mDatabase->ExecuteSqlAsync(this,asyncContainer,
+                                   "(SELECT \'name\', c.firstname  FROM characters c WHERE c.id = %"PRIu64")"
+                                   "UNION (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
+                                   "UNION (SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
+                                   " ",structure->getOwner(),command.StructureId,command.StructureId);
+        gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'name\', c.firstname  FROM characters c WHERE c.id = %"PRIu64")"
+                     "UNION (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
+                     "UNION (SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
+                     " ",structure->getOwner(),command.StructureId,command.StructureId); // SQL Debug Log
+    }
+    break;
+
+    case Structure_Command_DepositPower:
+    {
+        PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
+        asyncContainer->mStructureId	= command.StructureId;
+        asyncContainer->mPlayerId		= command.PlayerId;
+        asyncContainer->command			= command;
+        //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        mDatabase->ExecuteSqlAsync(this,asyncContainer,
+                                   "(SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
+                                   ,structure->getId());
+        gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
+                     ,structure->getId()); // SQL Debug Log
+    }
+    break;
+
+    case Structure_Command_PayMaintenance:
+    {
+        PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
+        asyncContainer->mStructureId	= command.StructureId;
+        asyncContainer->mPlayerId		= command.PlayerId;
+        asyncContainer->command			= command;
+        //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        mDatabase->ExecuteSqlAsync(this,asyncContainer,"(SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
+                                   " UNION (SELECT \'condition\', s.condition FROM structures s WHERE s.id = %"PRIu64")",structure->getId(),structure->getId());
+        gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
+                     " UNION (SELECT \'condition\', s.condition FROM structures s WHERE s.id = %"PRIu64")",structure->getId(),structure->getId()); // SQL Debug Log
+    }
+    break;
+
+    // callback for retrieving a variable amount of the selected resource
+    case Structure_Command_RetrieveResource:
+    {
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceRetrieve,player->getClient());
+        asyncContainer->mStructureId	= command.StructureId;
+        asyncContainer->mPlayerId		= command.PlayerId;
+        asyncContainer->command 		= command;
+
+        //mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
+        gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount); // SQL Debug Log
+
+    }
+    break;
+
+    // callback for discarding a variable amount of the selected resource
+    case Structure_Command_DiscardResource:
+    {
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceDiscard,player->getClient());
+        asyncContainer->mStructureId	= command.StructureId;
+        asyncContainer->mPlayerId		= command.PlayerId;
+        asyncContainer->command 		= command;
+
+        //mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
+        gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount); // SQL Debug Log
+
+    }
+    break;
+
+    case Structure_Command_GetResourceData:
+    {
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+        if(!harvester)
+            return;
+
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetResourceData,player->getClient());
+        asyncContainer->mStructureId	= command.StructureId;
+        asyncContainer->mPlayerId		= command.PlayerId;
+        mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        gLogger->log(LogManager::DEBUG, "SQL :: SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId()); // SQL Debug Log
+
+    }
+    break;
+
+    case Structure_Command_DiscardHopper:
+    {
+        //send the db update
+        StructureManagerAsyncContainer* asyncContainer;
+
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+
+        asyncContainer = new StructureManagerAsyncContainer(Structure_HopperDiscard, 0);
+        asyncContainer->mStructureId	= command.StructureId;
+        asyncContainer->mPlayerId		= command.PlayerId;
+        mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"select sf_DiscardHopper(%I64u)",command.StructureId);
+        gLogger->log(LogManager::DEBUG, "SQL :: select sf_DiscardHopper(%I64u)",command.StructureId); // SQL Debug Log
+
+    }
+    break;
+
+    case Structure_Command_OperateHarvester:
+    {
+        PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+        gMessageLib->sendOperateHarvester(structure,player);
+    }
+    return;
+
+    case Structure_Command_RenameStructure:
+    {
+        if(owner)
+        {
+            PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
+            createRenameStructureBox(player, structure);
+        }
+        else
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rename_must_be_owner"), player);
+
+
+    }
+    return;
+
+    case Structure_Command_TransferStructure:
+    {
+        if(owner)
+            gStructureManager->TransferStructureOwnership(command);
+        else
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_owner"), player);
+
+    }
+    return;
+
+    case Structure_Command_Destroy:
+    {
+        if(owner)
         {
             FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
-            if(!factory)
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_not_added"), player);
-                gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ");
-                return;
-            }
 
-            //do we have a schematic that needs to be put back into the inventory???
-
-            if(factory->getManSchemID())
+            if(factory)
             {
-                if(factory->getManSchemID() == command.SchematicId)
+                if(factory->getManSchemID())
                 {
-                    //nothing to do for us
+                    gMessageLib->SendSystemMessage(L"You need to remove the manufacturing schematic before destroying the structure", player);
                     return;
                 }
 
-                //first return the old schematic to the Datapad
-                Datapad* datapad			= player->getDataPad();
-                //Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-                
-                //change the ManSchems Owner ID and load it into the datapad
-                gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
-        
-            }
-
-            
-            PlayerObject* player	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(command.PlayerId));
-            Datapad* datapad			= player->getDataPad();
-            
-            TangibleObject* tO = dynamic_cast<TangibleObject*>(datapad->getManufacturingSchematicById(command.SchematicId));
-            if(!tO->hasInternalAttribute("craft_tool_typemask"))
-            {
-                gMessageLib->SendSystemMessage(L"old schematic it will be deprecated once factory schematic type checks are implemented", player);
-                tO->addInternalAttribute("craft_tool_typemask","0xffffffff");
-            }
-
-            uint32 mask = tO->getInternalAttribute<uint32>("craft_tool_typemask");
-            
-            if((mask&&factory->getMask())!=mask)
-            {
-                    gMessageLib->SendSystemMessage(L"this schematic will not fit into the factory anymore as soon as schematictype checks are implemented", player);
-                    
-                    int8 s[512];
-                    sprintf(s,"schematic Mask %u vs factory Mask %u",mask,factory->getMask());
-                    BString message(s);
-                    message.convert(BSTRType_Unicode16);
-                    gMessageLib->SendSystemMessage(message.getUnicode16(), player);
-            }
-
-            factory->setManSchemID(command.SchematicId);
-            
-            //link the schematic to the factory in the db
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = %I64u WHERE ID = %I64u",command.SchematicId,command.StructureId);
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE factories SET ManSchematicID = %I64u WHERE ID = %I64u",command.SchematicId,command.StructureId); // SQL Debug Log
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId);
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId); // SQL Debug Log
-            
-            //remove the schematic from the player
-            
-
-            datapad->removeManufacturingSchematic(command.SchematicId);
-            gMessageLib->sendDestroyObject(command.SchematicId,player);
-
-            
-            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_building_for_delete", 0, tO->getId(), 0), player);
-            //gMessageLib->sendSystemMessage(player,
-            
-            //remove the added Manufacturing schematic
-            datapad->removeManufacturingSchematic(command.SchematicId);
-
-        }
-        break;
-
-        case Structure_Command_AccessSchem:
-        {
-            PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
-
-            StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
-            asyncContainer->mStructureId	= command.StructureId;
-            asyncContainer->mPlayerId		= command.PlayerId;
-            asyncContainer->command			= command;
-            //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-            mDatabase->ExecuteSqlAsync(this,asyncContainer,
-                "		(SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
-                 "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-                 "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-                 ,command.StructureId);
-            gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
-                "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-                "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-                ,command.StructureId); // SQL Debug Log			
-        }
-        break;
-
-        case Structure_Command_ViewStatus:
-        {
-            PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
-            
-            //the structure might have been deleted between the last and the current refresh
-            if(!structure)
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "no_valid_structurestatus"), player);
-                return;
-            }
-            if(player->getTargetId() != structure->getId())
-            {
-                PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(gWorldManager->getObjectById(player->getTargetId()));
-                if(!terminal||(terminal->getStructure() != command.StructureId))
+                TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
+                if(hopper&&hopper->getObjects()->size())
                 {
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "changed_structurestatus"), player);
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_input_hopper_for_delete"), player);
+                    return;
+                }
+                hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
+                if(hopper&&hopper->getObjects()->size())
+                {
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_output_hopper_for_delete"), player);
                     return;
                 }
             }
 
-            //read the relevant attributes in then display the status page
-            StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
-            asyncContainer->mStructureId	= command.StructureId;
-            asyncContainer->mPlayerId		= command.PlayerId;
-            asyncContainer->command			= command;
-            
-            mDatabase->ExecuteSqlAsync(this,asyncContainer,
-                "(SELECT \'name\', c.firstname  FROM characters c WHERE c.id = %"PRIu64")"
-                "UNION (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
-                "UNION (SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
-                " ",structure->getOwner(),command.StructureId,command.StructureId);
-            gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'name\', c.firstname  FROM characters c WHERE c.id = %"PRIu64")"
-                "UNION (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
-                "UNION (SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
-                " ",structure->getOwner(),command.StructureId,command.StructureId); // SQL Debug Log			
+            gStructureManager->getDeleteStructureMaintenanceData(command.StructureId, command.PlayerId);
         }
-        break;
-
-        case Structure_Command_DepositPower:
+        else
         {
-            PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
-
-            StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
-            asyncContainer->mStructureId	= command.StructureId;
-            asyncContainer->mPlayerId		= command.PlayerId;
-            asyncContainer->command			= command;
-            //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-            mDatabase->ExecuteSqlAsync(this,asyncContainer,
-                "(SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
-                ,structure->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
-                ,structure->getId()); // SQL Debug Log
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "destroy_must_be_owner"), player);
         }
-        break;
 
-        case Structure_Command_PayMaintenance:
-        {
-            PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
 
-            StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
-            asyncContainer->mStructureId	= command.StructureId;
-            asyncContainer->mPlayerId		= command.PlayerId;
-            asyncContainer->command			= command;
-            //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-            mDatabase->ExecuteSqlAsync(this,asyncContainer,"(SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
-                " UNION (SELECT \'condition\', s.condition FROM structures s WHERE s.id = %"PRIu64")",structure->getId(),structure->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
-                " UNION (SELECT \'condition\', s.condition FROM structures s WHERE s.id = %"PRIu64")",structure->getId(),structure->getId()); // SQL Debug Log
-        }
-        break;
+    }
+    break;
 
-        // callback for retrieving a variable amount of the selected resource
-        case Structure_Command_RetrieveResource:
-        {
-            HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+    case Structure_Command_PermissionBan:
+    {
+        player->setStructurePermissionId(command.StructureId);
+        OpenStructureBanList(command.StructureId, command.PlayerId);
+    }
+    break;
 
-            StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceRetrieve,player->getClient());
-            asyncContainer->mStructureId	= command.StructureId;
-            asyncContainer->mPlayerId		= command.PlayerId;
-            asyncContainer->command 		= command;
-    
-            //mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-            mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
-            gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount); // SQL Debug Log
+    case Structure_Command_PermissionEntry:
+    {
+        player->setStructurePermissionId(command.StructureId);
+        OpenStructureEntryList(command.StructureId, command.PlayerId);
+    }
+    break;
 
-        }
-        break;
+    case Structure_Command_PermissionAdmin:
+    {
+        player->setStructurePermissionId(command.StructureId);
+        OpenStructureAdminList(command.StructureId, command.PlayerId);
 
-        // callback for discarding a variable amount of the selected resource
-        case Structure_Command_DiscardResource:
-        {
-            HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+    }
+    break;
 
-            StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceDiscard,player->getClient());
-            asyncContainer->mStructureId	= command.StructureId;
-            asyncContainer->mPlayerId		= command.PlayerId;
-            asyncContainer->command 		= command;
-            
-            //mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-            mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
-            gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount); // SQL Debug Log
+    case Structure_Command_PermissionHopper:
+    {
+        player->setStructurePermissionId(command.StructureId);
+        OpenStructureHopperList(command.StructureId, command.PlayerId);
 
-        }
-        break;
+    }
+    break;
 
-        case Structure_Command_GetResourceData:
-        {
-            HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+    case Structure_Command_AddPermission:
+    {
+        //make sure we do not add ourselves to the ban list
 
-            if(!harvester)
-                return;
+        addNametoPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
 
-            StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetResourceData,player->getClient());
-            asyncContainer->mStructureId	= command.StructureId;
-            asyncContainer->mPlayerId		= command.PlayerId;
-            mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId()); // SQL Debug Log
+    }
+    break;
 
-        }
-        break;
+    case Structure_Command_RemovePermission:
+    {
 
-        case Structure_Command_DiscardHopper:
-        {
-            //send the db update
-            StructureManagerAsyncContainer* asyncContainer;
+        removeNamefromPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
 
-            HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(command.StructureId));
+    }
 
-            asyncContainer = new StructureManagerAsyncContainer(Structure_HopperDiscard, 0);
-            asyncContainer->mStructureId	= command.StructureId;
-            asyncContainer->mPlayerId		= command.PlayerId;
-            mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"select sf_DiscardHopper(%I64u)",command.StructureId);
-            gLogger->log(LogManager::DEBUG, "SQL :: select sf_DiscardHopper(%I64u)",command.StructureId); // SQL Debug Log
-
-        }
-        break;	 
-
-        case Structure_Command_OperateHarvester:
-        {
-            PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
-            gMessageLib->sendOperateHarvester(structure,player);
-        }
-        return;
-
-        case Structure_Command_RenameStructure:
-        {
-            if(owner)
-            {
-                PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
-                createRenameStructureBox(player, structure);
-            }
-            else
-                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rename_must_be_owner"), player);
-
-            
-        }
-        return;
-
-        case Structure_Command_TransferStructure:
-        {
-            if(owner)
-                gStructureManager->TransferStructureOwnership(command);
-            else
-                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_owner"), player);
-            
-        }
-        return;
-
-        case Structure_Command_Destroy: 
-        {		
-            if(owner)
-            {
-                FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
-            
-                if(factory)
-                {
-                    if(factory->getManSchemID())
-                    {
-                        gMessageLib->SendSystemMessage(L"You need to remove the manufacturing schematic before destroying the structure", player);
-                        return;
-                    }
-
-                    TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
-                    if(hopper&&hopper->getObjects()->size())
-                    {
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_input_hopper_for_delete"), player);
-                        return;
-                    }
-                    hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
-                    if(hopper&&hopper->getObjects()->size())
-                    {
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_output_hopper_for_delete"), player);
-                        return;
-                    }
-                }
-
-                gStructureManager->getDeleteStructureMaintenanceData(command.StructureId, command.PlayerId);
-            }
-            else
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "destroy_must_be_owner"), player);
-            }
-            
-            
-        }
-        break;
-
-        case Structure_Command_PermissionBan:
-        {
-            player->setStructurePermissionId(command.StructureId);
-            OpenStructureBanList(command.StructureId, command.PlayerId);
-        }
-        break;
-
-        case Structure_Command_PermissionEntry:
-        {
-            player->setStructurePermissionId(command.StructureId);
-            OpenStructureEntryList(command.StructureId, command.PlayerId);
-        }
-        break;
-
-        case Structure_Command_PermissionAdmin:
-        {
-            player->setStructurePermissionId(command.StructureId);
-            OpenStructureAdminList(command.StructureId, command.PlayerId);
-
-        }
-        break;
-
-        case Structure_Command_PermissionHopper:
-        {
-            player->setStructurePermissionId(command.StructureId);
-            OpenStructureHopperList(command.StructureId, command.PlayerId);
-
-        }
-        break;
-
-        case Structure_Command_AddPermission:
-        {
-            //make sure we do not add ourselves to the ban list
-
-            addNametoPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
-
-        }
-        break;
-
-        case Structure_Command_RemovePermission:
-        {
-
-            removeNamefromPermissionList(command.StructureId, command.PlayerId, command.PlayerStr, command.List);
-    
-        }
-    
     }
 }
 
@@ -1410,10 +1410,10 @@ void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
     //if we have no structure that way, see whether we have a structure were we just used the adminlist
     if(!structure)
     {
-        gLogger->log(LogManager::DEBUG,"StructureManager::TransferStructureOwnership structure not found :(");	
+        gLogger->log(LogManager::DEBUG,"StructureManager::TransferStructureOwnership structure not found :(");
         return;
     }
-    
+
     //step 1 make sure the recipient has enough free lots!
 
     //step 1a -> get the recipients ID
@@ -1444,14 +1444,14 @@ uint32 StructureManager::getCurrentPower(PlayerObject* player)
         if(resCont)
         {
             uint16 category = resCont->getResource()->getType()->getCategoryId();
-            
+
             gLogger->log(LogManager::DEBUG,"StructureManager::getCurrentPower() category : %u", category);
             if(category == 475 || category == 476||category == 477||((category >= 618)&&category <=651 )||category ==903||category == 904 )
             {
                 float pe = (float) (resCont->getResource()->getAttribute(ResAttr_PE)/500);//7
                 if(pe < 1.0)
                     pe = 1.0;
-                
+
                 uint32 containerPower = 0;
                 if (pe > 500)
                     containerPower = (uint32)(resCont->getAmount()* (pe/500));
@@ -1461,7 +1461,7 @@ uint32 StructureManager::getCurrentPower(PlayerObject* player)
                 power += containerPower;
             }
 
-            
+
         }
 
         ++listIt;
@@ -1484,31 +1484,31 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
         if(resCont)
         {
             uint16 category = resCont->getResource()->getType()->getCategoryId();
-            
+
             gLogger->log(LogManager::DEBUG,"StructureManager::getCurrentPower() category : %u", category);
             if(category == 475 || category == 476||category == 477||((category >= 618)&&category <=651 )||category ==903||category == 904 )
             {
                 float pe = resCont->getResource()->getAttribute(ResAttr_PE);//7
-                
+
                 uint32 containerPower = 0;
                 if (pe > 500)
                     containerPower = (uint32)(resCont->getAmount()* (pe/500));
                 else
                     containerPower = (uint32)(resCont->getAmount());
-                
+
                 uint32 tdAmount = amount;
                 if(tdAmount >containerPower)
                     tdAmount = containerPower;
                 //default amount is how much to delete, unless pe > 500
                 uint32 todelete = tdAmount;
-                 if (pe > 500)
-                     todelete /= (uint32)(pe/500);
+                if (pe > 500)
+                    todelete /= (uint32)(pe/500);
                 uint32 newAmount = resCont->getAmount()-todelete;
                 if(newAmount <0)
                 {
                     assert(false && "StructureManager::deductPower new amount cannot be negative");
                 }
-                
+
                 resCont->setAmount(newAmount);
                 if (resCont->getAmount() == 0)
                 {
@@ -1523,15 +1523,15 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
                 else
                 {
                     gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
-                    mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());	
+                    mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
                     gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());	 // SQL Debug Log
                 }
 
-                
+
                 amount -= tdAmount;
             }
 
-            
+
         }
 
         ++listIt;
@@ -1561,7 +1561,7 @@ bool StructureManager::_handleStructureDBCheck(uint64 callTime, void* ref)
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_GetDestructionStructures, 0);
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0 AND( s.condition >= 1000) AND s.zone = %u", gWorldManager->getZoneId());
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0 AND( s.condition >= 1000) AND s.zone = %u", gWorldManager->getZoneId()); // SQL Debug Log			
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0 AND( s.condition >= 1000) AND s.zone = %u", gWorldManager->getZoneId()); // SQL Debug Log
 
     return (true);
 }
@@ -1580,8 +1580,8 @@ void StructureManager::UpdateCharacterLots(uint64 charId)
     asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateCharacterLots, 0);
     asyncContainer->mPlayerId = charId;
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",charId);			
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getLotCount(%I64u)",charId); // SQL Debug Log				
+    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",charId);
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getLotCount(%I64u)",charId); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -1592,12 +1592,12 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     if(!player)
     {
         return false;
-    }	
+    }
 
     //find out where our structure is
     BString dataStr;
     message->getStringUnicode16(dataStr);
-    
+
     float dir;
     glm::vec3 pVec;
     pVec.x = 0;
@@ -1607,7 +1607,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     swscanf(dataStr.getUnicode16(),L"%I64u %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
 
     gLogger->log(LogManager::DEBUG," ID %I64u x %f y %f dir %f", deedId, pVec.x, pVec.z, dir);
-    
+
     //check the region whether were allowed to build
     if(checkNoBuildRegion(pVec) /*|| !checkCityRadius(player)*/)
     {
@@ -1618,167 +1618,167 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(deedId));
     if(!deed)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleStructurePlacement deed not found :( ");		
+        gLogger->log(LogManager::DEBUG," ObjectController::_handleStructurePlacement deed not found :( ");
         return false;
     }
 
     switch(deed->getItemType())
     {
-        case	ItemType_generator_fusion_personal:
-        case	ItemType_generator_solar_personal:
-        case	ItemType_generator_wind_personal:
+    case	ItemType_generator_fusion_personal:
+    case	ItemType_generator_solar_personal:
+    case	ItemType_generator_wind_personal:
 
-        case	ItemType_harvester_flora_personal:
-        case	ItemType_harvester_flora_heavy:
-        case	ItemType_harvester_flora_medium:
-        case	ItemType_harvester_gas_personal:
-        case	ItemType_harvester_gas_heavy:
-        case	ItemType_harvester_gas_medium:
-        case	ItemType_harvester_liquid_personal:
-        case	ItemType_harvester_liquid_heavy:
-        case	ItemType_harvester_liquid_medium:
+    case	ItemType_harvester_flora_personal:
+    case	ItemType_harvester_flora_heavy:
+    case	ItemType_harvester_flora_medium:
+    case	ItemType_harvester_gas_personal:
+    case	ItemType_harvester_gas_heavy:
+    case	ItemType_harvester_gas_medium:
+    case	ItemType_harvester_liquid_personal:
+    case	ItemType_harvester_liquid_heavy:
+    case	ItemType_harvester_liquid_medium:
 
-        case	ItemType_harvester_moisture_personal:
-        case	ItemType_harvester_moisture_heavy:
-        case	ItemType_harvester_moisture_medium:
+    case	ItemType_harvester_moisture_personal:
+    case	ItemType_harvester_moisture_heavy:
+    case	ItemType_harvester_moisture_medium:
 
-        case	ItemType_harvester_ore_personal:
-        case	ItemType_harvester_ore_heavy:
-        case	ItemType_harvester_ore_medium:
+    case	ItemType_harvester_ore_personal:
+    case	ItemType_harvester_ore_heavy:
+    case	ItemType_harvester_ore_medium:
+    {
+        StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureHarvester);
+
+        container->oCallback = gObjectFactory;
+        container->ofCallback = gStructureManager;
+        container->deed = deed;
+        container->dir = dir;
+        container->x = pVec.x;
+        container->z = pVec.z;
+        container->customName = "";
+        container->player = player;
+
+        container->addToBatch(pVec.x,pVec.z);
+
+        gHeightmap->addNewHeightMapJob(container);
+    }
+    break;
+
+    case	ItemType_factory_clothing:
+    case	ItemType_factory_food:
+    case	ItemType_factory_item:
+    case	ItemType_factory_structure:
+    {
+        StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureFactory);
+
+        container->oCallback = gObjectFactory;
+        container->ofCallback = gStructureManager;
+        container->deed = deed;
+        container->dir = dir;
+        container->x = pVec.x;
+        container->z = pVec.z;
+        container->customName = "";
+        container->player = player;
+
+        container->addToBatch(pVec.x,pVec.z);
+
+        gHeightmap->addNewHeightMapJob(container);
+    }
+    break;
+
+    case	ItemType_deed_cityhall_corellia:
+    case	ItemType_deed_cityhall_naboo:
+    case	ItemType_deed_cityhall_tatooine:
+    {
+        //FOR CIVIC STRUCTURES
+        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+        if(player)
         {
-            StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureHarvester);
-            
-            container->oCallback = gObjectFactory;
-            container->ofCallback = gStructureManager;
-            container->deed = deed;
-            container->dir = dir;
-            container->x = pVec.x;
-            container->z = pVec.z;
-            container->customName = "";
-            container->player = player;
-
-            container->addToBatch(pVec.x,pVec.z);
-
-            gHeightmap->addNewHeightMapJob(container);
-        }
-        break;
-
-        case	ItemType_factory_clothing:
-        case	ItemType_factory_food:
-        case	ItemType_factory_item:
-        case	ItemType_factory_structure:
-        {
-            StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureFactory);
-            
-            container->oCallback = gObjectFactory;
-            container->ofCallback = gStructureManager;
-            container->deed = deed;
-            container->dir = dir;
-            container->x = pVec.x;
-            container->z = pVec.z;
-            container->customName = "";
-            container->player = player;
-
-            container->addToBatch(pVec.x,pVec.z);
-
-            gHeightmap->addNewHeightMapJob(container);
-        }
-        break;
-
-        case	ItemType_deed_cityhall_corellia:
-        case	ItemType_deed_cityhall_naboo:
-        case	ItemType_deed_cityhall_tatooine:
-        {
-            //FOR CIVIC STRUCTURES
-            PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-            if(player)
+            // TODO: Enum for skills
+            if(!player->checkSkill(623)) //novice Politician
             {
-                // TODO: Enum for skills
-                if(!player->checkSkill(623)) //novice Politician
-                {
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
-                    break;
-                }
-            }
-            else
-            {
+                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
                 break;
             }
-            //NO BREAK!!!!
         }
-
-        case	ItemType_deed_guildhall_corellian:
-        case	ItemType_deed_guildhall_naboo:
-        case	ItemType_deed_guildhall_tatooine:
-        case	ItemType_deed_naboo_large_house:
-        case	ItemType_deed_naboo_medium_house:
-        case	ItemType_deed_naboo_small_house_2:
-        case	ItemType_deed_naboo_small_house:
-
-        case	ItemType_deed_corellia_large_house:
-        case	ItemType_deed_corellia_large_house_2:
-        case	ItemType_deed_corellia_medium_house:
-        case	ItemType_deed_corellia_medium_house_2:
-        
-        case	ItemType_deed_corellia_small_house_1:
-        case	ItemType_deed_corellia_small_house_2:
-        case	ItemType_deed_corellia_small_house_3:
-        case	ItemType_deed_corellia_small_house_4:
-        
-        case	ItemType_deed_generic_large_house_1:
-        case	ItemType_deed_generic_large_house_2:
-        case	ItemType_deed_generic_medium_house_1:
-        case	ItemType_deed_generic_medium_house_2:
-        case	ItemType_deed_generic_small_house_1:
-        case	ItemType_deed_generic_small_house_2:
-        case	ItemType_deed_generic_small_house_3:
-        case	ItemType_deed_generic_small_house_4:
-
-        case	ItemType_deed_tatooine_large_house:
-        case	ItemType_deed_tatooine_medium_house:
-        case	ItemType_deed_tatooine_small_house:
-        case	ItemType_deed_tatooine_small_house_2:
+        else
         {
-            StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureHouse);
-            
-            container->oCallback = gObjectFactory;
-            container->ofCallback = gStructureManager;
-            container->deed = deed;
-            container->x = pVec.x;
-            container->z = pVec.z;
-            container->dir = dir;
-            container->customName = "";
-            container->player = player;
-
-            //We need to give the thing several points to grab (because we want the max height)
-            StructureDeedLink* deedLink;
-            deedLink = gStructureManager->getDeedData(deed->getItemType());
-
-            uint32 halfLength = (deedLink->length/2);
-            uint32 halfWidth = (deedLink->width/2);
-
-            container->addToBatch(pVec.x, pVec.z);
-
-            if(dir == 0 || dir == 2)
-            {
-                //Orientation 1
-                container->addToBatch(pVec.x-halfLength, pVec.z-halfWidth);
-                container->addToBatch(pVec.x+halfLength, pVec.z-halfWidth);
-                container->addToBatch(pVec.x-halfLength, pVec.z+halfWidth);
-                container->addToBatch(pVec.x+halfLength, pVec.z+halfWidth);
-            }
-            else if(dir == 1 || dir == 3)
-            {
-                //Orientation 2
-                container->addToBatch(pVec.x-halfWidth, pVec.z-halfLength);
-                container->addToBatch(pVec.x+halfWidth, pVec.z-halfLength);
-                container->addToBatch(pVec.x-halfWidth, pVec.z+halfLength);
-                container->addToBatch(pVec.x+halfWidth, pVec.z+halfLength);
-            }
-
-            gHeightmap->addNewHeightMapJob(container);
+            break;
         }
-        break;
+        //NO BREAK!!!!
+    }
+
+    case	ItemType_deed_guildhall_corellian:
+    case	ItemType_deed_guildhall_naboo:
+    case	ItemType_deed_guildhall_tatooine:
+    case	ItemType_deed_naboo_large_house:
+    case	ItemType_deed_naboo_medium_house:
+    case	ItemType_deed_naboo_small_house_2:
+    case	ItemType_deed_naboo_small_house:
+
+    case	ItemType_deed_corellia_large_house:
+    case	ItemType_deed_corellia_large_house_2:
+    case	ItemType_deed_corellia_medium_house:
+    case	ItemType_deed_corellia_medium_house_2:
+
+    case	ItemType_deed_corellia_small_house_1:
+    case	ItemType_deed_corellia_small_house_2:
+    case	ItemType_deed_corellia_small_house_3:
+    case	ItemType_deed_corellia_small_house_4:
+
+    case	ItemType_deed_generic_large_house_1:
+    case	ItemType_deed_generic_large_house_2:
+    case	ItemType_deed_generic_medium_house_1:
+    case	ItemType_deed_generic_medium_house_2:
+    case	ItemType_deed_generic_small_house_1:
+    case	ItemType_deed_generic_small_house_2:
+    case	ItemType_deed_generic_small_house_3:
+    case	ItemType_deed_generic_small_house_4:
+
+    case	ItemType_deed_tatooine_large_house:
+    case	ItemType_deed_tatooine_medium_house:
+    case	ItemType_deed_tatooine_small_house:
+    case	ItemType_deed_tatooine_small_house_2:
+    {
+        StructureHeightmapAsyncContainer* container = new StructureHeightmapAsyncContainer(gStructureManager, HeightmapCallback_StructureHouse);
+
+        container->oCallback = gObjectFactory;
+        container->ofCallback = gStructureManager;
+        container->deed = deed;
+        container->x = pVec.x;
+        container->z = pVec.z;
+        container->dir = dir;
+        container->customName = "";
+        container->player = player;
+
+        //We need to give the thing several points to grab (because we want the max height)
+        StructureDeedLink* deedLink;
+        deedLink = gStructureManager->getDeedData(deed->getItemType());
+
+        uint32 halfLength = (deedLink->length/2);
+        uint32 halfWidth = (deedLink->width/2);
+
+        container->addToBatch(pVec.x, pVec.z);
+
+        if(dir == 0 || dir == 2)
+        {
+            //Orientation 1
+            container->addToBatch(pVec.x-halfLength, pVec.z-halfWidth);
+            container->addToBatch(pVec.x+halfLength, pVec.z-halfWidth);
+            container->addToBatch(pVec.x-halfLength, pVec.z+halfWidth);
+            container->addToBatch(pVec.x+halfLength, pVec.z+halfWidth);
+        }
+        else if(dir == 1 || dir == 3)
+        {
+            //Orientation 2
+            container->addToBatch(pVec.x-halfWidth, pVec.z-halfLength);
+            container->addToBatch(pVec.x+halfWidth, pVec.z-halfLength);
+            container->addToBatch(pVec.x-halfWidth, pVec.z+halfLength);
+            container->addToBatch(pVec.x+halfWidth, pVec.z+halfLength);
+        }
+
+        gHeightmap->addNewHeightMapJob(container);
+    }
+    break;
 
     }
     return true;
@@ -1789,64 +1789,64 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
 
     switch(container->type)
     {
-        case HeightmapCallback_StructureHouse:
+    case HeightmapCallback_StructureHouse:
+    {
+        HeightResultMap* mapping = container->getResults();
+        HeightResultMap::iterator it = mapping->begin();
+
+        float highest = 0;
+        bool worked = false;
+        while(it != mapping->end() && it->second != NULL)
         {
-            HeightResultMap* mapping = container->getResults();
-            HeightResultMap::iterator it = mapping->begin();
+            worked = true;
 
-            float highest = 0;
-            bool worked = false;
-            while(it != mapping->end() && it->second != NULL)
-            {
-                worked = true;
+            if(it->second->height > highest)
+                highest = it->second->height;
 
-                if(it->second->height > highest)
-                    highest = it->second->height;
-
-                it++;
-            }
-
-            //TODO: Remove this patch when heightmaps are corrected!
-            PlayerObject*	player	= dynamic_cast<PlayerObject*>(container->player);
-            if(player){
-                float hmapHighest = highest;
-                highest = gHeightmap->compensateForInvalidHeightmap(highest, player->mPosition.y, (float)10.0);
-                if(hmapHighest != highest){
-                    gLogger->log(LogManager::INFORMATION,"StructureManager::HeightmapStructureHandler: PlayerID(%u) placing structure...Heightmap found inconsistent, compensated height.", player->getId());
-                }
-            }//end TODO
-
-            if(worked)
-            {
-                container->oCallback->requestnewHousebyDeed(container->ofCallback,container->deed,container->player->getClient(),
-                                                            container->x,highest,container->z,container->dir,container->customName,
-                                                            container->player);
-            }
-            break;
+            it++;
         }
-        case HeightmapCallback_StructureFactory:
-        {
-            HeightResultMap* mapping = container->getResults();
-            HeightResultMap::iterator it = mapping->begin();
-            if(it != mapping->end() && it->second != NULL)
-            {
-                container->oCallback->requestnewFactorybyDeed(container->ofCallback,container->deed,container->player->getClient(),
-                                                            it->first.first,it->second->height,it->first.second,container->dir,
-                                                            container->customName, container->player);
+
+        //TODO: Remove this patch when heightmaps are corrected!
+        PlayerObject*	player	= dynamic_cast<PlayerObject*>(container->player);
+        if(player) {
+            float hmapHighest = highest;
+            highest = gHeightmap->compensateForInvalidHeightmap(highest, player->mPosition.y, (float)10.0);
+            if(hmapHighest != highest) {
+                gLogger->log(LogManager::INFORMATION,"StructureManager::HeightmapStructureHandler: PlayerID(%u) placing structure...Heightmap found inconsistent, compensated height.", player->getId());
             }
-            break;
-        }
-        case HeightmapCallback_StructureHarvester:
+        }//end TODO
+
+        if(worked)
         {
-            HeightResultMap* mapping = container->getResults();
-            HeightResultMap::iterator it = mapping->begin();
-            if(it != mapping->end() && it->second != NULL)
-            {
-                container->oCallback->requestnewHarvesterbyDeed(container->ofCallback,container->deed,container->player->getClient(),
+            container->oCallback->requestnewHousebyDeed(container->ofCallback,container->deed,container->player->getClient(),
+                    container->x,highest,container->z,container->dir,container->customName,
+                    container->player);
+        }
+        break;
+    }
+    case HeightmapCallback_StructureFactory:
+    {
+        HeightResultMap* mapping = container->getResults();
+        HeightResultMap::iterator it = mapping->begin();
+        if(it != mapping->end() && it->second != NULL)
+        {
+            container->oCallback->requestnewFactorybyDeed(container->ofCallback,container->deed,container->player->getClient(),
+                    it->first.first,it->second->height,it->first.second,container->dir,
+                    container->customName, container->player);
+        }
+        break;
+    }
+    case HeightmapCallback_StructureHarvester:
+    {
+        HeightResultMap* mapping = container->getResults();
+        HeightResultMap::iterator it = mapping->begin();
+        if(it != mapping->end() && it->second != NULL)
+        {
+            container->oCallback->requestnewHarvesterbyDeed(container->ofCallback,container->deed,container->player->getClient(),
                     it->first.first,it->second->height,it->first.second,container->dir,container->customName,
-                                                            container->player);
-            }
-            break;
+                    container->player);
         }
+        break;
+    }
     }
 }

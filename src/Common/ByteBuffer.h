@@ -41,14 +41,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace common {
 
 class ByteBuffer;
-  
+
 /**
  * Allows streaming of values to a ByteBuffer instance.
  *
  * @param buffer Instance of a ByteBuffer.
  * @param value The data value to write to the ByteBuffer.
  */
-template<typename T> 
+template<typename T>
 ByteBuffer& operator<<(ByteBuffer& buffer, const T& value);
 
 /**
@@ -66,7 +66,7 @@ COMMON_API std::ostream& operator<<(std::ostream& message, const ByteBuffer& buf
  * eases the task of reading and writing data to these resources.
  */
 class COMMON_API ByteBuffer
-{		
+{
 public:
     enum { SWAP_ENDIAN = 1 };
 
@@ -99,7 +99,7 @@ public:
 
     /**
      * Copy constructor, used to copy one ByteBuffer to another.
-     * 
+     *
      * @param from The ByteBuffer to use as the source in the copy.
      */
     ByteBuffer(const ByteBuffer& from);
@@ -191,7 +191,7 @@ public:
      * @param size Size of the data to write to the ByteBuffer.
      */
     void Write(const unsigned char* data, size_t size);
-    
+
     /**
      * Write's data to the ByteBuffer at an offset.
      *
@@ -211,7 +211,7 @@ public:
      */
     size_t ReadPosition() const;
 
-    /** 
+    /**
      * Sets the current read position.
      *
      * @param position The new read position.
@@ -253,7 +253,7 @@ public:
      */
     const unsigned char* Data() const;
 
-    /** 
+    /**
      * Returns the ByteBuffer contents in a modifyable format. This should rarely
      * be used, opt for safer methods of access unless you actually need to modify
      * the ByteBuffer internals and the normal accessors cannot do the job.
@@ -264,7 +264,7 @@ public:
 
 private:
     template<typename T> void SwapEndian_(T& data) const;
-    
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)

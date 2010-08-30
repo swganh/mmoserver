@@ -56,15 +56,15 @@ struct BuffStruct;
 
 enum EMQueryType
 {
-	EMQuery_NULL				=	0,
-	EMQuery_LoadPerformances	=	1,
-	EMQuery_DenyServiceFindName	=	2,
-	EMQuery_DenyServiceListNames=	3,
-	EMQuery_LoadIDAttributes	=	4,
-	EMQuery_IDMoneyTransaction	=	5,
-	EMQuery_IDMigrateStats		=	6,
-	EMQuery_LoadHoloEmotes		=	7,
-	EMQuery_IDFinances			=	8
+    EMQuery_NULL				=	0,
+    EMQuery_LoadPerformances	=	1,
+    EMQuery_DenyServiceFindName	=	2,
+    EMQuery_DenyServiceListNames=	3,
+    EMQuery_LoadIDAttributes	=	4,
+    EMQuery_IDMoneyTransaction	=	5,
+    EMQuery_IDMigrateStats		=	6,
+    EMQuery_LoadHoloEmotes		=	7,
+    EMQuery_IDFinances			=	8
 
 };
 
@@ -72,7 +72,7 @@ enum EMQueryType
 
 enum EMTimer
 {
-	EMTimer_PerformanceTick		=	0
+    EMTimer_PerformanceTick		=	0
 };
 
 
@@ -81,55 +81,55 @@ enum EMTimer
 
 struct PerformanceStruct
 {
-	int8			performanceName[32];
-	uint32			instrumentAudioId;
-	uint32			requiredInstrument;
-	uint32			danceVisualId;
-	int32			actionPointPerLoop;
-	uint32			loopDuration;
-	uint32			type;
-	uint32			florishXpMod;
-	uint32			healMindWound;
-	uint32			healShockWound;
-	uint32			musicVisualId;
+    int8			performanceName[32];
+    uint32			instrumentAudioId;
+    uint32			requiredInstrument;
+    uint32			danceVisualId;
+    int32			actionPointPerLoop;
+    uint32			loopDuration;
+    uint32			type;
+    uint32			florishXpMod;
+    uint32			healMindWound;
+    uint32			healShockWound;
+    uint32			musicVisualId;
 };
 
 //======================================================================================================================
 
 struct IDStruct
 {
-	//SELECT CRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, name FROM swganh.id_attributes");
-	uint32			CustomizationCRC;
-	uint32			SpeciesCRC;
-	uint32			Atr1ID;
-	int8			Atr1Name[12];
-	uint32			Atr2ID;
-	int8			Atr2Name[12];
-	uint32			XP;
-	uint8			hair;
-	uint32			divider;
+    //SELECT CRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, name FROM swganh.id_attributes");
+    uint32			CustomizationCRC;
+    uint32			SpeciesCRC;
+    uint32			Atr1ID;
+    int8			Atr1Name[12];
+    uint32			Atr2ID;
+    int8			Atr2Name[12];
+    uint32			XP;
+    uint8			hair;
+    uint32			divider;
 };
 
 //======================================================================================================================
 
 struct HoloStruct
 {
-	uint32 pCRC;
-	uint32 pClientCRC;
-	uint32 pId;
-	int8   pEmoteName[64];
+    uint32 pCRC;
+    uint32 pClientCRC;
+    uint32 pId;
+    int8   pEmoteName[64];
 };
 
 //======================================================================================================================
 
 struct ModifierStruct
 {
-	uint32 pHealingDanceMindMod;
-	int32 pHealingDanceShockMod;
-	uint32 pHealingDanceWoundMod;
-	uint32 pHealingMusicMindMod;
-	int32 pHealingMusicShockMod;
-	uint32 pHealingMusicWoundMod;
+    uint32 pHealingDanceMindMod;
+    int32 pHealingDanceShockMod;
+    uint32 pHealingDanceWoundMod;
+    uint32 pHealingMusicMindMod;
+    int32 pHealingMusicShockMod;
+    uint32 pHealingMusicWoundMod;
 };
 
 
@@ -147,147 +147,149 @@ class EntertainerManagerAsyncContainer
 {
 public:
 
-	EntertainerManagerAsyncContainer(EMQueryType qt,DispatchClient* client);
-	~EntertainerManagerAsyncContainer();
+    EntertainerManagerAsyncContainer(EMQueryType qt,DispatchClient* client);
+    ~EntertainerManagerAsyncContainer();
 
-	EMQueryType			mQueryType;
-	DispatchClient*		mClient;
+    EMQueryType			mQueryType;
+    DispatchClient*		mClient;
 
-	PlayerObject*		performer;
-	PlayerObject*		customer;
-	BString				outCastName;
-	int32				amountcash;
-	int32				amountbank;
+    PlayerObject*		performer;
+    PlayerObject*		customer;
+    BString				outCastName;
+    int32				amountcash;
+    int32				amountbank;
 };
 
 //======================================================================================================================
 
 class EntertainerManager : public DatabaseCallback, public ObjectFactoryCallback, public GroupManagerCallback
 {
-	friend class ObjectFactory;
-	friend class PlayerObject;
+    friend class ObjectFactory;
+    friend class PlayerObject;
 
-	public:
-		//System
+public:
+    //System
 
-		static EntertainerManager*	getSingletonPtr() { return mSingleton; }
-		static EntertainerManager*	Init(Database* database,MessageDispatch* dispatch);
+    static EntertainerManager*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static EntertainerManager*	Init(Database* database,MessageDispatch* dispatch);
 
-		~EntertainerManager();
+    ~EntertainerManager();
 
-		void					Shutdown();
+    void					Shutdown();
 
-		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void					handleObjectReady(Object* object,DispatchClient* client);
-		void					handleGroupManagerCallback(uint64 playerId, GroupManagerCallbackContainer* container);
+    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void					handleObjectReady(Object* object,DispatchClient* client);
+    void					handleGroupManagerCallback(uint64 playerId, GroupManagerCallbackContainer* container);
 
-		//=========================================================
-		//=========================================================
-		//get db data
-		IDStruct*				getIDAttribute(uint32 CustomizationCRC,uint32 SpeciesCRC);
-		IDStruct*				getIDAttribute(uint32 CustomizationCRC);
-		HoloStruct*				getHoloEmoteByClientCRC(uint32 crc);
-		HoloStruct*				getHoloEmoteByCRC(uint32 crc);
-		BString					getHoloNames();
-		HoloStruct*				getHoloEmoteIdbyName(BString name);
-		PerformanceStruct*		getPerformance(BString performance);
-		PerformanceStruct*		getPerformance(BString performance,uint32 type);
+    //=========================================================
+    //=========================================================
+    //get db data
+    IDStruct*				getIDAttribute(uint32 CustomizationCRC,uint32 SpeciesCRC);
+    IDStruct*				getIDAttribute(uint32 CustomizationCRC);
+    HoloStruct*				getHoloEmoteByClientCRC(uint32 crc);
+    HoloStruct*				getHoloEmoteByCRC(uint32 crc);
+    BString					getHoloNames();
+    HoloStruct*				getHoloEmoteIdbyName(BString name);
+    PerformanceStruct*		getPerformance(BString performance);
+    PerformanceStruct*		getPerformance(BString performance,uint32 type);
 
-		//=========================================================
-		//=========================================================
-		// Entertainer
+    //=========================================================
+    //=========================================================
+    // Entertainer
 
-		//Music
-		void					startMusicPerformance(PlayerObject* pEntertainer,BString performance);
-		void					changeMusic(PlayerObject* entertainer,BString performance);
+    //Music
+    void					startMusicPerformance(PlayerObject* pEntertainer,BString performance);
+    void					changeMusic(PlayerObject* entertainer,BString performance);
 
-		void					stopListening(PlayerObject* audience,bool ooRange = false);
-		void					startListening(PlayerObject* audience, PlayerObject* entertainer);
+    void					stopListening(PlayerObject* audience,bool ooRange = false);
+    void					startListening(PlayerObject* audience, PlayerObject* entertainer);
 
-		void					useInstrument(PlayerObject* pPlayerObject, Item* pItem);
-		//  Private
-		// void					playInstrument(PlayerObject* entertainer, Item* pInstrument);
-		void					usePlacedInstrument(PlayerObject* entertainer, Item* usedInstrument);
-		void					playPlacedInstrument(PlayerObject* entertainer);
+    void					useInstrument(PlayerObject* pPlayerObject, Item* pItem);
+    //  Private
+    // void					playInstrument(PlayerObject* entertainer, Item* pInstrument);
+    void					usePlacedInstrument(PlayerObject* entertainer, Item* usedInstrument);
+    void					playPlacedInstrument(PlayerObject* entertainer);
 
-		void					handlestartmusic(PlayerObject* performer);
-		bool					handleStartBandIndividual(PlayerObject* performer, BString performance);
-		bool					handleStartBandDanceIndividual(PlayerObject* performer, BString performance);
-		uint64					gettargetedInstrument(PlayerObject* entertainer);
-		bool					checkInstrumentSkillbyType(PlayerObject* entertainer,uint32 instrumentType);
-		bool					checkInstrumentSkill(PlayerObject* entertainer,uint64 instrumentID);
+    void					handlestartmusic(PlayerObject* performer);
+    bool					handleStartBandIndividual(PlayerObject* performer, BString performance);
+    bool					handleStartBandDanceIndividual(PlayerObject* performer, BString performance);
+    uint64					gettargetedInstrument(PlayerObject* entertainer);
+    bool					checkInstrumentSkillbyType(PlayerObject* entertainer,uint32 instrumentType);
+    bool					checkInstrumentSkill(PlayerObject* entertainer,uint64 instrumentID);
 
-		//Dance
-		void					startDancePerformance(PlayerObject* mPerformer,BString performance);
-		void					changeDance(PlayerObject* entertainer,BString performance);
+    //Dance
+    void					startDancePerformance(PlayerObject* mPerformer,BString performance);
+    void					changeDance(PlayerObject* entertainer,BString performance);
 
-		void					stopWatching(PlayerObject* audience,bool ooRange = false);
-		void					startWatching(PlayerObject* audience, PlayerObject* entertainer);
+    void					stopWatching(PlayerObject* audience,bool ooRange = false);
+    void					startWatching(PlayerObject* audience, PlayerObject* entertainer);
 
-		//Audience
-		bool					checkAudience(PlayerObject* entertainer,CreatureObject* audience);
-		void					addAudience(PlayerObject* entertainer,CreatureObject* audience);
-		void					addOutcastName(PlayerObject* entertainer,PlayerObject* outcast);
-		void					toggleOutcastId(PlayerObject* entertainer,uint64 outCastId, BString outCastName);
-		void					verifyOutcastName(PlayerObject* entertainer,BString outCastName);
-		void					removeAudience(PlayerObject* entertainer,CreatureObject* mAudience);
+    //Audience
+    bool					checkAudience(PlayerObject* entertainer,CreatureObject* audience);
+    void					addAudience(PlayerObject* entertainer,CreatureObject* audience);
+    void					addOutcastName(PlayerObject* entertainer,PlayerObject* outcast);
+    void					toggleOutcastId(PlayerObject* entertainer,uint64 outCastId, BString outCastName);
+    void					verifyOutcastName(PlayerObject* entertainer,BString outCastName);
+    void					removeAudience(PlayerObject* entertainer,CreatureObject* mAudience);
 
-		bool					checkDenyServiceList(PlayerObject* audience, PlayerObject* entertainer);
-		void					showOutcastList(PlayerObject* entertainer);
-
-
-
-		bool					handlePerformanceTick(CreatureObject* mObject);
-		void					handlePerformancePause(CreatureObject* mObject);
-		void					stopEntertaining(PlayerObject* entertainer);
-		void					grantXP(PlayerObject* entertainer);
-		void					heal(PlayerObject* entertainer);
-		void					buff(PlayerObject* entertainer);
-		ModifierStruct			getGroupHealSkillValues(PlayerObject* entertainer);
-
-		void					CheckDistances(PlayerObject* entertainer);
-		void					flourish(PlayerObject* entertainer, uint32 mFlourishId);
-		void					entertainInRangeNPCs(PlayerObject* entertainer);
-
-		void					StartBand(PlayerObject* player, BString songName);
-		void					StopBand(PlayerObject* player);
-		void					BandFlourish(PlayerObject* player, uint32 flourishId);
-		//=========================================================
-		//=========================================================
-		// Imagedesigner
-		bool					handleImagedesignTimeOut(CreatureObject* designer);
-		void					commitIdChanges(PlayerObject* customer,PlayerObject* designer, BString hair, uint32 amount,uint8 statMigration,BString holoEmote,uint8 flagHair);
-		BString					commitIdAttribute(PlayerObject* customer, BString attribute, float value);
-		BString					commitIdColor(PlayerObject* customer, BString attribute, uint16 value);
-		BString					commitIdheight(PlayerObject* customer, float value);
-		uint32					getIdXP(BString attribute, uint16 value);
-		void					applyHoloEmote(PlayerObject* customer,BString holoEmote);
-		void					applyHair(PlayerObject* customer,BString hair);
-		void					applyMoney(PlayerObject* customer,PlayerObject* designer,int32 amount);
-
-	private:
-
-		EntertainerManager(Database* database,MessageDispatch* dispatch);
-
-		void					playInstrument(PlayerObject* entertainer, Item* instrument);
-		uint64					getInstrument(PlayerObject* entertainer);
-		bool					approachInstrument(PlayerObject* entertainer, uint64 instrumentId);
-		
-		void					_handleCompleteStartBand(PlayerObject* performer, BString dataStr);
-		void					_handleCompleteStopBand(PlayerObject* performer);
-		void					_handleCompleteBandFlourish(PlayerObject* entertainer, uint32 FlourishId);
+    bool					checkDenyServiceList(PlayerObject* audience, PlayerObject* entertainer);
+    void					showOutcastList(PlayerObject* entertainer);
 
 
-		static EntertainerManager*	mSingleton;
-		static bool					mInsFlag;
 
-		Database*					mDatabase;
-		MessageDispatch*			mMessageDispatch;
+    bool					handlePerformanceTick(CreatureObject* mObject);
+    void					handlePerformancePause(CreatureObject* mObject);
+    void					stopEntertaining(PlayerObject* entertainer);
+    void					grantXP(PlayerObject* entertainer);
+    void					heal(PlayerObject* entertainer);
+    void					buff(PlayerObject* entertainer);
+    ModifierStruct			getGroupHealSkillValues(PlayerObject* entertainer);
 
-		PerformanceStruct*			mPerformanceHandler;
-		PerformanceList				mPerformanceList;
-		IdList						mIDList;
-		HoloEmoteEffects			mHoloList;
+    void					CheckDistances(PlayerObject* entertainer);
+    void					flourish(PlayerObject* entertainer, uint32 mFlourishId);
+    void					entertainInRangeNPCs(PlayerObject* entertainer);
+
+    void					StartBand(PlayerObject* player, BString songName);
+    void					StopBand(PlayerObject* player);
+    void					BandFlourish(PlayerObject* player, uint32 flourishId);
+    //=========================================================
+    //=========================================================
+    // Imagedesigner
+    bool					handleImagedesignTimeOut(CreatureObject* designer);
+    void					commitIdChanges(PlayerObject* customer,PlayerObject* designer, BString hair, uint32 amount,uint8 statMigration,BString holoEmote,uint8 flagHair);
+    BString					commitIdAttribute(PlayerObject* customer, BString attribute, float value);
+    BString					commitIdColor(PlayerObject* customer, BString attribute, uint16 value);
+    BString					commitIdheight(PlayerObject* customer, float value);
+    uint32					getIdXP(BString attribute, uint16 value);
+    void					applyHoloEmote(PlayerObject* customer,BString holoEmote);
+    void					applyHair(PlayerObject* customer,BString hair);
+    void					applyMoney(PlayerObject* customer,PlayerObject* designer,int32 amount);
+
+private:
+
+    EntertainerManager(Database* database,MessageDispatch* dispatch);
+
+    void					playInstrument(PlayerObject* entertainer, Item* instrument);
+    uint64					getInstrument(PlayerObject* entertainer);
+    bool					approachInstrument(PlayerObject* entertainer, uint64 instrumentId);
+
+    void					_handleCompleteStartBand(PlayerObject* performer, BString dataStr);
+    void					_handleCompleteStopBand(PlayerObject* performer);
+    void					_handleCompleteBandFlourish(PlayerObject* entertainer, uint32 FlourishId);
+
+
+    static EntertainerManager*	mSingleton;
+    static bool					mInsFlag;
+
+    Database*					mDatabase;
+    MessageDispatch*			mMessageDispatch;
+
+    PerformanceStruct*			mPerformanceHandler;
+    PerformanceList				mPerformanceList;
+    IdList						mIDList;
+    HoloEmoteEffects			mHoloList;
 };
 
 #endif

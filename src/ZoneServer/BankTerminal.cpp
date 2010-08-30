@@ -50,65 +50,65 @@ BankTerminal::~BankTerminal()
 //=============================================================================
 void BankTerminal::handleObjectMenuSelect(uint8 messageType, Object* srcObject)
 {
-	PlayerObject* playerObject = (PlayerObject*)srcObject;
-	
-	switch(messageType)
-	{
-		
-		case radId_bankDepositAll: // deposit all
+    PlayerObject* playerObject = (PlayerObject*)srcObject;
 
-			gTreasuryManager->bankDepositAll(playerObject);
-		
-		break;
+    switch(messageType)
+    {
 
+    case radId_bankDepositAll: // deposit all
 
-		case radId_bankWithdrawAll: // withdraw all
+        gTreasuryManager->bankDepositAll(playerObject);
 
-			gTreasuryManager->bankWithdrawAll(playerObject);
-
-		break;
+        break;
 
 
-		case radId_itemUse:
-		case radId_bankTransfer: // deposit - withdraw
+    case radId_bankWithdrawAll: // withdraw all
 
-			gUIManager->createNewTransferBox(this,"handleDepositWithdraw", "@base_player:bank_title"
-				,"@base_player:bank_prompt", "Cash", "Bank"
-				,dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits()
-				,dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits()
-				,playerObject);
+        gTreasuryManager->bankWithdrawAll(playerObject);
 
-		break;
-
-		
-		case radId_bankItems:
-
-			gTreasuryManager->bankOpenSafetyDepositContainer(playerObject);
-
-		break;
+        break;
 
 
-		case radId_bankJoin: // join
-			
-			gTreasuryManager->bankJoin(playerObject);
-		
-		break;
+    case radId_itemUse:
+    case radId_bankTransfer: // deposit - withdraw
+
+        gUIManager->createNewTransferBox(this,"handleDepositWithdraw", "@base_player:bank_title"
+                                         ,"@base_player:bank_prompt", "Cash", "Bank"
+                                         ,dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits()
+                                         ,dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits()
+                                         ,playerObject);
+
+        break;
 
 
-		case radId_bankQuit: // quit
-			
-			gTreasuryManager->bankQuit(playerObject);
-		
-		break;
+    case radId_bankItems:
+
+        gTreasuryManager->bankOpenSafetyDepositContainer(playerObject);
+
+        break;
 
 
-		default:
+    case radId_bankJoin: // join
 
-			gLogger->log(LogManager::NOTICE,"BankTerminal: Unhandled MenuSelect: %u", messageType);
-		
-		break;
-	}
-	
+        gTreasuryManager->bankJoin(playerObject);
+
+        break;
+
+
+    case radId_bankQuit: // quit
+
+        gTreasuryManager->bankQuit(playerObject);
+
+        break;
+
+
+    default:
+
+        gLogger->log(LogManager::NOTICE,"BankTerminal: Unhandled MenuSelect: %u", messageType);
+
+        break;
+    }
+
 }
 
 
@@ -117,54 +117,54 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType, Object* srcObject)
 void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, UIWindow* window)
 {
 
-	if(window == NULL)
-	{
-		return;
-	}
+    if(window == NULL)
+    {
+        return;
+    }
 
-	PlayerObject* playerObject = window->getOwner(); // window owner
+    PlayerObject* playerObject = window->getOwner(); // window owner
 
-	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
-	{
-		return;
-	}
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
+    {
+        return;
+    }
 
-	// two money movement deltas stands for credits
-	// variations into bank & inventory.
-	// casting as signed cause one will be negative.
-	// when inventoryDelta + bankDelta is not equal to zero,
-	// that means player treasury has changed since
-	// the transfer window opened.
+    // two money movement deltas stands for credits
+    // variations into bank & inventory.
+    // casting as signed cause one will be negative.
+    // when inventoryDelta + bankDelta is not equal to zero,
+    // that means player treasury has changed since
+    // the transfer window opened.
 
-	// we get the money deltas by parsing the string returned
-	// by the SUI window
+    // we get the money deltas by parsing the string returned
+    // by the SUI window
 
-	strInventoryCash.convert(BSTRType_ANSI);
-	strBankCash.convert(BSTRType_ANSI);
+    strInventoryCash.convert(BSTRType_ANSI);
+    strBankCash.convert(BSTRType_ANSI);
 
-	int32 inventoryMoneyDelta = atoi(strInventoryCash.getAnsi()) - dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
-	int32 bankMoneyDelta = atoi(strBankCash.getAnsi()) - dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits();
+    int32 inventoryMoneyDelta = atoi(strInventoryCash.getAnsi()) - dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+    int32 bankMoneyDelta = atoi(strBankCash.getAnsi()) - dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits();
 
-	// the amount transfered must be greater than zero
-	if(bankMoneyDelta == 0 || inventoryMoneyDelta == 0)
-	{
-		return;
-	}
+    // the amount transfered must be greater than zero
+    if(bankMoneyDelta == 0 || inventoryMoneyDelta == 0)
+    {
+        return;
+    }
 
-	gTreasuryManager->bankTransfer(inventoryMoneyDelta, bankMoneyDelta, playerObject);
+    gTreasuryManager->bankTransfer(inventoryMoneyDelta, bankMoneyDelta, playerObject);
 }
 
 //=============================================================================
 
 void BankTerminal::prepareRadialMenu()
-{	
+{
 }
 
 //=============================================================================
 
 void BankTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	mRadialMenu = gTreasuryManager->bankBuildTerminalRadialMenu(creatureObject);
+    mRadialMenu = gTreasuryManager->bankBuildTerminalRadialMenu(creatureObject);
 }
 
 //=============================================================================

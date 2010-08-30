@@ -33,7 +33,7 @@ class HeightmapAsyncContainer;
 class HeightMapCallBack
 {
 public:
-	virtual void heightMapCallback(HeightmapAsyncContainer* ref) {}
+    virtual void heightMapCallback(HeightmapAsyncContainer* ref) {}
 };
 
 #endif

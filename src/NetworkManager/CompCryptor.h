@@ -40,20 +40,20 @@ typedef struct z_stream_s z_stream;
 class NET_API CompCryptor
 {
 public:
-                                    CompCryptor(void);
-                                    ~CompCryptor(void);
+    CompCryptor(void);
+    ~CompCryptor(void);
 
-  int                               Compress(int8* inData, uint32 inLen, int8* outData, uint32 outLen);
-  int                               Decompress(int8* inData, uint32 inLen, int8* outData, uint32 outLen);
+    int                               Compress(int8* inData, uint32 inLen, int8* outData, uint32 outLen);
+    int                               Decompress(int8* inData, uint32 inLen, int8* outData, uint32 outLen);
 
-  int                               Encrypt(int8* data, uint32 len, uint32 seed);
-  int                               Decrypt(int8* data, uint32 len, uint32 seed);
+    int                               Encrypt(int8* data, uint32 len, uint32 seed);
+    int                               Decrypt(int8* data, uint32 len, uint32 seed);
 
-  uint32                            GenerateCRC(int8* data, uint32 len, uint32 seed);
+    uint32                            GenerateCRC(int8* data, uint32 len, uint32 seed);
 
 private:
-  z_stream*                         mStreamData;
-  static const uint32               mCrcTable[256];
+    z_stream*                         mStreamData;
+    static const uint32               mCrcTable[256];
 };
 
 

@@ -35,7 +35,7 @@ CreatureSpawnRegion::CreatureSpawnRegion() : mId(0)
 
 CreatureSpawnRegion::~CreatureSpawnRegion()
 {
-	gLogger->log(LogManager::DEBUG,"CreatureSpawnRegion::~CreatureSpawnRegion()");
+    gLogger->log(LogManager::DEBUG,"CreatureSpawnRegion::~CreatureSpawnRegion()");
 }
 
 

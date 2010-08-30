@@ -37,14 +37,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class AccountData
 {
 public:
-  uint32                mId;
-  int8                  mUsername[32];
-  int8                  mPassword[32];
-  uint32                mAccountId;
-  int8                  mBanned;
-  int8                  mActive;
-  uint32                mCharsAllowed;
-  int8					mCsr;
+    uint32                mId;
+    int8                  mUsername[32];
+    int8                  mPassword[32];
+    uint32                mAccountId;
+    int8                  mBanned;
+    int8                  mActive;
+    uint32                mCharsAllowed;
+    int8					mCsr;
 };
 
 
@@ -52,14 +52,14 @@ public:
 class ServerData
 {
 public:
-  uint32                mId;
-  BString                mName;
-  BString                mAddress;
-  uint16                mConnectionPort;
-  uint16                mPingPort;
-  uint32                mPopulation;
-  uint32                mStatus;
-  uint32                mLastUpdate;
+    uint32                mId;
+    BString                mName;
+    BString                mAddress;
+    uint16                mConnectionPort;
+    uint16                mPingPort;
+    uint32                mPopulation;
+    uint32                mStatus;
+    uint32                mLastUpdate;
 };
 
 //======================================================================================================================

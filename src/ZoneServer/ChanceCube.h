@@ -34,15 +34,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ChanceCube : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		ChanceCube();
-		virtual ~ChanceCube(void);
+    ChanceCube();
+    virtual ~ChanceCube(void);
 
-		void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		virtual void	ResetRadialMenu(){;}//RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
+    void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    virtual void	ResetRadialMenu() {
+        ;
+    }//RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 };
 
 //=============================================================================

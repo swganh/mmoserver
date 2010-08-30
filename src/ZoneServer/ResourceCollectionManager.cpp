@@ -1,4 +1,4 @@
- /*
+/*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -47,115 +47,116 @@ ResourceCollectionManager* ResourceCollectionManager::mSingleton = NULL;
 //======================================================================================================================
 
 ResourceCollectionManager::ResourceCollectionManager(Database* database) :
-mDatabase(database),
-mDBAsyncPool(sizeof(RCMAsyncContainer))
+    mDatabase(database),
+    mDBAsyncPool(sizeof(RCMAsyncContainer))
 {
-	_setupDatabindings();
+    _setupDatabindings();
 
-	// load sample costs
-	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RCMAsyncContainer(RCMQuery_SampleCosts),
-		"select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('dosample');");
-	gLogger->log(LogManager::DEBUG, "SQL :: select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('dosample');"); // SQL Debug Log
-	
-	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RCMAsyncContainer(RCMQuery_SurveyCosts),
-		"select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('requestSurvey');");
-	gLogger->log(LogManager::DEBUG, "SQL :: select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('requestSurvey');"); // SQL Debug Log
+    // load sample costs
+    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RCMAsyncContainer(RCMQuery_SampleCosts),
+                               "select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('dosample');");
+    gLogger->log(LogManager::DEBUG, "SQL :: select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('dosample');"); // SQL Debug Log
+
+    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RCMAsyncContainer(RCMQuery_SurveyCosts),
+                               "select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('requestSurvey');");
+    gLogger->log(LogManager::DEBUG, "SQL :: select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('requestSurvey');"); // SQL Debug Log
 }
 
 //======================================================================================================================
 
 ResourceCollectionManager* ResourceCollectionManager::Init(Database* database)
 {
-	if(mInsFlag == false)
-	{
-		mSingleton = new ResourceCollectionManager(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(mInsFlag == false)
+    {
+        mSingleton = new ResourceCollectionManager(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //======================================================================================================================
 
 ResourceCollectionManager::~ResourceCollectionManager()
 {
-	_destroyDatabindings();
+    _destroyDatabindings();
 
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 void ResourceCollectionManager::_setupDatabindings()
 {
-	mCommandCostBinding = mDatabase->CreateDataBinding(6);
-	mCommandCostBinding->addField(DFT_uint32,offsetof(ResourceCollectionCommand,mId),4,0);
-	mCommandCostBinding->addField(DFT_bstring,offsetof(ResourceCollectionCommand,mCommandName),255,1);
-	mCommandCostBinding->addField(DFT_int32,offsetof(ResourceCollectionCommand,mHealthCost),4,2);
-	mCommandCostBinding->addField(DFT_int32,offsetof(ResourceCollectionCommand,mActionCost),4,3);
-	mCommandCostBinding->addField(DFT_int32,offsetof(ResourceCollectionCommand,mMindCost),4,4);
-	mCommandCostBinding->addField(DFT_int32,offsetof(ResourceCollectionCommand,mDamageModifier),4,5);
+    mCommandCostBinding = mDatabase->CreateDataBinding(6);
+    mCommandCostBinding->addField(DFT_uint32,offsetof(ResourceCollectionCommand,mId),4,0);
+    mCommandCostBinding->addField(DFT_bstring,offsetof(ResourceCollectionCommand,mCommandName),255,1);
+    mCommandCostBinding->addField(DFT_int32,offsetof(ResourceCollectionCommand,mHealthCost),4,2);
+    mCommandCostBinding->addField(DFT_int32,offsetof(ResourceCollectionCommand,mActionCost),4,3);
+    mCommandCostBinding->addField(DFT_int32,offsetof(ResourceCollectionCommand,mMindCost),4,4);
+    mCommandCostBinding->addField(DFT_int32,offsetof(ResourceCollectionCommand,mDamageModifier),4,5);
 }
 
 //======================================================================================================================
 
 void ResourceCollectionManager::_destroyDatabindings()
 {
-	mDatabase->DestroyDataBinding(mCommandCostBinding);
+    mDatabase->DestroyDataBinding(mCommandCostBinding);
 }
 
 //======================================================================================================================
 void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	RCMAsyncContainer* asyncContainer = reinterpret_cast<RCMAsyncContainer*>(ref);
-	
-	switch (asyncContainer->mQueryType)
-	{
-		case RCMQuery_SampleCosts:
-			{
-				ResourceCollectionCommand* cCommand = new ResourceCollectionCommand();
+    RCMAsyncContainer* asyncContainer = reinterpret_cast<RCMAsyncContainer*>(ref);
 
-				if (result->getRowCount())
-				{
-					result->GetNextRow(mCommandCostBinding, cCommand);
-					this->sampleActionCost = cCommand->getActionCost();
-					this->sampleHealthCost = cCommand->getHealthCost();
-					this->sampleMindCost = cCommand->getMindCost();
-					this->sampleRadioactiveDamageModifier = cCommand->getDamageModifier();
-					
-				}
+    switch (asyncContainer->mQueryType)
+    {
+    case RCMQuery_SampleCosts:
+    {
+        ResourceCollectionCommand* cCommand = new ResourceCollectionCommand();
 
-				if(result->getRowCount())
-					gLogger->log(LogManager::NOTICE,"Loaded sample costs.");
+        if (result->getRowCount())
+        {
+            result->GetNextRow(mCommandCostBinding, cCommand);
+            this->sampleActionCost = cCommand->getActionCost();
+            this->sampleHealthCost = cCommand->getHealthCost();
+            this->sampleMindCost = cCommand->getMindCost();
+            this->sampleRadioactiveDamageModifier = cCommand->getDamageModifier();
 
-			}
-			break;
+        }
 
-		case RCMQuery_SurveyCosts:
-			{
-				ResourceCollectionCommand* cCommand = new ResourceCollectionCommand();
-				if (result->getRowCount())
-				{
-				
-					result->GetNextRow(mCommandCostBinding, cCommand);
+        if(result->getRowCount())
+            gLogger->log(LogManager::NOTICE,"Loaded sample costs.");
 
-					
-					this->surveyActionCost = cCommand->getActionCost();
-					this->surveyHealthCost = cCommand->getHealthCost();
-					this->surveyMindCost = cCommand->getMindCost();
-					
-				}
-				
-				if(result->getRowCount())
-					gLogger->log(LogManager::NOTICE,"Loaded survey costs.");						
+    }
+    break;
 
-			}
-			break;
+    case RCMQuery_SurveyCosts:
+    {
+        ResourceCollectionCommand* cCommand = new ResourceCollectionCommand();
+        if (result->getRowCount())
+        {
 
-		default:break;
-	}
+            result->GetNextRow(mCommandCostBinding, cCommand);
 
-	mDBAsyncPool.ordered_free(asyncContainer);
+
+            this->surveyActionCost = cCommand->getActionCost();
+            this->surveyHealthCost = cCommand->getHealthCost();
+            this->surveyMindCost = cCommand->getMindCost();
+
+        }
+
+        if(result->getRowCount())
+            gLogger->log(LogManager::NOTICE,"Loaded survey costs.");
+
+    }
+    break;
+
+    default:
+        break;
+    }
+
+    mDBAsyncPool.ordered_free(asyncContainer);
 }
 
 //=============================================================================

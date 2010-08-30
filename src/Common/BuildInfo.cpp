@@ -41,11 +41,11 @@ std::string GetBuildNumber()
     {
         std::ifstream version_file("VERSION");
 
-        std::string build_string = GetBuildString();    
+        std::string build_string = GetBuildString();
         build_num = ANH_VERSION_MAJOR"."ANH_VERSION_MINOR"."ANH_VERSION_PATCH"."+build_string.substr(0, build_string.find_first_of(" "));
     }
 
-	return build_num;
+    return build_num;
 }
 
 std::string GetBuildTime()
@@ -57,11 +57,11 @@ std::string GetBuildTime()
 
     if (build_time.length() == 0)
     {
-        std::string build_string = GetBuildString();    
+        std::string build_string = GetBuildString();
         build_time = build_string.substr(build_string.find_first_of(" ")+1);
     }
 
-	return build_time;
+    return build_time;
 }
 
 std::string GetBuildString()
@@ -69,23 +69,23 @@ std::string GetBuildString()
     static std::string build_revision;
     static std::string build_timestamp;
 
-    if (build_revision.length() == 0) 
+    if (build_revision.length() == 0)
     {
         std::ifstream version_file("VERSION");
 
         if (version_file.is_open())
         {
             std::getline(version_file, build_revision);
-			std::getline(version_file, build_timestamp);
+            std::getline(version_file, build_timestamp);
 
-			if (! version_file.eof() && version_file.peek() != '\n') {
-				std::getline(version_file, build_revision);
-			}
+            if (! version_file.eof() && version_file.peek() != '\n') {
+                std::getline(version_file, build_revision);
+            }
         }
 
         version_file.close();
     }
 
-	return build_revision+" "+build_timestamp;
+    return build_revision+" "+build_timestamp;
 }
 

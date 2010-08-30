@@ -43,7 +43,7 @@ public:
     explicit BurstRunEndEvent(::common::ByteBuffer& in);
     explicit BurstRunEndEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0);
     BurstRunEndEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
-    
+
     ~BurstRunEndEvent();
 
     const ::common::EventType& event_type() const;
@@ -62,7 +62,7 @@ public:
     explicit BurstRunCooldownEndEvent(::common::ByteBuffer& in);
     explicit BurstRunCooldownEndEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0);
     BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
-    
+
     ~BurstRunCooldownEndEvent();
 
     const ::common::EventType& event_type() const;

@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Include files 
+// Include files
 //
 #ifndef SRC_UTILS_MDUMP_H_
 #define SRC_UTILS_MDUMP_H_
@@ -12,22 +12,22 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Directives 
+// Directives
 //
 
 #pragma comment ( lib, "dbghelp.lib" )
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// Function declarations 
+// Function declarations
 //
 
-LONG WINAPI CreateMiniDump( LPEXCEPTION_POINTERS pep ); 
+LONG WINAPI CreateMiniDump( LPEXCEPTION_POINTERS pep );
 
 BOOL CALLBACK MiniDumpCallback(
-	PVOID                            pParam, 
-	const PMINIDUMP_CALLBACK_INPUT   pInput, 
-	PMINIDUMP_CALLBACK_OUTPUT        pOutput 
-); 
+    PVOID                            pParam,
+    const PMINIDUMP_CALLBACK_INPUT   pInput,
+    PMINIDUMP_CALLBACK_OUTPUT        pOutput
+);
 
 #endif

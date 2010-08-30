@@ -34,20 +34,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Terminal : public TangibleObject
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		Terminal();
-		~Terminal();
+    Terminal();
+    ~Terminal();
 
-		uint32			getTerminalType(){return mTerminalType;}
-		void			setTerminalType(uint32 type ){mTerminalType = type;}
-	
+    uint32			getTerminalType() {
+        return mTerminalType;
+    }
+    void			setTerminalType(uint32 type ) {
+        mTerminalType = type;
+    }
 
-	private:
-		uint32			mTerminalType;
-	
+
+private:
+    uint32			mTerminalType;
+
 };
 
 //=============================================================================

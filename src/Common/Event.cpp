@@ -30,26 +30,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 
 namespace common {
-    
-BaseEvent::BaseEvent(EventSubject subject, uint64_t delay_ms) 
-: subject_(subject)
-, priority_(0)
-, timestamp_(0)
-, delay_ms_(delay_ms)
-, next_(nullptr)
-, callback_(nullptr) {}
 
-BaseEvent::BaseEvent(EventSubject subject, uint64_t delay_ms, EventCallback callback) 
-: subject_(subject)
-, priority_(0)
-, timestamp_(0)
-, delay_ms_(delay_ms)
-, next_(nullptr)
-, callback_(new EventCallback(callback)) {}
+BaseEvent::BaseEvent(EventSubject subject, uint64_t delay_ms)
+    : subject_(subject)
+    , priority_(0)
+    , timestamp_(0)
+    , delay_ms_(delay_ms)
+    , next_(nullptr)
+    , callback_(nullptr) {}
+
+BaseEvent::BaseEvent(EventSubject subject, uint64_t delay_ms, EventCallback callback)
+    : subject_(subject)
+    , priority_(0)
+    , timestamp_(0)
+    , delay_ms_(delay_ms)
+    , next_(nullptr)
+    , callback_(new EventCallback(callback)) {}
 
 BaseEvent::~BaseEvent() {}
 
-EventSubject BaseEvent::subject() const { 
+EventSubject BaseEvent::subject() const {
     return subject_;
 }
 
@@ -57,7 +57,7 @@ void BaseEvent::subject(uint64_t subject) {
     subject_ = subject;
 }
 
-uint64_t BaseEvent::timestamp() const { 
+uint64_t BaseEvent::timestamp() const {
     return timestamp_;
 }
 
@@ -65,7 +65,7 @@ void BaseEvent::timestamp(uint64_t timestamp) {
     timestamp_ = timestamp;
 }
 
-uint64_t BaseEvent::delay_ms() const { 
+uint64_t BaseEvent::delay_ms() const {
     return delay_ms_;
 }
 
@@ -115,18 +115,18 @@ void BaseEvent::consume(bool handled) const {
     }
 }
 
-SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms) 
-: BaseEvent(subject_id, delay_ms)
-, event_type_(event_type) {}
+SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms)
+    : BaseEvent(subject_id, delay_ms)
+    , event_type_(event_type) {}
 
-SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
-: BaseEvent(subject_id, delay_ms, callback)
-, event_type_(event_type) {}
-   
+SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+    : BaseEvent(subject_id, delay_ms, callback)
+    , event_type_(event_type) {}
+
 SimpleEvent::~SimpleEvent() {}
 
-const EventType& SimpleEvent::event_type() const { 
-    return event_type_; 
+const EventType& SimpleEvent::event_type() const {
+    return event_type_;
 }
 
 void SimpleEvent::onSerialize(ByteBuffer& out) const {}

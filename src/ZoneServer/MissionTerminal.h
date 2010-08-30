@@ -34,15 +34,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class MissionTerminal : public Terminal
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		MissionTerminal();
-		~MissionTerminal();
-		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    MissionTerminal();
+    ~MissionTerminal();
+    virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
-	private:
+private:
 };
 
 //=============================================================================

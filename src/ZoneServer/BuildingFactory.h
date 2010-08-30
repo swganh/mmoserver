@@ -46,44 +46,46 @@ class DispatchClient;
 
 enum BFQuery
 {
-	BFQuery_MainData	= 1,
-	BFQuery_Cells		= 2,
-	BFQuery_CloneData	= 3
+    BFQuery_MainData	= 1,
+    BFQuery_Cells		= 2,
+    BFQuery_CloneData	= 3
 };
 
 //=============================================================================
 
 class BuildingFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static BuildingFactory*	getSingletonPtr() { return mSingleton; }
-		static BuildingFactory*	Init(Database* database);
+    static BuildingFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static BuildingFactory*	Init(Database* database);
 
-		~BuildingFactory();
+    ~BuildingFactory();
 
-		virtual void	handleObjectReady(Object* object,DispatchClient* client);
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void	handleObjectReady(Object* object,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-		void			releaseAllPoolsMemory();
+    void			releaseAllPoolsMemory();
 
-	private:
+private:
 
-		BuildingFactory(Database* database);
+    BuildingFactory(Database* database);
 
-		void			_setupDatabindings();
-		void			_destroyDatabindings();
+    void			_setupDatabindings();
+    void			_destroyDatabindings();
 
-		BuildingObject*	_createBuilding(DatabaseResult* result);
+    BuildingObject*	_createBuilding(DatabaseResult* result);
 
-		static BuildingFactory*		mSingleton;
-		static bool					mInsFlag;
+    static BuildingFactory*		mSingleton;
+    static bool					mInsFlag;
 
-		CellFactory*				mCellFactory;
+    CellFactory*				mCellFactory;
 
-		DataBinding*				mBuildingBinding;
-		DataBinding*				mSpawnBinding;
+    DataBinding*				mBuildingBinding;
+    DataBinding*				mSpawnBinding;
 };
 
 //=============================================================================

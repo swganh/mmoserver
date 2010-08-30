@@ -39,23 +39,27 @@ class Shuttle;
 
 class UITicketSelectListBox : public UIListBox
 {
-	public:
+public:
 
-		UITicketSelectListBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,BString port,Shuttle* shuttle,uint8 lbType)
-			: UIListBox(callback,id,SUI_Window_TicketSelect_ListBox,eventStr,caption,prompt,dataItems,playerObject,lbType),mShuttle(shuttle)
-		{
-			mPort = port.getAnsi();
-		}
+    UITicketSelectListBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,BString port,Shuttle* shuttle,uint8 lbType)
+        : UIListBox(callback,id,SUI_Window_TicketSelect_ListBox,eventStr,caption,prompt,dataItems,playerObject,lbType),mShuttle(shuttle)
+    {
+        mPort = port.getAnsi();
+    }
 
-		virtual		~UITicketSelectListBox(){}
+    virtual		~UITicketSelectListBox() {}
 
-		BString		getPort(){ return mPort; }
-		Shuttle*	getShuttle(){ return mShuttle; }
+    BString		getPort() {
+        return mPort;
+    }
+    Shuttle*	getShuttle() {
+        return mShuttle;
+    }
 
-	private:
+private:
 
-		Shuttle*	mShuttle;
-		BString		mPort;
+    Shuttle*	mShuttle;
+    BString		mPort;
 };
 
 //================================================================================

@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
 
-EVState::EVState(ObjectController* controller) 
-: EnqueueValidator(controller)
+EVState::EVState(ObjectController* controller)
+    : EnqueueValidator(controller)
 {}
 
 EVState::~EVState()
@@ -40,24 +40,24 @@ EVState::~EVState()
 bool EVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties)
 {
     CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
-	if(creature && cmdProperties)
-	{
-		//gLogger->log(LogManager::DEBUG, "locomotionMask(%u) & creature->getLocomotion (%u) ==%u",
-			//cmdProperties->mLocomotionMask,mController->getLocoValidator(creature->getLocomotion()), cmdProperties->mLocomotionMask & creature->getLocomotion());
-		// skip over commands with no state requirement and check the rest
-		if((cmdProperties->mStates != 0) && creature->checkStates(cmdProperties->mStates))
-		{
-			reply1 = kCannotDoWhileState;
-			reply2 = this->mController->getLowestCommonBit(creature->getState(), cmdProperties->mStates);
-			return false;
-		}
-		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->getLocomotion()) != 0))
-		{
-			reply1 = kCannotDoWhileLocomotion;
-			reply2 = mController->getLocoValidator(creature->getLocomotion());
-			return false;
-		}
-	}
+    if(creature && cmdProperties)
+    {
+        //gLogger->log(LogManager::DEBUG, "locomotionMask(%u) & creature->getLocomotion (%u) ==%u",
+        //cmdProperties->mLocomotionMask,mController->getLocoValidator(creature->getLocomotion()), cmdProperties->mLocomotionMask & creature->getLocomotion());
+        // skip over commands with no state requirement and check the rest
+        if((cmdProperties->mStates != 0) && creature->checkStates(cmdProperties->mStates))
+        {
+            reply1 = kCannotDoWhileState;
+            reply2 = this->mController->getLowestCommonBit(creature->getState(), cmdProperties->mStates);
+            return false;
+        }
+        if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->getLocomotion()) != 0))
+        {
+            reply1 = kCannotDoWhileLocomotion;
+            reply2 = mController->getLocoValidator(creature->getLocomotion());
+            return false;
+        }
+    }
     return true;
 }
 

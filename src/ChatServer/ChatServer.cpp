@@ -80,11 +80,11 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 
     // Connect to the DB and start listening for the RouterServer.
     mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
-        (char*)(gConfig->read<std::string>("DBServer")).c_str(),
-        gConfig->read<int>("DBPort"),
-        (char*)(gConfig->read<std::string>("DBUser")).c_str(),
-        (char*)(gConfig->read<std::string>("DBPass")).c_str(),
-        (char*)(gConfig->read<std::string>("DBName")).c_str());
+                                          (char*)(gConfig->read<std::string>("DBServer")).c_str(),
+                                          gConfig->read<int>("DBPort"),
+                                          (char*)(gConfig->read<std::string>("DBUser")).c_str(),
+                                          (char*)(gConfig->read<std::string>("DBPass")).c_str(),
+                                          (char*)(gConfig->read<std::string>("DBName")).c_str());
 
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);");
     gLogger->log(LogManager::DEBUG, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);"); // SQL Debug Log
@@ -96,8 +96,8 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
     _updateDBServerList(1);
 
     // Instant the messageFactory. It will also run the Startup ().
-    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced. 
-                                                // The code itself here is not needed, since it will instance itself at first use.
+    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.
+    // The code itself here is not needed, since it will instance itself at first use.
 
     // Connect to the ConnectionServer;
     _connectToConnectionServer();
@@ -114,8 +114,8 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
     // load up GroupManager
     mGroupManager = GroupManager::Init(mMessageDispatch);
 
-    mCharacterAdminHandler = new CharacterAdminHandler(mDatabase, mMessageDispatch);  
-  
+    mCharacterAdminHandler = new CharacterAdminHandler(mDatabase, mMessageDispatch);
+
     mPlanetMapHandler = new PlanetMapHandler(mDatabase,mMessageDispatch);
 
     ChatMessageLib::Init(mClient);
@@ -142,7 +142,7 @@ ChatServer::~ChatServer()
 
     // Shutdown the various handlers
     delete mCharacterAdminHandler;
-    
+
     delete mPlanetMapHandler;
 
     delete (mChatManager);
@@ -270,8 +270,8 @@ int main(int argc, char* argv[])
 
     gChatServer = new ChatServer();
 
-  // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
-  //atexit(handleExit);
+    // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
+    //atexit(handleExit);
 
     // Main loop
     while (!exit)

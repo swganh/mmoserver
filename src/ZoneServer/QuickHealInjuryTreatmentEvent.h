@@ -37,16 +37,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class QuickHealInjuryTreatmentEvent : public Anh_Utils::Event
 {
-	public:
+public:
 
-		QuickHealInjuryTreatmentEvent(uint64 time) : mQuickHealInjuryTreatmentTime(time){}
-		
-		uint64 getQuickHealInjuryTreatmentTime() const {return  mQuickHealInjuryTreatmentTime;}
+    QuickHealInjuryTreatmentEvent(uint64 time) : mQuickHealInjuryTreatmentTime(time) {}
+
+    uint64 getQuickHealInjuryTreatmentTime() const {
+        return  mQuickHealInjuryTreatmentTime;
+    }
 
 
-	private:
+private:
 
-		uint64				mQuickHealInjuryTreatmentTime;
+    uint64				mQuickHealInjuryTreatmentTime;
 };
 
 

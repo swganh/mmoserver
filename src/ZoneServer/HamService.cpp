@@ -42,8 +42,8 @@ using ::swg_protocol::object_controller::PreCommandExecuteEvent;
 namespace zone {
 
 HamService::HamService(EventDispatcher& event_dispatcher, const CmdPropertyMap& command_property_map)
-: BaseApplicationService(event_dispatcher)
-, command_property_map_(command_property_map) {
+    : BaseApplicationService(event_dispatcher)
+    , command_property_map_(command_property_map) {
     event_dispatcher_.Connect(PreCommandExecuteEvent::type, EventListener(EventListenerType("HamService::handleSuccessfulObjectControllerCommand"), std::bind(&HamService::handlePreCommandExecuteEvent, this, std::placeholders::_1)));
 
 }
@@ -61,7 +61,7 @@ bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {
         assert(!"Received an invalid event!");
         return false;
     }
-    
+
     // This command doesn't exist in the properties map and shouldn't be executed further.
     CmdPropertyMap::const_iterator it = command_property_map_.find(pre_event->command_crc());
     if (it == command_property_map_.end()) {
@@ -73,7 +73,7 @@ bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {
     if (!object) {
         return false;
     }
-    
+
     uint32 actioncost = (*it).second->mActionCost;
     uint32 healthcost = (*it).second->mHealthCost;
     uint32 mindcost	  = (*it).second->mMindCost;

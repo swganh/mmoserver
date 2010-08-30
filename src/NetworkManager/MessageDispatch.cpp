@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 
 MessageDispatch::MessageDispatch(Service* service) :
-mRouterService(service)
+    mRouterService(service)
 {
     // Put ourselves on the service callback list.
     mRouterService->AddNetworkCallback(this);
@@ -128,7 +128,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
         dispatchClient = new DispatchClient();
         dispatchClient->setAccountId(message->getAccountId());
         dispatchClient->setSession(client->getSession());
-    
+
         mAccountClientMap.insert(std::make_pair(message->getAccountId(),dispatchClient));
     }
     else if (opcode == opClusterClientDisconnect)
@@ -145,7 +145,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 
             // Mark it for deletion
             deleteClient = true;
-    
+
         }
         else
         {
@@ -199,7 +199,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
         gLogger->log(LogManager::INFORMATION, "Unhandled opcode in MessageDispatch - 0x%x (%i)", opcode, opcode);
     }
 
-    
+
     // Delete the client here if we got a disconnect.
     if(deleteClient)
     {
@@ -219,7 +219,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 //	Create a sessionless dispatch client.
 //
 //	Clients created here may only receive data. Do NOT use when sending (the session is missing, you know).
-// 
+//
 //======================================================================================================================
 
 void MessageDispatch::registerSessionlessDispatchClient(uint32 accountId)
@@ -240,7 +240,7 @@ void MessageDispatch::registerSessionlessDispatchClient(uint32 accountId)
 //
 //	Remove a sessionless dispatch client.
 //
-// 
+//
 //======================================================================================================================
 void MessageDispatch::unregisterSessionlessDispatchClient(uint32 accountId)
 {

@@ -41,26 +41,26 @@ const EventType PreCommandExecuteEvent::type = EventType("PreCommandExecuteEvent
 const EventType PostCommandEvent::type       = EventType("PostCommandEvent");
 
 PreCommandEvent::PreCommandEvent(ByteBuffer& in)
-: BaseEvent()
-, target_id_(0)
-, command_crc_(0) {
+    : BaseEvent()
+    , target_id_(0)
+    , command_crc_(0) {
     deserialize(in);
 }
 
-PreCommandEvent::PreCommandEvent(uint64_t subject_id, uint64_t delay_ms) 
-: BaseEvent(subject_id, delay_ms)
-, target_id_(0)
-, command_crc_(0) {}
+PreCommandEvent::PreCommandEvent(uint64_t subject_id, uint64_t delay_ms)
+    : BaseEvent(subject_id, delay_ms)
+    , target_id_(0)
+    , command_crc_(0) {}
 
 PreCommandEvent::PreCommandEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
-: BaseEvent(subject_id, delay_ms, callback)
-, target_id_(0)
-, command_crc_(0) {}
-    
+    : BaseEvent(subject_id, delay_ms, callback)
+    , target_id_(0)
+    , command_crc_(0) {}
+
 PreCommandEvent::~PreCommandEvent() {}
 
-const EventType& PreCommandEvent::event_type() const { 
-    return type; 
+const EventType& PreCommandEvent::event_type() const {
+    return type;
 }
 
 void PreCommandEvent::onSerialize(ByteBuffer& out) const {
@@ -97,26 +97,26 @@ void PreCommandEvent::command_crc(uint32_t command_crc) {
 
 
 PreCommandExecuteEvent::PreCommandExecuteEvent(ByteBuffer& in)
-: BaseEvent()
-, target_id_(0)
-, command_crc_(0) {
+    : BaseEvent()
+    , target_id_(0)
+    , command_crc_(0) {
     deserialize(in);
 }
 
-PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t delay_ms) 
-: BaseEvent(subject_id, delay_ms)
-, target_id_(0)
-, command_crc_(0) {}
+PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t delay_ms)
+    : BaseEvent(subject_id, delay_ms)
+    , target_id_(0)
+    , command_crc_(0) {}
 
-PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
-: BaseEvent(subject_id, delay_ms, callback)
-, target_id_(0)
-, command_crc_(0) {}
-    
+PreCommandExecuteEvent::PreCommandExecuteEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+    : BaseEvent(subject_id, delay_ms, callback)
+    , target_id_(0)
+    , command_crc_(0) {}
+
 PreCommandExecuteEvent::~PreCommandExecuteEvent() {}
 
-const EventType& PreCommandExecuteEvent::event_type() const { 
-    return type; 
+const EventType& PreCommandExecuteEvent::event_type() const {
+    return type;
 }
 
 void PreCommandExecuteEvent::onSerialize(ByteBuffer& out) const {
@@ -152,23 +152,23 @@ void PreCommandExecuteEvent::command_crc(uint32_t command_crc) {
 
 
 PostCommandEvent::PostCommandEvent(ByteBuffer& in)
-: BaseEvent()
-, command_processed_(false) {
+    : BaseEvent()
+    , command_processed_(false) {
     deserialize(in);
 }
 
-PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t delay_ms) 
-: BaseEvent(subject_id, delay_ms)
-, command_processed_(false) {}
+PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t delay_ms)
+    : BaseEvent(subject_id, delay_ms)
+    , command_processed_(false) {}
 
-PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
-: BaseEvent(subject_id, delay_ms, callback)
-, command_processed_(false) {}
-    
+PostCommandEvent::PostCommandEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+    : BaseEvent(subject_id, delay_ms, callback)
+    , command_processed_(false) {}
+
 PostCommandEvent::~PostCommandEvent() {}
 
-const EventType& PostCommandEvent::event_type() const { 
-    return type; 
+const EventType& PostCommandEvent::event_type() const {
+    return type;
 }
 
 void PostCommandEvent::onSerialize(ByteBuffer& out) const {

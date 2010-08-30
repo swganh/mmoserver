@@ -43,23 +43,25 @@ class DataField;
 
 class DBMANAGER_API DataBindingFactory
 {
-    public:
+public:
 
-        DataBindingFactory(void);
-        ~DataBindingFactory(void);
+    DataBindingFactory(void);
+    ~DataBindingFactory(void);
 
-        DataBinding*	CreateDataBinding(uint16 fieldCount);
-        void			DestroyDataBinding(DataBinding* binding);
+    DataBinding*	CreateDataBinding(uint16 fieldCount);
+    void			DestroyDataBinding(DataBinding* binding);
 
-        bool			releasePoolMemory(){ return(mDataBindingPool.release_memory()); }
+    bool			releasePoolMemory() {
+        return(mDataBindingPool.release_memory());
+    }
 
-    private:
-        
+private:
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
-        boost::pool<boost::default_user_allocator_malloc_free>	mDataBindingPool;
+    boost::pool<boost::default_user_allocator_malloc_free>	mDataBindingPool;
     // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (default : 4251)

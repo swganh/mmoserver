@@ -39,18 +39,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-ObjectContainer::ObjectContainer() 
+ObjectContainer::ObjectContainer()
 {
-    mCapacity = 0;	
+    mCapacity = 0;
 }
 
 //=============================================================================
 
 
-ObjectContainer::ObjectContainer(uint64 id,uint64 parentId,BString model,ObjectType type) 
-                :Object(id,parentId,model,ObjType_Tangible)
+ObjectContainer::ObjectContainer(uint64 id,uint64 parentId,BString model,ObjectType type)
+    :Object(id,parentId,model,ObjType_Tangible)
 {
-    mCapacity = 0;	
+    mCapacity = 0;
     //mData.reserve(80);
 
 }
@@ -59,7 +59,7 @@ ObjectContainer::ObjectContainer(uint64 id,uint64 parentId,BString model,ObjectT
 
 ObjectContainer::~ObjectContainer()
 {
-    
+
     ObjectIDList::iterator	objectIt = mData.begin();
 
     while(objectIt != mData.end())
@@ -70,7 +70,7 @@ ObjectContainer::~ObjectContainer()
             gLogger->log(LogManager::DEBUG,"ObjectContainer::remove Object : No Object!!!!");
             assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
             objectIt = removeObject(objectIt);
-            
+
             continue;
         }
 
@@ -91,10 +91,10 @@ ObjectContainer::~ObjectContainer()
 }
 
 //=============================================================================
-                                            
-bool ObjectContainer::addObjectSecure(Object* Data) 
-{ 
-    mData.push_back(Data->getId()); 
+
+bool ObjectContainer::addObjectSecure(Object* Data)
+{
+    mData.push_back(Data->getId());
     if(mCapacity)
     {
         return true;
@@ -109,17 +109,17 @@ bool ObjectContainer::addObjectSecure(Object* Data)
 
 //==============================================================================0
 //use only when youre prepared to receive a false result with a not added item
-bool ObjectContainer::addObject(Object* Data) 
-{ 
+bool ObjectContainer::addObject(Object* Data)
+{
     if(mCapacity)
     {
-        mData.push_back(Data->getId()); 
-        //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+        mData.push_back(Data->getId());
+        //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
         return true;
     }
     else
     {
-        //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
+        //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
         gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
         //assert(false);// Another case where....why crash? We can continue just fine.
         //because crashing is fun :)))
@@ -134,8 +134,8 @@ bool ObjectContainer::addObject(Object* Data)
 //==========================================================================================0
 //adds the Object to the container and creates it for a single player
 //
-bool ObjectContainer::addObject(Object* Data, PlayerObject* player) 
-{ 
+bool ObjectContainer::addObject(Object* Data, PlayerObject* player)
+{
     if(!addObject(Data))
         return false;
 
@@ -146,27 +146,27 @@ bool ObjectContainer::addObject(Object* Data, PlayerObject* player)
         return true;
 
     }
-    
+
     gMessageLib->sendCreateObject(Data,player,false);
     CraftingTool* tool = dynamic_cast<CraftingTool*>(Data);
     if(tool&&tool->getCurrentItem())
     {
         gMessageLib->sendUpdateTimer(tool,player);
     }
-    
+
     return true;
 }
 
-bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player) 
-{ 	
+bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player)
+{
 
     if(!player)
     {
         gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No player!!!!");
         return addObjectSecure(Data);
-        
+
     }
-    
+
     gMessageLib->sendCreateObject(Data,player,false);
     CraftingTool* tool = dynamic_cast<CraftingTool*>(Data);
     if(tool&&tool->getCurrentItem())
@@ -180,8 +180,8 @@ bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player)
 //==========================================================================================0
 //adds the Object to the container and creates it for a single player
 //
-bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers) 
-{ 
+bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers)
+{
     if(!addObject(Data))
         return false;
 
@@ -192,7 +192,7 @@ bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers)
         return true;
 
     }
-    
+
     PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
     CraftingTool* tool = dynamic_cast<CraftingTool*>(Data);
 
@@ -200,7 +200,7 @@ bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers)
     {
         PlayerObject* player = (*playerIt);
         gMessageLib->sendCreateObject(Data,player,false);
-    
+
         if(tool&&tool->getCurrentItem())
         {
             PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
@@ -212,7 +212,7 @@ bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers)
 
 
     return true;
-    
+
 }
 
 //========================================================================================================0
@@ -227,7 +227,7 @@ void ObjectContainer::addObjectSecure(Object* object, PlayerObjectSet* inRangePl
     {
         PlayerObject* targetObject = (*it);
         gMessageLib->sendCreateObject(object,targetObject);
-        
+
         targetObject->addKnownObjectSafe(object);
         object->addKnownObjectSafe(targetObject);
         ++it;
@@ -249,8 +249,8 @@ Object* ObjectContainer::getObjectById(uint64 id)
 
     while(it != mData.end())
     {
-        if((*it) == id) 
-            return(gWorldManager->getObjectById((*it))); 
+        if((*it) == id)
+            return(gWorldManager->getObjectById((*it)));
 
         ++it;
     }
@@ -322,7 +322,7 @@ bool ObjectContainer::removeObject(uint64 id, PlayerObject* player)
     if(!removeObject(id))
         return false;
     gMessageLib->sendDestroyObject(id,player);
-    
+
     return true;
 }
 
@@ -345,7 +345,7 @@ bool ObjectContainer::removeObject(uint64 id, PlayerObjectSet*	knownPlayers)
     {
         PlayerObject* player = (*playerIt);
         gMessageLib->sendDestroyObject(id,player);
-    
+
         playerIt++;
     }
     return true;
@@ -355,17 +355,17 @@ bool ObjectContainer::removeObject(Object* Data, PlayerObjectSet*	knownPlayers)
 {
     if(!removeObject(Data->getId()))
         return false;
-        
+
     PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
 
     while(playerIt != knownPlayers->end())
     {
         PlayerObject* player = (*playerIt);
         gMessageLib->sendDestroyObject(Data->getId(),player);
-    
+
         playerIt++;
     }
-    
+
     return true;
 }
 
@@ -399,12 +399,12 @@ ObjectIDList::iterator ObjectContainer::removeObject(ObjectIDList::iterator it, 
 ObjectIDList::iterator ObjectContainer::removeObject(ObjectIDList::iterator it)
 {
     it = mData.erase(it);
-return it;
+    return it;
 }
 
 //=============================================================================
 // the item is obviously a container that gets to hold the item we just created
-// we need to find out who needs updates on the containers content - these are the players on the 
+// we need to find out who needs updates on the containers content - these are the players on the
 // knownObjects list of the container
 // please note that the inventory and the datapad handle their Own ObjectReady functions!!!!
 
@@ -427,7 +427,7 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
     //update the world - who is looking into our container ?
 
     // find the main containing object
-    // thats an inventory, a cell or a factory - they are the object registered in the SI 
+    // thats an inventory, a cell or a factory - they are the object registered in the SI
     // and can tell us who we need to update
     uint64 mainParent = getIDMainParent(object);
 
@@ -441,7 +441,7 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
     //TODO: handle error messages with full containers
 
     PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mainParent));
-    
+
     if(player)
     {
         //add it to our container list
@@ -451,19 +451,19 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 
     // no need to check the type again - getObjectMainParent() did that already
     // ás its not an inventory this leaves us with factory or cell as mainparent
-    Object* ParentObject = dynamic_cast<Object*>(gWorldManager->getObjectById(mainParent));	
+    Object* ParentObject = dynamic_cast<Object*>(gWorldManager->getObjectById(mainParent));
     if(ParentObject)
     {
         PlayerObjectSet*			knownPlayers	= ParentObject->getKnownPlayers();
         this->addObject(object,knownPlayers);
         return;
-    
+
     }
 
     // send the creates to everyone on our containers knownObjectslist
     // please note that only makes sense for containers in the SI - containers in the inventory need to
     // be handled differently!!! (IE only send to player (= mainparent) like done above
-    
+
 }
 
 //============================================================================================================
@@ -500,15 +500,15 @@ Object* ObjectContainer::getObjectMainParent(Object* object)
             return building;
         }
     }
-    
+
     //the object is in the factory - the mainparent is the factory
     FactoryObject* factory = dynamic_cast<FactoryObject*>(ob);
     if(factory)
     {
         return factory;
-        
+
     }
-    
+
     BuildingObject* building = dynamic_cast<BuildingObject*>(ob);
     if(building)
     {
@@ -541,15 +541,15 @@ uint64 ObjectContainer::getIDMainParent(Object* object)
     {
         return cell->getParentId();
     }
-    
+
     //the object is in the factory - the mainparent is the factory
     FactoryObject* factory = dynamic_cast<FactoryObject*>(ob);
     if(factory)
     {
         return parentID;
-        
+
     }
-    
+
     BuildingObject* building = dynamic_cast<BuildingObject*>(ob);
     if(building)
     {
@@ -619,7 +619,7 @@ uint64 ObjectContainer::getIDMainParent(Object* object)
 */
 
 //=============================================================================================
-// gets a headcount of all tangible (!!!) Objects in the container 
+// gets a headcount of all tangible (!!!) Objects in the container
 // including those contained in containers
 uint16 ObjectContainer::getHeadCount()
 {
@@ -634,7 +634,7 @@ uint16 ObjectContainer::getHeadCount()
         if(to && (to != this) && (!to->getStatic()))
         {
             count += to->getHeadCount();
-            count += 1; //implememt items counting more than 1 at one time	
+            count += 1; //implememt items counting more than 1 at one time
         }
         ++it;
     }

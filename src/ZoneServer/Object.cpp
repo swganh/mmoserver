@@ -39,16 +39,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 Object::Object()
-: mModel("")
-, mLoadState(LoadState_Loading)
-, mId(0)
-, mParentId(0)
-, mPrivateOwner(0)
-, mEquipSlots(0)
-, mSubZoneId(0)
-, mTypeOptions(0)
-, mDataTransformCounter(0)
-, mMovementMessageToggle(true)
+    : mModel("")
+    , mLoadState(LoadState_Loading)
+    , mId(0)
+    , mParentId(0)
+    , mPrivateOwner(0)
+    , mEquipSlots(0)
+    , mSubZoneId(0)
+    , mTypeOptions(0)
+    , mDataTransformCounter(0)
+    , mMovementMessageToggle(true)
 {
     mDirection = glm::quat();
     mPosition  = glm::vec3();
@@ -59,17 +59,17 @@ Object::Object()
 //=============================================================================
 
 Object::Object(uint64 id,uint64 parentId,BString model,ObjectType type)
-: mModel(model)
-, mLoadState(LoadState_Loading)
-, mType(type)
-, mId(id)
-, mParentId(parentId)
-, mPrivateOwner(0)
-, mEquipSlots(0)
-, mSubZoneId(0)
-, mTypeOptions(0)
-, mDataTransformCounter(0)
-, mMovementMessageToggle(true)
+    : mModel(model)
+    , mLoadState(LoadState_Loading)
+    , mType(type)
+    , mId(id)
+    , mParentId(parentId)
+    , mPrivateOwner(0)
+    , mEquipSlots(0)
+    , mSubZoneId(0)
+    , mTypeOptions(0)
+    , mDataTransformCounter(0)
+    , mMovementMessageToggle(true)
 {
     mObjectController.setObject(this);
 
@@ -89,7 +89,7 @@ Object::~Object()
 
 //=============================================================================
 
-glm::vec3 Object::getWorldPosition() const 
+glm::vec3 Object::getWorldPosition() const
 {
     const Object* root_parent = getRootParent();
 
@@ -106,10 +106,10 @@ glm::vec3 Object::getWorldPosition() const
 
     // Calculate and return the object's position relative to root parent's position in the world.
     return glm::vec3(
-        root_parent->mPosition.x + (sin(theta) * length),
-        root_parent->mPosition.y + mPosition.y,
-        root_parent->mPosition.z - (cos(theta) * length)
-        );				
+               root_parent->mPosition.x + (sin(theta) * length),
+               root_parent->mPosition.y + mPosition.y,
+               root_parent->mPosition.z - (cos(theta) * length)
+           );
 }
 
 //=============================================================================
@@ -119,10 +119,10 @@ glm::vec3 Object::getWorldPosition() const
 // objects reference their parents - we just do not know who is the final (permissiongiving) container
 // as it is it will return either the player or the building owning the item regardless in what container it is
 //  @TODO: what if the player is in a building ???
-const Object* Object::getRootParent() const 
+const Object* Object::getRootParent() const
 {
     // If there's no parent id then this is the root object.
-    if (! getParentId()) 
+    if (! getParentId())
     {
         return this;
     }
@@ -155,21 +155,21 @@ void Object::rotateRight(float degrees) {
 
 //=============================================================================
 
-void Object::faceObject(Object* target_object) {	
+void Object::faceObject(Object* target_object) {
     facePosition(target_object->mPosition);
 }
 
 //=============================================================================
 
-void Object::facePosition(const glm::vec3& target_position) {	
+void Object::facePosition(const glm::vec3& target_position) {
     // Create a mirror direction vector for the direction we want to face.
     glm::vec3 direction_vector = glm::normalize(target_position - mPosition);
     direction_vector.x = -direction_vector.x;
 
     // Create a lookat matrix from the direction vector and convert it to a quaternion.
     mDirection = glm::toQuat(glm::lookAt(
-        direction_vector, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)
-        ));
+                                 direction_vector, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)
+                             ));
 
     // If in the 3rd quadrant the signs need to be flipped.
     if (mDirection.y <= 0.0f && mDirection.w >= 0.0f) {
@@ -199,21 +199,21 @@ void Object::moveForward(float distance) {
 
 //=============================================================================
 
-void Object::moveBack(float distance) {  
+void Object::moveBack(float distance) {
     move(mDirection, -distance);
 }
 
 //=============================================================================
 
-float Object::rotation_angle() const {	
-  glm::quat tmp = mDirection;
+float Object::rotation_angle() const {
+    glm::quat tmp = mDirection;
 
-  if (tmp.y < 0.0f && tmp.w > 0.0f) {
-    tmp.y *= -1;
-    tmp.w *= -1;
-  }
+    if (tmp.y < 0.0f && tmp.w > 0.0f) {
+        tmp.y *= -1;
+        tmp.w *= -1;
+    }
 
-  return glm::angle(tmp);
+    return glm::angle(tmp);
 }
 
 //=============================================================================
@@ -425,7 +425,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
     gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
-    
+
 
 //=============================================================================
 //adds the attribute to the objects attribute list
@@ -464,7 +464,7 @@ void Object::addAttributeIncDB(BString key,std::string value)
     sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
     sprintf(restStr,"',%u,0)",static_cast<uint32>(this->getAttributeMap()->size()));
     strcat(sql,restStr);
-    
+
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
     gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
@@ -576,7 +576,7 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
     sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer, value.c_str(), value.length());
     sprintf(restStr,"',%u,0)",static_cast<uint32>(this->mInternalAttributeMap.size()));
     strcat(sql,restStr);
-    
+
     gWorldManager->getDatabase()->ExecuteSqlAsync(0, 0, sql);
     gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
@@ -663,7 +663,7 @@ void Object::destroyKnownObjects()
     ObjectSet::iterator			objIt		= mKnownObjects.begin();
     PlayerObjectSet::iterator	playerIt	= mKnownPlayers.begin();
 
-    
+
     // objects
     while(objIt != mKnownObjects.end())
     {
@@ -673,7 +673,7 @@ void Object::destroyKnownObjects()
 
     // players
     while(playerIt != mKnownPlayers.end())
-    {			 
+    {
         PlayerObject* targetPlayer = (*playerIt);
 
         gMessageLib->sendDestroyObject(mId,targetPlayer);
@@ -681,7 +681,7 @@ void Object::destroyKnownObjects()
         targetPlayer->removeKnownObject(this);
         mKnownPlayers.erase(playerIt++);
 
-        
+
     }
 }
 
@@ -698,10 +698,10 @@ bool Object::isOwnedBy(PlayerObject* player)
 
 void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObject* target, bool db)
 {
-    mParentId = parentId; 
+    mParentId = parentId;
     if(db)
     {
-        this->setParentIdIncDB(parentId);		
+        this->setParentIdIncDB(parentId);
     }
 
     if(target)
@@ -711,10 +711,10 @@ void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObject* target
 
 void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObjectSet*	knownPlayers, bool db)
 {
-    mParentId = parentId; 
+    mParentId = parentId;
     if(db)
     {
-        this->setParentIdIncDB(parentId);		
+        this->setParentIdIncDB(parentId);
     }
 
     PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();

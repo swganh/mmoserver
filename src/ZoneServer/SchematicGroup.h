@@ -40,14 +40,14 @@ typedef std::vector<DraftSchematic*>	SchematicsList;
 
 class SchematicGroup
 {
-	public:
+public:
 
-		SchematicGroup();
-		~SchematicGroup();
+    SchematicGroup();
+    ~SchematicGroup();
 
-		uint32					mId;
-		BString					mName;
-		SchematicsList			mSchematics;
+    uint32					mId;
+    BString					mName;
+    SchematicsList			mSchematics;
 };
 
 #endif

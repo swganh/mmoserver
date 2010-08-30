@@ -38,20 +38,20 @@ const EventType BurstRunEndEvent::event_type_         = EventType("BurstRunEndEv
 const EventType BurstRunCooldownEndEvent::event_type_ = EventType("BurstRunCooldownEndEvent");
 
 BurstRunEndEvent::BurstRunEndEvent(ByteBuffer& in)
-: BaseEvent() {
+    : BaseEvent() {
     deserialize(in);
 }
 
-BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t delay_ms) 
-: BaseEvent(subject_id, delay_ms) {}
+BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t delay_ms)
+    : BaseEvent(subject_id, delay_ms) {}
 
-BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
-: BaseEvent(subject_id, delay_ms, callback) {}
-   
+BurstRunEndEvent::BurstRunEndEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+    : BaseEvent(subject_id, delay_ms, callback) {}
+
 BurstRunEndEvent::~BurstRunEndEvent() {}
 
-const EventType& BurstRunEndEvent::event_type() const { 
-    return event_type_; 
+const EventType& BurstRunEndEvent::event_type() const {
+    return event_type_;
 }
 
 void BurstRunEndEvent::onSerialize(ByteBuffer& out) const {}
@@ -65,16 +65,16 @@ BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(ByteBuffer& in) {
     deserialize(in);
 }
 
-BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t delay_ms) 
-: BaseEvent(subject_id, delay_ms) {}
+BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t delay_ms)
+    : BaseEvent(subject_id, delay_ms) {}
 
-BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback) 
-: BaseEvent(subject_id, delay_ms, callback) {}
-    
+BurstRunCooldownEndEvent::BurstRunCooldownEndEvent(uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+    : BaseEvent(subject_id, delay_ms, callback) {}
+
 BurstRunCooldownEndEvent::~BurstRunCooldownEndEvent() {}
 
-const EventType& BurstRunCooldownEndEvent::event_type() const { 
-    return event_type_; 
+const EventType& BurstRunCooldownEndEvent::event_type() const {
+    return event_type_;
 }
 
 void BurstRunCooldownEndEvent::onSerialize(ByteBuffer& out) const {}

@@ -35,11 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 Item::Item() : TangibleObject(), mOwner(0)
 {
-	mTanGroup			= TanGroup_Item;
-	mPlaced				= false;
-	mNonPersistantCopy	= 0;
-	mPersistantCopy		= 0;
-	mLoadCount			= 0;
+    mTanGroup			= TanGroup_Item;
+    mPlaced				= false;
+    mNonPersistantCopy	= 0;
+    mPersistantCopy		= 0;
+    mLoadCount			= 0;
 
 }
 
@@ -51,9 +51,9 @@ Item::~Item()
 
 void Item::updateWorldPosition()
 {
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f',oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
-	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE items SET parent_id ='%I64u', oX='%f',oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId()); // SQL Debug Log
-	
+    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f',oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
+    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE items SET parent_id ='%I64u', oX='%f',oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId()); // SQL Debug Log
+
 }
 
 //=============================================================================
@@ -72,20 +72,20 @@ void Item::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 i
 	radial->addItem(i++,0,radId_examine,radAction_Default,"");
 
 	radial->addItem(i++,0,radId_itemPickup,radAction_Default,"");
-	
+
 	u = i;
-	radial->addItem(i++,0,radId_itemMove,radAction_Default, "");	
+	radial->addItem(i++,0,radId_itemMove,radAction_Default, "");
 	radial->addItem(i++,u,radId_itemMoveForward,radAction_Default, "");//radAction_ObjCallback
 	radial->addItem(i++,u,radId_ItemMoveBack,radAction_Default, "");
 	radial->addItem(i++,u,radId_itemMoveUp,radAction_Default, "");
 	radial->addItem(i++,u,radId_itemMoveDown,radAction_Default, "");
-	
+
 	u = i;
 	radial->addItem(i++,0,radId_itemRotate,radAction_Default, "");
 	radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
 	radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
 
-  
+
 	RadialMenuPtr radialPtr(radial);
 	mRadialMenu = radialPtr;
 
@@ -95,36 +95,37 @@ void Item::prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 i
 
 void Item::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	//thats handled by the specific items as these are very heterogen
+    //thats handled by the specific items as these are very heterogen
 }
 
 //=============================================================================
 
 void Item::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	if(dynamic_cast<PlayerObject*>(srcObject))
-	{
-		switch(messageType)
-		{
-			case radId_itemRotateRight:
-			{
-                // Rotate the item 90 degrees to the right
-                rotateRight(90.0f);
-				gMessageLib->sendDataTransform053(this);
-			}
-			break;
+    if(dynamic_cast<PlayerObject*>(srcObject))
+    {
+        switch(messageType)
+        {
+        case radId_itemRotateRight:
+        {
+            // Rotate the item 90 degrees to the right
+            rotateRight(90.0f);
+            gMessageLib->sendDataTransform053(this);
+        }
+        break;
 
-			case radId_itemRotateLeft:
-			{
-                // Rotate the item 90 degrees to the left
-                rotateLeft(90.0f);
-				gMessageLib->sendDataTransform053(this);
-			}
-			break;
+        case radId_itemRotateLeft:
+        {
+            // Rotate the item 90 degrees to the left
+            rotateLeft(90.0f);
+            gMessageLib->sendDataTransform053(this);
+        }
+        break;
 
-			default: break;
-		}
-	}
+        default:
+            break;
+        }
+    }
 }
 
 //=============================================================================

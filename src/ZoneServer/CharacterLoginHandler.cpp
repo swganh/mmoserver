@@ -99,7 +99,7 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
 
         if(player->getParentId())
         {
-                gMessageLib->sendDataTransformWithParent0B(player);
+            gMessageLib->sendDataTransformWithParent0B(player);
         }
         else
         {
@@ -120,7 +120,7 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
         // Send newbie info.
         player->newPlayerMessage();
 
-        player->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
+        player->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
 
         // Fix/workaround for addIgnore (Eruptor)
         // If we send this info to client as soon as we get connected, client will miss the info most of the time.
@@ -173,85 +173,84 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
 
 void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchClient* client)
 {
-        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-        PlayerObject*	playerObject;
-        uint64			playerId = message->getUint64();
+    PlayerObject*	playerObject;
+    uint64			playerId = message->getUint64();
 
-        // player already exists and is in logged state
+    // player already exists and is in logged state
 
-        playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 
-        if((playerObject) && playerObject->isLinkDead())
-        {
-            // Remove old client, if any.
-            delete playerObject->getClient();
+    if((playerObject) && playerObject->isLinkDead())
+    {
+        // Remove old client, if any.
+        delete playerObject->getClient();
 
-            playerObject->setClient(client);
-            
-            playerObject->destroyKnownObjects();
+        playerObject->setClient(client);
 
-            gWorldManager->addReconnectedPlayer(playerObject);
+        playerObject->destroyKnownObjects();
 
-            gMessageLib->sendChatServerStatus(0x01,0x36,client);
-            gMessageLib->sendParameters(900,client);
-            gMessageLib->sendStartScene(mZoneId,playerObject);
-            gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
+        gWorldManager->addReconnectedPlayer(playerObject);
 
-            Weather* weather = gWorldManager->getCurrentWeather();
+        gMessageLib->sendChatServerStatus(0x01,0x36,client);
+        gMessageLib->sendParameters(900,client);
+        gMessageLib->sendStartScene(mZoneId,playerObject);
+        gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
 
-            gMessageLib->sendWeatherUpdate(weather->mClouds,weather->mWeather,playerObject);
+        Weather* weather = gWorldManager->getCurrentWeather();
 
-            //playerObject->toggleStateOff(CreatureState_Crafting);
-            // resend our objects
-            gWorldManager->initObjectsInRange(playerObject);
-            gMessageLib->sendCreatePlayer(playerObject,playerObject);
-            playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
-            gMessageLib->sendUpdatePlayerFlags(playerObject);
+        gMessageLib->sendWeatherUpdate(weather->mClouds,weather->mWeather,playerObject);
 
-            playerObject->getHam()->checkForRegen();
-            playerObject->getStomach()->checkForRegen();
-        }
-        else
-        if(playerObject  && playerObject->isBeingDestroyed())
-        {
-            gLogger->log(LogManager::DEBUG,"Were being destroyed but want to log in again ");
-            //dont quite understand this one - the player is about to be destroyed
-            //so just ignore it ????
+        //playerObject->toggleStateOff(CreatureState_Crafting);
+        // resend our objects
+        gWorldManager->initObjectsInRange(playerObject);
+        gMessageLib->sendCreatePlayer(playerObject,playerObject);
+        playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+        gMessageLib->sendUpdatePlayerFlags(playerObject);
 
-            //we might want to wait and then reload the character
+        playerObject->getHam()->checkForRegen();
+        playerObject->getStomach()->checkForRegen();
+    }
+    else if(playerObject  && playerObject->isBeingDestroyed())
+    {
+        gLogger->log(LogManager::DEBUG,"Were being destroyed but want to log in again ");
+        //dont quite understand this one - the player is about to be destroyed
+        //so just ignore it ????
 
-            // Remove old client, if any.
-            delete playerObject->getClient();
+        //we might want to wait and then reload the character
 
-            //client->Disconnect(0); darn it this disconects the only zone session!!!!
-        }
-        // player logged in with another char, while still in ld
-        else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
-        {
+        // Remove old client, if any.
+        delete playerObject->getClient();
 
-            gLogger->log(LogManager::DEBUG,"same account : new player ");
-            // remove old char immidiately
-            gWorldManager->removePlayerFromDisconnectedList(playerObject);
+        //client->Disconnect(0); darn it this disconects the only zone session!!!!
+    }
+    // player logged in with another char, while still in ld
+    else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
+    {
 
-            // need to make sure char is saved and removed, before requesting the new one
-            // so doing it sync
+        gLogger->log(LogManager::DEBUG,"same account : new player ");
+        // remove old char immidiately
+        gWorldManager->removePlayerFromDisconnectedList(playerObject);
 
-            //start async save with command character request and relevant ID
-            CharacterLoadingContainer* clContainer = new(CharacterLoadingContainer);
+        // need to make sure char is saved and removed, before requesting the new one
+        // so doing it sync
 
-            clContainer->mClient		= client;
-            clContainer->mPlayerId		= playerId;
-            clContainer->ofCallback		= this;
+        //start async save with command character request and relevant ID
+        CharacterLoadingContainer* clContainer = new(CharacterLoadingContainer);
 
-            gWorldManager->savePlayer(playerObject->getAccountId(),true, WMLogOut_Char_Load, clContainer);
-        }
-        // request a load from db
-        else
-        {
-            gLogger->log(LogManager::DEBUG,"all other cases");
-            gObjectFactory->requestObject(ObjType_Player,0,0,this,playerId,client);
-        }
+        clContainer->mClient		= client;
+        clContainer->mPlayerId		= playerId;
+        clContainer->ofCallback		= this;
+
+        gWorldManager->savePlayer(playerObject->getAccountId(),true, WMLogOut_Char_Load, clContainer);
+    }
+    // request a load from db
+    else
+    {
+        gLogger->log(LogManager::DEBUG,"all other cases");
+        gObjectFactory->requestObject(ObjType_Player,0,0,this,playerId,client);
+    }
 }
 
 void	CharacterLoginHandler::_processNewbieTutorialResponse(Message* message, DispatchClient* client)
@@ -284,38 +283,38 @@ void CharacterLoginHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
     switch(asyncContainer->callBack)
     {
         //were travelling to another zone
-        case CLHCallBack_Transfer_Ticket:
-        {
-            // Next step is save the player this call back goes to the worldmanager which will handle the rest
-            CharacterLoadingContainer* newContainer = new(CharacterLoadingContainer);
+    case CLHCallBack_Transfer_Ticket:
+    {
+        // Next step is save the player this call back goes to the worldmanager which will handle the rest
+        CharacterLoadingContainer* newContainer = new(CharacterLoadingContainer);
 
-            newContainer->callBack		= CLHCallBack_Transfer_Position;
-            newContainer->destination	= asyncContainer->destination;
-            newContainer->planet		= asyncContainer->planet;
-            newContainer->player		= asyncContainer->player;
-            newContainer->dbCallback	= this;
+        newContainer->callBack		= CLHCallBack_Transfer_Position;
+        newContainer->destination	= asyncContainer->destination;
+        newContainer->planet		= asyncContainer->planet;
+        newContainer->player		= asyncContainer->player;
+        newContainer->dbCallback	= this;
 
-            //no remove by the save we do it here in the callback
-            gWorldManager->savePlayer(asyncContainer->player->getAccountId(),false, WMLogOut_Zone_Transfer, newContainer);
-            /////////////////////////////////////////////////////
+        //no remove by the save we do it here in the callback
+        gWorldManager->savePlayer(asyncContainer->player->getAccountId(),false, WMLogOut_Zone_Transfer, newContainer);
+        /////////////////////////////////////////////////////
 
-        }
+    }
+    break;
+
+    case CLHCallBack_Transfer_Position:
+    {
+        //the worldmanager just saved the player and updated its position to the new planet
+        gMessageLib->sendClusterZoneTransferCharacter(asyncContainer->player, asyncContainer->planet);
+
+        asyncContainer->player->setConnectionState(PlayerConnState_LinkDead);
+
+        gWorldManager->destroyObject(asyncContainer->player);
+    }
+    break;
+
+    case CLHCallBack_None:
+    default:
         break;
-
-        case CLHCallBack_Transfer_Position:
-        {
-            //the worldmanager just saved the player and updated its position to the new planet
-            gMessageLib->sendClusterZoneTransferCharacter(asyncContainer->player, asyncContainer->planet);
-
-            asyncContainer->player->setConnectionState(PlayerConnState_LinkDead);
-
-            gWorldManager->destroyObject(asyncContainer->player);
-        }
-        break;
-
-        case CLHCallBack_None:
-        default:
-            break;
     }
 }
 
@@ -327,23 +326,23 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
 {
     switch(object->getType())
     {
-        case ObjType_Player:
-        {
-            PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-            player->setConnectionState(PlayerConnState_Connected);
-            player->setClient(client);
+    case ObjType_Player:
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+        player->setConnectionState(PlayerConnState_Connected);
+        player->setClient(client);
 
-            gMessageLib->sendChatServerStatus(0x01,0x36,client);
-            gMessageLib->sendParameters(900,client);
-            gMessageLib->sendStartScene(mZoneId,player);
-            gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
+        gMessageLib->sendChatServerStatus(0x01,0x36,client);
+        gMessageLib->sendParameters(900,client);
+        gMessageLib->sendStartScene(mZoneId,player);
+        gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
 
-            gWorldManager->addObject(player);
-        }
-        break;
+        gWorldManager->addObject(player);
+    }
+    break;
 
-        default:
-            gLogger->log(LogManager::NOTICE,"CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: %i",object->getType());
+    default:
+        gLogger->log(LogManager::NOTICE,"CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: %i",object->getType());
         break;
     }
 }
@@ -363,12 +362,12 @@ void CharacterLoginHandler::_processClusterClientDisconnect(Message* message, Di
     }
     else
     {
-      // put it to the disconnected list
-      if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())) != NULL)
-      {
-          // playerObject->setClient(NULL);	// To early for this, not as long as we have the playerObject active.
-          gWorldManager->addDisconnectedPlayer(playerObject);
-      }
+        // put it to the disconnected list
+        if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())) != NULL)
+        {
+            // playerObject->setClient(NULL);	// To early for this, not as long as we have the playerObject active.
+            gWorldManager->addDisconnectedPlayer(playerObject);
+        }
     }
 }
 
@@ -452,7 +451,8 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
 void CharacterLoginHandler::_processClusterZoneTransferDenied(Message* message, DispatchClient* client)
 {
     PlayerObject* playerObject;
-    /*uint32 reason = */message->getUint32();
+    /*uint32 reason = */
+    message->getUint32();
 
     // put it to the disconnected list
     if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)

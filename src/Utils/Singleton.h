@@ -52,7 +52,7 @@ namespace utils {
  *
  * // Or get a handle to the singleton class and access it directly.
  * Foo& foo = Singleton<Foo>::Instance();
- * foo.bar(); * 
+ * foo.bar(); *
  * \endcode
  */
 template <class T>
@@ -67,9 +67,9 @@ public:
 private:
     // Disable compiler generated code to prevent default constuction/destruction
     // and copy/assignment semantics.
-    Singleton();          
-    ~Singleton();         
-    Singleton(Singleton const&);    
+    Singleton();
+    ~Singleton();
+    Singleton(Singleton const&);
     Singleton& operator=(Singleton const&);
 };
 

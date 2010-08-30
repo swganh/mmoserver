@@ -65,8 +65,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/clock.h"
 
 
-ArtisanManager::ArtisanManager(): mSurveyMindCost(0),mSampleActionCost(0){};
-ArtisanManager::~ArtisanManager(){};
+ArtisanManager::ArtisanManager(): mSurveyMindCost(0),mSampleActionCost(0) {};
+ArtisanManager::~ArtisanManager() {};
 using ::common::SimpleEvent;
 using ::common::EventType;
 
@@ -136,9 +136,9 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         //are we able to sample in the first place ??
         if(!hamz->checkMainPools(0,0,mindCost))
         {
-            
-            int32 myMind = hamz->mAction.getCurrentHitPoints();		
-            
+
+            int32 myMind = hamz->mAction.getCurrentHitPoints();
+
             //return message for sampling cancel based on HAM
             if(myMind < (int32)mindCost)
             {
@@ -161,9 +161,9 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_survey", L"", L"", resourceName.getUnicode16()), player);
 
         // schedule execution
-        start_survey_event = std::make_shared<SimpleEvent>(EventType("start_survey"),0, 5000, 
-            std::bind(&ArtisanManager::surveyEvent, this, player, resource, tool));
-        
+        start_survey_event = std::make_shared<SimpleEvent>(EventType("start_survey"),0, 5000,
+                             std::bind(&ArtisanManager::surveyEvent, this, player, resource, tool));
+
     }
     else
     {
@@ -184,12 +184,12 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
 bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(player);
-    if(cmdProperties)		
+    if(cmdProperties)
         // unfortunately it's not in this opcode
         // hardcode for now
         //mSampleActionCost = cmdProperties->mActionCost;
         mSampleActionCost = 150;
-        
+
     if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->checkIfMounted() || playerObject->isDead())
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
@@ -264,37 +264,37 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
 
 void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 {
-        ArtisanHeightmapAsyncContainer* container = static_cast<ArtisanHeightmapAsyncContainer*>(ref);
-        std::shared_ptr<SimpleEvent> start_sample_event = nullptr;
+    ArtisanHeightmapAsyncContainer* container = static_cast<ArtisanHeightmapAsyncContainer*>(ref);
+    std::shared_ptr<SimpleEvent> start_sample_event = nullptr;
 
-        HeightResultMap* mapping = container->getResults();
-        HeightResultMap::iterator it = mapping->begin();
-        if(it != mapping->end() && it->second != NULL)
+    HeightResultMap* mapping = container->getResults();
+    HeightResultMap::iterator it = mapping->begin();
+    if(it != mapping->end() && it->second != NULL)
+    {
+        if(it->second->hasWater)
         {
-            if(it->second->hasWater)
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), container->playerObject);
-                return;
-            }
-
-            // put us into sampling mode
-            container->playerObject->setSamplingState(true);
-
-            container->resourceName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_sampling", L"", L"", container->resourceName.getUnicode16()), container->playerObject);
-
-            // change posture
-            container->playerObject->setCrouched();
-            // play animation
-            gWorldManager->getClientEffect(container->tool->getInternalAttribute<uint32>("sample_effect"));
-            // schedule execution
-            //container->playerObject->getController()->addEvent(new SampleEvent(container->playerObject,container->tool,container->resource),2000);
-            start_sample_event = std::make_shared<SimpleEvent>(EventType("start_sample"), 0, 2000, 
-            std::bind(&ArtisanManager::sampleEvent,this, container->playerObject, container->resource, container->tool));
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), container->playerObject);
+            return;
         }
-        // notify any listeners
-        if(start_sample_event)
-            gEventDispatcher.Notify(start_sample_event);
+
+        // put us into sampling mode
+        container->playerObject->setSamplingState(true);
+
+        container->resourceName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_sampling", L"", L"", container->resourceName.getUnicode16()), container->playerObject);
+
+        // change posture
+        container->playerObject->setCrouched();
+        // play animation
+        gWorldManager->getClientEffect(container->tool->getInternalAttribute<uint32>("sample_effect"));
+        // schedule execution
+        //container->playerObject->getController()->addEvent(new SampleEvent(container->playerObject,container->tool,container->resource),2000);
+        start_sample_event = std::make_shared<SimpleEvent>(EventType("start_sample"), 0, 2000,
+                             std::bind(&ArtisanManager::sampleEvent,this, container->playerObject, container->resource, container->tool));
+    }
+    // notify any listeners
+    if(start_sample_event)
+        gEventDispatcher.Notify(start_sample_event);
 
 }
 
@@ -361,7 +361,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
             return;
         }
     }
-    
+
     // calculate sample size if concentration >0 and surveyMod exists for player
 
     //original implementation sampleAmount = (uint32)floor((double)((15.0f * ratio) * (surveyMod / 100.0f)));
@@ -427,7 +427,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
         else
         {
             successSample = true;
-            if(dieRoll == 200) 
+            if(dieRoll == 200)
             {
                 sampleAmount = (static_cast<uint32>(3*maxSample));
                 sampleAmount = max(sampleAmount,static_cast<uint>(1));
@@ -437,36 +437,36 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
                 player->getSampleData()->mSampleNodeFlag = false;
             }
             else
-            // was set to == 100
-            if(dieRoll >= 99) 
-            {
-                if(player->getSampleData()->mSampleGambleFlag)
+                // was set to == 100
+                if(dieRoll >= 99)
                 {
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_success"), player);
-                    sampleAmount = (static_cast<uint32>(3*maxSample));
-                    sampleAmount = max(sampleAmount, static_cast<uint>(1));
-                    actionCost = 300; //300 action
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
-                    player->getSampleData()->mSampleGambleFlag = false;
-                    player->getSampleData()->mSampleEventFlag = false;
+                    if(player->getSampleData()->mSampleGambleFlag)
+                    {
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_success"), player);
+                        sampleAmount = (static_cast<uint32>(3*maxSample));
+                        sampleAmount = max(sampleAmount, static_cast<uint>(1));
+                        actionCost = 300; //300 action
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
+                        player->getSampleData()->mSampleGambleFlag = false;
+                        player->getSampleData()->mSampleEventFlag = false;
+                    }
+                    else
+                    {
+                        //CRITICAL SUCCESS
+                        sampleAmount = (static_cast<uint32>(2*maxSample));
+                        sampleAmount = max(sampleAmount, static_cast<uint>(1));
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "critical_success", L"", L"", resName.getUnicode16()), player);
+                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
+
+                    }
                 }
                 else
                 {
-                //CRITICAL SUCCESS
-                    sampleAmount = (static_cast<uint32>(2*maxSample));
+                    //NORMAL SUCCESS
+                    sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
                     sampleAmount = max(sampleAmount, static_cast<uint>(1));
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "critical_success", L"", L"", resName.getUnicode16()), player);
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
-
                 }
-            } 
-            else 
-            {
-                //NORMAL SUCCESS
-                sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
-                sampleAmount = max(sampleAmount, static_cast<uint>(1));
-                gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
-            }
         }
     }
     else
@@ -477,7 +477,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     }
     // show the effects always
     gMessageLib->sendPlayClientEffectLocMessage(effect, player->mPosition, player);
-        
+
     while(it != player->getKnownObjects()->end())
     {
         if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(*it))
@@ -497,8 +497,8 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     if(!stopSampling(player, resource, tool))
     {
         player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 18000;
-        std::shared_ptr<SimpleEvent> start_sample_event = std::make_shared<SimpleEvent>(EventType("start_sample"),0, 18000, 
-            std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
+        std::shared_ptr<SimpleEvent> start_sample_event = std::make_shared<SimpleEvent>(EventType("start_sample"),0, 18000,
+                std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
         gEventDispatcher.Notify(start_sample_event);
     }
 
@@ -524,7 +524,7 @@ bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* res
         items.push_back("Ignore the concentration and continue working.");
         items.push_back("Attempt to recover the resources. (300 Action)");
         gUIManager->createNewListBox(this,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,player,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,0,0,asyncContainer);
-            
+
         player->getSampleData()->mPendingSample = false;
         return true;
     }
@@ -540,39 +540,39 @@ bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* res
         items.push_back("Ignore the concentration and continue working.");
         items.push_back("Focus the device on the concentration");
         gUIManager->createNewListBox(this,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",items,player,SUI_Window_SmplWaypNode_ListBox,SUI_LB_OKCANCEL,0,0,asyncContainer);
-        
+
         //Pause sampling
         player->getSampleData()->mPendingSample = false;
         player->getSampleData()->mSampleEventFlag = true;
-            
+
         return true;
     }
     return false;
 }
 bool	ArtisanManager::setupForNodeSampleRecovery(PlayerObject* player)
 {
-        glm::vec2 playerPos;
-        playerPos.x = player->mPosition.x;
-        playerPos.y = player->mPosition.z;
-        glm::vec2 nodePos;
-        nodePos.x = player->getSampleData()->Position.x;
-        nodePos.y = player->getSampleData()->Position.z;
-        
-        // need to be in a 5m radius of the node
-        if(glm::distance(playerPos,nodePos) <= 5.0)
-        {
-            player->getSampleData()->mSampleNodeRecovery = true;
-            player->getSampleData()->mSampleEventFlag = false;
-        }
-        else
-        {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_not_close"), player);
-            player->getSampleData()->mPendingSample		= false;
-            player->getSampleData()->mSampleNodeFlag	= false;
-            player->getSampleData()->mSampleNodeRecovery= false;
-            player->getSampleData()->mSampleEventFlag = false;
-            return false;
-        }
+    glm::vec2 playerPos;
+    playerPos.x = player->mPosition.x;
+    playerPos.y = player->mPosition.z;
+    glm::vec2 nodePos;
+    nodePos.x = player->getSampleData()->Position.x;
+    nodePos.y = player->getSampleData()->Position.z;
+
+    // need to be in a 5m radius of the node
+    if(glm::distance(playerPos,nodePos) <= 5.0)
+    {
+        player->getSampleData()->mSampleNodeRecovery = true;
+        player->getSampleData()->mSampleEventFlag = false;
+    }
+    else
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_not_close"), player);
+        player->getSampleData()->mPendingSample		= false;
+        player->getSampleData()->mSampleNodeFlag	= false;
+        player->getSampleData()->mSampleNodeRecovery= false;
+        player->getSampleData()->mSampleEventFlag = false;
+        return false;
+    }
 
     return true;
 }
@@ -580,7 +580,7 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
 {
     uint32					resType			= resource->getType()->getCategoryId();
     uint16					resPE			= resource->getAttribute(ResAttr_PE);
-    
+
     //these are the radioactive types
     if(resType == 477 || resType == 476 /* || resType == 475*/)
     {
@@ -601,7 +601,7 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
         }
         Ham* hamz = player->getHam();
         uint32 playerBF = hamz->getBattleFatigue();
-        
+
         uint32 woundDmg = 50*(1 + (playerBF/100)) + (50*(1 + (resPE/1000)));
         uint32 bfDmg    = static_cast<uint32>(0.075*resPE);
         uint32 hamReduc = 100*(2+ (resPE/1000));
@@ -610,24 +610,24 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
         {
             //wound and BF dmg
             hamz->updateBattleFatigue(bfDmg);
-            hamz->updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg); 
+            hamz->updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg);
             hamz->updatePropertyValue(HamBar_Action,HamProperty_Wounds, woundDmg);
             hamz->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, woundDmg);
         }
-        
+
         //this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500
         // each time a radioactive is sampled, there is a 5 minute debuff
-        // this currently doesn't work properly as when the debuff wears off, the buff class doesn't ensure 
+        // this currently doesn't work properly as when the debuff wears off, the buff class doesn't ensure
         // we don't have more ham than we should.
-        
-        BuffAttribute* healthdebuffAttribute = new BuffAttribute(attr_health, -(int)hamReduc,0,hamReduc); 
+
+        BuffAttribute* healthdebuffAttribute = new BuffAttribute(attr_health, -(int)hamReduc,0,hamReduc);
         Buff* healthdebuff = Buff::SimpleBuff(player, player, 300000,0, gWorldManager->GetCurrentGlobalTick());
-        healthdebuff->AddAttribute(healthdebuffAttribute);	
+        healthdebuff->AddAttribute(healthdebuffAttribute);
         player->AddBuff(healthdebuff,true);
 
-        healthdebuffAttribute = new BuffAttribute(attr_action, -(int)hamReduc,0,hamReduc); 
+        healthdebuffAttribute = new BuffAttribute(attr_action, -(int)hamReduc,0,hamReduc);
         healthdebuff = Buff::SimpleBuff(player, player, 300000, 0, gWorldManager->GetCurrentGlobalTick());
-        healthdebuff->AddAttribute(healthdebuffAttribute);	
+        healthdebuff->AddAttribute(healthdebuffAttribute);
         player->AddBuff(healthdebuff,true);
     }
     else
@@ -637,68 +637,68 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
 }
 void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool, uint32 sampleAmount)
 {
-        bool foundSameType = false;
+    bool foundSameType = false;
 
-        //grants 20xp -> 40xp inclusive -- Feature suggestion:  Grant less XP for smaller samples, more xp for greater samples.  IE:  20 + X*sampleSize
-        gSkillManager->addExperience(XpType_resource_harvesting_inorganic,(int32)((gRandom->getRand()%20) + 20),player); 
+    //grants 20xp -> 40xp inclusive -- Feature suggestion:  Grant less XP for smaller samples, more xp for greater samples.  IE:  20 + X*sampleSize
+    gSkillManager->addExperience(XpType_resource_harvesting_inorganic,(int32)((gRandom->getRand()%20) + 20),player);
 
-        // see if we can add it to an existing container
-        Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-        ObjectIDList*			invObjects	= inventory->getObjects();
-        ObjectIDList::iterator	listIt		= invObjects->begin();
+    // see if we can add it to an existing container
+    Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    ObjectIDList*			invObjects	= inventory->getObjects();
+    ObjectIDList::iterator	listIt		= invObjects->begin();
 
-        while(listIt != invObjects->end())
+    while(listIt != invObjects->end())
+    {
+        // we are looking for resource containers
+        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+        if(resCont)
         {
-            // we are looking for resource containers
-            ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
-            if(resCont)
+            uint32 targetAmount	= resCont->getAmount();
+            uint32 maxAmount	= resCont->getMaxAmount();
+            uint32 newAmount;
+
+            if(resCont->getResourceId() == resource->getId() && targetAmount < maxAmount)
             {
-                uint32 targetAmount	= resCont->getAmount();
-                uint32 maxAmount	= resCont->getMaxAmount();
-                uint32 newAmount;
+                foundSameType = true;
 
-                if(resCont->getResourceId() == resource->getId() && targetAmount < maxAmount)
+                if((newAmount = targetAmount + sampleAmount) <= maxAmount)
                 {
-                    foundSameType = true;
+                    // update target container
+                    resCont->setAmount(newAmount);
 
-                    if((newAmount = targetAmount + sampleAmount) <= maxAmount)
-                    {
-                        // update target container
-                        resCont->setAmount(newAmount);
+                    gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
-                        gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
-
-                        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
-                        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId()); // SQL Debug Log
-                    }
-                    // target container full, put in what fits, create a new one
-                    else if(newAmount > maxAmount)
-                    {
-                        uint32 selectedNewAmount = newAmount - maxAmount;
-
-                        resCont->setAmount(maxAmount);
-
-                        gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
-                       gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
-                        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId()); // SQL Debug Log
-
-                        gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,selectedNewAmount);
-                    }
-
-                    break;
+                    gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
+                    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId()); // SQL Debug Log
                 }
+                // target container full, put in what fits, create a new one
+                else if(newAmount > maxAmount)
+                {
+                    uint32 selectedNewAmount = newAmount - maxAmount;
+
+                    resCont->setAmount(maxAmount);
+
+                    gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
+                    gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
+                    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId()); // SQL Debug Log
+
+                    gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,selectedNewAmount);
+                }
+
+                break;
             }
-
-            ++listIt;
-        }
-        // or need to create a new one
-        if(!foundSameType)
-        {
-            gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,sampleAmount);
         }
 
-        // deplete resource
-        gResourceManager->setResourceDepletion(resource, sampleAmount);
+        ++listIt;
+    }
+    // or need to create a new one
+    if(!foundSameType)
+    {
+        gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,sampleAmount);
+    }
+
+    // deplete resource
+    gResourceManager->setResourceDepletion(resource, sampleAmount);
     return;
 }
 bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
@@ -709,11 +709,11 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
     if(!resource || !tool || !player->isConnected() || !player->getSamplingState()||player->getSurveyState())
     {
         stop = true;
-    }		 
+    }
     // you can't take sample while under attack!
     if(player->checkState(CreatureState_Combat))
     {
-         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel_attack"), player);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel_attack"), player);
         return false;
     }
     Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -733,7 +733,7 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
     uint32 actionCost = mSampleActionCost;
 
     if(!ham->checkMainPools(0,actionCost,0))
-    {		
+    {
         //return message for sampling cancel based on HAM
         if(ham->mAction.getCurrentHitPoints() < (int32)actionCost)
         {
@@ -813,190 +813,156 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
         return;
     }
 
-    Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));			
+    Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
     if(!inventory)
     {
         return;
     }
-    
+
     WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();
     if(!asyncContainer)
         return;
 
     Ham* ham = player->getHam();
-    
+
     switch(window->getWindowType())
     {
         // Sampling Radioactive Msg Box
-        case SUI_Window_SmplRadioactive_MsgBox:
+    case SUI_Window_SmplRadioactive_MsgBox:
+    {
+        //we stopped the sampling
+        if(action == 1)
         {
-            //we stopped the sampling
-            if(action == 1)
+            player->getSampleData()->mPassRadioactive = false;
+            player->getSampleData()->mPendingSample = false;
+            player->setPosture(CreaturePosture_Upright);
+            player->updateMovementProperties();
+            gMessageLib->sendUpdateMovementProperties(player);
+            gMessageLib->sendPostureAndStateUpdate(player);
+            gMessageLib->sendSelfPostureUpdate(player);
+            return;
+        }
+        else
+        {
+            gLogger->log(LogManager::DEBUG,"sampling radioactive box: Yes");
+
+            player->getSampleData()->mPassRadioactive = true;
+            player->getSampleData()->mPendingSample = true;
+
+            if(ham->checkMainPools(0,mSampleActionCost*2,0))
             {
-                player->getSampleData()->mPassRadioactive = false;
-                player->getSampleData()->mPendingSample = false;
-                player->setPosture(CreaturePosture_Upright);
-                player->updateMovementProperties();
-                gMessageLib->sendUpdateMovementProperties(player);
-                gMessageLib->sendPostureAndStateUpdate(player);
-                gMessageLib->sendSelfPostureUpdate(player);
-                return;
+
+                SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+                CurrentResource*	resource				= (CurrentResource*)asyncContainer->CurrentResource;
+                player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getLocalTime() + 4000;
+
+                sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_radioactive"),0, 4000,
+                                  std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
+
             }
             else
             {
-                gLogger->log(LogManager::DEBUG,"sampling radioactive box: Yes");
-    
-                player->getSampleData()->mPassRadioactive = true;
+                gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_no_action"), player);
+                return;
+            }
+        }
+    }
+    break;
+
+    case SUI_Window_SmplGamble_ListBox:
+    {
+        //action == 1 is cancel
+        if(action == 1)
+        {
+            player->getSampleData()->mPendingSample = false;
+            player->getSampleData()->mSampleGambleFlag = false;
+            player->setPosture(CreaturePosture_Upright);
+            player->updateMovementProperties();
+            gMessageLib->sendUpdateMovementProperties(player);
+            gMessageLib->sendPostureAndStateUpdate(player);
+            gMessageLib->sendSelfPostureUpdate(player);
+            return;
+
+        }
+        else
+        {
+            if(element == 0)
+            {
                 player->getSampleData()->mPendingSample = true;
-                
-                if(ham->checkMainPools(0,mSampleActionCost*2,0))
-                {
-
-                    SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-                    CurrentResource*	resource				= (CurrentResource*)asyncContainer->CurrentResource;
-                    player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getLocalTime() + 4000;
-
-                    sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_radioactive"),0, 4000, 
-                        std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
-
-                }
-                else
-                {
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_no_action"), player);
-                    return;
-                }
-            }
-        }
-        break;
-
-        case SUI_Window_SmplGamble_ListBox:
-        {
-            //action == 1 is cancel
-            if(action == 1)
-            {
-                player->getSampleData()->mPendingSample = false;
                 player->getSampleData()->mSampleGambleFlag = false;
-                player->setPosture(CreaturePosture_Upright);
-                player->updateMovementProperties();
-                gMessageLib->sendUpdateMovementProperties(player);
-                gMessageLib->sendPostureAndStateUpdate(player);
-                gMessageLib->sendSelfPostureUpdate(player);
-                return;
+
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+                CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+                player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
+
+                sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_gamble"),0, 1000,
+                                  std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
 
             }
             else
             {
-                if(element == 0)
+                gLogger->log(LogManager::DEBUG,"sampling gamble box ... gamble");
+                //action costs
+                if(!ham->checkMainPools(0,mSampleActionCost*2,0))
                 {
-                    player->getSampleData()->mPendingSample = true;
-                    player->getSampleData()->mSampleGambleFlag = false;
-
-                    SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-                    CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
-                    player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
-                
-                    sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_gamble"),0, 1000, 
-                        std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
-                    
-                }
-                else
-                {
-                    gLogger->log(LogManager::DEBUG,"sampling gamble box ... gamble");
-                    //action costs
-                    if(!ham->checkMainPools(0,mSampleActionCost*2,0))
-                    {
-                        player->setPosture(CreaturePosture_Upright);
-                        player->updateMovementProperties();
-                        gMessageLib->sendUpdateMovementProperties(player);
-                        gMessageLib->sendPostureAndStateUpdate(player);
-                        gMessageLib->sendSelfPostureUpdate(player);
-                        player->getSampleData()->mSampleEventFlag = false;
-                        player->getSampleData()->mSampleGambleFlag = false;
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_no_action"), player);
-                        return;
-                    }
-                    player->getSampleData()->mPendingSample = true;
-
-                    //determine whether gamble is good or not
-                    int32 gambleRoll = int(gRandom->getRand()%2) + 1;
-
-                    if(gambleRoll == 1)
-                    {
-                        player->getSampleData()->mSampleEventFlag = true;
-                        player->getSampleData()->mSampleGambleFlag = true;
-                    }
-                    else
-                    {
-                        player->getSampleData()->mSampleEventFlag = false;
-                        player->getSampleData()->mSampleGambleFlag = false;
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_fail"), player);
-                    }
-        
-                    SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-                    CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
-                    player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
-                    
-                    sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_gamble"),0, 1000, 
-                        std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
-                    
-                }
-            }
-        }
-        break;
-
-        case SUI_Window_SmplWaypNode_ListBox:
-        {
-            if(action == 0)
-            {
-                //we hit ok and went for the wp
-                if(element == 1)
-                {				
-                    player->getSampleData()->mPendingSample	= false;
-                    player->getSampleData()->mSampleNodeFlag = true;
-                    
-                    player->getSampleData()->Position.x = player->mPosition.x +(((gRandom->getRand()%50)+1));
-                    player->getSampleData()->Position.z = player->mPosition.z +(((gRandom->getRand()%50)+1));
-                    player->getSampleData()->zone		= gWorldManager->getZoneId();
-                    player->getSampleData()->resource	= (CurrentResource*)asyncContainer->CurrentResource;
-
-                    
-                    Datapad* datapad			= player->getDataPad();
-                    datapad->requestNewWaypoint("Resource Node", player->getSampleData()->Position ,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_waypoint"), player);
-
                     player->setPosture(CreaturePosture_Upright);
                     player->updateMovementProperties();
                     gMessageLib->sendUpdateMovementProperties(player);
                     gMessageLib->sendPostureAndStateUpdate(player);
                     gMessageLib->sendSelfPostureUpdate(player);
-
-                    
-                return;
-                }
-                //we ignored the node - so continue sampling
-                if(element == 0)
-                {				
-                    player->getSampleData()->mPendingSample = true;
+                    player->getSampleData()->mSampleEventFlag = false;
                     player->getSampleData()->mSampleGambleFlag = false;
-
-                    SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-                    CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
-                    player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
-                    
-                    sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_continue"),0, 10000, 
-                        std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
-                    
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_no_action"), player);
+                    return;
                 }
+                player->getSampleData()->mPendingSample = true;
+
+                //determine whether gamble is good or not
+                int32 gambleRoll = int(gRandom->getRand()%2) + 1;
+
+                if(gambleRoll == 1)
+                {
+                    player->getSampleData()->mSampleEventFlag = true;
+                    player->getSampleData()->mSampleGambleFlag = true;
+                }
+                else
+                {
+                    player->getSampleData()->mSampleEventFlag = false;
+                    player->getSampleData()->mSampleGambleFlag = false;
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_fail"), player);
+                }
+
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+                CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+                player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
+
+                sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_gamble"),0, 1000,
+                                  std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
+
             }
-            else
+        }
+    }
+    break;
+
+    case SUI_Window_SmplWaypNode_ListBox:
+    {
+        if(action == 0)
+        {
+            //we hit ok and went for the wp
+            if(element == 1)
             {
-                gLogger->log(LogManager::DEBUG,"sampling wayp node box action != 1 (stay here?)");
-                player->getSampleData()->mPendingSample = false;
-                player->getSampleData()->mSampleNodeFlag = false;
-                player->getSampleData()->Position.x = 0;
-                player->getSampleData()->Position.z = 0;
-                player->getSampleData()->resource	= NULL;
-                player->getSampleData()->zone		= 0;
+                player->getSampleData()->mPendingSample	= false;
+                player->getSampleData()->mSampleNodeFlag = true;
+
+                player->getSampleData()->Position.x = player->mPosition.x +(((gRandom->getRand()%50)+1));
+                player->getSampleData()->Position.z = player->mPosition.z +(((gRandom->getRand()%50)+1));
+                player->getSampleData()->zone		= gWorldManager->getZoneId();
+                player->getSampleData()->resource	= (CurrentResource*)asyncContainer->CurrentResource;
+
+
+                Datapad* datapad			= player->getDataPad();
+                datapad->requestNewWaypoint("Resource Node", player->getSampleData()->Position ,static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_waypoint"), player);
 
                 player->setPosture(CreaturePosture_Upright);
                 player->updateMovementProperties();
@@ -1004,10 +970,44 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 gMessageLib->sendPostureAndStateUpdate(player);
                 gMessageLib->sendSelfPostureUpdate(player);
 
-                return;				
+
+                return;
+            }
+            //we ignored the node - so continue sampling
+            if(element == 0)
+            {
+                player->getSampleData()->mPendingSample = true;
+                player->getSampleData()->mSampleGambleFlag = false;
+
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
+                CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+                player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
+
+                sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_continue"),0, 10000,
+                                  std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
+
             }
         }
-        break;
+        else
+        {
+            gLogger->log(LogManager::DEBUG,"sampling wayp node box action != 1 (stay here?)");
+            player->getSampleData()->mPendingSample = false;
+            player->getSampleData()->mSampleNodeFlag = false;
+            player->getSampleData()->Position.x = 0;
+            player->getSampleData()->Position.z = 0;
+            player->getSampleData()->resource	= NULL;
+            player->getSampleData()->zone		= 0;
+
+            player->setPosture(CreaturePosture_Upright);
+            player->updateMovementProperties();
+            gMessageLib->sendUpdateMovementProperties(player);
+            gMessageLib->sendPostureAndStateUpdate(player);
+            gMessageLib->sendSelfPostureUpdate(player);
+
+            return;
+        }
+    }
+    break;
     }
     //notify the listeners
     if (sample_UI_event)

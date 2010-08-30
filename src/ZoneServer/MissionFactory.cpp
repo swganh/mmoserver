@@ -39,29 +39,29 @@ MissionFactory*		MissionFactory::mSingleton  = NULL;
 
 MissionFactory*	MissionFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new MissionFactory();
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new MissionFactory();
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 //MissionFactory::MissionFactory(Database* database) : FactoryBase(database)
 MissionFactory::MissionFactory()
 {
-	//init memeber objects
+    //init memeber objects
 }
 
 //=============================================================================
 
 MissionFactory::~MissionFactory()
 {
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================

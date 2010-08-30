@@ -61,14 +61,14 @@ TravelMapHandler*	TravelMapHandler::mSingleton  = NULL;
 
 TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch,uint32 zoneId)
     : mDBAsyncPool(sizeof(TravelMapAsyncContainer))
-  , mDatabase(database)
-  , mMessageDispatch(dispatch)
-  , mPointCount(0)
-  , mRouteCount(0)
-  , mZoneId(zoneId)
-  , mCellPointsLoaded(false)
-  , mRoutesLoaded(false)
-  , mWorldPointsLoaded(false)
+    , mDatabase(database)
+    , mMessageDispatch(dispatch)
+    , mPointCount(0)
+    , mRouteCount(0)
+    , mZoneId(zoneId)
+    , mCellPointsLoaded(false)
+    , mRoutesLoaded(false)
+    , mWorldPointsLoaded(false)
 
 {
     mMessageDispatch->RegisterMessageCallback(opPlanetTravelPointListRequest,std::bind(&TravelMapHandler::_processTravelPointListRequest, this, std::placeholders::_1, std::placeholders::_2));
@@ -76,45 +76,45 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
 
     // load our points in world
     mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInWorld),
-                                                    "SELECT DISTINCT(terminals.dataStr),terminals.x,terminals.y,terminals.z,terminals.dataInt1,"
-                                                    "terminals.dataInt2,terminals.planet_id,"
-                                                    "spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-                                                    " FROM terminals"
-                                                    " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
-                                                    " WHERE terminals.terminal_type = 16 AND"
-                                                    " terminals.parent_id = 0"
-                                                    " GROUP BY terminals.dataStr");
+                               "SELECT DISTINCT(terminals.dataStr),terminals.x,terminals.y,terminals.z,terminals.dataInt1,"
+                               "terminals.dataInt2,terminals.planet_id,"
+                               "spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
+                               " FROM terminals"
+                               " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
+                               " WHERE terminals.terminal_type = 16 AND"
+                               " terminals.parent_id = 0"
+                               " GROUP BY terminals.dataStr");
     gLogger->log(LogManager::DEBUG, "SQL :: SELECT DISTINCT(terminals.dataStr),terminals.x,terminals.y,terminals.z,terminals.dataInt1,"
-        "terminals.dataInt2,terminals.planet_id,"
-        "spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-        " FROM terminals"
-        " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
-        " WHERE terminals.terminal_type = 16 AND"
-        " terminals.parent_id = 0"
-        " GROUP BY terminals.dataStr"); // SQL Debug Log
+                 "terminals.dataInt2,terminals.planet_id,"
+                 "spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
+                 " FROM terminals"
+                 " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
+                 " WHERE terminals.terminal_type = 16 AND"
+                 " terminals.parent_id = 0"
+                 " GROUP BY terminals.dataStr"); // SQL Debug Log
 
     // load travel points in cells
     mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInCells),
-                                                    "SELECT DISTINCT(terminals.dataStr),terminals.planet_id,terminals.dataInt1,terminals.dataInt2,"
-                                                    "buildings.x,buildings.y,buildings.z,spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-                                                    " FROM terminals"
-                                                    " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
-                                                    " INNER JOIN cells ON (terminals.parent_id = cells.id)"
-                                                    " INNER JOIN buildings ON (cells.parent_id = buildings.id)"
-                                                    " WHERE"
-                                                    " (terminals.terminal_type = 16) AND"
-                                                    " (terminals.parent_id <> 0)"
-                                                    " GROUP BY terminals.dataStr");
+                               "SELECT DISTINCT(terminals.dataStr),terminals.planet_id,terminals.dataInt1,terminals.dataInt2,"
+                               "buildings.x,buildings.y,buildings.z,spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
+                               " FROM terminals"
+                               " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
+                               " INNER JOIN cells ON (terminals.parent_id = cells.id)"
+                               " INNER JOIN buildings ON (cells.parent_id = buildings.id)"
+                               " WHERE"
+                               " (terminals.terminal_type = 16) AND"
+                               " (terminals.parent_id <> 0)"
+                               " GROUP BY terminals.dataStr");
     gLogger->log(LogManager::DEBUG, "SQL :: SELECT DISTINCT(terminals.dataStr),terminals.planet_id,terminals.dataInt1,terminals.dataInt2,"
-        "buildings.x,buildings.y,buildings.z,spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-        " FROM terminals"
-        " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
-        " INNER JOIN cells ON (terminals.parent_id = cells.id)"
-        " INNER JOIN buildings ON (cells.parent_id = buildings.id)"
-        " WHERE"
-        " (terminals.terminal_type = 16) AND"
-        " (terminals.parent_id <> 0)"
-        " GROUP BY terminals.dataStr"); // SQL Debug Log
+                 "buildings.x,buildings.y,buildings.z,spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
+                 " FROM terminals"
+                 " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
+                 " INNER JOIN cells ON (terminals.parent_id = cells.id)"
+                 " INNER JOIN buildings ON (cells.parent_id = buildings.id)"
+                 " WHERE"
+                 " (terminals.terminal_type = 16) AND"
+                 " (terminals.parent_id <> 0)"
+                 " GROUP BY terminals.dataStr"); // SQL Debug Log
     // load planet routes and base prices
     mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PlanetRoutes),"SELECT * FROM travel_planet_routes");
     gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM travel_planet_routes");; // SQL Debug Log
@@ -148,7 +148,7 @@ void TravelMapHandler::Shutdown()
 {
     mMessageDispatch->UnregisterMessageCallback(opPlanetTravelPointListRequest);
 
-    for(uint8 i = 0;i < 50;i++)
+    for(uint8 i = 0; i < 50; i++)
     {
         TravelPointList::iterator it = mTravelPoints[i].begin();
         while(it != mTravelPoints[i].end())
@@ -166,94 +166,95 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
     TravelMapAsyncContainer* asynContainer = reinterpret_cast<TravelMapAsyncContainer*>(ref);
     switch(asynContainer->mQueryType)
     {
-        case TMQuery_PointsInWorld:
+    case TMQuery_PointsInWorld:
+    {
+        DataBinding* binding = mDatabase->CreateDataBinding(10);
+        binding->addField(DFT_string,offsetof(TravelPoint,descriptor),64,0);
+        binding->addField(DFT_float,offsetof(TravelPoint,x),4,1);
+        binding->addField(DFT_float,offsetof(TravelPoint,y),4,2);
+        binding->addField(DFT_float,offsetof(TravelPoint,z),4,3);
+        binding->addField(DFT_uint8,offsetof(TravelPoint,portType),1,4);
+        binding->addField(DFT_uint32,offsetof(TravelPoint,taxes),4,5);
+        binding->addField(DFT_uint16,offsetof(TravelPoint,planetId),2,6);
+        binding->addField(DFT_float,offsetof(TravelPoint,spawnX),4,7);
+        binding->addField(DFT_float,offsetof(TravelPoint,spawnY),4,8);
+        binding->addField(DFT_float,offsetof(TravelPoint,spawnZ),4,9);
+
+        uint64 count = result->getRowCount();
+
+        for(uint64 i = 0; i < count; i++)
         {
-            DataBinding* binding = mDatabase->CreateDataBinding(10);
-            binding->addField(DFT_string,offsetof(TravelPoint,descriptor),64,0);
-            binding->addField(DFT_float,offsetof(TravelPoint,x),4,1);
-            binding->addField(DFT_float,offsetof(TravelPoint,y),4,2);
-            binding->addField(DFT_float,offsetof(TravelPoint,z),4,3);
-            binding->addField(DFT_uint8,offsetof(TravelPoint,portType),1,4);
-            binding->addField(DFT_uint32,offsetof(TravelPoint,taxes),4,5);
-            binding->addField(DFT_uint16,offsetof(TravelPoint,planetId),2,6);
-            binding->addField(DFT_float,offsetof(TravelPoint,spawnX),4,7);
-            binding->addField(DFT_float,offsetof(TravelPoint,spawnY),4,8);
-            binding->addField(DFT_float,offsetof(TravelPoint,spawnZ),4,9);
+            TravelPoint* travelPoint = new TravelPoint();
+            result->GetNextRow(binding,travelPoint);
 
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0;i < count;i++)
-            {
-                TravelPoint* travelPoint = new TravelPoint();
-                result->GetNextRow(binding,travelPoint);
-
-                mTravelPoints[travelPoint->planetId].push_back(travelPoint);
-            }
-
-            mPointCount += static_cast<uint32>(count);
-            mWorldPointsLoaded = true;
-
-            mDatabase->DestroyDataBinding(binding);
+            mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
-        break;
 
-        case TMQuery_PointsInCells:
+        mPointCount += static_cast<uint32>(count);
+        mWorldPointsLoaded = true;
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+    case TMQuery_PointsInCells:
+    {
+        DataBinding* binding = mDatabase->CreateDataBinding(10);
+        binding->addField(DFT_string,offsetof(TravelPoint,descriptor),64,0);
+        binding->addField(DFT_uint16,offsetof(TravelPoint,planetId),2,1);
+        binding->addField(DFT_uint8,offsetof(TravelPoint,portType),1,2);
+        binding->addField(DFT_uint32,offsetof(TravelPoint,taxes),4,3);
+        binding->addField(DFT_float,offsetof(TravelPoint,x),4,4);
+        binding->addField(DFT_float,offsetof(TravelPoint,y),4,5);
+        binding->addField(DFT_float,offsetof(TravelPoint,z),4,6);
+        binding->addField(DFT_float,offsetof(TravelPoint,spawnX),4,7);
+        binding->addField(DFT_float,offsetof(TravelPoint,spawnY),4,8);
+        binding->addField(DFT_float,offsetof(TravelPoint,spawnZ),4,9);
+
+        uint64 count = result->getRowCount();
+
+        for(uint64 i = 0; i < count; i++)
         {
-            DataBinding* binding = mDatabase->CreateDataBinding(10);
-            binding->addField(DFT_string,offsetof(TravelPoint,descriptor),64,0);
-            binding->addField(DFT_uint16,offsetof(TravelPoint,planetId),2,1);
-            binding->addField(DFT_uint8,offsetof(TravelPoint,portType),1,2);
-            binding->addField(DFT_uint32,offsetof(TravelPoint,taxes),4,3);
-            binding->addField(DFT_float,offsetof(TravelPoint,x),4,4);
-            binding->addField(DFT_float,offsetof(TravelPoint,y),4,5);
-            binding->addField(DFT_float,offsetof(TravelPoint,z),4,6);
-            binding->addField(DFT_float,offsetof(TravelPoint,spawnX),4,7);
-            binding->addField(DFT_float,offsetof(TravelPoint,spawnY),4,8);
-            binding->addField(DFT_float,offsetof(TravelPoint,spawnZ),4,9);
+            TravelPoint* travelPoint = new TravelPoint();
+            result->GetNextRow(binding,travelPoint);
 
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0;i < count;i++)
-            {
-                TravelPoint* travelPoint = new TravelPoint();
-                result->GetNextRow(binding,travelPoint);
-
-                mTravelPoints[travelPoint->planetId].push_back(travelPoint);
-            }
-
-            mPointCount += static_cast<uint32>(count);
-            mCellPointsLoaded = true;
-
-            mDatabase->DestroyDataBinding(binding);
+            mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
-        break;
 
-        case TMQuery_PlanetRoutes:
+        mPointCount += static_cast<uint32>(count);
+        mCellPointsLoaded = true;
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+    case TMQuery_PlanetRoutes:
+    {
+
+        TravelRoute route;
+
+        DataBinding* binding = mDatabase->CreateDataBinding(3);
+        binding->addField(DFT_uint16,offsetof(TravelRoute,srcId),2,0);
+        binding->addField(DFT_uint16,offsetof(TravelRoute,destId),2,1);
+        binding->addField(DFT_int32,offsetof(TravelRoute,price),4,2);
+
+        uint64 count = result->getRowCount();
+
+        for(uint64 i = 0; i < count; i++)
         {
-
-            TravelRoute route;
-
-            DataBinding* binding = mDatabase->CreateDataBinding(3);
-            binding->addField(DFT_uint16,offsetof(TravelRoute,srcId),2,0);
-            binding->addField(DFT_uint16,offsetof(TravelRoute,destId),2,1);
-            binding->addField(DFT_int32,offsetof(TravelRoute,price),4,2);
-
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0;i < count;i++)
-            {
-                result->GetNextRow(binding,&route);
-                mTravelRoutes[route.srcId].push_back(std::make_pair(route.destId,route.price));
-            }
-
-            mRouteCount = static_cast<uint32>(count);
-            mRoutesLoaded = true;
-
-            mDatabase->DestroyDataBinding(binding);
+            result->GetNextRow(binding,&route);
+            mTravelRoutes[route.srcId].push_back(std::make_pair(route.destId,route.price));
         }
-        break;
 
-        default:break;
+        mRouteCount = static_cast<uint32>(count);
+        mRoutesLoaded = true;
+
+        mDatabase->DestroyDataBinding(binding);
+    }
+    break;
+
+    default:
+        break;
     }
 
     mDBAsyncPool.free(asynContainer);
@@ -290,7 +291,7 @@ void TravelMapHandler::_processTutorialTravelList(Message* message, DispatchClie
             talus,		//Talus
             rori,		//Rori
             naboo		//Naboo
-            );
+        );
     }
 }
 
@@ -349,11 +350,11 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
             // If the requested planet list is not the planet of the current zone
             // then only list it if the origin is a starport and the destination is a starport.
             if((mZoneId != planetId && qP->portType == 1 && (*it)->portType == 1) ||
-               mZoneId == planetId) // Show all starports/shuttleports on this planet.
+                    mZoneId == planetId) // Show all starports/shuttleports on this planet.
             {
                 printListing.push_back((*it));
             }
-            ++it;			
+            ++it;
         }
 
         //Build our message.
@@ -392,7 +393,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
                 gMessageFactory->addUint8(0);
             }
         }
-        
+
         playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
     }
     else
@@ -598,7 +599,7 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
                             // only delete the ticket if we are warping on this planet.
                             gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
                             gObjectFactory->deleteObjectFromDB(ticket);
-                            
+
                             TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
                             tO->deleteObject(ticket);
 
@@ -674,10 +675,10 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
             // only delete the ticket if we are warping on this planet.
             gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
             gObjectFactory->deleteObjectFromDB(ticket);
-            
+
             TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
             tO->deleteObject(ticket);
-            
+
             ticket = NULL;
             gWorldManager->warpPlanet(playerObject,destination,0);
         }

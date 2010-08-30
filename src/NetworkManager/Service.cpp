@@ -45,9 +45,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/thread/thread.hpp>
 
 #if defined(_MSC_VER)
-    #ifndef _WINSOCK2API_
+#ifndef _WINSOCK2API_
 #include <WINSOCK2.h>
-    #endif
+#endif
 #else
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -69,16 +69,16 @@ bool Service::mSocketsSubsystemInitComplete = false;
 //======================================================================================================================
 
 Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize) :
-mNetworkManager(networkManager),
-mSocketReadThread(0),
-mSocketWriteThread(0),
-mLocalSocket(0),
-avgTime(0),
-avgPacketsbuild (0),
-mLocalAddress(0),
-mLocalPort(0),
-mQueued(false),
-mServerService(serverservice)
+    mNetworkManager(networkManager),
+    mSocketReadThread(0),
+    mSocketWriteThread(0),
+    mLocalSocket(0),
+    avgTime(0),
+    avgPacketsbuild (0),
+    mLocalAddress(0),
+    mLocalPort(0),
+    mQueued(false),
+    mServerService(serverservice)
 {
     mCallBack = NULL;
     mId = id;
@@ -90,7 +90,7 @@ mServerService(serverservice)
     mLocalAddress = inet_addr(localAddress);
     mLocalPort = htons(localPort);
 
-    #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
+#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
     // Startup the windows socket layer if it's not already started.
     if (!mSocketsSubsystemInitComplete)
     {
@@ -98,7 +98,7 @@ mServerService(serverservice)
         WSADATA data;
         WSAStartup(MAKEWORD(2,0), &data);
     }
-    #endif //WIN32
+#endif //WIN32
 
     // Create our socket descriptors
     SOCKET mLocalSocket = socket(PF_INET, SOCK_DGRAM, 0);
@@ -117,15 +117,15 @@ mServerService(serverservice)
     // based on routing.  1.1.1.1 should give us the default adaptor.  Not sure what to do one multihomed hosts yet.
 //	struct sockaddr   toAddr;
 //	int32             sent, toLen = sizeof(toAddr);
-/*
-    toAddr.sa_family = AF_INET;
-    *((uint32*)&toAddr.sa_data[2]) = 0;
-    *((uint16*)&(toAddr.sa_data[0])) = 0;
+    /*
+        toAddr.sa_family = AF_INET;
+        *((uint32*)&toAddr.sa_data[2]) = 0;
+        *((uint16*)&(toAddr.sa_data[0])) = 0;
 
-    // This connect will make the socket only acceept packets from the destination.  Need to reset at end.
-    //sent = sendto(mLocalSocket, mSendBuffer, 1, 0, &toAddr, toLen);
-    sent = connect(mLocalSocket, &toAddr, toLen);
-*/
+        // This connect will make the socket only acceept packets from the destination.  Need to reset at end.
+        //sent = sendto(mLocalSocket, mSendBuffer, 1, 0, &toAddr, toLen);
+        sent = connect(mLocalSocket, &toAddr, toLen);
+    */
     //set the socketbuffer so we dont suffer internal dataloss
     int value;
     int valuelength = sizeof(value);
@@ -135,12 +135,12 @@ mServerService(serverservice)
 
     if(configvalue < 128)
         configvalue = 128;
-    
+
     if(configvalue > 8192)
         configvalue = 8192;
 
     value = configvalue *1024;
-    
+
     setsockopt(mLocalSocket,SOL_SOCKET,SO_RCVBUF,(char*)&value,valuelength);
 
     int temp = 1;
@@ -156,13 +156,13 @@ mServerService(serverservice)
     //getsockname(mLocalSocket, (sockaddr*)&server, &serverLen);
     //mLocalAddress = server.sin_addr.s_addr;
     //mLocalPort = server.sin_port;
-/*
-    // Reset the connect call to universe.
-    toAddr.sa_family = AF_INET;
-    *((uint32*)&toAddr.sa_data[2]) = 0;
-    *((uint16*)&(toAddr.sa_data[0])) = 0;
-    sent = connect(mLocalSocket, &toAddr, toLen);
-*/
+    /*
+        // Reset the connect call to universe.
+        toAddr.sa_family = AF_INET;
+        *((uint32*)&toAddr.sa_data[2]) = 0;
+        *((uint16*)&(toAddr.sa_data[0])) = 0;
+        sent = connect(mLocalSocket, &toAddr, toLen);
+    */
 }
 
 //======================================================================================================================
@@ -187,9 +187,9 @@ Service::~Service(void)
     closesocket(mLocalSocket);
     mLocalSocket = INVALID_SOCKET;
 
-    #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
-        WSACleanup();
-    #endif
+#if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
+    WSACleanup();
+#endif
 }
 
 //======================================================================================================================
@@ -222,20 +222,20 @@ void Service::Process()
             //for(NetworkCallbackList::iterator iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
             //{
             //mCallBack->handleSessionMessage(session->getClient(), message);
-                newClient = mCallBack->handleSessionConnect(session, this);
+            newClient = mCallBack->handleSessionConnect(session, this);
 
-                // They returned a client to us, so keep the session.
-                if(newClient)
-                {
-                    session->setClient(newClient);
-                    newClient->setSession(session);
-                    session->setStatus(SSTAT_Connected);
-                }
-                else
-                {
-                    // Remove the session, they don't want it.
-                    session->setCommand(SCOM_Disconnect);
-                }
+            // They returned a client to us, so keep the session.
+            if(newClient)
+            {
+                session->setClient(newClient);
+                newClient->setSession(session);
+                session->setStatus(SSTAT_Connected);
+            }
+            else
+            {
+                // Remove the session, they don't want it.
+                session->setCommand(SCOM_Disconnect);
+            }
             //}
         }
         else if(session->getStatus() == SSTAT_Disconnecting)
@@ -245,11 +245,11 @@ void Service::Process()
 
             //for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
             //{
-                if(session->getClient())
-                {
-                    mCallBack->handleSessionDisconnect(session->getClient());
-                    session->setClient(0);
-                }
+            if(session->getClient())
+            {
+                mCallBack->handleSessionDisconnect(session->getClient());
+                session->setClient(0);
+            }
             //}
 
             // We're now dis connected.
@@ -259,10 +259,10 @@ void Service::Process()
         }
         else if(session->getStatus() == SSTAT_Destroy)
         {
-          mSocketReadThread->RemoveAndDestroySession(session);
+            mSocketReadThread->RemoveAndDestroySession(session);
 
 
-          continue;
+            continue;
         }
 
         // Now send up any messages waiting.
@@ -293,7 +293,7 @@ void Service::Process()
                 mCallBack->handleSessionMessage(session->getClient(), message);
                 //for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
                 //{
-                    //(*iter)->handleSessionMessage(session->getClient(), message);
+                //(*iter)->handleSessionMessage(session->getClient(), message);
                 //}
             }
         }
@@ -350,14 +350,14 @@ void Service::AddSessionToProcessQueue(Session* session)
 
 int8* Service::getLocalAddress(void)
 {
-  return inet_ntoa(*(struct in_addr *)&mLocalAddress);
+    return inet_ntoa(*(struct in_addr *)&mLocalAddress);
 }
 
 //======================================================================================================================
 
 uint16 Service::getLocalPort(void)
 {
-  return ntohs(mLocalPort);
+    return ntohs(mLocalPort);
 
 }
 

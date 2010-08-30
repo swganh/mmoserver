@@ -50,11 +50,11 @@ class ResourceType;
 
 enum RMQueryType
 {
-	RMQuery_ResourceTypes		= 1,
-	RMQuery_OldResources		= 2,
-	RMQuery_CurrentResources	= 3,
-	RMQuery_Categories			= 4,
-	RMQuery_DepleteResources	= 5,
+    RMQuery_ResourceTypes		= 1,
+    RMQuery_OldResources		= 2,
+    RMQuery_CurrentResources	= 3,
+    RMQuery_Categories			= 4,
+    RMQuery_DepleteResources	= 5,
 };
 
 //======================================================================================================================
@@ -68,66 +68,70 @@ typedef std::map<uint32,Resource*>			ResourceCRCNameMap;
 
 class RMAsyncContainer
 {
-	public:
+public:
 
-		RMAsyncContainer(RMQueryType qt){ mQueryType = qt;}
-		~RMAsyncContainer(){}
+    RMAsyncContainer(RMQueryType qt) {
+        mQueryType = qt;
+    }
+    ~RMAsyncContainer() {}
 
-		RMQueryType	mQueryType;
-		Resource*	mCurrentResource;
+    RMQueryType	mQueryType;
+    Resource*	mCurrentResource;
 };
 
 //======================================================================================================================
 
 class ResourceManager : public DatabaseCallback
 {
-	public:
+public:
 
-		~ResourceManager();
-		static ResourceManager*		Init(Database* database,uint32 zoneId);
-		static ResourceManager*		getSingletonPtr() { return mSingleton; }
+    ~ResourceManager();
+    static ResourceManager*		Init(Database* database,uint32 zoneId);
+    static ResourceManager*		getSingletonPtr() {
+        return mSingleton;
+    }
 
-		virtual void				handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    virtual void				handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		Resource*					getResourceById(uint64 id);
-		Resource*					getResourceByNameCRC(uint32 crc);
-		ResourceType*				getResourceTypeById(uint32 id);
-		ResourceCategory*			getResourceCategoryById(uint32 id);
+    Resource*					getResourceById(uint64 id);
+    Resource*					getResourceByNameCRC(uint32 crc);
+    ResourceType*				getResourceTypeById(uint32 id);
+    ResourceCategory*			getResourceCategoryById(uint32 id);
 
-		bool						setResourceDepletion(Resource* resource, int32 amt);
-		// get map references
-		ResourceIdMap*				getResourceIdMap();
-		ResourceCRCNameMap*			getResourceCRCNameMap();
-		ResourceTypeMap*			getResourceTypeMap();
-		ResourceCategoryMap*		getResourceCategoryMap();
+    bool						setResourceDepletion(Resource* resource, int32 amt);
+    // get map references
+    ResourceIdMap*				getResourceIdMap();
+    ResourceCRCNameMap*			getResourceCRCNameMap();
+    ResourceTypeMap*			getResourceTypeMap();
+    ResourceCategoryMap*		getResourceCategoryMap();
 
-		void						releaseAllPoolsMemory();
+    void						releaseAllPoolsMemory();
 
-	private:
+private:
 
-		ResourceManager(Database* database,uint32 zoneId);
+    ResourceManager(Database* database,uint32 zoneId);
 
-		void						_setupDatabindings();
-		void						_destroyDatabindings();
+    void						_setupDatabindings();
+    void						_destroyDatabindings();
 
-		static bool					mInsFlag;
-		static ResourceManager*		mSingleton;
+    static bool					mInsFlag;
+    static ResourceManager*		mSingleton;
 
-		Database*					mDatabase;
+    Database*					mDatabase;
 
-		ResourceIdMap				mResourceIdMap;
-		ResourceCRCNameMap			mResourceCRCNameMap;
-		ResourceTypeMap				mResourceTypeMap;
-		ResourceCategoryMap			mResourceCategoryMap;
+    ResourceIdMap				mResourceIdMap;
+    ResourceCRCNameMap			mResourceCRCNameMap;
+    ResourceTypeMap				mResourceTypeMap;
+    ResourceCategoryMap			mResourceCategoryMap;
 
-		uint32						mZoneId;
+    uint32						mZoneId;
 
-		boost::pool<boost::default_user_allocator_malloc_free>				mDBAsyncPool;
+    boost::pool<boost::default_user_allocator_malloc_free>				mDBAsyncPool;
 
-		DataBinding*				mResourceTypebinding;
-		DataBinding*				mResourceCategorybinding;
-		DataBinding*				mResourceBinding;
-		DataBinding*				mCurrentResourceBinding;
+    DataBinding*				mResourceTypebinding;
+    DataBinding*				mResourceCategorybinding;
+    DataBinding*				mResourceBinding;
+    DataBinding*				mCurrentResourceBinding;
 };
 
 //======================================================================================================================

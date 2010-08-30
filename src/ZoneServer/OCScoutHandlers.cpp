@@ -72,7 +72,7 @@ void ObjectController::_handleHarvestCorpse(uint64 targetId,Message* message,Obj
     {
         BString data(rawData);
         data.toLower();
-        
+
         if(data == "meat")
             gScoutManager->handleHarvestCorpse(playerObject, target, HARVEST_MEAT);
         else if(data == "bone")
@@ -85,7 +85,7 @@ void ObjectController::_handleHarvestCorpse(uint64 targetId,Message* message,Obj
         gMessageLib->SendSystemMessage(::common::OutOfBand("internal_command_string", "no_resource"), playerObject);
     }
 
-} 
+}
 
 //=============================================================================================================================
 //
@@ -94,7 +94,7 @@ void ObjectController::_handleHarvestCorpse(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleMaskScent(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -106,7 +106,7 @@ void ObjectController::_handleForage(uint64 targetId,Message* message,ObjectCont
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
     if(player)
         gForageManager->startForage(player, ForageClass_Scout);
-} 
+}
 
 //=============================================================================================================================
 //

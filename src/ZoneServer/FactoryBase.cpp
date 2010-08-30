@@ -39,21 +39,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 FactoryBase::FactoryBase(Database* database)
-: mILCPool(sizeof(InLoadingContainer))
-, mQueryContainerPool(sizeof(QueryContainerBase))
-, mDatabase(database)
+    : mILCPool(sizeof(InLoadingContainer))
+    , mQueryContainerPool(sizeof(QueryContainerBase))
+    , mDatabase(database)
 {
-	mAttributeBinding = mDatabase->CreateDataBinding(3);
-	mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mKey),64,0);
-	mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mValue),128,1);
-	mAttributeBinding->addField(DFT_uint8,offsetof(Attribute_QueryContainer,mInternal),1,2);
+    mAttributeBinding = mDatabase->CreateDataBinding(3);
+    mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mKey),64,0);
+    mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mValue),128,1);
+    mAttributeBinding->addField(DFT_uint8,offsetof(Attribute_QueryContainer,mInternal),1,2);
 }
 
 //=============================================================================
 
 FactoryBase::~FactoryBase()
 {
-	mDatabase->DestroyDataBinding(mAttributeBinding);
+    mDatabase->DestroyDataBinding(mAttributeBinding);
 }
 
 
@@ -62,63 +62,63 @@ FactoryBase::~FactoryBase()
 
 InLoadingContainer* FactoryBase::_getObject(uint64 id)
 {
-	ObjectLoadMap::iterator it = mObjectLoadMap.find(id);
+    ObjectLoadMap::iterator it = mObjectLoadMap.find(id);
 
-	if(it != mObjectLoadMap.end())
-		return((*it).second);
+    if(it != mObjectLoadMap.end())
+        return((*it).second);
 
-	return(NULL);
+    return(NULL);
 }
 
 //=============================================================================
 
 bool FactoryBase::_removeFromObjectLoadMap(uint64 id)
 {
-	ObjectLoadMap::iterator it = mObjectLoadMap.find(id);
+    ObjectLoadMap::iterator it = mObjectLoadMap.find(id);
 
-	if(it != mObjectLoadMap.end())
-	{
-		mObjectLoadMap.erase(it);
-		return(true);
-	}
-	return(false);
+    if(it != mObjectLoadMap.end())
+    {
+        mObjectLoadMap.erase(it);
+        return(true);
+    }
+    return(false);
 }
 
 //=============================================================================
 // this should always be last in load order
 void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
 {
-	Attribute_QueryContainer	attribute;
-	uint64						count = result->getRowCount();
-	int8						str[256];
-	BStringVector				dataElements;
+    Attribute_QueryContainer	attribute;
+    uint64						count = result->getRowCount();
+    int8						str[256];
+    BStringVector				dataElements;
 
-	for(uint64 i = 0;i < count;i++)
-	{
-		result->GetNextRow(mAttributeBinding,(void*)&attribute);
-		if(attribute.mKey.getCrc() == BString("cat_manf_schem_ing_resource").getCrc())
-		{
-			attribute.mValue.split(dataElements,' ');
-			sprintf(str,"cat_manf_schem_ing_resource.\"%s",dataElements[0].getAnsi());
+    for(uint64 i = 0; i < count; i++)
+    {
+        result->GetNextRow(mAttributeBinding,(void*)&attribute);
+        if(attribute.mKey.getCrc() == BString("cat_manf_schem_ing_resource").getCrc())
+        {
+            attribute.mValue.split(dataElements,' ');
+            sprintf(str,"cat_manf_schem_ing_resource.\"%s",dataElements[0].getAnsi());
 
-			attribute.mKey		= BString(str);
-			attribute.mValue	= dataElements[1].getAnsi();
+            attribute.mKey		= BString(str);
+            attribute.mValue	= dataElements[1].getAnsi();
 
-			//add key to the worldmanager
-			if(gWorldManager->getAttributeKey(attribute.mKey.getCrc()) == "")
-			{
-				gWorldManager->mObjectAttributeKeyMap.insert(std::make_pair(attribute.mKey.getCrc(),attribute.mKey));
-			}
+            //add key to the worldmanager
+            if(gWorldManager->getAttributeKey(attribute.mKey.getCrc()) == "")
+            {
+                gWorldManager->mObjectAttributeKeyMap.insert(std::make_pair(attribute.mKey.getCrc(),attribute.mKey));
+            }
 
-		}
+        }
 
-		if(attribute.mInternal)
-			object->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
-		else
-			object->addAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
-	}
+        if(attribute.mInternal)
+            object->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
+        else
+            object->addAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
+    }
 
-	object->setLoadState(LoadState_Loaded);
+    object->setLoadState(LoadState_Loaded);
 }
 
 //=============================================================================

@@ -56,66 +56,66 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	// don't allow survey in buildings
-	if(playerObject->getParentId())
-	{
+    // don't allow survey in buildings
+    if(playerObject->getParentId())
+    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
-		return;
-	}
+        return;
+    }
 
-	if(playerObject->isDead() || !playerObject->getHam()->checkMainPools(1,1,1))
-		return;
-		
+    if(playerObject->isDead() || !playerObject->getHam()->checkMainPools(1,1,1))
+        return;
 
-	if(playerObject->getPerformingState() != PlayerPerformance_None)
-	{
+
+    if(playerObject->getPerformingState() != PlayerPerformance_None)
+    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
-		return;
-	}
+        return;
+    }
 
-	if(playerObject->getSurveyState())
-	{
-		playerObject->getSampleData()->mPendingSample = false;
+    if(playerObject->getSurveyState())
+    {
+        playerObject->getSampleData()->mPendingSample = false;
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "survey_sample"), playerObject);
-	}
+    }
 
-	SurveyTool*			tool			= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(targetId));
-	CurrentResource*	resource		= NULL;
-	BString				resourceName;
+    SurveyTool*			tool			= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(targetId));
+    CurrentResource*	resource		= NULL;
+    BString				resourceName;
 
-	message->getStringUnicode16(resourceName);
-	resourceName.convert(BSTRType_ANSI);
+    message->getStringUnicode16(resourceName);
+    resourceName.convert(BSTRType_ANSI);
 
-	resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
+    resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
 
-	if(tool && resource)
-	{
-		playerObject->setSurveyState(true);
+    if(tool && resource)
+    {
+        playerObject->setSurveyState(true);
 
-		// play effect
-		BString effect = gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("survey_effect"));
+        // play effect
+        BString effect = gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("survey_effect"));
 
-		gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,playerObject);
+        gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,playerObject);
 
-		PlayerObjectSet*			playerList	= playerObject->getKnownPlayers();
-		PlayerObjectSet::iterator	it			= playerList->begin();
+        PlayerObjectSet*			playerList	= playerObject->getKnownPlayers();
+        PlayerObjectSet::iterator	it			= playerList->begin();
 
-		while(it != playerList->end())
-		{
-			gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,(*it));
+        while(it != playerList->end())
+        {
+            gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,(*it));
 
-			++it;
-		}
+            ++it;
+        }
 
-		// send system message
-		resourceName.convert(BSTRType_Unicode16);
+        // send system message
+        resourceName.convert(BSTRType_Unicode16);
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_survey", L"", L"", resourceName.getUnicode16()), playerObject);
 
-		// schedule execution
-		addEvent(new SurveyEvent(tool,resource),5000);
-	}
+        // schedule execution
+        addEvent(new SurveyEvent(tool,resource),5000);
+    }
 }
 
 //======================================================================================================================
@@ -125,102 +125,102 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleRequestCoreSample(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(mObject);
 
 
-	if(playerObject->checkIfMounted())
-	{
-		gMessageLib->SendSystemMessage(L"You cannot take resource samples while mounted.", playerObject);
-		return;
-	}
+    if(playerObject->checkIfMounted())
+    {
+        gMessageLib->SendSystemMessage(L"You cannot take resource samples while mounted.", playerObject);
+        return;
+    }
 
-	if(playerObject->getPerformingState() != PlayerPerformance_None)
-	{
+    if(playerObject->getPerformingState() != PlayerPerformance_None)
+    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
-		return;
-	}
+        return;
+    }
 
-	// don't allow sampling in buildings
-	if(playerObject->getParentId())
-	{
+    // don't allow sampling in buildings
+    if(playerObject->getParentId())
+    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_in_structure"), playerObject);
-		return;
-	}
+        return;
+    }
 
-	if(playerObject->getPerformingState() != PlayerPerformance_None)
-	{
+    if(playerObject->getPerformingState() != PlayerPerformance_None)
+    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_cancel"), playerObject);
-		return;
-	}
+        return;
+    }
 
-	uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	if(!playerObject->getNextSampleTime() || (int32)(playerObject->getNextSampleTime() - localTime) <= 0)
-	{
-		playerObject->setNextSampleTime(localTime + 30000);
-	}
-	else
-	{
+    uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    if(!playerObject->getNextSampleTime() || (int32)(playerObject->getNextSampleTime() - localTime) <= 0)
+    {
+        playerObject->setNextSampleTime(localTime + 30000);
+    }
+    else
+    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "tool_recharge_time", 0, 0, 0, static_cast<int32>(playerObject->getNextSampleTime() - localTime) / 1000), playerObject);
-		return;
-	}
+        return;
+    }
 
-	SurveyTool*			tool		= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(targetId));
-	CurrentResource*	resource	= NULL;
+    SurveyTool*			tool		= dynamic_cast<SurveyTool*>(gWorldManager->getObjectById(targetId));
+    CurrentResource*	resource	= NULL;
 
-	BString resourceName;
+    BString resourceName;
 
-	message->getStringUnicode16(resourceName);
-	resourceName.convert(BSTRType_ANSI);
+    message->getStringUnicode16(resourceName);
+    resourceName.convert(BSTRType_ANSI);
 
-	resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
+    resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
 
-	if(resource == NULL || tool == NULL)
-		return;
+    if(resource == NULL || tool == NULL)
+        return;
 
-	if((resource->getType()->getCategoryId() == 903)||(resource->getType()->getCategoryId() == 904))
-	{
+    if((resource->getType()->getCategoryId() == 903)||(resource->getType()->getCategoryId() == 904))
+    {
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "must_have_harvester"), playerObject);
-		return;
-	}
+        return;
+    }
 
-	ArtisanHeightmapAsyncContainer* container = new ArtisanHeightmapAsyncContainer(this, HeightmapCallback_ArtisanSurvey);
-	container->addToBatch(playerObject->mPosition.x,playerObject->mPosition.z);
+    ArtisanHeightmapAsyncContainer* container = new ArtisanHeightmapAsyncContainer(this, HeightmapCallback_ArtisanSurvey);
+    container->addToBatch(playerObject->mPosition.x,playerObject->mPosition.z);
 
-	container->playerObject = playerObject;
-	container->resource = resource;
-	container->resourceName = resourceName;
-	container->tool = tool;
+    container->playerObject = playerObject;
+    container->resource = resource;
+    container->resourceName = resourceName;
+    container->tool = tool;
 
-	gHeightmap->addNewHeightMapJob(container);
+    gHeightmap->addNewHeightMapJob(container);
 
 }
 
 void ObjectController::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 {
-		ArtisanHeightmapAsyncContainer* container = static_cast<ArtisanHeightmapAsyncContainer*>(ref);
+    ArtisanHeightmapAsyncContainer* container = static_cast<ArtisanHeightmapAsyncContainer*>(ref);
 
-		HeightResultMap* mapping = container->getResults();
-		HeightResultMap::iterator it = mapping->begin();
-		if(it != mapping->end() && it->second != NULL)
-		{
-			if(it->second->hasWater)
-			{
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), container->playerObject);
-				return;
-			}
+    HeightResultMap* mapping = container->getResults();
+    HeightResultMap::iterator it = mapping->begin();
+    if(it != mapping->end() && it->second != NULL)
+    {
+        if(it->second->hasWater)
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), container->playerObject);
+            return;
+        }
 
-			// put us into sampling mode
-			container->playerObject->setSamplingState(true);
+        // put us into sampling mode
+        container->playerObject->setSamplingState(true);
 
-			container->resourceName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_sampling", L"", L"", container->resourceName.getUnicode16()), container->playerObject);
+        container->resourceName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_sampling", L"", L"", container->resourceName.getUnicode16()), container->playerObject);
 
-			// change posture
-			_handleKneel(0,NULL,NULL);
+        // change posture
+        _handleKneel(0,NULL,NULL);
 
-			// schedule execution
-			addEvent(new SampleEvent(container->tool,container->resource),8000);
-		}
+        // schedule execution
+        addEvent(new SampleEvent(container->tool,container->resource),8000);
+    }
 }
 
 //======================================================================================================================
@@ -229,9 +229,9 @@ void ObjectController::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 //
 void ObjectController::_handleSurvey(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject*		playerObject = (PlayerObject*)mObject;
+    //PlayerObject*		playerObject = (PlayerObject*)mObject;
 
-	//gLogger->hexDump(message->getData(),message->getSize());
+    //gLogger->hexDump(message->getData(),message->getSize());
 }
 
 //======================================================================================================================
@@ -240,9 +240,9 @@ void ObjectController::_handleSurvey(uint64 targetId,Message* message,ObjectCont
 //
 void ObjectController::_handleSample(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject*		playerObject = (PlayerObject*)mObject;
+    //PlayerObject*		playerObject = (PlayerObject*)mObject;
 
-	//gLogger->hexDump(message->getData(),message->getSize());
+    //gLogger->hexDump(message->getData(),message->getSize());
 }
 
 //======================================================================================================================

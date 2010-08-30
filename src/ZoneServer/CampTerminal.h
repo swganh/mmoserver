@@ -34,32 +34,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class CampTerminal : public Terminal
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		CampTerminal();
-		~CampTerminal();
+    CampTerminal();
+    ~CampTerminal();
 
-		virtual void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    virtual void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-		void					setOwner(uint64 owner){mOwnerId = owner;}
-		uint64					getOwner(){return mOwnerId;}
+    void					setOwner(uint64 owner) {
+        mOwnerId = owner;
+    }
+    uint64					getOwner() {
+        return mOwnerId;
+    }
 
-		void					setCamp(uint64 camp){mCampId = camp;}
-		uint64					getCamp(){return mCampId;}
+    void					setCamp(uint64 camp) {
+        mCampId = camp;
+    }
+    uint64					getCamp() {
+        return mCampId;
+    }
 
-		void					setCampRegion(uint64 region){mCampRegionId = region;}
-		uint64					getCampRegion(){return mCampRegionId;}
+    void					setCampRegion(uint64 region) {
+        mCampRegionId = region;
+    }
+    uint64					getCampRegion() {
+        return mCampRegionId;
+    }
 
-	private:
-		uint64					mCampId;	//id of the tent - has the object list
-		uint64					mOwnerId;
-		BStringVector			mAttributesMenu;
-		uint64					mCampRegionId;
+private:
+    uint64					mCampId;	//id of the tent - has the object list
+    uint64					mOwnerId;
+    BStringVector			mAttributesMenu;
+    uint64					mCampRegionId;
 
-		
+
 };
 
 //=============================================================================

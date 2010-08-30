@@ -42,31 +42,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 
 BString::BString()
-: mString(0)
-, mType(BSTRType_ANSI)
-, mAllocated(0)
-, mCharacterWidth(1)
-, mLength(0)
+    : mString(0)
+    , mType(BSTRType_ANSI)
+    , mAllocated(0)
+    , mCharacterWidth(1)
+    , mLength(0)
 {
-  _allocate();
-  *(uint32*)mString = 0;   // Make sure a new empty string is null terminated.
+    _allocate();
+    *(uint32*)mString = 0;   // Make sure a new empty string is null terminated.
 }
 
 //======================================================================================================================
 
 BString::BString(BStringType type,uint16 length)
-	: mString(0)
-  , mType(type)
-  , mAllocated(0)
-  , mLength(length)
+    : mString(0)
+    , mType(type)
+    , mAllocated(0)
+    , mLength(length)
 {
-	if(type == BSTRType_ANSI)
-		mCharacterWidth = 1;
-	else if(type == BSTRType_Unicode16)
-		mCharacterWidth = 2;
+    if(type == BSTRType_ANSI)
+        mCharacterWidth = 1;
+    else if(type == BSTRType_Unicode16)
+        mCharacterWidth = 2;
 
-	_allocate();
-	*(uint32*)mString = 0;
+    _allocate();
+    *(uint32*)mString = 0;
 }
 
 //======================================================================================================================
@@ -79,215 +79,215 @@ BString::~BString()
 //======================================================================================================================
 
 BString::BString(const int8* data)
-: mString(0)
-, mType(BSTRType_ANSI)
-, mAllocated(0)
-, mCharacterWidth(1)
-, mLength(0)
+    : mString(0)
+    , mType(BSTRType_ANSI)
+    , mAllocated(0)
+    , mCharacterWidth(1)
+    , mLength(0)
 {
-	_allocate();
-	// we might get a null pointer from db queries
-	if(data != NULL)
-		*this = data;
-	else
-		*(uint32*)mString = 0;
+    _allocate();
+    // we might get a null pointer from db queries
+    if(data != NULL)
+        *this = data;
+    else
+        *(uint32*)mString = 0;
 }
 
 //======================================================================================================================
 
 BString::BString(const uint16* data)
-: mString(0)
-, mType(BSTRType_Unicode16)
-, mAllocated(0)
-, mCharacterWidth(2)
-, mLength(0)
+    : mString(0)
+    , mType(BSTRType_Unicode16)
+    , mAllocated(0)
+    , mCharacterWidth(2)
+    , mLength(0)
 {
-	_allocate();
-	// we might get a null pointer from db queries
-	if(data != NULL)
-		*this = data;
-	else
-		*(uint32*)mString = 0;
+    _allocate();
+    // we might get a null pointer from db queries
+    if(data != NULL)
+        *this = data;
+    else
+        *(uint32*)mString = 0;
 }
 
 //======================================================================================================================
 
 BString::BString(const wchar_t* data)
-: mString(0)
-, mType(BSTRType_Unicode16)
-, mAllocated(0)
-, mCharacterWidth(2)
-, mLength(0)
+    : mString(0)
+    , mType(BSTRType_Unicode16)
+    , mAllocated(0)
+    , mCharacterWidth(2)
+    , mLength(0)
 {
-	_allocate();
-	// we might get a null pointer from db queries
-	if(data != NULL)
-		*this = data;
-	else
-		*(uint32*)mString = 0;
+    _allocate();
+    // we might get a null pointer from db queries
+    if(data != NULL)
+        *this = data;
+    else
+        *(uint32*)mString = 0;
 }
 
 
 //======================================================================================================================
 
 BString::BString(const BString& data)
-: mString(0)
-, mType(BSTRType_ANSI)
-, mAllocated(0)
-, mCharacterWidth(1)
-, mLength(0)
+    : mString(0)
+    , mType(BSTRType_ANSI)
+    , mAllocated(0)
+    , mCharacterWidth(1)
+    , mLength(0)
 {
-	_allocate();
-	*this = data;
+    _allocate();
+    *this = data;
 }
 
 //======================================================================================================================
 
 uint16 BString::initRawBSTR(int8* data, BStringType type)
 {
-	uint16	totalLen = *(uint16*)data;
+    uint16	totalLen = *(uint16*)data;
 
-	mType = type;
+    mType = type;
 
-	switch(type)
-	{
-		case BSTRType_ANSI:
-		{
-			mCharacterWidth = 1;
-		}
-		break;
+    switch(type)
+    {
+    case BSTRType_ANSI:
+    {
+        mCharacterWidth = 1;
+    }
+    break;
 
-		case BSTRType_Unicode16:
-		case BSTRType_UTF8:
-		{
-			mCharacterWidth = 2;
-		}
-		break;
-	}
+    case BSTRType_Unicode16:
+    case BSTRType_UTF8:
+    {
+        mCharacterWidth = 2;
+    }
+    break;
+    }
 
-	uint32 charLen = (totalLen + 1) * mCharacterWidth;
+    uint32 charLen = (totalLen + 1) * mCharacterWidth;
 
-	// If we don't have enough room in our buffer, re-allocate a new one
-	if(charLen > mAllocated)
-	{
-		if(mString)
-			delete [] mString;
+    // If we don't have enough room in our buffer, re-allocate a new one
+    if(charLen > mAllocated)
+    {
+        if(mString)
+            delete [] mString;
 
-		mAllocated = (((static_cast<uint16>(charLen) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
-		mString = new int8[mAllocated];
+        mAllocated = (((static_cast<uint16>(charLen) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
+        mString = new int8[mAllocated];
 
-		memset(mString,0,mAllocated);
-	}
+        memset(mString,0,mAllocated);
+    }
 
-	// Copy our string into the buffer.
-	if(mAllocated)
-	{
-		memcpy(mString,data+(mCharacterWidth*2),charLen - mCharacterWidth);
-		memset(&mString[charLen - mCharacterWidth], 0, mCharacterWidth);
-	}
+    // Copy our string into the buffer.
+    if(mAllocated)
+    {
+        memcpy(mString,data+(mCharacterWidth*2),charLen - mCharacterWidth);
+        memset(&mString[charLen - mCharacterWidth], 0, mCharacterWidth);
+    }
 
-	mLength = totalLen;
+    mLength = totalLen;
 
-	return totalLen;
+    return totalLen;
 }
 
 //======================================================================================================================
 
 bool BString::operator ==(char* data) // compare against ansi null terminated string
 {
-	return(strcmp(data,mString) == 0);
+    return(strcmp(data,mString) == 0);
 }
 
 //======================================================================================================================
 
 bool BString::operator ==(const char* data) // compare against const ansi null terminated string
 {
-	return(strcmp(data,mString) == 0);
+    return(strcmp(data,mString) == 0);
 }
 
 //======================================================================================================================
 
 bool BString::operator ==(const BString& data)
 {
-	return (strcmp(mString, data.getAnsi()) == 0);
+    return (strcmp(mString, data.getAnsi()) == 0);
 }
 
 //======================================================================================================================
 
 bool BString::operator ==(BString data)
 {
-	return (strcmp(mString, data.getAnsi()) == 0);
+    return (strcmp(mString, data.getAnsi()) == 0);
 }
 
 //======================================================================================================================
 
 BString& BString::operator =(const int8* data)
 {
-	// we might get a null pointer from db queries
-	if(data != NULL)
-	{
-	  mType = BSTRType_ANSI;
-	  mCharacterWidth = 1;
-	  mLength = (uint16)strlen(data);
+    // we might get a null pointer from db queries
+    if(data != NULL)
+    {
+        mType = BSTRType_ANSI;
+        mCharacterWidth = 1;
+        mLength = (uint16)strlen(data);
 
-	  // If we don't have enough room in our buffer, re-allocate a new one
-	  _allocate();
+        // If we don't have enough room in our buffer, re-allocate a new one
+        _allocate();
 
-	  // Cpoy our string into the new buffer.
-	  if (mAllocated)
-	  {
-		memcpy(mString, data, mLength);
-		memset(&mString[mLength], 0, 1);
-	  }
-	}
+        // Cpoy our string into the new buffer.
+        if (mAllocated)
+        {
+            memcpy(mString, data, mLength);
+            memset(&mString[mLength], 0, 1);
+        }
+    }
 
-  return *this;
+    return *this;
 }
 
 //======================================================================================================================
 BString& BString::operator =(const uint16* data)
 {
-	// we might get a null pointer from db queries
-	if(data != NULL)
-	{
-	  mType = BSTRType_Unicode16;
-	  mCharacterWidth = 2;
-	  mLength = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+    // we might get a null pointer from db queries
+    if(data != NULL)
+    {
+        mType = BSTRType_Unicode16;
+        mCharacterWidth = 2;
+        mLength = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
 
-	  // If we don't have enough room in our buffer, re-allocate a new one
-	  _allocate();
+        // If we don't have enough room in our buffer, re-allocate a new one
+        _allocate();
 
-	  // Cpoy our string into the new buffer.
-	  if (mAllocated)
-	  {
-		memcpy(mString, data, mLength*2);
-		memset(&mString[mLength*2], 0, 1);
-	  }
-	}
-  return *this;
+        // Cpoy our string into the new buffer.
+        if (mAllocated)
+        {
+            memcpy(mString, data, mLength*2);
+            memset(&mString[mLength*2], 0, 1);
+        }
+    }
+    return *this;
 }
 
 //======================================================================================================================
 BString& BString::operator =(const wchar_t* data)
 {
-	// we might get a null pointer from db queries
-	if(data != NULL)
-	{
-	  mType = BSTRType_Unicode16;
-	  mCharacterWidth = 2;
-	  mLength = static_cast<uint16>(wcslen(data));
+    // we might get a null pointer from db queries
+    if(data != NULL)
+    {
+        mType = BSTRType_Unicode16;
+        mCharacterWidth = 2;
+        mLength = static_cast<uint16>(wcslen(data));
 
-	  // If we don't have enough room in our buffer, re-allocate a new one
-	  _allocate();
+        // If we don't have enough room in our buffer, re-allocate a new one
+        _allocate();
 
-	  // Cpoy our string into the new buffer.
-	  if (mAllocated)
-	  {
-		memcpy(mString, data, mLength*2);
-		memset(&mString[mLength*2], 0, 1);
-	  }
-	}
-  return *this;
+        // Cpoy our string into the new buffer.
+        if (mAllocated)
+        {
+            memcpy(mString, data, mLength*2);
+            memset(&mString[mLength*2], 0, 1);
+        }
+    }
+    return *this;
 }
 
 
@@ -295,43 +295,43 @@ BString& BString::operator =(const wchar_t* data)
 
 BString& BString::operator =(int8* data)
 {
-	// we might get a null pointer from db queries
-	if(data != NULL)
-	{
-		mType = BSTRType_ANSI;
-		mCharacterWidth = 1;
-		mLength = (uint16)strlen(data);
+    // we might get a null pointer from db queries
+    if(data != NULL)
+    {
+        mType = BSTRType_ANSI;
+        mCharacterWidth = 1;
+        mLength = (uint16)strlen(data);
 
-		_allocate();
+        _allocate();
 
-		// Copy our string into the new buffer.
-		if(mAllocated)
-		{
-			memcpy(mString, data, mLength);
-			memset(&mString[mLength], 0, 1);
-		}
-	}
+        // Copy our string into the new buffer.
+        if(mAllocated)
+        {
+            memcpy(mString, data, mLength);
+            memset(&mString[mLength], 0, 1);
+        }
+    }
 
-	return *this;
+    return *this;
 }
 
 //======================================================================================================================
 
 BString& BString::operator =(const BString& data)
 {
-	mType = data.getType();
-	mCharacterWidth = static_cast<uint16>(data.getCharacterWidth());
-	mLength = data.getLength();
+    mType = data.getType();
+    mCharacterWidth = static_cast<uint16>(data.getCharacterWidth());
+    mLength = data.getLength();
     mAllocated = static_cast<uint16>(data.getAllocated());
 
-  if (mString)
-    delete [] mString;
-	mString = new int8[mAllocated];
+    if (mString)
+        delete [] mString;
+    mString = new int8[mAllocated];
 
-  // Copy our string into the new buffer.
-  memcpy(mString, data.getRawData(), mAllocated);
+    // Copy our string into the new buffer.
+    memcpy(mString, data.getRawData(), mAllocated);
 
-	return *this;
+    return *this;
 }
 
 
@@ -340,93 +340,93 @@ BString& BString::operator =(const BString& data)
 
 BString& BString::operator <<(const uint16* data)
 {
-	if(mType != BSTRType_Unicode16)
-		return *this;
+    if(mType != BSTRType_Unicode16)
+        return *this;
 
-	// we might get a null pointer from db queries
-	if(data != NULL)
-	{
-	  // Get our source string length
-	  uint16 dataLength  = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
-	  //uint16 dataLength = (uint16)strlen(data);
+    // we might get a null pointer from db queries
+    if(data != NULL)
+    {
+        // Get our source string length
+        uint16 dataLength  = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+        //uint16 dataLength = (uint16)strlen(data);
 
-	  // Set our new length and allocate
-	  uint16 oldLength = mLength;
-	  mLength += dataLength;
-	  _allocate();
+        // Set our new length and allocate
+        uint16 oldLength = mLength;
+        mLength += dataLength;
+        _allocate();
 
-	  // Append our string into the bugger.
-	  memcpy(mString + oldLength * mCharacterWidth, data, dataLength* mCharacterWidth);
-	  memset(mString + mLength * mCharacterWidth, 0, mCharacterWidth);
-	}
-  return *this;
+        // Append our string into the bugger.
+        memcpy(mString + oldLength * mCharacterWidth, data, dataLength* mCharacterWidth);
+        memset(mString + mLength * mCharacterWidth, 0, mCharacterWidth);
+    }
+    return *this;
 }
 
 
 BString& BString::operator <<(uint16* data)
 {
-	if(mType != BSTRType_Unicode16)
-		return *this;
+    if(mType != BSTRType_Unicode16)
+        return *this;
 
-	// we might get a null pointer from db queries
-	if(data != NULL)
-	{
-	  // Get our source string length
-	  uint16 dataLength  = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
-	  //uint16 dataLength = (uint16)strlen(data);
+    // we might get a null pointer from db queries
+    if(data != NULL)
+    {
+        // Get our source string length
+        uint16 dataLength  = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+        //uint16 dataLength = (uint16)strlen(data);
 
-	  // Set our new length and allocate
-	  uint16 oldLength = mLength;
-	  mLength += dataLength;
-	  _allocate();
+        // Set our new length and allocate
+        uint16 oldLength = mLength;
+        mLength += dataLength;
+        _allocate();
 
-	  // Append our string into the bugger.
-	  memcpy(mString + oldLength * mCharacterWidth, data, dataLength* mCharacterWidth);
-	  memset(mString + mLength * mCharacterWidth, 0, mCharacterWidth);
-	}
-  return *this;
+        // Append our string into the bugger.
+        memcpy(mString + oldLength * mCharacterWidth, data, dataLength* mCharacterWidth);
+        memset(mString + mLength * mCharacterWidth, 0, mCharacterWidth);
+    }
+    return *this;
 }
 
 BString& BString::operator <<(const int8* data)
 {
-	// we might get a null pointer from db queries
-	if(data != NULL)
-	{
-	  // Get our source string length
-	  uint16 dataLength = (uint16)strlen(data);
+    // we might get a null pointer from db queries
+    if(data != NULL)
+    {
+        // Get our source string length
+        uint16 dataLength = (uint16)strlen(data);
 
-	  // Set our new length and allocate
-	  uint16 oldLength = mLength;
-	  mLength += dataLength;
-	  _allocate();
+        // Set our new length and allocate
+        uint16 oldLength = mLength;
+        mLength += dataLength;
+        _allocate();
 
-	  // Append our string into the bugger.
-	  memcpy(mString + oldLength * mCharacterWidth, data, dataLength);
-	  memset(mString + mLength * mCharacterWidth, 0, mCharacterWidth);
-	}
-  return *this;
+        // Append our string into the bugger.
+        memcpy(mString + oldLength * mCharacterWidth, data, dataLength);
+        memset(mString + mLength * mCharacterWidth, 0, mCharacterWidth);
+    }
+    return *this;
 }
 
 
 //======================================================================================================================
 BString& BString::operator <<(int8* data)
 {
-	// we might get a null pointer from db queries
-	if(data != NULL)
-	{
-	  // Get our source string length
-	  uint16 dataLength = (uint16)strlen(data);
+    // we might get a null pointer from db queries
+    if(data != NULL)
+    {
+        // Get our source string length
+        uint16 dataLength = (uint16)strlen(data);
 
-	  // Set our new length and allocate
-	  uint16 oldLength = mLength;
-	  mLength += dataLength;
-	  _allocate();
+        // Set our new length and allocate
+        uint16 oldLength = mLength;
+        mLength += dataLength;
+        _allocate();
 
-	  // Append our string into the bugger.
-	  memcpy(mString + oldLength * mCharacterWidth, data, dataLength);
-	  memset((mString + mLength * mCharacterWidth), 0, mCharacterWidth);
-	}
-  return *this;
+        // Append our string into the bugger.
+        memcpy(mString + oldLength * mCharacterWidth, data, dataLength);
+        memset((mString + mLength * mCharacterWidth), 0, mCharacterWidth);
+    }
+    return *this;
 }
 
 int8* BString::getAnsi()
@@ -499,158 +499,158 @@ int8* BString::getUTF8()
 
 void BString::convert(BStringType type)
 {
-	// Try not to use this often as it is slow.
-	// If we're trying to convert to the same type, just return.
-	if(mType == type)
-		return;
+    // Try not to use this often as it is slow.
+    // If we're trying to convert to the same type, just return.
+    if(mType == type)
+        return;
 
-	//  Locals
-	int8*   newBuffer = 0;
-	uint16  allocated = 0;
+    //  Locals
+    int8*   newBuffer = 0;
+    uint16  allocated = 0;
 
-	// what's the target type and how much space will we need
-	switch(type)
-	{
-		case BSTRType_ANSI:
-		{
-			mCharacterWidth = 1;
-			allocated = ((((mLength+1) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
+    // what's the target type and how much space will we need
+    switch(type)
+    {
+    case BSTRType_ANSI:
+    {
+        mCharacterWidth = 1;
+        allocated = ((((mLength+1) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
 
-			// Allocate a new buffer for the converted string.
-			newBuffer = new int8[allocated];
-			//Initial null terminator
-			memset(newBuffer,0,allocated);
+        // Allocate a new buffer for the converted string.
+        newBuffer = new int8[allocated];
+        //Initial null terminator
+        memset(newBuffer,0,allocated);
 
-			// Convert the string if needed.
-			if(mType == BSTRType_Unicode16)
-			{
-                wcstombs(newBuffer, reinterpret_cast<wchar_t*>(mString), std::min(allocated, mAllocated));
-			}
-			else if(mType == BSTRType_UTF8)
-			{
-				// FIXME: Implement
-				//int i = 0;
-			}
-		}
-		break;
+        // Convert the string if needed.
+        if(mType == BSTRType_Unicode16)
+        {
+            wcstombs(newBuffer, reinterpret_cast<wchar_t*>(mString), std::min(allocated, mAllocated));
+        }
+        else if(mType == BSTRType_UTF8)
+        {
+            // FIXME: Implement
+            //int i = 0;
+        }
+    }
+    break;
 
-		case BSTRType_Unicode16:
-		{
-			mCharacterWidth = 2;
-			allocated = (((((mLength+1) * mCharacterWidth) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
+    case BSTRType_Unicode16:
+    {
+        mCharacterWidth = 2;
+        allocated = (((((mLength+1) * mCharacterWidth) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
 
-			// Allocate a new buffer for the converted string.
-			newBuffer = new int8[allocated];
-			//Initial null terminator
-			memset(newBuffer,0,allocated);
+        // Allocate a new buffer for the converted string.
+        newBuffer = new int8[allocated];
+        //Initial null terminator
+        memset(newBuffer,0,allocated);
 
-			if(mType == BSTRType_ANSI || mType == BSTRType_UTF8)
-			{
-                mbstowcs(reinterpret_cast<wchar_t*>(newBuffer),mString, std::min(allocated/2, mLength+1));
-			}
-		}
-		break;
+        if(mType == BSTRType_ANSI || mType == BSTRType_UTF8)
+        {
+            mbstowcs(reinterpret_cast<wchar_t*>(newBuffer),mString, std::min(allocated/2, mLength+1));
+        }
+    }
+    break;
 
-		case BSTRType_UTF8:
-		{
-			mCharacterWidth = 2;
+    case BSTRType_UTF8:
+    {
+        mCharacterWidth = 2;
 
-			allocated = (((((mLength+1) * mCharacterWidth) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
-			// Allocate a new buffer for the converted string.
-			newBuffer = new int8[allocated];
-			//Initial null terminator
-			*(uint32*)newBuffer = 0;
+        allocated = (((((mLength+1) * mCharacterWidth) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
+        // Allocate a new buffer for the converted string.
+        newBuffer = new int8[allocated];
+        //Initial null terminator
+        *(uint32*)newBuffer = 0;
 
-			if(mType == BSTRType_ANSI)
-			{
-				// FIXME: Implement, not sure if it needs to be though
-				//int i = 0;
-			}
-			else if(mType == BSTRType_Unicode16)
-			{
-				wcstombs((int8*)newBuffer, reinterpret_cast<wchar_t*>(mString), mLength+1);
-			}
-		}
-		break;
-	}
+        if(mType == BSTRType_ANSI)
+        {
+            // FIXME: Implement, not sure if it needs to be though
+            //int i = 0;
+        }
+        else if(mType == BSTRType_Unicode16)
+        {
+            wcstombs((int8*)newBuffer, reinterpret_cast<wchar_t*>(mString), mLength+1);
+        }
+    }
+    break;
+    }
 
-	// We are now the new type of string
-	if(mString != 0)
-		delete [] mString;
+    // We are now the new type of string
+    if(mString != 0)
+        delete [] mString;
 
-	mString		= newBuffer;
-	mAllocated	= allocated;
-	mType		= type;
+    mString		= newBuffer;
+    mAllocated	= allocated;
+    mType		= type;
 }
 
 //======================================================================================================================
 
-	// BS code,
-	// an internal data modifier as toLower(), toUpper() etc ... should NEVER change anything else of the string.
-	// In this case, the string is FORCED to BSTRType_ANSI.
+// BS code,
+// an internal data modifier as toLower(), toUpper() etc ... should NEVER change anything else of the string.
+// In this case, the string is FORCED to BSTRType_ANSI.
 
-	// Implemeting hidden side effects in a function is never good, on a STANDARD object like stings is a disaster.
-	// Better halt controlled than CTD or server crash.
+// Implemeting hidden side effects in a function is never good, on a STANDARD object like stings is a disaster.
+// Better halt controlled than CTD or server crash.
 
 void BString::toLower()
 {
-	if(mType == BSTRType_Unicode16)
-	{
-		assert(false);
-		//convert(BSTRType_ANSI);
-		uint16* data = (uint16*)mString;
+    if(mType == BSTRType_Unicode16)
+    {
+        assert(false);
+        //convert(BSTRType_ANSI);
+        uint16* data = (uint16*)mString;
 
-		while(*data)
-		{
-			*data = towlower(*data);
-			data++;
-		}
-		return;
-	}
+        while(*data)
+        {
+            *data = towlower(*data);
+            data++;
+        }
+        return;
+    }
 
-	int8* data = mString;
+    int8* data = mString;
 
-	while(*data)
-	{
-		*data = tolower(*data);
-		++data;
-	}
+    while(*data)
+    {
+        *data = tolower(*data);
+        ++data;
+    }
 }
 
 //======================================================================================================================
 
 void BString::toUpper()
 {
-	if(mType == BSTRType_Unicode16)
-	{
-		assert(false);
-		convert(BSTRType_ANSI);
-	}
+    if(mType == BSTRType_Unicode16)
+    {
+        assert(false);
+        convert(BSTRType_ANSI);
+    }
 
-	int8* data = mString;
+    int8* data = mString;
 
-	while(*data)
-	{
-		*data = toupper(*data);
-		++data;
-	}
+    while(*data)
+    {
+        *data = toupper(*data);
+        ++data;
+    }
 }
 
 //======================================================================================================================
 
 void BString::toUpperFirst()
 {
-	if(mType == BSTRType_Unicode16)
-	{
-		uint16* data = (uint16*)mString;
+    if(mType == BSTRType_Unicode16)
+    {
+        uint16* data = (uint16*)mString;
 
-		*data = towupper(*data);
-		return;
-	}
+        *data = towupper(*data);
+        return;
+    }
 
-	int8* data = mString;
+    int8* data = mString;
 
-	*data = toupper(*data);
+    *data = toupper(*data);
 
 }
 
@@ -658,17 +658,17 @@ void BString::toUpperFirst()
 
 void BString::toLowerFirst()
 {
-	if(mType == BSTRType_Unicode16)
-	{
-		uint16* data = (uint16*)mString;
+    if(mType == BSTRType_Unicode16)
+    {
+        uint16* data = (uint16*)mString;
 
-		*data = towlower(*data);
-		return;
-	}
+        *data = towlower(*data);
+        return;
+    }
 
-	int8* data = mString;
+    int8* data = mString;
 
-	*data = tolower(*data);
+    *data = tolower(*data);
 
 }
 
@@ -676,149 +676,149 @@ void BString::toLowerFirst()
 
 bool BString::isNumber()
 {
-	if(mType == BSTRType_Unicode16)
-	{
-		assert(false);
-		convert(BSTRType_ANSI);
-	}
+    if(mType == BSTRType_Unicode16)
+    {
+        assert(false);
+        convert(BSTRType_ANSI);
+    }
 
-	int8* data = mString;
+    int8* data = mString;
 
-	while(*data)
-	{
-		if(!(isdigit(*data)))
-			return(false);
+    while(*data)
+    {
+        if(!(isdigit(*data)))
+            return(false);
 
-		++data;
-	}
+        ++data;
+    }
 
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
 
 int BString::split(BStringVector& retVec,char delimiter)
 {
-	retVec.clear();
+    retVec.clear();
 
-	if(mType == BSTRType_Unicode16)
-	{
-		assert(false);
-		convert(BSTRType_ANSI);
-	}
+    if(mType == BSTRType_Unicode16)
+    {
+        assert(false);
+        convert(BSTRType_ANSI);
+    }
 
-	int8* data = mString;
-	uint16 beginIndex = 0;
-	uint16 endIndex = 0;
+    int8* data = mString;
+    uint16 beginIndex = 0;
+    uint16 endIndex = 0;
 
-	while(1)
-	{
-		BString tmpStr;
+    while(1)
+    {
+        BString tmpStr;
 
-		beginIndex = endIndex;
+        beginIndex = endIndex;
 
-		while(*data != delimiter && *data)
-		{
-			++data;
-			++endIndex;
-		}
+        while(*data != delimiter && *data)
+        {
+            ++data;
+            ++endIndex;
+        }
 
-		substring(tmpStr,beginIndex,endIndex);
-		tmpStr.getRawData()[endIndex - beginIndex] = 0;
+        substring(tmpStr,beginIndex,endIndex);
+        tmpStr.getRawData()[endIndex - beginIndex] = 0;
 
-		retVec.push_back(BString(tmpStr.getAnsi()));
+        retVec.push_back(BString(tmpStr.getAnsi()));
 
-		if(!*data)
-			break;
+        if(!*data)
+            break;
 
-		if(!*++data)
-			break;
+        if(!*++data)
+            break;
 
-		++endIndex;
-	}
-	return retVec.size();
+        ++endIndex;
+    }
+    return retVec.size();
 }
 
 //======================================================================================================================
 
 void BString::substring(BString& dest, uint16 start, uint16 end)
 {
-  // Validate our parameters
-  if (start > mLength || end > mLength || end < start)
-    return;
+    // Validate our parameters
+    if (start > mLength || end > mLength || end < start)
+        return;
 
-  // Setup our destination string
-  dest.setType(mType);
-  // dest.setLength(mLength);
-  dest.setLength(end - start);
+    // Setup our destination string
+    dest.setType(mType);
+    // dest.setLength(mLength);
+    dest.setLength(end - start);
 
-  // what's the target type and how much space will we need
-  switch (mType)
-  {
+    // what's the target type and how much space will we need
+    switch (mType)
+    {
     case BSTRType_UTF8:
     case BSTRType_ANSI:
-      {
+    {
         int8* destBuffer = dest.getRawData();
         strncpy(destBuffer, mString + start, end - start);
         break;
-      }
+    }
     case BSTRType_Unicode16:
-      {
+    {
         uint16* destBuffer = (uint16*)dest.getRawData();
         wcsncpy(reinterpret_cast<wchar_t*>(destBuffer), reinterpret_cast<wchar_t*>(mString) + start, end - start);
         break;
-      }
-  }
+    }
+    }
 }
 
 //======================================================================================================================
 
 void BString::_allocate()
 {
-	// If we don't have enough room in our buffer, re-allocate a new one
-	if(mLength * mCharacterWidth >= mAllocated)
-	{
-		int8* newString = 0;
-		int32 previousAllocated = mAllocated;
+    // If we don't have enough room in our buffer, re-allocate a new one
+    if(mLength * mCharacterWidth >= mAllocated)
+    {
+        int8* newString = 0;
+        int32 previousAllocated = mAllocated;
 
-		// what's the target type and how much space will we need
-		switch(mType)
-		{
-			case BSTRType_ANSI:
-			{
-				mAllocated = ((((mLength+1) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
-				newString = new char[mAllocated];
+        // what's the target type and how much space will we need
+        switch(mType)
+        {
+        case BSTRType_ANSI:
+        {
+            mAllocated = ((((mLength+1) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
+            newString = new char[mAllocated];
 
-				memset(newString,0,mAllocated);
+            memset(newString,0,mAllocated);
 
-				if(mString)
-				{
-                    memcpy(newString,mString, std::min<uint32>(mLength + mCharacterWidth,previousAllocated));
-				}
-			}
-			break;
+            if(mString)
+            {
+                memcpy(newString,mString, std::min<uint32>(mLength + mCharacterWidth,previousAllocated));
+            }
+        }
+        break;
 
-			case BSTRType_Unicode16:
-			case BSTRType_UTF8:
-			{
-				mAllocated = ((((mLength+1) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE) * mCharacterWidth;
-				newString = new char[mAllocated];
+        case BSTRType_Unicode16:
+        case BSTRType_UTF8:
+        {
+            mAllocated = ((((mLength+1) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE) * mCharacterWidth;
+            newString = new char[mAllocated];
 
-				memset(newString,0,mAllocated);
+            memset(newString,0,mAllocated);
 
-				if(mString)
-				{
-                    memcpy(newString, mString, std::min<uint32>((mLength + mCharacterWidth) * 2, previousAllocated));
-				}
-			}
-			break;
-		}
+            if(mString)
+            {
+                memcpy(newString, mString, std::min<uint32>((mLength + mCharacterWidth) * 2, previousAllocated));
+            }
+        }
+        break;
+        }
 
-		if(mString != 0)
-			delete [] mString;
+        if(mString != 0)
+            delete [] mString;
 
-		mString = newString;
-	}
+        mString = newString;
+    }
 }
 
 //======================================================================================================================
@@ -866,15 +866,15 @@ uint32 BString::getAllocated() const
 //======================================================================================================================
 uint32 BString::CRC(char* data)
 {
-  uint32 length = (uint32)strlen(data);
+    uint32 length = (uint32)strlen(data);
 
-  uint32 crc = 0xffffffff;  // starting seed
-  for (uint32 i = 0; i < length; i++)
-  {
-    crc = mCrcTable[data[i] ^ (crc >> 24)] ^ (crc << 8);
-  }
+    uint32 crc = 0xffffffff;  // starting seed
+    for (uint32 i = 0; i < length; i++)
+    {
+        crc = mCrcTable[data[i] ^ (crc >> 24)] ^ (crc << 8);
+    }
 
-  return ~crc;
+    return ~crc;
 }
 
 
@@ -941,36 +941,36 @@ uint32 BString::mCrcTable[256] =
 //======================================================================================================================
 void BString::setLength(uint16 length)
 {
-  mLength = length;
-  _allocate();
+    mLength = length;
+    _allocate();
 }
 
 
 //======================================================================================================================
 void BString::setType(BStringType type)
 {
-  mType = type;     // what's the target type and how much space will we need
-  switch (mType)
-  {
+    mType = type;     // what's the target type and how much space will we need
+    switch (mType)
+    {
     case BSTRType_ANSI:
-      mCharacterWidth = 1;
-      break;
+        mCharacterWidth = 1;
+        break;
     case BSTRType_Unicode16:
     case BSTRType_UTF8:
-      mCharacterWidth = 2;
-      break;
-  }
+        mCharacterWidth = 2;
+        break;
+    }
 }
 
 
 //======================================================================================================================
 uint32 BString::getCrc() const
 {
-  uint32 crc = 0xffffffff;  // starting seed
-  for (uint32 i = 0; i < mLength; i++)
-  {
-    crc = mCrcTable[mString[i] ^ (crc >> 24)] ^ (crc << 8);
-  }
+    uint32 crc = 0xffffffff;  // starting seed
+    for (uint32 i = 0; i < mLength; i++)
+    {
+        crc = mCrcTable[mString[i] ^ (crc >> 24)] ^ (crc << 8);
+    }
 
-  return ~crc;
+    return ~crc;
 }

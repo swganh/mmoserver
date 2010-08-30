@@ -42,24 +42,28 @@ class QTRegion;
 
 class BadgeRegion : public RegionObject
 {
-	friend class BadgeRegionFactory;
+    friend class BadgeRegionFactory;
 
-	public:
+public:
 
-		BadgeRegion();
-		virtual ~BadgeRegion();
+    BadgeRegion();
+    virtual ~BadgeRegion();
 
-		uint32			getBadgeId(){ return mBadgeId; }
-		void			setBadgeId(uint32 id){ mBadgeId = id; }
+    uint32			getBadgeId() {
+        return mBadgeId;
+    }
+    void			setBadgeId(uint32 id) {
+        mBadgeId = id;
+    }
 
-		virtual void	update();
+    virtual void	update();
 
-	protected:
+protected:
 
-		uint32				mBadgeId;
-		ZoneTree*			mSI;
-		QTRegion*			mQTRegion;
-		Anh_Math::Rectangle mQueryRect;
+    uint32				mBadgeId;
+    ZoneTree*			mSI;
+    QTRegion*			mQTRegion;
+    Anh_Math::Rectangle mQueryRect;
 };
 
 

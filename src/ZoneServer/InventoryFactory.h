@@ -45,41 +45,43 @@ class TangibleFactory;
 
 enum IFQuery
 {
-	IFQuery_MainInventoryData	= 1,
-	IFQuery_ObjectCount			= 2,
-	IFQuery_Objects				= 3
+    IFQuery_MainInventoryData	= 1,
+    IFQuery_ObjectCount			= 2,
+    IFQuery_Objects				= 3
 };
 
 //=============================================================================
 
 class InventoryFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static InventoryFactory*	getSingletonPtr() { return mSingleton; }
-		static InventoryFactory*	Init(Database* database);
+    static InventoryFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static InventoryFactory*	Init(Database* database);
 
-		~InventoryFactory();
+    ~InventoryFactory();
 
-		virtual void	handleObjectReady(Object* object,DispatchClient* client);
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void	handleObjectReady(Object* object,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-	private:
+private:
 
-		InventoryFactory(Database* database);
+    InventoryFactory(Database* database);
 
-		void		_setupDatabindings();
-		void		_destroyDatabindings();
+    void		_setupDatabindings();
+    void		_destroyDatabindings();
 
-		Inventory*	_createInventory(DatabaseResult* result);
+    Inventory*	_createInventory(DatabaseResult* result);
 
-		static InventoryFactory*	mSingleton;
-		static bool				mInsFlag;
+    static InventoryFactory*	mSingleton;
+    static bool				mInsFlag;
 
-		TangibleFactory*			mTangibleFactory;
+    TangibleFactory*			mTangibleFactory;
 
-		DataBinding*				mInventoryBinding;
+    DataBinding*				mInventoryBinding;
 };
 
 //=============================================================================

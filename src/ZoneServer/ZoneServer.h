@@ -47,60 +47,62 @@ class ObjectControllerDispatch;
 // in the future we should have a map container of string to services that they are
 // stored in to make it easier to dynamically register services.
 namespace zone {
-    class HamService;
+class HamService;
 }
 
 //======================================================================================================================
 
 class ProcessAddress
 {
-    public:
+public:
 
-      uint32	mType;
-      int8		mAddress[16];
-      uint16	mPort;
-      uint32	mStatus;
-      uint32	mActive;
+    uint32	mType;
+    int8		mAddress[16];
+    uint16	mPort;
+    uint32	mStatus;
+    uint32	mActive;
 };
 
 //======================================================================================================================
 
 class ZoneServer
 {
-    public:
+public:
 
-        ZoneServer(int8* mapName);
-        ~ZoneServer(void);
+    ZoneServer(int8* mapName);
+    ~ZoneServer(void);
 
-        void	Process(void);
+    void	Process(void);
 
-        void	handleWMReady();
+    void	handleWMReady();
 
-        BString  getZoneName()  { return mZoneName; }
+    BString  getZoneName()  {
+        return mZoneName;
+    }
 
-    private:
-        // Disable compiler generated methods.
-        ZoneServer();
-        ZoneServer(const ZoneServer&);
-        const ZoneServer& operator=(const ZoneServer&);
+private:
+    // Disable compiler generated methods.
+    ZoneServer();
+    ZoneServer(const ZoneServer&);
+    const ZoneServer& operator=(const ZoneServer&);
 
-        void	_updateDBServerList(uint32 status);
-        void	_connectToConnectionServer(void);
+    void	_updateDBServerList(uint32 status);
+    void	_connectToConnectionServer(void);
 
-        BString                        mZoneName;
-        uint32						  mLastHeartbeat;
+    BString                        mZoneName;
+    uint32						  mLastHeartbeat;
 
-        NetworkManager*               mNetworkManager;
-        DatabaseManager*              mDatabaseManager;
-    
-        Service*                      mRouterService;
-        Database*                     mDatabase;
+    NetworkManager*               mNetworkManager;
+    DatabaseManager*              mDatabaseManager;
 
-        MessageDispatch*              mMessageDispatch;
-        CharacterLoginHandler*        mCharacterLoginHandler;
-        ObjectControllerDispatch*     mObjectControllerDispatch;
+    Service*                      mRouterService;
+    Database*                     mDatabase;
 
-        std::unique_ptr<::zone::HamService>   ham_service_;
+    MessageDispatch*              mMessageDispatch;
+    CharacterLoginHandler*        mCharacterLoginHandler;
+    ObjectControllerDispatch*     mObjectControllerDispatch;
+
+    std::unique_ptr<::zone::HamService>   ham_service_;
 };
 
 //======================================================================================================================

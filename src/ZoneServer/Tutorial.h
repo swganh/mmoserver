@@ -39,8 +39,8 @@ class Container;
 
 enum TutorialQueryType
 {
-	TutorialQuery_MainData = 1,
-	TutorialQuery_PlanetLocation = 2
+    TutorialQuery_MainData = 1,
+    TutorialQuery_PlanetLocation = 2
 };
 
 //=============================================================================
@@ -48,132 +48,134 @@ enum TutorialQueryType
 // class Tutorial : public ObjectFactoryCallback
 class Tutorial : public DatabaseCallback
 {
-	public:
+public:
 
-		Tutorial(PlayerObject* playerObject);
-		~Tutorial();
+    Tutorial(PlayerObject* playerObject);
+    ~Tutorial();
 
-		void				handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void				handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		ScriptEventListener* getScriptInterface() { return &mCmdScriptListener; }
-		void				npcConversationHasStarted(uint64 npcId);
-		void				npcConversationHasEnded(uint64 npcId);
+    ScriptEventListener* getScriptInterface() {
+        return &mCmdScriptListener;
+    }
+    void				npcConversationHasStarted(uint64 npcId);
+    void				npcConversationHasEnded(uint64 npcId);
 
-		void				containerOpen(uint64 containerId);
-		void				containerClose(uint64 containerId);
-		void				transferedItemFromContainer(uint64 itemId, uint64 containerId);
-		void				startScript(void);
+    void				containerOpen(uint64 containerId);
+    void				containerClose(uint64 containerId);
+    void				transferedItemFromContainer(uint64 itemId, uint64 containerId);
+    void				startScript(void);
 
-		// scripting
-		void				ScriptRegisterEvent(void* script,std::string eventFunction);
-		void				scriptPlayMusic(uint32 soundId);
-		void				scriptSystemMessage(std::string message);
-		void				tutorialResponse(BString tutorialEventString);
-		void				updateTutorial(std::string customMessage);
-		void				openHolocron();
-		void				spatialChat(uint64 targetId, std::string chatMsg);
-		void				spatialChatShout(uint64 targetId, std::string chatMsg);
+    // scripting
+    void				ScriptRegisterEvent(void* script,std::string eventFunction);
+    void				scriptPlayMusic(uint32 soundId);
+    void				scriptSystemMessage(std::string message);
+    void				tutorialResponse(BString tutorialEventString);
+    void				updateTutorial(std::string customMessage);
+    void				openHolocron();
+    void				spatialChat(uint64 targetId, std::string chatMsg);
+    void				spatialChatShout(uint64 targetId, std::string chatMsg);
 
-		bool				isZoomCamera();
-		bool				isChatBox();
-		bool				isFoodSelected();
-		bool				isFoodUsed();
-		bool				isCloneDataSaved();
-		bool				isItemsInsured();
-		bool				isCloseHolocron();
-		bool				isChangeLookAtTarget();
-		bool				isOpenInventory();
-		bool				isCloseInventory();
+    bool				isZoomCamera();
+    bool				isChatBox();
+    bool				isFoodSelected();
+    bool				isFoodUsed();
+    bool				isCloneDataSaved();
+    bool				isItemsInsured();
+    bool				isCloseHolocron();
+    bool				isChangeLookAtTarget();
+    bool				isOpenInventory();
+    bool				isCloseInventory();
 
-		void				enableHudElement(std::string customMessage);
-		void				disableHudElement(std::string customMessage);
-		uint32				getState();
-		void				setState(uint32 state);
-		uint32				getSubState();
-		void				setSubState(uint32 subState);
-		bool				getReady();
-		void				setCellId(uint64 cellId);
-		uint32				getRoom();
-		void				enableTutorial();
-		void				disableTutorial();
-		float				getPlayerPosX();
-		float				getPlayerPosY();
-		float				getPlayerPosZ();
+    void				enableHudElement(std::string customMessage);
+    void				disableHudElement(std::string customMessage);
+    uint32				getState();
+    void				setState(uint32 state);
+    uint32				getSubState();
+    void				setSubState(uint32 subState);
+    bool				getReady();
+    void				setCellId(uint64 cellId);
+    uint32				getRoom();
+    void				enableTutorial();
+    void				disableTutorial();
+    float				getPlayerPosX();
+    float				getPlayerPosY();
+    float				getPlayerPosZ();
 
-		float				getPlayerPosToObject(uint64 objectId);
-		void				enableNpcConversationEvent(uint64 objectId);
-		bool				isNpcConversationStarted(uint64 npcId);
-		bool				isNpcConversationEnded(uint64 npcId);
+    float				getPlayerPosToObject(uint64 objectId);
+    void				enableNpcConversationEvent(uint64 objectId);
+    bool				isNpcConversationStarted(uint64 npcId);
+    bool				isNpcConversationEnded(uint64 npcId);
 
-		void				enableItemContainerEvent(uint64 objectId);
-		bool				isContainerOpen(uint64 containerId);
-		bool				isContainerClosed(uint64 containerId);
+    void				enableItemContainerEvent(uint64 objectId);
+    bool				isContainerOpen(uint64 containerId);
+    bool				isContainerClosed(uint64 containerId);
 
-		bool				isContainerEmpty(uint64 containerId);
-		bool				isItemTransferedFromContainer(uint64 containerId);
+    bool				isContainerEmpty(uint64 containerId);
+    bool				isItemTransferedFromContainer(uint64 containerId);
 
-		uint64				getPlayer(void);
+    uint64				getPlayer(void);
 
-		// void				addItem(uint32 familyId, uint32 typeId);
-		void				addQuestWeapon(uint32 familyId, uint32 typeId);
-		void				npcStopFight(uint64 npcId);
-		bool				isLowHam(uint64 npcId, int32 hamLevel);
-		uint64				getSkillTrainerTypeId(void);
-		bool				isPlayerTrained(void);
-		void				setTutorialRefugeeTaunts(uint64 npcId);
-		void				setTutorialCelebTaunts(uint64 npcId);
-		void				makeCreatureAttackable(uint64 npcId);
-		void				npcSendAnimation(uint64 npcId, uint32 animId, uint64 targetId);
+    // void				addItem(uint32 familyId, uint32 typeId);
+    void				addQuestWeapon(uint32 familyId, uint32 typeId);
+    void				npcStopFight(uint64 npcId);
+    bool				isLowHam(uint64 npcId, int32 hamLevel);
+    uint64				getSkillTrainerTypeId(void);
+    bool				isPlayerTrained(void);
+    void				setTutorialRefugeeTaunts(uint64 npcId);
+    void				setTutorialCelebTaunts(uint64 npcId);
+    void				makeCreatureAttackable(uint64 npcId);
+    void				npcSendAnimation(uint64 npcId, uint32 animId, uint64 targetId);
 
-		// Not scripted
-		uint32				getQuestWeaponFamily(void);
-		uint32				getQuestWeaponType(void);
-		void				sendStartingLocationList(void);
-		void				warpToStartingLocation(BString startingLocation);
+    // Not scripted
+    uint32				getQuestWeaponFamily(void);
+    uint32				getQuestWeaponType(void);
+    void				sendStartingLocationList(void);
+    void				warpToStartingLocation(BString startingLocation);
 
-		void				sendStartingMails(void);
-		
-	private:
-		void				tutorialResponseReset(BString tutorialEventString);
-		uint64				getSkillTrainerTypeId(BString startingProfession);
+    void				sendStartingMails(void);
 
-		PlayerObject*		mPlayerObject;
+private:
+    void				tutorialResponseReset(BString tutorialEventString);
+    uint64				getSkillTrainerTypeId(BString startingProfession);
 
-		// scripting
-		ScriptList			mPlayerScripts;
-		ScriptEventListener	mCmdScriptListener;
+    PlayerObject*		mPlayerObject;
 
-		// state
-		uint32				mState;
-		uint32				mSubState;
-		BString				mStartingProfession;
+    // scripting
+    ScriptList			mPlayerScripts;
+    ScriptEventListener	mCmdScriptListener;
 
-		bool				mZoomCamera;
-		bool				mChatBox;
-		bool				mFoodSelected;
-		bool				mFoodUsed;
-		bool				mCloneDataSaved;
-		bool				mItemsInsured;
-		bool				mCloseHolocron;
-		bool				mChangeLookAtTarget;
-		bool				mOpenInventory;
-		bool				mCloseInventory;
+    // state
+    uint32				mState;
+    uint32				mSubState;
+    BString				mStartingProfession;
 
-		uint64				mCellId;
-		// NPCObject*			mSpawnedNpc;
+    bool				mZoomCamera;
+    bool				mChatBox;
+    bool				mFoodSelected;
+    bool				mFoodUsed;
+    bool				mCloneDataSaved;
+    bool				mItemsInsured;
+    bool				mCloseHolocron;
+    bool				mChangeLookAtTarget;
+    bool				mOpenInventory;
+    bool				mCloseInventory;
 
-		bool				mNpcConversationStarted;
-		bool				mNpcConversationEnded;
-		uint64				mNpcConversationId;
+    uint64				mCellId;
+    // NPCObject*			mSpawnedNpc;
 
-		bool				mContainerIsOpen;
-		bool				mContainerIsClosed;
-		bool				mHasTransfered;
+    bool				mNpcConversationStarted;
+    bool				mNpcConversationEnded;
+    uint64				mNpcConversationId;
 
-		uint32				mContainerTransferredItemCount;
-		uint64				mContainerEventId;
-		uint32				mQuestWeaponFamily;
-		uint32				mQuestWeaponType;
+    bool				mContainerIsOpen;
+    bool				mContainerIsClosed;
+    bool				mHasTransfered;
+
+    uint32				mContainerTransferredItemCount;
+    uint64				mContainerEventId;
+    uint32				mQuestWeaponFamily;
+    uint32				mQuestWeaponType;
 
 };
 //=============================================================================

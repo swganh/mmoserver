@@ -47,151 +47,154 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 Database::Database(DBType type, char* host, uint16 port, char* user, char* pass, char* schema) :
-mDatabaseType(type),
-mDataBindingFactory(0),
-mDatabaseImplementation(0),
-mJobPool(sizeof(DatabaseJob)),
-mTransactionPool(sizeof(Transaction))
+    mDatabaseType(type),
+    mDataBindingFactory(0),
+    mDatabaseImplementation(0),
+    mJobPool(sizeof(DatabaseJob)),
+    mTransactionPool(sizeof(Transaction))
 {
-  // Create and startup our factorys
-  mDataBindingFactory = new DataBindingFactory();
+    // Create and startup our factorys
+    mDataBindingFactory = new DataBindingFactory();
 
-  // Create our own DatabaseImplementation for synchronous queries
-  // Create our DBImplementation object
-	switch (mDatabaseType)
-	{
-		case DBTYPE_MYSQL:
-		{
-			mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(host, port, user, pass, schema));
-		}
-		break;
+    // Create our own DatabaseImplementation for synchronous queries
+    // Create our DBImplementation object
+    switch (mDatabaseType)
+    {
+    case DBTYPE_MYSQL:
+    {
+        mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(host, port, user, pass, schema));
+    }
+    break;
 
-		default:break;
-	}
+    default:
+        break;
+    }
 
-  // Create our worker threads and put them in the idle queue
-  mMinThreads = gConfig->read<uint32>("DBMinThreads");
-  mMaxThreads = gConfig->read<uint32>("DBMaxThreads");
-  DatabaseWorkerThread* newWorker = 0;
-  for (uint32 i = 0; i < mMinThreads; i++)
-  {
-    newWorker = new DatabaseWorkerThread(mDatabaseType, this, host, port, user, pass, schema);
+    // Create our worker threads and put them in the idle queue
+    mMinThreads = gConfig->read<uint32>("DBMinThreads");
+    mMaxThreads = gConfig->read<uint32>("DBMaxThreads");
+    DatabaseWorkerThread* newWorker = 0;
+    for (uint32 i = 0; i < mMinThreads; i++)
+    {
+        newWorker = new DatabaseWorkerThread(mDatabaseType, this, host, port, user, pass, schema);
 
-    pushIdleWorker(newWorker);
-  }
+        pushIdleWorker(newWorker);
+    }
 }
 
 
 //======================================================================================================================
 Database::~Database(void)
 {
-	DatabaseWorkerThread* worker = 0;
+    DatabaseWorkerThread* worker = 0;
 
-	while(mWorkerIdleQueue.size())
-	{
-		worker = mWorkerIdleQueue.pop();
-		delete(worker);
-	}
+    while(mWorkerIdleQueue.size())
+    {
+        worker = mWorkerIdleQueue.pop();
+        delete(worker);
+    }
 
-	//shutdown local implementation
-	delete(mDatabaseImplementation);
+    //shutdown local implementation
+    delete(mDatabaseImplementation);
 
-	// Shutdown our factories and destroy them.
-	delete(mDataBindingFactory);
+    // Shutdown our factories and destroy them.
+    delete(mDataBindingFactory);
 }
 
 //======================================================================================================================
 
 void Database::Process(void)
 {
-	DatabaseWorkerThread* worker = 0;
-	DatabaseJob* job = 0;
+    DatabaseWorkerThread* worker = 0;
+    DatabaseJob* job = 0;
 
-	// Check to see if we have an idle worker, and a job to give it.
-	if(mWorkerIdleQueue.size() && mJobPendingQueue.size())
-	{
-		// Pop the worker and job off thier queues.
-		worker	= mWorkerIdleQueue.pop();
-		job		= mJobPendingQueue.pop();
+    // Check to see if we have an idle worker, and a job to give it.
+    if(mWorkerIdleQueue.size() && mJobPendingQueue.size())
+    {
+        // Pop the worker and job off thier queues.
+        worker	= mWorkerIdleQueue.pop();
+        job		= mJobPendingQueue.pop();
 
-		// Hand The job to the worker.
-		worker->ExecuteJob(job);
-	}
+        // Hand The job to the worker.
+        worker->ExecuteJob(job);
+    }
 
-	// Now process any completed jobs.
-	uint32 completedCount = mJobCompleteQueue.size();
+    // Now process any completed jobs.
+    uint32 completedCount = mJobCompleteQueue.size();
 
-	for (uint32 i = 0; i < completedCount; i++)
-	{
-		// pop a job
-		job = mJobCompleteQueue.pop();
+    for (uint32 i = 0; i < completedCount; i++)
+    {
+        // pop a job
+        job = mJobCompleteQueue.pop();
 
-		// let our client handle the result, if theres a callback
-		if(job && job->getCallback())
-		{
-			job->getCallback()->handleDatabaseJobComplete(job->getClientReference(), job->getDatabaseResult());
-		}
+        // let our client handle the result, if theres a callback
+        if(job && job->getCallback())
+        {
+            job->getCallback()->handleDatabaseJobComplete(job->getClientReference(), job->getDatabaseResult());
+        }
 
-		// Free the result and the job
-		this->DestroyResult(job->getDatabaseResult());
+        // Free the result and the job
+        this->DestroyResult(job->getDatabaseResult());
 
-		mJobPool.ordered_free(job);
-	}
+        mJobPool.ordered_free(job);
+    }
 }
 //======================================================================================================================
 int Database::GetCount(const int8* tablename)
 {
-	int8    sql[100];
-	sprintf(sql, "SELECT COUNT(*) FROM %s;",tablename);
-	return GetSingleValueSync(sql);
+    int8    sql[100];
+    sprintf(sql, "SELECT COUNT(*) FROM %s;",tablename);
+    return GetSingleValueSync(sql);
 }
 //======================================================================================================================
 int Database::GetSingleValueSync(const int8* sql)
 {
-	uint32 value = 0;
-	DatabaseResult* result = ExecuteSql(sql);
-	
-	DataBinding* bind = CreateDataBinding(1);
-	bind->addField(DFT_uint32,0,4,0);
-	result->GetNextRow(bind,&value);
-	DestroyResult(result);
-	if(bind) SAFE_DELETE(bind);
-	return value;
+    uint32 value = 0;
+    DatabaseResult* result = ExecuteSql(sql);
+
+    DataBinding* bind = CreateDataBinding(1);
+    bind->addField(DFT_uint32,0,4,0);
+    result->GetNextRow(bind,&value);
+    DestroyResult(result);
+    if(bind) SAFE_DELETE(bind);
+    return value;
 }
 //======================================================================================================================
 DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 {
-	// format our sql string
-	va_list args;
-	va_start(args, sql);
-	int8    localSql[8192];
-	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
-	#if !defined(_DEBUG)
-	#endif
+    // format our sql string
+    va_list args;
+    va_start(args, sql);
+    int8    localSql[8192];
+    /*int32 len = */
+    vsnprintf(localSql, sizeof(localSql), sql, args);
+#if !defined(_DEBUG)
+#endif
 
-	int8 message[8192];
-	sprintf(message, "SYNCHRONOUS SQL STATEMENT: %s",localSql);
-	gLogger->logS(LogManager::DEBUG,(LOG_CHANNEL_FILE | LOG_CHANNEL_SYSLOG), message);
+    int8 message[8192];
+    sprintf(message, "SYNCHRONOUS SQL STATEMENT: %s",localSql);
+    gLogger->logS(LogManager::DEBUG,(LOG_CHANNEL_FILE | LOG_CHANNEL_SYSLOG), message);
 
-	va_end(args);
-	return ExecuteSql(localSql);
+    va_end(args);
+    return ExecuteSql(localSql);
 }
 DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
 {
 
-	DatabaseResult* newResult = 0;
+    DatabaseResult* newResult = 0;
 
-	// format our sql string
-	va_list args;
-	va_start(args, sql);
-	int8    localSql[8192];
-	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
+    // format our sql string
+    va_list args;
+    va_start(args, sql);
+    int8    localSql[8192];
+    /*int32 len = */
+    vsnprintf(localSql, sizeof(localSql), sql, args);
 
-	// Run our query and return our result set.
-	newResult = mDatabaseImplementation->ExecuteSql(localSql);
+    // Run our query and return our result set.
+    newResult = mDatabaseImplementation->ExecuteSql(localSql);
 
-	va_end(args);
-	return newResult;
+    va_end(args);
+    return newResult;
 }
 
 
@@ -199,23 +202,24 @@ DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
 
 void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...)
 {
-	// format our sql string
-	va_list args;
-	va_start(args, sql);
-	int8    localSql[20192];
-	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
+    // format our sql string
+    va_list args;
+    va_start(args, sql);
+    int8    localSql[20192];
+    /*int32 len = */
+    vsnprintf(localSql, sizeof(localSql), sql, args);
 
-	// Setup our job.
-	DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
-	job->setCallback(callback);
-	job->setClientReference(ref);
-	job->setSql(localSql);
-	job->setMultiJob(false);
+    // Setup our job.
+    DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
+    job->setCallback(callback);
+    job->setClientReference(ref);
+    job->setSql(localSql);
+    job->setMultiJob(false);
 
-	// Add the job to our processList;
-	mJobPendingQueue.push(job);
+    // Add the job to our processList;
+    mJobPendingQueue.push(job);
 
-	va_end(args);
+    va_end(args);
 }
 
 //the reasoning behind this is the following
@@ -228,39 +232,40 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8
 //sch
 void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql)
 {
-	int8    localSql[20192];
+    int8    localSql[20192];
 
-	sprintf(localSql,"%s", sql);
+    sprintf(localSql,"%s", sql);
 
-	// Setup our job.
-	DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
-	job->setCallback(callback);
-	job->setClientReference(ref);
-	job->setSql(localSql);
-	job->setMultiJob(false);
+    // Setup our job.
+    DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
+    job->setCallback(callback);
+    job->setClientReference(ref);
+    job->setSql(localSql);
+    job->setMultiJob(false);
 
-	// Add the job to our processList;
-	mJobPendingQueue.push(job);
+    // Add the job to our processList;
+    mJobPendingQueue.push(job);
 }
 //======================================================================================================================
 
 DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
 {
-	DatabaseResult* newResult = 0;
+    DatabaseResult* newResult = 0;
 
-	// format our sql string
-	va_list args;
-	va_start(args, sql);
-	int8    localSql[20192];
-	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
-	//int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
+    // format our sql string
+    va_list args;
+    va_start(args, sql);
+    int8    localSql[20192];
+    /*int32 len = */
+    vsnprintf(localSql, sizeof(localSql), sql, args);
+    //int32 len = vsnprintf(localSql, sizeof(localSql), sql, args);
 
-	// Run our query and return our result set.
-	newResult = mDatabaseImplementation->ExecuteSql(localSql,true);
+    // Run our query and return our result set.
+    newResult = mDatabaseImplementation->ExecuteSql(localSql,true);
 
-	va_end(args);
+    va_end(args);
 
-	return newResult;
+    return newResult;
 }
 
 
@@ -268,70 +273,71 @@ DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
 
 void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...)
 {
-	// format our sql string
-	va_list args;
-	va_start(args, sql);
-	int8    localSql[20192];
-	/*int32 len = */vsnprintf(localSql, sizeof(localSql), sql, args);
+    // format our sql string
+    va_list args;
+    va_start(args, sql);
+    int8    localSql[20192];
+    /*int32 len = */
+    vsnprintf(localSql, sizeof(localSql), sql, args);
 
-	// Setup our job.
-	DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
-	job->setCallback(callback);
-	job->setClientReference(ref);
-	job->setSql(localSql);
-	job->setMultiJob(true);
+    // Setup our job.
+    DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
+    job->setCallback(callback);
+    job->setClientReference(ref);
+    job->setSql(localSql);
+    job->setMultiJob(true);
 
-	// Add the job to our processList
-	mJobPendingQueue.push(job);
+    // Add the job to our processList
+    mJobPendingQueue.push(job);
 
-	va_end(args);
+    va_end(args);
 }
 
 //======================================================================================================================
 
 void Database::DestroyResult(DatabaseResult* result)
 {
-	DatabaseWorkerThread* worker = mDatabaseImplementation->DestroyResult(result);
+    DatabaseWorkerThread* worker = mDatabaseImplementation->DestroyResult(result);
 
-	if(worker)
-	{
-		pushIdleWorker(worker);
-	}
+    if(worker)
+    {
+        pushIdleWorker(worker);
+    }
 }
 
 
 //======================================================================================================================
 DataBinding* Database::CreateDataBinding(uint16 fieldCount)
 {
-  return mDataBindingFactory->CreateDataBinding(fieldCount);
+    return mDataBindingFactory->CreateDataBinding(fieldCount);
 }
 
 
 //======================================================================================================================
 void  Database::DestroyDataBinding(DataBinding* binding)
 {
-  mDataBindingFactory->DestroyDataBinding(binding);
+    mDataBindingFactory->DestroyDataBinding(binding);
 }
 
 //======================================================================================================================
 
 uint32 Database::Escape_String(int8* target,const int8* source,uint32 length)
 {
-	return(mDatabaseImplementation->Escape_String(target,source,length));
+    return(mDatabaseImplementation->Escape_String(target,source,length));
 }
 
 //======================================================================================================================
 
 Transaction* Database::startTransaction(DatabaseCallback* callback, void* ref)
 {
-	return(new(mTransactionPool.ordered_malloc()) Transaction(this,callback,ref));
+    return(new(mTransactionPool.ordered_malloc()) Transaction(this,callback,ref));
 }
 
 //======================================================================================================================
 
 void Database::destroyTransaction(Transaction* t)
 {
-	mTransactionPool.ordered_free(t);
+    mTransactionPool.ordered_free(t);
 }
 
 
@@ -339,7 +345,7 @@ void Database::destroyTransaction(Transaction* t)
 
 bool Database::releaseResultPoolMemory()
 {
-	return(mDatabaseImplementation->releaseResultPoolMemory());
+    return(mDatabaseImplementation->releaseResultPoolMemory());
 }
 
 //======================================================================================================================

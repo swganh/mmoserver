@@ -49,30 +49,30 @@ ConfigManager::ConfigManager(const std::string& name)
 
 ConfigManager*	ConfigManager::Init(const std::string& name)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new ConfigManager(name);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new ConfigManager(name);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //======================================================================================================================
 
 ConfigManager::~ConfigManager()
 {
-	mInsFlag = false;
-	SAFE_DELETE(mConfigFile);
-	//SAFE_DELETE(mSingleton);
+    mInsFlag = false;
+    SAFE_DELETE(mConfigFile);
+    //SAFE_DELETE(mSingleton);
 }
 
 //======================================================================================================================
 
 std::string ConfigManager::getBuildString(void)
 {
-	return GetBuildString();
+    return GetBuildString();
 }
 
 
@@ -80,14 +80,14 @@ std::string ConfigManager::getBuildString(void)
 
 std::string ConfigManager::getBuildNumber(void)
 {
-	return GetBuildNumber();
+    return GetBuildNumber();
 }
 
 //======================================================================================================================
 
 std::string ConfigManager::getBuildTime(void)
 {
-	return GetBuildTime();
+    return GetBuildTime();
 }
 
 //======================================================================================================================

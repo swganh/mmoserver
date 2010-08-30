@@ -46,10 +46,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 
 ClientManager::ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch) :
-mClientService(service),
-mDatabase(database),
-mMessageRouter(router),
-mConnectionDispatch(dispatch)
+    mClientService(service),
+    mDatabase(database),
+    mMessageRouter(router),
+    mConnectionDispatch(dispatch)
 {
     // Set our member variables
     mMessageRouter->setClientManager(this);
@@ -193,278 +193,278 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
 
 void ClientManager::handleSessionMessage(NetworkClient* client, Message* message)
 {
-  ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
+    ConnectionClient* connClient = reinterpret_cast<ConnectionClient*>(client);
 
-  // Assign our account info to this message, then route it.
-  message->setAccountId(connClient->getAccountId());
+    // Assign our account info to this message, then route it.
+    message->setAccountId(connClient->getAccountId());
 
-  // Dispatch this message to the router
-  mMessageRouter->RouteMessage(message, connClient);
+    // Dispatch this message to the router
+    mMessageRouter->RouteMessage(message, connClient);
 }
 
 //======================================================================================================================
 
 void ClientManager::handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client)
 {
-  switch(opcode)
-  {
-  case opClientIdMsg:
+    switch(opcode)
     {
-      _processClientIdMsg(client, message);
-      break;
-    }
-  case opSelectCharacter:
+    case opClientIdMsg:
     {
-      _processSelectCharacter(client, message);
-      break;
+        _processClientIdMsg(client, message);
+        break;
     }
-  case opClusterZoneTransferCharacter:
+    case opSelectCharacter:
     {
-      _processClusterZoneTransferCharacter(client, message);
-      break;
+        _processSelectCharacter(client, message);
+        break;
     }
-  }
+    case opClusterZoneTransferCharacter:
+    {
+        _processClusterZoneTransferCharacter(client, message);
+        break;
+    }
+    }
 }
 
 
 //======================================================================================================================
 void ClientManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
-  // This assumes only authentication calls are async right now.  Will change as needed.
-  ConnectionClient* client = reinterpret_cast<ConnectionClient*>(ref);
+    // This assumes only authentication calls are async right now.  Will change as needed.
+    ConnectionClient* client = reinterpret_cast<ConnectionClient*>(ref);
 
-  switch (client->getState())
-  {
-  case CCSTATE_QueryAuth:
+    switch (client->getState())
     {
-      _handleQueryAuth(client, result);
-      break;
+    case CCSTATE_QueryAuth:
+    {
+        _handleQueryAuth(client, result);
+        break;
     }
     case CCSTATE_AllowedChars:
-        {
-            struct charsCurrentAllowed {
-                uint32  currentChars;
-                uint32	charsAllowed;
-            } charsStruct;
+    {
+        struct charsCurrentAllowed {
+            uint32  currentChars;
+            uint32	charsAllowed;
+        } charsStruct;
 
-            DataBinding* binding = mDatabase->CreateDataBinding(2);
-            binding->addField(DFT_int32,offsetof(charsCurrentAllowed, currentChars), 4, 0);
-            binding->addField(DFT_int32,offsetof(charsCurrentAllowed, charsAllowed), 4, 1);
-            
-            result->GetNextRow(binding,&charsStruct);
-            client->setCharsAllowed(charsStruct.charsAllowed);
-            client->setCurrentChars(charsStruct.currentChars);
-            
-            client->setState(CCSTATE_QueryAuth);
-            mDatabase->DestroyDataBinding(binding);
-            break;
-        }
-  default:
-    break;
-  }
+        DataBinding* binding = mDatabase->CreateDataBinding(2);
+        binding->addField(DFT_int32,offsetof(charsCurrentAllowed, currentChars), 4, 0);
+        binding->addField(DFT_int32,offsetof(charsCurrentAllowed, charsAllowed), 4, 1);
+
+        result->GetNextRow(binding,&charsStruct);
+        client->setCharsAllowed(charsStruct.charsAllowed);
+        client->setCurrentChars(charsStruct.currentChars);
+
+        client->setState(CCSTATE_QueryAuth);
+        mDatabase->DestroyDataBinding(binding);
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 
 //======================================================================================================================
 void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* message)
 {
-  // We only need the account data that is at the end of the message.
-  message->getUint32();  // unknown.
-  uint32 dataSize = message->getUint32();
-  message->setIndex(message->getIndex() + (uint16)dataSize - 4);
-  client->setAccountId(message->getUint32());
+    // We only need the account data that is at the end of the message.
+    message->getUint32();  // unknown.
+    uint32 dataSize = message->getUint32();
+    message->setIndex(message->getIndex() + (uint16)dataSize - 4);
+    client->setAccountId(message->getUint32());
 
-  _processAllowedChars(this, client);
+    _processAllowedChars(this, client);
 }
 
 //======================================================================================================================
 void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* message)
 {
-  uint64 characterId = message->getUint64();
+    uint64 characterId = message->getUint64();
 
-  DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM characters WHERE id=%I64u;", characterId);
-  gLogger->log(LogManager::DEBUG, "SQL :: SELECT planet_id FROM characters WHERE id=%I64u;", characterId); // SQL Debug Log
+    DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM characters WHERE id=%I64u;", characterId);
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT planet_id FROM characters WHERE id=%I64u;", characterId); // SQL Debug Log
 
-  uint32 serverId;
-  DataBinding* binding = mDatabase->CreateDataBinding(1);
-  binding->addField(DFT_uint32, 0, 4);
-  result->GetNextRow(binding, &serverId);
+    uint32 serverId;
+    DataBinding* binding = mDatabase->CreateDataBinding(1);
+    binding->addField(DFT_uint32, 0, 4);
+    result->GetNextRow(binding, &serverId);
 
-  client->setServerId(serverId + 8);  // server ids for zones are planetId + 8;
+    client->setServerId(serverId + 8);  // server ids for zones are planetId + 8;
 
-  mDatabase->DestroyDataBinding(binding);
-  mDatabase->DestroyResult(result);
+    mDatabase->DestroyDataBinding(binding);
+    mDatabase->DestroyResult(result);
 
-  // send an opClusterClientConnect message to zone server.
-  gMessageFactory->StartMessage();
-  gMessageFactory->addUint32(opClusterClientConnect);
-  gMessageFactory->addUint64(characterId);
-  Message* zoneMessage = gMessageFactory->EndMessage();
+    // send an opClusterClientConnect message to zone server.
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opClusterClientConnect);
+    gMessageFactory->addUint64(characterId);
+    Message* zoneMessage = gMessageFactory->EndMessage();
 
-  // This one goes to the ZoneServer the client is currently on.
-  zoneMessage->setAccountId(client->getAccountId());
-  zoneMessage->setDestinationId(static_cast<uint8>(serverId + 8));
-  zoneMessage->setRouted(true);
-  mMessageRouter->RouteMessage(zoneMessage, client);
+    // This one goes to the ZoneServer the client is currently on.
+    zoneMessage->setAccountId(client->getAccountId());
+    zoneMessage->setDestinationId(static_cast<uint8>(serverId + 8));
+    zoneMessage->setRouted(true);
+    mMessageRouter->RouteMessage(zoneMessage, client);
 
-  // send an opClusterClientConnect message to chat server.
-  gMessageFactory->StartMessage();
-  gMessageFactory->addUint32(opClusterClientConnect);
-  gMessageFactory->addUint64(characterId);
-  gMessageFactory->addUint32(serverId);
-  Message* chatMessage = gMessageFactory->EndMessage();
+    // send an opClusterClientConnect message to chat server.
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opClusterClientConnect);
+    gMessageFactory->addUint64(characterId);
+    gMessageFactory->addUint32(serverId);
+    Message* chatMessage = gMessageFactory->EndMessage();
 
-  // This one goes to the ChatServer
-  chatMessage->setAccountId(client->getAccountId());
-  chatMessage->setDestinationId(CR_Chat);
-  chatMessage->setRouted(true);
-  mMessageRouter->RouteMessage(chatMessage, client);
+    // This one goes to the ChatServer
+    chatMessage->setAccountId(client->getAccountId());
+    chatMessage->setDestinationId(CR_Chat);
+    chatMessage->setRouted(true);
+    mMessageRouter->RouteMessage(chatMessage, client);
 
-  // Now send the SelectCharacter message off to the zone server.
-  gMessageFactory->StartMessage();
-  gMessageFactory->addData(message->getData(), message->getSize());
-  Message* selectMessage = gMessageFactory->EndMessage();
+    // Now send the SelectCharacter message off to the zone server.
+    gMessageFactory->StartMessage();
+    gMessageFactory->addData(message->getData(), message->getSize());
+    Message* selectMessage = gMessageFactory->EndMessage();
 
-  selectMessage->setAccountId(client->getAccountId());
-  selectMessage->setDestinationId(static_cast<uint8>(serverId + 8));
-  selectMessage->setRouted(true);
-  mMessageRouter->RouteMessage(selectMessage, client);
+    selectMessage->setAccountId(client->getAccountId());
+    selectMessage->setDestinationId(static_cast<uint8>(serverId + 8));
+    selectMessage->setRouted(true);
+    mMessageRouter->RouteMessage(selectMessage, client);
 }
 
 
 //======================================================================================================================
 void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* client, Message* message)
 {
-  uint64 characterId = message->getUint64();
-  uint32 newPlanetId = message->getUint32();
-  uint32 oldServerId = 0;
+    uint64 characterId = message->getUint64();
+    uint32 newPlanetId = message->getUint32();
+    uint32 oldServerId = 0;
 
-  // Update our client
+    // Update our client
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
-  PlayerClientMap::iterator iter;
-  iter = mPlayerClientMap.find(message->getAccountId());
-  if (iter != mPlayerClientMap.end())
-  {
-    ConnectionClient* connClient = (*iter).second;
+    PlayerClientMap::iterator iter;
+    iter = mPlayerClientMap.find(message->getAccountId());
+    if (iter != mPlayerClientMap.end())
+    {
+        ConnectionClient* connClient = (*iter).second;
 
-    oldServerId = connClient->getServerId();
-    connClient->setServerId(newPlanetId + 8);
+        oldServerId = connClient->getServerId();
+        connClient->setServerId(newPlanetId + 8);
 
-    // send an opClusterClientDisconnnect message to the old zone server.
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opClusterClientDisconnect);
-    gMessageFactory->addUint32(1);                        // Reason: Zone transfer
-    Message* oldZoneMessage = gMessageFactory->EndMessage();
+        // send an opClusterClientDisconnnect message to the old zone server.
+        gMessageFactory->StartMessage();
+        gMessageFactory->addUint32(opClusterClientDisconnect);
+        gMessageFactory->addUint32(1);                        // Reason: Zone transfer
+        Message* oldZoneMessage = gMessageFactory->EndMessage();
 
-    // This one goes to
-    oldZoneMessage->setAccountId(connClient->getAccountId());
-    oldZoneMessage->setDestinationId(static_cast<uint8>(oldServerId));        // zoneIds are planetIds + 8
-    oldZoneMessage->setRouted(true);
-    mMessageRouter->RouteMessage(oldZoneMessage, client);
+        // This one goes to
+        oldZoneMessage->setAccountId(connClient->getAccountId());
+        oldZoneMessage->setDestinationId(static_cast<uint8>(oldServerId));        // zoneIds are planetIds + 8
+        oldZoneMessage->setRouted(true);
+        mMessageRouter->RouteMessage(oldZoneMessage, client);
 
 
-    // send an opClusterClientConnect message to the new zone server.
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opClusterClientConnect);
-    Message* newZoneMessage = gMessageFactory->EndMessage();
+        // send an opClusterClientConnect message to the new zone server.
+        gMessageFactory->StartMessage();
+        gMessageFactory->addUint32(opClusterClientConnect);
+        Message* newZoneMessage = gMessageFactory->EndMessage();
 
-    // This one goes to
-    newZoneMessage->setAccountId(connClient->getAccountId());
-    newZoneMessage->setDestinationId(static_cast<uint8>(newPlanetId + 8));   // zoneIds are planetIds + 8
-    newZoneMessage->setRouted(true);
-    mMessageRouter->RouteMessage(newZoneMessage, client);
+        // This one goes to
+        newZoneMessage->setAccountId(connClient->getAccountId());
+        newZoneMessage->setDestinationId(static_cast<uint8>(newPlanetId + 8));   // zoneIds are planetIds + 8
+        newZoneMessage->setRouted(true);
+        mMessageRouter->RouteMessage(newZoneMessage, client);
 
-    // send an opSelectCharacter message to the new zone server.
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opSelectCharacter);
-    gMessageFactory->addUint64(characterId);
-    newZoneMessage = gMessageFactory->EndMessage();
+        // send an opSelectCharacter message to the new zone server.
+        gMessageFactory->StartMessage();
+        gMessageFactory->addUint32(opSelectCharacter);
+        gMessageFactory->addUint64(characterId);
+        newZoneMessage = gMessageFactory->EndMessage();
 
-    // This one goes to
-    newZoneMessage->setAccountId(connClient->getAccountId());
-    newZoneMessage->setDestinationId(static_cast<uint8>(newPlanetId + 8));   // zoneIds are planetIds + 8
-    newZoneMessage->setRouted(true);
-    mMessageRouter->RouteMessage(newZoneMessage, client);
+        // This one goes to
+        newZoneMessage->setAccountId(connClient->getAccountId());
+        newZoneMessage->setDestinationId(static_cast<uint8>(newPlanetId + 8));   // zoneIds are planetIds + 8
+        newZoneMessage->setRouted(true);
+        mMessageRouter->RouteMessage(newZoneMessage, client);
 
-    // notify the chatserver
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opClusterZoneTransferCharacter);
-    gMessageFactory->addUint32(newPlanetId);
-    newZoneMessage = gMessageFactory->EndMessage();
+        // notify the chatserver
+        gMessageFactory->StartMessage();
+        gMessageFactory->addUint32(opClusterZoneTransferCharacter);
+        gMessageFactory->addUint32(newPlanetId);
+        newZoneMessage = gMessageFactory->EndMessage();
 
-    newZoneMessage->setAccountId(message->getAccountId());
-    newZoneMessage->setDestinationId(CR_Chat);
-    newZoneMessage->setRouted(true);
-    mMessageRouter->RouteMessage(newZoneMessage,client);
-  }
-  else
-  {
-    // client may have disconnected right in the middle of the transfer
-    gLogger->log(LogManager::WARNING,"Client not found during zone transfer.\n");
-  }
+        newZoneMessage->setAccountId(message->getAccountId());
+        newZoneMessage->setDestinationId(CR_Chat);
+        newZoneMessage->setRouted(true);
+        mMessageRouter->RouteMessage(newZoneMessage,client);
+    }
+    else
+    {
+        // client may have disconnected right in the middle of the transfer
+        gLogger->log(LogManager::WARNING,"Client not found during zone transfer.\n");
+    }
 }
 
 
 //======================================================================================================================
 void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* result)
 {
-  // If there are any results, this account is properly authenticated.
-  if (result->getRowCount())
-  {
-    // Update the account record that it is now logged in and last login date.
+    // If there are any results, this account is properly authenticated.
+    if (result->getRowCount())
+    {
+        // Update the account record that it is now logged in and last login date.
 
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
-     
-    // finally add them to our accountId map.
-    boost::recursive_mutex::scoped_lock lk(mServiceMutex);
-    mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));
-    lk.unlock();
+        mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
 
-    // send an opClusterClientConnect message to admin server.
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opClusterClientConnect);
-    gMessageFactory->addUint64(0);        //We don't have a characterId yet.
-    Message* adminMessage = gMessageFactory->EndMessage();
+        // finally add them to our accountId map.
+        boost::recursive_mutex::scoped_lock lk(mServiceMutex);
+        mPlayerClientMap.insert(std::make_pair(client->getAccountId(), client));
+        lk.unlock();
 
-    // This one goes to the AdminServer
-    adminMessage->setAccountId(client->getAccountId());
-    adminMessage->setDestinationId(CR_Chat);
-    adminMessage->setRouted(true);
-    mMessageRouter->RouteMessage(adminMessage, client);
+        // send an opClusterClientConnect message to admin server.
+        gMessageFactory->StartMessage();
+        gMessageFactory->addUint32(opClusterClientConnect);
+        gMessageFactory->addUint64(0);        //We don't have a characterId yet.
+        Message* adminMessage = gMessageFactory->EndMessage();
 
-    gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opClientPermissionsMessage);
-    gMessageFactory->addUint8(1);             // Galaxy Available
+        // This one goes to the AdminServer
+        adminMessage->setAccountId(client->getAccountId());
+        adminMessage->setDestinationId(CR_Chat);
+        adminMessage->setRouted(true);
+        mMessageRouter->RouteMessage(adminMessage, client);
 
-    // Checks the Clients Characters allowed against how many they have and sends the flag accordingly for char creation Also checks Unlimited Char Creation
-    if (client->getCharsAllowed() > client->getCurrentChars() && client->getCharsAllowed() != 0){
-        gMessageFactory->addUint8(1);             // Character creation allowed
-        gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
+        gMessageFactory->StartMessage();
+        gMessageFactory->addUint32(opClientPermissionsMessage);
+        gMessageFactory->addUint8(1);             // Galaxy Available
+
+        // Checks the Clients Characters allowed against how many they have and sends the flag accordingly for char creation Also checks Unlimited Char Creation
+        if (client->getCharsAllowed() > client->getCurrentChars() && client->getCharsAllowed() != 0) {
+            gMessageFactory->addUint8(1);             // Character creation allowed
+            gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
+        }
+        else if(client->getCharsAllowed() < client->getCurrentChars() && client->getCharsAllowed() != 0) {
+            gMessageFactory->addUint8(0);             // Character creation disabled
+            gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
+        }
+        else if(client->getCharsAllowed() == 0) {
+            gMessageFactory->addUint8(1);             // Character creation allowed
+            gMessageFactory->addUint8(1);             // Unlimited Character Creation Flag DISABLED
+        }
+        else {
+            gMessageFactory->addUint8(0);             // Character creation disabled
+            gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
+        }
+        Message* message = gMessageFactory->EndMessage();
+
+        // Send our message to the client.
+        client->SendChannelA(message, 4, false);
     }
-    else if(client->getCharsAllowed() < client->getCurrentChars() && client->getCharsAllowed() != 0){
-        gMessageFactory->addUint8(0);             // Character creation disabled
-        gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
+    // They are not authenticated to the login server, so disconnect them.
+    else
+    {
+        client->Disconnect(10);  // no idea if 10 is even a valid reason, just testing.
     }
-    else if(client->getCharsAllowed() == 0){
-        gMessageFactory->addUint8(1);             // Character creation allowed
-        gMessageFactory->addUint8(1);             // Unlimited Character Creation Flag DISABLED
-    }
-    else {
-        gMessageFactory->addUint8(0);             // Character creation disabled
-        gMessageFactory->addUint8(0);             // Unlimited Character Creation Flag DISABLED
-    }
-    Message* message = gMessageFactory->EndMessage();
 
-    // Send our message to the client.
-    client->SendChannelA(message, 4, false);
-  }
-  // They are not authenticated to the login server, so disconnect them.
-  else
-  {
-    client->Disconnect(10);  // no idea if 10 is even a valid reason, just testing.
-  }
-  
 }
 void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
 {

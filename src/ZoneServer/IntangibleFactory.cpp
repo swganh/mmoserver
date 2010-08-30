@@ -46,21 +46,21 @@ IntangibleFactory*		IntangibleFactory::mSingleton  = NULL;
 
 IntangibleFactory*	IntangibleFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new IntangibleFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new IntangibleFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 
 IntangibleFactory::IntangibleFactory(Database* database) : FactoryBase(database)
 {
-	mVehicleControllerFactory = VehicleControllerFactory::Init(mDatabase);
+    mVehicleControllerFactory = VehicleControllerFactory::Init(mDatabase);
 }
 
 
@@ -69,22 +69,22 @@ IntangibleFactory::IntangibleFactory(Database* database) : FactoryBase(database)
 
 IntangibleFactory::~IntangibleFactory()
 {
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
 
 void IntangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mVehicleControllerFactory->requestObject(ofCallback,id,subGroup,subType,client);
+    mVehicleControllerFactory->requestObject(ofCallback,id,subGroup,subType,client);
 }
 
 //=============================================================================
 
 void IntangibleFactory::releaseAllPoolsMemory()
 {
-	mVehicleControllerFactory->releaseQueryContainerPoolMemory();
+    mVehicleControllerFactory->releaseQueryContainerPoolMemory();
 }
 
 //=============================================================================

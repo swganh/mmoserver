@@ -43,18 +43,18 @@ MissionObject::MissionObject() : Object(0,0,"object/mission/shared_mission_objec
 {
     mOwner				= NULL;
     mIssuingTerminal	= NULL;
-    mName				= "destroy_mission"; //default name common to all mission types		
-    mNameFile			= "mission/mission_object";		
+    mName				= "destroy_mission"; //default name common to all mission types
+    mNameFile			= "mission/mission_object";
     mDifficulty			= 0;
-    mCreator			= L"";		
+    mCreator			= L"";
     mReward				= 0;
-    mTargetModel		= 0;	
-    mDetailFile			= "";		
-    mDetail				= "";		
-    mTitleFile			= "";	
-    mTitle				= "";			
-    mRefreshCount		= 0;		
-    mMissionType		= 0;		
+    mTargetModel		= 0;
+    mDetailFile			= "";
+    mDetail				= "";
+    mTitleFile			= "";
+    mTitle				= "";
+    mRefreshCount		= 0;
+    mMissionType		= 0;
     mTarget				= "";
     mNum				= 0;
     external			= true;
@@ -68,7 +68,7 @@ MissionObject::MissionObject() : Object(0,0,"object/mission/shared_mission_objec
 
     mDestination.Coordinates = glm::vec3();
     mDestination.CellID = 0;
-    mDestination.PlanetCRC = 0;	
+    mDestination.PlanetCRC = 0;
     mDestinationNPC	 = NULL;
 
     mInProgress	= false;
@@ -78,26 +78,26 @@ MissionObject::MissionObject() : Object(0,0,"object/mission/shared_mission_objec
 //=============================================================================
 
 MissionObject::MissionObject(PlayerObject * owner, uint64 parent_id) : Object(
-        getNewMissionId(owner->getMissionIdMask(), owner->getId()), 
-        parent_id,	
+        getNewMissionId(owner->getMissionIdMask(), owner->getId()),
+        parent_id,
         "object/mission/shared_mission_object.iff",
         ObjType_Mission
     )
 {
     mOwner				= owner;
     mIssuingTerminal	= NULL;
-    mName				= "destroy_mission"; //default name common to all mission types	-- value = "dynmaic mission"	
-    mNameFile			= "mission/mission_object";		
+    mName				= "destroy_mission"; //default name common to all mission types	-- value = "dynmaic mission"
+    mNameFile			= "mission/mission_object";
     mDifficulty			= 0;
-    mCreator			= L"";		
+    mCreator			= L"";
     mReward				= 0;
-    mTargetModel		= 0;	
-    mDetailFile			= "";		
-    mDetail				= "";		
-    mTitleFile			= "";	
-    mTitle				= "";			
-    mRefreshCount		= 0;		
-    mMissionType		= 0;		
+    mTargetModel		= 0;
+    mDetailFile			= "";
+    mDetail				= "";
+    mTitleFile			= "";
+    mTitle				= "";
+    mRefreshCount		= 0;
+    mMissionType		= 0;
     mTarget				= "";
     mNum				= 0;
     external			= false;
@@ -112,7 +112,7 @@ MissionObject::MissionObject(PlayerObject * owner, uint64 parent_id) : Object(
 
     mDestination.Coordinates = glm::vec3();
     mDestination.CellID = 0;
-    mDestination.PlanetCRC = 0;	
+    mDestination.PlanetCRC = 0;
     mDestinationNPC	 = NULL;
 
     mInProgress	= false;
@@ -136,15 +136,15 @@ void MissionObject::clear()
 {
     mIssuingTerminal	= NULL;
     mDifficulty			= 0;
-    mCreator			= L"";		
+    mCreator			= L"";
     mReward				= 0;
-    mTargetModel		= 0;	
-    mDetailFile			= "";		
-    mDetail				= "";		
-    mTitleFile			= "";	
-    mTitle				= "";			
-    mRefreshCount		= 0;		
-    mMissionType		= 0;		
+    mTargetModel		= 0;
+    mDetailFile			= "";
+    mDetail				= "";
+    mTitleFile			= "";
+    mTitle				= "";
+    mRefreshCount		= 0;
+    mMissionType		= 0;
     mTarget				= "";
     mNum				= 0;
     mStart.Coordinates = glm::vec3();
@@ -154,12 +154,12 @@ void MissionObject::clear()
 
     mDestination.Coordinates = glm::vec3();
     mDestination.CellID = 0;
-    mDestination.PlanetCRC = 0;	
+    mDestination.PlanetCRC = 0;
     mDestinationNPC	= NULL;
 
     mInProgress		=	false;
 
-return;
+    return;
 }
 //=============================================================================
 
@@ -168,15 +168,15 @@ void MissionObject::sendAttributes(PlayerObject* playerObject)
 {
     if(playerObject->getConnectionState() != PlayerConnState_Connected)
         return;
-    
+
 
     Message*	message;
 
-    gMessageFactory->StartMessage();   
+    gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opAttributeListMessage);
     gMessageFactory->addUint64(mId);
     gMessageFactory->addInt32(4); //attrib count
-    
+
     //Description
     gMessageFactory->addString("description");
     char buff[255];//crude method but effective for using char %s to wchar_t buffer
@@ -187,7 +187,7 @@ void MissionObject::sendAttributes(PlayerObject* playerObject)
 
     //Creator
     gMessageFactory->addString("@ui_mission:table_creator");
-    BString str = mCreator; 
+    BString str = mCreator;
     str.convert(BSTRType_Unicode16);
     gMessageFactory->addString(str);
 
@@ -195,15 +195,15 @@ void MissionObject::sendAttributes(PlayerObject* playerObject)
     char meanBuff[255];
     gMessageFactory->addString("@ui_mission:table_payment");
     sprintf(meanBuff,"%d",mReward);
-    
-    str = meanBuff; 
+
+    str = meanBuff;
     str.convert(BSTRType_Unicode16);
     gMessageFactory->addString(str);
 
     //Difficulty
     gMessageFactory->addString("@ui_mission:table_difficulty");
     sprintf(meanBuff,"%d",mDifficulty);
-    str = meanBuff; 
+    str = meanBuff;
     str.convert(BSTRType_Unicode16);
 
     gMessageFactory->addString(str);
@@ -212,7 +212,7 @@ void MissionObject::sendAttributes(PlayerObject* playerObject)
 
     (playerObject->getClient())->SendChannelAUnreliable(message, playerObject->getAccountId(),CR_Client,8);
 
-return;
+    return;
 }
 //=============================================================================
 
@@ -223,7 +223,7 @@ return;
 */
 bool MissionObject::check(uint64 callTime, void *)
 {
-return gMissionManager->checkReconMission(this);
+    return gMissionManager->checkReconMission(this);
 }
 
 //=============================================================================

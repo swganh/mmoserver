@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace swg_protocol {
 
 namespace object_controller {
-    
+
 class SWGPROTOCOL_API PreCommandEvent : public ::common::BaseEvent {
 public:
     static const ::common::EventType type;
@@ -48,14 +48,14 @@ public:
     explicit PreCommandEvent(::common::ByteBuffer& in);
     explicit PreCommandEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0);
     PreCommandEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
-    
+
     ~PreCommandEvent();
 
     const ::common::EventType& event_type() const;
 
     uint64_t target_id() const;
     void target_id(uint64_t target_id);
-    
+
     uint32_t command_crc() const;
     void command_crc(uint32_t command_crc);
 
@@ -78,14 +78,14 @@ public:
     explicit PreCommandExecuteEvent(::common::ByteBuffer& in);
     explicit PreCommandExecuteEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0);
     PreCommandExecuteEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
-    
+
     ~PreCommandExecuteEvent();
 
     const ::common::EventType& event_type() const;
 
     uint64_t target_id() const;
     void target_id(uint64_t target_id);
-    
+
     uint32_t command_crc() const;
     void command_crc(uint32_t command_crc);
 
@@ -107,7 +107,7 @@ public:
     explicit PostCommandEvent(::common::ByteBuffer& in);
     explicit PostCommandEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0);
     PostCommandEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
-    
+
     ~PostCommandEvent();
 
     const ::common::EventType& event_type() const;

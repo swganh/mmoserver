@@ -44,111 +44,112 @@ QTRegionFactory*	QTRegionFactory::mSingleton  = NULL;
 
 QTRegionFactory* QTRegionFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new QTRegionFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new QTRegionFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 
 QTRegionFactory::QTRegionFactory(Database* database) : FactoryBase(database)
 {
-	_setupDatabindings();
+    _setupDatabindings();
 }
 
 //=============================================================================
 
 QTRegionFactory::~QTRegionFactory()
 {
-	_destroyDatabindings();
+    _destroyDatabindings();
 
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
 
 void QTRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
+    QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
 
-	switch(asyncContainer->mQueryType)
-	{
-		case QTRFQuery_MainData:
-		{
-			QTRegion* region = _createRegion(result);
+    switch(asyncContainer->mQueryType)
+    {
+    case QTRFQuery_MainData:
+    {
+        QTRegion* region = _createRegion(result);
 
-			if(region->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-				asyncContainer->mOfCallback->handleObjectReady(region,asyncContainer->mClient);
-			else
-			{
+        if(region->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
+            asyncContainer->mOfCallback->handleObjectReady(region,asyncContainer->mClient);
+        else
+        {
 
-			}
-		}
-		break;
+        }
+    }
+    break;
 
-		default:break;
-	}
+    default:
+        break;
+    }
 
-	mQueryContainerPool.free(asyncContainer);
+    mQueryContainerPool.free(asyncContainer);
 }
 
 //=============================================================================
 
 void QTRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,QTRFQuery_MainData,client),
-		"SELECT zone_regions.id,zone_regions.qtdepth,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-		"planet_regions.width,planet_regions.height"
-		" FROM zone_regions"
-		" INNER JOIN planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
-		" WHERE (zone_regions.id = %"PRIu64")",id);
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT zone_regions.id,zone_regions.qtdepth,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-		"planet_regions.width,planet_regions.height"
-		" FROM zone_regions"
-		" INNER JOIN planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
-		" WHERE (zone_regions.id = %"PRIu64")",id); // SQL Debug Log
+    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,QTRFQuery_MainData,client),
+                               "SELECT zone_regions.id,zone_regions.qtdepth,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+                               "planet_regions.width,planet_regions.height"
+                               " FROM zone_regions"
+                               " INNER JOIN planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
+                               " WHERE (zone_regions.id = %"PRIu64")",id);
+    gLogger->log(LogManager::DEBUG, "SQL :: SELECT zone_regions.id,zone_regions.qtdepth,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+                 "planet_regions.width,planet_regions.height"
+                 " FROM zone_regions"
+                 " INNER JOIN planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
+                 " WHERE (zone_regions.id = %"PRIu64")",id); // SQL Debug Log
 }
 
 //=============================================================================
 
 QTRegion* QTRegionFactory::_createRegion(DatabaseResult* result)
 {
-	QTRegion*	region = new QTRegion();
+    QTRegion*	region = new QTRegion();
 
-	result->GetNextRow(mRegionBinding,(void*)region);
+    result->GetNextRow(mRegionBinding,(void*)region);
 
-	region->initTree();
-	region->setLoadState(LoadState_Loaded);
+    region->initTree();
+    region->setLoadState(LoadState_Loaded);
 
-	return region;
+    return region;
 }
 
 //=============================================================================
 
 void QTRegionFactory::_setupDatabindings()
 {
-	mRegionBinding = mDatabase->CreateDataBinding(8);
-	mRegionBinding->addField(DFT_uint32,offsetof(QTRegion,mId),4,0);
-	mRegionBinding->addField(DFT_uint8,offsetof(QTRegion,mQTDepth),1,1);
-	mRegionBinding->addField(DFT_bstring,offsetof(QTRegion,mRegionName),64,2);
-	mRegionBinding->addField(DFT_bstring,offsetof(QTRegion,mNameFile),64,3);
-	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mPosition.x),4,4);
-	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mPosition.z),4,5);
-	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mWidth),4,6);
-	mRegionBinding->addField(DFT_float,offsetof(QTRegion,mHeight),4,7);
+    mRegionBinding = mDatabase->CreateDataBinding(8);
+    mRegionBinding->addField(DFT_uint32,offsetof(QTRegion,mId),4,0);
+    mRegionBinding->addField(DFT_uint8,offsetof(QTRegion,mQTDepth),1,1);
+    mRegionBinding->addField(DFT_bstring,offsetof(QTRegion,mRegionName),64,2);
+    mRegionBinding->addField(DFT_bstring,offsetof(QTRegion,mNameFile),64,3);
+    mRegionBinding->addField(DFT_float,offsetof(QTRegion,mPosition.x),4,4);
+    mRegionBinding->addField(DFT_float,offsetof(QTRegion,mPosition.z),4,5);
+    mRegionBinding->addField(DFT_float,offsetof(QTRegion,mWidth),4,6);
+    mRegionBinding->addField(DFT_float,offsetof(QTRegion,mHeight),4,7);
 }
 
 //=============================================================================
 
 void QTRegionFactory::_destroyDatabindings()
 {
-	mDatabase->DestroyDataBinding(mRegionBinding);
+    mDatabase->DestroyDataBinding(mRegionBinding);
 }
 
 //=============================================================================

@@ -44,53 +44,57 @@ CreatureFactory*		CreatureFactory::mSingleton  = NULL;
 
 CreatureFactory*	CreatureFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new CreatureFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new CreatureFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 
 CreatureFactory::CreatureFactory(Database* database) : FactoryBase(database)
 {
-	mPersistentNpcFactory	= PersistentNpcFactory::Init(mDatabase);
-	mShuttleFactory			= ShuttleFactory::Init(mDatabase);
+    mPersistentNpcFactory	= PersistentNpcFactory::Init(mDatabase);
+    mShuttleFactory			= ShuttleFactory::Init(mDatabase);
 }
 
 //=============================================================================
 
 CreatureFactory::~CreatureFactory()
 {
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
 
 void CreatureFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	switch(subGroup)
-	{
-		case CreoGroup_PersistentNpc:	mPersistentNpcFactory->requestObject(ofCallback,id,subGroup,subType,client);	break;
-		case CreoGroup_Shuttle:			mShuttleFactory->requestObject(ofCallback,id,subGroup,subType,client);			break;
+    switch(subGroup)
+    {
+    case CreoGroup_PersistentNpc:
+        mPersistentNpcFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+    case CreoGroup_Shuttle:
+        mShuttleFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
 
-		default:
-			gLogger->log(LogManager::DEBUG,"CreatureFactory::requestObject Unknown Group\n");
-		break;
-	}
+    default:
+        gLogger->log(LogManager::DEBUG,"CreatureFactory::requestObject Unknown Group\n");
+        break;
+    }
 }
 
 //=============================================================================
 
 void CreatureFactory::releaseAllPoolsMemory()
 {
-	mPersistentNpcFactory->releaseQueryContainerPoolMemory()	;
-	mShuttleFactory->releaseQueryContainerPoolMemory();
+    mPersistentNpcFactory->releaseQueryContainerPoolMemory()	;
+    mShuttleFactory->releaseQueryContainerPoolMemory();
 }
 
 //=============================================================================

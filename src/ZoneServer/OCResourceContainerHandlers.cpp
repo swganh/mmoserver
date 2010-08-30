@@ -166,7 +166,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
         assert(false && "ObjectController::_handleResourceContainerSplitresourcecontainers parent does not exist");
         return;
     }
-    
+
     //res container is 1 slot
     if(!parentContainer->checkCapacity(1,playerObject))
     {

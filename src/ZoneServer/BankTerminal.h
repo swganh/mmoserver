@@ -34,19 +34,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class BankTerminal : public Terminal
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		BankTerminal();
-		~BankTerminal();
+    BankTerminal();
+    ~BankTerminal();
 
-		void			prepareRadialMenu();
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void			handleUIEvent(BString inventoryCash, BString bankCash, UIWindow* window);
+    void			prepareRadialMenu();
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void			handleUIEvent(BString inventoryCash, BString bankCash, UIWindow* window);
 
-	private:
+private:
 
 
 

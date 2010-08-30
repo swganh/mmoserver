@@ -59,7 +59,7 @@ using ::common::OutOfBand;
 
 void PlayerObject::onLogout(const LogOutEvent* event)
 {
-    
+
     if(!this->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
     {
         return;
@@ -73,14 +73,14 @@ void PlayerObject::onLogout(const LogOutEvent* event)
         gMessageLib->SendSystemMessage(OutOfBand("logout", "time_left", 0, 0, 0, timeLeft), this);
         return;
     }
-            
+
     gMessageLib->SendSystemMessage(OutOfBand("logout", "safe_to_log_out"), this);
-    
+
     gMessageLib->sendLogout(this);
-    this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
+    this->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
     gWorldManager->addDisconnectedPlayer(this);
     //Initiate Logout
-    
+
 }
 
 
@@ -93,17 +93,17 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
     uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
     //do we have to remove the cooldown?
-    
+
     Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(event->getItem()));
     if(!item)
     {
         gLogger->log(LogManager::DEBUG,"PlayerObject::onItemDeleteEvent: Item %I64u not found",event->getItem());
         return;
     }
-    
+
     TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
     tO->deleteObject(item);
-        
+
 }
 
 //=============================================================================
@@ -119,7 +119,7 @@ void PlayerObject::onInjuryTreatment(const InjuryTreatmentEvent* event)
         this->togglePlayerCustomFlagOff(PlayerCustomFlag_InjuryTreatment);
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_58"), this);
     }
-    
+
     //have to call once more so we can get back here...
     else
     {
@@ -139,7 +139,7 @@ void PlayerObject::onQuickHealInjuryTreatment(const QuickHealInjuryTreatmentEven
         this->togglePlayerCustomFlagOff(PlayerCustomFlag_QuickHealInjuryTreatment);
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_58"), this);
     }
-    
+
     //have to call once more so we can get back here...
     else
     {
@@ -158,7 +158,7 @@ void PlayerObject::onWoundTreatment(const WoundTreatmentEvent* event)
     if(now >  t)
     {
         this->togglePlayerCustomFlagOff(PlayerCustomFlag_WoundTreatment);
-        
+
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_59"), this);
     }
     //have to call once more so we can get back here...

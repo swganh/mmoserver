@@ -76,98 +76,102 @@ typedef std::vector<std::tr1::shared_ptr<Timer> >	TimerList;
 
 enum SRMTimer
 {
-	SRMTimer_CheckHarvesterHopper		=	1,
-	SRMTimer_CheckHarvesterMaintenance	=	2,
-	SRMTimer_CheckHarvesterPower		=	3,
-	SRMTimer_CheckFactory				=	4
+    SRMTimer_CheckHarvesterHopper		=	1,
+    SRMTimer_CheckHarvesterMaintenance	=	2,
+    SRMTimer_CheckHarvesterPower		=	3,
+    SRMTimer_CheckFactory				=	4
 };
 
 
 struct structure
 {
-	uint64 owner;
-	BString file;
-	BString dir;
-	float x;
-	float z;
-	BString planet;
-	uint32 maxcondition;
-	uint32 condition;
-	uint32 maint;
-	uint64 lastMail;
+    uint64 owner;
+    BString file;
+    BString dir;
+    float x;
+    float z;
+    BString planet;
+    uint32 maxcondition;
+    uint32 condition;
+    uint32 maint;
+    uint64 lastMail;
 };
 
 //======================================================================================================================
 
 class StructureManagerChatHandler : public DatabaseCallback, public TimerCallback
 {
-	public:
+public:
 
-		static StructureManagerChatHandler*	getSingletonPtr() { return mSingleton; }
-		static StructureManagerChatHandler*	Init(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
+    static StructureManagerChatHandler*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static StructureManagerChatHandler*	Init(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
 
-		~StructureManagerChatHandler();
+    ~StructureManagerChatHandler();
 
-		StructureManagerChatHandler(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
+    StructureManagerChatHandler(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
 
-		void				Shutdown();
-		void				Process();
-				// TimerCallback
-		virtual void		handleTimer(uint32 id, void* container);
+    void				Shutdown();
+    void				Process();
+    // TimerCallback
+    virtual void		handleTimer(uint32 id, void* container);
 
-		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-	private:
+private:
 
-		void				ProcessAddHarvesterHopperUpdate(Message* message,DispatchClient* client);
+    void				ProcessAddHarvesterHopperUpdate(Message* message,DispatchClient* client);
 
-		// process chat timers
-		void				processTimerEvents();
-		void				handleGlobalTickUpdate();
+    // process chat timers
+    void				processTimerEvents();
+    void				handleGlobalTickUpdate();
 
-		void				handleCheckHarvesterPower();
-		void				handleCheckHarvesterHopper();
-		void				handleCheckHarvesterMaintenance();
+    void				handleCheckHarvesterPower();
+    void				handleCheckHarvesterHopper();
+    void				handleCheckHarvesterMaintenance();
 
-		void				handleFactoryUpdate();
-
-
-		HarvesterList*		getHarvesterList(){return &mHarvesterList;}
+    void				handleFactoryUpdate();
 
 
-		static StructureManagerChatHandler*	mSingleton;
-		static bool					mInsFlag;
+    HarvesterList*		getHarvesterList() {
+        return &mHarvesterList;
+    }
 
-		
-		Database*					mDatabase;
-		MessageDispatch*			mMessageDispatch;
-		PlayerAccountMap			mPlayerAccountMap;
 
-		ChatManager*				mChatManager;
+    static StructureManagerChatHandler*	mSingleton;
+    static bool					mInsFlag;
 
-		TimerList					mTimers;
-		TimerEventQueue				mTimerEventQueue;
-        boost::mutex                mTimerMutex;
-		uint64						mTimerQueueProcessTimeLimit;
 
-		HarvesterList				mHarvesterList;
+    Database*					mDatabase;
+    MessageDispatch*			mMessageDispatch;
+    PlayerAccountMap			mPlayerAccountMap;
+
+    ChatManager*				mChatManager;
+
+    TimerList					mTimers;
+    TimerEventQueue				mTimerEventQueue;
+    boost::mutex                mTimerMutex;
+    uint64						mTimerQueueProcessTimeLimit;
+
+    HarvesterList				mHarvesterList;
 
 };
 
 enum STRMQueryType
 {
-	STRMQuery_NULL						=	0,
-	STRMQuery_HopperUpdate				=	1,
-	STRMQuery_DoneHarvestUpdate			=	2,
-	STRMQuery_DoneHarvesterUsePower		=	3,
-	STRMQuery_DoneStructureMaintenance	=	4,
-	STRMQuery_StructureMailOOFMaint		=	5,
-	STRMQuery_StructureMailDamage		=	6,
-	STRMQuery_StructureMailCondZero		=	7,
-	STRMQuery_MaintenanceUpdate			=	8,
-	STRMQuery_PowerUpdate				=	9,
-	STRMQuery_FactoryUpdate				=	10,
-	STRMQuery_DoneFactoryUpdate			=	11,
+    STRMQuery_NULL						=	0,
+    STRMQuery_HopperUpdate				=	1,
+    STRMQuery_DoneHarvestUpdate			=	2,
+    STRMQuery_DoneHarvesterUsePower		=	3,
+    STRMQuery_DoneStructureMaintenance	=	4,
+    STRMQuery_StructureMailOOFMaint		=	5,
+    STRMQuery_StructureMailDamage		=	6,
+    STRMQuery_StructureMailCondZero		=	7,
+    STRMQuery_MaintenanceUpdate			=	8,
+    STRMQuery_PowerUpdate				=	9,
+    STRMQuery_FactoryUpdate				=	10,
+    STRMQuery_DoneFactoryUpdate			=	11,
 
 };
 
@@ -175,29 +179,32 @@ class StructureManagerAsyncContainer
 {
 public:
 
-	StructureManagerAsyncContainer(STRMQueryType qt,DispatchClient* client){ mQueryType = qt; mClient = client; }
-	~StructureManagerAsyncContainer(){}
+    StructureManagerAsyncContainer(STRMQueryType qt,DispatchClient* client) {
+        mQueryType = qt;
+        mClient = client;
+    }
+    ~StructureManagerAsyncContainer() {}
 
 
-	STRMQueryType		mQueryType;
-	DispatchClient*		mClient;
-	uint64				harvesterID;
-	uint32				updateCounter;
+    STRMQueryType		mQueryType;
+    DispatchClient*		mClient;
+    uint64				harvesterID;
+    uint32				updateCounter;
 
 };
 
 struct HarvesterHopperItem
 {
-		uint64			HarvesterID;
-		uint64			ResourceID;
-		float			Quantity;
+    uint64			HarvesterID;
+    uint64			ResourceID;
+    float			Quantity;
 };
 
 struct HarvesterItem
 {
-		uint64			HarvesterID;
-		uint32			UpdateCounter;
-		uint32			PlayerAccount;
+    uint64			HarvesterID;
+    uint32			UpdateCounter;
+    uint32			PlayerAccount;
 };
 
 

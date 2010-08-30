@@ -39,48 +39,48 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class NonPersistentItemFactory : public FactoryBase
 {
-	public:
-		static NonPersistentItemFactory* Instance(void);
-		/*
-		static inline NonPersistentItemFactory*	Instance(void)
-		{
-			if (!mSingleton)
-			{
-				mSingleton = new NonPersistentItemFactory(WorldManager::getSingletonPtr()->getDatabase());
-			}
-			return mSingleton;
-		}
-		*/
+public:
+    static NonPersistentItemFactory* Instance(void);
+    /*
+    static inline NonPersistentItemFactory*	Instance(void)
+    {
+    	if (!mSingleton)
+    	{
+    		mSingleton = new NonPersistentItemFactory(WorldManager::getSingletonPtr()->getDatabase());
+    	}
+    	return mSingleton;
+    }
+    */
 
-		static inline void deleteFactory(void)    
-		{ 
-			if (mSingleton)
-			{
-				delete mSingleton;
-				mSingleton = 0;
-			}
-		}
+    static inline void deleteFactory(void)
+    {
+        if (mSingleton)
+        {
+            delete mSingleton;
+            mSingleton = 0;
+        }
+    }
 
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint64 newId);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint64 newId);
 
-	protected:
-		NonPersistentItemFactory(Database* database);
-		~NonPersistentItemFactory();
+protected:
+    NonPersistentItemFactory(Database* database);
+    ~NonPersistentItemFactory();
 
-	private:
-		// This constructor prevents the default constructor to be used, since it is private.
-		NonPersistentItemFactory();
+private:
+    // This constructor prevents the default constructor to be used, since it is private.
+    NonPersistentItemFactory();
 
-		void			_setupDatabindings();
-		void			_destroyDatabindings();
+    void			_setupDatabindings();
+    void			_destroyDatabindings();
 
-		Item* _createItem(DatabaseResult* result, uint64 newId);
+    Item* _createItem(DatabaseResult* result, uint64 newId);
 
-		static NonPersistentItemFactory*	mSingleton;
-		DataBinding*	mItemIdentifierBinding;
-		DataBinding*	mItemBinding;
+    static NonPersistentItemFactory*	mSingleton;
+    DataBinding*	mItemIdentifierBinding;
+    DataBinding*	mItemBinding;
 };
 
 //=============================================================================

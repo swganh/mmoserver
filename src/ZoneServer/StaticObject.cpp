@@ -38,7 +38,7 @@ StaticObject::StaticObject() : ObjectContainer()
 //=============================================================================
 
 StaticObject::StaticObject(uint64 id,uint64 parentId,BString model,ObjectType type)
-			 :ObjectContainer(id,parentId,model,type)
+    :ObjectContainer(id,parentId,model,type)
 {
 }
 

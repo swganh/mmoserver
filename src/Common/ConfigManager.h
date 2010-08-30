@@ -40,25 +40,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class COMMON_API ConfigManager
 {
-	public:
+public:
 
-		static ConfigManager*	getSingletonPtr() { return mSingleton; }
-		static ConfigManager*	Init(const std::string& name);
-		static std::string	getBuildString(void);
-		static std::string getBuildNumber(void);
-		static std::string getBuildTime(void);
+    static ConfigManager*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static ConfigManager*	Init(const std::string& name);
+    static std::string	getBuildString(void);
+    static std::string getBuildNumber(void);
+    static std::string getBuildTime(void);
 
-		ConfigFile*				getConfigFile() { return mConfigFile; }
-		~ConfigManager();
+    ConfigFile*				getConfigFile() {
+        return mConfigFile;
+    }
+    ~ConfigManager();
 
-	private:
+private:
 
-		ConfigManager(const std::string& name);
+    ConfigManager(const std::string& name);
 
-		static ConfigManager*	mSingleton;
-		static bool				mInsFlag;
+    static ConfigManager*	mSingleton;
+    static bool				mInsFlag;
 
-		ConfigFile*				mConfigFile;
+    ConfigFile*				mConfigFile;
 };
 
 //======================================================================================================================

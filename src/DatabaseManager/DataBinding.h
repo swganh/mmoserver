@@ -48,21 +48,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 enum DataFieldType
 {
-  DFT_none,
-  DFT_int8,
-  DFT_uint8,
-  DFT_int16,
-  DFT_uint16,
-  DFT_int32,
-  DFT_uint32,
-  DFT_int64,
-  DFT_uint64,
-  DFT_float,
-  DFT_double,
-  DFT_datetime,
-  DFT_string,
-  DFT_bstring,
-  DFT_raw
+    DFT_none,
+    DFT_int8,
+    DFT_uint8,
+    DFT_int16,
+    DFT_uint16,
+    DFT_int32,
+    DFT_uint32,
+    DFT_int64,
+    DFT_uint64,
+    DFT_float,
+    DFT_double,
+    DFT_datetime,
+    DFT_string,
+    DFT_bstring,
+    DFT_raw
 };
 
 
@@ -70,57 +70,63 @@ enum DataFieldType
 
 class DataField
 {
-	public:
+public:
 
-		DataField(void) : mDataType(DFT_none), mDataOffset(0), mDataSize(0), mColumn(0) {}; 
+    DataField(void) : mDataType(DFT_none), mDataOffset(0), mDataSize(0), mColumn(0) {};
 
-		DataFieldType               mDataType;
-		uint32                      mDataOffset;
-		uint32                      mDataSize;
-		uint32                      mColumn;
+    DataFieldType               mDataType;
+    uint32                      mDataOffset;
+    uint32                      mDataSize;
+    uint32                      mColumn;
 };
 
 //======================================================================================================================
 
 class DataBinding
 {
-	public:
-					DataBinding(uint32 fieldCount) : mFieldCount(fieldCount), mFieldIndex(0) { }
+public:
+    DataBinding(uint32 fieldCount) : mFieldCount(fieldCount), mFieldIndex(0) { }
 
-	  uint32		getFieldCount(void)          { return mFieldCount; }
-	  void			setFieldCount(uint32 count)	{ mFieldCount = count; }
+    uint32		getFieldCount(void)          {
+        return mFieldCount;
+    }
+    void			setFieldCount(uint32 count)	{
+        mFieldCount = count;
+    }
 
-	  uint32		getFieldIndex(void)          { return mFieldIndex; }
+    uint32		getFieldIndex(void)          {
+        return mFieldIndex;
+    }
 
-	  void			addField(DataFieldType type, uint32 offset, uint32 size, uint32 column = 0);
+    void			addField(DataFieldType type, uint32 offset, uint32 size, uint32 column = 0);
 
-	  uint32		mFieldCount;
-	  uint32		mFieldIndex;
-	  DataField		mDataFields[200];
+    uint32		mFieldCount;
+    uint32		mFieldIndex;
+    DataField		mDataFields[200];
 };
 
 //======================================================================================================================
 
 inline void DataBinding::addField(DataFieldType type, uint32 offset, uint32 size, uint32 column)
 {
-	// FIXME: This requires an assert on index.  
-	mDataFields[mFieldIndex].mDataType    = type;
-	mDataFields[mFieldIndex].mDataOffset  = offset;
-	mDataFields[mFieldIndex].mDataSize    = size;
+    // FIXME: This requires an assert on index.
+    mDataFields[mFieldIndex].mDataType    = type;
+    mDataFields[mFieldIndex].mDataOffset  = offset;
+    mDataFields[mFieldIndex].mDataSize    = size;
 
-	assert(mFieldIndex <= 200 && "Exceeds max field size of 200");
+    assert(mFieldIndex <= 200 && "Exceeds max field size of 200");
 
-	if (column == 0)
-	{
-		mDataFields[mFieldIndex].mColumn    = mFieldIndex;
-	}
-	else
-	{
-		mDataFields[mFieldIndex].mColumn    = column;
-	}
+    if (column == 0)
+    {
+        mDataFields[mFieldIndex].mColumn    = mFieldIndex;
+    }
+    else
+    {
+        mDataFields[mFieldIndex].mColumn    = column;
+    }
 
-	// Increment our field index
-	mFieldIndex++;
+    // Increment our field index
+    mFieldIndex++;
 }
 
 

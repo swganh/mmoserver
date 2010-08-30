@@ -35,13 +35,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Weather
 {
-	public:
+public:
 
-		Weather() : mWeather(0) {}
-		~Weather(){}
+    Weather() : mWeather(0) {}
+    ~Weather() {}
 
-		uint32    mWeather;
-        glm::vec3 mClouds;
+    uint32    mWeather;
+    glm::vec3 mClouds;
 };
 
 //======================================================================================================================

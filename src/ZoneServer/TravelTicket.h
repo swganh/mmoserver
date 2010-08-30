@@ -34,18 +34,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class TravelTicket : public Item
 {
-	friend class TravelTicketFactory;
+    friend class TravelTicketFactory;
 
-	public:
+public:
 
-		TravelTicket();
-		virtual ~TravelTicket();
+    TravelTicket();
+    virtual ~TravelTicket();
 
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		BString	getBazaarName();
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    BString	getBazaarName();
 
-	private:
+private:
 };
 
 //=============================================================================

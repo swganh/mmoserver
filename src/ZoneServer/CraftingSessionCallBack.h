@@ -37,12 +37,12 @@ class CraftingSession;
 
 class CraftingSessionCallback
 {
-	public:
+public:
 
-		virtual void	handleCraftingSessionReady(CraftingSession* session) {}
+    virtual void	handleCraftingSessionReady(CraftingSession* session) {}
 };
 
 //======================================================================================================================
 
-#endif 
+#endif
 

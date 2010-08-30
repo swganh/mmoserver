@@ -48,32 +48,32 @@ class ConnectionDispatch;
 class ConnectionServer
 {
 
-	public:
+public:
 
-		ConnectionServer(void);
-		~ConnectionServer(void);
+    ConnectionServer(void);
+    ~ConnectionServer(void);
 
-		void	Process(void);
-		void    ToggleLock();
+    void	Process(void);
+    void    ToggleLock();
 
-	private:
+private:
 
-		void	_updateDBServerList(uint32 status);
-		
-		DatabaseManager*		mDatabaseManager;
-		Database*				mDatabase;
-		NetworkManager*			mNetworkManager;
-		MessageRouter*			mMessageRouter;
-		ClientManager*			mClientManager;
-		ServerManager*			mServerManager;
-		ConnectionDispatch*		mConnectionDispatch;
+    void	_updateDBServerList(uint32 status);
 
-		uint32					mClusterId;
+    DatabaseManager*		mDatabaseManager;
+    Database*				mDatabase;
+    NetworkManager*			mNetworkManager;
+    MessageRouter*			mMessageRouter;
+    ClientManager*			mClientManager;
+    ServerManager*			mServerManager;
+    ConnectionDispatch*		mConnectionDispatch;
 
-		Service*				mClientService;
-		Service*				mServerService;
-		bool					mLocked;
-		uint32					mLastHeartbeat;
+    uint32					mClusterId;
+
+    Service*				mClientService;
+    Service*				mServerService;
+    bool					mLocked;
+    uint32					mLastHeartbeat;
 };
 
 //======================================================================================================================

@@ -47,81 +47,85 @@ class CSRManager;
 
 enum CSRQuery
 {
-	CSRQuery_Tickets			= 0,
-	CSRQuery_CommentsByTicket	= 1,
-	CSRQuery_Categories			= 2,
-	CSRQuery_SubCategories		= 3,
-	CSRQuery_NewTicket			= 4,
-	CSRQuery_SearchKB			= 5,
-	CSRQuery_FullArticle		= 6,
-	CSRQuery_TicketActivity		= 7
+    CSRQuery_Tickets			= 0,
+    CSRQuery_CommentsByTicket	= 1,
+    CSRQuery_Categories			= 2,
+    CSRQuery_SubCategories		= 3,
+    CSRQuery_NewTicket			= 4,
+    CSRQuery_SearchKB			= 5,
+    CSRQuery_FullArticle		= 6,
+    CSRQuery_TicketActivity		= 7
 };
 
 //======================================================================================================================
 
 class CSRAsyncContainer
 {
-	public:
+public:
 
-		CSRAsyncContainer(CSRQuery cq): mCategory(NULL) { mQueryType = cq; }
-		~CSRAsyncContainer(){}
+    CSRAsyncContainer(CSRQuery cq): mCategory(NULL) {
+        mQueryType = cq;
+    }
+    ~CSRAsyncContainer() {}
 
-		CSRQuery		mQueryType;
-		Category*		mCategory;
-		DispatchClient*	mClient;
+    CSRQuery		mQueryType;
+    Category*		mCategory;
+    DispatchClient*	mClient;
 };
 
 //======================================================================================================================
 
 class CSRManager : public DatabaseCallback
 {
-	public:
+public:
 
-		static CSRManager* GetSingletonPtr() { return mSingleton; }
-		static CSRManager* Init(Database* database, MessageDispatch* messagedispatch, ChatManager* chatManager);
+    static CSRManager* GetSingletonPtr() {
+        return mSingleton;
+    }
+    static CSRManager* Init(Database* database, MessageDispatch* messagedispatch, ChatManager* chatManager);
 
-		~CSRManager();
+    ~CSRManager();
 
-		//Database callback
-		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    //Database callback
+    virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-	private:
-		CSRManager(Database* database, MessageDispatch* messagedispatch, ChatManager* chatManager);
+private:
+    CSRManager(Database* database, MessageDispatch* messagedispatch, ChatManager* chatManager);
 
-		static CSRManager*			mSingleton;
-		static bool					mInsFlag;
+    static CSRManager*			mSingleton;
+    static bool					mInsFlag;
 
-		void						_loadDatabindings();
-		void						_destroyDatabindings();
-		void						_registerCallbacks();
-		void						_unregisterCallbacks();
-		void						_loadCommandMap();
+    void						_loadDatabindings();
+    void						_destroyDatabindings();
+    void						_registerCallbacks();
+    void						_unregisterCallbacks();
+    void						_loadCommandMap();
 
-		Database*					mDatabase;
-		MessageDispatch*			mMessageDispatch;
+    Database*					mDatabase;
+    MessageDispatch*			mMessageDispatch;
 
-		DataBinding*				mTicketBinding;
-		DataBinding*				mCommentBinding;
-		DataBinding*				mCategoryBinding;
-		DataBinding*				mSubCategoryBinding;
-		DataBinding*				mArticleSearchBinding;
-		DataBinding*				mFullArticleBinding;
+    DataBinding*				mTicketBinding;
+    DataBinding*				mCommentBinding;
+    DataBinding*				mCategoryBinding;
+    DataBinding*				mSubCategoryBinding;
+    DataBinding*				mArticleSearchBinding;
+    DataBinding*				mFullArticleBinding;
 
-		CategoryList				mCategoryList;
+    CategoryList				mCategoryList;
 
-		//Packet processors
-		void						_processConnectPlayerMessage(Message* message, DispatchClient* client);
-		void						_processAppendCommentMessage(Message* message, DispatchClient* client);
-		void						_processCancelTicketMessage(Message* message, DispatchClient* client);
-		void						_processCreateTicketMessage(Message* message, DispatchClient* client);
-		void						_processGetArticleMessage(Message* message, DispatchClient* client);
-		void						_processGetCommentsMessage(Message* message, DispatchClient* client);
-		void						_processGetTicketsMessage(Message* message, DispatchClient* client);
-		void						_processNewTicketActivityMessage(Message* message, DispatchClient* client);
-		void						_processRequestCategoriesMessage(Message* message, DispatchClient* client);
-		void						_processSearchKnowledgeBaseMessage(Message* message, DispatchClient* client);
+    //Packet processors
+    void						_processConnectPlayerMessage(Message* message, DispatchClient* client);
+    void						_processAppendCommentMessage(Message* message, DispatchClient* client);
+    void						_processCancelTicketMessage(Message* message, DispatchClient* client);
+    void						_processCreateTicketMessage(Message* message, DispatchClient* client);
+    void						_processGetArticleMessage(Message* message, DispatchClient* client);
+    void						_processGetCommentsMessage(Message* message, DispatchClient* client);
+    void						_processGetTicketsMessage(Message* message, DispatchClient* client);
+    void						_processNewTicketActivityMessage(Message* message, DispatchClient* client);
+    void						_processRequestCategoriesMessage(Message* message, DispatchClient* client);
+    void						_processSearchKnowledgeBaseMessage(Message* message, DispatchClient* client);
 
-		ChatManager*				mChatManager;
+    ChatManager*				mChatManager;
 };
 
 #endif

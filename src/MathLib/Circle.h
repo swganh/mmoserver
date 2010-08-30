@@ -35,22 +35,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace Anh_Math
 {
-	class Circle : public Shape
-	{
-		public:
+class Circle : public Shape
+{
+public:
 
-			Circle() : Shape(),mRadius(0.0f){}
-            Circle(const glm::vec3& center, float radius) : Shape(center),mRadius(radius){}
-			Circle(float centerX, float centerZ, float radius) : Shape(centerX,0.0f,centerZ),mRadius(radius){}
-			virtual ~Circle(){}
+    Circle() : Shape(),mRadius(0.0f) {}
+    Circle(const glm::vec3& center, float radius) : Shape(center),mRadius(radius) {}
+    Circle(float centerX, float centerZ, float radius) : Shape(centerX,0.0f,centerZ),mRadius(radius) {}
+    virtual ~Circle() {}
 
-			float	getRadius(){ return mRadius; }
-			void	setRadius(float radius){ mRadius = radius; }
+    float	getRadius() {
+        return mRadius;
+    }
+    void	setRadius(float radius) {
+        mRadius = radius;
+    }
 
-		protected:
+protected:
 
-			float mRadius;
-	};
+    float mRadius;
+};
 }
 
 //=============================================================================

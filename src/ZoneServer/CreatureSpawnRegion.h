@@ -37,15 +37,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class CreatureSpawnRegion
 {
-	public:
-		CreatureSpawnRegion();
-		~CreatureSpawnRegion();
-		
-		uint64 mId;
-		float mPosX;
-		float mPosZ;
-		float mWidth;
-		float mLength;
+public:
+    CreatureSpawnRegion();
+    ~CreatureSpawnRegion();
+
+    uint64 mId;
+    float mPosX;
+    float mPosZ;
+    float mWidth;
+    float mLength;
 };
 
 #endif

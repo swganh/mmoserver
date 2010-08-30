@@ -31,15 +31,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum login_opcodes
 {
-	opLoginClientToken					=	0xAAB296C6,
-	opLoginEnumCluster					=	0xC11C63B9,
-	opLoginClusterStatus				=	0x3436AEB6,
-	opEnumerateCharacterId				=	0x65EA4574,
-	opLoginClientId						=	0x41131f96,
-	opDeleteCharacterMessage			=	0xe87ad031,
-	opDeleteCharacterReplyMessage		=	0x8268989b,
+    opLoginClientToken					=	0xAAB296C6,
+    opLoginEnumCluster					=	0xC11C63B9,
+    opLoginClusterStatus				=	0x3436AEB6,
+    opEnumerateCharacterId				=	0x65EA4574,
+    opLoginClientId						=	0x41131f96,
+    opDeleteCharacterMessage			=	0xe87ad031,
+    opDeleteCharacterReplyMessage		=	0x8268989b,
 
-	opHeartBeat							=	0xa16cf9af,
+    opHeartBeat							=	0xa16cf9af,
 };
 
 #endif

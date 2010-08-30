@@ -54,62 +54,68 @@ typedef Anh_Utils::concurrent_queue<DatabaseWorkerThread*>		DatabaseWorkerThread
 
 class DBMANAGER_API Database
 {
-  public:
-                                          Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-                                          ~Database(void);
+public:
+    Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
+    ~Database(void);
 
-  void                                    Process(void);
+    void                                    Process(void);
 
-  DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);
-  //DatabaseResult*                         ExecuteSql(int8* sql, ...);
-  void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
-  void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
+    DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);
+    //DatabaseResult*                         ExecuteSql(int8* sql, ...);
+    void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+    void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
 
-  DatabaseResult*                         ExecuteProcedure(const int8* sql, ...);
-  void                                    ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+    DatabaseResult*                         ExecuteProcedure(const int8* sql, ...);
+    void                                    ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
 
-  uint32								  Escape_String(int8* target,const int8* source,uint32 length);
+    uint32								  Escape_String(int8* target,const int8* source,uint32 length);
 
-  void									  DestroyResult(DatabaseResult* result);
+    void									  DestroyResult(DatabaseResult* result);
 
-  DataBinding*                            CreateDataBinding(uint16 fieldCount);
-  void									  DestroyDataBinding(DataBinding* binding);
+    DataBinding*                            CreateDataBinding(uint16 fieldCount);
+    void									  DestroyDataBinding(DataBinding* binding);
 
-  DatabaseWorkerThread*                   popIdleWorker();
-  void									  pushIdleWorker(DatabaseWorkerThread* worker);
+    DatabaseWorkerThread*                   popIdleWorker();
+    void									  pushIdleWorker(DatabaseWorkerThread* worker);
 
-  void									  pushDatabaseJobComplete(DatabaseJob* job);
+    void									  pushDatabaseJobComplete(DatabaseJob* job);
 
-  Transaction*							  startTransaction(DatabaseCallback* callback, void* ref);
-  void									  destroyTransaction(Transaction* t);
+    Transaction*							  startTransaction(DatabaseCallback* callback, void* ref);
+    void									  destroyTransaction(Transaction* t);
 
-  bool									  releaseResultPoolMemory();	
-  bool									  releaseJobPoolMemory(){ return(mJobPool.release_memory()); }
-  bool									  releaseTransactionPoolMemory(){ return(mTransactionPool.release_memory()); }
-  bool									  releaseBindingPoolMemory(){ return(mDataBindingFactory->releasePoolMemory()); }
-  int									  GetCount(const int8* tablename);
-  int									  GetSingleValueSync(const int8* sql);
+    bool									  releaseResultPoolMemory();
+    bool									  releaseJobPoolMemory() {
+        return(mJobPool.release_memory());
+    }
+    bool									  releaseTransactionPoolMemory() {
+        return(mTransactionPool.release_memory());
+    }
+    bool									  releaseBindingPoolMemory() {
+        return(mDataBindingFactory->releasePoolMemory());
+    }
+    int									  GetCount(const int8* tablename);
+    int									  GetSingleValueSync(const int8* sql);
 private:
 
-  DBType                                  mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.
+    DBType                                  mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.
 
-  DataBindingFactory*                     mDataBindingFactory;
-  
+    DataBindingFactory*                     mDataBindingFactory;
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
-  DatabaseJobQueue                        mJobPendingQueue;
-  DatabaseJobQueue                        mJobCompleteQueue;
-  DatabaseWorkerThreadQueue               mWorkerIdleQueue;
+    DatabaseJobQueue                        mJobPendingQueue;
+    DatabaseJobQueue                        mJobCompleteQueue;
+    DatabaseWorkerThreadQueue               mWorkerIdleQueue;
 
-  DatabaseImplementation*                 mDatabaseImplementation;  // Use this implementation for any syncronous calls.
+    DatabaseImplementation*                 mDatabaseImplementation;  // Use this implementation for any syncronous calls.
 
-  uint32                                  mMinThreads;
-  uint32                                  mMaxThreads;
-  
-  boost::pool<boost::default_user_allocator_malloc_free>							  mJobPool;
-  boost::pool<boost::default_user_allocator_malloc_free>							  mTransactionPool;
+    uint32                                  mMinThreads;
+    uint32                                  mMaxThreads;
+
+    boost::pool<boost::default_user_allocator_malloc_free>							  mJobPool;
+    boost::pool<boost::default_user_allocator_malloc_free>							  mTransactionPool;
     // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (default : 4251)
@@ -122,25 +128,25 @@ protected:
 
 inline DatabaseWorkerThread* Database::popIdleWorker(void)
 {
-  DatabaseWorkerThread* worker = 0;
+    DatabaseWorkerThread* worker = 0;
 
-  worker = mWorkerIdleQueue.pop();
+    worker = mWorkerIdleQueue.pop();
 
-  return worker;
+    return worker;
 }
 
 //======================================================================================================================
 
 inline void Database::pushIdleWorker(DatabaseWorkerThread* worker)
 {
-  mWorkerIdleQueue.push(worker);
+    mWorkerIdleQueue.push(worker);
 }
 
 //======================================================================================================================
 
 inline void Database::pushDatabaseJobComplete(DatabaseJob* job)
 {
-  mJobCompleteQueue.push(job);
+    mJobCompleteQueue.push(job);
 }
 
 //======================================================================================================================

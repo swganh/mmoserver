@@ -41,20 +41,20 @@ class ZoneTree;
 
 enum forageClasses
 {
-	ForageClass_Scout,
-	ForageClass_Medic
+    ForageClass_Scout,
+    ForageClass_Medic
 };
 
 enum forageFails
 {
-	NOT_OUTSIDE,
-	PLAYER_MOVED,
-	ACTION_LOW,
-	IN_COMBAT,
-	AREA_EMPTY,
-	ENTERED_COMBAT,
-	NO_SKILL,
-	ALREADY_FORAGING
+    NOT_OUTSIDE,
+    PLAYER_MOVED,
+    ACTION_LOW,
+    IN_COMBAT,
+    AREA_EMPTY,
+    ENTERED_COMBAT,
+    NO_SKILL,
+    ALREADY_FORAGING
 };
 
 class ForageAttempt;
@@ -65,41 +65,43 @@ class ForagePocket;
 class ForageManager
 {
 public:
-	static ForageManager*	getSingletonPtr() { return mSingleton; }
-	
-	static ForageManager*	Instance()
-	{
-		if (!mSingleton)
-		{
-			mSingleton = new ForageManager();
+    static ForageManager*	getSingletonPtr() {
+        return mSingleton;
+    }
 
-		}
-		return mSingleton;
-	}
+    static ForageManager*	Instance()
+    {
+        if (!mSingleton)
+        {
+            mSingleton = new ForageManager();
 
-	static inline void deleteManager(void)    
-	{ 
-		if (mSingleton)
-		{
-			delete mSingleton;
-			mSingleton = 0;
-		}
-	}
+        }
+        return mSingleton;
+    }
 
-	//foraging
-	void forageUpdate();
-	void startForage(PlayerObject* player, forageClasses);
-	static void failForage(PlayerObject* player, forageFails fail);
-	static void ForageManager::successForage(PlayerObject* player, forageClasses forageClass);
+    static inline void deleteManager(void)
+    {
+        if (mSingleton)
+        {
+            delete mSingleton;
+            mSingleton = 0;
+        }
+    }
+
+    //foraging
+    void forageUpdate();
+    void startForage(PlayerObject* player, forageClasses);
+    static void failForage(PlayerObject* player, forageFails fail);
+    static void ForageManager::successForage(PlayerObject* player, forageClasses forageClass);
 
 protected:
-	ForageManager::ForageManager();
-	~ForageManager(void);
+    ForageManager::ForageManager();
+    ~ForageManager(void);
 
 private:
-	static ForageManager*	mSingleton;
-	ZoneTree*				mSI;
+    static ForageManager*	mSingleton;
+    ZoneTree*				mSI;
 
-	ForagePocket*			pHead;
+    ForagePocket*			pHead;
 
 };

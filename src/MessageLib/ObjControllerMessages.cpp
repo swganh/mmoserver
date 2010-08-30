@@ -96,14 +96,14 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const st
         // Use regex to check if the chat string matches the stf string format.
         static const regex pattern("@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
         smatch result;
-        
+
         std::string stf_string(custom_message.begin(), custom_message.end());
 
         regex_search(stf_string, result, pattern);
-        
+
         // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
         // Reroute the call to the appropriate overload.
-        if (result.size() == 3) 
+        if (result.size() == 3)
         {
             std::string file(result[1].str());
             std::string string(result[2].str());
@@ -141,7 +141,7 @@ void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const s
     mMessageFactory->addUint16(mood_id);
     mMessageFactory->addUint8(whisper_target_animate);
     mMessageFactory->addUint8(static_cast<uint8>(speaking_object->getLanguage()));
-    
+
     // Add the ProsePackage to the message if no custom string was set.
     if (!custom_message.length()) {
         const ByteBuffer* attachment = prose_message.Pack();
@@ -151,7 +151,7 @@ void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const s
     }
 
     mMessageFactory->addUint32(0);
-    
+
     Message* message = mMessageFactory->EndMessage();
     SendSpatialToInRangeUnreliable_(message, speaking_object, player_object);
 }
@@ -169,7 +169,7 @@ void MessageLib::SendSpatialEmote(CreatureObject* source, uint32_t emote_id, uin
     mMessageFactory->addUint64(target_id);
     mMessageFactory->addUint32(emote_id);
     mMessageFactory->addUint8(emote_flags);
-        
+
     Message* message = mMessageFactory->EndMessage();
     SendSpatialToInRangeUnreliable_(message, source);
 }
@@ -931,7 +931,7 @@ void MessageLib::sendDataTransform(Object* object, PlayerObject* player)
     mMessageFactory->addUint32(opDataTransform);
     mMessageFactory->addUint64(object->getId());
     mMessageFactory->addUint32(0);
-    
+
     mMessageFactory->addUint32(object->incDataTransformCounter());
 
     mMessageFactory->addFloat(object->mDirection.x);
@@ -1314,31 +1314,31 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
     SchematicsIdList*			filteredIdList = playerObject->getFilteredSchematicsIdList();
     SchematicsIdList::iterator	schemIt		= schemIdList->begin();
     DraftSchematic*				schematic;
-	
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opDraftSchematics);
-	mMessageFactory->addUint64(playerObject->getId());
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint64(tool->getId());
-	mMessageFactory->addUint64(0); // station ?
 
-	// filter by tool / station properties
-	uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000000B);
+    mMessageFactory->addUint32(opDraftSchematics);
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addUint64(tool->getId());
+    mMessageFactory->addUint64(0); // station ?
 
-	uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + stationComplexity
-	uint64 station = playerObject->getNearestCraftingStation();
-	if(station)
-	{
-		//TODO: check for droids
-		if(playerObject->isNearestCraftingStationPrivate(station))
-		{
-			availableComplexity = 90;
-		}
-		else
-			availableComplexity = 25;
-	}
+    // filter by tool / station properties
+    uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");
+
+    uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + stationComplexity
+    uint64 station = playerObject->getNearestCraftingStation();
+    if(station)
+    {
+        //TODO: check for droids
+        if(playerObject->isNearestCraftingStationPrivate(station))
+        {
+            availableComplexity = 90;
+        }
+        else
+            availableComplexity = 25;
+    }
 
     uint32 filteredCount		= 0;
     uint32 subCategory			= 0;
@@ -1583,47 +1583,47 @@ void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,B
     //this is fastpath
     _sendToInRangeUnreliable(newMessage,attacker,5,true);
 
-        /*
-    PlayerObjectSet* inRangePlayers	= attacker->getKnownPlayers();
-    PlayerObjectSet::iterator it	= inRangePlayers->begin();
+    /*
+        PlayerObjectSet* inRangePlayers	= attacker->getKnownPlayers();
+        PlayerObjectSet::iterator it	= inRangePlayers->begin();
 
-    Message* clonedMessage;
+        Message* clonedMessage;
 
-    while(it != inRangePlayers->end())
-    {
-        PlayerObject* player = (*it);
-
-        if(player->isConnected())
+        while(it != inRangePlayers->end())
         {
-            mMessageFactory->StartMessage();
-            mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-            clonedMessage = mMessageFactory->EndMessage();
+    PlayerObject* player = (*it);
 
-            // replace the target id
-            int8* data = clonedMessage->getData() + 12;
-            *((uint64*)data) = player->getId();
+    if(player->isConnected())
+    {
+        mMessageFactory->StartMessage();
+        mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
+        clonedMessage = mMessageFactory->EndMessage();
 
-            (player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,5,false);
-        }
+        // replace the target id
+        int8* data = clonedMessage->getData() + 12;
+        *((uint64*)data) = player->getId();
 
-        ++it;
+        (player->getClient())->SendChannelA(clonedMessage,player->getAccountId(),CR_Client,5,false);
     }
 
-    // if we are a player, echo it back to ourself
-    if(attacker->getType() == ObjType_Player)
-    {
-        PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(attacker);
-
-        if(srcPlayer->isConnected())
-        {
-            (srcPlayer->getClient())->SendChannelA(newMessage,srcPlayer->getAccountId(),CR_Client,5,false);
-            return;
+    ++it;
         }
 
+        // if we are a player, echo it back to ourself
+        if(attacker->getType() == ObjType_Player)
+        {
+    PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(attacker);
+
+    if(srcPlayer->isConnected())
+    {
+        (srcPlayer->getClient())->SendChannelA(newMessage,srcPlayer->getAccountId(),CR_Client,5,false);
+        return;
     }
 
-    mMessageFactory->DestroyMessage(newMessage);
-    */
+        }
+
+        mMessageFactory->DestroyMessage(newMessage);
+        */
 
 }
 
@@ -2084,6 +2084,6 @@ void MessageLib::sendSetWaypointActiveStatus(WaypointObject* waypointObject, boo
 
     targetObject->getClient()->SendChannelA(message, targetObject->getAccountId(), CR_Client, 5);
 
-return;
+    return;
 }
 //======================================================================================================================

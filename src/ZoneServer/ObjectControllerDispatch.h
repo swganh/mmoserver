@@ -41,23 +41,23 @@ class DispatchClient;
 
 class ObjectControllerDispatch
 {
-	public:
+public:
 
-		ObjectControllerDispatch(Database* database,MessageDispatch* dispatch);
-		~ObjectControllerDispatch();
+    ObjectControllerDispatch(Database* database,MessageDispatch* dispatch);
+    ~ObjectControllerDispatch();
 
-		void			Process();
+    void			Process();
 
-	private:
+private:
 
-		void			_dispatchMessage(Message* message,DispatchClient* client);
-		void			_dispatchObjectMenuSelect(Message* message,DispatchClient* client);
+    void			_dispatchMessage(Message* message,DispatchClient* client);
+    void			_dispatchObjectMenuSelect(Message* message,DispatchClient* client);
 
-		Database*					mDatabase;
-		MessageDispatch*			mMessageDispatch;
+    Database*					mDatabase;
+    MessageDispatch*			mMessageDispatch;
 };
 
-#endif 
+#endif
 
 
 

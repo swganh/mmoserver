@@ -44,36 +44,38 @@ class TicketCollector;
 
 enum TCFQuery
 {
-	TCFQuery_MainData	= 1
+    TCFQuery_MainData	= 1
 };
 
 //=============================================================================
 
 class TicketCollectorFactory : public FactoryBase
 {
-	public:
+public:
 
-		static TicketCollectorFactory*	getSingletonPtr() { return mSingleton; }
-		static TicketCollectorFactory*	Init(Database* database);
+    static TicketCollectorFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static TicketCollectorFactory*	Init(Database* database);
 
-		~TicketCollectorFactory();
+    ~TicketCollectorFactory();
 
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-	private:
+private:
 
-		TicketCollectorFactory(Database* database);
+    TicketCollectorFactory(Database* database);
 
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-		TicketCollector*	_createTicketCollector(DatabaseResult* result);
+    TicketCollector*	_createTicketCollector(DatabaseResult* result);
 
-		static TicketCollectorFactory*	mSingleton;
-		static bool					mInsFlag;
+    static TicketCollectorFactory*	mSingleton;
+    static bool					mInsFlag;
 
-		DataBinding*					mTicketCollectorBinding;
+    DataBinding*					mTicketCollectorBinding;
 };
 
 //=============================================================================

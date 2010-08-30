@@ -46,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleHealAllSelf1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -55,7 +55,7 @@ void ObjectController::_handleHealAllSelf1(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleHealAllSelf2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -64,7 +64,7 @@ void ObjectController::_handleHealAllSelf2(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleHealHealthSelf1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -73,7 +73,7 @@ void ObjectController::_handleHealHealthSelf1(uint64 targetId,Message* message,O
 
 void ObjectController::_handleHealHealthSelf2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -82,7 +82,7 @@ void ObjectController::_handleHealHealthSelf2(uint64 targetId,Message* message,O
 
 void ObjectController::_handleHealActionSelf1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -91,7 +91,7 @@ void ObjectController::_handleHealActionSelf1(uint64 targetId,Message* message,O
 
 void ObjectController::_handleHealActionSelf2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -100,7 +100,7 @@ void ObjectController::_handleHealActionSelf2(uint64 targetId,Message* message,O
 
 void ObjectController::_handleHealMindSelf1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -109,7 +109,7 @@ void ObjectController::_handleHealMindSelf1(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleHealMindSelf2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -118,7 +118,7 @@ void ObjectController::_handleHealMindSelf2(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleHealActionWoundSelf1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -127,7 +127,7 @@ void ObjectController::_handleHealActionWoundSelf1(uint64 targetId,Message* mess
 
 void ObjectController::_handleHealActionWoundSelf2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -136,7 +136,7 @@ void ObjectController::_handleHealActionWoundSelf2(uint64 targetId,Message* mess
 
 void ObjectController::_handleHealHealthWoundSelf1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -145,7 +145,7 @@ void ObjectController::_handleHealHealthWoundSelf1(uint64 targetId,Message* mess
 
 void ObjectController::_handleHealHealthWoundSelf2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -154,7 +154,7 @@ void ObjectController::_handleHealHealthWoundSelf2(uint64 targetId,Message* mess
 
 void ObjectController::_handleHealBattleFatigueSelf1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -163,7 +163,7 @@ void ObjectController::_handleHealBattleFatigueSelf1(uint64 targetId,Message* me
 
 void ObjectController::_handleHealBattleFatigueSelf2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -172,7 +172,7 @@ void ObjectController::_handleHealBattleFatigueSelf2(uint64 targetId,Message* me
 
 void ObjectController::_handleHealMindWoundSelf1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -181,7 +181,7 @@ void ObjectController::_handleHealMindWoundSelf1(uint64 targetId,Message* messag
 
 void ObjectController::_handleHealMindWoundSelf2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -190,7 +190,7 @@ void ObjectController::_handleHealMindWoundSelf2(uint64 targetId,Message* messag
 
 void ObjectController::_handleHealActionWoundOther1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -199,7 +199,7 @@ void ObjectController::_handleHealActionWoundOther1(uint64 targetId,Message* mes
 
 void ObjectController::_handleHealActionWoundOther2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -208,7 +208,7 @@ void ObjectController::_handleHealActionWoundOther2(uint64 targetId,Message* mes
 
 void ObjectController::_handleHealHealthWoundOther1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -217,7 +217,7 @@ void ObjectController::_handleHealHealthWoundOther1(uint64 targetId,Message* mes
 
 void ObjectController::_handleHealHealthWoundOther2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -226,7 +226,7 @@ void ObjectController::_handleHealHealthWoundOther2(uint64 targetId,Message* mes
 
 void ObjectController::_handleHealMindWoundOther1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -235,7 +235,7 @@ void ObjectController::_handleHealMindWoundOther1(uint64 targetId,Message* messa
 
 void ObjectController::_handleHealMindWoundOther2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -244,7 +244,7 @@ void ObjectController::_handleHealMindWoundOther2(uint64 targetId,Message* messa
 
 void ObjectController::_handleHealAllOther1(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -253,7 +253,7 @@ void ObjectController::_handleHealAllOther1(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleHealAllOther2(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -262,7 +262,7 @@ void ObjectController::_handleHealAllOther2(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleHealStatesOther(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -271,7 +271,7 @@ void ObjectController::_handleHealStatesOther(uint64 targetId,Message* message,O
 
 void ObjectController::_handleStopBleeding(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -280,7 +280,7 @@ void ObjectController::_handleStopBleeding(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleForceCureDisease(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -289,7 +289,7 @@ void ObjectController::_handleForceCureDisease(uint64 targetId,Message* message,
 
 void ObjectController::_handleForceCurePoison(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -298,7 +298,7 @@ void ObjectController::_handleForceCurePoison(uint64 targetId,Message* message,O
 
 void ObjectController::_handleHealStatesSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -307,7 +307,7 @@ void ObjectController::_handleHealStatesSelf(uint64 targetId,Message* message,Ob
 
 void ObjectController::_handleTotalHealOther(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -316,7 +316,7 @@ void ObjectController::_handleTotalHealOther(uint64 targetId,Message* message,Ob
 
 void ObjectController::_handleTotalHealSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 

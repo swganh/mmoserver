@@ -43,20 +43,20 @@ class DispatchClient;
 class MapLocation
 {
 public:
-  uint64		mId;
-  int8  		mName[64];
-  uint8		  mCategory;
-  uint8		  mSubCategory;
-  float		  mX;
-  float		  mZ;
-  uint8		  mListIcon;
+    uint64		mId;
+    int8  		mName[64];
+    uint8		  mCategory;
+    uint8		  mSubCategory;
+    float		  mX;
+    float		  mZ;
+    uint8		  mListIcon;
 };
 
 class PlanetMapHandlerAsyncContainer
 {
 public:
-  DispatchClient*     mClient;
-  BString              mPlanetName;
+    DispatchClient*     mClient;
+    BString              mPlanetName;
 };
 
 
@@ -65,25 +65,25 @@ class PlanetMapHandler : public DatabaseCallback
 {
 public:
 
-	                              PlanetMapHandler(Database* database, MessageDispatch* dispatch);
-	                              ~PlanetMapHandler();
+    PlanetMapHandler(Database* database, MessageDispatch* dispatch);
+    ~PlanetMapHandler();
 
-	void			                    Process();
+    void			                    Process();
 
-  // Inherited from DatabaseCallback  
-  virtual void                   handleDatabaseJobComplete(void* ref, DatabaseResult* result);
+    // Inherited from DatabaseCallback
+    virtual void                   handleDatabaseJobComplete(void* ref, DatabaseResult* result);
 
 private:
 
-	void                          _processMapLocationsRequest(Message* message, DispatchClient* client);
+    void                          _processMapLocationsRequest(Message* message, DispatchClient* client);
 
 
-	Database*                     mDatabase;
-	DataBinding*                  mDataBinding;
-	MessageDispatch*              mMessageDispatch;
+    Database*                     mDatabase;
+    DataBinding*                  mDataBinding;
+    MessageDispatch*              mMessageDispatch;
 };
 
 
-#endif 
+#endif
 
 

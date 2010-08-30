@@ -42,21 +42,21 @@ CraftingSessionFactory*		CraftingSessionFactory::mSingleton  = NULL;
 
 CraftingSessionFactory*	CraftingSessionFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new CraftingSessionFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new CraftingSessionFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 
 CraftingSessionFactory::CraftingSessionFactory(Database* database) :
-mDatabase(database),
-mSessionPool(sizeof(CraftingSession))
+    mDatabase(database),
+    mSessionPool(sizeof(CraftingSession))
 {
 }
 
@@ -64,28 +64,28 @@ mSessionPool(sizeof(CraftingSession))
 
 CraftingSessionFactory::~CraftingSessionFactory()
 {
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
 
 CraftingSession* CraftingSessionFactory::createSession(Anh_Utils::Clock* clock,PlayerObject* player,CraftingTool* tool,CraftingStation* station,uint32 expFlag)
 {
-	CraftingSession* session = new(mSessionPool.ordered_malloc()) CraftingSession(clock,mDatabase,player,tool,station,expFlag);
+    CraftingSession* session = new(mSessionPool.ordered_malloc()) CraftingSession(clock,mDatabase,player,tool,station,expFlag);
 
-	return(session);
+    return(session);
 }
 
 //=============================================================================
 
 void CraftingSessionFactory::destroySession(CraftingSession* session)
 {
-	if(session)
-	{
-		session->~CraftingSession();
-		mSessionPool.free(session);
-	}
+    if(session)
+    {
+        session->~CraftingSession();
+        mSessionPool.free(session);
+    }
 }
 
 //=============================================================================

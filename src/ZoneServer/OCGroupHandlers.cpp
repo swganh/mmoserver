@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     // lets get the target player
@@ -76,7 +76,7 @@ void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectCont
     gMessageFactory->addUint32(opIsmGroupInviteRequest);
     gMessageFactory->addUint32(target_player->getAccountId());
     newMessage = gMessageFactory->EndMessage();
-    player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);	
+    player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
 
 //======================================================================================================================
@@ -85,7 +85,7 @@ void ObjectController::_handleInvite(uint64 targetId,Message* message,ObjectCont
 //
 
 void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     // lets get the target player
@@ -103,7 +103,7 @@ void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectCo
     // we advise the chat server
     Message* newMessage;
     gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opIsmGroupUnInvite);  
+    gMessageFactory->addUint32(opIsmGroupUnInvite);
     gMessageFactory->addUint32(targetPlayer->getAccountId());
     newMessage = gMessageFactory->EndMessage();
     player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
@@ -115,16 +115,16 @@ void ObjectController::_handleUninvite(uint64 targetId,Message* message,ObjectCo
 //
 
 void ObjectController::_handleJoin(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-    // resetting the sender's id 
+    // resetting the sender's id
     gMessageLib->sendInviteSenderUpdateDeltasCreo6(0,player);
 
     // we advise the chat server that he accepted
     Message* newMessage;
     gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opIsmGroupInviteResponse);  
+    gMessageFactory->addUint32(opIsmGroupInviteResponse);
     gMessageFactory->addUint8(1);
     gMessageFactory->addFloat(player->mPosition.x);
     gMessageFactory->addFloat(player->mPosition.z);
@@ -138,18 +138,18 @@ void ObjectController::_handleJoin(uint64 targetId,Message* message,ObjectContro
 //
 
 void ObjectController::_handleDecline(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-    // resetting the sender's id 
+    // resetting the sender's id
     gMessageLib->sendInviteSenderUpdateDeltasCreo6(0,player);
-    
+
     gMessageLib->SendSystemMessage(::common::OutOfBand("group", "decline_self"), player);
 
     // we advise the chat server that he refused
     Message* newMessage;
     gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opIsmGroupInviteResponse);  
+    gMessageFactory->addUint32(opIsmGroupInviteResponse);
     gMessageFactory->addUint8(0);
     newMessage = gMessageFactory->EndMessage();
     player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
@@ -162,18 +162,18 @@ void ObjectController::_handleDecline(uint64 targetId,Message* message,ObjectCon
 //
 
 void ObjectController::_handleDisband(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     if(player->getGroupId() == 0)
     {
         return;
-    }	
+    }
 
     // we advise the chat server about the disband
     Message* newMessage;
     gMessageFactory->StartMessage();
-    gMessageFactory->addUint32(opIsmGroupDisband);  
+    gMessageFactory->addUint32(opIsmGroupDisband);
     newMessage = gMessageFactory->EndMessage();
     player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
 }
@@ -184,13 +184,13 @@ void ObjectController::_handleDisband(uint64 targetId,Message* message,ObjectCon
 //
 
 void ObjectController::_handleLeaveGroup(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     if(player->getGroupId() == 0)
     {
         return;
-    }	
+    }
 
     // we advise the chat server about it
     gMessageLib->sendIsmGroupLeave(player);
@@ -202,13 +202,13 @@ void ObjectController::_handleLeaveGroup(uint64 targetId,Message* message,Object
 //
 
 void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     if(player->getGroupId() == 0)
     {
         return;
-    }	
+    }
 
     // lets get the target player
     message->setIndex(32);
@@ -237,14 +237,14 @@ void ObjectController::_handleMakeLeader(uint64 targetId,Message* message,Object
 //
 
 void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     // make sure its a fully grouped player
     if(player->getGroupId() == 0)
     {
         return;
-    }	
+    }
 
     // lets get the target player
     message->setIndex(32);
@@ -274,11 +274,11 @@ void ObjectController::_handleDismissGroupMember(uint64 targetId,Message* messag
 
 
 void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     BString msgText;
- 
+
     msgText.setType(BSTRType_Unicode16);
     msgText.setLength(512);
 
@@ -321,7 +321,7 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
     gMessageFactory->addUint32(0);
     gMessageFactory->addString(msgText);
     newMessage = gMessageFactory->EndMessage();
-    player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2); 
+    player->getClient()->SendChannelA(newMessage,player->getAccountId(),CR_Chat,2);
     //this should be fastpath as not being Mission critical and we want to prevent the communication protocol overhead with Acks and resends
 
     // Convert since we are going to print it.
@@ -335,7 +335,7 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
 //
 
 void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     // disabled for now
     //return;
 
@@ -346,7 +346,7 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
     if(player->getGroupId() == 0)
     {
         return;
-    }	
+    }
 
     // we advise the chat server about it
     Message* newMessage;
@@ -362,7 +362,7 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
 //
 
 void ObjectController::_handleMakeMasterLooter(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{	
+{
     // disabled for now
     //return;
 
@@ -374,7 +374,7 @@ void ObjectController::_handleMakeMasterLooter(uint64 targetId,Message* message,
     if(player->getGroupId() == 0)
     {
         return;
-    }	
+    }
 
     // we advise the chat server about it
     Message* newMessage;

@@ -54,7 +54,7 @@ public:
 };
 
 /*! \brief The BaseApplicationService is an implementation of the IApplicationService
- * interface that provides concrete instances with the ability to run entirely 
+ * interface that provides concrete instances with the ability to run entirely
  * in their own threads of execution.
  *
  * An example of an ApplicationService would be the HamService which
@@ -87,7 +87,7 @@ public:
     uint64_t current_timestamp() const;
 
 protected:
-    EventDispatcher& event_dispatcher_;    
+    EventDispatcher& event_dispatcher_;
     ::utils::ActiveObject active_;
 
     virtual void onTick() = 0;
@@ -97,7 +97,7 @@ private:
     BaseApplicationService();
     BaseApplicationService(const BaseApplicationService&);
     const BaseApplicationService& operator=(const BaseApplicationService&);
-    
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)

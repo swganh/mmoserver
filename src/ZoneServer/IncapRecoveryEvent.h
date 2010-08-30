@@ -34,11 +34,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class IncapRecoveryEvent : public Anh_Utils::Event
 {
-	public:
+public:
 
-		IncapRecoveryEvent(){}
+    IncapRecoveryEvent() {}
 
-	private:
+private:
 
 };
 

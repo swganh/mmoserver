@@ -50,6 +50,9 @@ void PostureState::Exit(CreatureObject* obj)
 }
 bool PostureState::CanTransition(uint64 newPosture)
 {
+    // check to see if the layer is blocked
+    if (mBlocked)
+        return false;
     transitionList::iterator itPosture = mTransitionList.find(State_Posture);
     transitionList::iterator itAction = mTransitionList.find(State_Action);
     transitionList::iterator itLocomotion = mTransitionList.find(State_Locomotion);

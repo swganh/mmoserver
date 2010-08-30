@@ -63,10 +63,14 @@ public:
     */
     virtual uint64 GetID(IState* state){return state->mStateID;}
 
+    virtual void    Block(){mBlocked = true;}
+    virtual void    Unblock(){mBlocked = false;}
+
 
     //virtual bool hidden(){return mHidden;}
 
 protected:
     uint64					mStateID;
     bool					mHidden;
+    bool                    mBlocked;
 };

@@ -346,35 +346,35 @@ void FireworkShow::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
                 dynamic_cast<Firework*>(item)->setDelay(1000);
                 objList->push_back(item);	*/	/*
 
-        }
-    }
-    break;
-    case SUI_Window_FireworkShow_Remove:
-    {
-        if(fireworkShowList.size() > 0 )	//Do Not erase from an empty list
-        {
-            gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),fireworkShowList.at(element).itemId,TanGroup_Item);
-            fireworkShowList.erase(fireworkShowList.begin()+element);
-            //gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),fireworkShowList.at(element).itemId,TanGroup_Item);
-        }
+}
+}
+break;
+case SUI_Window_FireworkShow_Remove:
+{
+if(fireworkShowList.size() > 0 )	//Do Not erase from an empty list
+{
+gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),fireworkShowList.at(element).itemId,TanGroup_Item);
+fireworkShowList.erase(fireworkShowList.begin()+element);
+//gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),fireworkShowList.at(element).itemId,TanGroup_Item);
+}
 
-    }
-    break;
+}
+break;
 
-    case SUI_Window_FireworkShow_Modify:
-    {
+case SUI_Window_FireworkShow_Modify:
+{
 
-        this->fireworkShowListModify=element; //Bit of a filthy hack, but couldn't find an alternative due to ui callback system
+this->fireworkShowListModify=element; //Bit of a filthy hack, but couldn't find an alternative due to ui callback system
 
-        gUIManager->createNewTransferBox(this,"handleModifyEventTime","@firework:modify_delay_title"
-                ,"@firework:modify_delay_prompt", "Available", "Delay"
-                ,0
-                ,100
-                ,window->getOwner());
+gUIManager->createNewTransferBox(this,"handleModifyEventTime","@firework:modify_delay_title"
+,"@firework:modify_delay_prompt", "Available", "Delay"
+,0
+,100
+,window->getOwner());
 
-    }
-    break;
-    default:break;
+}
+break;
+default:break;
 }
 */
 }

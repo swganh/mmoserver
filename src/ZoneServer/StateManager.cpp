@@ -184,3 +184,8 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
     gEventDispatcher.Notify(locomotion_update_event);
 }
 
+bool StateManager::checkAllActionStates(uint64 currentStates, uint32 stateToCheck)
+{
+
+    return false;
+}

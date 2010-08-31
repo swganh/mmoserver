@@ -72,10 +72,8 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     }
     while (itAction != mTransitionList->end())
     {
-        // function here to go through states and pull one at a time to check
-
-        CreatureState state = (CreatureState)(*itAction).second;
-        if (state == obj->getState())
+        uint64 state = (*itAction).second;
+        if ((state & obj->getState()) != obj->getState())
         {
             transitionAction = true;
             break;

@@ -62,6 +62,9 @@ public:
     ActionStateMap		    mActionStateMap;
     PostureStateMap		    mPostureStateMap;
     LocomotionStateMap      mLocomotionStateMap;
+
+    // helper functions
+    bool checkAllActionStates(uint64 currentStates, uint32 stateToCheck);
     
 
 private:

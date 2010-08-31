@@ -11,6 +11,10 @@ if not exist %1bin\%2\libmysql.dll (
     xcopy %1deps\mysql\bin %1bin\%2 /I /Y /s
 )
 
+if not exist %1bin\%2\mysqlcppconn.dll (
+    xcopy %1deps\mysql-connector-cpp\driver\%2 %1bin\%2 /I /Y /s
+)
+
 if not exist %1bin\%2\config (
     xcopy %1data\config %1bin\%2\config /I /Y /s
 )

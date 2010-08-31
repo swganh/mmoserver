@@ -63,10 +63,6 @@ public:
     PostureStateMap		    mPostureStateMap;
     LocomotionStateMap      mLocomotionStateMap;
 
-    // helper functions
-    bool checkAllActionStates(uint64 currentStates, uint32 stateToCheck);
-    
-
 private:
     void            addActionState(Object* object, ActionState* newState);
     void		    loadActionStateMap();

@@ -55,18 +55,18 @@ public:
     */
     virtual bool CanTransition(CreatureObject* obj, uint64 newState) = 0;
     
-    virtual uint64 GetID(IState* state){return state->mStateID;}
-
     virtual void    Block(){mBlocked = true;}
     virtual void    Unblock(){mBlocked = false;}
 
-    transitionList* returnTransitionList(){return mTransitionList;}
+    virtual transitionList returnTransitionList(){return mTransitionList;}
+
+    virtual void insertIntoTransitionList(std::pair<StateTypes, uint64> pair) = 0;
 
 
     //virtual bool hidden(){return mHidden;}
 
 protected:
-    transitionList*         mTransitionList;
+    transitionList          mTransitionList;
     uint64					mStateID;
     bool					mHidden;
     bool                    mBlocked;

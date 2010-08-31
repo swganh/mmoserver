@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "Common/EventDispatcher.h"
 
-using ::common::SimpleEvent;
 using ::common::EventType;
 
 StateManager::StateManager()
@@ -182,10 +181,4 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
         }
     }
     gEventDispatcher.Notify(locomotion_update_event);
-}
-
-bool StateManager::checkAllActionStates(uint64 currentStates, uint32 stateToCheck)
-{
-
-    return false;
 }

@@ -50,9 +50,13 @@ public:
     *  
     */
     virtual bool CanTransition(CreatureObject* obj, uint64 newPosture);
+
+    virtual transitionList returnTransitionList(){return mTransitionList;}
+
+    virtual void insertIntoTransitionList(std::pair<StateTypes, uint64> pair);
     
 protected:
-    transitionList*  mTransitionList;
+    transitionList  mTransitionList;
 };
 /*	Upright Posture
 *

@@ -48,7 +48,7 @@ void LocomotionState::Exit(CreatureObject* obj)
     obj->setLocomotion(0);
 }
 bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionState)
-{
+{ 
     bool transitionPosture    = true;
     bool transitionAction     = true;
     bool transitionLocomotion = true;
@@ -68,6 +68,7 @@ bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionSta
             transitionPosture = false;
             break;
         }
+        ++itPosture;
     }
     while (itAction != mTransitionList.end())
     {
@@ -77,6 +78,7 @@ bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionSta
             transitionAction = false;
             break;
         }
+        ++itAction;
     }
     while (itLocomotion != mTransitionList.end())
     {
@@ -86,10 +88,11 @@ bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionSta
             transitionLocomotion = false;
             break;
         }
+        ++itLocomotion;
     }
     return transitionAction && transitionPosture && transitionLocomotion;
 }
-void LocomotionState::insertIntoTransitionList(std::pair<StateTypes, uint64> types)
+void LocomotionState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& types)
 {
     mTransitionList.insert(types);
 }

@@ -51,9 +51,9 @@ public:
     */
     virtual bool CanTransition(CreatureObject* obj, uint64 newState);
 
-    virtual transitionList returnTransitionList(){return mTransitionList;}
+    virtual const transitionList& returnTransitionList(){return mTransitionList;}
 
-    virtual void insertIntoTransitionList(std::pair<StateTypes, uint64> pair);
+    virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
 
 protected:
     transitionList  mTransitionList;

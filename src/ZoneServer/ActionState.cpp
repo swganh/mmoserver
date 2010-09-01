@@ -61,6 +61,7 @@ bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
             transitionPosture = false;
             break;
         }
+        ++itPosture;
     }
     while (itAction != mTransitionList.end())
     {
@@ -70,6 +71,7 @@ bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
             transitionAction = false;
             break;
         }
+        ++itAction;
     }
     while (itLocomotion != mTransitionList.end())
     {
@@ -79,10 +81,11 @@ bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
             transitionLocomotion = false;
             break;
         }
+        ++itLocomotion;
     }
     return transitionAction && transitionPosture && transitionLocomotion;
 }
-void ActionState::insertIntoTransitionList(std::pair<StateTypes, uint64> types)
+void ActionState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& types)
 {
     mTransitionList.insert(types);
 }

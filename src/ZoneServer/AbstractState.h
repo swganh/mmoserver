@@ -58,9 +58,9 @@ public:
     virtual void    Block(){mBlocked = true;}
     virtual void    Unblock(){mBlocked = false;}
 
-    virtual transitionList returnTransitionList(){return mTransitionList;}
+    virtual const transitionList& returnTransitionList(){return mTransitionList;}
 
-    virtual void insertIntoTransitionList(std::pair<StateTypes, uint64> pair) = 0;
+    virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair)=0;
 
 
     //virtual bool hidden(){return mHidden;}

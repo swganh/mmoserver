@@ -691,7 +691,7 @@ void MissionManager::missionFailed(PlayerObject* player, MissionObject* mission)
             //argh
             mission->setInProgress(false);
             player->RemoveBuff(timer);
-            SAFE_DELETE(timer);
+            player->CleanUpBuffs();
             mission->setEntertainingTimer(NULL);
         }
     }

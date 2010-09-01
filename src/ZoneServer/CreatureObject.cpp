@@ -562,6 +562,7 @@ void CreatureObject::RemoveBuff(Buff* buff)
 
     //Perform any Final changes
     buff->FinalChanges();
+    buff->MarkForDeletion();
 }
 
 //================================================

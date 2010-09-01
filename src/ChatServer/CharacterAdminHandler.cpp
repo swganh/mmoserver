@@ -335,7 +335,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
     strcat(sql, sql2);
 
     //Logging the character create sql for debugging purposes,beware this contains binary data
-    gLogger->log(LogManager::DEBUG,"SQL :: %s", sql);
+    
 
     CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
     mDatabase->ExecuteProcedureAsync(this, asyncContainer, sql);

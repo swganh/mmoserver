@@ -162,7 +162,7 @@ void PlanetMapHandler::_processMapLocationsRequest(Message* message, DispatchCli
 
     // Send our job in.
     mDatabase->ExecuteProcedureAsync(this, (void*)container, "CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi());
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi()); // SQL Debug Log
+    
 }
 
 //======================================================================================================================

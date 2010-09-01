@@ -61,7 +61,7 @@ CharSheetManager::CharSheetManager(Database* database,MessageDispatch* dispatch)
 
     //gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
     mDatabase->ExecuteSqlAsync(this, new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions), "SELECT * FROM faction ORDER BY id;");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM faction ORDER BY id"); // SQL Debug Log
+    
 }
 
 //=========================================================================================
@@ -140,7 +140,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
         // load badge categories
         gLogger->log(LogManager::NOTICE,"Loading Badge Categories.");
         mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_BadgeCategories),"SELECT * FROM badge_categories ORDER BY id");
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM badge_categories ORDER BY id"); // SQL Debug Log
+        
     }
     break;
 
@@ -163,7 +163,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
         //gLogger->log(LogManager::DEBUG,"Finished Loading Badge Categories.");
         //gLogger->log(LogManager::NOTICE,"Loading Badges.");
         mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Badges),"SELECT * FROM badges ORDER BY id");
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM badges ORDER BY id"); // SQL Debug Log
+        
     }
     break;
 

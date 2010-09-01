@@ -79,8 +79,8 @@ LoginServer::LoginServer(void) :
 
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL - Update Server Start ID
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 1); // SQL - Update Server Status
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL Debug Log
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 1); // SQL Debug Log
+    
+    
 
     // In case of a crash, we need to cleanup the DB a little.
     mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET account_authenticated = 0 WHERE account_authenticated = 1;"));
@@ -101,7 +101,6 @@ LoginServer::LoginServer(void) :
 
     // We're done initializing.
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, '%s', %u);", 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', %u, '%s', %u);", 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL Debug Log
 
     gLogger->log(LogManager::CRITICAL, "Login Server startup complete");
     //gLogger->printLogo();
@@ -116,7 +115,7 @@ LoginServer::LoginServer(void) :
 LoginServer::~LoginServer(void)
 {
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 2); // SQL - Update server status
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 2); // SQL Debug Log
+    
     gLogger->log(LogManager::CRITICAL, "LoginServer shutting down...");
 
     delete mLoginManager;

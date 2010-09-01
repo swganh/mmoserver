@@ -444,8 +444,6 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 
     // update the current resource in the db
     mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET ResourceID=%"PRIu64" WHERE id=%"PRIu64" ",resourceId,harvester->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE harvesters SET ResourceID=%"PRIu64" WHERE id=%"PRIu64" ",resourceId,harvester->getId()); // SQL Debug Log
-
 
     CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
     //resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
@@ -481,12 +479,12 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
         //harvester->getResourceList()->push_back(std::make_pair(resourceId,float(0.0)));
         //add to db
         mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO harvester_resources VALUES(%"PRIu64",%"PRIu64",0,0)",harvester->getId(),resourceId);
-        gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO harvester_resources VALUES(%"PRIu64",%"PRIu64",0,0)",harvester->getId(),resourceId); // SQL Debug Log
+     
     }
 
     // update the current extractionrate in the db for the stored procedure handling the harvesting
     mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET rate=%f WHERE id=%"PRIu64" ",(ber*ratio),harvester->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE harvesters SET rate=%f WHERE id=%"PRIu64" ",(ber*ratio),harvester->getId()); // SQL Debug Log
+    
 
     //now send the updates
     gMessageLib->sendCurrentResourceUpdate(harvester,player);
@@ -540,7 +538,7 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 
     //send the db update
     mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET active= 1 WHERE id=%"PRIu64" ",harvester->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE harvesters SET active= 1 WHERE id=%"PRIu64" ",harvester->getId()); // SQL Debug Log
+    
 
 }
 
@@ -589,7 +587,7 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 
     //send the db update
     mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET active = 0 WHERE id=%"PRIu64" ",harvester->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE harvesters SET active = 0 WHERE id=%"PRIu64" ",harvester->getId()); // SQL Debug Log
+    
 
 }
 
@@ -639,9 +637,6 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 
     gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-    // mDatabase->ExecuteSqlAsync(0,0,"SELECT sf_DiscardHopper(%"PRIu64") ",harvester->getId());
-    // gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DiscardHopper(%"PRIu64") ",harvester->getId()); // SQL Debug Log
-    // gMessageLib->SendHarvesterHopperUpdate(harvester,player);
 
 }
 

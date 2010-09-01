@@ -101,7 +101,7 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     {
                         this->setAttribute("charges",boost::lexical_cast<std::string>(charges));
                         gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",charges,this->getId(), AttrType_Charges);
-                        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",charges,this->getId(), AttrType_Charges); // SQL Debug Log
+                        
                         //now update the uses display
                         gMessageLib->sendUpdateUses(this,playerObject);
                         return;

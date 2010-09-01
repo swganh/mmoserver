@@ -225,7 +225,6 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         int8 sql[550];
         sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM draft_schematic_customization dsc WHERE dsc.batchId = %u",groupId);
         mDatabase->ExecuteSqlAsync(this,container,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
 
     }
@@ -410,7 +409,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
         //% just upsets the standard query
         mDatabase->ExecuteSqlAsyncNoArguments(this,container,sql);
         gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-        //mDatabase->ExecuteSqlAsync(this,container,sql);
+        
         return;
     }
     //as the main item has been loaded we can now only receive components when we fill slots with stack-/crate- content
@@ -1274,7 +1273,6 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     list->clear();
 
     mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId()); // SQL Debug Log
 
 
     //save the datapad as the Owner Id in the db
@@ -1292,7 +1290,6 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     std::string serial = mItem->getAttribute<std::string>("serial_number");
 
     mDatabase->ExecuteSqlAsync(0, 0, "INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
-    gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity()); // SQL Debug Log
 
 
     //save the customization - thats part of the item!!!!

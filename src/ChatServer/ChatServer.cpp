@@ -195,7 +195,7 @@ void ChatServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', %u, '%s', %u);", status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL - Update server status
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('chat', %u, '%s', %u);", status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL Debug Log
+ 
 }
 
 //======================================================================================================================
@@ -216,7 +216,7 @@ void ChatServer::_connectToConnectionServer()
 
     // Setup our statement
     DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';"); // SQL Debug Log
+    
     uint64 count = result->getRowCount();
 
     // If we found them

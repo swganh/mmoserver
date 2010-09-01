@@ -283,7 +283,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         // asContainer->mObject = npc;
 
         mDatabase->ExecuteSqlAsync(this, asContainer, "SELECT creature_groups.creature_id FROM creature_groups WHERE creature_groups.creature_group_id=%u;", lair.mCreatureGroup);
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT creature_groups.creature_id FROM creature_groups WHERE creature_groups.creature_group_id=%u;", lair.mCreatureGroup); // SQL Debug Log
+        
 
     }
     break;
@@ -320,7 +320,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
 
         mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,lair_attributes.value,attributes.internal FROM lair_attributes INNER JOIN attributes ON (lair_attributes.attribute_id = attributes.id) WHERE lair_attributes.lair_id = %"PRIu64" ORDER BY lair_attributes.order", asyncContainer->mTemplateId);
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,lair_attributes.value,attributes.internal FROM lair_attributes INNER JOIN attributes ON (lair_attributes.attribute_id = attributes.id) WHERE lair_attributes.lair_id = %"PRIu64" ORDER BY lair_attributes.order", asyncContainer->mTemplateId); // SQL Debug Log
+        
     }
     break;
 
@@ -352,11 +352,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
                                        " FROM non_persistent_npc_attributes"
                                        " INNER JOIN attributes ON (non_persistent_npc_attributes.attribute_id = attributes.id)"
                                        " WHERE non_persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY non_persistent_npc_attributes.order", asyncContainer->mTemplateId);
-            gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,non_persistent_npc_attributes.value,attributes.internal"
-                         " FROM non_persistent_npc_attributes"
-                         " INNER JOIN attributes ON (non_persistent_npc_attributes.attribute_id = attributes.id)"
-                         " WHERE non_persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY non_persistent_npc_attributes.order", asyncContainer->mTemplateId); // SQL Debug Log
-        }
+             }
     }
     break;
 
@@ -650,15 +646,7 @@ void NonPersistentNpcFactory::requestLairObject(ObjectFactoryCallback* ofCallbac
                                "INNER JOIN lair_templates ON (lairs.lair_template = lair_templates.id) "
                                "INNER JOIN faction ON (lairs.faction = faction.id) "
                                "WHERE lairs.id=%u;",gWorldManager->getZoneId(), lairsId);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT lairs.creature_spawn_region, lairs.lair_template, lairs.creature_group, lairs.count, lairs.spawn_x, lairs.spawn_z, "
-                 "lairs.spawn_dir_Y, lairs.spawn_dir_W, "
-                 "lairs.family, lair_templates.lair_object_string, lair_templates.stf_name, lair_templates.stf_file, "
-                 "faction.name "
-                 "FROM lairs "
-                 "INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id AND %u = spawns.spawn_planet) "
-                 "INNER JOIN lair_templates ON (lairs.lair_template = lair_templates.id) "
-                 "INNER JOIN faction ON (lairs.faction = faction.id) "
-                 "WHERE lairs.id=%u;",gWorldManager->getZoneId(), lairsId); // SQL Debug Log
+  
 }
 
 void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback,
@@ -680,12 +668,5 @@ void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback
                                "FROM non_persistent_npcs "
                                "INNER JOIN faction ON (non_persistent_npcs.faction = faction.id) "
                                "WHERE non_persistent_npcs.id=%"PRIu64";", creatureTemplateId);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT non_persistent_npcs.species_id, non_persistent_npcs.loot_group_id, "
-                 "non_persistent_npcs.posture, non_persistent_npcs.state, non_persistent_npcs.level, "
-                 "non_persistent_npcs.type, non_persistent_npcs.stf_variable_id, non_persistent_npcs.stf_file_id, "
-                 "faction.name, "
-                 "non_persistent_npcs.moodID, non_persistent_npcs.scale, non_persistent_npcs.family "
-                 "FROM non_persistent_npcs "
-                 "INNER JOIN faction ON (non_persistent_npcs.faction = faction.id) "
-                 "WHERE non_persistent_npcs.id=%"PRIu64";", creatureTemplateId); // SQL Debug Log
+   
 }

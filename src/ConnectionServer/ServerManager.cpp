@@ -165,7 +165,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
             if(mTotalConnectedServers == mTotalActiveServers)
             {
                 mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Set status to online
-                gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // SQL Debug Log
+               
             }
         }
     }
@@ -209,7 +209,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
     {
         --mTotalConnectedServers;
         mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
-        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // SQL Debug Log
+        
     }
 
     gLogger->log(LogManager::DEBUG,"Servermanager handle server down\n");

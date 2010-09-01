@@ -208,7 +208,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mHopper = asyncContainer->mHopper;
 
                     mDatabase->ExecuteSqlAsync(this,asynContainer, "SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId);
-                    gLogger->log(LogManager::DEBUG, "SQL :: SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId); // SQL Debug Log
+                    
                 }
             }
 
@@ -228,7 +228,6 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mHopper = asyncContainer->mHopper;
 
                     mDatabase->ExecuteSqlAsync(this,asynContainer, "SELECT amount FROM resource_containers WHERE id= %"PRIu64"", queryContainer.mId);
-                    gLogger->log(LogManager::DEBUG, "SQL :: SELECT amount FROM resource_containers WHERE id= %"PRIu64"", queryContainer.mId); // SQL Debug Log
                 }
             }
         }
@@ -323,10 +322,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                                    " FROM structure_attributes sa"
                                    " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
                                    " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",factory->getId());
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,sa.value,attributes.internal"
-                     " FROM structure_attributes sa"
-                     " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
-                     " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",factory->getId()); // SQL Debug Log
+        
 
     }
     break;
@@ -371,7 +367,6 @@ void FactoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,FFQuery_MainData,client,id);
 
     mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 }
 
 //the factories hopper is accessed - update the hoppers contents
@@ -382,7 +377,7 @@ void FactoryFactory::upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hoppe
     asynContainer->mHopper = hopperId;
 
     mDatabase->ExecuteSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId);
-    gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId); // SQL Debug Log
+    
 }
 //=============================================================================
 

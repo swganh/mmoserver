@@ -105,7 +105,7 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64
 {
     // Get our badge based on the regionID
     mDatabase->ExecuteProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, BadgeFQuery_MainData, client), "CALL sp_BadgeGetByRegion(%"PRIu64");", id);
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_BadgeGetByRegion(%"PRIu64");", id); // SQL Debug Log
+    
 }
 
 //=============================================================================

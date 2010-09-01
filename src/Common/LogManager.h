@@ -66,7 +66,8 @@ public:
         WARNING			= 5,
         NOTICE			= 6,
         INFORMATION		= 7,
-        DEBUG			= 8
+        DEBUG			= 8,
+		SQL				= 9
     };
 
     static LogManager*	getSingleton() {

@@ -252,7 +252,7 @@ void ObjectController::_handleSetBiography(uint64 targetId,Message* message,Obje
     strcat(sql,end);
 
     mDatabase->ExecuteSqlAsync(0,0,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    
 }
 
 //======================================================================================================================
@@ -358,7 +358,7 @@ void ObjectController::_handleMatch(uint64 targetId,Message* message,ObjectContr
     swscanf(matchfield.getUnicode16(),L"%u %u %u %u %u",&i1,&i2,&i3,&i4,&i5);
 
     mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope), "UPDATE character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %I64u", i2, i3, i4, i5, matchObject->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %I64u", i2, i3, i4, i5, matchObject->getId()); // SQL Debug Log
+    
 
     // update the players Object
     matchObject->setPlayerMatch(0,i2);

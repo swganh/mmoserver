@@ -56,12 +56,12 @@ SchematicManager::SchematicManager(Database* database)
     // load skillschematicgroups
     //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Groups.");
     mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicGroups),"SELECT * FROM schematic_groups ORDER BY id");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM schematic_groups ORDER BY id"); // SQL Debug Log
+    
 
     // load experimentation groups
     //gLogger->log(LogManager::DEBUG,"Finished Loading Experimentation Groups.");
     mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_ExperimentationGroups),"SELECT * FROM draft_experiment_groups ORDER BY id");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM draft_experiment_groups ORDER BY id"); // SQL Debug Log
+    
 }
 
 //======================================================================================================================
@@ -147,7 +147,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematics");
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_GroupSchematics);
         mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT object_string,weightsbatch_id,complexity,datasize,subCategory,craftEnabled,group_id FROM draft_schematics");
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT object_string,weightsbatch_id,complexity,datasize,subCategory,craftEnabled,group_id FROM draft_schematics"); // SQL Debug Log
+        
 
         //gLogger->log(LogManager::DEBUG,"Finished Loading Schematic Groups.");
     }
@@ -220,7 +220,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 " INNER JOIN schem_crc ON (draft_schematics_slots.schematic_id = schem_crc.crc)"
                 " INNER JOIN draft_schematics ON (schem_crc.object_string = draft_schematics.object_string)");
         mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        
 
 
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Assembly Batches.");
@@ -231,7 +231,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 " INNER JOIN draft_assembly_batches ON (draft_weights.assembly_batch_id = draft_assembly_batches.id)"
                 " ORDER BY draft_weights.id");
         mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        
 
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Experimentation Batches.");
         // experimentbatches
@@ -243,7 +243,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 " ORDER BY draft_experiment_batches.list_id ");
 
         mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        
 
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Crafting Batches.");
         // craftingbatches
@@ -254,7 +254,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 " INNER JOIN draft_schematics ON(draft_weights.id = draft_schematics.weightsbatch_id) "
                 " ORDER BY draft_craft_batches.list_id ");
         mDatabase->ExecuteSqlAsync(this,asContainer,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        
 
         if(!--mGroupLoadCount)
         {
@@ -346,11 +346,6 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                                    " INNER JOIN draft_assembly_batches ON(draft_assembly_batches.list_id = draft_assembly_lists.id)"
                                    " INNER JOIN draft_weights ON(draft_weights.assembly_batch_id = draft_assembly_batches.id)"
                                    " ORDER BY draft_weights.id");
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT datatype,distribution,draft_weights.id,draft_assembly_batches.list_id"
-                     " FROM draft_assembly_lists"
-                     " INNER JOIN draft_assembly_batches ON(draft_assembly_batches.list_id = draft_assembly_lists.id)"
-                     " INNER JOIN draft_weights ON(draft_weights.assembly_batch_id = draft_assembly_batches.id)"
-                     " ORDER BY draft_weights.id");	 // SQL Debug Log
         mDatabase->DestroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Assembly Batches out of %u.",num,count);
     }
@@ -393,11 +388,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                                    " INNER JOIN draft_experiment_batches ON(draft_experiment_batches.list_id = draft_experiment_lists.id)"
                                    " INNER JOIN draft_weights ON (draft_weights.experiment_batch_id = draft_experiment_batches.id)"
                                    " ORDER BY draft_weights.id");
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT datatype,distribution,draft_weights.id,draft_experiment_batches.list_id "
-                     " FROM draft_experiment_lists "
-                     " INNER JOIN draft_experiment_batches ON(draft_experiment_batches.list_id = draft_experiment_lists.id)"
-                     " INNER JOIN draft_weights ON (draft_weights.experiment_batch_id = draft_experiment_batches.id)"
-                     " ORDER BY draft_weights.id"); // SQL Debug Log
+       
         mDatabase->DestroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Experimentation Batches out of %u.",num,count);
     }
@@ -440,11 +431,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                                    " INNER JOIN draft_craft_batches ON(draft_craft_attribute_weights.id = draft_craft_batches.list_id)"
                                    " INNER JOIN draft_weights ON(draft_weights.craft_batch_id = draft_craft_batches.id)"
                                    " ORDER BY draft_weights.id");
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT type,distribution,draft_weights.id,draft_craft_batches.list_id "
-                     " FROM draft_craft_attribute_weights"
-                     " INNER JOIN draft_craft_batches ON(draft_craft_attribute_weights.id = draft_craft_batches.list_id)"
-                     " INNER JOIN draft_weights ON(draft_weights.craft_batch_id = draft_craft_batches.id)"
-                     " ORDER BY draft_weights.id"); // SQL Debug Log
+       
 
 
 
@@ -457,11 +444,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                                    " INNER JOIN attributes ON (dcial.item_attribute = attributes.id)"
                                    " INNER JOIN draft_craft_batches ON(dcial.list_id = draft_craft_batches.list_id)"
                                    " ORDER BY draft_craft_batches.id");
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,dcial.item_attribute,dcial.attribute_min,dcial.attribute_max,dcial.attribute_type,draft_craft_batches.id,dcial.list_id "
-                     " FROM draft_craft_item_attribute_link as dcial"
-                     " INNER JOIN attributes ON (dcial.item_attribute = attributes.id)"
-                     " INNER JOIN draft_craft_batches ON(dcial.list_id = draft_craft_batches.list_id)"
-                     " ORDER BY draft_craft_batches.id"); // SQL Debug Log
+        
 
         // query attribute weighting for component crafting
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftAttributeWeights);
@@ -473,11 +456,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                                    " INNER JOIN attributes as b ON (dsam.affectedattribute = b.id)"
                                    " INNER JOIN draft_schematics ON(dsam.Draft_Schematic = draft_schematics.weightsbatch_id)");
         mDatabase->DestroyDataBinding(binding);
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT dsam.Attribute, dsam.AffectedAttribute, dsam.Manipulation, a.name, b.name,draft_schematics.weightsbatch_id "
-                     " FROM draft_schematic_attribute_manipulation as dsam"
-                     " INNER JOIN attributes as a ON (dsam.attribute = a.id)"
-                     " INNER JOIN attributes as b ON (dsam.affectedattribute = b.id)"
-                     " INNER JOIN draft_schematics ON(dsam.Draft_Schematic = draft_schematics.weightsbatch_id)"); // SQL Debug Log
+       
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Crafting Batches out of %u.",num,count);
     }
     break;

@@ -99,8 +99,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asContainer->mObject = datapad;
 
         mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getDatapadObjectCount(%"PRIu64")",datapad->getId());
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getDatapadObjectCount(%"PRIu64")",datapad->getId()); // SQL Debug Log
-
+       
     }
     break;
 
@@ -131,10 +130,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                                        " UNION (SELECT \'manschematics\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
                                        " UNION (SELECT \'vehicles\',vehicles.id FROM vehicles WHERE (parent=%"PRIu64"))"
                                        ,dtpId-3,dtpId,dtpId);
-            gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'waypoints\',waypoints.waypoint_id FROM waypoints WHERE owner_id = %"PRIu64")"
-                         " UNION (SELECT \'manschematics\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
-                         " UNION (SELECT \'vehicles\',vehicles.id FROM vehicles WHERE (parent=%"PRIu64"))"
-                         ,dtpId-3,dtpId,dtpId); // SQL Debug Log
+            
 
         }
         else
@@ -248,6 +244,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 //=============================================================================
 //a Manufacturing Schematic will be loaded into the datapad
+//
 void DatapadFactory::requestManufacturingSchematic(ObjectFactoryCallback* ofCallback, uint64 id)
 {
 
@@ -255,7 +252,7 @@ void DatapadFactory::requestManufacturingSchematic(ObjectFactoryCallback* ofCall
     asContainer->mId = id;
 
     mDatabase->ExecuteSqlAsync(this, asContainer, "SELECT items.parent_id FROM items WHERE (id=%"PRIu64")", id);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT items.parent_id FROM items WHERE (id=%"PRIu64")", id); // SQL Debug Log
+    
 
     //mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,datapad,NULL,1)));
 
@@ -271,9 +268,7 @@ void DatapadFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
                                "SELECT datapads.id,datapad_types.object_string,datapad_types.name,datapad_types.file"
                                " FROM datapads INNER JOIN datapad_types ON (datapads.datapad_type = datapad_types.id)"
                                " WHERE (datapads.id = %"PRIu64")", id);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT datapads.id,datapad_types.object_string,datapad_types.name,datapad_types.file"
-                 " FROM datapads INNER JOIN datapad_types ON (datapads.datapad_type = datapad_types.id)"
-                 " WHERE (datapads.id = %"PRIu64")", id); // SQL Debug Log
+  
 }
 
 //=============================================================================

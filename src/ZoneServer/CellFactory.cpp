@@ -99,14 +99,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                                    " UNION (SELECT \'items\',id FROM items WHERE parent_id=%"PRIu64")"
                                    " UNION (SELECT \'resource_containers\',id FROM resource_containers WHERE parent_id=%"PRIu64")",
                                    cellId,cellId,cellId,cellId,cellId,cellId,cellId);
-        gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'terminals\',id FROM terminals WHERE parent_id = %"PRIu64")"
-                     " UNION (SELECT \'containers\',id FROM containers WHERE parent_id = %"PRIu64")"
-                     " UNION (SELECT \'ticket_collectors\',id FROM ticket_collectors WHERE (parent_id=%"PRIu64"))"
-                     " UNION (SELECT \'persistent_npcs\',id FROM persistent_npcs WHERE parentId=%"PRIu64")"
-                     " UNION (SELECT \'shuttles\',id FROM shuttles WHERE parentId=%"PRIu64")"
-                     " UNION (SELECT \'items\',id FROM items WHERE parent_id=%"PRIu64")"
-                     " UNION (SELECT \'resource_containers\',id FROM resource_containers WHERE parent_id=%"PRIu64")",
-                     cellId,cellId,cellId,cellId,cellId,cellId,cellId); // SQL Debug Log
+       
     }
     break;
 
@@ -166,7 +159,7 @@ void CellFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void CellFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
     mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM cells WHERE id = %"PRIu64"", id);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id,parent_id FROM cells WHERE id = %"PRIu64"", id); // SQL Debug Log
+    
 }
 
 //=============================================================================
@@ -174,7 +167,7 @@ void CellFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 void CellFactory::requestStructureCell(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
     mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CellFQuery_MainData,client),"SELECT id,parent_id FROM structure_cells WHERE id = %"PRIu64"", id);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id,parent_id FROM structure_cells WHERE id = %"PRIu64"", id); // SQL Debug Log
+    
 }
 
 //=============================================================================

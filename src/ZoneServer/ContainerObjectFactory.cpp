@@ -95,7 +95,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
         asContainer->mObject = container;
 
         mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId());
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId()); // SQL Debug Log
+        
     }
     break;
 
@@ -127,11 +127,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
                                        " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
                                        " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
                                        containerId, containerId, containerId);
-            gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-                         " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64"))"
-                         " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
-                         " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
-                         containerId, containerId, containerId); // SQL Debug Log
+           
 
         }
         else
@@ -193,10 +189,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
                                    "containers.y,containers.z,containers.container_type,container_types.object_string,container_types.name,container_types.file,container_types.details_file"
                                    " FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
                                    " WHERE (containers.id = %"PRIu64")",id);
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT containers.id,containers.parent_id,containers.oX,containers.oY,containers.oZ,containers.oW,containers.x,"
-                     "containers.y,containers.z,containers.container_type,container_types.object_string,container_types.name,container_types.file,container_types.details_file"
-                     " FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-                     " WHERE (containers.id = %"PRIu64")",id); // SQL Debug Log
+       
     }
     else
     {
@@ -221,7 +214,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
                 asContainer->mObject = container;
 
                 mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId());
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId()); // SQL Debug Log
+                
             }
         }
     }

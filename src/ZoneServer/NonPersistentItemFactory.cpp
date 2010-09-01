@@ -97,10 +97,7 @@ void NonPersistentItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
                                        " FROM item_family_attribute_defaults"
                                        " INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
                                        " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType());
-            gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
-                         " FROM item_family_attribute_defaults"
-                         " INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
-                         " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType()); // SQL Debug Log
+           
         }
         else if (item->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
         {
@@ -140,10 +137,7 @@ void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,u
                                " FROM item_types"
                                " INNER JOIN item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
                                " WHERE (item_types.id = %"PRIu64")",id);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT item_family_attribute_defaults.family_id, item_family_attribute_defaults.item_type_id, item_types.object_string, item_types.stf_name, item_types.stf_file, item_types.stf_detail_file"
-                 " FROM item_types"
-                 " INNER JOIN item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
-                 " WHERE (item_types.id = %"PRIu64")",id); // SQL Debug Log
+   
 }
 
 //=============================================================================

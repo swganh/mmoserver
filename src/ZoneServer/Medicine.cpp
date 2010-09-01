@@ -301,8 +301,7 @@ bool Medicine::ConsumeUse(PlayerObject* playerObject)
     {
         this->setAttribute("counter_uses_remaining",boost::lexical_cast<std::string>(quantity));
         gWorldManager->getDatabase()->ExecuteSqlAsync(0, 0, "UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",quantity,this->getId(),AttrType_CounterUsesRemaining);
-        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u", quantity,this->getId(), AttrType_CounterUsesRemaining); // SQL Debug Log
-
+     
         //now update the uses display
         gMessageLib->sendUpdateUses(this,playerObject);
         return false;

@@ -82,73 +82,64 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
                     // load zone regions
                     mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ZoneRegions),"SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                    
                 }
                 // load client effects
-                if(!mDebug)
-                    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ClientEffects),"SELECT * FROM clienteffects ORDER BY id;");
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM clienteffects ORDER BY id;"); // SQL Debug Log
-
-
+                   mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ClientEffects),"SELECT * FROM clienteffects ORDER BY id;");
+                
 
                 // load attribute keys
                 mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_AttributeKeys),"SELECT id, name FROM attributes ORDER BY id;");
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT id, name FROM attributes ORDER BY id;"); // SQL Debug Log
 
                 // load sounds
-                if(!mDebug)
-                    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Sounds),"SELECT * FROM sounds ORDER BY id;");
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM sounds ORDER BY id;"); // SQL Debug Log
+                mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Sounds),"SELECT * FROM sounds ORDER BY id;");
 
                 // load moods
                 mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Moods),"SELECT * FROM moods ORDER BY id;");
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM moods ORDER BY id;"); // SQL Debug Log
+                
 
                 // load npc converse animations
-                if(!mDebug)
-                    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcConverseAnimations),"SELECT * FROM conversation_animations ORDER BY id;");
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM conversation_animations ORDER BY id;"); // SQL Debug Log
-
-                // load npc chatter
-                if(!mDebug)
-                    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcChatter),"SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;",mZoneId);
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;",mZoneId); // SQL Debug Log
+                
+                mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcConverseAnimations),"SELECT * FROM conversation_animations ORDER BY id;");
+                
+				// load npc chatter
+                mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcChatter),"SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;",mZoneId);
+                
 
                 if(mZoneId != 41)
                 {
                     // load cities
                     mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Cities),"SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                    
 
                     // load badge regions
-                    if(!mDebug)
-                        mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_BadgeRegions),"SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_BadgeRegions),"SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+                    
 
                     //load spawn regions
                     mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SpawnRegions),"SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                    
 
                     // load world scripts
                     mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_WorldScripts),"SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    gLogger->log(LogManager::DEBUG, "SQL :: SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                    
 
                     //load creature spawn regions, and optionally heightmaps cache.
                     mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
-                    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                    
                 }
 
                 // load harvesters
                 mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                
 
                 // load factories
                 mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Factories),"SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                
 
                 // load playerhouses
                 mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Houses),"SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
-                gLogger->log(LogManager::DEBUG, "SQL :: SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId); // SQL Debug Log
+                
 
 
             }
@@ -631,11 +622,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 else if(strcmp(queryContainer.mString.getAnsi(),"shuttles") == 0)
                     gObjectFactory->requestObject(ObjType_Creature,CreoGroup_Shuttle,0,this,queryContainer.mId,asyncContainer->mClient);
 
-                if(mDebug)
-                {
-                    mTotalObjectCount--;
-                    continue;
-                }
+             
                 // now to the ugly part
 
                 if(strcmp(queryContainer.mString.getAnsi(),"containers") == 0)
@@ -705,17 +692,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                                        ,ham->mConstitution.getWounds(),ham->mAction.getWounds(),ham->mQuickness.getWounds(),ham->mStamina.getWounds(),ham->mMind.getWounds()
                                        ,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()
                                        ,playerObject->getPlayerFlags(),playerObject->getState(),playerObject->getLanguage(),playerObject->getNewPlayerExemptions(),playerObject->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
-                         ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
-                         ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
-                         ",character_flags=%u,states=%"PRIu64",language=%u,new_player_exemptions=%u WHERE character_id=%"PRIu64""
-                         ,ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(),
-                         ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(),
-                         ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()
-                         ,ham->mHealth.getWounds(),ham->mStrength.getWounds()
-                         ,ham->mConstitution.getWounds(),ham->mAction.getWounds(),ham->mQuickness.getWounds(),ham->mStamina.getWounds(),ham->mMind.getWounds()
-                         ,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()
-                         ,playerObject->getPlayerFlags(),playerObject->getState(),playerObject->getLanguage(),playerObject->getNewPlayerExemptions(),playerObject->getId()); // SQL Debug Log
+            
         }
         break;
 
@@ -760,7 +737,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
                 //in this case we retain the asynccontainer and let it be destroyed by the clientlogin handler
                 mDatabase->ExecuteSqlAsync(asyncContainer->clContainer->dbCallback,asyncContainer->clContainer,"UPDATE characters SET parent_id=0,x='%f', y='%f', z='%f', planet_id='%u' WHERE id='%I64u';", destination.x, destination.y, destination.z, asyncContainer->clContainer->planet, asyncContainer->clContainer->player->getId());
-                gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=0,x='%f', y='%f', z='%f', planet_id='%u' WHERE id='%I64u';", destination.x, destination.y, destination.z, asyncContainer->clContainer->planet, asyncContainer->clContainer->player->getId()); // SQL Debug Log
+                
             }
         }
         break;

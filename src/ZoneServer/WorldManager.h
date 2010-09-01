@@ -445,9 +445,7 @@ public:
     void					LoadCurrentGlobalTick();
 
     bool					_handleTick(uint64 callTime,void* ref);
-    bool					_getFastDebugLoad() {
-        return mDebug;
-    }
+    
 
     void					removePlayerMovementUpdateTime(PlayerObject* player);
 
@@ -569,7 +567,6 @@ private:
 
     uint64						mSaveTaskId;
 
-    bool						mDebug;
 };
 
 

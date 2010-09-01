@@ -247,7 +247,7 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
         this->setCurrentPower(getCurrentPower()+harvesterPowerDelta);
 
         gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=384",getCurrentPower(),this->getId());
-        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=384",getCurrentPower(),this->getId()); // SQL Debug Log
+        
     }
     break;
 
@@ -334,7 +334,7 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
 
             //update the remaining damage in the db
             gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structures s SET s.condition= %u WHERE s.ID=%"PRIu64"",damage,this->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE structures s SET s.condition= %u WHERE s.ID=%"PRIu64"",damage,this->getId()); // SQL Debug Log
+            
             this->setDamage(damage);
 
             //Update the structures Condition
@@ -343,7 +343,7 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
         }
 
         gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=382",maintenance,this->getId());
-        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=382",maintenance,this->getId()); // SQL Debug Log
+        
 
         this->setCurrentMaintenance(maintenance);
 
@@ -484,7 +484,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
         strcat(sql,end);
 
         gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        
 
         gLogger->log(LogManager::DEBUG,"PlayerStructure::Rename Structure sql : %s", sql);
 

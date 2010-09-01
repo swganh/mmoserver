@@ -411,7 +411,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         asyncContainer->callBack	= CLHCallBack_Transfer_Ticket;
 
         mDatabase->ExecuteSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRIu64"", ticket->getId());
-        gLogger->log(LogManager::DEBUG, "SQL :: DELETE FROM items WHERE id = %"PRIu64"", ticket->getId()); // SQL Debug Log
+        
 
     }
 }
@@ -436,7 +436,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
 
         // Now update the DB with the new location/planetId
         mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%I64u';",x,z,planetId,playerObject->getId()));
-        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%I64u';",x,z,planetId,playerObject->getId()); // SQL Debug Log
+        
 
         gMessageLib->sendClusterZoneTransferCharacter(playerObject,planetId);
 

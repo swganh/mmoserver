@@ -125,14 +125,14 @@ TradeManagerChatHandler::TradeManagerChatHandler(Database* database, MessageDisp
     // load our bazaar terminals
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_LoadBazaar, 0);
     mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_BazaarTerminalsGet();");
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_BazaarTerminalsGet();"); // SQL Debug Log
+    
 
     // load our global tick
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_LoadGlobalTick, 0);
 
     // @todo Hardcoded galaxy at this time, to be changed.
     mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_ServerGlobalTickGet (%u);", 2);
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerGlobalTickGet (%u);", 2);  // SQL Debug Log
+    
 
     //load the TypeList to properly sort our items in Bazzarcategories
     //asyncContainer = new TradeManagerAsyncContainer(TRMQuery_TypeList,0);
@@ -193,7 +193,7 @@ void TradeManagerChatHandler::Shutdown()
 
     // @todo Hardcoded galaxy at this time, to be changed.
     mDatabase->ExecuteProcedureAsync(this, NULL, "CALL sp_ServerGlobalTickUpdate(%u, '%"PRIu64"');", 2, getGlobalTickCount());
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerGlobalTickUpdate(%u, '%"PRIu64"');", 2, getGlobalTickCount());  // SQL Debug Log
+    
 
     mMessageDispatch->UnregisterMessageCallback(opIsVendorMessage);
     mMessageDispatch->UnregisterMessageCallback(opAuctionQueryHeadersMessage);
@@ -263,7 +263,6 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 
             // Delete from commerce_auction
             mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionDelete('%"PRIu64"');", AuctionTemp.ItemID);
-            gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_BazaarAuctionDelete('%"PRIu64"');", AuctionTemp.ItemID); // SQL Debug Log
 
             //send relevant info to Zoneserver for Itemcreation
             gChatMessageLib->processSendCreateItem(asynContainer->mClient, player->getCharId(),AuctionTemp.ItemID, AuctionTemp.ItemTyp, player->getPlanetId());
@@ -317,7 +316,6 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             asyncContainer->mItemDescription = mItemDescription;
 
             mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-            gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
             mDatabase->DestroyDataBinding(binding);
 
@@ -333,7 +331,6 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         asyncContainer->mItemDescription = mItemDescription;
 
         mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
         mDatabase->DestroyDataBinding(binding);
     }
@@ -546,7 +543,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 
         asyncContainer->AuctionID = asynContainer->AuctionID;
         mDatabase->ExecuteSqlAsync(this, asyncContainer, sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        
         mDatabase->DestroyDataBinding(binding);
     }
     break;
@@ -875,6 +872,8 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
                 //gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
                 //WE NEED THIS WHILE WE HAVE THE ABOVE LINE COMMENTED OUT!!!
+
+				// why the heck is it commented out ?
                 delete asyncContainer;
             }
 
@@ -888,7 +887,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
                 sprintf(sql,"UPDATE swganh.commerce_auction SET owner_id = %"PRIu64", bidder_name = '' WHERE auction_id = %"PRIu64" ",auctionTemp->BidderID,auctionTemp->ItemID);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
                 mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-                gLogger->log(LogManager::DEBUG, "SQL :: ", sql);  // SQL Debug Log
+                
             }
 
             it++;
@@ -899,7 +898,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 
         /*sprintf(sql,"CALL sp_CommerceFindExpiredListing()");*/
         mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CommerceFindExpiredListing();");
-        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_CommerceFindExpiredListing();"); // SQL Debug Log
+        
 
     }
     break;
@@ -932,7 +931,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
                 sprintf(sql,"UPDATE banks SET credits=credits+%"PRId32" WHERE id=%"PRIu64"",asynContainer->MyProxy, AuctionTemp->BidderID+4);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
                 mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-                gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+                
             }
             SAFE_DELETE(AuctionTemp);
 
@@ -944,7 +943,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         sprintf(sql,"DELETE FROM commerce_bidhistory WHERE auction_id = '%"PRIu64"' ",asynContainer->AuctionTemp->ItemID);
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
         mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        
 
         SAFE_DELETE(asyncContainer->AuctionTemp);
     }
@@ -1005,7 +1004,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             asyncContainer->BazaarID = 0;//
             asyncContainer->AuctionTemp = AuctionTemp;
             mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-            gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+            
             break;
         }
 
@@ -1257,7 +1256,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
 
             asyncContainer->AuctionID = asynContainer->AuctionTemp->ItemID;
             mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-            gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+            
 
             return;
         }
@@ -1316,7 +1315,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         TradeManagerAsyncContainer* asyncContainer;
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval, asynContainer->mClient);
         mDatabase->ExecuteSqlAsync(this, asyncContainer, sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        
 
     }
 
@@ -1326,7 +1325,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
 
     asyncContainer->AuctionID = asynContainer->AuctionTemp->ItemID;
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    
 }
 
 //=======================================================================================================================
@@ -1368,7 +1367,7 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
     TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CreateAuction,client);
     asyncContainer->AuctionID = ItemID;
     mDatabase->ExecuteSqlAsync(this,asyncContainer,Query);
-    gLogger->log(LogManager::DEBUG, "SQL :: '%s'", Query); // SQL Debug Log
+    
 }
 
 //=======================================================================================================================
@@ -1397,7 +1396,7 @@ void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_RetrieveAuction, client);
     asyncContainer->BazaarID = TerminalID;
     mDatabase->ExecuteSqlAsync(this, asyncContainer, sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    
 }
 
 //=======================================================================================================================
@@ -1444,7 +1443,7 @@ void TradeManagerChatHandler::processBidAuctionMessage(Message* message,Dispatch
         asyncContainer->BazaarID = 0;//
 
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    
     // client checks if we have enough money
     // cheaters (bot modified client )will be flagged in the zoneserver
 }
@@ -1475,7 +1474,7 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CancelAuction_BidderMail, client);
     asyncContainer->AuctionID = ItemID;
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    
 }
 
 //=======================================================================================================================
@@ -1501,7 +1500,7 @@ void TradeManagerChatHandler::processGetAuctionDetails(Message* message,Dispatch
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetDetails,client);
 
     mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionDetailsGet(%"PRIu64");", AuctionID);
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_BazaarAuctionDetailsGet(%"PRIu64");", AuctionID);
+    
 }
 
 //=======================================================================================================================
@@ -1731,7 +1730,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     asyncContainer->BazaarWindow = query.Windowtype;
     asyncContainer->Itemsstart = query.start;
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    
 }
 
 //=======================================================================================================================
@@ -1844,7 +1843,7 @@ void TradeManagerChatHandler::handleGlobalTickPreserve()
     TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_SaveGlobalTick, 0);
 
     mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_ServerGlobalTickUpdate (%u, '%"PRIu64"');", 2, getGlobalTickCount());
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerGlobalTickUpdate(%u, '%"PRIu64"');", 2, getGlobalTickCount());  // SQL Debug Log
+    
 }
 
 //=======================================================================================================================
@@ -1857,7 +1856,7 @@ void TradeManagerChatHandler::handleCheckAuctions()
     TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ExpiredListing, NULL);
     uint32 time = static_cast<uint32>(getGlobalTickCount());
     mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionFindExpired(%"PRIu32");", time/1000);
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_BazaarAuctionFindExpired(%"PRIu32");", time/1000); // SQL Debug Log
+    
 }
 
 //=======================================================================================================================

@@ -93,7 +93,7 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         asContainer->mObject = inventory;
 
         mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",inventory->getId());
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getInventoryObjectCount(%"PRIu64")",inventory->getId()); // SQL Debug Log
+        
     }
     break;
 
@@ -127,12 +127,7 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                                        " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
                                        " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
                                        invId,invId,invId);
-            gLogger->log(LogManager::DEBUG, "SQL :: (SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-                         " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64"))"
-                         " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
-                         " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
-                         invId,invId,invId); // SQL Debug Log
-
+           
         }
         else
         {
@@ -196,10 +191,7 @@ void InventoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
                                "inventory_types.slots"
                                " FROM inventories INNER JOIN inventory_types ON (inventories.inventory_type = inventory_types.id)"
                                " WHERE (inventories.id = %"PRIu64")",id);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT inventories.id,inventories.credits,inventory_types.object_string,inventory_types.name,inventory_types.file,"
-                 "inventory_types.slots"
-                 " FROM inventories INNER JOIN inventory_types ON (inventories.inventory_type = inventory_types.id)"
-                 " WHERE (inventories.id = %"PRIu64")",id); // SQL Debug Log
+   
 }
 
 //=============================================================================

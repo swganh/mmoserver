@@ -100,11 +100,7 @@ void PersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* r
                                        " FROM persistent_npc_attributes"
                                        " INNER JOIN attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
                                        " WHERE persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY persistent_npc_attributes.order",npc->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,persistent_npc_attributes.value,attributes.internal"
-                         " FROM persistent_npc_attributes"
-                         " INNER JOIN attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
-                         " WHERE persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY persistent_npc_attributes.order",npc->getId()); // SQL Debug Log
-        }
+		}
     }
     break;
 
@@ -136,13 +132,7 @@ void PersistentNpcFactory::requestObject(ObjectFactoryCallback* ofCallback,uint6
                                "FROM persistent_npcs "
                                "INNER JOIN faction ON (persistent_npcs.faction = faction.id) "
                                "WHERE (persistent_npcs.id = %"PRIu64")",id);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT persistent_npcs.id,persistent_npcs.parentId,persistent_npcs.firstName,persistent_npcs.lastName,persistent_npcs.posture,persistent_npcs.state,persistent_npcs.cl,"
-                 "persistent_npcs.oX,persistent_npcs.oY,persistent_npcs.oZ,persistent_npcs.oW,persistent_npcs.x,persistent_npcs.y,persistent_npcs.z,"
-                 "persistent_npcs.type,persistent_npcs.stf_variable_id,persistent_npcs.stf_file_id,faction.name,"
-                 "persistent_npcs.moodId,persistent_npcs.family,persistent_npcs.scale "
-                 "FROM persistent_npcs "
-                 "INNER JOIN faction ON (persistent_npcs.faction = faction.id) "
-                 "WHERE (persistent_npcs.id = %"PRIu64")",id); // SQL Debug Log
+    
 }
 
 //=============================================================================

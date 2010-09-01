@@ -153,7 +153,9 @@ void MessageRouter::_loadMessageProcessMap(void)
 
     // Execute our statement
     DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT messageId, processId FROM config_message_routes;");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT messageId, processId FROM config_message_routes;"); // SQL Debug Log
+    
+	//synch call - let log in
+	gLogger->log(LogManager::DEBUG, "SQL :: SELECT messageId, processId FROM config_message_routes;"); // SQL Debug Log
     uint32 count = static_cast<uint32>(result->getRowCount());
 
     // Retrieve our routes and add them to the map.

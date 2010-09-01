@@ -383,12 +383,10 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
         if(rc)
         {
             mDatabase->ExecuteSqlAsync(0, 0, "UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId()); // SQL Debug Log
         }
         else
         {
             mDatabase->ExecuteSqlAsync(0, 0, "UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId()); // SQL Debug Log
         }
         cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
 
@@ -490,7 +488,8 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
     if(!mainObject)
     {
         //Panick
-        assert(false&&"ObjController::checkContainingContainer: CAN NOT FIND MAIN CONTAINING CONTAINER PARENT ");
+		// - parent might be the main cell though ...
+        //assert(false&&"ObjController::checkContainingContainer: CAN NOT FIND MAIN CONTAINING CONTAINER PARENT ");
         gLogger->log(LogManager::DEBUG,"ObjController::checkContainingContainer: CAN NOT FIND MAIN CONTAINING CONTAINER PARENT CONTAINER ID%I64u :(",container->getId());
         return false;
     }
@@ -1035,12 +1034,10 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
         if(rc)
         {
             mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId()); // SQL Debug Log
         }
         else
         {
             mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId()); // SQL Debug Log
         }
         //take wm function at one point
         cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());

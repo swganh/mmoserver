@@ -68,7 +68,7 @@ bool Bank::updateCredits(int32 amount)
         gMessageLib->sendBankCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
 
     gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId);
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId); // SQL Debug Log
+    
 
     return(true);
 }

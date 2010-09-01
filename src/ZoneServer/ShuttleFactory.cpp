@@ -115,7 +115,7 @@ void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id,
                                "FROM shuttles "
                                "INNER JOIN shuttle_types ON (shuttles.shuttle_type = shuttle_types.id) "
                                "WHERE (shuttles.id = %"PRIu64")",id);
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ShuttleDetailGet(%"PRIu64");", id); // SQL Debug Log
+    
 }
 
 //=============================================================================

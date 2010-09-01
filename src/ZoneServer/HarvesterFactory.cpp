@@ -115,12 +115,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                                    " FROM structure_attributes sa"
                                    " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
                                    " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",harvester->getId());
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,sa.value,attributes.internal"
-                     " FROM structure_attributes sa"
-                     " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
-                     " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",harvester->getId()); // SQL Debug Log
-
-
+       
     }
     break;
 
@@ -165,8 +160,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         int8 sql[250];
         sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-
+     
 
     }
     break;
@@ -208,7 +202,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);
 
     mDatabase->ExecuteSqlAsync(this,asynContainer,sql2);
-    gLogger->log(LogManager::DEBUG, "SQL :: ", sql2); // SQL Debug Log
+    
 }
 
 

@@ -423,7 +423,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
 
     //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+
 }
 
 
@@ -466,7 +466,6 @@ void Object::addAttributeIncDB(BString key,std::string value)
     strcat(sql,restStr);
 
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
     //sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,%s,%u,0)",this->getId(),attributeID,value,mAttributeOrderList.size());
 }
@@ -533,7 +532,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
 
     //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
     gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+  
 }
 
 void	Object::setInternalAttribute(BString key,std::string value)
@@ -578,7 +577,6 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
     strcat(sql,restStr);
 
     gWorldManager->getDatabase()->ExecuteSqlAsync(0, 0, sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
     //sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,%s,%u,0)",this->getId(),attributeID,value,mAttributeOrderList.size());
 }

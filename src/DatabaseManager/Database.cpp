@@ -209,6 +209,9 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8
     /*int32 len = */
     vsnprintf(localSql, sizeof(localSql), sql, args);
 
+	//just put it here centrally so we can save tons of time editing ???
+	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
+
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
     job->setCallback(callback);
@@ -280,6 +283,7 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, cons
     /*int32 len = */
     vsnprintf(localSql, sizeof(localSql), sql, args);
 
+	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
     job->setCallback(callback);

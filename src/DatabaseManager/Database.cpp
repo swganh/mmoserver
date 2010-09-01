@@ -174,7 +174,7 @@ DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
     int8 message[8192];
     sprintf(message, "SYNCHRONOUS SQL STATEMENT: %s",localSql);
     gLogger->logS(LogManager::DEBUG,(LOG_CHANNEL_FILE | LOG_CHANNEL_SYSLOG), message);
-
+	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
     va_end(args);
     return ExecuteSql(localSql);
 }
@@ -238,6 +238,8 @@ void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref,
     int8    localSql[20192];
 
     sprintf(localSql,"%s", sql);
+
+	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
 
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();

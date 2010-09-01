@@ -106,9 +106,6 @@ ConnectionServer::ConnectionServer(void) :
     // In case of a crash, we need to cleanup the DB a little.
     DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
     
-	//synch - let log in
-	gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId); // SQL Debug Log
-
     // Status:  0=offline, 1=loading, 2=online
     _updateDBServerList(1);
 

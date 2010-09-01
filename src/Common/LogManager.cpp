@@ -80,7 +80,7 @@ void LogManager::_LoggerThread()
 {
     std::vector<LOG_ENTRY*> mTempEntries;
 
-    char* priority_strings[] = {"EMER", "ALRT", "CRIT", "ERRO", "WARN", "NOTI", "INFO", "DEBG"};
+    char* priority_strings[] = {"EMER", "ALRT", "CRIT", "ERRO", "WARN", "NOTI", "INFO", "DEBG", "SQL"};
 
     while(true)
     {

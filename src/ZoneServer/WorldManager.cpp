@@ -371,9 +371,7 @@ void WorldManager::LoadCurrentGlobalTick()
 {
     uint64 Tick;
     DatabaseResult* temp = mDatabase->ExecuteSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
-    
-	//let this in - log automatically in for asynccalls only
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'"); // SQL Debug Log
+   
 
     DataBinding*	tickbinding = mDatabase->CreateDataBinding(1);
     tickbinding->addField(DFT_uint64,0,8,0);

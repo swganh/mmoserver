@@ -130,8 +130,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
     int8 sql[500];
     sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
     DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-    gLogger->logCont(LogManager::DEBUG,"\n");
+    
 
     // If we found them
     if(result->getRowCount() == 1)
@@ -281,7 +280,7 @@ void ServerManager::_loadProcessAddressMap(void)
 
     // retrieve our list of process addresses.
     DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;"); // SQL Debug Log
+    
 
     mTotalActiveServers = static_cast<uint32>(result->getRowCount());
 

@@ -84,14 +84,7 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
                                " WHERE terminals.terminal_type = 16 AND"
                                " terminals.parent_id = 0"
                                " GROUP BY terminals.dataStr");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT DISTINCT(terminals.dataStr),terminals.x,terminals.y,terminals.z,terminals.dataInt1,"
-                 "terminals.dataInt2,terminals.planet_id,"
-                 "spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-                 " FROM terminals"
-                 " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
-                 " WHERE terminals.terminal_type = 16 AND"
-                 " terminals.parent_id = 0"
-                 " GROUP BY terminals.dataStr"); // SQL Debug Log
+   
 
     // load travel points in cells
     mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInCells),
@@ -105,19 +98,10 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
                                " (terminals.terminal_type = 16) AND"
                                " (terminals.parent_id <> 0)"
                                " GROUP BY terminals.dataStr");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT DISTINCT(terminals.dataStr),terminals.planet_id,terminals.dataInt1,terminals.dataInt2,"
-                 "buildings.x,buildings.y,buildings.z,spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-                 " FROM terminals"
-                 " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
-                 " INNER JOIN cells ON (terminals.parent_id = cells.id)"
-                 " INNER JOIN buildings ON (cells.parent_id = buildings.id)"
-                 " WHERE"
-                 " (terminals.terminal_type = 16) AND"
-                 " (terminals.parent_id <> 0)"
-                 " GROUP BY terminals.dataStr"); // SQL Debug Log
+   
     // load planet routes and base prices
     mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PlanetRoutes),"SELECT * FROM travel_planet_routes");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM travel_planet_routes");; // SQL Debug Log
+   
 }
 
 

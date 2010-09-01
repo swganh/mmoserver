@@ -225,24 +225,15 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				return(false);
 			}
 
-			// put us in combat state
-			/*if (!playerAttacker->checkState(CreatureState_Combat))
-			{
-				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(playerAttacker);
-			}*/
-
-			// TEST STATE MANAGER!
+			// put us in combat state	
 			gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
-
+            gStateManager.setCurrentActionState(attacker, CreatureState_CombatAttitudeNormal);
 			// put our target in combat state
 			if(!defenderPlayer->checkState(CreatureState_Combat))
 			{
-				/*defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(defenderPlayer);*/
 
-				// TEST STATE MANAGER!
 				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
+                gStateManager.setCurrentActionState(defender, CreatureState_CombatAttitudeNormal);
 			}
 
 			// update our defender list
@@ -294,12 +285,8 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 
 				// TEST STATE MANAGER!
 				gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
+                gStateManager.setCurrentActionState(attacker, CreatureState_CombatAttitudeNormal);
 				
-				//playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				//gMessageLib->sendStateUpdate(playerAttacker);
-
-				// playerAttacker->toggleStateOn(CreatureState_Combat);
-				// gMessageLib->sendStateUpdate(playerAttacker);
 			}
 
 			if (!defender->checkState((CreatureState_Combat)))
@@ -310,10 +297,9 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				gWorldManager->forceHandlingOfReadyNpc(defender->getId());
 
 				// Creature may need some aggro built up before going into combat state??
-				// TEST STATE MANAGER!
+			
 				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
-				//defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				//gMessageLib->sendStateUpdate(defender);
+                gStateManager.setCurrentActionState(defender, CreatureState_CombatAttitudeNormal);
 			}
 
 			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Enemy);
@@ -712,12 +698,9 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 {
 	if(cmdProperties->mKnockdownChance)
 	{
-		defender->toggleStateOff(CreatureState_SittingOnChair);
-		defender->setPosture(CreaturePosture_KnockedDown);
-		defender->updateMovementProperties();
-		defender->getHam()->updateRegenRates();
+        gStateManager.setCurrentPostureState(defender, CreaturePosture_KnockedDown);
+        gStateManager.setCurrentLocomotionState(defender, CreatureLocomotion_KnockedDown);
 
-		gMessageLib->sendPostureAndStateUpdate(defender);
 		if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
 		{
 			//See if our player is mounted -- if so dismount him 
@@ -730,38 +713,27 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 					vehicle->DismountPlayer();
 				}
 			}
-
-			gMessageLib->sendUpdateMovementProperties(player);
-			gMessageLib->sendSelfPostureUpdate(player);
 		}
 	}
 
 	if(cmdProperties->mDizzyChance)
 	{
-		defender->toggleStateOn(CreatureState_Dizzy);
-
-		gMessageLib->sendStateUpdate(defender);
-	}
+		gStateManager.setCurrentActionState(defender, CreatureState_Dizzy);
+    }
 
 	if(cmdProperties->mBlindChance)
 	{
-		defender->toggleStateOn(CreatureState_Blinded);
-
-		gMessageLib->sendStateUpdate(defender);
+        gStateManager.setCurrentActionState(defender, CreatureState_Blinded);
 	}
 
 	if(cmdProperties->mStunChance)
 	{
-		defender->toggleStateOn(CreatureState_Stunned);
-
-		gMessageLib->sendStateUpdate(defender);
+		gStateManager.setCurrentActionState(defender, CreatureState_Stunned);
 	}
 
 	if(cmdProperties->mIntimidateChance)
 	{
-		defender->toggleStateOn(CreatureState_Intimidated);
-
-		gMessageLib->sendStateUpdate(defender);
+        gStateManager.setCurrentActionState(defender, CreatureState_Intimidated);
 	}
 
 	if(cmdProperties->mPostureDownChance)

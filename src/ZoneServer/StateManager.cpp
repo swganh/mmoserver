@@ -156,8 +156,13 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
         // check if we can transition to the new state
         if (mActionStateMap[newState]->CanTransition(object, newState))
         {
-            // Exit old State
-            //currState->Exit(object);
+            // check which states to remove
+            std::vector<uint64>::const_iterator states_it = mActionStateMap[newState]->statesToRemove().begin();
+            while(states_it != mActionStateMap[newState]->statesToRemove().end())
+            {
+                mActionStateMap[*states_it]->Exit(object);
+                ++states_it;
+            }
             // Enter new State
             mActionStateMap[newState]->Enter(object);
         }

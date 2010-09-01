@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "ResourceContainer.h"
 #include "ResourceManager.h"
+#include "StateManager.h"
 #include "SchematicManager.h"
 #include "WorldManager.h"
 
@@ -91,7 +92,7 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,Database* database,Play
 	else
 		mOwner->setNearestCraftingStation(0);
 
-	mOwner->toggleStateOn(CreatureState_Crafting);
+	gStateManager.setCurrentActionState(mOwner,CreatureState_Crafting);
 
 	// send the updates
 	gMessageLib->sendStateUpdate(mOwner);
@@ -113,6 +114,8 @@ CraftingSession::~CraftingSession()
 
 	// reset player variables
 	mOwner->setCraftingSession(NULL);
+    // toggle off
+    //gStateManager.setCurrentActionState(mOwner,CreatureState_Crafting);
 	mOwner->toggleStateOff(CreatureState_Crafting);
 	mOwner->setCraftingStage(0);
 	mOwner->setExperimentationFlag(1);

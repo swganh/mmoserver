@@ -233,7 +233,10 @@ class PlayerObject : public CreatureObject
         void				setHomeCoords(const glm::vec3& coords){ mHomeCoords = coords; }
 
         // Event handler
+        bool                handleActionStateUpdate(::common::IEventPtr triggered_event);
         bool                handlePostureUpdate(::common::IEventPtr triggered_event);
+        bool                handleLocomotionUpdate(::common::IEventPtr triggered_event);
+        
         // UI Windows
         void				handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
         UIWindowList*		getUIWindowList(){ return &mUIWindowList; }

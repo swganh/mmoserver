@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "MountObject.h"
 #include "Heightmap.h"
 #include "WorldManager.h"
@@ -288,8 +289,9 @@ void VehicleController::MountPlayer()
     body_->toggleStateOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 
-    owner_->toggleStateOn(CreatureState_RidingMount);
-    gMessageLib->sendStateUpdate(owner_);
+    gStateManager.setCurrentActionState(owner_,CreatureState_RidingMount);
+    gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
+    gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
 
     owner_->setMounted(true);
     

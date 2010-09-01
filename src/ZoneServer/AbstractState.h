@@ -35,7 +35,7 @@ enum StateTypes
     State_Posture    = 1,
     State_Locomotion = 2
 };
-
+typedef std::vector<uint64> stateRemove;
 typedef std::map<StateTypes, uint64> transitionList;
 class IState
 {

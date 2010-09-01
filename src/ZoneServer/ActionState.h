@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AbstractState.h"
 #include "CreatureObject.h"
 
+typedef std::vector<uint64> stateRemove;
 class ActionState :
     public IState
 {
@@ -51,11 +52,16 @@ public:
     */
     virtual bool CanTransition(CreatureObject* obj, uint64 newState);
 
+    virtual const std::vector<uint64>& statesToRemove(){return mStatesRemovalList;}
+    
+    virtual void insertIntoStateRemovalList(const uint64& state);
+
     virtual const transitionList& returnTransitionList(){return mTransitionList;}
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
 
 protected:
+    stateRemove mStatesRemovalList;
     transitionList  mTransitionList;
     CreatureState	mStateID;
 };

@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
@@ -256,9 +257,10 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 
 		player->setCombatTargetId(0);
 
-		player->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-		player->toggleStateOn(CreatureState_Peace);
-		gMessageLib->sendStateUpdate(player);
+		//player->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+        // peace state automatically removes the combat states
+		gStateManager.setCurrentActionState(player,CreatureState_Peace);
+        		
 		player->disableAutoAttack();
 
 		//End any duels if both players press peace

@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "QuadTree.h"
 
+#include "ActionStateEvent.h"
+#include "LocomotionStateEvent.h"
 #include "PostureEvent.h"
 #include "SampleEvent.h"
 #include "SchematicGroup.h"
@@ -157,7 +159,11 @@ PlayerObject::PlayerObject()
     getSampleData()->mSampleNodeRecovery= false;
     getSampleData()->mNextSampleTime	= 0;
 
+    // register new event type functions
+
     gEventDispatcher.Connect(PostureUpdateEvent::type, EventListener(EventListenerType("PostureUpdate::handlePostureUpdate"), std::bind(&PlayerObject::handlePostureUpdate, this, std::placeholders::_1)));
+    gEventDispatcher.Connect(LocomotionStateUpdateEvent::type, EventListener(EventListenerType("LocomotionStateUpdate::handleLocomotionUpdate"), std::bind(&PlayerObject::handleLocomotionUpdate, this, std::placeholders::_1)));
+    gEventDispatcher.Connect(ActionStateUpdateEvent::type, EventListener(EventListenerType("ActionStateUpdate::handleActionStateUpdate"), std::bind(&PlayerObject::handleActionStateUpdate, this, std::placeholders::_1)));
 }
 
 //=============================================================================
@@ -2067,8 +2073,9 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
     }
     // Lookup the creature and ensure it is a valid object.
     PlayerObject* object = dynamic_cast<PlayerObject*>(pre_event->getCreatureObject());
-    if (!object) {
-        return false;
+    if (object) {
+        this->creaturePostureUpdate();
+        return true;
     }
     // process the appropriate command.
     switch (pre_event->getNewPostureState())
@@ -2093,8 +2100,6 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
      if(isConnected())
         gMessageLib->sendHeartBeat(getClient());
 
-    this->getHam()->updateRegenRates();
-    this->updateMovementProperties();
     gMessageLib->sendUpdateMovementProperties(this);
     gMessageLib->sendPostureAndStateUpdate(this);
     gMessageLib->sendSelfPostureUpdate(this);
@@ -2235,4 +2240,13 @@ void PlayerObject::playFoodSound(bool food, bool drink)
             }
             break;
     }
+}
+//
+bool PlayerObject::handleActionStateUpdate(::common::IEventPtr triggered_event)
+{
+    return true;
+}
+bool PlayerObject::handleLocomotionUpdate(::common::IEventPtr triggered_event)
+{
+    return true;
 }

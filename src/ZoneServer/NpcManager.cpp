@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Weapon.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "StateManager.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "MessageLib/MessageLib.h"
 #include "Common/LogManager.h"
@@ -327,15 +328,15 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			// put us in combat state
 			if(!playerAttacker->checkState(CreatureState_Combat))
 			{
-				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(playerAttacker);
+                gStateManager.setCurrentActionState(playerAttacker,CreatureState_Combat);
+                gStateManager.setCurrentActionState(playerAttacker,CreatureState_CombatAttitudeNormal);
 			}
 
 			// put our target in combat state
 			if(!defenderPlayer->checkState(CreatureState_Combat))
 			{
-				defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(defenderPlayer);
+				gStateManager.setCurrentActionState(defenderPlayer,CreatureState_Combat);
+                gStateManager.setCurrentActionState(defenderPlayer,CreatureState_CombatAttitudeNormal);
 			}
 
 			// update our defender list
@@ -375,15 +376,15 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			// put us in combat state
 			if (!playerAttacker->checkState(CreatureState_Combat))
 			{
-				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(playerAttacker);
+				gStateManager.setCurrentActionState(playerAttacker,CreatureState_Combat);
+                gStateManager.setCurrentActionState(playerAttacker,CreatureState_CombatAttitudeNormal);
 			}
 
 			// put our target in combat state
 			if (!defender->checkState(CreatureState_Combat))
 			{
-				defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(defender);
+				gStateManager.setCurrentActionState(defender,CreatureState_Combat);
+                gStateManager.setCurrentActionState(defender,CreatureState_CombatAttitudeNormal);
 			}
 
 			// update our defender list
@@ -433,10 +434,8 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				// put us in combat state
 				if (!attackerNpc->checkState(CreatureState_Combat))
 				{
-					attackerNpc->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-
-					// attackerNpc->toggleStateOn(CreatureState_Combat);
-					gMessageLib->sendStateUpdate(attackerNpc);
+					gStateManager.setCurrentActionState(attackerNpc,CreatureState_Combat);
+                    gStateManager.setCurrentActionState(attackerNpc,CreatureState_CombatAttitudeNormal);
 				}
 
 				// put our target in combat stance
@@ -444,11 +443,9 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				{
 					gMessageLib->sendUpdatePvpStatus(defenderPlayer,defenderPlayer, defenderPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive); //  | CreaturePvPStatus_Enemy);
 
-					defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-					gMessageLib->sendStateUpdate(defenderPlayer);
+					gStateManager.setCurrentActionState(defenderPlayer,CreatureState_Combat);
+                    gStateManager.setCurrentActionState(defenderPlayer,CreatureState_CombatAttitudeNormal);
 
-					// Player can start auto-attack.
-					// defenderPlayer->getController()->enqueueAutoAttack(attackerNpc->getId());
 				}
 
 				// If the target (defender) is not on our list, update pvp-status.
@@ -511,15 +508,15 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				// put us in combat state
 				if (!attackerNpc->checkState(CreatureState_Combat))
 				{
-					attackerNpc->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-					gMessageLib->sendStateUpdate(attackerNpc);
+					gStateManager.setCurrentActionState(attackerNpc,CreatureState_Combat);
+                    gStateManager.setCurrentActionState(attackerNpc,CreatureState_CombatAttitudeNormal);
 				}
 
 				// put our target in combat state
 				if (!defenderPlayer->checkState(CreatureState_Combat))
 				{
-					defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-					gMessageLib->sendStateUpdate(defenderPlayer);
+					gStateManager.setCurrentActionState(defenderPlayer,CreatureState_Combat);
+                    gStateManager.setCurrentActionState(defenderPlayer,CreatureState_CombatAttitudeNormal);
 				}
 
 				// update our defender list

@@ -43,6 +43,7 @@ StateManager::~StateManager()
 {
     mActionStateMap.empty();
     mPostureStateMap.empty();
+    mLocomotionStateMap.empty();
 }
 
 void StateManager::loadActionStateMap()
@@ -145,7 +146,6 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
     } 
     gEventDispatcher.Notify(posture_update_event);
 }
-
 
 void StateManager::setCurrentActionState(CreatureObject* object, CreatureState newState)
 {    

@@ -216,7 +216,7 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
         return false;
     }
 
-    if(!playerObject->getNextSampleTime() || (int32)(playerObject->getNextSampleTime() - localTime) <= 0)
+    if(!playerObject->getNextSampleTime() || (int32)(playerObject->getNextSampleTime() - localTime) <= 1)
     {
         playerObject->getSampleData()->mPendingSample = false;
         playerObject->setNextSampleTime(localTime + 18000);
@@ -274,6 +274,10 @@ void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
         if(it->second->hasWater)
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), container->playerObject);
+            container->playerObject->setSamplingState(false);
+            uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+            container->playerObject->setNextSampleTime(localTime + 1000);
+            container->playerObject->getSampleData()->mPendingSample = false;
             return;
         }
 
@@ -288,7 +292,6 @@ void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
         // play animation
         gWorldManager->getClientEffect(container->tool->getInternalAttribute<uint32>("sample_effect"));
         // schedule execution
-        //container->playerObject->getController()->addEvent(new SampleEvent(container->playerObject,container->tool,container->resource),2000);
         start_sample_event = std::make_shared<SimpleEvent>(EventType("start_sample"), 0, 2000,
                              std::bind(&ArtisanManager::sampleEvent,this, container->playerObject, container->resource, container->tool));
     }

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Item.h"
 #include "Datapad.h"
 #include "Inventory.h"
-#include "MissionManager.h"
+//#include "MissionManager.h"
 #include "ObjectFactory.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
@@ -793,7 +793,7 @@ void ArtisanManager::surveyEvent(PlayerObject* player, CurrentResource* resource
                 datapad->requestNewWaypoint("Resource Survey", glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),static_cast<uint16>(gWorldManager->getZoneId()),Waypoint_blue);
             }
 
-            gMissionManager->checkSurveyMission(player,resource,highestDist);
+            //gMissionManager->checkSurveyMission(player,resource,highestDist);
         }
     }
 

@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Buff.h"
 #include "Instrument.h"
-#include "MissionManager.h"
+//#include "MissionManager.h"
 #include "nonPersistantObjectFactory.h"
 #include "PlayerObject.h"
 #include "PlayerEnums.h"
@@ -920,7 +920,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
         entertainer->setEntertainerTaskId(gWorldManager->addEntertainerToProccess(entertainer,performanceStuct->loopDuration*1000));
 
         //If we have a mission in the current spot start the timer
-        gMissionManager->checkMusicianMission(entertainer);
+        //gMissionManager->checkMusicianMission(entertainer);
 
     }
 }
@@ -968,7 +968,7 @@ void	EntertainerManager::startDancePerformance(PlayerObject* entertainer,BString
         entertainer->setEntertainerTaskId(gWorldManager->addEntertainerToProccess(entertainer,performanceStruct->loopDuration*1000));
 
         //If we have a mission in the current spot start the timer
-        gMissionManager->checkDancerMission(entertainer);
+        //gMissionManager->checkDancerMission(entertainer);
 
     }
 }
@@ -1074,7 +1074,7 @@ void EntertainerManager::stopEntertaining(PlayerObject* entertainer)
     entertainer->setPerformingState(PlayerPerformance_None);
 
     //If we're in a mission and we've stopped the performance -- fail it
-    gMissionManager->missionFailedEntertainer(entertainer);
+    //gMissionManager->missionFailedEntertainer(entertainer);
 
 }
 

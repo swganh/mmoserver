@@ -47,6 +47,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::handleMissionListRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
+    return;
 
     /*uint8           unknown     = */
     message->getUint8();
@@ -64,6 +66,8 @@ void ObjectController::handleMissionListRequest(Message* message)
 void ObjectController::handleMissionDetailsRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
+    return;
 
     gMissionManager->detailsRequest(player);
 
@@ -75,6 +79,8 @@ void ObjectController::handleMissionDetailsRequest(Message* message)
 void ObjectController::handleMissionCreateRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
+    return;
 
     gMissionManager->createRequest(player);
 
@@ -85,6 +91,8 @@ void ObjectController::handleMissionCreateRequest(Message* message)
 void ObjectController::handleGenericMissionRequest(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
+    return;
     uint64 mission_id = message->getUint64();
 
     gMissionManager->missionRequest(player, mission_id);
@@ -96,6 +104,8 @@ void ObjectController::handleGenericMissionRequest(Message* message)
 void ObjectController::handleMissionAbort(Message* message)
 {
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
+    gMessageLib->SendSystemMessage(L"Missions are currently disabled, do not report this as a bug",player);
+    return;
     uint64 mission_id = message->getUint64();
 
     gMissionManager->missionAbort(player, mission_id);

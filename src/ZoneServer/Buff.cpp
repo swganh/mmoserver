@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "BuffDBItem.h"
 #include "CreatureObject.h"
-#include "MissionManager.h"
+//#include "MissionManager.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "SkillEnums.h"
@@ -419,7 +419,7 @@ void Buff::FinalChanges()
     }
 
     //Complete entertainer mission
-    gMissionManager->missionCompleteEntertainer(Player,this);
+    //gMissionManager->missionCompleteEntertainer(Player,this);
 
 
 }

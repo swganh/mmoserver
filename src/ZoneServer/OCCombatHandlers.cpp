@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AttackableCreature.h"
 #include "Datapad.h"
 #include "Inventory.h"
-#include "MissionManager.h"
+//#include "MissionManager.h"
 #include "MissionObject.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
@@ -346,7 +346,7 @@ void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectCont
     // Loot creatures
     this->lootAll(targetId, player);
 
-    MissionList::iterator it = datapad->getMissions()->begin();
+    /*MissionList::iterator it = datapad->getMissions()->begin();
     while(it != datapad->getMissions()->end())
     {
         MissionObject* mission = dynamic_cast<MissionObject*>(*it);
@@ -368,7 +368,7 @@ void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectCont
             ++it;
         }
 
-    }
+    }*/
 
     return;
 }

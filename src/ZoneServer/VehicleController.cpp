@@ -215,7 +215,6 @@ void VehicleController::Store()
     // todo auto dismount
     if(owner_->checkIfMounted())
     {
-        owner_->setLocomotion(CreatureLocomotion_Standing);
         DismountPlayer();
     }
 
@@ -260,11 +259,13 @@ void VehicleController::DismountPlayer() {
     //For safe measures make the player equipped by nothing
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
 
+    // todo control this from the state manager
     body_->toggleStateOff(CreatureState_MountedCreature);
-    gMessageLib->sendStateUpdate(body_);
-
+    
     owner_->toggleStateOff(CreatureState_RidingMount);
-    gMessageLib->sendStateUpdate(owner_);
+    
+    gStateManager.setCurrentPostureState(owner_,CreaturePosture_Upright);
+    gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_Standing);
 
     owner_->setMounted(false);
     

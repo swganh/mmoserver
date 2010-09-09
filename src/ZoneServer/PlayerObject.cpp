@@ -2071,10 +2071,11 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
         gMessageLib->SendSystemMessage(L"Received an invalid event!", this);
         return false;
     }
+    this->creaturePostureUpdate();
     // Lookup the creature and ensure it is a valid object.
     PlayerObject* object = dynamic_cast<PlayerObject*>(pre_event->getCreatureObject());
-    if (object) {
-        this->creaturePostureUpdate();
+    // we've done all we can do.
+    if (!object) {
         return true;
     }
     // process the appropriate command.
@@ -2244,9 +2245,11 @@ void PlayerObject::playFoodSound(bool food, bool drink)
 //
 bool PlayerObject::handleActionStateUpdate(::common::IEventPtr triggered_event)
 {
+    this->creatureActionStateUpdate();
     return true;
 }
 bool PlayerObject::handleLocomotionUpdate(::common::IEventPtr triggered_event)
 {
+    this->creatureLocomotionUpdate();
     return true;
 }

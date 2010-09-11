@@ -37,9 +37,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define gStateManager ::utils::Singleton<StateManager>::Instance()
 
 // add a map for each type of State here
-typedef std::unordered_map<uint64, std::unique_ptr<ActionState>> ActionStateMap;
-typedef std::unordered_map<uint64, std::unique_ptr<PostureState>> PostureStateMap;
-typedef std::unordered_map<uint64, std::unique_ptr<LocomotionState>> LocomotionStateMap;
+typedef std::unordered_map<int64, std::unique_ptr<ActionState>> ActionStateMap;
+typedef std::unordered_map<int64, std::unique_ptr<PostureState>> PostureStateMap;
+typedef std::unordered_map<int64, std::unique_ptr<LocomotionState>> LocomotionStateMap;
 
 class StateManager
 {
@@ -55,9 +55,11 @@ public:
     void setCurrentPostureState(CreatureObject* object, CreaturePosture);
     void setCurrentLocomotionState(CreatureObject* object, CreatureLocomotion);
 
+    void            loadMasterTransitionList();
+
     CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
     
-    void removeActionState(Object* object, ActionState* currState);
+    void removeActionState(CreatureObject* object, CreatureState);
 
     ActionStateMap		    mActionStateMap;
     PostureStateMap		    mPostureStateMap;

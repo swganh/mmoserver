@@ -91,6 +91,8 @@ bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionSta
     }
     return transitionAction && transitionPosture && transitionLocomotion;
 }
+void LocomotionState::loadTransitionList()
+{}
 void LocomotionState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& types)
 {
     mTransitionList.insert(types);

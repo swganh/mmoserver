@@ -164,31 +164,7 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 					// no more defenders, end combat
 					if(player->getDefenders()->empty())
 					{
-						player->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-						gMessageLib->sendStateUpdate(player);
-						//WARNING WHAT FOLLOWS IS A DIRTY HACK TO GET STATES CLEARING ON COMBAT END
-							//At some point negative states should be handled either by the buff manager as short duration buffs or via a new manager for debuffs
-		
-							//not in combat clear all temp combat states from player
-							// player->toggleStateOff(CreatureState_Dizzy);
-							// gMessageLib->sendStateUpdate(player);
-
-							// player->toggleStateOff(CreatureState_Blinded);
-							// gMessageLib->sendStateUpdate(player);
-
-							// player->toggleStateOff(CreatureState_Stunned);
-							// gMessageLib->sendStateUpdate(player);
-
-							// player->toggleStateOff(CreatureState_Intimidated);
-							// gMessageLib->sendStateUpdate(player);
-
-							// player->setPosture(CreaturePosture_Upright);
-							// gMessageLib->sendPostureUpdate(player);
-							// gMessageLib->sendSelfPostureUpdate(player);
-
-							// gMessageLib->sendSystemMessage(player,L"All states cleared - dirty hack - will fix later");
-
-							//END OF DIRTY COMBAT STATE HACK
+                        gStateManager.setCurrentActionState(player, CreatureState_Peace);
 					}
 				}
 
@@ -201,32 +177,8 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 					// no more defenders, end combat
 					if(targetPlayer->getDefenders()->empty())
 					{
-						targetPlayer->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-						gMessageLib->sendStateUpdate(targetPlayer);
-						//WARNING WHAT FOLLOWS IS A DIRTY HACK TO GET STATES CLEARING ON COMBAT END
-							//At some point negative states should be handled either by the buff manager as short duration buffs or via a new manager for debuffs
-
-							//not in combat clear all temp combat states from target player
-							// targetPlayer->toggleStateOff(CreatureState_Dizzy);
-							// gMessageLib->sendStateUpdate(targetPlayer);
-
-							// targetPlayer->toggleStateOff(CreatureState_Blinded);
-							// gMessageLib->sendStateUpdate(targetPlayer);
-
-							// targetPlayer->toggleStateOff(CreatureState_Stunned);
-							// gMessageLib->sendStateUpdate(targetPlayer);
-
-							// targetPlayer->toggleStateOff(CreatureState_Intimidated);
-							// gMessageLib->sendStateUpdate(targetPlayer);
-
-							// targetPlayer->setPosture(CreaturePosture_Upright);
-							// gMessageLib->sendPostureUpdate(targetPlayer);
-							// gMessageLib->sendSelfPostureUpdate(targetPlayer);
-
-							// gMessageLib->sendSystemMessage(targetPlayer,L"All states cleared - dirty hack - will fix later");
-							//END OF DIRTY COMBAT STATE HACK
-
-					}
+						gStateManager.setCurrentActionState(player, CreatureState_Peace);
+                    }
 				}
 			}
 		}

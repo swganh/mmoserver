@@ -773,9 +773,6 @@
     <ClCompile Include="LocomotionStateEvent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StateRules.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h">
@@ -1527,9 +1524,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LocomotionStateEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StateRules.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

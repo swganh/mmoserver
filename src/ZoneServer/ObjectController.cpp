@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PVHam.h"
 #include "PVPosture.h"
 #include "PVState.h"
+#include "StateManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 
@@ -418,8 +419,8 @@ bool ObjectController::_processCommandQueue()
                     case ObjControllerCmdGroup_Attack:
                     {
                         // If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
-                        player->toggleStateOff(CreatureState_Peace);
-                        gMessageLib->sendStateUpdate(player);
+                        gStateManager.setCurrentActionState(player, CreatureState_Combat);
+                        // TODO: add auto attack to enter combat state.
                         player->enableAutoAttack();
 
                         // CreatureObject* creature = NULL;

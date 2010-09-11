@@ -85,47 +85,47 @@ void StateManager::loadActionStateMap()
 }
 void StateManager::loadPostureStateMap()
 {
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Upright, std::unique_ptr<PostureState>(new PostureUpright(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Crouched, std::unique_ptr<PostureState>(new PostureCrouched(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Prone, std::unique_ptr<PostureState>(new PostureProne(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Sneaking, std::unique_ptr<PostureState>(new PostureSneaking(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Blocking, std::unique_ptr<PostureState>(new PostureBlocking(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Climbing, std::unique_ptr<PostureState>(new PostureClimbing(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Flying, std::unique_ptr<PostureState>(new PostureFlying(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_LyingDown, std::unique_ptr<PostureState>(new PostureLyingDown(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Sitting, std::unique_ptr<PostureState>(new PostureSitting(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_SkillAnimating, std::unique_ptr<PostureState>(new PostureSkillAnimating(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_DrivingVehicle, std::unique_ptr<PostureState>(new PostureDrivingVehicle(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_RidingCreature, std::unique_ptr<PostureState>(new PostureRidingCreature(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_KnockedDown, std::unique_ptr<PostureState>(new PostureKnockedDown(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Incapacitated, std::unique_ptr<PostureState>(new PostureIncapacitated(this))));
-    mPostureStateMap.insert(std::make_pair<uint64, std::unique_ptr<PostureState>>(CreaturePosture_Dead, std::unique_ptr<PostureState>(new PostureDead(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Upright, std::unique_ptr<PostureState>(new PostureUpright(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Crouched, std::unique_ptr<PostureState>(new PostureCrouched(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Prone, std::unique_ptr<PostureState>(new PostureProne(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Sneaking, std::unique_ptr<PostureState>(new PostureSneaking(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Blocking, std::unique_ptr<PostureState>(new PostureBlocking(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Climbing, std::unique_ptr<PostureState>(new PostureClimbing(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Flying, std::unique_ptr<PostureState>(new PostureFlying(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_LyingDown, std::unique_ptr<PostureState>(new PostureLyingDown(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Sitting, std::unique_ptr<PostureState>(new PostureSitting(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_SkillAnimating, std::unique_ptr<PostureState>(new PostureSkillAnimating(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_DrivingVehicle, std::unique_ptr<PostureState>(new PostureDrivingVehicle(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_RidingCreature, std::unique_ptr<PostureState>(new PostureRidingCreature(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_KnockedDown, std::unique_ptr<PostureState>(new PostureKnockedDown(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Incapacitated, std::unique_ptr<PostureState>(new PostureIncapacitated(this))));
+    mPostureStateMap.insert(std::make_pair<CreaturePosture, std::unique_ptr<PostureState>>(CreaturePosture_Dead, std::unique_ptr<PostureState>(new PostureDead(this))));
 }
 
 void StateManager::loadLocomotionStateMap()
 {
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Standing, std::unique_ptr<LocomotionState>(new LocomotionStanding(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Sneaking, std::unique_ptr<LocomotionState>(new LocomotionSneaking(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Walking, std::unique_ptr<LocomotionState>(new LocomotionWalking(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Running, std::unique_ptr<LocomotionState>(new LocomotionRunning(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Kneeling, std::unique_ptr<LocomotionState>(new LocomotionKneeling(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_CrouchSneaking, std::unique_ptr<LocomotionState>(new LocomotionCrouchSneaking(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_CrouchWalking, std::unique_ptr<LocomotionState>(new LocomotionCrouchWalking(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Prone, std::unique_ptr<LocomotionState>(new LocomotionProne(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Crawling, std::unique_ptr<LocomotionState>(new LocomotionCrawling(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_ClimbingStationary, std::unique_ptr<LocomotionState>(new LocomotionClimbingStationary(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Climbing, std::unique_ptr<LocomotionState>(new LocomotionClimbing(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Hovering, std::unique_ptr<LocomotionState>(new LocomotionHovering(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Flying, std::unique_ptr<LocomotionState>(new LocomotionFlying(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_LyingDown, std::unique_ptr<LocomotionState>(new LocomotionLyingDown(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Sitting, std::unique_ptr<LocomotionState>(new LocomotionSitting(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_SkillAnimating, std::unique_ptr<LocomotionState>(new LocomotionSkillAnimating(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_DrivingVehicle, std::unique_ptr<LocomotionState>(new LocomotionDrivingVehicle(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_RidingCreature, std::unique_ptr<LocomotionState>(new LocomotionRidingCreature(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_KnockedDown, std::unique_ptr<LocomotionState>(new LocomotionKnockedDown(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Incapacitated, std::unique_ptr<LocomotionState>(new LocomotionIncapacitated(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Dead, std::unique_ptr<LocomotionState>(new LocomotionDead(this))));
-    mLocomotionStateMap.insert(std::make_pair<int, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Blocking, std::unique_ptr<LocomotionState>(new LocomotionBlocking(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Standing, std::unique_ptr<LocomotionState>(new LocomotionStanding(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Sneaking, std::unique_ptr<LocomotionState>(new LocomotionSneaking(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Walking, std::unique_ptr<LocomotionState>(new LocomotionWalking(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Running, std::unique_ptr<LocomotionState>(new LocomotionRunning(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Kneeling, std::unique_ptr<LocomotionState>(new LocomotionKneeling(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_CrouchSneaking, std::unique_ptr<LocomotionState>(new LocomotionCrouchSneaking(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_CrouchWalking, std::unique_ptr<LocomotionState>(new LocomotionCrouchWalking(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Prone, std::unique_ptr<LocomotionState>(new LocomotionProne(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Crawling, std::unique_ptr<LocomotionState>(new LocomotionCrawling(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_ClimbingStationary, std::unique_ptr<LocomotionState>(new LocomotionClimbingStationary(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Climbing, std::unique_ptr<LocomotionState>(new LocomotionClimbing(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Hovering, std::unique_ptr<LocomotionState>(new LocomotionHovering(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Flying, std::unique_ptr<LocomotionState>(new LocomotionFlying(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_LyingDown, std::unique_ptr<LocomotionState>(new LocomotionLyingDown(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Sitting, std::unique_ptr<LocomotionState>(new LocomotionSitting(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_SkillAnimating, std::unique_ptr<LocomotionState>(new LocomotionSkillAnimating(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_DrivingVehicle, std::unique_ptr<LocomotionState>(new LocomotionDrivingVehicle(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_RidingCreature, std::unique_ptr<LocomotionState>(new LocomotionRidingCreature(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_KnockedDown, std::unique_ptr<LocomotionState>(new LocomotionKnockedDown(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Incapacitated, std::unique_ptr<LocomotionState>(new LocomotionIncapacitated(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Dead, std::unique_ptr<LocomotionState>(new LocomotionDead(this))));
+    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Blocking, std::unique_ptr<LocomotionState>(new LocomotionBlocking(this))));
 }
 
 void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePosture newPosture)
@@ -186,4 +186,34 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
         }
     }
     gEventDispatcher.Notify(locomotion_update_event);
+}
+void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToRemove)
+{
+        // check if we can transition out of this action state
+        if (mActionStateMap[stateToRemove]->CanTransition(obj, stateToRemove))
+        {
+            // Exit old State
+            obj->toggleStateOff(stateToRemove);
+        }
+}
+void StateManager::loadMasterTransitionList()
+{
+    PostureStateMap::iterator pIt = mPostureStateMap.begin();
+    while (pIt != mPostureStateMap.end())
+    {
+        pIt->second->loadTransitionList();
+        ++pIt;
+    }
+    ActionStateMap::iterator aIt = mActionStateMap.begin();
+    while (aIt != mActionStateMap.end())
+    {
+        aIt->second->loadTransitionList();
+        ++aIt;
+    }
+    LocomotionStateMap::iterator lIt = mLocomotionStateMap.begin();
+    while (lIt != mLocomotionStateMap.end())
+    {
+        lIt->second->loadTransitionList();
+        ++lIt;
+    }
 }

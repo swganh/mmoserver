@@ -114,9 +114,7 @@ CraftingSession::~CraftingSession()
 
 	// reset player variables
 	mOwner->setCraftingSession(NULL);
-    // toggle off
-    //gStateManager.setCurrentActionState(mOwner,CreatureState_Crafting);
-	mOwner->toggleStateOff(CreatureState_Crafting);
+    gStateManager.removeActionState(mOwner, CreatureState_Crafting);
 	mOwner->setCraftingStage(0);
 	mOwner->setExperimentationFlag(1);
 	mOwner->setExperimentationPoints(10);

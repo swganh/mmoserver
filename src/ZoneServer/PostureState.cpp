@@ -93,6 +93,8 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     }
     return true;
 }
+void PostureState::loadTransitionList()
+{}
 void PostureState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& types)
 {
     mTransitionList.insert(types);
@@ -102,6 +104,19 @@ void PostureState::insertIntoTransitionList(const std::pair<StateTypes, uint64>&
 PostureUpright::PostureUpright( StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Upright;
+}
+void PostureUpright::Enter(CreatureObject* obj)
+{
+    // exit states we shouldn't be in
+    actionMap[CreatureState_RidingMount]->Exit(obj);
+    actionMap[CreatureState_Cover]->Exit(obj);
+    actionMap[CreatureState_SittingOnChair]->Exit(obj);
+    actionMap[CreatureState_Tumbling]->Exit(obj);
+
+    obj->setPosture(mStateID);
+}
+void PostureUpright::loadTransitionList()
+{
     // deny transition list
     insertAction[CreatureState_Frozen]->getID()));
     insertAction[CreatureState_Immobilized]->getID()));
@@ -120,16 +135,6 @@ PostureUpright::PostureUpright( StateManager* const sm) : PostureState(sm)
     insertLocomotion[CreatureLocomotion_Flying]->getID()));
     insertLocomotion[CreatureLocomotion_Hovering]->getID()));
     insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
-}
-void PostureUpright::Enter(CreatureObject* obj)
-{
-    // exit states we shouldn't be in
-    actionMap[CreatureState_RidingMount]->Exit(obj);
-    actionMap[CreatureState_Cover]->Exit(obj);
-    actionMap[CreatureState_SittingOnChair]->Exit(obj);
-    actionMap[CreatureState_Tumbling]->Exit(obj);
-
-    obj->setPosture(mStateID);
 }
 
 //	Posture Crouched

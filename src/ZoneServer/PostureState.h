@@ -56,10 +56,9 @@ public:
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
 
-    virtual uint64 getID() {return mStateID;}
+    virtual void loadTransitionList();
 
-    // helper functions
-    void loadBaseTransitionList();
+    virtual uint64 getID() {return mStateID;}
     
 protected:
     StateManager*           mStateManager;
@@ -80,6 +79,7 @@ class PostureUpright:
 public:
     explicit PostureUpright(StateManager* const sm);
     void Enter(CreatureObject* obj);
+    void loadTransitionList();
 };
 #endif
 /*	Crouched Posture

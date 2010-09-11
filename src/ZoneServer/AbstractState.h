@@ -62,6 +62,8 @@ public:
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair)=0;
 
+    virtual void loadTransitionList()=0;
+
 
     //virtual bool hidden(){return mHidden;}
 

@@ -646,17 +646,6 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	// just making sure
 	playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
 
-	// A note by Eruptor: Do we really want to clear combat states here, like Dizzy etc...
-	//
-	/*
-	playerObject->toggleStateOff(CreatureState_Crafting);
-	playerObject->toggleStateOff(CreatureState_Combat);
-	playerObject->toggleStateOff(CreatureState_Dizzy);
-	playerObject->toggleStateOff(CreatureState_Stunned);
-	playerObject->toggleStateOff(CreatureState_Blinded);
-	playerObject->toggleStateOff(CreatureState_Intimidated);
-	*/
-
 	// logging in dead or incapped, shouldn't happen. (player is moved to cloning facility when disconnecting in those states
 
 	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer Posture = %u", playerObject->getPosture());

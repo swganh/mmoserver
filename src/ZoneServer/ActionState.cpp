@@ -83,6 +83,8 @@ bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
     }
     return transitionAction && transitionPosture && transitionLocomotion;
 }
+void ActionState::loadTransitionList()
+{}
 void ActionState::insertIntoStateRemovalList(const uint64& state)
 {
     mStatesRemovalList.push_back(state);

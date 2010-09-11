@@ -220,17 +220,10 @@ PlayerObject::~PlayerObject()
     // make sure we don't leave a crafting session open
     gCraftingSessionFactory->destroySession(mCraftingSession);
     this->setCraftingSession(NULL);
-    this->toggleStateOff(CreatureState_Crafting);
+    gStateManager.removeActionState(this, CreatureState_Crafting);
+    gStateManager.setCurrentActionState(this, CreatureState_Peace);
     this->setCraftingStage(0);
     this->setExperimentationFlag(0);
-
-    // can't zone or logout while in combat
-    this->toggleStateOff(CreatureState_Combat);
-    this->toggleStateOff(CreatureState_Dizzy);
-    this->toggleStateOff(CreatureState_Stunned);
-    this->toggleStateOff(CreatureState_Blinded);
-    this->toggleStateOff(CreatureState_Intimidated);
-
     // update duel lists
     clearDuelList();
     
@@ -252,9 +245,7 @@ PlayerObject::~PlayerObject()
             // if no more defenders, clear combat state
             if(!defenderCreature->getDefenders()->size())
             {
-                defenderCreature->toggleStateOff(CreatureState_Combat);
-
-                gMessageLib->sendStateUpdate(defenderCreature);
+                gStateManager.setCurrentActionState(defenderCreature, CreatureState_Peace);
             }
         }
 
@@ -1830,8 +1821,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
             // if no more defenders, clear combat state
             if (!defenderCreature->getDefenders()->size())
             {
-                defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                gMessageLib->sendStateUpdate(defenderCreature);
+                gStateManager.setCurrentActionState(defenderCreature, CreatureState_Peace);
             }
         }
         // If we remove self from all defenders, then we should remove all defenders from self. Remember, we are dead.

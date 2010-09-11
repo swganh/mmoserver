@@ -825,8 +825,7 @@ void CreatureObject::die()
                 // if no more defenders, clear combat state
                 if (!defenderCreature->getDefenders()->size())
                 {
-                    defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                    gMessageLib->sendStateUpdate(defenderCreature);
+                    gStateManager.setCurrentActionState(defenderCreature, CreatureState_Peace);
                 }
             }
             // If we remove self from all defenders, then we should remove all defenders from self. Remember, we are dead.
@@ -1351,8 +1350,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
             // Inform npc about this event.
             this->inPeace();
         }
-        this->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-        gMessageLib->sendStateUpdate(this);
+        gStateManager.setCurrentActionState(this, CreatureState_Peace);
     }
     else
     {
@@ -1386,8 +1384,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
                 // Inform npc about this event.
                 defenderCreature->inPeace();
             }
-            defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-            gMessageLib->sendStateUpdate(defenderCreature);
+            gStateManager.setCurrentActionState(defenderCreature, CreatureState_Peace);
         }
         else
         {

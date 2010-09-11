@@ -306,7 +306,6 @@
     <ClCompile Include="SpawnRegion.cpp" />
     <ClCompile Include="SpawnRegionFactory.cpp" />
     <ClCompile Include="StateManager.cpp" />
-    <ClCompile Include="StateRules.cpp" />
     <ClCompile Include="StaticObject.cpp" />
     <ClCompile Include="Stomach.cpp" />
     <ClCompile Include="StructureManager.cpp" />
@@ -551,7 +550,6 @@
     <ClInclude Include="SpawnRegion.h" />
     <ClInclude Include="SpawnRegionFactory.h" />
     <ClInclude Include="StateManager.h" />
-    <ClInclude Include="StateRules.h" />
     <ClInclude Include="StaticObject.h" />
     <ClInclude Include="Stomach.h" />
     <ClInclude Include="StructureHeightmapAsyncContainer.h" />

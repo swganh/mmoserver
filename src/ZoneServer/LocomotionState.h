@@ -56,6 +56,8 @@ public:
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
 
+    virtual void loadTransitionList();
+
     virtual uint64 getID() {return mStateID;}
 
 protected:

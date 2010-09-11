@@ -40,8 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MedicManager.h"
 #include "NpcManager.h"
 #include "ScoutManager.h"
-#include "StateRules.h"
 #include "SkillManager.h"
+#include "StateManager.h"
 #include "StructureManager.h"
 #include "TradeManager.h"
 #include "UIManager.h"
@@ -170,9 +170,6 @@ ZoneServer::ZoneServer(int8* zoneName)
 
     WorldManager::Init(zoneId,this,mDatabase);
 
-    // load State Rules
-    StateRules* sRules = new StateRules();
-
     // Init the non persistent factories. For now we take them one-by-one here, until we have a collection of them.
     // We can NOT create these factories among the already existing ones, if we want to have any kind of "ownership structure",
     // since the existing factories are impossible to delete without crashing the server.
@@ -187,6 +184,9 @@ ZoneServer::ZoneServer(int8* zoneName)
 
     //ArtisanManager callback
     CraftingManager::Init(mDatabase);
+
+    // StateManager load up transitions this way because of how the constructor is setup.
+    gStateManager.loadMasterTransitionList();
 
     UIManager::Init(mDatabase,mMessageDispatch);
     CombatManager::Init(mDatabase);

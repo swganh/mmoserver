@@ -67,7 +67,5 @@ public:
 
 protected:
     transitionList          mTransitionList;
-    uint64					mStateID;
-    bool					mHidden;
     bool                    mBlocked;
 };

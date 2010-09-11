@@ -32,11 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AbstractState.h"
 #include "CreatureObject.h"
 
+class StateManager;
 class LocomotionState :
     public IState
 {
 public:
-    LocomotionState(void);
+    LocomotionState(StateManager* const sm);
     virtual ~LocomotionState(void);
     /* Activates the Enter process for the character Locomotion
     *  
@@ -54,8 +55,15 @@ public:
     virtual const transitionList& returnTransitionList(){return mTransitionList;}
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
+
+    virtual uint64 getID() {return mStateID;}
+
 protected:
-    transitionList  mTransitionList;
+    StateManager*     mStateManager;
+    uint64					mStateID;
+    bool                    mBlocked;
+    bool					mHidden;
+    transitionList          mTransitionList;
 };
 #endif
 /* Standing Locomotion
@@ -65,7 +73,7 @@ class LocomotionStanding:
     public LocomotionState
 {
 public:
-    LocomotionStanding();
+    LocomotionStanding(StateManager* const sm);
 };
 /*	Sneaking Locomotion
 *
@@ -74,7 +82,7 @@ class LocomotionSneaking:
     public LocomotionState
 {
 public:
-    LocomotionSneaking();
+    LocomotionSneaking(StateManager* const sm);
 };
 /*	Walking Locomotion
 *
@@ -83,7 +91,7 @@ class LocomotionWalking:
     public LocomotionState
 {
 public:
-    LocomotionWalking();
+    LocomotionWalking(StateManager* const sm);
 };
 /*	Running Locomotion
 *
@@ -92,7 +100,7 @@ class LocomotionRunning:
     public LocomotionState
 {
 public:
-    LocomotionRunning();
+    LocomotionRunning(StateManager* const sm);
 };
 /*  Kneeling Locomotion
 *
@@ -101,7 +109,7 @@ class LocomotionKneeling:
     public LocomotionState
 {
 public:
-    LocomotionKneeling();
+    LocomotionKneeling(StateManager* const sm);
 };
 /*	CrouchSneaking Locomotion
 *
@@ -110,7 +118,7 @@ class LocomotionCrouchSneaking:
     public LocomotionState
 {
 public:
-    LocomotionCrouchSneaking();
+    LocomotionCrouchSneaking(StateManager* const sm);
 };
 /*	CrouchWalking Locomotion
 *
@@ -119,7 +127,7 @@ class LocomotionCrouchWalking:
     public LocomotionState
 {
 public:
-    LocomotionCrouchWalking();
+    LocomotionCrouchWalking(StateManager* const sm);
 };
 /*	Prone Locomotion
 *
@@ -128,7 +136,7 @@ class LocomotionProne:
     public LocomotionState
 {
 public:
-    LocomotionProne();
+    LocomotionProne(StateManager* const sm);
 };
 /*	Crawling Locomotion
 *
@@ -137,7 +145,7 @@ class LocomotionCrawling:
     public LocomotionState
 {
 public:
-    LocomotionCrawling();
+    LocomotionCrawling(StateManager* const sm);
 };
 /*	ClimbingStationary Locomotion
 *
@@ -146,7 +154,7 @@ class LocomotionClimbingStationary:
     public LocomotionState
 {
 public:
-    LocomotionClimbingStationary();
+    LocomotionClimbingStationary(StateManager* const sm);
 };
 /*	Climbing Locomotion
 *
@@ -155,7 +163,7 @@ class LocomotionClimbing:
     public LocomotionState
 {
 public:
-    LocomotionClimbing();
+    LocomotionClimbing(StateManager* const sm);
 };
 /*	Hovering Locomotion
 *
@@ -164,7 +172,7 @@ class LocomotionHovering:
     public LocomotionState
 {
 public:
-    LocomotionHovering();
+    LocomotionHovering(StateManager* const sm);
 };
 /*	Flying Locomotion
 *
@@ -173,7 +181,7 @@ class LocomotionFlying:
     public LocomotionState
 {
 public:
-    LocomotionFlying();
+    LocomotionFlying(StateManager* const sm);
 };
 /*	LyingDown Locomotion
 *
@@ -182,7 +190,7 @@ class LocomotionLyingDown:
     public LocomotionState
 {
 public:
-    LocomotionLyingDown();
+    LocomotionLyingDown(StateManager* const sm);
 };
 /*	Sitting Locomotion
 *
@@ -191,7 +199,7 @@ class LocomotionSitting:
     public LocomotionState
 {
 public:
-    LocomotionSitting();
+    LocomotionSitting(StateManager* const sm);
 };
 /*	SkillAnimating Locomotion
 *
@@ -200,7 +208,7 @@ class LocomotionSkillAnimating:
     public LocomotionState
 {
 public:
-    LocomotionSkillAnimating();
+    LocomotionSkillAnimating(StateManager* const sm);
 };
 /*	DrivingVehicle Locomotion
 *
@@ -209,7 +217,7 @@ class LocomotionDrivingVehicle:
     public LocomotionState
 {
 public:
-    LocomotionDrivingVehicle();
+    LocomotionDrivingVehicle(StateManager* const sm);
 };
 /*	RidingCreature Locomotion
 *
@@ -218,7 +226,7 @@ class LocomotionRidingCreature:
     public LocomotionState
 {
 public:
-    LocomotionRidingCreature();
+    LocomotionRidingCreature(StateManager* const sm);
 };
 /*	KnockedDown Locomotion
 *
@@ -227,7 +235,7 @@ class LocomotionKnockedDown:
     public LocomotionState
 {
 public:
-    LocomotionKnockedDown();
+    LocomotionKnockedDown(StateManager* const sm);
 };
 /*	Incapacitated Locomotion
 *
@@ -236,7 +244,7 @@ class LocomotionIncapacitated:
     public LocomotionState
 {
 public:
-    LocomotionIncapacitated();
+    LocomotionIncapacitated(StateManager* const sm);
 };
 /*	Dead Locomotion
 *
@@ -245,7 +253,7 @@ class LocomotionDead:
     public LocomotionState
 {
 public:
-    LocomotionDead();
+    LocomotionDead(StateManager* const sm);
 };
 /*	Blocking Locomotion
 *
@@ -254,5 +262,5 @@ class LocomotionBlocking:
     public LocomotionState
 {
 public:
-    LocomotionBlocking();
+    LocomotionBlocking(StateManager* const sm);
 };

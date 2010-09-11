@@ -32,11 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "abstractstate.h"
 #include "PlayerObject.h"
 
+class StateManager;
 class PostureState :
     public IState
 {
 public:
-    PostureState(void);
+    explicit PostureState(StateManager* const sm);
     virtual ~PostureState(void);
     /* Activates the Enter process for the character Posture
     *  
@@ -54,9 +55,21 @@ public:
     virtual const transitionList& returnTransitionList(){return mTransitionList;}
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
+
+    virtual uint64 getID() {return mStateID;}
+
+    // helper functions
+    void loadBaseTransitionList();
     
 protected:
-    transitionList  mTransitionList;
+    StateManager*           mStateManager;
+    uint64					mStateID;
+    bool                    mBlocked;
+    bool					mHidden;
+    // think of this as a can't transition list
+    transitionList          mTransitionList;
+    
+
 };
 /*	Upright Posture
 *
@@ -65,7 +78,8 @@ class PostureUpright:
     public PostureState
 {
 public:
-    PostureUpright();
+    explicit PostureUpright(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 #endif
 /*	Crouched Posture
@@ -75,7 +89,8 @@ class PostureCrouched:
     public PostureState
 {
 public:
-    PostureCrouched();
+    explicit PostureCrouched(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*	Prone Posture
 *
@@ -84,7 +99,8 @@ class PostureProne:
     public PostureState
 {
 public:
-    PostureProne();
+  explicit PostureProne(StateManager* const sm);
+  void Enter(CreatureObject* obj);
 };
 /*	Sneaking Posture
 *
@@ -93,7 +109,7 @@ class PostureSneaking:
     public PostureState
 {
 public:
-    PostureSneaking();
+   explicit PostureSneaking(StateManager* const sm);
 };
 /*	Blocking Posture
 *
@@ -102,7 +118,7 @@ class PostureBlocking:
     public PostureState
 {
 public:
-    PostureBlocking();
+    explicit PostureBlocking(StateManager* const sm);
 };
 /*	Climbing Posture
 *
@@ -111,7 +127,7 @@ class PostureClimbing:
     public PostureState
 {
 public:
-    PostureClimbing();
+    explicit PostureClimbing(StateManager* const sm);
 };
 /*	Flying Posture
 *
@@ -120,7 +136,7 @@ class PostureFlying:
     public PostureState
 {
 public:
-    PostureFlying();
+    explicit PostureFlying(StateManager* const sm);
 };
 /*	LyingDown Posture
 *
@@ -129,7 +145,8 @@ class PostureLyingDown:
     public PostureState
 {
 public:
-    PostureLyingDown();
+    explicit PostureLyingDown(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*	Sitting Posture
 *
@@ -138,7 +155,8 @@ class PostureSitting:
     public PostureState
 {
 public:
-    PostureSitting();
+    explicit PostureSitting(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*	SkillAnimating Posture
 *
@@ -147,7 +165,8 @@ class PostureSkillAnimating:
     public PostureState
 {
 public:
-    PostureSkillAnimating();
+    explicit PostureSkillAnimating(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*	DrivingVehicle Posture
 *
@@ -156,7 +175,8 @@ class PostureDrivingVehicle:
     public PostureState
 {
 public:
-    PostureDrivingVehicle();
+    explicit PostureDrivingVehicle(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*	RidingCreature Posture
 *
@@ -165,7 +185,8 @@ class PostureRidingCreature:
     public PostureState
 {
 public:
-    PostureRidingCreature();
+    explicit PostureRidingCreature(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*	KnockedDown Posture
 *
@@ -174,7 +195,8 @@ class PostureKnockedDown:
     public PostureState
 {
 public:
-    PostureKnockedDown();
+    explicit PostureKnockedDown(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*	Incapacitated Posture
 *
@@ -183,7 +205,8 @@ class PostureIncapacitated:
     public PostureState
 {
 public:
-    PostureIncapacitated();
+   explicit PostureIncapacitated(StateManager* const sm);
+   void Enter(CreatureObject* obj);
 };
 /*	Dead Posture
 *
@@ -192,5 +215,6 @@ class PostureDead:
     public PostureState
 {
 public:
-    PostureDead();
+    explicit PostureDead(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };

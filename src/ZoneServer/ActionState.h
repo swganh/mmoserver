@@ -32,11 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CreatureObject.h"
 
 typedef std::vector<uint64> stateRemove;
+class StateManager;
 class ActionState :
     public IState
 {
 public:
-    ActionState(void);
+    ActionState(StateManager* const sm);
     virtual ~ActionState(void){};
 
     /* Activates the Enter process for the character state
@@ -60,10 +61,15 @@ public:
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
 
+    virtual uint64 getID() {return mStateID;}
+
 protected:
-    stateRemove mStatesRemovalList;
-    transitionList  mTransitionList;
-    CreatureState	mStateID;
+    stateRemove             mStatesRemovalList;
+    StateManager*     mStateManager;
+    bool                    mBlocked;
+    bool					mHidden;
+    transitionList          mTransitionList;
+    CreatureState	        mStateID;
 };
 #endif
 
@@ -74,7 +80,7 @@ class StateCover:
     public ActionState
 {
 public:
-    StateCover();
+    StateCover(StateManager* const sm);
     
 };
 /*
@@ -85,7 +91,7 @@ class StateCombat:
     public ActionState
 {
 public:
-    StateCombat();
+    StateCombat(StateManager* const sm);
     
     
     
@@ -98,7 +104,7 @@ class StatePeace:
     public ActionState
 {
 public:
-    StatePeace();
+    StatePeace(StateManager* const sm);
     
     
     
@@ -110,7 +116,7 @@ class StateAiming:
     public ActionState
 {
 public:
-    StateAiming();
+    StateAiming(StateManager* const sm);
     
     
     
@@ -122,7 +128,7 @@ class StateAlert:
     public ActionState
 {
 public:
-    StateAlert();
+    StateAlert(StateManager* const sm);
     
     
     
@@ -134,7 +140,7 @@ class StateBerserk:
     public ActionState
 {
 public:
-    StateBerserk();
+    StateBerserk(StateManager* const sm);
     
     
     
@@ -146,7 +152,7 @@ class StateFeign:
     public ActionState
 {
 public:
-    StateFeign();
+    StateFeign(StateManager* const sm);
     
     
     
@@ -158,7 +164,7 @@ class StateCombatEvasive:
     public ActionState
 {
 public:
-    StateCombatEvasive();
+    StateCombatEvasive(StateManager* const sm);
     
     
     
@@ -170,7 +176,7 @@ class StateCombatNormal:
     public ActionState
 {
 public:
-    StateCombatNormal();
+    StateCombatNormal(StateManager* const sm);
     
     
     
@@ -182,7 +188,7 @@ class StateCombatAggressive:
     public ActionState
 {
 public:
-    StateCombatAggressive();
+    StateCombatAggressive(StateManager* const sm);
     
     
     
@@ -194,7 +200,7 @@ class StateTumbling:
     public ActionState
 {
 public:
-    StateTumbling();
+    StateTumbling(StateManager* const sm);
     
     
     
@@ -206,7 +212,7 @@ class StateRallied:
     public ActionState
 {
 public:
-    StateRallied();
+    StateRallied(StateManager* const sm);
     
     
     
@@ -218,7 +224,7 @@ class StateStunned:
     public ActionState
 {
 public:
-    StateStunned();
+    StateStunned(StateManager* const sm);
     
     
     
@@ -230,7 +236,7 @@ class StateBlinded:
     public ActionState
 {
 public:
-    StateBlinded();
+    StateBlinded(StateManager* const sm);
     
     
     
@@ -242,7 +248,7 @@ class StateDizzy:
     public ActionState
 {
 public:
-    StateDizzy();
+    StateDizzy(StateManager* const sm);
     
     
     
@@ -254,7 +260,7 @@ class StateIntimidated:
     public ActionState
 {
 public:
-    StateIntimidated();
+    StateIntimidated(StateManager* const sm);
     
     
     
@@ -266,7 +272,7 @@ class StateImmobolized:
     public ActionState
 {
 public:
-    StateImmobolized();
+    StateImmobolized(StateManager* const sm);
     
     
     
@@ -278,7 +284,7 @@ class StateFrozen:
     public ActionState
 {
 public:
-    StateFrozen();
+    StateFrozen(StateManager* const sm);
     
     
     
@@ -290,7 +296,7 @@ class StateSwimming:
     public ActionState
 {
 public:
-    StateSwimming();
+    StateSwimming(StateManager* const sm);
     
     
     
@@ -302,7 +308,7 @@ class StateSittingOnChair:
     public ActionState
 {
 public:
-    StateSittingOnChair();
+    StateSittingOnChair(StateManager* const sm);
     
     
     
@@ -314,7 +320,7 @@ class StateCrafting:
     public ActionState
 {
 public:
-    StateCrafting();
+    StateCrafting(StateManager* const sm);
     
     
     
@@ -326,7 +332,7 @@ class StateGlowingJedi:
     public ActionState
 {
 public:
-    StateGlowingJedi();
+    StateGlowingJedi(StateManager* const sm);
     
     
     
@@ -338,7 +344,7 @@ class StateMaskScent:
     public ActionState
 {
 public:
-    StateMaskScent();
+    StateMaskScent(StateManager* const sm);
     
     
     
@@ -350,7 +356,7 @@ class StatePoisoined:
     public ActionState
 {
 public:
-    StatePoisoined();
+    StatePoisoined(StateManager* const sm);
     
     
     
@@ -362,7 +368,7 @@ class StateBleeding:
     public ActionState
 {
 public:
-    StateBleeding();
+    StateBleeding(StateManager* const sm);
     
     
     
@@ -374,7 +380,7 @@ class StateDiseased:
     public ActionState
 {
 public:
-    StateDiseased();
+    StateDiseased(StateManager* const sm);
     
     
     
@@ -386,7 +392,7 @@ class StateOnFire:
     public ActionState
 {
 public:
-    StateOnFire();
+    StateOnFire(StateManager* const sm);
     
     
     
@@ -398,7 +404,7 @@ class StateRidingMount:
     public ActionState
 {
 public:
-    StateRidingMount();
+    StateRidingMount(StateManager* const sm);
     
     
     
@@ -410,7 +416,7 @@ class StateMountedCreature:
     public ActionState
 {
 public:
-    StateMountedCreature();
+    StateMountedCreature(StateManager* const sm);
     
     
     
@@ -422,7 +428,7 @@ class StatePilotingShip:
     public ActionState
 {
 public:
-    StatePilotingShip();
+    StatePilotingShip(StateManager* const sm);
     
     
     
@@ -434,7 +440,7 @@ class StateShipOperations:
     public ActionState
 {
 public:
-    StateShipOperations();
+    StateShipOperations(StateManager* const sm);
     
     
     
@@ -446,7 +452,7 @@ class StateShipGunner:
     public ActionState
 {
 public:
-    StateShipGunner();
+    StateShipGunner(StateManager* const sm);
     
     
     
@@ -458,7 +464,7 @@ class StateShipInterior:
     public ActionState
 {
 public:
-    StateShipInterior();
+    StateShipInterior(StateManager* const sm);
     
     
     
@@ -470,7 +476,7 @@ class StatePilotingPobShip:
     public ActionState
 {
 public:
-    StatePilotingPobShip();
+    StatePilotingPobShip(StateManager* const sm);
     
     
     

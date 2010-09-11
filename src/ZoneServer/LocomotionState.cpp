@@ -28,15 +28,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "LocomotionState.h"
 
 
-LocomotionState::LocomotionState(void)
+LocomotionState::LocomotionState(StateManager* const sm) : IState(),
+    mStateManager(sm), mStateID(0), mBlocked(false){}
+
+LocomotionState::~LocomotionState(void)
 {
     mStateID = 0;
     mBlocked = false;
     mTransitionList.clear();
-}
-
-LocomotionState::~LocomotionState(void)
-{
 }
 
 void LocomotionState::Enter(CreatureObject* obj)
@@ -97,91 +96,91 @@ void LocomotionState::insertIntoTransitionList(const std::pair<StateTypes, uint6
     mTransitionList.insert(types);
 }
 
-LocomotionStanding::LocomotionStanding()
+LocomotionStanding::LocomotionStanding(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Standing;
 }
-LocomotionSneaking::LocomotionSneaking()
+LocomotionSneaking::LocomotionSneaking(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Sneaking;
 }
-LocomotionWalking::LocomotionWalking()
+LocomotionWalking::LocomotionWalking(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Walking;
 }
-LocomotionRunning::LocomotionRunning()
+LocomotionRunning::LocomotionRunning(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Running;
 }
-LocomotionKneeling::LocomotionKneeling()
+LocomotionKneeling::LocomotionKneeling(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Kneeling;
 }
-LocomotionCrouchSneaking::LocomotionCrouchSneaking()
+LocomotionCrouchSneaking::LocomotionCrouchSneaking(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_CrouchSneaking;
 }
-LocomotionCrouchWalking::LocomotionCrouchWalking()
+LocomotionCrouchWalking::LocomotionCrouchWalking(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_CrouchWalking;
 }
-LocomotionProne::LocomotionProne()
+LocomotionProne::LocomotionProne(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Prone;
 }
-LocomotionCrawling::LocomotionCrawling()
+LocomotionCrawling::LocomotionCrawling(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Crawling;
 }
-LocomotionClimbingStationary::LocomotionClimbingStationary()
+LocomotionClimbingStationary::LocomotionClimbingStationary(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_ClimbingStationary;
 }
-LocomotionClimbing::LocomotionClimbing()
+LocomotionClimbing::LocomotionClimbing(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Climbing;
 }
-LocomotionHovering::LocomotionHovering()
+LocomotionHovering::LocomotionHovering(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Hovering;
 }
-LocomotionFlying::LocomotionFlying()
+LocomotionFlying::LocomotionFlying(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Flying;
 }
-LocomotionLyingDown::LocomotionLyingDown()
+LocomotionLyingDown::LocomotionLyingDown(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_LyingDown;
 }
-LocomotionSitting::LocomotionSitting()
+LocomotionSitting::LocomotionSitting(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Sitting;
 }
-LocomotionSkillAnimating::LocomotionSkillAnimating()
+LocomotionSkillAnimating::LocomotionSkillAnimating(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_SkillAnimating;
 }
-LocomotionDrivingVehicle::LocomotionDrivingVehicle()
+LocomotionDrivingVehicle::LocomotionDrivingVehicle(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_DrivingVehicle;
 }
-LocomotionRidingCreature::LocomotionRidingCreature()
+LocomotionRidingCreature::LocomotionRidingCreature(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_RidingCreature;
 }
-LocomotionKnockedDown::LocomotionKnockedDown()
+LocomotionKnockedDown::LocomotionKnockedDown(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_KnockedDown;
 }
-LocomotionIncapacitated::LocomotionIncapacitated()
+LocomotionIncapacitated::LocomotionIncapacitated(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Incapacitated;
 }
-LocomotionDead::LocomotionDead()
+LocomotionDead::LocomotionDead(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Dead;
 }
-LocomotionBlocking::LocomotionBlocking()
+LocomotionBlocking::LocomotionBlocking(StateManager* const sm) : LocomotionState(sm)
 {
     mStateID = CreatureLocomotion_Blocking;
 }

@@ -26,10 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "ActionState.h"
 
-ActionState::ActionState(void)
-{
-    mBlocked = false;
-}
+ActionState::ActionState(StateManager* const sm) : IState(),
+    mStateManager(sm), mBlocked(false){}
 
 void ActionState::Enter(CreatureObject* obj)
 {
@@ -95,175 +93,175 @@ void ActionState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& 
 }
 
 // StateCover
-StateCover::StateCover() : ActionState()
+StateCover::StateCover(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Cover;
 }
 
 // State Combat
-StateCombat::StateCombat() : ActionState()
+StateCombat::StateCombat(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Combat;
 }
 
 // State Peace
-StatePeace::StatePeace() : ActionState()
+StatePeace::StatePeace(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Combat;
 }
 
 // State Aiming
-StateAiming::StateAiming() : ActionState()
+StateAiming::StateAiming(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Aiming;
 }
 // State Alert
-StateAlert::StateAlert() : ActionState()
+StateAlert::StateAlert(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Alert;
 }
 // Berserk State
-StateBerserk::StateBerserk() : ActionState()
+StateBerserk::StateBerserk(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Berserk;
 }
 // Feign State
-StateFeign::StateFeign() : ActionState()
+StateFeign::StateFeign(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_FeignDeath;
 }
 // Combat Attitude Evasive State
-StateCombatEvasive::StateCombatEvasive() : ActionState()
+StateCombatEvasive::StateCombatEvasive(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_CombatAttitudeEvasive;
 }
 // Combat Attitude Normal State
-StateCombatNormal::StateCombatNormal() : ActionState()
+StateCombatNormal::StateCombatNormal(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_CombatAttitudeNormal;
 }
 // Combat Attitude Aggressive State
-StateCombatAggressive::StateCombatAggressive() : ActionState()
+StateCombatAggressive::StateCombatAggressive(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_CombatAttitudeAggressive;
 }
 // Tumbling State
-StateTumbling::StateTumbling() : ActionState()
+StateTumbling::StateTumbling(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Tumbling;
 }
 // Rallied State
-StateRallied::StateRallied() : ActionState()
+StateRallied::StateRallied(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Rallied;
 }
 // Stunned State
-StateStunned::StateStunned() : ActionState()
+StateStunned::StateStunned(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Stunned;
 }
 // Blinded State
-StateBlinded::StateBlinded() : ActionState()
+StateBlinded::StateBlinded(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Blinded;
 }
 // Dizzy State
-StateDizzy::StateDizzy() : ActionState()
+StateDizzy::StateDizzy(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Dizzy;
 }
 // Intimidated State
-StateIntimidated::StateIntimidated() : ActionState()
+StateIntimidated::StateIntimidated(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Intimidated;
 }
 // Immobolized State
-StateImmobolized::StateImmobolized() : ActionState()
+StateImmobolized::StateImmobolized(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Immobilized;
 }
 // Frozen State
-StateFrozen::StateFrozen() : ActionState()
+StateFrozen::StateFrozen(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Frozen;
 }
 // Swimming State
-StateSwimming::StateSwimming() : ActionState()
+StateSwimming::StateSwimming(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Swimming;
 }
 // SittingOnaChair State
-StateSittingOnChair::StateSittingOnChair() : ActionState()
+StateSittingOnChair::StateSittingOnChair(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_SittingOnChair;
 }
 // Crafting State
-StateCrafting::StateCrafting() : ActionState()
+StateCrafting::StateCrafting(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Crafting;
 }
 // GlowingJedi State
-StateGlowingJedi::StateGlowingJedi() : ActionState()
+StateGlowingJedi::StateGlowingJedi(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_GlowingJedi;
 }
 // Mask Scent State
-StateMaskScent::StateMaskScent() : ActionState()
+StateMaskScent::StateMaskScent(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_MaskScent;
 }
 // Poisoned State
-StatePoisoined::StatePoisoined() : ActionState()
+StatePoisoined::StatePoisoined(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Poisoned;
 }
 // Bleeding State
-StateBleeding::StateBleeding() : ActionState()
+StateBleeding::StateBleeding(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Bleeding;
 }
 // Diseased State
-StateDiseased::StateDiseased() : ActionState()
+StateDiseased::StateDiseased(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Diseased;
 }
 // OnFire State
-StateOnFire::StateOnFire() : ActionState()
+StateOnFire::StateOnFire(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_OnFire;
 }
 // RidingMount State
-StateRidingMount::StateRidingMount() : ActionState()
+StateRidingMount::StateRidingMount(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_RidingMount;
 }
 // MountedCreature State
-StateMountedCreature::StateMountedCreature() : ActionState()
+StateMountedCreature::StateMountedCreature(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_MountedCreature;
 }
 // PilotingShip State
-StatePilotingShip::StatePilotingShip() : ActionState()
+StatePilotingShip::StatePilotingShip(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_PilotingShip;
 }
 // ShipOperations State
-StateShipOperations::StateShipOperations() : ActionState()
+StateShipOperations::StateShipOperations(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_ShipOperations;
 }
 // ShipGunner State
-StateShipGunner::StateShipGunner() : ActionState()
+StateShipGunner::StateShipGunner(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_ShipGunner;
 }
 // ShipInterior State
-StateShipInterior::StateShipInterior() : ActionState()
+StateShipInterior::StateShipInterior(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_ShipOperations;
 }
 // PilotingPobShip State
-StatePilotingPobShip::StatePilotingPobShip() : ActionState()
+StatePilotingPobShip::StatePilotingPobShip(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_PilotingShip;
 }

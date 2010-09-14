@@ -96,7 +96,6 @@ CreatureObject::CreatureObject()
 , mMoodId(0)
 , mPosture(0)
 , mLocomotion(0)
-
 ,mReady(false)
 {
     mType = ObjType_Creature;
@@ -111,6 +110,13 @@ CreatureObject::CreatureObject()
 
     for(uint16 i = 1;i<256;i++)
         mCustomization[i]=0;
+
+    states.action = 0;
+    states.posture = 0;
+    states.locomotion = 0;
+    states.blockAction = false;
+    states.blockLocomotion = false;
+    states.blockPosture = false;
 
     // register event functions
     registerEventFunction(this,&CreatureObject::onIncapRecovery);
@@ -394,7 +400,7 @@ bool CreatureObject::handleImagedesignerTimeOut(uint64 time,void* ref)
 
 void CreatureObject::updateMovementProperties()
 {
-    switch(mPosture)
+    switch(states.posture)
     {
         case CreaturePosture_KnockedDown:
         case CreaturePosture_Incapacitated:
@@ -721,6 +727,7 @@ void CreatureObject::incap()
         if(++mIncapCount < (uint8)configIncapCount)
         {
             // update the posture and locomotion
+            gStateManager.setCurrentPostureState(this, CreaturePosture_Incapacitated);
             mPosture = CreaturePosture_Incapacitated;
             setLocomotionByPosture(mPosture);
 
@@ -794,6 +801,7 @@ void CreatureObject::die()
 
     // clear states
     mState = 0;
+    states.action = 0;
 
     gMessageLib->sendPostureAndStateUpdate(this);
 

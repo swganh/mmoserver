@@ -54,9 +54,6 @@ public:
     *  
     */
     virtual bool CanTransition(CreatureObject* obj, uint64 newState) = 0;
-    
-    virtual void    Block(){mBlocked = true;}
-    virtual void    Unblock(){mBlocked = false;}
 
     virtual const transitionList& returnTransitionList(){return mTransitionList;}
 
@@ -69,5 +66,4 @@ public:
 
 protected:
     transitionList          mTransitionList;
-    bool                    mBlocked;
 };

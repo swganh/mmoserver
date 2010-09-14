@@ -42,12 +42,12 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
      CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
 
     // if this command doesn't require state checks skip it, otherwise check our states
-    if(creature && cmdProperties && (cmdProperties->mStates != 0) && (creature->getState() & cmdProperties->mStates) != 0)
+    if(creature && cmdProperties && (cmdProperties->mStates != 0) && (creature->states.getAction() & cmdProperties->mStates) != 0)
     {
 		if(creature->checkStates(cmdProperties->mStates))
 		{
 			reply1 = kCannotDoWhileState;
-			reply2 = mController->getLowestCommonBit(creature->getState(), cmdProperties->mStates);
+			reply2 = mController->getLowestCommonBit(creature->states.getAction(), cmdProperties->mStates);
 			return false;
 		}
 		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->getLocomotion()) != 0))

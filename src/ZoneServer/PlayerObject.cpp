@@ -311,8 +311,8 @@ void PlayerObject::resetProperties()
     mSkillCmdUpdateCounter				= mSkillCommands.size();
     mSkillModUpdateCounter				= mSkillMods.size();
     mXpUpdateCounter					= mXpList.size();
-    mPosture							= CreaturePosture_Upright;
-
+    gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
+    
     // the client resets the bufftimers on local travel ... :(
     gBuffManager->InitBuffs(this);
 

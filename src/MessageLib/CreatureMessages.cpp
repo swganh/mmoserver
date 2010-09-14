@@ -216,7 +216,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     //10 locomotion ??
     mMessageFactory->addUint8(1);
     //11 posture
-    mMessageFactory->addUint8(creatureObject->getPosture());
+    mMessageFactory->addUint8(creatureObject->states.getPosture());
     //12
     mMessageFactory->addUint8(creatureObject->getFactionRank());
     //13 owner id
@@ -237,7 +237,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
         mMessageFactory->addUint64(0);
         mMessageFactory->addFloat(creatureObject->getScale());
         mMessageFactory->addUint32(creatureHam->getBattleFatigue());
-        mMessageFactory->addUint64(creatureObject->getState());
+        mMessageFactory->addUint64(creatureObject->states.getAction());
     }
 
     // ham wounds
@@ -618,7 +618,7 @@ bool MessageLib::sendPostureMessage(CreatureObject* creatureObject,PlayerObject*
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opUpdatePostureMessage);
-    mMessageFactory->addUint8(creatureObject->getPosture());
+    mMessageFactory->addUint8(creatureObject->states.getPosture());
     mMessageFactory->addUint64(creatureObject->getId());
 
     message = mMessageFactory->EndMessage();
@@ -1026,7 +1026,7 @@ void MessageLib::sendPostureUpdate(CreatureObject* creatureObject)
     mMessageFactory->addUint32(5);
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(11);
-    mMessageFactory->addUint8(creatureObject->getPosture());
+    mMessageFactory->addUint8(creatureObject->states.getPosture());
 
     _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5,true);
 }
@@ -1050,9 +1050,9 @@ void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
         mMessageFactory->addUint32(15);
         mMessageFactory->addUint16(2);
         mMessageFactory->addUint16(11);
-        mMessageFactory->addUint8(creatureObject->getPosture());
+        mMessageFactory->addUint8(creatureObject->states.getPosture());
         mMessageFactory->addUint16(16);
-        mMessageFactory->addUint64(creatureObject->getState());
+        mMessageFactory->addUint64(creatureObject->states.getAction());
 
         _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
     }
@@ -1077,7 +1077,7 @@ void MessageLib::sendStateUpdate(CreatureObject* creatureObject)
         mMessageFactory->addUint32(12);
         mMessageFactory->addUint16(1);
         mMessageFactory->addUint16(16);
-        mMessageFactory->addUint64(creatureObject->getState());
+        mMessageFactory->addUint64(creatureObject->states.getAction());
 
         _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
     }

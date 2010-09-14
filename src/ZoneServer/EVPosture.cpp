@@ -41,7 +41,7 @@ bool EVPosture::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32
 {
     if(CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject()))
     {
-        uint32 postureBit = 1 << creature->getPosture();
+        uint32 postureBit = 1 << creature->states.getPosture();
 
         // check our posture
         if(cmdProperties && ((cmdProperties->mPostureMask & postureBit) != postureBit))

@@ -28,16 +28,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PostureState.h"
 #include "StateManager.h"
 
-#define insertAction mTransitionList.insert(std::make_pair<StateTypes, uint64>(State_Action, mStateManager->mActionStateMap
-#define insertPosture mTransitionList.insert(std::make_pair<StateTypes, uint64>(State_Posture, mStateManager->mPostureStateMap
-#define insertLocomotion mTransitionList.insert(std::make_pair<StateTypes, uint64>(State_Locomotion, mStateManager->mLocomotionStateMap
+#define insertAction mTransitionList.insert(std::make_pair(State_Action 
+#define insertPosture mTransitionList.insert(std::make_pair(State_Posture
+#define insertLocomotion mTransitionList.insert(std::make_pair(State_Locomotion
 
 #define actionMap mStateManager->mActionStateMap
 #define postureMap mStateManager->mPostureStateMap
 #define locomotionMap mStateManager->mLocomotionStateMap
 
 PostureState::PostureState(StateManager* const sm) : IState(),
-    mStateManager(sm), mStateID(0), mBlocked(false){}
+    mStateManager(sm), mStateID(0){}
 
 PostureState::~PostureState(void)
 {
@@ -47,16 +47,16 @@ PostureState::~PostureState(void)
 
 void PostureState::Enter(CreatureObject* obj)
 {
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 void PostureState::Exit(CreatureObject* obj)
 {
-    obj->setPosture(0);
+    obj->states.setPosture(0);
 }
 bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
 {
     // check to see if the layer is blocked
-    if (mBlocked)
+    if (obj->states.blockPosture)
         return false;
     transitionList::iterator itPosture    = mTransitionList.find(State_Posture);
     transitionList::iterator itAction     = mTransitionList.find(State_Action);
@@ -67,7 +67,7 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     {
         // are we allowed to transition based on posture?
         CreaturePosture pos = (CreaturePosture)(*itPosture).second;
-        if (pos == obj->getPosture())
+        if (pos == obj->states.getPosture())
         {
             return false;
         }
@@ -76,7 +76,7 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     while (itAction != mTransitionList.end())
     {
         uint64 state = (*itAction).second;
-        if ((state & obj->getState()) != obj->getState())
+        if ((state & obj->states.getAction()) != obj->states.getAction())
         {
             return false;
         }
@@ -84,8 +84,8 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     }
     while (itLocomotion != mTransitionList.end())
     {
-        CreatureLocomotion locomotion = (CreatureLocomotion)(*itAction).second;
-        if (locomotion == obj->getLocomotion())
+        uint32 locomotion = (*itLocomotion).second;
+        if (locomotion == obj->states.getLocomotion())
         {
             return false;
         }
@@ -104,6 +104,24 @@ void PostureState::insertIntoTransitionList(const std::pair<StateTypes, uint64>&
 PostureUpright::PostureUpright( StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Upright;
+    // deny transition list
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureUpright::Enter(CreatureObject* obj)
 {
@@ -113,28 +131,7 @@ void PostureUpright::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
 
-    obj->setPosture(mStateID);
-}
-void PostureUpright::loadTransitionList()
-{
-    // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    obj->states.setPosture(mStateID);
 }
 
 //	Posture Crouched
@@ -142,23 +139,23 @@ PostureCrouched::PostureCrouched(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Crouched;
     // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureCrouched::Enter(CreatureObject* obj)
 {
@@ -168,30 +165,30 @@ void PostureCrouched::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 //	Posture Prone
 PostureProne::PostureProne(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Prone;
     // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureProne::Enter(CreatureObject* obj)
 {
@@ -201,30 +198,30 @@ void PostureProne::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 //	Posture Sneaking
 PostureSneaking::PostureSneaking(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Sneaking;
-        // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    // deny transition list
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 //Posture Blocking
 PostureBlocking::PostureBlocking(StateManager* const sm) : PostureState(sm)
@@ -245,24 +242,24 @@ PostureFlying::PostureFlying(StateManager* const sm) : PostureState(sm)
 PostureLyingDown::PostureLyingDown(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_LyingDown;
-        // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    // deny transition list
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureLyingDown::Enter(CreatureObject* obj)
 {
@@ -272,30 +269,30 @@ void PostureLyingDown::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 //	Posture Sitting
 PostureSitting::PostureSitting(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Sitting;
-        // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    // deny transition list
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureSitting::Enter(CreatureObject* obj)
 {
@@ -305,30 +302,30 @@ void PostureSitting::Enter(CreatureObject* obj)
     actionMap[CreatureState_Tumbling]->Exit(obj);
     actionMap[CreatureState_Swimming]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 //	Posture Skill Animating
 PostureSkillAnimating::PostureSkillAnimating(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_SkillAnimating;
     // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureSkillAnimating::Enter(CreatureObject* obj)
 {
@@ -336,30 +333,30 @@ void PostureSkillAnimating::Enter(CreatureObject* obj)
     actionMap[CreatureState_RidingMount]->Exit(obj);
     actionMap[CreatureState_Cover]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 //	Posture Driving Vehicle
 PostureDrivingVehicle::PostureDrivingVehicle(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_DrivingVehicle;
     // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureDrivingVehicle::Enter(CreatureObject* obj)
 {
@@ -368,30 +365,30 @@ void PostureDrivingVehicle::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 //	Posture Riding Creature
 PostureRidingCreature::PostureRidingCreature(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_RidingCreature;
     // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureRidingCreature::Enter(CreatureObject* obj)
 {
@@ -400,30 +397,30 @@ void PostureRidingCreature::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 //	Posture Knocked Down
 PostureKnockedDown::PostureKnockedDown(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_KnockedDown;
-        // deny transition list
-    insertAction[CreatureState_Frozen]->getID()));
-    insertAction[CreatureState_Immobilized]->getID()));
-    insertAction[CreatureState_MountedCreature]->getID()));
-    insertAction[CreatureState_RidingMount]->getID()));
-    insertPosture[CreaturePosture_Climbing]->getID()));
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Flying]->getID()));
-    insertPosture[CreaturePosture_DrivingVehicle]->getID()));
-    insertPosture[CreaturePosture_RidingCreature]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Climbing]->getID()));
-    insertLocomotion[CreatureLocomotion_ClimbingStationary]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_DrivingVehicle]->getID()));
-    insertLocomotion[CreatureLocomotion_Flying]->getID()));
-    insertLocomotion[CreatureLocomotion_Hovering]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    // deny transition list
+    insertAction,CreatureState_Frozen));
+    insertAction,CreatureState_Immobilized));
+    insertAction,CreatureState_MountedCreature));
+    insertAction,CreatureState_RidingMount));
+    insertPosture,CreaturePosture_Climbing));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Flying));
+    insertPosture,CreaturePosture_DrivingVehicle));
+    insertPosture,CreaturePosture_RidingCreature));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Climbing));
+    insertLocomotion,CreatureLocomotion_ClimbingStationary));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_DrivingVehicle));
+    insertLocomotion,CreatureLocomotion_Flying));
+    insertLocomotion,CreatureLocomotion_Hovering));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureKnockedDown::Enter(CreatureObject* obj)
 {
@@ -433,17 +430,17 @@ void PostureKnockedDown::Enter(CreatureObject* obj)
     actionMap[CreatureState_SittingOnChair]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.setPosture(mStateID);
 }
 //	Posture Incapacitated
 PostureIncapacitated::PostureIncapacitated(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Incapacitated;
         // deny transition list
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertPosture[CreaturePosture_Incapacitated]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_Incapacitated]->getID()));
+    insertPosture,CreaturePosture_Dead));
+    insertPosture,CreaturePosture_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureIncapacitated::Enter(CreatureObject* obj)
 {
@@ -481,16 +478,17 @@ void PostureIncapacitated::Enter(CreatureObject* obj)
     //actionMap[CreatureState_Swimming]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.blockPosture;
+    obj->states.blockLocomotion;
+    obj->states.setPosture(mStateID);
 }
 //	Posture Dead
 PostureDead::PostureDead(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Dead;
     // deny transition list
-    insertPosture[CreaturePosture_Dead]->getID()));
-    insertLocomotion[CreatureLocomotion_Dead]->getID()));
-    Block();
+    insertPosture,CreaturePosture_Dead));
+    insertLocomotion,CreatureLocomotion_Dead));
 }
 void PostureDead::Enter(CreatureObject* obj)
 {
@@ -528,5 +526,6 @@ void PostureDead::Enter(CreatureObject* obj)
     //actionMap[CreatureState_Swimming]->Exit(obj);
     actionMap[CreatureState_Tumbling]->Exit(obj);
     
-    obj->setPosture(mStateID);
+    obj->states.blockLayers();
+    obj->states.setPosture(mStateID);
 }

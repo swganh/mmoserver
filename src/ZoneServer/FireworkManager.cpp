@@ -156,7 +156,7 @@ void FireworkManager::Process()
 	{
 		if(*it && (currentTime - (*it)->timeFired) > 2000 && (*it)->playerToldToStand == false) //2 sec
 		{
-			if((*it)->player->getPosture() == CreaturePosture_Crouched)
+			if((*it)->player->states.getPosture() == CreaturePosture_Crouched)
 			{
 				gStateManager.setCurrentPostureState((*it)->player, CreaturePosture_Upright);
 				(*it)->playerToldToStand = true;

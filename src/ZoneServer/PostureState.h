@@ -63,7 +63,6 @@ public:
 protected:
     StateManager*           mStateManager;
     uint64					mStateID;
-    bool                    mBlocked;
     bool					mHidden;
     // think of this as a can't transition list
     transitionList          mTransitionList;
@@ -79,7 +78,6 @@ class PostureUpright:
 public:
     explicit PostureUpright(StateManager* const sm);
     void Enter(CreatureObject* obj);
-    void loadTransitionList();
 };
 #endif
 /*	Crouched Posture

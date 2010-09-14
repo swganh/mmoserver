@@ -611,8 +611,8 @@ void NonPersistentNpcFactory::_setupDatabindings()
 	mNonPersistentNpcBinding = mDatabase->CreateDataBinding(11);
 	mNonPersistentNpcBinding->addField(DFT_uint64,offsetof(NPCObject,mSpeciesId),8,0);
 	mNonPersistentNpcBinding->addField(DFT_uint64,offsetof(NPCObject,mLootGroupId),8,1);
-	mNonPersistentNpcBinding->addField(DFT_uint8,offsetof(NPCObject,mPosture),1,2);
-	mNonPersistentNpcBinding->addField(DFT_uint64,offsetof(NPCObject,mState),8,3);
+	mNonPersistentNpcBinding->addField(DFT_uint8,offsetof(NPCObject,states.posture),1,2);
+	mNonPersistentNpcBinding->addField(DFT_uint64,offsetof(NPCObject,states.action),8,3);
 	mNonPersistentNpcBinding->addField(DFT_uint16,offsetof(NPCObject,mCL),2,4);
 	mNonPersistentNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mModel),255,5);
 	mNonPersistentNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mSpecies),255,6);

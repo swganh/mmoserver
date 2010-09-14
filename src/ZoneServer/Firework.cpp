@@ -79,7 +79,7 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 if(this->getItemType() >= ItemType_Firework_Type_5 || this->getItemType() <= ItemType_Firework_Type_2)
                 {
                     //Player must be standing or Kneeling to launch
-                    if((playerObject->getPosture()!=CreaturePosture_Upright && playerObject->getPosture()!=CreaturePosture_Crouched) || playerObject->getState() & CreatureState_RidingMount)
+                    if((playerObject->states.getPosture()!=CreaturePosture_Upright && playerObject->states.getPosture()!=CreaturePosture_Crouched) || playerObject->states.getAction() & CreatureState_RidingMount)
                     {
                         gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
                         return;

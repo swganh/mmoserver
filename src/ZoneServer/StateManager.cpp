@@ -34,11 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 using ::common::EventType;
 
 StateManager::StateManager()
-{
-    loadActionStateMap();
-    loadPostureStateMap();
-    loadLocomotionStateMap();
-}
+{}
 StateManager::~StateManager()
 {
     mActionStateMap.empty();
@@ -130,15 +126,15 @@ void StateManager::loadLocomotionStateMap()
 
 void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePosture newPosture)
 {
-    auto posture_update_event = std::make_shared<PostureUpdateEvent>(object, (CreaturePosture)object->getPosture(), newPosture);
+    auto posture_update_event = std::make_shared<PostureUpdateEvent>(object, (CreaturePosture)object->states.getPosture(), newPosture);
 
     PostureStateMap::iterator iter = mPostureStateMap.find(newPosture);
     if (iter != mPostureStateMap.end())
     {
-        if (mPostureStateMap[object->getPosture()]->CanTransition(object, newPosture))
+        if (mPostureStateMap[object->states.getPosture()]->CanTransition(object, newPosture))
         {
             // EXIT OLD STATE
-            mPostureStateMap[object->getPosture()]->Exit(object);
+            mPostureStateMap[object->states.getPosture()]->Exit(object);
 
             // ENTER NEW STATE
             mPostureStateMap[newPosture]->Enter(object);
@@ -149,7 +145,7 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
 
 void StateManager::setCurrentActionState(CreatureObject* object, CreatureState newState)
 {    
-    auto action_update_event = std::make_shared<ActionStateUpdateEvent>(object, object->getState(), newState);
+    auto action_update_event = std::make_shared<ActionStateUpdateEvent>(object, object->states.getAction(), newState);
     ActionStateMap::iterator iter = mActionStateMap.find(newState);
     if (iter != mActionStateMap.end())
     {
@@ -196,24 +192,9 @@ void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToR
             obj->toggleStateOff(stateToRemove);
         }
 }
-void StateManager::loadMasterTransitionList()
+void StateManager::loadStateMaps()
 {
-    PostureStateMap::iterator pIt = mPostureStateMap.begin();
-    while (pIt != mPostureStateMap.end())
-    {
-        pIt->second->loadTransitionList();
-        ++pIt;
-    }
-    ActionStateMap::iterator aIt = mActionStateMap.begin();
-    while (aIt != mActionStateMap.end())
-    {
-        aIt->second->loadTransitionList();
-        ++aIt;
-    }
-    LocomotionStateMap::iterator lIt = mLocomotionStateMap.begin();
-    while (lIt != mLocomotionStateMap.end())
-    {
-        lIt->second->loadTransitionList();
-        ++lIt;
-    }
+    loadActionStateMap();
+    loadPostureStateMap();
+    loadLocomotionStateMap();
 }

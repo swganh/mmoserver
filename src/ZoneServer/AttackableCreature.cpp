@@ -397,7 +397,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 						}
 					}
 					// We have a new target in range etc.. But we may need him to be visible for a while before we attack.
-					this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->getPosture());
+					this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->states.getPosture());
 
 					if (!targetSet)
 					{
@@ -416,7 +416,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 			else
 			{
 				// Handle incapped and dead targets, for now we remove any aggro to them.
-				this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->getPosture());
+				this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->states.getPosture());
 
 
 				// Let's this player rebuild is aggro before we attack him again.

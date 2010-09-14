@@ -55,7 +55,7 @@ public:
     void setCurrentPostureState(CreatureObject* object, CreaturePosture);
     void setCurrentLocomotionState(CreatureObject* object, CreatureLocomotion);
 
-    void            loadMasterTransitionList();
+    void            loadStateMaps();
 
     CreatureState		returnCreatureStateFromMap(ActionStateMap* map);
     

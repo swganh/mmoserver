@@ -281,7 +281,7 @@ void MessageLib::sendSelfPostureUpdate(PlayerObject* playerObject)
     mMessageFactory->addUint32(opPosture);
     mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(0);
-    mMessageFactory->addUint8(playerObject->getPosture());
+    mMessageFactory->addUint8(playerObject->states.getPosture());
     mMessageFactory->addUint8(1);
 
     _sendToInRange(mMessageFactory->EndMessage(),playerObject,5);
@@ -591,7 +591,7 @@ void MessageLib::sendCombatAction(CreatureObject* attacker,Object* defender,uint
         mMessageFactory->addUint64(0);
     }
 
-    mMessageFactory->addUint8(attacker->getPosture());
+    mMessageFactory->addUint8(attacker->states.getPosture());
     mMessageFactory->addUint8(trail1);
     mMessageFactory->addUint8(trail2);
 
@@ -608,7 +608,7 @@ void MessageLib::sendCombatAction(CreatureObject* attacker,Object* defender,uint
             }
             else
             {
-                mMessageFactory->addUint8(creature->getPosture());
+                mMessageFactory->addUint8(creature->states.getPosture());
             }
         }
         else

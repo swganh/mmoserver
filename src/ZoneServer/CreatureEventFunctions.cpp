@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 {
-	if (mPosture == CreaturePosture_Dead)
+	if (isDead())
 	{
 		// Forget it, you are dead!
 		return;

@@ -1005,7 +1005,7 @@ void EntertainerManager::stopEntertaining(PlayerObject* entertainer)
 	entertainer->setPerformancePaused(Pause_None);
 
 	//posture
-	if(entertainer->getPosture() == CreaturePosture_SkillAnimating)
+	if(entertainer->states.getPosture() == CreaturePosture_SkillAnimating)
 	{
 		gStateManager.setCurrentPostureState(entertainer, CreaturePosture_Upright);
 	}
@@ -1968,7 +1968,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 	//check if we need to stop the performance or if it already has been stopped
 	//Mind the pausing dancer though
 	handlePerformancePause(entertainer);
-	if((entertainer->getPosture() != CreaturePosture_SkillAnimating)&&(entertainer->getPerformancePaused() == Pause_None))
+	if((entertainer->states.getPosture() != CreaturePosture_SkillAnimating)&&(entertainer->getPerformancePaused() == Pause_None))
 	{
 		//stop our performance for ourselves and all watchers
 		stopEntertaining(entertainer);

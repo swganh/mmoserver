@@ -648,12 +648,12 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 	// logging in dead or incapped, shouldn't happen. (player is moved to cloning facility when disconnecting in those states
 
-	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer Posture = %u", playerObject->getPosture());
+	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer Posture = %u", playerObject->states.getPosture());
 	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer State = %"PRIu64"", playerObject->getState());
 
-	if(playerObject->getPosture() == CreaturePosture_SkillAnimating
-	|| playerObject->getPosture() == CreaturePosture_Incapacitated
-	|| playerObject->getPosture() == CreaturePosture_Dead)
+	if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating
+	|| playerObject->states.getPosture() == CreaturePosture_Incapacitated
+	|| playerObject->states.getPosture() == CreaturePosture_Dead)
 	{
 		playerObject->setPosture(CreaturePosture_Upright);
 	}
@@ -723,7 +723,7 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mLastName),64,12);
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFaction),16,165);
-	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mPosture),1,166);
+	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,states.posture),1,166);
 	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mMoodId),1,167);
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mJediState),4,168);
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mTitle),255,169);
@@ -736,7 +736,7 @@ void PlayerObjectFactory::_setupDatabindings()
 
 	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,175);
 	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mBiography),4096,176);
-	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mState),8,177);
+	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,states.action),8,177);
 	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mRaceId),1,178);
 	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mLanguage),1,163);
 	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mCsrTag),1,180);

@@ -83,7 +83,7 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	{
 		PlayerObject*	player	= dynamic_cast<PlayerObject*>(srcObject);
 
-		if(player->getPosture() == CreaturePosture_SkillAnimating)
+		if(player->states.getPosture() == CreaturePosture_SkillAnimating)
 		{
             gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
 			return;

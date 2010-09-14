@@ -184,9 +184,8 @@ ZoneServer::ZoneServer(int8* zoneName)
 
     //ArtisanManager callback
     CraftingManager::Init(mDatabase);
-
-    // StateManager load up transitions this way because of how the constructor is setup.
-    gStateManager.loadMasterTransitionList();
+    gStateManager;
+    gStateManager.loadStateMaps();
 
     UIManager::Init(mDatabase,mMessageDispatch);
     CombatManager::Init(mDatabase);

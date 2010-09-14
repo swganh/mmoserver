@@ -67,8 +67,7 @@ public:
 
 protected:
     stateRemove             mStatesRemovalList;
-    StateManager*     mStateManager;
-    bool                    mBlocked;
+    StateManager*           mStateManager;
     bool					mHidden;
     transitionList          mTransitionList;
     CreatureState	        mStateID;

@@ -163,10 +163,35 @@ public:
         void				togglePvPStateOff(CreaturePvPStatus state){ mPvPStatus = (CreaturePvPStatus)(mPvPStatus & ~state); }
         void				togglePvPState(CreaturePvPStatus state){ mPvPStatus = (CreaturePvPStatus)(mPvPStatus ^ state); }
         bool				checkPvPState(CreaturePvPStatus state){ return((CreaturePvPStatus)(mPvPStatus & state) == state); }
+        
+        // ONLY SWITCH STATES THROUGH THE STATE MANAGER!
+        struct STATES
+        {
+            uint32          posture;
+            uint32          locomotion;
+            uint64          action;
+            bool            blockPosture;
+            bool            blockAction;
+            bool            blockLocomotion;
 
+            void            blockLayers() { blockPosture = true; blockAction = true; blockLocomotion = true; }
+            // posture states
+            uint32          getPosture() { return posture; } 
+            void            setPosture(uint32 pos) { posture = pos; }
+            // locomotion states
+            uint32          getLocomotion() { return locomotion; }
+            void            setLocomotion(uint32 loco) { locomotion = loco; }
+            // action states
+            uint64          getAction(){return action;}
+            void            toggleActionOn(CreatureState state){ action = action | state; }
+            void            toggleActionOff(CreatureState state){ action = action & ~ state; }
+            bool            checkState(CreatureState state){ return ((action & state) == state); }
+            bool            checkStates(uint64 states){ return ((action & states) == states); }
+            bool            checStatesEither(uint64 states){ return ((action & states) != 0); }
+        };
+        // OLD WAY OF DOING STATES
         // states
         uint64				getState(){ return mState; }
-        //void				setState(uint64 state){ mState = state; }
         // do not call these manually use the StateManager directly.
         void				toggleStateOn(CreatureState state){ mState = mState | state; }
         void				toggleStateOff(CreatureState state){ mState = mState & ~state; }
@@ -245,8 +270,8 @@ public:
         // incapacitation
         void				incap();
         void				die();
-        bool				isIncapacitated(){ return(mPosture == CreaturePosture_Incapacitated); }
-        bool				isDead(){ return(mPosture == CreaturePosture_Dead); }
+        bool				isIncapacitated(){ return(states.posture == CreaturePosture_Incapacitated); }
+        bool				isDead(){ return(states.posture == CreaturePosture_Dead); }
 
         // nr of current incaps until death, base values are retrieved through world config
         uint8				getIncapCount(){ return mIncapCount; }
@@ -359,6 +384,8 @@ public:
         void				SetBuffAsyncCount(uint32 count){mBuffAsyncCount = count; }
         void				IncBuffAsyncCount(){mBuffAsyncCount++; }
         void				DecBuffAsyncCount(){mBuffAsyncCount--; }
+        CreatureObject::STATES  states;
+
 };
 
 //=============================================================================

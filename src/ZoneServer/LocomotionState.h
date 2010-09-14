@@ -63,7 +63,6 @@ public:
 protected:
     StateManager*     mStateManager;
     uint64					mStateID;
-    bool                    mBlocked;
     bool					mHidden;
     transitionList          mTransitionList;
 };

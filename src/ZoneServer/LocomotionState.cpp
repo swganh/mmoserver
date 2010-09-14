@@ -29,67 +29,61 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 LocomotionState::LocomotionState(StateManager* const sm) : IState(),
-    mStateManager(sm), mStateID(0), mBlocked(false){}
+    mStateManager(sm), mStateID(0){}
 
 LocomotionState::~LocomotionState(void)
 {
     mStateID = 0;
-    mBlocked = false;
     mTransitionList.clear();
 }
 
 void LocomotionState::Enter(CreatureObject* obj)
 {
-    obj->setLocomotion(mStateID);
+    obj->states.setLocomotion(mStateID);
 }
 void LocomotionState::Exit(CreatureObject* obj)
 {
-    obj->setLocomotion(0);
+    obj->states.setLocomotion(0);
 }
 bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionState)
 { 
-    bool transitionPosture    = true;
-    bool transitionAction     = true;
-    bool transitionLocomotion = true;
     // check to see if the layer is blocked
-    if (mBlocked)
+    if (obj->states.blockLocomotion)
         return false;
     transitionList::iterator itPosture    = mTransitionList.find(State_Posture);
     transitionList::iterator itAction     = mTransitionList.find(State_Action);
     transitionList::iterator itLocomotion = mTransitionList.find(State_Locomotion);
     // check each state type
+    // transition list is based on which states we can't transition to.
     while (itPosture != mTransitionList.end())
     {
         // are we allowed to transition based on posture?
         CreaturePosture pos = (CreaturePosture)(*itPosture).second;
-        if (pos != obj->getPosture())
+        if (pos == obj->states.getPosture())
         {
-            transitionPosture = false;
-            break;
+            return false;
         }
         ++itPosture;
     }
     while (itAction != mTransitionList.end())
     {
         uint64 state = (*itAction).second;
-        if ((state & obj->getState()) == obj->getState())
+        if ((state & obj->states.getAction()) != obj->states.getAction())
         {
-            transitionAction = false;
-            break;
+            return false;
         }
         ++itAction;
     }
     while (itLocomotion != mTransitionList.end())
     {
-        CreatureLocomotion locomotion = (CreatureLocomotion)(*itAction).second;
-        if (locomotion != obj->getLocomotion())
+       uint32 locomotion = (*itLocomotion).second;
+        if (locomotion == obj->states.getLocomotion())
         {
-            transitionLocomotion = false;
-            break;
+            return false;
         }
         ++itLocomotion;
     }
-    return transitionAction && transitionPosture && transitionLocomotion;
+    return true;
 }
 void LocomotionState::loadTransitionList()
 {}

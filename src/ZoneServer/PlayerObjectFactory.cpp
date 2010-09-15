@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MissionBag.h"
 #include "ObjectFactoryCallback.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "TangibleFactory.h"
 #include "Tutorial.h"
 #include "Weapon.h"
@@ -651,12 +652,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer Posture = %u", playerObject->states.getPosture());
 	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer State = %"PRIu64"", playerObject->getState());
 
-	if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating
-	|| playerObject->states.getPosture() == CreaturePosture_Incapacitated
-	|| playerObject->states.getPosture() == CreaturePosture_Dead)
-	{
-		playerObject->setPosture(CreaturePosture_Upright);
-	}
+	gStateManager.setCurrentPostureState(playerObject,CreaturePosture_Upright);
 
 	//Just set mStates to Zero on initialization ??????????????????????????????????????????????????????
 	//However states are saved to db -character_attributes.character_flags-
@@ -665,7 +661,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	// We may have to take ceratin actions on these, and then this is not the best placce to do the validation etc...
 
 	// Todo : which states remain valid after a zone to zone transition ??? in order to transfer zone e need to be out of combat - so ... none ?
-	playerObject->toggleStateOff((CreatureState)(
+	playerObject->states.toggleActionOff((CreatureState)(
 								 CreatureState_Cover |
 								 CreatureState_Combat |
 								 CreatureState_Aiming |

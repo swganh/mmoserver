@@ -1385,7 +1385,7 @@ void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectContr
 {
     // set locomotion
     PlayerObject* playerObject = (PlayerObject*)mObject;
-    playerObject->setLocomotion(CreatureLocomotion_Standing);
+    playerObject->states.setLocomotion(CreatureLocomotion_Standing);
 }
 
 //======================================================================================================================
@@ -1709,7 +1709,7 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
     gMessageLib->sendUpdateMovementProperties(player);
     
     // Update the player's locomotion to a running state.
-    player->setLocomotion(CreatureLocomotion_Running);
+    player->states.setLocomotion(CreatureLocomotion_Running);
     
     // Toggle the flags for the burst run effect and the cool-down timer on the corresponding command.
     player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRunCD);	
@@ -1734,7 +1734,7 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
             gMessageLib->sendUpdateMovementProperties(player);
     
             // Update the player's locomotion to a walking state.
-            player->setLocomotion(CreatureLocomotion_Walking);
+            player->states.setLocomotion(CreatureLocomotion_Walking);
             
             // Remove the burst run flag.
             player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);

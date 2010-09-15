@@ -326,14 +326,14 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			}
 
 			// put us in combat state
-			if(!playerAttacker->checkState(CreatureState_Combat))
+			if(!playerAttacker->states.checkState(CreatureState_Combat))
 			{
                 gStateManager.setCurrentActionState(playerAttacker,CreatureState_Combat);
                 gStateManager.setCurrentActionState(playerAttacker,CreatureState_CombatAttitudeNormal);
 			}
 
 			// put our target in combat state
-			if(!defenderPlayer->checkState(CreatureState_Combat))
+			if(!defenderPlayer->states.checkState(CreatureState_Combat))
 			{
 				gStateManager.setCurrentActionState(defenderPlayer,CreatureState_Combat);
                 gStateManager.setCurrentActionState(defenderPlayer,CreatureState_CombatAttitudeNormal);
@@ -374,14 +374,14 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 			}
 
 			// put us in combat state
-			if (!playerAttacker->checkState(CreatureState_Combat))
+			if (!playerAttacker->states.checkState(CreatureState_Combat))
 			{
 				gStateManager.setCurrentActionState(playerAttacker,CreatureState_Combat);
                 gStateManager.setCurrentActionState(playerAttacker,CreatureState_CombatAttitudeNormal);
 			}
 
 			// put our target in combat state
-			if (!defender->checkState(CreatureState_Combat))
+			if (!defender->states.checkState(CreatureState_Combat))
 			{
 				gStateManager.setCurrentActionState(defender,CreatureState_Combat);
                 gStateManager.setCurrentActionState(defender,CreatureState_CombatAttitudeNormal);
@@ -432,14 +432,14 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				*/
 
 				// put us in combat state
-				if (!attackerNpc->checkState(CreatureState_Combat))
+				if (!attackerNpc->states.checkState(CreatureState_Combat))
 				{
 					gStateManager.setCurrentActionState(attackerNpc,CreatureState_Combat);
                     gStateManager.setCurrentActionState(attackerNpc,CreatureState_CombatAttitudeNormal);
 				}
 
 				// put our target in combat stance
-				if (!defenderPlayer->checkState(CreatureState_Combat))
+				if (!defenderPlayer->states.checkState(CreatureState_Combat))
 				{
 					gMessageLib->sendUpdatePvpStatus(defenderPlayer,defenderPlayer, defenderPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive); //  | CreaturePvPStatus_Enemy);
 
@@ -506,14 +506,14 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 				}
 
 				// put us in combat state
-				if (!attackerNpc->checkState(CreatureState_Combat))
+				if (!attackerNpc->states.checkState(CreatureState_Combat))
 				{
 					gStateManager.setCurrentActionState(attackerNpc,CreatureState_Combat);
                     gStateManager.setCurrentActionState(attackerNpc,CreatureState_CombatAttitudeNormal);
 				}
 
 				// put our target in combat state
-				if (!defenderPlayer->checkState(CreatureState_Combat))
+				if (!defenderPlayer->states.checkState(CreatureState_Combat))
 				{
 					gStateManager.setCurrentActionState(defenderPlayer,CreatureState_Combat);
                     gStateManager.setCurrentActionState(defenderPlayer,CreatureState_CombatAttitudeNormal);

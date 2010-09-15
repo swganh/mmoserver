@@ -122,7 +122,7 @@ void AttackableCreature::prepareCustomRadialMenu(CreatureObject* creatureObject,
 	}
 	else
 	{
-		//if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/ && !creatureObject->checkState(CreatureState_Combat))
+		//if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/ && !creatureObject->states.checkState(CreatureState_Combat))
 			//mRadialMenu->addItem(5,0,radId_serverMenu5, radAction_ObjCallback, "Collect Milk");
 	}
 }
@@ -1146,7 +1146,7 @@ void AttackableCreature::handleEvents(void)
 			{
 				this->executeLairAssist();
 			}
-			else if (!this->checkState((CreatureState)(CreatureState_Combat)))
+			else if (!this->states.checkState((CreatureState)(CreatureState_Combat)))
 			{
 				// We are not in combat.
 				// We may be stalking a target....

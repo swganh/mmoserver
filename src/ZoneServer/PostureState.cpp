@@ -93,8 +93,7 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     }
     return true;
 }
-void PostureState::loadTransitionList()
-{}
+
 void PostureState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& types)
 {
     mTransitionList.insert(types);

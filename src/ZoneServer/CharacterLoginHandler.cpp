@@ -203,7 +203,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
             gMessageLib->sendWeatherUpdate(weather->mClouds,weather->mWeather,playerObject);
 
-            //playerObject->toggleStateOff(CreatureState_Crafting);
+            //playerObject->->states.toggleActionOff(CreatureState_Crafting);
             // resend our objects
             gWorldManager->initObjectsInRange(playerObject);
             gMessageLib->sendCreatePlayer(playerObject,playerObject);
@@ -429,7 +429,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
     if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)
     {
         // reset to standing
-        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Upright);
+        //playerObject->states.setPosture(CreaturePosture_Upright);
 
         // Save our player.
         gWorldManager->savePlayerSync(playerObject->getAccountId(),false);

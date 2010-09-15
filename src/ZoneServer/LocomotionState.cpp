@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "LocomotionState.h"
-
+#include "StateManager.h"
 
 LocomotionState::LocomotionState(StateManager* const sm) : IState(),
     mStateManager(sm), mStateID(0){}
@@ -85,8 +85,6 @@ bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionSta
     }
     return true;
 }
-void LocomotionState::loadTransitionList()
-{}
 void LocomotionState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& types)
 {
     mTransitionList.insert(types);

@@ -93,7 +93,7 @@ void CampRegion::update()
 		return;
 	}
 
-	if(owner->checkState(CreatureState_Combat))
+	if(owner->states.checkState(CreatureState_Combat))
 	{
 		//abandon
 		mAbandoned	= true;

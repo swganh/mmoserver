@@ -713,7 +713,7 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
         stop = true;
     }		 
     // you can't take sample while under attack!
-    if(player->checkState(CreatureState_Combat))
+    if(player->states.checkState(CreatureState_Combat))
     {
          gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel_attack"), player);
         return false;

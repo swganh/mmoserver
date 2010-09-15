@@ -36,14 +36,14 @@ class LocomotionStateUpdateEvent : public ::common::BaseEvent
 public:
     static const ::common::EventType type;
 
-    explicit LocomotionStateUpdateEvent(CreatureObject* obj, CreatureLocomotion oldState,CreatureLocomotion newState,uint64_t subject_id=0, uint64_t delay_ms=0);
-    LocomotionStateUpdateEvent(CreatureObject* obj, CreatureLocomotion oldState,CreatureLocomotion newState,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    explicit LocomotionStateUpdateEvent(uint64 objID, CreatureLocomotion oldState,CreatureLocomotion newState,uint64_t subject_id=0, uint64_t delay_ms=0);
+    LocomotionStateUpdateEvent(uint64 objID, CreatureLocomotion oldState,CreatureLocomotion newState,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
     
     ~LocomotionStateUpdateEvent(void);
 
     const ::common::EventType& event_type() const;
 
-    CreatureObject* getCreatureObject()        { return mObj;}
+    uint64 getCreatureObjectByID()             { return mObjID;}
     CreatureLocomotion getOldPostureState()    { return mOldState;}
     CreatureLocomotion getNewPostureState()    { return mNewState;}
 
@@ -53,7 +53,7 @@ private:
 
     bool onConsume(bool handled) const;
     
-    CreatureObject*                mObj;
+    uint64                         mObjID;
     CreatureLocomotion             mOldState;
     CreatureLocomotion             mNewState;
 };

@@ -43,18 +43,18 @@ bool EVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 	if(creature && cmdProperties)
 	{
 		//gLogger->log(LogManager::DEBUG, "locomotionMask(%u) & creature->getLocomotion (%u) ==%u",
-			//cmdProperties->mLocomotionMask,mController->getLocoValidator(creature->getLocomotion()), cmdProperties->mLocomotionMask & creature->getLocomotion());
+			//cmdProperties->mLocomotionMask,mController->getLocoValidator(creature->states.getLocomotion()), cmdProperties->mLocomotionMask & creature->states.getLocomotion());
 		// skip over commands with no state requirement and check the rest
-		if((cmdProperties->mStates != 0) && creature->checkStates(cmdProperties->mStates))
+		if((cmdProperties->mStates != 0) && creature->states.checkStates(cmdProperties->mStates))
 		{
 			reply1 = kCannotDoWhileState;
 			reply2 = this->mController->getLowestCommonBit(creature->states.getAction(), cmdProperties->mStates);
 			return false;
 		}
-		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->getLocomotion()) != 0))
+		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->states.getLocomotion()) != 0))
 		{
 			reply1 = kCannotDoWhileLocomotion;
-			reply2 = mController->getLocoValidator(creature->getLocomotion());
+			reply2 = mController->getLocoValidator(creature->states.getLocomotion());
 			return false;
 		}
 	}

@@ -34,18 +34,18 @@ using ::common::ByteBuffer;
 
 const EventType ActionStateUpdateEvent::type       = EventType("ActionStateUpdateEvent");
 
-ActionStateUpdateEvent::ActionStateUpdateEvent(CreatureObject* obj, uint64 oldStates,CreatureState newState,uint64_t subject_id, uint64_t delay_ms) 
+ActionStateUpdateEvent::ActionStateUpdateEvent(uint64 objID, uint64 oldStates,CreatureState newState,uint64_t subject_id, uint64_t delay_ms) 
     : BaseEvent(subject_id, delay_ms)
 {
-    mObj         = obj;
+    mObjID       = objID;
     mOldStates   = oldStates;
     mNewState    = newState;
 }
 
-ActionStateUpdateEvent::ActionStateUpdateEvent(CreatureObject* obj, uint64 oldStates,CreatureState newState,uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+ActionStateUpdateEvent::ActionStateUpdateEvent(uint64 objID, uint64 oldStates,CreatureState newState,uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
     : BaseEvent(subject_id, delay_ms)
 {
-    mObj         = obj;
+    mObjID       = objID;
     mOldStates   = oldStates;
     mNewState    = newState;
 }

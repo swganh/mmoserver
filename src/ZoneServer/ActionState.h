@@ -61,8 +61,6 @@ public:
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
 
-    virtual void loadTransitionList();
-
     virtual uint64 getID() {return mStateID;}
 
 protected:
@@ -81,8 +79,8 @@ class StateCover:
     public ActionState
 {
 public:
-    StateCover(StateManager* const sm);
-    
+    explicit StateCover(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*
 *	Combat State
@@ -92,10 +90,8 @@ class StateCombat:
     public ActionState
 {
 public:
-    StateCombat(StateManager* const sm);
-    
-    
-    
+    explicit StateCombat(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*
 *	Peace State
@@ -105,10 +101,8 @@ class StatePeace:
     public ActionState
 {
 public:
-    StatePeace(StateManager* const sm);
-    
-    
-    
+    explicit StatePeace(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };
 /*	Aiming State
 *
@@ -117,10 +111,8 @@ class StateAiming:
     public ActionState
 {
 public:
-    StateAiming(StateManager* const sm);
-    
-    
-    
+    explicit StateAiming(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Alert State
 *
@@ -129,10 +121,8 @@ class StateAlert:
     public ActionState
 {
 public:
-    StateAlert(StateManager* const sm);
-    
-    
-    
+    explicit StateAlert(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Bersker State
 *
@@ -141,10 +131,8 @@ class StateBerserk:
     public ActionState
 {
 public:
-    StateBerserk(StateManager* const sm);
-    
-    
-    
+    explicit StateBerserk(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Feign Death State
 *
@@ -153,10 +141,8 @@ class StateFeign:
     public ActionState
 {
 public:
-    StateFeign(StateManager* const sm);
-    
-    
-    
+    explicit StateFeign(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	CombatAttitudeEvasive State
 *
@@ -165,10 +151,8 @@ class StateCombatEvasive:
     public ActionState
 {
 public:
-    StateCombatEvasive(StateManager* const sm);
-    
-    
-    
+    explicit StateCombatEvasive(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	CombatAttitudeNormal State
 *
@@ -177,10 +161,8 @@ class StateCombatNormal:
     public ActionState
 {
 public:
-    StateCombatNormal(StateManager* const sm);
-    
-    
-    
+    explicit StateCombatNormal(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	CombatAttitudeAggressive State
 *
@@ -189,10 +171,8 @@ class StateCombatAggressive:
     public ActionState
 {
 public:
-    StateCombatAggressive(StateManager* const sm);
-    
-    
-    
+    explicit StateCombatAggressive(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Tumbling State
 *
@@ -201,10 +181,8 @@ class StateTumbling:
     public ActionState
 {
 public:
-    StateTumbling(StateManager* const sm);
-    
-    
-    
+    explicit StateTumbling(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Rallied State
 *
@@ -213,10 +191,8 @@ class StateRallied:
     public ActionState
 {
 public:
-    StateRallied(StateManager* const sm);
-    
-    
-    
+    explicit StateRallied(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Stunned State
 *
@@ -225,10 +201,8 @@ class StateStunned:
     public ActionState
 {
 public:
-    StateStunned(StateManager* const sm);
-    
-    
-    
+    explicit StateStunned(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Blinded State
 *
@@ -237,10 +211,8 @@ class StateBlinded:
     public ActionState
 {
 public:
-    StateBlinded(StateManager* const sm);
-    
-    
-    
+    explicit StateBlinded(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Dizzy State
 *
@@ -249,10 +221,8 @@ class StateDizzy:
     public ActionState
 {
 public:
-    StateDizzy(StateManager* const sm);
-    
-    
-    
+    explicit StateDizzy(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Intimidated State
 *
@@ -261,10 +231,8 @@ class StateIntimidated:
     public ActionState
 {
 public:
-    StateIntimidated(StateManager* const sm);
-    
-    
-    
+    explicit StateIntimidated(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Immobolized State
 *
@@ -273,10 +241,8 @@ class StateImmobolized:
     public ActionState
 {
 public:
-    StateImmobolized(StateManager* const sm);
-    
-    
-    
+    explicit StateImmobolized(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Frozen State
 *
@@ -285,10 +251,8 @@ class StateFrozen:
     public ActionState
 {
 public:
-    StateFrozen(StateManager* const sm);
-    
-    
-    
+    explicit StateFrozen(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Swimming State
 *
@@ -297,10 +261,8 @@ class StateSwimming:
     public ActionState
 {
 public:
-    StateSwimming(StateManager* const sm);
-    
-    
-    
+    explicit StateSwimming(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	SittingOnChair State
 *
@@ -309,10 +271,8 @@ class StateSittingOnChair:
     public ActionState
 {
 public:
-    StateSittingOnChair(StateManager* const sm);
-    
-    
-    
+    explicit StateSittingOnChair(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Crafting State
 *
@@ -321,10 +281,8 @@ class StateCrafting:
     public ActionState
 {
 public:
-    StateCrafting(StateManager* const sm);
-    
-    
-    
+    explicit StateCrafting(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	GlowingJedi State
 *
@@ -333,10 +291,8 @@ class StateGlowingJedi:
     public ActionState
 {
 public:
-    StateGlowingJedi(StateManager* const sm);
-    
-    
-    
+    explicit StateGlowingJedi(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	MaskScent State
 *
@@ -345,10 +301,8 @@ class StateMaskScent:
     public ActionState
 {
 public:
-    StateMaskScent(StateManager* const sm);
-    
-    
-    
+    explicit StateMaskScent(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Poisoined State
 *
@@ -357,10 +311,8 @@ class StatePoisoined:
     public ActionState
 {
 public:
-    StatePoisoined(StateManager* const sm);
-    
-    
-    
+    explicit StatePoisoined(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Bleeding State
 *
@@ -369,10 +321,8 @@ class StateBleeding:
     public ActionState
 {
 public:
-    StateBleeding(StateManager* const sm);
-    
-    
-    
+    explicit StateBleeding(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Diseased State
 *
@@ -381,10 +331,8 @@ class StateDiseased:
     public ActionState
 {
 public:
-    StateDiseased(StateManager* const sm);
-    
-    
-    
+    explicit StateDiseased(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	OnFire State
 *
@@ -393,10 +341,8 @@ class StateOnFire:
     public ActionState
 {
 public:
-    StateOnFire(StateManager* const sm);
-    
-    
-    
+    explicit StateOnFire(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	RidingMount State
 *
@@ -405,10 +351,8 @@ class StateRidingMount:
     public ActionState
 {
 public:
-    StateRidingMount(StateManager* const sm);
-    
-    
-    
+    explicit StateRidingMount(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	MountedCreature State
 *
@@ -417,10 +361,8 @@ class StateMountedCreature:
     public ActionState
 {
 public:
-    StateMountedCreature(StateManager* const sm);
-    
-    
-    
+    explicit StateMountedCreature(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	PilotingShip State
 *
@@ -429,10 +371,8 @@ class StatePilotingShip:
     public ActionState
 {
 public:
-    StatePilotingShip(StateManager* const sm);
-    
-    
-    
+    explicit StatePilotingShip(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	ShipOperations State
 *
@@ -441,10 +381,8 @@ class StateShipOperations:
     public ActionState
 {
 public:
-    StateShipOperations(StateManager* const sm);
-    
-    
-    
+    explicit StateShipOperations(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	ShipGunner State
 *
@@ -453,10 +391,8 @@ class StateShipGunner:
     public ActionState
 {
 public:
-    StateShipGunner(StateManager* const sm);
-    
-    
-    
+    explicit StateShipGunner(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	ShipInterior State
 *
@@ -465,10 +401,8 @@ class StateShipInterior:
     public ActionState
 {
 public:
-    StateShipInterior(StateManager* const sm);
-    
-    
-    
+    explicit StateShipInterior(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	PilotingPobShip State
 *
@@ -477,8 +411,6 @@ class StatePilotingPobShip:
     public ActionState
 {
 public:
-    StatePilotingPobShip(StateManager* const sm);
-    
-    
-    
+    explicit StatePilotingPobShip(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };

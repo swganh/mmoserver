@@ -56,12 +56,10 @@ public:
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair);
 
-    virtual void loadTransitionList();
-
     virtual uint64 getID() {return mStateID;}
 
 protected:
-    StateManager*     mStateManager;
+    StateManager*           mStateManager;
     uint64					mStateID;
     bool					mHidden;
     transitionList          mTransitionList;
@@ -74,7 +72,8 @@ class LocomotionStanding:
     public LocomotionState
 {
 public:
-    LocomotionStanding(StateManager* const sm);
+    explicit LocomotionStanding(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Sneaking Locomotion
 *
@@ -83,7 +82,7 @@ class LocomotionSneaking:
     public LocomotionState
 {
 public:
-    LocomotionSneaking(StateManager* const sm);
+    explicit LocomotionSneaking(StateManager* const sm);
 };
 /*	Walking Locomotion
 *
@@ -92,7 +91,8 @@ class LocomotionWalking:
     public LocomotionState
 {
 public:
-    LocomotionWalking(StateManager* const sm);
+    explicit LocomotionWalking(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Running Locomotion
 *
@@ -101,7 +101,8 @@ class LocomotionRunning:
     public LocomotionState
 {
 public:
-    LocomotionRunning(StateManager* const sm);
+    explicit LocomotionRunning(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*  Kneeling Locomotion
 *
@@ -110,7 +111,8 @@ class LocomotionKneeling:
     public LocomotionState
 {
 public:
-    LocomotionKneeling(StateManager* const sm);
+    explicit LocomotionKneeling(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	CrouchSneaking Locomotion
 *
@@ -137,7 +139,8 @@ class LocomotionProne:
     public LocomotionState
 {
 public:
-    LocomotionProne(StateManager* const sm);
+    explicit LocomotionProne(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Crawling Locomotion
 *
@@ -200,7 +203,8 @@ class LocomotionSitting:
     public LocomotionState
 {
 public:
-    LocomotionSitting(StateManager* const sm);
+    explicit LocomotionSitting(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	SkillAnimating Locomotion
 *
@@ -209,7 +213,8 @@ class LocomotionSkillAnimating:
     public LocomotionState
 {
 public:
-    LocomotionSkillAnimating(StateManager* const sm);
+    explicit LocomotionSkillAnimating(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	DrivingVehicle Locomotion
 *
@@ -218,7 +223,8 @@ class LocomotionDrivingVehicle:
     public LocomotionState
 {
 public:
-    LocomotionDrivingVehicle(StateManager* const sm);
+    explicit LocomotionDrivingVehicle(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	RidingCreature Locomotion
 *
@@ -227,7 +233,8 @@ class LocomotionRidingCreature:
     public LocomotionState
 {
 public:
-    LocomotionRidingCreature(StateManager* const sm);
+    explicit LocomotionRidingCreature(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	KnockedDown Locomotion
 *
@@ -236,7 +243,8 @@ class LocomotionKnockedDown:
     public LocomotionState
 {
 public:
-    LocomotionKnockedDown(StateManager* const sm);
+    explicit LocomotionKnockedDown(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Incapacitated Locomotion
 *
@@ -245,7 +253,8 @@ class LocomotionIncapacitated:
     public LocomotionState
 {
 public:
-    LocomotionIncapacitated(StateManager* const sm);
+    explicit LocomotionIncapacitated(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Dead Locomotion
 *
@@ -254,7 +263,8 @@ class LocomotionDead:
     public LocomotionState
 {
 public:
-    LocomotionDead(StateManager* const sm);
+    explicit LocomotionDead(StateManager* const sm);
+    //void Enter(CreatureObject* obj);
 };
 /*	Blocking Locomotion
 *

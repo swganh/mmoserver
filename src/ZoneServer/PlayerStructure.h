@@ -187,7 +187,7 @@ class PlayerStructure :	public TangibleObject
 		uint64				getState(){ return mState; }
 		//void				setState(uint64 state){ mState = state; }
 		void				toggleStateOn(StructureState state){ mState = mState | state; }
-		void				toggleStateOff(StructureState state){ mState = mState & ~state; }
+		void				toggleActionOff(StructureState state){ mState = mState & ~state; }
 		//void				toggleState(StructureState state){ mState = mState ^ state; }
 		bool				checkState(StructureState state){ return((mState & state) == state); }
 		bool				checkStates(uint64 states){ return((mState & states) == states); }

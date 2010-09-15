@@ -79,7 +79,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 		}
 
 		// don't use while incapped or dead or in combat
-		if(playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
+		if(playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
 		{
 			return;
 		}

@@ -230,7 +230,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
 
 	PlayerObject* playerObject = window->getOwner(); // window owner
 
-	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead()|| playerObject->checkState(CreatureState_Combat))
+	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead()|| playerObject->states.checkState(CreatureState_Combat))
 	{
 		return;
 	}

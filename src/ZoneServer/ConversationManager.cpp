@@ -243,7 +243,7 @@ void ConversationManager::startConversation(NPCObject* npc,PlayerObject* player)
 {
 	//we can't converse whilst in combat
 	/* commented out for preview as borked. client ctd ftl
-	if(player->checkState(CreatureState_Combat))
+	if(player->states.checkState(CreatureState_Combat))
 	{
 		stopConversation(player,true);
 		gMessageLib->sendSystemMessage(player,"You may not start a Conversation whilst in Combat!");

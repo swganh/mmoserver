@@ -67,7 +67,6 @@ CreatureObject::CreatureObject()
 ,	mTargetId(0)
 , mDefenderUpdateCounter(0)
 , mSkillModUpdateCounter(0)
-
 , mCurrentAnimation("")
 , mCustomizationStr("")
 , mFaction("")
@@ -81,11 +80,10 @@ CreatureObject::CreatureObject()
 , mEntertainerListenToId(0)
 , mFirstIncapTime(0)
 , mGroupId(0)
-, mState(0)
 , mLastEntertainerXP(0)
 , mScale(1.0)
 , mLanguage(1)
-,	mLastMoveTick(0)
+, mLastMoveTick(0)
 , mPerformanceCounter(0)
 , mPerformanceId(0)
 , mRaceGenderMask(0)
@@ -94,9 +92,7 @@ CreatureObject::CreatureObject()
 , mFactionRank(0)
 , mIncapCount(0)
 , mMoodId(0)
-, mPosture(0)
-, mLocomotion(0)
-,mReady(false)
+, mReady(false)
 {
     mType = ObjType_Creature;
 
@@ -110,13 +106,15 @@ CreatureObject::CreatureObject()
 
     for(uint16 i = 1;i<256;i++)
         mCustomization[i]=0;
-
-    states.action = 0;
-    states.posture = 0;
-    states.locomotion = 0;
-    states.blockAction = false;
+    
+    // initialize state struct
+    states.action          = 0;
+    states.posture         = 0;
+    states.locomotion      = 0;
+    
+    states.blockAction     = false;
     states.blockLocomotion = false;
-    states.blockPosture = false;
+    states.blockPosture    = false;
 
     // register event functions
     registerEventFunction(this,&CreatureObject::onIncapRecovery);
@@ -729,7 +727,7 @@ void CreatureObject::incap()
             // update the posture and locomotion
             gStateManager.setCurrentPostureState(this, CreaturePosture_Incapacitated);
             mPosture = CreaturePosture_Incapacitated;
-            setLocomotionByPosture(mPosture);
+            //setLocomotionByPosture(mPosture);
 
             // send timer updates
             mCurrentIncapTime = gWorldConfig->getBaseIncapTime() * 1000;
@@ -790,7 +788,7 @@ void CreatureObject::die()
     }
 
     mPosture = CreaturePosture_Dead;
-    setLocomotionByPosture(mPosture);
+    //setLocomotionByPosture(mPosture);
 
     // reset ham regeneration
     mHam.updateRegenRates();
@@ -1437,41 +1435,41 @@ void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 }
 //=============================================================================
 // maps the incoming posture
-void CreatureObject::setLocomotionByPosture(uint32 posture)
-{
-    switch (posture)
-    {
-        case CreaturePosture_Upright: mLocomotion = CreatureLocomotion_Standing; break;
-        // not even sure if this is used.
-        case CreaturePosture_Crouched:
-        {
-            if(this->getCurrentSpeed() < this->getBaseAcceleration())
-                mLocomotion = CreatureLocomotion_CrouchWalking;
-            else
-                mLocomotion = CreatureLocomotion_CrouchSneaking;
-            break;
-        }
-        case CreaturePosture_Prone: mLocomotion = CreatureLocomotion_Prone; break;
-        case CreaturePosture_Sneaking: mLocomotion = CreatureLocomotion_Sneaking; break;
-        // is this used?
-        case CreaturePosture_Blocking: mLocomotion = CreatureLocomotion_Blocking; break;
-        // is this used?
-        case CreaturePosture_Climbing:
-        {
-                if(this->getCurrentSpeed() >0)
-                    mLocomotion = CreatureLocomotion_Climbing;
-                else
-                    mLocomotion = CreatureLocomotion_ClimbingStationary;
-                break;
-        }
-        case CreaturePosture_Flying: mLocomotion = CreatureLocomotion_Flying; break;
-        case CreaturePosture_LyingDown:	mLocomotion = CreatureLocomotion_LyingDown; break;
-        case CreaturePosture_Sitting: mLocomotion = CreatureLocomotion_Sitting; break;
-        case CreaturePosture_SkillAnimating: mLocomotion = CreatureLocomotion_SkillAnimating; break;
-        case CreaturePosture_DrivingVehicle: mLocomotion = CreatureLocomotion_DrivingVehicle; break;
-        case CreaturePosture_RidingCreature: mLocomotion = CreatureLocomotion_RidingCreature; break;
-        case CreaturePosture_KnockedDown: mLocomotion = CreatureLocomotion_KnockedDown; break;
-        case CreaturePosture_Incapacitated: mLocomotion = CreatureLocomotion_Incapacitated; break;
-        case CreaturePosture_Dead: mLocomotion = CreatureLocomotion_Dead; break;
-    }
-}
+//void CreatureObject::setLocomotionByPosture(uint32 posture)
+//{
+//    switch (posture)
+//    {
+//        case CreaturePosture_Upright: mLocomotion = CreatureLocomotion_Standing; break;
+//        // not even sure if this is used.
+//        case CreaturePosture_Crouched:
+//        {
+//            if(this->getCurrentSpeed() < this->getBaseAcceleration())
+//                mLocomotion = CreatureLocomotion_CrouchWalking;
+//            else
+//                mLocomotion = CreatureLocomotion_CrouchSneaking;
+//            break;
+//        }
+//        case CreaturePosture_Prone: mLocomotion = CreatureLocomotion_Prone; break;
+//        case CreaturePosture_Sneaking: mLocomotion = CreatureLocomotion_Sneaking; break;
+//        // is this used?
+//        case CreaturePosture_Blocking: mLocomotion = CreatureLocomotion_Blocking; break;
+//        // is this used?
+//        case CreaturePosture_Climbing:
+//        {
+//                if(this->getCurrentSpeed() >0)
+//                    mLocomotion = CreatureLocomotion_Climbing;
+//                else
+//                    mLocomotion = CreatureLocomotion_ClimbingStationary;
+//                break;
+//        }
+//        case CreaturePosture_Flying: mLocomotion = CreatureLocomotion_Flying; break;
+//        case CreaturePosture_LyingDown:	mLocomotion = CreatureLocomotion_LyingDown; break;
+//        case CreaturePosture_Sitting: mLocomotion = CreatureLocomotion_Sitting; break;
+//        case CreaturePosture_SkillAnimating: mLocomotion = CreatureLocomotion_SkillAnimating; break;
+//        case CreaturePosture_DrivingVehicle: mLocomotion = CreatureLocomotion_DrivingVehicle; break;
+//        case CreaturePosture_RidingCreature: mLocomotion = CreatureLocomotion_RidingCreature; break;
+//        case CreaturePosture_KnockedDown: mLocomotion = CreatureLocomotion_KnockedDown; break;
+//        case CreaturePosture_Incapacitated: mLocomotion = CreatureLocomotion_Incapacitated; break;
+//        case CreaturePosture_Dead: mLocomotion = CreatureLocomotion_Dead; break;
+//    }
+//}

@@ -36,14 +36,14 @@ class ActionStateUpdateEvent : public ::common::BaseEvent
 public:
     static const ::common::EventType type;
 
-    explicit ActionStateUpdateEvent(CreatureObject* obj, uint64 oldStates,CreatureState newState,uint64_t subject_id=0, uint64_t delay_ms=0);
-    ActionStateUpdateEvent(CreatureObject* obj, uint64 oldStates,CreatureState newState,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    explicit ActionStateUpdateEvent(uint64 objID, uint64 oldStates,CreatureState newState,uint64_t subject_id=0, uint64_t delay_ms=0);
+    ActionStateUpdateEvent(uint64 objID, uint64 oldStates,CreatureState newState,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
     
     ~ActionStateUpdateEvent(void);
 
     const ::common::EventType& event_type() const;
 
-    CreatureObject* getCreatureObject()     { return mObj;}
+    uint64 getCreatureObjectByID()          { return mObjID;}
     uint64 getOldPostureState()             { return mOldStates;}
     CreatureState getNewPostureState()      { return mNewState;}
 
@@ -53,7 +53,7 @@ private:
 
     bool onConsume(bool handled) const;
     
-    CreatureObject*             mObj;
+    uint64                      mObjID;
     uint64                      mOldStates;
     CreatureState               mNewState;
 };

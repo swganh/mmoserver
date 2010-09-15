@@ -66,7 +66,7 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 {
 	if(!player) return NULL;
 
-	if(player->checkState(CreatureState_Swimming))
+	if(player->states.checkState(CreatureState_Swimming))
 	{
 		//use the system message from suveying as we don't have an appropriate one especiially for this
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), player);

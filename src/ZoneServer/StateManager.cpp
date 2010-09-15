@@ -126,7 +126,7 @@ void StateManager::loadLocomotionStateMap()
 
 void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePosture newPosture)
 {
-    auto posture_update_event = std::make_shared<PostureUpdateEvent>(object, (CreaturePosture)object->states.getPosture(), newPosture);
+    auto posture_update_event = std::make_shared<PostureUpdateEvent>(object->getId(), (CreaturePosture)object->states.getPosture(), newPosture);
 
     PostureStateMap::iterator iter = mPostureStateMap.find(newPosture);
     if (iter != mPostureStateMap.end())
@@ -145,7 +145,7 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
 
 void StateManager::setCurrentActionState(CreatureObject* object, CreatureState newState)
 {    
-    auto action_update_event = std::make_shared<ActionStateUpdateEvent>(object, object->states.getAction(), newState);
+    auto action_update_event = std::make_shared<ActionStateUpdateEvent>(object->getId(), object->states.getAction(), newState);
     ActionStateMap::iterator iter = mActionStateMap.find(newState);
     if (iter != mActionStateMap.end())
     {
@@ -168,7 +168,7 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
 
 void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLocomotion newLocomotion)
 {
-    auto locomotion_update_event = std::make_shared<LocomotionStateUpdateEvent>(object, (CreatureLocomotion)object->getLocomotion(), newLocomotion);
+    auto locomotion_update_event = std::make_shared<LocomotionStateUpdateEvent>(object->getId(), (CreatureLocomotion)object->states.getLocomotion(), newLocomotion);
     LocomotionStateMap::iterator iter = mLocomotionStateMap.find(newLocomotion);
     if (iter != mLocomotionStateMap.end())
     {
@@ -176,7 +176,7 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
         if (mActionStateMap[newLocomotion]->CanTransition(object, newLocomotion))
         {
             // Exit old State
-            mLocomotionStateMap[object->getLocomotion()]->Exit(object);
+            mLocomotionStateMap[object->states.getLocomotion()]->Exit(object);
             // Enter new State
             mActionStateMap[newLocomotion]->Enter(object);
         }
@@ -189,7 +189,7 @@ void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToR
         if (mActionStateMap[stateToRemove]->CanTransition(obj, stateToRemove))
         {
             // Exit old State
-            obj->toggleStateOff(stateToRemove);
+            obj->states.toggleActionOff(stateToRemove);
         }
 }
 void StateManager::loadStateMaps()

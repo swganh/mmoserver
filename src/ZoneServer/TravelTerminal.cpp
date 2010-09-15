@@ -52,7 +52,7 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	{
 		PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
 
-		if(!playerObject || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
+		if(!playerObject || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
 		{
 			return;
 		}

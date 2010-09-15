@@ -2061,41 +2061,41 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
         gMessageLib->SendSystemMessage(L"Received an invalid event!", this);
         return false;
     }
-    this->creaturePostureUpdate();
-    // Lookup the creature and ensure it is a valid object.
-    PlayerObject* object = dynamic_cast<PlayerObject*>(pre_event->getCreatureObject());
-    // we've done all we can do.
-    if (!object) {
+    if (CreatureObject* creo = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(pre_event->getCreatureObjectByID())))
+    {
+        creo->creaturePostureUpdate();
+        // Lookup the creature and ensure it is a valid object.
+        if (PlayerObject* player = dynamic_cast<PlayerObject*>(creo))
+        {
+            // process the appropriate command.
+            switch (pre_event->getNewPostureState())
+            {
+                case CreaturePosture_Upright:
+                    setUpright();
+                    break;
+                case CreaturePosture_Crouched:
+                    setCrouched();
+                    break;
+                case CreaturePosture_Prone:
+                    setProne();
+                    break;
+                case CreaturePosture_Sitting:
+                    setSitting();
+                    break;
+                default:
+                    break;
+            }
+            // update client
+             if(isConnected())
+                gMessageLib->sendHeartBeat(getClient());
+
+            gMessageLib->sendUpdateMovementProperties(player);
+            gMessageLib->sendPostureAndStateUpdate(player);
+            gMessageLib->sendSelfPostureUpdate(player);
+        }
         return true;
     }
-    // process the appropriate command.
-    switch (pre_event->getNewPostureState())
-    {
-        case CreaturePosture_Upright:
-            setUpright();
-            break;
-        case CreaturePosture_Crouched:
-            setCrouched();
-            break;
-        case CreaturePosture_Prone:
-            setProne();
-            break;
-        case CreaturePosture_Sitting:
-            setSitting();
-            break;
-        default:
-            break;
-    }
-    
-    // update client
-     if(isConnected())
-        gMessageLib->sendHeartBeat(getClient());
-
-    gMessageLib->sendUpdateMovementProperties(this);
-    gMessageLib->sendPostureAndStateUpdate(this);
-    gMessageLib->sendSelfPostureUpdate(this);
-
-    return true;
+    return false;
 }
 
 void PlayerObject::setSitting()
@@ -2120,7 +2120,7 @@ void PlayerObject::setUpright()
     }
 
     //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
-    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+    bool IsSeatedOnChair = this->states.checkState(CreatureState_SittingOnChair);
     if(IsSeatedOnChair)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_stand"), this);	
@@ -2146,7 +2146,7 @@ void PlayerObject::setProne()
     }
 
     //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
-    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+    bool IsSeatedOnChair = this->states.checkState(CreatureState_SittingOnChair);
     if(IsSeatedOnChair)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_prone"), this);
@@ -2159,7 +2159,7 @@ void PlayerObject::setCrouched()
         gMessageLib->sendHeartBeat(this->getClient());
 
     //Get whether player is seated on a chair before we toggle it
-    bool IsSeatedOnChair = this->checkState(CreatureState_SittingOnChair);
+    bool IsSeatedOnChair = this->states.checkState(CreatureState_SittingOnChair);
 
     //if player is seated on an a chair, hack-fix clientside bug by manually sending client message
     if(IsSeatedOnChair)
@@ -2235,11 +2235,31 @@ void PlayerObject::playFoodSound(bool food, bool drink)
 //
 bool PlayerObject::handleActionStateUpdate(::common::IEventPtr triggered_event)
 {
-    this->creatureActionStateUpdate();
-    return true;
+    // Cast the IEvent to the ActionStateUpdateEvent.
+    auto pre_event = std::dynamic_pointer_cast<ActionStateUpdateEvent>(triggered_event);
+    if (!pre_event) {
+        gMessageLib->SendSystemMessage(L"Received an invalid event!", this);
+        return false;
+    }
+    if (CreatureObject* creo = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(pre_event->getCreatureObjectByID())))
+    {
+        creo->creatureActionStateUpdate();
+        return true;
+    }
+    return false;
 }
 bool PlayerObject::handleLocomotionUpdate(::common::IEventPtr triggered_event)
 {
-    this->creatureLocomotionUpdate();
-    return true;
+    // Cast the IEvent to the LocomotionUpdateEvent.
+    auto pre_event = std::dynamic_pointer_cast<LocomotionStateUpdateEvent>(triggered_event);
+    if (!pre_event) {
+        gMessageLib->SendSystemMessage(L"Received an invalid event!", this);
+        return false;
+    }
+    if (CreatureObject* creo = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(pre_event->getCreatureObjectByID())))
+    {
+        creo->creatureLocomotionUpdate();
+        return true;
+    }
+    return false;
 }

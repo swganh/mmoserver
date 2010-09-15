@@ -434,7 +434,7 @@ void ScoutManager::handleHarvestCorpse(PlayerObject* player, CreatureObject* tar
 		return;
 
 	//Perform Checking...
-	if(player->checkState(CreatureState_Combat))
+	if(player->states.checkState(CreatureState_Combat))
 		gMessageLib->sendSystemMessage(player, L"", "internal_command_string","prose_harvest_corpse_failed");
 
 	if(harvest != HARVEST_ANY)

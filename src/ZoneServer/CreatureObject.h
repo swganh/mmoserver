@@ -75,20 +75,18 @@ class CreatureObject : public MovingObject
         BString				getLastName() const { return mLastName; }
         void				setLastName(BString name){ mLastName = name; }
 
-        uint32				getPosture() const { return mPosture; }
+        //uint32				getPosture() const { return mPosture; }
         // calls setLocomotion as well
-        void				setPosture(uint32 posture){ setLocomotionByPosture(posture); mPosture = posture; }
+        //void				setPosture(uint32 posture){ setLocomotionByPosture(posture); mPosture = posture; }
 
-        uint64				getLocomotion() const { return mLocomotion; }
-        void				setLocomotion(uint32 loco){ mLocomotion = loco ;}
-protected:
+        //uint64				getLocomotion() const { return mLocomotion; }
+        //void				setLocomotion(uint32 loco){ mLocomotion = loco ;}
         // Locomotion set only through setPosture
-        void				setLocomotionByPosture(uint32 posture);
+        //void				setLocomotionByPosture(uint32 posture);
         // Postures are NOT bitwise constants.
         // Can NOT use bitwise operation on non bitwise constants.
         // bool				checkPostures(uint8 postures) const { return((mPosture & postures) == postures); }
-public:
-        bool				checkPosture(uint32 postures) const { return (mPosture == postures); }
+        //bool				checkPosture(uint32 postures) const { return (mPosture == postures); }
 
         // Can NOT use bitwise operation on non bitwise constants.
         // bool				checkPosturesEither(uint8 postures){ return((mPosture & postures) != 0); }
@@ -178,6 +176,7 @@ public:
             // posture states
             uint32          getPosture() { return posture; } 
             void            setPosture(uint32 pos) { posture = pos; }
+            bool			checkPosture(uint32 pos) const { return (posture == pos); }
             // locomotion states
             uint32          getLocomotion() { return locomotion; }
             void            setLocomotion(uint32 loco) { locomotion = loco; }
@@ -187,18 +186,18 @@ public:
             void            toggleActionOff(CreatureState state){ action = action & ~ state; }
             bool            checkState(CreatureState state){ return ((action & state) == state); }
             bool            checkStates(uint64 states){ return ((action & states) == states); }
-            bool            checStatesEither(uint64 states){ return ((action & states) != 0); }
-        };
-        // OLD WAY OF DOING STATES
-        // states
-        uint64				getState(){ return mState; }
-        // do not call these manually use the StateManager directly.
-        void				toggleStateOn(CreatureState state){ mState = mState | state; }
-        void				toggleStateOff(CreatureState state){ mState = mState & ~state; }
-        //void				toggleState(CreatureState state){ mState = mState ^ state; }
-        bool				checkState(CreatureState state){ return((mState & state) == state); }
-        bool				checkStates(uint64 states){ return((mState & states) == states); }
-        bool				checkStatesEither(uint64 states){ return((mState & states) != 0); }
+            bool            checkStatesEither(uint64 states){ return ((action & states) != 0); }
+        } states;
+        //// OLD WAY OF DOING STATES
+        //// states
+        //uint64				getState(){ return mState; }
+        //// do not call these manually use the StateManager directly.
+        //void				toggleStateOn(CreatureState state){ mState = mState | state; }
+        //void				states.toggleActionOff(CreatureState state){ mState = mState & ~state; }
+        ////void			toggleState(CreatureState state){ mState = mState ^ state; }
+        //bool				checkState(CreatureState state){ return((mState & state) == state); }
+        //bool				checkStates(uint64 states){ return((mState & states) == states); }
+        //bool				->states.checkStatesEither(uint64 states){ return((mState & states) != 0); }
 
         // factions
         BString				getFaction(){ return mFaction; }
@@ -384,7 +383,7 @@ public:
         void				SetBuffAsyncCount(uint32 count){mBuffAsyncCount = count; }
         void				IncBuffAsyncCount(){mBuffAsyncCount++; }
         void				DecBuffAsyncCount(){mBuffAsyncCount--; }
-        CreatureObject::STATES  states;
+        //CreatureObject::STATES  states;
 
 };
 

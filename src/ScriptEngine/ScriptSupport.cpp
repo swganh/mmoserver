@@ -827,7 +827,7 @@ bool ScriptSupport::npcInCombat(uint64 npcId)
 	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
 	if (creature)
 	{
-		inCombat = creature->checkState(CreatureState_Combat);
+		inCombat = creature->states.checkState(CreatureState_Combat);
 	}
 	return inCombat;
 }

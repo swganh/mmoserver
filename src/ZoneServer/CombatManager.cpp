@@ -229,7 +229,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
             gStateManager.setCurrentActionState(attacker, CreatureState_CombatAttitudeNormal);
 			// put our target in combat state
-			if(!defenderPlayer->checkState(CreatureState_Combat))
+			if(!defenderPlayer->states.checkState(CreatureState_Combat))
 			{
 
 				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
@@ -278,7 +278,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			}
 
 			// put us in combat state
-			// if (!playerAttacker->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
+			// if (!playerAttacker->states.checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
 			{
 				// playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
 				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() | CreaturePvPStatus_Attackable);
@@ -289,7 +289,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				
 			}
 
-			if (!defender->checkState((CreatureState_Combat)))
+			if (!defender->states.checkState((CreatureState_Combat)))
 			{
 				// Creature was NOT in combat before, and may very well be dormant.
 				// Wake him up.

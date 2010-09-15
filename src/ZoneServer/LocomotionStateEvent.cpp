@@ -34,20 +34,20 @@ using ::common::ByteBuffer;
 
 const EventType LocomotionStateUpdateEvent::type       = EventType("LocomotionStateUpdateEvent");
 
-LocomotionStateUpdateEvent::LocomotionStateUpdateEvent(CreatureObject* obj, CreatureLocomotion oldState,CreatureLocomotion newState,uint64_t subject_id, uint64_t delay_ms) 
+LocomotionStateUpdateEvent::LocomotionStateUpdateEvent(uint64 objID, CreatureLocomotion oldState,CreatureLocomotion newState,uint64_t subject_id, uint64_t delay_ms) 
     : BaseEvent(subject_id, delay_ms)
 {
-    mObj        = obj;
-    mOldState   = oldState;
-    mNewState   = newState;
+    mObjID        = objID;
+    mOldState     = oldState;
+    mNewState     = newState;
 }
 
-LocomotionStateUpdateEvent::LocomotionStateUpdateEvent(CreatureObject* obj, CreatureLocomotion oldState,CreatureLocomotion newState,uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+LocomotionStateUpdateEvent::LocomotionStateUpdateEvent(uint64 objID, CreatureLocomotion oldState,CreatureLocomotion newState,uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
     : BaseEvent(subject_id, delay_ms)
 {
-    mObj        = obj;
-    mOldState   = oldState;
-    mNewState   = newState;
+    mObjID        = objID;
+    mOldState     = oldState;
+    mNewState     = newState;
 }
 
 

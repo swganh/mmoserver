@@ -36,14 +36,14 @@ class PostureUpdateEvent : public ::common::BaseEvent
 public:
     static const ::common::EventType type;
 
-    explicit PostureUpdateEvent(CreatureObject* obj, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id=0, uint64_t delay_ms=0);
-    PostureUpdateEvent(CreatureObject* obj, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    explicit PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id=0, uint64_t delay_ms=0);
+    PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
     
     ~PostureUpdateEvent(void);
 
     const ::common::EventType& event_type() const;
 
-    CreatureObject* getCreatureObject()     { return mObj;}
+    uint64  getCreatureObjectByID()         { return mObjID;}
     CreaturePosture getOldPostureState()    { return mOldPos;}
     CreaturePosture getNewPostureState()    { return mNewPos;}
 
@@ -53,7 +53,7 @@ private:
 
     bool onConsume(bool handled) const;
 
-    CreatureObject*             mObj;
+    uint64                      mObjID;
     CreaturePosture             mOldPos;
     CreaturePosture             mNewPos;
 };

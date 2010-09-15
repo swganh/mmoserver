@@ -146,7 +146,7 @@ void VehicleController::Call() {
     body_->setModelString(mPhysicalModel);
     body_->setSpeciesGroup(mNameFile.getAnsi());
     body_->setSpeciesString(mName.getAnsi());
-    body_->setPosture(0);
+    body_->states.setPosture(0);
     body_->setScale(1.0f);
 
 
@@ -282,7 +282,7 @@ void VehicleController::MountPlayer()
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), 4, owner_);
     gMessageLib->sendUpdateTransformMessage(body_);
   
-    body_->toggleStateOn(CreatureState_MountedCreature);
+    body_->states.toggleActionOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 
     gStateManager.setCurrentActionState(owner_,CreatureState_RidingMount);

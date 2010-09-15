@@ -59,7 +59,28 @@ public:
 
     virtual void insertIntoTransitionList(const std::pair<StateTypes, uint64>& pair)=0;
 
-    virtual void loadTransitionList()=0;
+    void        loadCommonLocomotionList(transitionList& mList)
+    {
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_Climbing));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_ClimbingStationary));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_Hovering));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_Flying));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_LyingDown));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_SkillAnimating));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_DrivingVehicle));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_RidingCreature));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_KnockedDown));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_Incapacitated));
+        mList.insert(std::make_pair(State_Locomotion,CreatureLocomotion_Dead));
+    }
+    void        loadCommonActionList(transitionList& mList)
+    {
+        mList.insert(std::make_pair(State_Action,CreatureState_Frozen));
+        mList.insert(std::make_pair(State_Action,CreatureState_Immobilized));
+        mList.insert(std::make_pair(State_Action,CreatureState_GlowingJedi));
+    }
+
+
 
 
     //virtual bool hidden(){return mHidden;}

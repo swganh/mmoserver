@@ -907,7 +907,7 @@ void	EntertainerManager::startMusicPerformance(PlayerObject* entertainer,BString
 		//gMessageLib->sendEntertainerCreo6PartB(this);
 
 		//posture
-		entertainer->setPosture(CreaturePosture_SkillAnimating);
+		entertainer->states.setPosture(CreaturePosture_SkillAnimating);
 		gMessageLib->sendPostureUpdate(entertainer);
 		gMessageLib->sendSelfPostureUpdate(entertainer);
 
@@ -952,7 +952,7 @@ void	EntertainerManager::startDancePerformance(PlayerObject* entertainer,BString
 		gMessageLib->sendPerformanceId(entertainer);
 
 		//posture
-		entertainer->setPosture(CreaturePosture_SkillAnimating);
+		entertainer->states.setPosture(CreaturePosture_SkillAnimating);
 		gMessageLib->sendPostureUpdate(entertainer);
 		gMessageLib->sendSelfPostureUpdate(entertainer);
 
@@ -1946,9 +1946,7 @@ void EntertainerManager::handlePerformancePause(CreatureObject* mObject)
 		entertainer->setCurrentAnimation(BString(text));
 		gMessageLib->sendAnimationString(entertainer);
 
-		entertainer->setPosture(CreaturePosture_SkillAnimating);
-		gMessageLib->sendPostureUpdate(entertainer);
-		gMessageLib->sendSelfPostureUpdate(entertainer);
+        gStateManager.setCurrentPostureState(entertainer,CreaturePosture_SkillAnimating);
 	}
 }
 

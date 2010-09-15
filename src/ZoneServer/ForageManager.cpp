@@ -134,7 +134,7 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 	}
 
 	//Check for combat
-	if(player->checkState(CreatureState_Combat))
+	if(player->states.checkState(CreatureState_Combat))
 	{
 		gForageManager->failForage(player, IN_COMBAT);
 		return;
@@ -289,7 +289,7 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
 			if(player != NULL)
 			{
-				if(player->checkState(CreatureState_Combat))
+				if(player->states.checkState(CreatureState_Combat))
 				{
 					ForageManager::failForage(player, ENTERED_COMBAT);
 					(*it)->completed = true;
@@ -318,7 +318,7 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
 			if(!(*it)->completed && player)
 			{
-				if(player->checkState(CreatureState_Combat))
+				if(player->states.checkState(CreatureState_Combat))
 				{
 					ForageManager::failForage(player, ENTERED_COMBAT);
 					(*it)->completed = true;

@@ -408,13 +408,9 @@ void MessageLib::sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint1
 	mMessageFactory->addUint16(sendText);
 
 	Message* newMessage = mMessageFactory->EndMessage();
-
-	const PlayerObjectSet* const inRangePlayers	= srcObject->getKnownPlayers();
-	PlayerObjectSet::const_iterator it	= inRangePlayers->begin();
+	
 	uint32 loweredNameCrc			= 0;
 	string loweredName;
-	Message* clonedMessage;
-	bool crcValid = false;
 
 	// Get the source for this emote.
 	if(srcObject->getType() == ObjType_Player)
@@ -425,53 +421,11 @@ void MessageLib::sendSpatialEmote(CreatureObject* srcObject,uint16 emoteId,uint1
 		{
 			loweredName = srcPlayer->getFirstName().getAnsi();
 			loweredName.toLower();
-			loweredNameCrc = loweredName.getCrc();
-			crcValid = true;
+			loweredNameCrc = loweredName.getCrc();			
 		}
 	}
 
-	while(it != inRangePlayers->end())
-	{
-		const PlayerObject* const player = (*it);
-
-		// If player online, send emote.
-		if(player->isConnected())
-		{
-			if ((crcValid) && (player->checkIgnoreList(loweredNameCrc)))
- 			{
-				// I am at receivers ignore list.
-				// Don't send any message.
-			}
-			else
-			{
-				// clone our message
-				mMessageFactory->StartMessage();
-				mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-				clonedMessage = mMessageFactory->EndMessage();
-
-				// replace the target id
-				int8* data = clonedMessage->getData() + 12;
-				*((uint64*)data) = player->getId();
-
-				(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-			}
-		}
-		++it;
-	}
-
-	// if we are a player, echo it back to ourself
-	if(srcObject->getType() == ObjType_Player)
-	{
-		PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(srcObject);
-
-		if(srcPlayer->isConnected())
-		{
-			(srcPlayer->getClient())->SendChannelAUnreliable(newMessage,srcPlayer->getAccountId(),CR_Client,5);
-			return;
-		}
-	}
-
-	mMessageFactory->DestroyMessage(newMessage);
+	_sendToInRangeUnreliableChat(newMessage,srcObject,5,loweredNameCrc);
 
 }
 
@@ -1300,15 +1254,31 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 		mMessageFactory->addUint32(player->getRaceId());
 
 		// only cities for now
-		ObjectSet				regions;
-		gWorldManager->getSI()->getObjectsInRange(player,&regions,ObjType_Region,1);
 
-		ObjectSet::iterator	objIt = regions.begin();
+		glm::vec3   position;
+	
+		//cater for players in cells
+		if (player->getParentId())
+		{
+			position = player->getWorldPosition(); 
+		}
+		else
+		{
+			position = player->mPosition;
+		}
+	
+		std::list<Object*>*		inRangePlayers	= mGrid->GetObjectViewingRangeCellContents(mGrid->getCellId(position.x, position.z));
+
 		string				regionName;
 
-		while(objIt != regions.end())
-		{
-			RegionObject* region = dynamic_cast<RegionObject*>(*objIt);
+		for(std::list<Object*>::iterator regionIt = inRangePlayers->begin(); regionIt != inRangePlayers->end(); regionIt++)
+		{		
+			if((*regionIt)->getType() != ObjType_Region)
+			{
+				continue;
+			}
+
+			RegionObject* region = dynamic_cast<RegionObject*>(*regionIt);
 
 			if(region->getRegionType() == Region_City)
 			{
@@ -1320,7 +1290,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 				break;
 			}
 
-			++objIt;
+			++regionIt;
 		}
 
 		mMessageFactory->addString(regionName);
@@ -1901,45 +1871,7 @@ void MessageLib::sendFlyText(Object* srcCreature,string stfFile,string stfVar,ui
 
 	Message* newMessage = mMessageFactory->EndMessage();
 
-	const PlayerObjectSet* const inRangePlayers	= srcCreature->getKnownPlayers();
-	PlayerObjectSet::const_iterator it	= inRangePlayers->begin();
-
-	Message* clonedMessage;
-
-	while(it != inRangePlayers->end())
-	{
-		const PlayerObject* const player = (*it);
-
-		if(player->isConnected())
-		{
-			mMessageFactory->StartMessage();
-			mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-			clonedMessage = mMessageFactory->EndMessage();
-
-			// replace the target id
-			int8* data = clonedMessage->getData() + 12;
-			*((uint64*)data) = player->getId();
-
-			(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-		}
-
-		++it;
-	}
-
-	// if we are a player, echo it back to ourself
-	if(srcCreature->getType() == ObjType_Player)
-	{
-		PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(srcCreature);
-
-		if(srcPlayer->isConnected())
-		{
-			(srcPlayer->getClient())->SendChannelAUnreliable(newMessage,srcPlayer->getAccountId(),CR_Client,5);
-			return;
-		}
-
-	}
-
-	mMessageFactory->DestroyMessage(newMessage);
+	_sendToInRangeUnreliableChat(newMessage,dynamic_cast<CreatureObject*>(srcCreature),5,0);	
 
 }
 
@@ -1969,30 +1901,9 @@ void MessageLib::sendFlyText(Object* srcCreature, PlayerObject* playerObject, st
 
 	Message* message = mMessageFactory->EndMessage();
 
-	PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
-	PlayerList::iterator player	= inRangeMembers.begin();
-	Message* clonedMessage;
+	_sendToInRangeUnreliableChatGroup(message,dynamic_cast<CreatureObject*>(srcCreature),5,0);	
 
-	while (player != inRangeMembers.end())
-	{
-		if ((*player)->isConnected())
-		{
-			// Clone the message.
-			mMessageFactory->StartMessage();
-			mMessageFactory->addData(message->getData(),message->getSize());
-			clonedMessage = mMessageFactory->EndMessage();
 
-			// replace the target id
-			int8* data = clonedMessage->getData() + 12;
-			*((uint64*)data) = (*player)->getId();
-
-			((*player)->getClient())->SendChannelAUnreliable(clonedMessage,(*player)->getAccountId(),CR_Client,5);
-		}
-		++player;
-	}
-	mMessageFactory->DestroyMessage(message);
-
-	// _sendToInstancedPlayers(mMessageFactory->EndMessage(),5, player);
 }
 
 

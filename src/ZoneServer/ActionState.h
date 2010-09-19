@@ -69,6 +69,7 @@ protected:
     bool					mHidden;
     transitionList          mTransitionList;
     CreatureState	        mStateID;
+    uint32                  mClientEffectID;
 };
 #endif
 
@@ -262,7 +263,7 @@ class StateSwimming:
 {
 public:
     explicit StateSwimming(StateManager* const sm);
-    //void Enter(CreatureObject* obj);
+    void Enter(CreatureObject* obj);
 };
 /*	SittingOnChair State
 *
@@ -413,4 +414,14 @@ class StatePilotingPobShip:
 public:
     explicit StatePilotingPobShip(StateManager* const sm);
     //void Enter(CreatureObject* obj);
+};
+/*  ClearStates State
+*
+*/
+class StateClear:
+    public ActionState
+{
+public:
+    explicit StateClear(StateManager* const sm);
+    void Enter(CreatureObject* obj);
 };

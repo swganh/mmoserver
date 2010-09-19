@@ -831,10 +831,6 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 player->getSampleData()->mPassRadioactive = false;
                 player->getSampleData()->mPendingSample = false;
                 gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
-                player->updateMovementProperties();
-                gMessageLib->sendUpdateMovementProperties(player);
-                gMessageLib->sendPostureAndStateUpdate(player);
-                gMessageLib->sendSelfPostureUpdate(player);
                 return;
             }
             else
@@ -901,10 +897,6 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     if(!ham->checkMainPools(0,mSampleActionCost*2,0))
                     {
                         gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
-                        player->updateMovementProperties();
-                        gMessageLib->sendUpdateMovementProperties(player);
-                        gMessageLib->sendPostureAndStateUpdate(player);
-                        gMessageLib->sendSelfPostureUpdate(player);
                         player->getSampleData()->mSampleEventFlag = false;
                         player->getSampleData()->mSampleGambleFlag = false;
                         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_no_action"), player);
@@ -960,13 +952,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_waypoint"), player);
 
                     gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
-                    player->updateMovementProperties();
-                    gMessageLib->sendUpdateMovementProperties(player);
-                    gMessageLib->sendPostureAndStateUpdate(player);
-                    gMessageLib->sendSelfPostureUpdate(player);
-
-                    
-                return;
+                    return;
                 }
                 //we ignored the node - so continue sampling
                 if(element == 0)
@@ -994,11 +980,6 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 player->getSampleData()->zone		= 0;
 
                 gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
-                player->updateMovementProperties();
-                gMessageLib->sendUpdateMovementProperties(player);
-                gMessageLib->sendPostureAndStateUpdate(player);
-                gMessageLib->sendSelfPostureUpdate(player);
-
                 return;				
             }
         }

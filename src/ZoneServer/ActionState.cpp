@@ -48,9 +48,9 @@ void ActionState::Exit(CreatureObject* obj)
     obj->states.toggleActionOff(mStateID);
 }
 bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
-{
+{ 
     // check to see if the layer is blocked
-    if (obj->states.blockAction)
+    if (obj->states.blockLocomotion)
         return false;
     transitionList::iterator itPosture    = mTransitionList.find(State_Posture);
     transitionList::iterator itAction     = mTransitionList.find(State_Action);
@@ -61,7 +61,7 @@ bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
     {
         // are we allowed to transition based on posture?
         CreaturePosture pos = (CreaturePosture)(*itPosture).second;
-        if (pos == obj->states.getPosture())
+        if (obj->states.checkPosture(pos))
         {
             return false;
         }
@@ -70,7 +70,7 @@ bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
     while (itAction != mTransitionList.end())
     {
         uint64 state = (*itAction).second;
-        if ((state & obj->states.getAction()) != obj->states.getAction())
+        if (obj->states.checkStates(state))
         {
             return false;
         }
@@ -79,7 +79,7 @@ bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
     while (itLocomotion != mTransitionList.end())
     {
        uint32 locomotion = (*itLocomotion).second;
-        if (locomotion == obj->states.getLocomotion())
+        if (obj->states.checkLocomotion(locomotion))
         {
             return false;
         }
@@ -99,7 +99,8 @@ void ActionState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& 
 // StateCover
 StateCover::StateCover(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Cover;
+    mStateID            = CreatureState_Cover;
+    mClientEffectID     = 199;  
 
     loadCommonLocomotionList(mTransitionList);
     insertLocomotion,CreatureLocomotion_Sitting));
@@ -354,6 +355,11 @@ StateSwimming::StateSwimming(StateManager* const sm) : ActionState(sm)
 
     loadCommonActionList(mTransitionList);
 }
+void StateSwimming::Enter(CreatureObject* obj)
+{
+    actionMap[CreatureState_OnFire]->Exit(obj);
+    obj->states.toggleActionOn(mStateID);
+}
 // SittingOnaChair State
 StateSittingOnChair::StateSittingOnChair(StateManager* const sm) : ActionState(sm)
 {
@@ -489,6 +495,10 @@ StateOnFire::StateOnFire(StateManager* const sm) : ActionState(sm)
 
     loadCommonActionList(mTransitionList);
 }
+//void StateOnFire::Enter(CreatureObject* obj)
+//{
+//    actionMap[CreatureState_Peace]->Exit(obj);
+//}
 // RidingMount State
 StateRidingMount::StateRidingMount(StateManager* const sm) : ActionState(sm)
 {
@@ -565,4 +575,13 @@ StatePilotingPobShip::StatePilotingPobShip(StateManager* const sm) : ActionState
     insertLocomotion,CreatureLocomotion_Blocking));
 
     loadCommonActionList(mTransitionList);
+}
+// StateClear State
+StateClear::StateClear(StateManager* const sm) : ActionState(sm)
+{
+    mStateID = (CreatureState)0;
+}
+void StateClear::Enter(CreatureObject* obj)
+{
+    obj->states.clearAllStates();
 }

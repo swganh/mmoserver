@@ -180,6 +180,7 @@ class CreatureObject : public MovingObject
             // locomotion states
             uint32          getLocomotion() { return locomotion; }
             void            setLocomotion(uint32 loco) { locomotion = loco; }
+            bool			checkLocomotion(uint32 loco) const { return (locomotion == loco); }
             // action states
             uint64          getAction(){return action;}
             void            toggleActionOn(CreatureState state){ action = action | state; }
@@ -187,6 +188,8 @@ class CreatureObject : public MovingObject
             bool            checkState(CreatureState state){ return ((action & state) == state); }
             bool            checkStates(uint64 states){ return ((action & states) == states); }
             bool            checkStatesEither(uint64 states){ return ((action & states) != 0); }
+            // clear states, do not call directly
+            void            clearAllStates() { action = 0;}
         } states;
         //// OLD WAY OF DOING STATES
         //// states

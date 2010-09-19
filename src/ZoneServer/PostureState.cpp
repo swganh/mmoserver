@@ -54,9 +54,9 @@ void PostureState::Exit(CreatureObject* obj)
     obj->states.setPosture(0);
 }
 bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
-{
+{ 
     // check to see if the layer is blocked
-    if (obj->states.blockPosture)
+    if (obj->states.blockLocomotion)
         return false;
     transitionList::iterator itPosture    = mTransitionList.find(State_Posture);
     transitionList::iterator itAction     = mTransitionList.find(State_Action);
@@ -67,7 +67,7 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     {
         // are we allowed to transition based on posture?
         CreaturePosture pos = (CreaturePosture)(*itPosture).second;
-        if (pos == obj->states.getPosture())
+        if (obj->states.checkPosture(pos))
         {
             return false;
         }
@@ -76,7 +76,7 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     while (itAction != mTransitionList.end())
     {
         uint64 state = (*itAction).second;
-        if ((state & obj->states.getAction()) != obj->states.getAction())
+        if (obj->states.checkStates(state))
         {
             return false;
         }
@@ -84,8 +84,8 @@ bool PostureState::CanTransition(CreatureObject* obj, uint64 newPosture)
     }
     while (itLocomotion != mTransitionList.end())
     {
-        uint32 locomotion = (*itLocomotion).second;
-        if (locomotion == obj->states.getLocomotion())
+       uint32 locomotion = (*itLocomotion).second;
+        if (obj->states.checkLocomotion(locomotion))
         {
             return false;
         }

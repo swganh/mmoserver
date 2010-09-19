@@ -59,7 +59,7 @@ bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionSta
     {
         // are we allowed to transition based on posture?
         CreaturePosture pos = (CreaturePosture)(*itPosture).second;
-        if (pos == obj->states.getPosture())
+        if (obj->states.checkPosture(pos))
         {
             return false;
         }
@@ -68,7 +68,7 @@ bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionSta
     while (itAction != mTransitionList.end())
     {
         uint64 state = (*itAction).second;
-        if ((state & obj->states.getAction()) != obj->states.getAction())
+        if (obj->states.checkStates(state))
         {
             return false;
         }
@@ -77,7 +77,7 @@ bool LocomotionState::CanTransition(CreatureObject* obj, uint64 newLocomotionSta
     while (itLocomotion != mTransitionList.end())
     {
        uint32 locomotion = (*itLocomotion).second;
-        if (locomotion == obj->states.getLocomotion())
+        if (obj->states.checkLocomotion(locomotion))
         {
             return false;
         }

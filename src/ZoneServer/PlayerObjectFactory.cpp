@@ -652,9 +652,9 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer Posture = %u", playerObject->states.getPosture());
 	// gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer State = %"PRIu64"", playerObject->getState());
 
-	gStateManager.setCurrentPostureState(playerObject,CreaturePosture_Upright);
+	playerObject->states.setPosture(CreaturePosture_Upright);
 
-	//Just set mStates to Zero on initialization ??????????????????????????????????????????????????????
+    //Just set mStates to Zero on initialization ?
 	//However states are saved to db -character_attributes.character_flags-
 
 	// We also have quite a lot of state possibilities that we should not let our character have at startup.

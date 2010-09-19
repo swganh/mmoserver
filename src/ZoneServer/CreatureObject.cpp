@@ -656,7 +656,8 @@ void CreatureObject::updateRaceGenderMask(bool female)
 }
 void CreatureObject::creatureActionStateUpdate()
 {
-    gMessageLib->sendStateUpdate(this);
+    gMessageLib->sendStateUpdate(this); 
+    
 }
 void CreatureObject::creaturePostureUpdate()
 {
@@ -726,8 +727,7 @@ void CreatureObject::incap()
         {
             // update the posture and locomotion
             gStateManager.setCurrentPostureState(this, CreaturePosture_Incapacitated);
-            mPosture = CreaturePosture_Incapacitated;
-            //setLocomotionByPosture(mPosture);
+            gStateManager.setCurrentActionState(this, CreatureState_ClearState);
 
             // send timer updates
             mCurrentIncapTime = gWorldConfig->getBaseIncapTime() * 1000;
@@ -736,23 +736,20 @@ void CreatureObject::incap()
             // schedule recovery event
             mObjectController.addEvent(new IncapRecoveryEvent(),mCurrentIncapTime);
 
-            // reset states
-            mState = 0;
-
             // reset ham regeneration
             mHam.updateRegenRates();
             gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
             mHam.setTaskId(0);
 
-            updateMovementProperties();
+            //updateMovementProperties();
 
-            gMessageLib->sendPostureAndStateUpdate(this);
+            //gMessageLib->sendPostureAndStateUpdate(this);
 
-            if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
-            {
-                gMessageLib->sendUpdateMovementProperties(player);
-                gMessageLib->sendSelfPostureUpdate(player);
-            }
+            //if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
+            //{
+            //    gMessageLib->sendUpdateMovementProperties(player);
+            //    gMessageLib->sendSelfPostureUpdate(player);
+            //}
         }
         // we hit the max -> death
         else
@@ -787,9 +784,6 @@ void CreatureObject::die()
         player->disableAutoAttack();
     }
 
-    mPosture = CreaturePosture_Dead;
-    //setLocomotionByPosture(mPosture);
-
     // reset ham regeneration
     mHam.updateRegenRates();
     gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
@@ -797,16 +791,16 @@ void CreatureObject::die()
 
     updateMovementProperties();
 
+    gStateManager.setCurrentPostureState(this, CreaturePosture_Dead);
     // clear states
-    mState = 0;
-    states.action = 0;
+    gStateManager.setCurrentActionState(this, CreatureState_ClearState);
 
-    gMessageLib->sendPostureAndStateUpdate(this);
+    //gMessageLib->sendPostureAndStateUpdate(this);
 
     if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
     {
-        gMessageLib->sendUpdateMovementProperties(player);
-        gMessageLib->sendSelfPostureUpdate(player);
+        /*gMessageLib->sendUpdateMovementProperties(player);
+        gMessageLib->sendSelfPostureUpdate(player);*/
 
         // update duel lists
         player->clearDuelList();

@@ -78,6 +78,7 @@ void StateManager::loadActionStateMap()
     mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_ShipGunner, std::unique_ptr<ActionState>(new StateShipGunner(this))));
     mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_ShipOperations, std::unique_ptr<ActionState>(new StateShipInterior(this))));
     mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_PilotingShip, std::unique_ptr<ActionState>(new StatePilotingPobShip(this))));
+    mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_ClearState, std::unique_ptr<ActionState>(new StateClear(this))));
 }
 void StateManager::loadPostureStateMap()
 {

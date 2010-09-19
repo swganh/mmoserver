@@ -27,36 +27,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/ActiveObject.h"
 
-#include <boost/thread.hpp>
-
-using ::boost::thread;
+using boost::thread;
 
 namespace utils {
 
 ActiveObject::ActiveObject() : done_(false) {
-    thread_ = std::unique_ptr<thread>(
-                  new thread([=] { this->Run(); }));
+    thread_ = std::move(thread([=] { this->Run(); }));
 }
 
 ActiveObject::~ActiveObject() {
     Send([&] { done_ = true; });
-    thread_->join();
+    thread_.join();
 }
 
 void ActiveObject::Send(Message message) {
     message_queue_.push(message);
+    condition_.notify_one();
 }
 
 void ActiveObject::Run() {
     Message message;
 
     while (! done_) {
-        if (message_queue_.pop(message)) {
-            message();
+        boost::unique_lock<boost::mutex> lock(mutex_);
+        while (!message_queue_.pop(message)) {
+            condition_.wait(lock);
         }
 
-        // @note: Yield here to give the rest of the processing time back to the OS.
-        boost::this_thread::yield();
+        message();
     }
 }
 

@@ -213,7 +213,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Remove_Permission, 0);
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_RemovePermissionList(%I64u,'%s','%s')",structureId,playerName,list.getAnsi());
-  
+
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
     sprintf(asyncContainer->name,"%s",name.getAnsi());
@@ -246,7 +246,7 @@ void StructureManager::addNametoPermissionList(uint64 structureId, uint64 player
     sprintf(asyncContainer->name,"%s",name.getAnsi());
 
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_AddPermissionList(%"PRIu64",'%s','%s')",structureId,playerName,list.getAnsi());
-    
+
 
     // 0 is sucess
     // 1 name doesnt exist
@@ -580,6 +580,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
                 {
                     if (house->getCellContentCount() > 0)
                     {
+                        house->toggleStateOff(PlayerStructureState_Destroy);
                         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_building_for_delete"), player);
                         it = objectList->erase(it);
                         continue;
@@ -596,7 +597,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
                 int8 sql[150];
                 sprintf(sql,"select sf_DefaultHarvesterUpdateDeed(%"PRIu64",%"PRIu64")", structure->getId(),structure->getOwner()+INVENTORY_OFFSET);
                 mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-                
+
 
             }
             else
@@ -609,6 +610,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
                 {
                     if (house->getCellContentCount() > 0)
                     {
+                        house->toggleStateOff(PlayerStructureState_Destroy);
                         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "clear_building_for_delete"), player);
                         it = objectList->erase(it);
                         continue;
@@ -707,7 +709,7 @@ void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 player
     asyncContainer->mPlayerId = playerId;
 
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'HOPPER'",structureId);
-    
+
 
 }
 
@@ -744,7 +746,7 @@ void StructureManager::OpenStructureEntryList(uint64 structureId, uint64 playerI
     asyncContainer->mPlayerId = playerId;
 
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'Entry'",structureId);
-    
+
 }
 
 
@@ -763,7 +765,7 @@ void StructureManager::OpenStructureBanList(uint64 structureId, uint64 playerId)
     asyncContainer->mPlayerId = playerId;
 
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'BAN'",structureId);
-    
+
 
 }
 
@@ -868,7 +870,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
         //now turn the factory on - in db and otherwise
         mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 0 WHERE f.ID = %I64u",command.StructureId);
-        
+
         gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
     }
@@ -896,7 +898,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
         //now turn the factory on - in db and otherwise
         mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 1 WHERE f.ID = %I64u",command.StructureId);
-        
+
         gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
     }
@@ -1091,9 +1093,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
         //link the schematic to the factory in the db
         mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = %I64u WHERE ID = %I64u",command.SchematicId,command.StructureId);
-        
+
         mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId);
-        
+
 
         //remove the schematic from the player
 
@@ -1125,7 +1127,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
                                    "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
                                    "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
                                    ,command.StructureId);
-       
+
     }
     break;
 
@@ -1160,7 +1162,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
                                    "UNION (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
                                    "UNION (SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
                                    " ",structure->getOwner(),command.StructureId,command.StructureId);
-        
+
     }
     break;
 
@@ -1176,7 +1178,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         mDatabase->ExecuteSqlAsync(this,asyncContainer,
                                    "(SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
                                    ,structure->getId());
-        
+
     }
     break;
 
@@ -1191,7 +1193,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->ExecuteSqlAsync(this,asyncContainer,"(SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
                                    " UNION (SELECT \'condition\', s.condition FROM structures s WHERE s.id = %"PRIu64")",structure->getId(),structure->getId());
-     }
+    }
     break;
 
     // callback for retrieving a variable amount of the selected resource
@@ -1206,7 +1208,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
         //mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
-        
+
 
     }
     break;
@@ -1409,7 +1411,7 @@ void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
     asyncContainer->mTargetId = command.RecipientId;
 
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",command.PlayerId);
-    
+
 }
 
 uint32 StructureManager::getCurrentPower(PlayerObject* player)
@@ -1506,7 +1508,7 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
                 {
                     gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
                     mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
-                    
+
                 }
 
 
@@ -1561,7 +1563,7 @@ void StructureManager::UpdateCharacterLots(uint64 charId)
     asyncContainer->mPlayerId = charId;
 
     mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",charId);
-    
+
 }
 
 //======================================================================================================================

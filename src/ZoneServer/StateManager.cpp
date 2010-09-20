@@ -101,7 +101,7 @@ void StateManager::loadPostureStateMap()
 
 void StateManager::loadLocomotionStateMap()
 {
-    mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Standing, std::unique_ptr<LocomotionState>(new LocomotionStanding(this))));
+   mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Standing, std::unique_ptr<LocomotionState>(new LocomotionStanding(this))));
     mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Sneaking, std::unique_ptr<LocomotionState>(new LocomotionSneaking(this))));
     mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Walking, std::unique_ptr<LocomotionState>(new LocomotionWalking(this))));
     mLocomotionStateMap.insert(std::make_pair<CreatureLocomotion, std::unique_ptr<LocomotionState>>(CreatureLocomotion_Running, std::unique_ptr<LocomotionState>(new LocomotionRunning(this))));

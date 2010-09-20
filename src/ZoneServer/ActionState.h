@@ -69,7 +69,6 @@ protected:
     bool					mHidden;
     transitionList          mTransitionList;
     CreatureState	        mStateID;
-    uint32                  mClientEffectID;
 };
 #endif
 

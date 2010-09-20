@@ -232,6 +232,23 @@ void MessageLib::sendperformFlourish(PlayerObject* playerObject,uint32 flourish)
 
     _sendToInRange(mMessageFactory->EndMessage(),playerObject,5);
 }
+//======================================================================================================================
+//
+// animate a creature
+//
+
+void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,const std::string& animation)
+{
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000001B);
+    mMessageFactory->addUint32(opSendAnimation);
+    mMessageFactory->addUint64(srcObject->getId());
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addString(animation);
+
+    _sendToInRange(mMessageFactory->EndMessage(),srcObject,5);
+}
 
 //======================================================================================================================
 //
@@ -1314,31 +1331,31 @@ bool MessageLib::sendDraftSchematicsList(CraftingTool* tool,PlayerObject* player
     SchematicsIdList*			filteredIdList = playerObject->getFilteredSchematicsIdList();
     SchematicsIdList::iterator	schemIt		= schemIdList->begin();
     DraftSchematic*				schematic;
-	
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opDraftSchematics);
-	mMessageFactory->addUint64(playerObject->getId());
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint64(tool->getId());
-	mMessageFactory->addUint64(0); // station ?
+    
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000000B);
+    mMessageFactory->addUint32(opDraftSchematics);
+    mMessageFactory->addUint64(playerObject->getId());
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addUint64(tool->getId());
+    mMessageFactory->addUint64(0); // station ?
 
-	// filter by tool / station properties
-	uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");
+    // filter by tool / station properties
+    uint32 toolGroupMask		= tool->getInternalAttribute<uint32>("craft_tool_typemask");
 
-	uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + stationComplexity
-	uint64 station = playerObject->getNearestCraftingStation();
-	if(station)
-	{
-		//TODO: check for droids
-		if(playerObject->isNearestCraftingStationPrivate(station))
-		{
-			availableComplexity = 90;
-		}
-		else
-			availableComplexity = 25;
-	}
+    uint32 availableComplexity	= tool->getInternalAttribute<uint32>("complexity"); // + stationComplexity
+    uint64 station = playerObject->getNearestCraftingStation();
+    if(station)
+    {
+        //TODO: check for droids
+        if(playerObject->isNearestCraftingStationPrivate(station))
+        {
+            availableComplexity = 90;
+        }
+        else
+            availableComplexity = 25;
+    }
 
     uint32 filteredCount		= 0;
     uint32 subCategory			= 0;

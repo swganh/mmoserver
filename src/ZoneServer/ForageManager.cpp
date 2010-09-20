@@ -169,7 +169,7 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 	player->setForaging(true);
 
 	//Starts the Foraging Animation
-	gMessageLib->sendCreatureAnimation(player, "forage");
+	gMessageLib->sendCreatureAnimation(player, std::string("forage"));
 
 	//Use up some action!
 	player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, -100);

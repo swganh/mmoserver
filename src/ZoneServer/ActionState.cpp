@@ -41,7 +41,6 @@ ActionState::ActionState(StateManager* const sm) : IState(),
 void ActionState::Enter(CreatureObject* obj)
 {
     obj->states.toggleActionOn(mStateID);
-    mTransitionList.clear();
 }
 void ActionState::Exit(CreatureObject* obj)
 {
@@ -50,7 +49,7 @@ void ActionState::Exit(CreatureObject* obj)
 bool ActionState::CanTransition(CreatureObject* obj, uint64 newState)
 { 
     // check to see if the layer is blocked
-    if (obj->states.blockLocomotion)
+    if (obj->states.blockAction)
         return false;
     transitionList::iterator itPosture    = mTransitionList.find(State_Posture);
     transitionList::iterator itAction     = mTransitionList.find(State_Action);
@@ -100,7 +99,7 @@ void ActionState::insertIntoTransitionList(const std::pair<StateTypes, uint64>& 
 StateCover::StateCover(StateManager* const sm) : ActionState(sm)
 {
     mStateID            = CreatureState_Cover;
-    mClientEffectID     = 199;  
+    //mClientEffect       = "clienteffect/combat_special_attacker_cover.cef";
 
     loadCommonLocomotionList(mTransitionList);
     insertLocomotion,CreatureLocomotion_Sitting));
@@ -171,7 +170,8 @@ void StatePeace::Enter(CreatureObject* obj)
 // State Aiming
 StateAiming::StateAiming(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Aiming;
+    mStateID            = CreatureState_Aiming;
+    ////mClientEffect       = "clienteffect/combat_special_attacker_aim.cef";
 
     loadCommonLocomotionList(mTransitionList);
     insertLocomotion,CreatureLocomotion_Sitting));
@@ -196,7 +196,8 @@ StateAlert::StateAlert(StateManager* const sm) : ActionState(sm)
 // Berserk State
 StateBerserk::StateBerserk(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Berserk;
+    mStateID            = CreatureState_Berserk;
+    //mClientEffect       = "clienteffect/combat_special_attacker_berserk.cef";
 
     loadCommonLocomotionList(mTransitionList);
     insertLocomotion,CreatureLocomotion_Sitting));
@@ -283,7 +284,8 @@ StateTumbling::StateTumbling(StateManager* const sm) : ActionState(sm)
 // Rallied State
 StateRallied::StateRallied(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Rallied;
+    mStateID      = CreatureState_Rallied;
+    //mClientEffect = "clienteffect/combat_special_defender_rally.cef";
 
     loadCommonLocomotionList(mTransitionList);
     insertLocomotion,CreatureLocomotion_Sitting));
@@ -292,7 +294,8 @@ StateRallied::StateRallied(StateManager* const sm) : ActionState(sm)
 // Stunned State
 StateStunned::StateStunned(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Stunned;
+    mStateID        = CreatureState_Stunned;
+    //mClientEffect   = "clienteffect/combat_special_defender_stun.cef";
 
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
@@ -303,12 +306,20 @@ StateStunned::StateStunned(StateManager* const sm) : ActionState(sm)
 // Blinded State
 StateBlinded::StateBlinded(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Blinded;
+    mStateID        = CreatureState_Blinded;
+    //mClientEffect   = "clienteffect/combat_special_defender_blind.cef";
+
+    insertLocomotion,CreatureLocomotion_Dead));
+    insertLocomotion,CreatureLocomotion_Incapacitated));
+    insertLocomotion,CreatureLocomotion_Blocking));
+
+    loadCommonActionList(mTransitionList);
 }
 // Dizzy State
 StateDizzy::StateDizzy(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Dizzy;
+    mStateID        = CreatureState_Dizzy;
+    //mClientEffect   = "clienteffect/combat_special_defender_dizzy.cef";
     
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
@@ -319,7 +330,9 @@ StateDizzy::StateDizzy(StateManager* const sm) : ActionState(sm)
 // Intimidated State
 StateIntimidated::StateIntimidated(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Intimidated;
+    mStateID        = CreatureState_Intimidated;
+    //mClientEffect   = "clienteffect/combat_special_defender_intimidate.cef";
+    //349, clienteffect/combat_special_attacker_intimidate.cef
     
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
@@ -331,7 +344,7 @@ StateIntimidated::StateIntimidated(StateManager* const sm) : ActionState(sm)
 StateImmobolized::StateImmobolized(StateManager* const sm) : ActionState(sm)
 {
     mStateID = CreatureState_Immobilized;
-    
+
     insertLocomotion,CreatureLocomotion_Dead));
     
     loadCommonActionList(mTransitionList);
@@ -454,7 +467,8 @@ StateMaskScent::StateMaskScent(StateManager* const sm) : ActionState(sm)
 // Poisoned State
 StatePoisoined::StatePoisoined(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Poisoned;
+    mStateID        = CreatureState_Poisoned;
+    //mClientEffect   = "clienteffect/dot_poisoned.cef";
 
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
@@ -465,7 +479,8 @@ StatePoisoined::StatePoisoined(StateManager* const sm) : ActionState(sm)
 // Bleeding State
 StateBleeding::StateBleeding(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Bleeding;
+    mStateID        = CreatureState_Bleeding;
+    //mClientEffect   = "clienteffect/dot_bleeding.cef";
 
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
@@ -476,7 +491,8 @@ StateBleeding::StateBleeding(StateManager* const sm) : ActionState(sm)
 // Diseased State
 StateDiseased::StateDiseased(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Diseased;
+    mStateID        = CreatureState_Diseased;
+    //mClientEffect   = "clienteffect/dot_diseased.cef";
 
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
@@ -487,8 +503,9 @@ StateDiseased::StateDiseased(StateManager* const sm) : ActionState(sm)
 // OnFire State
 StateOnFire::StateOnFire(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_OnFire;
-    
+    mStateID        = CreatureState_OnFire;
+    //mClientEffect   = "clienteffect/dot_fire.cef";
+
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
     insertLocomotion,CreatureLocomotion_Blocking));

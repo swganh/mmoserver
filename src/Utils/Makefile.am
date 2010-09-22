@@ -1,9 +1,9 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS) @AM_CXXFLAGS@
 
 # Utils library - noinstall shared library
 noinst_LTLIBRARIES = libutils.la
 libutils_la_SOURCES = \
-	bstring.cpp \
+  bstring.cpp \
   clock.cpp \
   EventHandler.cpp \
   rand.cpp \

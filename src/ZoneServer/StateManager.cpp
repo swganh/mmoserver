@@ -77,7 +77,7 @@ void StateManager::loadActionStateMap()
     mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_ShipOperations, std::unique_ptr<ActionState>(new StateShipOperations(this))));
     mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_ShipGunner, std::unique_ptr<ActionState>(new StateShipGunner(this))));
     mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_ShipOperations, std::unique_ptr<ActionState>(new StateShipInterior(this))));
-    mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_PilotingShip, std::unique_ptr<ActionState>(new StatePilotingPobShip(this))));
+    mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_PilotingPobShip, std::unique_ptr<ActionState>(new StatePilotingPobShip(this))));
     mActionStateMap.insert(std::make_pair<CreatureState, std::unique_ptr<ActionState>>(CreatureState_ClearState, std::unique_ptr<ActionState>(new StateClear(this))));
 }
 void StateManager::loadPostureStateMap()
@@ -140,8 +140,14 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
             // ENTER NEW STATE
             mPostureStateMap[newPosture]->Enter(object);
         }
+        else
+        {
+            // send command queue remove message back to client (ie: you can't do x while y)
+            auto posture_error_event = std::make_shared<PostureUpdateEvent>(object->getId(), (CreaturePosture)object->states.getPosture(), newPosture);
+            gEventDispatcher.Notify(posture_error_event);
+        }
+        gEventDispatcher.Notify(posture_update_event);
     } 
-    gEventDispatcher.Notify(posture_update_event);
 }
 
 void StateManager::setCurrentActionState(CreatureObject* object, CreatureState newState)
@@ -163,8 +169,14 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
             // Enter new State
             mActionStateMap[newState]->Enter(object);
         }
+        else
+        {
+            // send command queue remove message back to client (ie: you can't do x while y)
+            auto action_error_event = std::make_shared<ActionStateUpdateEvent>(object->getId(), object->states.getAction(), newState);
+            gEventDispatcher.Notify(action_error_event);
+        }
+        gEventDispatcher.Notify(action_update_event);
     }
-    gEventDispatcher.Notify(action_update_event);
 }
 
 void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLocomotion newLocomotion)
@@ -181,8 +193,14 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
             // Enter new State
             mActionStateMap[newLocomotion]->Enter(object);
         }
+        else
+        {
+            // send command queue remove message back to client (ie: you can't do x while y)
+            auto locomotion_error_event = std::make_shared<LocomotionStateUpdateEvent>(object->getId(), (CreatureLocomotion)object->states.getLocomotion(), newLocomotion);
+            gEventDispatcher.Notify(locomotion_error_event);
+        }
+        gEventDispatcher.Notify(locomotion_update_event);
     }
-    gEventDispatcher.Notify(locomotion_update_event);
 }
 void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToRemove)
 {

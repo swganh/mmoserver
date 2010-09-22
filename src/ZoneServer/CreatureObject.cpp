@@ -656,7 +656,7 @@ void CreatureObject::updateRaceGenderMask(bool female)
 }
 void CreatureObject::creatureActionStateUpdate()
 {
-    gMessageLib->sendStateUpdate(this); 
+    gMessageLib->sendPostureAndStateUpdate(this);
     
 }
 void CreatureObject::creaturePostureUpdate()

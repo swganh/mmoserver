@@ -524,6 +524,7 @@ StateRidingMount::StateRidingMount(StateManager* const sm) : ActionState(sm)
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
     insertLocomotion,CreatureLocomotion_Blocking));
+    insertAction,CreatureState_MountedCreature));
 
     loadCommonActionList(mTransitionList);
 }
@@ -535,6 +536,7 @@ StateMountedCreature::StateMountedCreature(StateManager* const sm) : ActionState
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
     insertLocomotion,CreatureLocomotion_Blocking));
+    insertAction,CreatureState_RidingMount));
 
     loadCommonActionList(mTransitionList);
 }

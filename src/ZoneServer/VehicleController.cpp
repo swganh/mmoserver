@@ -259,8 +259,8 @@ void VehicleController::DismountPlayer() {
     //For safe measures make the player equipped by nothing
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
    
-    gStateManager.setCurrentPostureState(owner_,CreaturePosture_Upright);
-    gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_Standing);
+    //gStateManager.setCurrentPostureState(owner_,CreaturePosture_Upright);
+    //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_Standing);
 
     owner_->setMounted(false);
     
@@ -286,8 +286,8 @@ void VehicleController::MountPlayer()
     gMessageLib->sendStateUpdate(body_);
 
     gStateManager.setCurrentActionState(owner_,CreatureState_RidingMount);
-    gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
-    gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
+    //gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
+    //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
 
     owner_->setMounted(true);
     

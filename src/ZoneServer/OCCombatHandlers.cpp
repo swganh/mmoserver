@@ -54,64 +54,64 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		player	= dynamic_cast<PlayerObject*>(mObject);
-	Object*				target	= gWorldManager->getObjectById(targetId);
+    PlayerObject*		player	= dynamic_cast<PlayerObject*>(mObject);
+    Object*				target	= gWorldManager->getObjectById(targetId);
 
-	// make sure we got a target and that its a player
-	if(target && target->getType() == ObjType_Player)
-	{
-		PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
+    // make sure we got a target and that its a player
+    if(target && target->getType() == ObjType_Player)
+    {
+        PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
 
-		// don't duel ourself
-		if(player == targetPlayer || targetPlayer->isDead() || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
-		{
-			return;
-		}
+        // don't duel ourself
+        if(player == targetPlayer || targetPlayer->isDead() || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
+        {
+            return;
+        }
 
-		// check if he's already in our duel list
-		if(player->checkDuelList(targetPlayer))
-		{
-			// TODO: add id
+        // check if he's already in our duel list
+        if(player->checkDuelList(targetPlayer))
+        {
+            // TODO: add id
             gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "already_challenged", 0, targetId, 0), player);
-			return;
-		}
-		// add him to our list
-		else
-		{
-			// check if he already challenged us
-			if(targetPlayer->checkDuelList(player))
-			{
-				player->addToDuelList(targetPlayer);
+            return;
+        }
+        // add him to our list
+        else
+        {
+            // check if he already challenged us
+            if(targetPlayer->checkDuelList(player))
+            {
+                player->addToDuelList(targetPlayer);
 
-				// start the duel
-				gMessageLib->sendUpdatePvpStatus(player,targetPlayer,player->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
-				gMessageLib->sendUpdatePvpStatus(targetPlayer,player,targetPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
+                // start the duel
+                gMessageLib->sendUpdatePvpStatus(player,targetPlayer,player->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
+                gMessageLib->sendUpdatePvpStatus(targetPlayer,player,targetPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
                 
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "accept_self", 0, targetId, 0), player);
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "accept_target", 0, player->getId(), 0), targetPlayer);
-			}
-			// challenge him
-			else
-			{
-				// If target have me ignored, auto decline the invitation.
-				BString ignoreName = player->getFirstName();
-				ignoreName.toLower();
+            }
+            // challenge him
+            else
+            {
+                // If target have me ignored, auto decline the invitation.
+                BString ignoreName = player->getFirstName();
+                ignoreName.toLower();
 
-				// check our ignorelist
-				if(targetPlayer->checkIgnoreList(ignoreName.getCrc()))
-				{
+                // check our ignorelist
+                if(targetPlayer->checkIgnoreList(ignoreName.getCrc()))
+                {
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "reject_target", 0, targetId, 0), player);
-				}
-				else
-				{
-					player->addToDuelList(targetPlayer);
+                }
+                else
+                {
+                    player->addToDuelList(targetPlayer);
                     
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "challenge_self", 0, targetId, 0), player);
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "challenge_target", 0, player->getId(), 0), targetPlayer);
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 }
 
 //=============================================================================================================================
@@ -121,68 +121,68 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
 
 void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		player	= dynamic_cast<PlayerObject*>(mObject);
-	Object*				target	= gWorldManager->getObjectById(targetId);
+    PlayerObject*		player	= dynamic_cast<PlayerObject*>(mObject);
+    Object*				target	= gWorldManager->getObjectById(targetId);
 
-	// make sure we got a target and that its a player
-	if(target && target->getType() == ObjType_Player)
-	{
-		PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
+    // make sure we got a target and that its a player
+    if(target && target->getType() == ObjType_Player)
+    {
+        PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
 
-		// are we dueling him
-		if(!player->checkDuelList(targetPlayer))
-		{
-			// nop
+        // are we dueling him
+        if(!player->checkDuelList(targetPlayer))
+        {
+            // nop
             gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "not_dueling", 0, targetId, 0), player);
-			return;
-		}
-		// remove him from our list
-		else
-		{
-			player->removeFromDuelList(targetPlayer);
+            return;
+        }
+        // remove him from our list
+        else
+        {
+            player->removeFromDuelList(targetPlayer);
 
-			// see if he was dueling us
-			if(targetPlayer->checkDuelList(player))
-			{
-				// remove us from the other guys list
-				targetPlayer->removeFromDuelList(player);
+            // see if he was dueling us
+            if(targetPlayer->checkDuelList(player))
+            {
+                // remove us from the other guys list
+                targetPlayer->removeFromDuelList(player);
 
-				// end the duel
-				gMessageLib->sendUpdatePvpStatus(player,targetPlayer);
-				gMessageLib->sendUpdatePvpStatus(targetPlayer,player);
+                // end the duel
+                gMessageLib->sendUpdatePvpStatus(player,targetPlayer);
+                gMessageLib->sendUpdatePvpStatus(targetPlayer,player);
                 
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "end_self", 0, targetId, 0), player);
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "end_target", 0, player->getId(), 0), targetPlayer);
 
-				// also clear the defender list and combat states
-				if (player->checkDefenderList(targetPlayer->getId()))
-				{
-					// player->removeDefender(targetPlayer);
-					// gMessageLib->sendDefenderUpdate(player,0,0,targetPlayer->getId());
-					player->removeDefenderAndUpdateList(targetPlayer->getId());
+                // also clear the defender list and combat states
+                if (player->checkDefenderList(targetPlayer->getId()))
+                {
+                    // player->removeDefender(targetPlayer);
+                    // gMessageLib->sendDefenderUpdate(player,0,0,targetPlayer->getId());
+                    player->removeDefenderAndUpdateList(targetPlayer->getId());
 
-					// no more defenders, end combat
-					if(player->getDefenders()->empty())
-					{
+                    // no more defenders, end combat
+                    if(player->getDefenders()->empty())
+                    {
                         gStateManager.setCurrentActionState(player, CreatureState_Peace);
-					}
-				}
-
-				if (targetPlayer->checkDefenderList(player->getId()))
-				{
-					// targetPlayer->removeDefender(player);
-					// gMessageLib->sendDefenderUpdate(targetPlayer,0,0,player->getId());
-					targetPlayer->removeDefenderAndUpdateList(player->getId());
-
-					// no more defenders, end combat
-					if(targetPlayer->getDefenders()->empty())
-					{
-						gStateManager.setCurrentActionState(player, CreatureState_Peace);
                     }
-				}
-			}
-		}
-	}
+                }
+
+                if (targetPlayer->checkDefenderList(player->getId()))
+                {
+                    // targetPlayer->removeDefender(player);
+                    // gMessageLib->sendDefenderUpdate(targetPlayer,0,0,player->getId());
+                    targetPlayer->removeDefenderAndUpdateList(player->getId());
+
+                    // no more defenders, end combat
+                    if(targetPlayer->getDefenders()->empty())
+                    {
+                        gStateManager.setCurrentActionState(player, CreatureState_Peace);
+                    }
+                }
+            }
+        }
+    }
 }
 
 //=============================================================================================================================
@@ -196,46 +196,46 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 
 void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-	if (player)
-	{
-		// player->removeAllDefender();
-		player->mDefenders.clear();
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    if (player)
+    {
+        // player->removeAllDefender();
+        player->mDefenders.clear();
 
-		gMessageLib->sendBaselinesCREO_6(player,player);
-		gMessageLib->sendEndBaselines(player->getPlayerObjId(),player);
-		
-		// gMessageLib->sendDefenderUpdate(player,4,0,0);
+        // gMessageLib->sendDefenderUpdate(player,4,0,0);
 
-		player->setCombatTargetId(0);
+        player->setCombatTargetId(0);
 
-		//player->->states.toggleActionOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+        //player->states.toggleActionOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
         // peace state automatically removes the combat states
-		gStateManager.setCurrentActionState(player,CreatureState_Peace);
-        		
-		player->disableAutoAttack();
+        gStateManager.setCurrentActionState(player,CreatureState_Peace);
 
-		//End any duels if both players press peace
-		
-		PlayerList* pList = player->getDuelList();
-		PlayerList::iterator it = pList->begin();
+        gMessageLib->sendBaselinesCREO_6(player,player);
+        gMessageLib->sendEndBaselines(player->getPlayerObjId(),player);
+                
+        player->disableAutoAttack();
 
-		while(it != pList->end())
-		{
-			// check the target's peace state
-			if (!(*it)->states.checkState(CreatureState_Combat) )
-			{
-				_handleEndDuel((*it)->getId(), NULL, NULL);
-				it = pList->begin();
-			}
-			else
-			{
-				++it;
-			}
-			
-		}
+        //End any duels if both players press peace
+        
+        PlayerList* pList = player->getDuelList();
+        PlayerList::iterator it = pList->begin();
 
-	}
+        while(it != pList->end())
+        {
+            // check the target's peace state
+            if (!(*it)->states.checkState(CreatureState_Combat) )
+            {
+                _handleEndDuel((*it)->getId(), NULL, NULL);
+                it = pList->begin();
+            }
+            else
+            {
+                ++it;
+            }
+            
+        }
+
+    }
 }
 
 //=============================================================================================================================
@@ -245,13 +245,13 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::handleSetTarget(Message* message)
 {
-	CreatureObject*  creatureObject = dynamic_cast<CreatureObject*>(mObject);
+    CreatureObject*  creatureObject = dynamic_cast<CreatureObject*>(mObject);
 
-	//creatureObject->setTarget(gWorldManager->getObjectById(message->getUint64()));
-	creatureObject->setTarget(message->getUint64());	
-	// There is a reason we get data like targets from the client, as handlers (id's) instead of references (pointers).
+    //creatureObject->setTarget(gWorldManager->getObjectById(message->getUint64()));
+    creatureObject->setTarget(message->getUint64());	
+    // There is a reason we get data like targets from the client, as handlers (id's) instead of references (pointers).
 
-	gMessageLib->sendTargetUpdateDeltasCreo6(creatureObject);
+    gMessageLib->sendTargetUpdateDeltasCreo6(creatureObject);
 } 
 
 //=============================================================================================================================
@@ -263,28 +263,28 @@ void ObjectController::handleSetTarget(Message* message)
 
 void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-	if (player && targetId)	// Any object targeted?
-	{
-		// Do we have a valid target?
-		if (PlayerObject* target = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId)))
-		{
-			if (target->isIncapacitated())
-			{
-				// Are we able to perform the DB?
-				if (!player->isIncapacitated() && !player->isDead())
-				{
-					// Do we have the executioner in targets duel list?
-					if (target->checkDuelList(player))
-					{
-						// here we go... KILL HIM!
-						target->die();
-					}
-				}
-			}
-		}
-	}
+    if (player && targetId)	// Any object targeted?
+    {
+        // Do we have a valid target?
+        if (PlayerObject* target = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId)))
+        {
+            if (target->isIncapacitated())
+            {
+                // Are we able to perform the DB?
+                if (!player->isIncapacitated() && !player->isDead())
+                {
+                    // Do we have the executioner in targets duel list?
+                    if (target->checkDuelList(player))
+                    {
+                        // here we go... KILL HIM!
+                        target->die();
+                    }
+                }
+            }
+        }
+    }
 }
 
 //=============================================================================================================================
@@ -294,32 +294,32 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectControllerCmdProperties *cmdProperties)
 {	
-	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-	Datapad* datapad			= player->getDataPad();
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    Datapad* datapad			= player->getDataPad();
 
-	// Loot creatures
-	this->lootAll(targetId, player);
+    // Loot creatures
+    this->lootAll(targetId, player);
 
-	MissionList::iterator it = datapad->getMissions()->begin();
-	while(it != datapad->getMissions()->end())
-	{
-	   MissionObject* mission = dynamic_cast<MissionObject*>(*it);
-	   if(mission->getMissionType() != destroy) { ++it; continue; }
+    MissionList::iterator it = datapad->getMissions()->begin();
+    while(it != datapad->getMissions()->end())
+    {
+       MissionObject* mission = dynamic_cast<MissionObject*>(*it);
+       if(mission->getMissionType() != destroy) { ++it; continue; }
 
        if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
-	   {
-			gMessageLib->sendPlayClientEffectLocMessage("clienteffect/combat_explosion_lair_large.cef",mission->getDestination().Coordinates,player);
-			gMissionManager->missionComplete(player,mission);
+       {
+            gMessageLib->sendPlayClientEffectLocMessage("clienteffect/combat_explosion_lair_large.cef",mission->getDestination().Coordinates,player);
+            gMissionManager->missionComplete(player,mission);
 
-			it = datapad->removeMission(it);
-			delete mission;
-	   }
-	   else
-	   {
-			++it;
-	   }
-	   
-	}
+            it = datapad->removeMission(it);
+            delete mission;
+       }
+       else
+       {
+            ++it;
+       }
+       
+    }
 
 return;
 }
@@ -330,33 +330,33 @@ return;
 
 void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnPoint* spawnPoint)
 {
-	if (player)
-	{
-		// Copy wounds data from clone to character-table.
+    if (player)
+    {
+        // Copy wounds data from clone to character-table.
 
-		// There is noo need to do it, we will save the correct in DB when we store the player data.
-		// And... pick a better name for the sp_.. below... like updateWoundsWithCloneData-something....
-		// int8 sql_sp[128];
-		// sprintf(sql_sp,"call swganh.sp_CharacterActivateClone(%I64u)", player->getId());
-		// (gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql_sp);
+        // There is noo need to do it, we will save the correct in DB when we store the player data.
+        // And... pick a better name for the sp_.. below... like updateWoundsWithCloneData-something....
+        // int8 sql_sp[128];
+        // sprintf(sql_sp,"call swganh.sp_CharacterActivateClone(%I64u)", player->getId());
+        // (gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql_sp);
 
-		// Update player objct with new data for wounds.
-		ObjControllerAsyncContainer* asyncContainer;
-		
-		asyncContainer = new ObjControllerAsyncContainer(OCQuery_CloneAtPreDes);
-		asyncContainer->playerObject = player;
-		asyncContainer->anyPtr = (void*)spawnPoint;
+        // Update player objct with new data for wounds.
+        ObjControllerAsyncContainer* asyncContainer;
+        
+        asyncContainer = new ObjControllerAsyncContainer(OCQuery_CloneAtPreDes);
+        asyncContainer->playerObject = player;
+        asyncContainer->anyPtr = (void*)spawnPoint;
 
-		int8 sql[256];
-		sprintf(sql,"SELECT health_wounds,strength_wounds,constitution_wounds,action_wounds,quickness_wounds,"
-			"stamina_wounds,mind_wounds,focus_wounds,willpower_wounds"
-			" FROM character_clone"
-			" WHERE"
-			" (character_id = %"PRIu64");",player->getId());
+        int8 sql[256];
+        sprintf(sql,"SELECT health_wounds,strength_wounds,constitution_wounds,action_wounds,quickness_wounds,"
+            "stamina_wounds,mind_wounds,focus_wounds,willpower_wounds"
+            " FROM character_clone"
+            " WHERE"
+            " (character_id = %"PRIu64");",player->getId());
 
-		mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-		gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-	}
+        mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    }
 }
 
 //=============================================================================================================================
@@ -368,157 +368,157 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
 
 void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 {
-	// First, we have to have a connected player and a valid source to loot.
-	AttackableCreature* creatureObject = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
+    // First, we have to have a connected player and a valid source to loot.
+    AttackableCreature* creatureObject = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(targetId));
 
-	// AttackableCreature* npcObject = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
-	if (creatureObject && playerObject->isConnected() && !playerObject->isDead() && !playerObject->isIncapacitated() && (creatureObject->getNpcFamily() == NpcFamily_AttackableCreatures) && creatureObject->isDead())
-	{
+    // AttackableCreature* npcObject = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
+    if (creatureObject && playerObject->isConnected() && !playerObject->isDead() && !playerObject->isIncapacitated() && (creatureObject->getNpcFamily() == NpcFamily_AttackableCreatures) && creatureObject->isDead())
+    {
 
-		if (creatureObject->allowedToLoot(playerObject->getId(), playerObject->getGroupId()))
-		{
-			// Creature Inventory.
-			Inventory* inventory = dynamic_cast<Inventory*>(creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        if (creatureObject->allowedToLoot(playerObject->getId(), playerObject->getGroupId()))
+        {
+            // Creature Inventory.
+            Inventory* inventory = dynamic_cast<Inventory*>(creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-			// Player Inventory.
-			Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-			
-			if (inventory && playerInventory)
-			{
-				// Looks like we have valid input, now handle it!
+            // Player Inventory.
+            Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+            
+            if (inventory && playerInventory)
+            {
+                // Looks like we have valid input, now handle it!
 
-				int32 lootedCredits = inventory->getCredits();
-				inventory->setCredits(0);
+                int32 lootedCredits = inventory->getCredits();
+                inventory->setCredits(0);
 
-				// Get all items from creature inventory.
-				ObjectIDList*			invObjList	= inventory->getObjects();
-				ObjectIDList::iterator	invObjectIt = invObjList->begin();
-				int32 lootedItems = 0;
-				
-				
-				while (invObjectIt != invObjList->end())
-				{
-					Object* object = gWorldManager->getObjectById((*invObjectIt));
+                // Get all items from creature inventory.
+                ObjectIDList*			invObjList	= inventory->getObjects();
+                ObjectIDList::iterator	invObjectIt = invObjList->begin();
+                int32 lootedItems = 0;
+                
+                
+                while (invObjectIt != invObjList->end())
+                {
+                    Object* object = gWorldManager->getObjectById((*invObjectIt));
 
-					// Move the object to player inventory.
-					Item* item = dynamic_cast<Item*>(object);
-					if (item)
-					{
-						// TODO: Check for player inventory full, and handle containers and resource containers etc...
-						// TODO: add the destroy objects to the remove Object interface at one point
-						//assume size is 1 slot
-						if(playerInventory->checkSlots(1))
-						{
+                    // Move the object to player inventory.
+                    Item* item = dynamic_cast<Item*>(object);
+                    if (item)
+                    {
+                        // TODO: Check for player inventory full, and handle containers and resource containers etc...
+                        // TODO: add the destroy objects to the remove Object interface at one point
+                        //assume size is 1 slot
+                        if(playerInventory->checkSlots(1))
+                        {
                             gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
-							
-							//remove from container - destroy for player
-							invObjectIt = inventory->removeObject(invObjectIt,playerObject);
-						}
-						lootedItems++;
-					}
-					else
-					{
-						invObjectIt++;
-					}
-				}
+                            
+                            //remove from container - destroy for player
+                            invObjectIt = inventory->removeObject(invObjectIt,playerObject);
+                        }
+                        lootedItems++;
+                    }
+                    else
+                    {
+                        invObjectIt++;
+                    }
+                }
 
-				// This is used as "have we lotted anything?"
-				// TODO: More accurate loot messages when there are items left, inventory full etc...
-				if (lootedCredits > 0 || lootedItems > 0)
-				{
-					if (lootedItems > 0)
-					{
-						// "You have completely looted the corpse of all items."
+                // This is used as "have we lotted anything?"
+                // TODO: More accurate loot messages when there are items left, inventory full etc...
+                if (lootedCredits > 0 || lootedItems > 0)
+                {
+                    if (lootedItems > 0)
+                    {
+                        // "You have completely looted the corpse of all items."
                         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "corpse_looted"), playerObject);
-					}
+                    }
 
-					if (lootedCredits > 0)
-					{
-						if (playerObject->getGroupId() != 0)
-						{
-							// We are grouped. Split the credits with the group members in range.
-							PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(false);
+                    if (lootedCredits > 0)
+                    {
+                        if (playerObject->getGroupId() != 0)
+                        {
+                            // We are grouped. Split the credits with the group members in range.
+                            PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(false);
 
-							// Number of additional members.
-							int32 noOfMembers = inRangeMembers.size();
-							int32 splittedCredits = lootedCredits/(noOfMembers + 1);
-											
-							int8 str[64];
-							sprintf(str,"%u", lootedCredits);
-							BString lootCreditsString(str);
-							lootCreditsString.convert(BSTRType_Unicode16);
+                            // Number of additional members.
+                            int32 noOfMembers = inRangeMembers.size();
+                            int32 splittedCredits = lootedCredits/(noOfMembers + 1);
+                                            
+                            int8 str[64];
+                            sprintf(str,"%u", lootedCredits);
+                            BString lootCreditsString(str);
+                            lootCreditsString.convert(BSTRType_Unicode16);
 
-							if (splittedCredits == 0)
-							{
-								// To little to split.
-								// "GROUP] You split %TU credits and receive %TT credits as your share."
+                            if (splittedCredits == 0)
+                            {
+                                // To little to split.
+                                // "GROUP] You split %TU credits and receive %TT credits as your share."
                                 gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split_coins_self", lootCreditsString.getUnicode16(), lootCreditsString.getUnicode16(), L""), playerObject);
-								// "There are insufficient group funds to split"
+                                // "There are insufficient group funds to split"
                                 gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "nsf_to_split", 0, 0, 0, splittedCredits), playerObject);
-							}
-							else
-							{
-								int32 totalProse = lootedCredits;
-								PlayerList::iterator it	= inRangeMembers.begin();
-								while (it != inRangeMembers.end())
-								{
-									// "[GROUP] You receive %DI credits as your share."
+                            }
+                            else
+                            {
+                                int32 totalProse = lootedCredits;
+                                PlayerList::iterator it	= inRangeMembers.begin();
+                                while (it != inRangeMembers.end())
+                                {
+                                    // "[GROUP] You receive %DI credits as your share."
                                     gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split", 0, 0, 0, splittedCredits), playerObject);
-									
-									// Now we need to add the credits to player inventory.
-									Inventory* playerInventory = dynamic_cast<Inventory*>((*it)->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-									if (playerInventory)
-									{
-										playerInventory->updateCredits(splittedCredits);
-									}
-									totalProse -= splittedCredits;
-									++it;
-								}
+                                    
+                                    // Now we need to add the credits to player inventory.
+                                    Inventory* playerInventory = dynamic_cast<Inventory*>((*it)->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+                                    if (playerInventory)
+                                    {
+                                        playerInventory->updateCredits(splittedCredits);
+                                    }
+                                    totalProse -= splittedCredits;
+                                    ++it;
+                                }
 
-								int8 str[64];
-								sprintf(str,"%u", totalProse);
-								BString splitedLootCreditsString(str);
-								splitedLootCreditsString.convert(BSTRType_Unicode16);
+                                int8 str[64];
+                                sprintf(str,"%u", totalProse);
+                                BString splitedLootCreditsString(str);
+                                splitedLootCreditsString.convert(BSTRType_Unicode16);
 
-								// "GROUP] You split %TU credits and receive %TT credits as your share."
+                                // "GROUP] You split %TU credits and receive %TT credits as your share."
                                 gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split_coins_self", splitedLootCreditsString.getUnicode16(), lootCreditsString.getUnicode16(), L""), playerObject);
 
-								// Now we need to add the credits to our own inventory.
-								Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-								if (playerInventory)
-								{
-									playerInventory->updateCredits(totalProse);
-								}
-							}
-						}
-						else
-						{
+                                // Now we need to add the credits to our own inventory.
+                                Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+                                if (playerInventory)
+                                {
+                                    playerInventory->updateCredits(totalProse);
+                                }
+                            }
+                        }
+                        else
+                        {
                             gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_coin_loot_no_target", 0, 0, 0, lootedCredits), playerObject);
 
-							// Now we need to add the credits to our own inventory.
-							Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-							if (playerInventory)
-							{
-								playerInventory->updateCredits(lootedCredits);
-							}
-						}
-					}
-				}
-				else
-				{
-					// TODO: Another message for "loot all"!!!
+                            // Now we need to add the credits to our own inventory.
+                            Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+                            if (playerInventory)
+                            {
+                                playerInventory->updateCredits(lootedCredits);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO: Another message for "loot all"!!!
 
-					// @error_message:corpse_empty "You find nothing else of value on the selected corpse."
+                    // @error_message:corpse_empty "You find nothing else of value on the selected corpse."
                     gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "corpse_empty"), playerObject);
-				}
-				// Put this creaure in the pool of delayed destruction and remove the corpse from scene.
-				gWorldManager->addCreatureObjectForTimedDeletion(creatureObject->getId(), LootedCorpseTimeout);
-			}
-		}
-		else
-		{
-			// Player do not have permission to loot this corpse.
+                }
+                // Put this creaure in the pool of delayed destruction and remove the corpse from scene.
+                gWorldManager->addCreatureObjectForTimedDeletion(creatureObject->getId(), LootedCorpseTimeout);
+            }
+        }
+        else
+        {
+            // Player do not have permission to loot this corpse.
             gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "no_corpse_permission"), playerObject);
-		}
-	}
+        }
+    }
 }

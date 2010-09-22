@@ -435,51 +435,18 @@ void PostureKnockedDown::Enter(CreatureObject* obj)
 PostureIncapacitated::PostureIncapacitated(StateManager* const sm) : PostureState(sm)
 {
     mStateID = CreaturePosture_Incapacitated;
-        // deny transition list
+    // deny transition list
     insertPosture,CreaturePosture_Dead));
     insertPosture,CreaturePosture_Incapacitated));
     insertLocomotion,CreatureLocomotion_Dead));
     insertLocomotion,CreatureLocomotion_Incapacitated));
 }
 void PostureIncapacitated::Enter(CreatureObject* obj)
-{
-    // exit states we shouldn't be in
-    actionMap[CreatureState_Aiming]->Exit(obj);
-    actionMap[CreatureState_Alert]->Exit(obj);
-    actionMap[CreatureState_Berserk]->Exit(obj);
-    actionMap[CreatureState_Bleeding]->Exit(obj);
-    actionMap[CreatureState_Blinded]->Exit(obj);
-    actionMap[CreatureState_Combat]->Exit(obj);
-    actionMap[CreatureState_CombatAttitudeAggressive]->Exit(obj);
-    actionMap[CreatureState_CombatAttitudeEvasive]->Exit(obj);
-    actionMap[CreatureState_CombatAttitudeNormal]->Exit(obj);
-    actionMap[CreatureState_Crafting]->Exit(obj);
-    actionMap[CreatureState_Cover]->Exit(obj);
-    actionMap[CreatureState_Diseased]->Exit(obj);
-    actionMap[CreatureState_Dizzy]->Exit(obj);
-    actionMap[CreatureState_FeignDeath]->Exit(obj);
-    //actionMap[CreatureState_Frozen]->Exit(obj);
-    actionMap[CreatureState_Intimidated]->Exit(obj);
-    actionMap[CreatureState_MaskScent]->Exit(obj);
-    actionMap[CreatureState_MountedCreature]->Exit(obj);
-    actionMap[CreatureState_OnFire]->Exit(obj);
-    actionMap[CreatureState_Peace]->Exit(obj);
-    actionMap[CreatureState_PilotingPobShip]->Exit(obj);
-    actionMap[CreatureState_PilotingShip]->Exit(obj);
-    actionMap[CreatureState_Poisoned]->Exit(obj);
-    actionMap[CreatureState_Rallied]->Exit(obj);
-    actionMap[CreatureState_RidingMount]->Exit(obj);
-    actionMap[CreatureState_ShipGunner]->Exit(obj);
-    actionMap[CreatureState_ShipInterior]->Exit(obj);
-    actionMap[CreatureState_ShipOperations]->Exit(obj);
-    actionMap[CreatureState_SittingOnChair]->Exit(obj);
-    actionMap[CreatureState_Stunned]->Exit(obj);
-    //actionMap[CreatureState_Swimming]->Exit(obj);
-    actionMap[CreatureState_Tumbling]->Exit(obj);
-    
-    obj->states.blockPosture;
-    obj->states.blockLocomotion;
+{  
+    obj->states.blockLayers();
     obj->states.setPosture(mStateID);
+    // clear all states
+    obj->states.toggleActionOn(CreatureState_ClearState);
 }
 //	Posture Dead
 PostureDead::PostureDead(StateManager* const sm) : PostureState(sm)
@@ -491,40 +458,8 @@ PostureDead::PostureDead(StateManager* const sm) : PostureState(sm)
 }
 void PostureDead::Enter(CreatureObject* obj)
 {
-    // exit states we shouldn't be in
-    actionMap[CreatureState_Aiming]->Exit(obj);
-    actionMap[CreatureState_Alert]->Exit(obj);
-    actionMap[CreatureState_Berserk]->Exit(obj);
-    actionMap[CreatureState_Bleeding]->Exit(obj);
-    actionMap[CreatureState_Blinded]->Exit(obj);
-    actionMap[CreatureState_Combat]->Exit(obj);
-    actionMap[CreatureState_CombatAttitudeAggressive]->Exit(obj);
-    actionMap[CreatureState_CombatAttitudeEvasive]->Exit(obj);
-    actionMap[CreatureState_CombatAttitudeNormal]->Exit(obj);
-    actionMap[CreatureState_Crafting]->Exit(obj);
-    actionMap[CreatureState_Cover]->Exit(obj);
-    actionMap[CreatureState_Diseased]->Exit(obj);
-    actionMap[CreatureState_Dizzy]->Exit(obj);
-    actionMap[CreatureState_FeignDeath]->Exit(obj);
-    //actionMap[CreatureState_Frozen]->Exit(obj);
-    actionMap[CreatureState_Intimidated]->Exit(obj);
-    actionMap[CreatureState_MaskScent]->Exit(obj);
-    actionMap[CreatureState_MountedCreature]->Exit(obj);
-    actionMap[CreatureState_OnFire]->Exit(obj);
-    actionMap[CreatureState_Peace]->Exit(obj);
-    actionMap[CreatureState_PilotingPobShip]->Exit(obj);
-    actionMap[CreatureState_PilotingShip]->Exit(obj);
-    actionMap[CreatureState_Poisoned]->Exit(obj);
-    actionMap[CreatureState_Rallied]->Exit(obj);
-    actionMap[CreatureState_RidingMount]->Exit(obj);
-    actionMap[CreatureState_ShipGunner]->Exit(obj);
-    actionMap[CreatureState_ShipInterior]->Exit(obj);
-    actionMap[CreatureState_ShipOperations]->Exit(obj);
-    actionMap[CreatureState_SittingOnChair]->Exit(obj);
-    actionMap[CreatureState_Stunned]->Exit(obj);
-    //actionMap[CreatureState_Swimming]->Exit(obj);
-    actionMap[CreatureState_Tumbling]->Exit(obj);
-    
     obj->states.blockLayers();
     obj->states.setPosture(mStateID);
+    // clear all states
+    obj->states.toggleActionOn(CreatureState_ClearState);
 }

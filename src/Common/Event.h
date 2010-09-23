@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <functional>
 #include <memory>
 
-#include "Common/ByteBuffer.h"
+#include "Common/byte_buffer.h"
 #include "Common/HashString.h"
 #include "Common/declspec.h"
 

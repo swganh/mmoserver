@@ -25,33 +25,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "Common/ApplicationService.h"
+#include <gtest/gtest.h>
 
-#include <cassert>
+#include "Common/Crc.h"
 
-namespace common {
-
-BaseApplicationService::BaseApplicationService(EventDispatcher& event_dispatcher)
-    : event_dispatcher_(event_dispatcher)
-    , current_timestamp_(static_cast<uint64_t>(0)) {}
-
-BaseApplicationService::~BaseApplicationService() {}
-
-void BaseApplicationService::tick(uint64_t new_timestamp) {
-    active_.Send([=] {
-        if (! (new_timestamp >= current_timestamp_)) {
-            assert(!"New timestamp given is older than the currently stored timestamp!");
-            return;
-        }
-
-        current_timestamp_ = new_timestamp;
-
-        onTick();
-    } );
+/// This test shows how to find the 32bit checksum of a c-style string.
+TEST(CrcTests, CanCrcCstyleStrings) {
+    EXPECT_EQ(0x338BCFAC, ::common::memcrc("test"));
+    EXPECT_EQ(0x2643D57C, ::common::memcrc("anothertest"));
+    EXPECT_EQ(0x19522193, ::common::memcrc("aThirdTest"));
 }
 
-uint64_t BaseApplicationService::current_timestamp() const {
-    return current_timestamp_;
+/// This test shows how to find the 32bit checksum of a std::string.
+TEST(CrcTests, CanCrcStdStrings) {
+    EXPECT_EQ(0x338BCFAC, ::common::memcrc(std::string("test")));
+    EXPECT_EQ(0x2643D57C, ::common::memcrc(std::string("anothertest")));
+    EXPECT_EQ(0x19522193, ::common::memcrc(std::string("aThirdTest")));
 }
-
-}  // namespace common

@@ -167,7 +167,7 @@ void EventDispatcher::Notify(IEventPtr triggered_event) {
     active_.Send([=] {
         // If the timestamp for the event has not yet been set then set it.
         if (!triggered_event->timestamp()) {
-            triggered_event->timestamp(current_timestep_.load());
+            triggered_event->timestamp(current_timestep_);
         }
 
         event_queue_[active_queue_].push(triggered_event);
@@ -208,9 +208,9 @@ boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
     // Create a packaged task for retrieving the value.
     auto task = std::make_shared<boost::packaged_task<bool>>([=]()->bool {
         // If we were passed the same time or a time in the past return false.
-        if (current_timestep_.load() >= new_timestep) return false;
+        if (current_timestep_ >= new_timestep) return false;
 
-        current_timestep_.store(new_timestep);
+        current_timestep_ = new_timestep;
 
         int queue_to_process = active_queue_;
         active_queue_ = (active_queue_ + 1) % kNumQueues;
@@ -220,7 +220,7 @@ boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
             event_queue_[queue_to_process].pop();
 
             // Check to to see if the event is ready for processing yet. If so deliver it, if not put it on the new queue.
-            if ((event_to_process->timestamp() + event_to_process->delay_ms()) <= current_timestep_.load()) {
+            if ((event_to_process->timestamp() + event_to_process->delay_ms()) <= current_timestep_) {
                 Deliver_(event_to_process);
             } else {
                 // Else push it back onto the next queue for processing.
@@ -244,7 +244,7 @@ boost::unique_future<bool> EventDispatcher::Tick(uint64_t new_timestep) {
 boost::unique_future<uint64_t> EventDispatcher::current_timestep() {
     // Create a packaged task for retrieving the value.
     auto task = std::make_shared<boost::packaged_task<uint64_t>>([=] {
-        return current_timestep_.load();
+        return current_timestep_;
     } );
 
     // Add the message to the active object's queue that runs the task which in turn
@@ -374,7 +374,7 @@ bool EventDispatcher::Deliver_(IEventPtr triggered_event) {
 
     // If the event's timestamp has not been set then set it.
     if (!triggered_event->timestamp()) {
-        triggered_event->timestamp(current_timestep_.load());
+        triggered_event->timestamp(current_timestep_);
     }
 
     // By default if an event isn't handled this method returns true.

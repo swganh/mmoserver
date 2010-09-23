@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Common/OutOfBand.h"
-#include "Common/ByteBuffer.h"
+#include "Common/byte_buffer.h"
 
 namespace common {
 
@@ -120,39 +120,39 @@ uint16_t OutOfBand::Count() const {
 
 uint32_t OutOfBand::Length() const {
     // Take the size of the data package minus the 4 bytes for the length value.
-    return (data_->Size() - 4) / 2;
+    return (data_->size() - 4) / 2;
 }
 
 void OutOfBand::AddProsePackage(const ProsePackage& prose) {
     ByteBuffer tmp(*data_);
 
-    tmp.Write<uint8_t>(0x01);
-    tmp.Write<int32_t>(0xFFFFFFFF);
-    tmp.Write<std::string>(prose.base_stf_file);
-    tmp.Write<uint32_t>(0);
-    tmp.Write<std::string>(prose.base_stf_label);
+    tmp.write<uint8_t>(0x01);
+    tmp.write<int32_t>(0xFFFFFFFF);
+    tmp.write<std::string>(prose.base_stf_file);
+    tmp.write<uint32_t>(0);
+    tmp.write<std::string>(prose.base_stf_label);
 
-    tmp.Write<uint64_t>(prose.tu_object_id);
-    tmp.Write<std::string>(prose.tu_stf_file);
-    tmp.Write<uint32_t>(0);
-    tmp.Write<std::string>(prose.tu_stf_label);
-    tmp.Write<std::wstring>(prose.tu_custom_string);
+    tmp.write<uint64_t>(prose.tu_object_id);
+    tmp.write<std::string>(prose.tu_stf_file);
+    tmp.write<uint32_t>(0);
+    tmp.write<std::string>(prose.tu_stf_label);
+    tmp.write<std::wstring>(prose.tu_custom_string);
 
-    tmp.Write<uint64_t>(prose.tt_object_id);
-    tmp.Write<std::string>(prose.tt_stf_file);
-    tmp.Write<uint32_t>(0);
-    tmp.Write<std::string>(prose.tt_stf_label);
-    tmp.Write<std::wstring>(prose.tt_custom_string);
+    tmp.write<uint64_t>(prose.tt_object_id);
+    tmp.write<std::string>(prose.tt_stf_file);
+    tmp.write<uint32_t>(0);
+    tmp.write<std::string>(prose.tt_stf_label);
+    tmp.write<std::wstring>(prose.tt_custom_string);
 
-    tmp.Write<uint64_t>(prose.to_object_id);
-    tmp.Write<std::string>(prose.to_stf_file);
-    tmp.Write<uint32_t>(0);
-    tmp.Write<std::string>(prose.to_stf_label);
-    tmp.Write<std::wstring>(prose.to_custom_string);
+    tmp.write<uint64_t>(prose.to_object_id);
+    tmp.write<std::string>(prose.to_stf_file);
+    tmp.write<uint32_t>(0);
+    tmp.write<std::string>(prose.to_stf_label);
+    tmp.write<std::wstring>(prose.to_custom_string);
 
-    tmp.Write<int32_t>(prose.di_integer);
-    tmp.Write<float>(prose.df_float);
-    tmp.Write<uint8_t>((prose.display_flag) ? 1 : 0);
+    tmp.write<int32_t>(prose.di_integer);
+    tmp.write<float>(prose.df_float);
+    tmp.write<uint8_t>((prose.display_flag) ? 1 : 0);
 
     // Find the length of the ProsePackage.
     uint32_t std_string_lengths = prose.base_stf_file.length() + prose.base_stf_label.length() +
@@ -163,7 +163,7 @@ void OutOfBand::AddProsePackage(const ProsePackage& prose) {
     // This whole ProsePackage is treated as a wide-character string, so if
     // the std::string length totals are odd then we need to add some padding.
     if (std_string_lengths % 2) {
-        tmp.Write<uint8_t>(0);
+        tmp.write<uint8_t>(0);
     }
 
     // Now that all the data is written update the length and count.
@@ -174,7 +174,7 @@ void OutOfBand::AddProsePackage(const ProsePackage& prose) {
 
     // Only modify our internals when all work is done, and only use
     // exception safe methods of updating.
-    data_->Swap(tmp);
+    data_->swap(tmp);
     count_ = tmp_count;
 }
 
@@ -280,16 +280,16 @@ const ByteBuffer* OutOfBand::Pack() const {
 
 
 void OutOfBand::Initialize_() {
-    data_->Write<uint32_t>(2);
-    data_->Write<uint16_t>(0);
+    data_->write<uint32_t>(2);
+    data_->write<uint16_t>(0);
 }
 
 void OutOfBand::SetCount_(ByteBuffer& buffer, uint16_t count) {
-    buffer.WriteAt<uint16_t>(4, count);
+    buffer.writeAt<uint16_t>(4, count);
 }
 
 void OutOfBand::SetLength_(ByteBuffer& buffer) {
-    buffer.WriteAt<uint32_t>(0, (buffer.Size()-4) / 2);
+    buffer.writeAt<uint32_t>(0, (buffer.size()-4) / 2);
 }
 
 }  // namespace common

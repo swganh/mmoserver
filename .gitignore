@@ -27,8 +27,8 @@ config.h.in~
 configure
 configure.scan
 Makefile.in
-m4/libtool.m4
-m4/lt*.m4
+tools/m4/libtool.m4
+tools/m4/lt*.m4
 
 # ignore directories created for the build process
 build/*
@@ -42,3 +42,9 @@ tbb/
 
 # ignore OS generated files
 .DS_Store
+
+# ignore eclipse generated files
+.autotools
+.cproject
+.project
+.settings/

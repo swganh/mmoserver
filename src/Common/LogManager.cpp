@@ -66,7 +66,7 @@ LogManager::LogManager(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority
     _printLogo();
 
     mEntriesMutex = std::unique_ptr<boost::mutex>(new boost::mutex());
-    mThread = std::unique_ptr<boost::thread>(new boost::thread(std::tr1::bind(&LogManager::_LoggerThread, this)));
+    mThread = std::unique_ptr<boost::thread>(new boost::thread(std::bind(&LogManager::_LoggerThread, this)));
 }
 
 LogManager::~LogManager()
@@ -80,7 +80,7 @@ void LogManager::_LoggerThread()
 {
     std::vector<LOG_ENTRY*> mTempEntries;
 
-    char* priority_strings[] = {"EMER", "ALRT", "CRIT", "ERRO", "WARN", "NOTI", "INFO", "DEBG", "SQL"};
+    const char* priority_strings[] = {"EMER", "ALRT", "CRIT", "ERRO", "WARN", "NOTI", "INFO", "DEBG", "SQL"};
 
     while(true)
     {

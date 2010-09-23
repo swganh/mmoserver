@@ -90,7 +90,7 @@ void BaseEvent::next(IEventPtr next) {
 }
 
 void BaseEvent::serialize(ByteBuffer& out) const {
-    out.Write<uint32_t>(event_type().ident());
+    out.write<uint32_t>(event_type().ident());
 
     onSerialize(out);
 }
@@ -99,7 +99,7 @@ void BaseEvent::deserialize(ByteBuffer& in) {
     // If the buffer size is less than at least the size of the crc or
     // if the crc read from the buffer doesn't match this event trigger
     // an assert and return.
-    if (in.Size() < sizeof(uint32_t) || event_type().ident() != in.Read<uint32_t>()) {
+    if (in.size() < sizeof(uint32_t) || event_type().ident() != in.read<uint32_t>()) {
         assert(!"Invalid buffer passed to this event");
         return;
     }

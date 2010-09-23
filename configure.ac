@@ -467,8 +467,7 @@ AC_CONFIG_FILES([Makefile
                  src/NetworkManager/Makefile
                  src/PingServer/Makefile
                  src/Utils/Makefile
-                 src/ZoneServer/Makefile
-                 tests/Makefile])
+                 src/ZoneServer/Makefile])
 AC_OUTPUT
 echo "
   ($PACKAGE_NAME) v$PACKAGE_VERSION

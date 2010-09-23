@@ -1,13 +1,32 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(BOOST_CPPFLAGS) @AM_CXXFLAGS@
   
 # Common library - noinstall shared library
 noinst_LTLIBRARIES = libcommon.la
-libcommon_la_SOURCES = \
-	atMacroString.cpp \
+libcommon_la_SOURCES = ApplicationService.cpp \
+  atMacroString.cpp \
   BuildInfo.cpp \
-  bytebuffer.cpp \
-  DispatchClient.cpp \
-  MessageDispatch.cpp \
-  MessageFactory.cpp 
+  byte_buffer.cc \
+  ConfigFile.cpp \
+  ConfigManager.cpp \
+  Crc.cpp \
+  Event.cpp \
+  EventDispatcher.cpp \
+  HashString.cpp \
+  LogManager.cpp \
+  OutOfBand.cpp
     
-libcommon_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors -fshort-wchar
+libcommon_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors
+
+TESTS=
+check_PROGRAMS=
+
+TESTS += tests/byte_buffer
+check_PROGRAMS += tests/byte_buffer
+tests_byte_buffer_SOURCES = byte_buffer_unittest.cc
+tests_byte_buffer_LDADD = -lgtest_main \
+  $(BOOST_LDFLAGS) \
+  $(BOOST_DATE_TIME_LIB) \
+  $(BOOST_SYSTEM_LIB) \
+  $(BOOST_THREAD_LIB) \
+  libcommon.la
+tests_byte_buffer_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors

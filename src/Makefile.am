@@ -1,6 +1,5 @@
-SUBDIRS = Utils 
-#  MathLib \
-#  Common \
+SUBDIRS = Utils \
+  Common
 #  DatabaseManager \
 #  NetworkManager \
 #  ScriptEngine \

@@ -53,3 +53,14 @@ tests_event_dispatcher_LDADD = -lgtest_main \
   libcommon.la \
   $(top_builddir)/src/Utils/libutils.la
 tests_event_dispatcher_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+
+TESTS += tests/hash_string
+check_PROGRAMS += tests/hash_string
+tests_hash_string_SOURCES = hash_string_unittest.cc
+tests_hash_string_LDADD = -lgtest_main \
+  $(BOOST_LDFLAGS) \
+  $(BOOST_DATE_TIME_LIB) \
+  $(BOOST_SYSTEM_LIB) \
+  $(BOOST_THREAD_LIB) \
+  libcommon.la
+tests_hash_string_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors

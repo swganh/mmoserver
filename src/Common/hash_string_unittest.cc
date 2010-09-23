@@ -37,7 +37,7 @@ using ::common::HashString;
 TEST(HashStringTests, CreatingEventTypeFromStringGeneratesUniqueIdentifier) {
     HashString hash_string("test_hash_string");
     
-    EXPECT_EQ(0x107D0089, hash_string.ident()) << "HashString did not create the expected identifier";
+    EXPECT_EQ(uint32_t(0x107D0089), hash_string.ident()) << "HashString did not create the expected identifier";
 }
 
 /// This test shows how to get the string value back from the hash.

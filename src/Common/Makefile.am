@@ -30,3 +30,14 @@ tests_byte_buffer_LDADD = -lgtest_main \
   $(BOOST_THREAD_LIB) \
   libcommon.la
 tests_byte_buffer_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+
+TESTS += tests/event
+check_PROGRAMS += tests/event
+tests_event_SOURCES = event_unittest.cc
+tests_event_LDADD = -lgtest_main \
+  $(BOOST_LDFLAGS) \
+  $(BOOST_DATE_TIME_LIB) \
+  $(BOOST_SYSTEM_LIB) \
+  $(BOOST_THREAD_LIB) \
+  libcommon.la
+tests_event_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors

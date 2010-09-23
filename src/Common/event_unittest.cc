@@ -28,15 +28,55 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <gtest/gtest.h>
 
 #include "Common/Event.h"
-#include "MockObjects/MockEvent.h"
 
-using ::common::ByteBuffer;
-using ::common::IEventPtr;
-using ::common::EventType;
-using ::common::EventSubject;
+using common::ByteBuffer;
+using common::IEventPtr;
+using common::EventType;
+using common::EventPriority;
+using common::EventSubject;
 
 namespace {
 
+class MockEvent : public ::common::BaseEvent {
+public:
+    explicit MockEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0) 
+        : BaseEvent(subject_id, delay_ms)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback) 
+        : BaseEvent(subject_id, delay_ms, callback)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(::common::ByteBuffer& in) {
+        deserialize(in);
+    }
+
+    ~MockEvent() {}
+
+    const ::common::EventType& event_type() const { return event_type_; }
+
+    int some_event_val() const { return some_event_val_; }
+    void some_event_val(int some_event_val) { some_event_val_ = some_event_val; }
+
+private:
+    void onSerialize(::common::ByteBuffer& out) const {
+        out << some_event_val_;
+    }
+
+    void onDeserialize(::common::ByteBuffer& in) {
+        some_event_val_ = in.read<int>();
+    }
+
+    bool onConsume(bool handled) const {
+        return true;
+    }
+
+    static const ::common::EventType event_type_;
+    int some_event_val_;
+};
+    
+const ::common::EventType MockEvent::event_type_ = ::common::EventType("mock_event");
+    
 /*! All events should have a type and a way of returning that type to a caller.
  */
 TEST(EventTests, EventHasAnEventType) {
@@ -49,7 +89,7 @@ TEST(EventTests, EventHasAnEventType) {
  */
 TEST(EventTests, EventHasNoSubjectByDefault) {
     MockEvent test_event;
-    EXPECT_EQ(0, test_event.subject());
+    EXPECT_EQ(EventSubject(0), test_event.subject());
 }
 
 /*! An event's subject should be specified at the point of event creation.
@@ -73,7 +113,7 @@ TEST(EventTests, EventsHaveDefaultPriorityOfZero) {
     MockEvent test_event;
 
     // Make sure that by default the priority is zero.
-    EXPECT_EQ(0, test_event.priority());
+    EXPECT_EQ(EventPriority(0), test_event.priority());
 }
 
 /*! Setting a priority for an event will most likely not be the responsibility
@@ -85,7 +125,7 @@ TEST(EventTests, CanSetPriorityForEvent) {
 
     // Set a priority value and make sure what we get out is what was put in.
     test_event.priority(27);
-    EXPECT_EQ(27, test_event.priority());
+    EXPECT_EQ(EventPriority(27), test_event.priority());
 }
 
 TEST(EventTests, CanSetTimestampForEvent) {
@@ -108,8 +148,8 @@ TEST(EventTests, ComparingEventsConsidersTimestamp) {
     MockEvent test_event2(some_subject_id);
     test_event2.timestamp(200);
 
-    EXPECT_EQ(true, CompareEventWeightLessThan(test_event1, test_event2));
-    EXPECT_EQ(true, CompareEventWeightGreaterThan(test_event2, test_event1));
+    EXPECT_TRUE(CompareEventWeightLessThan(test_event1, test_event2));
+    EXPECT_TRUE(CompareEventWeightGreaterThan(test_event2, test_event1));
 }
 
 TEST(EventTests, ComparingEventsConsidersDelayWithTimestamp) {
@@ -124,8 +164,8 @@ TEST(EventTests, ComparingEventsConsidersDelayWithTimestamp) {
     MockEvent test_event2(some_subject_id, 100);
     test_event2.timestamp(200);
 
-    EXPECT_EQ(true, CompareEventWeightLessThan(test_event2, test_event1));
-    EXPECT_EQ(true, CompareEventWeightGreaterThan(test_event1, test_event2));
+    EXPECT_TRUE(CompareEventWeightLessThan(test_event2, test_event1));
+    EXPECT_TRUE(CompareEventWeightGreaterThan(test_event1, test_event2));
 }
 
 TEST(EventTests, ComparingEventsConsidersPriority) {
@@ -136,8 +176,8 @@ TEST(EventTests, ComparingEventsConsidersPriority) {
     MockEvent test_event2;
     test_event2.priority(2);
 
-    EXPECT_EQ(true, CompareEventWeightLessThan(test_event1, test_event2));
-    EXPECT_EQ(true, CompareEventWeightGreaterThan(test_event2, test_event1));
+    EXPECT_TRUE(CompareEventWeightLessThan(test_event1, test_event2));
+    EXPECT_TRUE(CompareEventWeightGreaterThan(test_event2, test_event1));
 }
 
 
@@ -158,8 +198,8 @@ TEST(EventTests, CanSetCallbackForEvent) {
 TEST(EventTests, CanDeserializeEventFromBuffer) {
     // Create the buffer with the correct contents.
     ByteBuffer buffer;
-    buffer.Write<uint32_t>(0xC3CEA198); // This is the swgcrc of "mock_event"
-    buffer.Write<int>(27); // Some random int value.
+    buffer.write<uint32_t>(0xC3CEA198); // This is the swgcrc of "mock_event"
+    buffer.write<int>(27); // Some random int value.
 
     MockEvent test_event(buffer);
 
@@ -176,8 +216,8 @@ TEST(EventTests, CanSerializeEventToBuffer) {
     // Read the event into the buffer.
     test_event.serialize(buffer);
 
-    EXPECT_EQ(0xC3CEA198, buffer.Read<uint32_t>());
-    EXPECT_EQ(27, buffer.Read<int>());
+    EXPECT_EQ(0xC3CEA198, buffer.read<uint32_t>());
+    EXPECT_EQ(27, buffer.read<int>());
 }
 
 }

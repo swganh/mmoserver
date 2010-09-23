@@ -64,3 +64,14 @@ tests_hash_string_LDADD = -lgtest_main \
   $(BOOST_THREAD_LIB) \
   libcommon.la
 tests_hash_string_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+
+TESTS += tests/out_of_band
+check_PROGRAMS += tests/out_of_band
+tests_out_of_band_SOURCES = out_of_band_unittest.cc
+tests_out_of_band_LDADD = -lgtest_main \
+  $(BOOST_LDFLAGS) \
+  $(BOOST_DATE_TIME_LIB) \
+  $(BOOST_SYSTEM_LIB) \
+  $(BOOST_THREAD_LIB) \
+  libcommon.la
+tests_out_of_band_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors

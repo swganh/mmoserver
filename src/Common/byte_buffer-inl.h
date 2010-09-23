@@ -19,7 +19,7 @@ std::ostream& operator<<(std::ostream& message, const ByteBuffer& buffer);
 
 template<typename T>
 void ByteBuffer::swapEndian(T& data) {
-  data; /* Only template specializations of swapEndian should be used */
+  //data; /* Only template specializations of swapEndian should be used */
 }
 
 template<typename T>

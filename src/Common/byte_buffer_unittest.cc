@@ -15,132 +15,132 @@ namespace {
 
 TEST(ByteBufferTests, ByteBufferIsEmptyWhenCreated)
 {
-	ByteBuffer buffer;
-	EXPECT_EQ(0, buffer.size());
+    ByteBuffer buffer;
+    EXPECT_EQ(uint32_t(0), buffer.size());
 }
 
 TEST(ByteBufferTests, ByteBufferDefaultCapacityIsZero)
 {
-	ByteBuffer buffer;
-	EXPECT_EQ(0, buffer.capacity());
+    ByteBuffer buffer;
+    EXPECT_EQ(uint32_t(0), buffer.capacity());
 }
 
 TEST(ByteBufferTests, WritingIntReportsCorrectSizeAndCapacity)
 {
-	ByteBuffer buffer;
-	buffer.write<int>(10);
+    ByteBuffer buffer;
+    buffer.write<int>(10);
 
-	EXPECT_EQ(4, buffer.size());
-	EXPECT_EQ(4, buffer.capacity());
+    EXPECT_EQ(uint32_t(4), buffer.size());
+    EXPECT_EQ(uint32_t(4), buffer.capacity());
 }
 
 TEST(ByteBufferTests, WritingTwoIntsReportsCorrectSizeAndCapacity)
 {
-	ByteBuffer buffer;
+    ByteBuffer buffer;
 
-	buffer.write<int>(10);
-	EXPECT_EQ(4, buffer.size());
-	EXPECT_EQ(4, buffer.capacity());
+    buffer.write<int>(10);
+    EXPECT_EQ(uint32_t(4), buffer.size());
+    EXPECT_EQ(uint32_t(4), buffer.capacity());
 
-	buffer.write<int>(20);
-	EXPECT_EQ(8, buffer.size());
-	EXPECT_EQ(8, buffer.capacity());
+    buffer.write<int>(20);
+    EXPECT_EQ(uint32_t(8), buffer.size());
+    EXPECT_EQ(uint32_t(8), buffer.capacity());
 }
 
 TEST(ByteBufferTests, CanReadIntWrittenToTheBuffer)
 {
-	ByteBuffer buffer;
+    ByteBuffer buffer;
 
-	buffer.write<int>(10);
-	EXPECT_EQ(10, buffer.read<int>());
+    buffer.write<int>(10);
+    EXPECT_EQ(10, buffer.read<int>());
 }
 
 TEST(ByteBufferTests, CanReadTwoIntsWrittenToTheBuffer)
 {
-	ByteBuffer buffer;
+    ByteBuffer buffer;
 
-	buffer.write<int>(10);
-	buffer.write<int>(20);
+    buffer.write<int>(10);
+    buffer.write<int>(20);
 
-	EXPECT_EQ(10, buffer.read<int>());
-	EXPECT_EQ(20, buffer.read<int>());
+    EXPECT_EQ(10, buffer.read<int>());
+    EXPECT_EQ(20, buffer.read<int>());
 }
 
 TEST(ByteBufferTests, ReadingPastBufferEndThrowsException)
 {
-	ByteBuffer buffer;
-	EXPECT_EQ(0, buffer.size());
+    ByteBuffer buffer;
+    EXPECT_EQ(uint32_t(0), buffer.size());
 
-	EXPECT_THROW(buffer.read<int>(), std::out_of_range);
+    EXPECT_THROW(buffer.read<int>(), std::out_of_range);
 }
 
 TEST(ByteBufferTests, WritingStringReportsCorrectSizeAndCapacity)
 {
-	ByteBuffer buffer;
-	EXPECT_EQ(0, buffer.size());
-	EXPECT_EQ(0, buffer.capacity());
+    ByteBuffer buffer;
+    EXPECT_EQ(uint32_t(0), buffer.size());
+    EXPECT_EQ(uint32_t(0), buffer.capacity());
 
-	buffer.write<std::string>(std::string("test string"));
+    buffer.write<std::string>(std::string("test string"));
 
-	EXPECT_EQ(13, buffer.size());
-	EXPECT_EQ(13, buffer.capacity());
+    EXPECT_EQ(uint32_t(13), buffer.size());
+    EXPECT_EQ(uint32_t(13), buffer.capacity());
 }
 
 TEST(ByteBufferTests, CanReadStringWrittenToTheBuffer)
 {
-	ByteBuffer buffer;
-	std::string test_string("test string data");
+    ByteBuffer buffer;
+    std::string test_string("test string data");
 
-	buffer.write<std::string>(test_string);
+    buffer.write<std::string>(test_string);
 
-	EXPECT_EQ(test_string, buffer.read<std::string>());
+    EXPECT_EQ(test_string, buffer.read<std::string>());
 }
 
 TEST(ByteBufferTests, CanReadTwoStringsWrittenToTheBuffer)
 {
-	ByteBuffer buffer;
-	std::string test_string1("first test string");
-	std::string test_string2("second test string");
+    ByteBuffer buffer;
+    std::string test_string1("first test string");
+    std::string test_string2("second test string");
 
-	buffer.write<std::string>(test_string1);
-	buffer.write<std::string>(test_string2);
+    buffer.write<std::string>(test_string1);
+    buffer.write<std::string>(test_string2);
 
-	EXPECT_EQ(test_string1, buffer.read<std::string>());
-	EXPECT_EQ(test_string2, buffer.read<std::string>());
+    EXPECT_EQ(test_string1, buffer.read<std::string>());
+    EXPECT_EQ(test_string2, buffer.read<std::string>());
 }
 
 TEST(ByteBufferTests, WritingUnicodeStringReportsCorrectSizeAndCapacity)
 {
-	ByteBuffer buffer;
-	EXPECT_EQ(0, buffer.size());
-	EXPECT_EQ(0, buffer.capacity());
+    ByteBuffer buffer;
+    EXPECT_EQ(uint32_t(0), buffer.size());
+    EXPECT_EQ(uint32_t(0), buffer.capacity());
 
-	buffer.write<std::wstring>(std::wstring(L"test string"));
+    buffer.write<std::wstring>(std::wstring(L"test string"));
 
-	// Length and Capacity should be size of int + size of string * size of wchar_t.
-	EXPECT_EQ(sizeof(uint32_t) + (11 * 2), buffer.size());
-	EXPECT_EQ(sizeof(uint32_t) + (11 * 2), buffer.capacity());
+    // Length and Capacity should be size of int + size of string * size of wchar_t.
+    EXPECT_EQ(sizeof(uint32_t) + (11 * 2), buffer.size());
+    EXPECT_EQ(sizeof(uint32_t) + (11 * 2), buffer.capacity());
 }
 
 TEST(ByteBufferTests, CanReadUnicodeStringWrittenToTheBuffer)
 {
-	ByteBuffer buffer;
-	std::wstring test_string(L"test string data");
+    ByteBuffer buffer;
+    std::wstring test_string(L"test string data");
 
-	buffer.write<std::wstring>(test_string);
-	EXPECT_STREQ(test_string.c_str(), buffer.read<std::wstring>().c_str());
+    buffer.write<std::wstring>(test_string);
+    EXPECT_STREQ(test_string.c_str(), buffer.read<std::wstring>().c_str());
 }
 
 TEST(ByteBufferTests, UnicodeStringStoredAs16Bit)
 {
-	ByteBuffer buffer;
-	std::wstring test_string(L"testdata");
+    ByteBuffer buffer;
+    std::wstring test_string(L"testdata");
 
-    EXPECT_EQ(8, test_string.length());
+    EXPECT_EQ(uint32_t(8), test_string.length());
     
-	buffer.write<std::wstring>(test_string);
+    buffer.write<std::wstring>(test_string);
 
-    EXPECT_EQ(8, buffer.read<uint32_t>());
+    EXPECT_EQ(uint32_t(8), buffer.read<uint32_t>());
 
     EXPECT_EQ('t', buffer.read<uint8_t>());
     EXPECT_EQ(0, buffer.read<uint8_t>());
@@ -162,45 +162,45 @@ TEST(ByteBufferTests, UnicodeStringStoredAs16Bit)
 
 TEST(ByteBufferTests, CanClearBufferData)
 {
-	ByteBuffer buffer;
-	EXPECT_EQ(0, buffer.size());
+    ByteBuffer buffer;
+    EXPECT_EQ(uint32_t(0), buffer.size());
 
-	buffer.write<int>(3);
-	EXPECT_EQ(4, buffer.size());
+    buffer.write<int>(3);
+    EXPECT_EQ(uint32_t(4), buffer.size());
 
-	buffer.clear();
-	EXPECT_EQ(0, buffer.size());
-  EXPECT_EQ(0, buffer.readPosition());
-  EXPECT_EQ(0, buffer.writePosition());
+    buffer.clear();
+    EXPECT_EQ(uint32_t(0), buffer.size());
+    EXPECT_EQ(uint32_t(0), buffer.readPosition());
+    EXPECT_EQ(uint32_t(0), buffer.writePosition());
 }
 
 TEST(ByteBufferTests, CanStreamData)
 {
-	ByteBuffer buffer;
-	int testInt = 3;
+    ByteBuffer buffer;
+    int testInt = 3;
 
-	buffer << testInt;
-	EXPECT_EQ(3, buffer.read<int>());
+    buffer << testInt;
+    EXPECT_EQ(3, buffer.read<int>());
 }
 
 TEST(ByteBufferTests, PeekingDataDoesNotMoveReadPosition)
 {
-	ByteBuffer buffer;
-	buffer.write<int>(3);
-	buffer.write<int>(10);
+    ByteBuffer buffer;
+    buffer.write<int>(3);
+    buffer.write<int>(10);
 
-	// Peek the data twice, this should return the same integer value (3) both times.
-	EXPECT_EQ(3, buffer.peek<int>());
-	EXPECT_EQ(3, buffer.peek<int>());
+    // Peek the data twice, this should return the same integer value (3) both times.
+    EXPECT_EQ(3, buffer.peek<int>());
+    EXPECT_EQ(3, buffer.peek<int>());
 }
 
 TEST(ByteBufferTests, CanReadAndWriteUnsignedData)
 {
-	ByteBuffer buffer;
-	buffer.write<uint16_t>(3);
+    ByteBuffer buffer;
+    buffer.write<uint16_t>(3);
 
-	EXPECT_EQ(2, buffer.size()); // First check that the right datasize was written.
-	EXPECT_EQ(3, buffer.read<uint16_t>()); // Check that the value is correct.
+    EXPECT_EQ(uint32_t(2), buffer.size()); // First check that the right datasize was written.
+    EXPECT_EQ(3, buffer.read<uint16_t>()); // Check that the value is correct.
 }
 
 TEST(ByteBufferTests, CanPeekAtOffset)
@@ -257,7 +257,7 @@ TEST(ByteBufferTests, CanSwapEndian)
     buffer.write<char>(0);
     buffer.write<char>(2);
     
-    EXPECT_EQ(2, buffer.peek<uint32_t>(true));
+    EXPECT_EQ(uint32_t(2), buffer.peek<uint32_t>(true));
 
     // Start a new check with a 64bit value
     buffer.clear();
@@ -270,7 +270,7 @@ TEST(ByteBufferTests, CanSwapEndian)
     buffer.write<char>(0);
     buffer.write<char>(2);
 
-    EXPECT_EQ(2, buffer.peek<uint64_t>(true));
+    EXPECT_EQ(uint64_t(2), buffer.peek<uint64_t>(true));
 }
 
 }

@@ -115,32 +115,32 @@ std::vector<unsigned char>& ByteBuffer::raw() {
 }
 
 template<>
-void ByteBuffer::swapEndian(uint16_t& data) {
+void ByteBuffer::swapEndian(uint16_t& data) const {
   swapEndian16(data);
 }
 
 template<>
-void ByteBuffer::swapEndian(uint32_t& data) {
+void ByteBuffer::swapEndian(uint32_t& data) const {
   swapEndian32(data);
 }
 
 template<>
-void ByteBuffer::swapEndian(uint64_t& data) {
+void ByteBuffer::swapEndian(uint64_t& data) const {
   swapEndian64(data);
 }
 
 template<>
-void ByteBuffer::swapEndian(int16_t& data) {
+void ByteBuffer::swapEndian(int16_t& data) const {
   swapEndian16(data);
 }
 
 template<>
-void ByteBuffer::swapEndian(int32_t& data) {
+void ByteBuffer::swapEndian(int32_t& data) const {
   swapEndian32(data);
 }
 
 template<>
-void ByteBuffer::swapEndian(int64_t& data) {
+void ByteBuffer::swapEndian(int64_t& data) const {
   swapEndian64(data);
 }
 

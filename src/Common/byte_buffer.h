@@ -35,8 +35,8 @@ class ByteBuffer {
 
   template<typename T> ByteBuffer& write(T data);
   template<typename T> ByteBuffer& writeAt(size_t offset, T data);
-  template<typename T> const T peek(bool doSwapEndian = false);
-  template<typename T> const T peekAt(size_t offset, bool doSwapEndian = false);
+  template<typename T> const T peek(bool doSwapEndian = false) const;
+  template<typename T> const T peekAt(size_t offset, bool doSwapEndian = false) const;
   template<typename T> const T read(bool doSwapEndian = false);
 
   void write(const unsigned char* data, size_t size);
@@ -57,10 +57,10 @@ class ByteBuffer {
   std::vector<unsigned char>& raw();
 
  private:
-  template<typename T> void swapEndian(T& data);
-  template<typename T> void swapEndian16(T& data);
-  template<typename T> void swapEndian32(T& data);
-  template<typename T> void swapEndian64(T& data);
+  template<typename T> void swapEndian(T& data) const;
+  template<typename T> void swapEndian16(T& data) const;
+  template<typename T> void swapEndian32(T& data) const;
+  template<typename T> void swapEndian64(T& data) const;
 
   std::vector<unsigned char> data_;
   size_t read_position_;

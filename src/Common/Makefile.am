@@ -41,3 +41,15 @@ tests_event_LDADD = -lgtest_main \
   $(BOOST_THREAD_LIB) \
   libcommon.la
 tests_event_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+
+TESTS += tests/event_dispatcher
+check_PROGRAMS += tests/event_dispatcher
+tests_event_dispatcher_SOURCES = event_dispatcher_unittest.cc
+tests_event_dispatcher_LDADD = -lgtest_main \
+  $(BOOST_LDFLAGS) \
+  $(BOOST_DATE_TIME_LIB) \
+  $(BOOST_SYSTEM_LIB) \
+  $(BOOST_THREAD_LIB) \
+  libcommon.la \
+  $(top_builddir)/src/Utils/libutils.la
+tests_event_dispatcher_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors

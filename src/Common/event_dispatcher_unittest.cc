@@ -28,19 +28,82 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <gtest/gtest.h>
 
 #include "Common/EventDispatcher.h"
-#include "MockObjects/MockEvent.h"
-#include "MockObjects/MockListener.h"
-#include "MockObjects/MockListenerAlt.h"
 
-using ::common::EventDispatcher;
-using ::common::IEventPtr;
-using ::common::EventType;
-using ::common::EventListener;
-using ::common::EventListenerCallback;
-using ::common::EventListenerType;
+using common::EventDispatcher;
+using common::IEventPtr;
+using common::EventType;
+using common::EventListener;
+using common::EventListenerCallback;
+using common::EventListenerType;
 
 namespace {
 
+class MockEvent : public ::common::BaseEvent {
+public:
+    explicit MockEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0) 
+        : BaseEvent(subject_id, delay_ms)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback) 
+        : BaseEvent(subject_id, delay_ms, callback)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(::common::ByteBuffer& in) {
+        deserialize(in);
+    }
+
+    ~MockEvent() {}
+
+    const ::common::EventType& event_type() const { return event_type_; }
+
+    int some_event_val() const { return some_event_val_; }
+    void some_event_val(int some_event_val) { some_event_val_ = some_event_val; }
+
+private:
+    void onSerialize(::common::ByteBuffer& out) const {
+        out << some_event_val_;
+    }
+
+    void onDeserialize(::common::ByteBuffer& in) {
+        some_event_val_ = in.read<int>();
+    }
+
+    bool onConsume(bool handled) const {
+        return true;
+    }
+
+    static const ::common::EventType event_type_;
+    int some_event_val_;
+};
+
+const ::common::EventType MockEvent::event_type_ = ::common::EventType("mock_event");
+
+class MockListener {
+public:
+    MockListener() : triggered_(false) {}
+    ~MockListener() {}
+
+    bool triggered() const { return triggered_; }
+
+    bool HandleEvent(::common::IEventPtr triggered_event) {
+        triggered_ = true;
+        return true;
+    }
+
+private:
+    bool triggered_;
+};
+
+class MockListenerAlt {
+public:
+    MockListenerAlt() {}
+    ~MockListenerAlt() {}
+
+    bool HandleEvent(::common::IEventPtr triggered_event) {
+        return true;
+    }
+};
+    
 TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     // Create the EventDispatcher and a MockListener to use for testing.
     EventDispatcher dispatcher;   
@@ -54,11 +117,10 @@ TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
 
     // Make sure there's 1 and only 1 listener registered.
-    EXPECT_EQ(1, listeners.size());
+    EXPECT_EQ(uint32_t(1), listeners.size());
 
     // Make sure the one item returned back is the same as the one put in.
     EXPECT_EQ(EventListenerType("MockListener"), listeners[0].first);
-    EXPECT_EQ(callback, listeners[0].second);
 }
 
 TEST(EventDispatcherTests, CanConnectListenerToTwoEvents) {
@@ -76,8 +138,8 @@ TEST(EventDispatcherTests, CanConnectListenerToTwoEvents) {
     std::vector<EventListener> listeners2 = dispatcher.GetListeners(EventType("test_event2")).get();
 
     // Make sure there's 1 listener registered to each event.
-    EXPECT_EQ(1, listeners1.size());
-    EXPECT_EQ(1, listeners2.size());
+    EXPECT_EQ(uint32_t(1), listeners1.size());
+    EXPECT_EQ(uint32_t(1), listeners2.size());
 }
 
 TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
@@ -97,14 +159,11 @@ TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
     std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
 
     // Make sure there are 2 listeners registered for this type.
-    EXPECT_EQ(2, listeners.size());
+    EXPECT_EQ(uint32_t(2), listeners.size());
 
     // Make sure the items returned back are the same as the ones put in.
     EXPECT_EQ(EventListenerType("MockListener"), listeners[0].first);
-    EXPECT_EQ(callback1, listeners[0].second);
-
     EXPECT_EQ(EventListenerType("MockListenerAlt"), listeners[1].first);
-    EXPECT_EQ(callback2, listeners[1].second);
 }
 
 TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
@@ -123,7 +182,7 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
     std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
     
     // Make sure there are 2 listeners registered for this type.
-    EXPECT_EQ(2, listeners.size());
+    EXPECT_EQ(uint32_t(2), listeners.size());
 
     // Disconnect one of the listeners.
     dispatcher.Disconnect(EventType("test_event"), EventListenerType("MockListener"));
@@ -132,11 +191,10 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
     listeners = dispatcher.GetListeners(EventType("test_event")).get();
     
     // Make sure there is only listener registered for this type.
-    EXPECT_EQ(1, listeners.size());
+    EXPECT_EQ(uint32_t(1), listeners.size());
     
     // Make sure the correct listener is still registered.
     EXPECT_EQ(EventListenerType("MockListenerAlt"), listeners[0].first);
-    EXPECT_EQ(callback2, listeners[0].second);
 }
 
 TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {    
@@ -158,8 +216,8 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {
     std::vector<EventListener> listeners1 = dispatcher.GetListeners(EventType("test_event1")).get();
     std::vector<EventListener> listeners2 = dispatcher.GetListeners(EventType("test_event2")).get();
 
-    EXPECT_EQ(2, listeners1.size());
-    EXPECT_EQ(2, listeners2.size());
+    EXPECT_EQ(uint32_t(2), listeners1.size());
+    EXPECT_EQ(uint32_t(2), listeners2.size());
 
     // Disconnect an listener from all events.
     dispatcher.DisconnectFromAll(EventListenerType("MockListener"));
@@ -168,8 +226,8 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {
     listeners1 = dispatcher.GetListeners(EventType("test_event1")).get();
     listeners2 = dispatcher.GetListeners(EventType("test_event2")).get();
 
-    EXPECT_EQ(1, listeners1.size());
-    EXPECT_EQ(1, listeners2.size());
+    EXPECT_EQ(uint32_t(1), listeners1.size());
+    EXPECT_EQ(uint32_t(1), listeners2.size());
 }
 
 TEST(EventDispatcherTests, CanGetListOfRegisteredEventTypes) {
@@ -185,7 +243,7 @@ TEST(EventDispatcherTests, CanGetListOfRegisteredEventTypes) {
 
     std::vector<EventType> event_types = dispatcher.GetRegisteredEvents().get();
     
-    EXPECT_EQ(3, event_types.size());
+    EXPECT_EQ(uint32_t(3), event_types.size());
 
     EXPECT_EQ(EventType("test_event1"), event_types[0]);
     EXPECT_EQ(EventType("test_event3"), event_types[1]); // When hashed test_event3 happens to be less than test_event2
@@ -200,13 +258,13 @@ TEST(EventDispatcherTests, NotifyingListenersQueuesEventForProcessing) {
     IEventPtr my_event = std::make_shared<MockEvent>();
     
     // Make sure the dispatcher does not have events waiting.
-    EXPECT_EQ(false, dispatcher.HasEvents().get());
+    EXPECT_FALSE(dispatcher.HasEvents().get());
 
     // Trigger the event.
     dispatcher.Notify(my_event);
 
     // Make sure the dispatcher has events waiting.
-    EXPECT_EQ(true, dispatcher.HasEvents().get());
+    EXPECT_TRUE(dispatcher.HasEvents().get());
 }
 
 TEST(EventDispatcherTests, DeliveringEventCallsAppropriateListener) {
@@ -222,8 +280,8 @@ TEST(EventDispatcherTests, DeliveringEventCallsAppropriateListener) {
     IEventPtr my_event = std::make_shared<MockEvent>();
 
     // Deliver the event.
-    EXPECT_EQ(true, dispatcher.Deliver(my_event).get());
-    EXPECT_EQ(true, listener.triggered());
+    EXPECT_TRUE(dispatcher.Deliver(my_event).get());
+    EXPECT_TRUE(listener.triggered());
 }
 
 TEST(EventDispatcherTests, DeliveringEventOfUnknownTypeIsSuccessful) {
@@ -239,7 +297,7 @@ TEST(EventDispatcherTests, DeliveringEventOfUnknownTypeIsSuccessful) {
     IEventPtr my_event = std::make_shared<MockEvent>();
 
     // Deliver the event.
-    EXPECT_EQ(true, dispatcher.Deliver(my_event).get());
+    EXPECT_TRUE(dispatcher.Deliver(my_event).get());
 }
 
 TEST(EventDispatcherTests, DeliveringEventCallsGlobalListeners) {
@@ -256,7 +314,7 @@ TEST(EventDispatcherTests, DeliveringEventCallsGlobalListeners) {
 
     // Deliver the event and verify the global listener was called.
     dispatcher.Deliver(my_event).get();
-    EXPECT_EQ(true, listener.triggered());
+    EXPECT_TRUE(listener.triggered());
 }
 
 TEST(EventDispatcherTests, CallingTickProcessesQueuedEvents) {
@@ -275,24 +333,24 @@ TEST(EventDispatcherTests, CallingTickProcessesQueuedEvents) {
     dispatcher.Notify(my_event);
 
     // Make sure the dispatcher has waiting events.
-    EXPECT_EQ(true, dispatcher.HasEvents().get());
+    EXPECT_TRUE(dispatcher.HasEvents().get());
 
     // Call tick on the dispatcher.
     dispatcher.Tick(1);
     
     // Make sure there are no waiting events.
-    EXPECT_EQ(false, dispatcher.HasEvents().get());
-    EXPECT_EQ(true, listener.triggered());
+    EXPECT_FALSE(dispatcher.HasEvents().get());
+    EXPECT_TRUE(listener.triggered());
 }
 
 TEST(EventDispatcherTests, CallingTickUpdatesTimestamp) {
     EventDispatcher dispatcher;
 
-    EXPECT_EQ(0, dispatcher.current_timestep().get());
+    EXPECT_EQ(uint64_t(0), dispatcher.current_timestep().get());
 
     dispatcher.Tick(10);
 
-    EXPECT_EQ(10, dispatcher.current_timestep().get());
+    EXPECT_EQ(uint64_t(10), dispatcher.current_timestep().get());
 }
 
 TEST(EventDispatcherTests, SuccessfullDeliveryInvokesEventCallback) {
@@ -319,7 +377,7 @@ TEST(EventDispatcherTests, CallingTickWithNonSequentialIntervalFails) {
     EventDispatcher dispatcher(10);
 
     // Try to tick with a time in the past.
-    EXPECT_EQ(false, dispatcher.Tick(9).get());
+    EXPECT_FALSE(dispatcher.Tick(9).get());
 }
 
 TEST(EventDispatcherTests, ChainedEventsAreAddedToQueueOnSuccessfulDelivery) {
@@ -342,7 +400,7 @@ TEST(EventDispatcherTests, ChainedEventsAreAddedToQueueOnSuccessfulDelivery) {
     my_event1->next(my_event2);
     
     // Make sure the dispatcher has no events waiting.
-    EXPECT_EQ(false, dispatcher.HasEvents().get());
+    EXPECT_FALSE(dispatcher.HasEvents().get());
 
     // Deliver the event.
     dispatcher.Deliver(my_event1).get();
@@ -351,7 +409,7 @@ TEST(EventDispatcherTests, ChainedEventsAreAddedToQueueOnSuccessfulDelivery) {
     EXPECT_EQ(1, *someval);
 
     // Make sure that the event dispatcher now has something in the queue.
-    EXPECT_EQ(true, dispatcher.HasEvents().get());
+    EXPECT_TRUE(dispatcher.HasEvents().get());
 
     // Tick forward so the queued event is processed.
     dispatcher.Tick(1).get();
@@ -376,21 +434,21 @@ TEST(EventDispatcherTests, DelayedEventsAreOnlyProcessedAfterTimeoutHasBeenReach
     dispatcher.Notify(my_event);
 
     // Make sure the dispatcher has waiting events.
-    EXPECT_EQ(true, dispatcher.HasEvents().get());
+    EXPECT_TRUE(dispatcher.HasEvents().get());
 
     // Call tick on the dispatcher.
     dispatcher.Tick(1);
     
     // Make sure the dispatcher still has the waiting event and the listener hasn't been triggered.
-    EXPECT_EQ(true, dispatcher.HasEvents().get());
-    EXPECT_EQ(false, listener.triggered());
+    EXPECT_TRUE(dispatcher.HasEvents().get());
+    EXPECT_FALSE(listener.triggered());
     
     // Call tick on the dispatcher.
     dispatcher.Tick(5);
     
     // Make sure the dispatcher no events and the listener has been triggered.
-    EXPECT_EQ(false, dispatcher.HasEvents().get());
-    EXPECT_EQ(true, listener.triggered());
+    EXPECT_FALSE(dispatcher.HasEvents().get());
+    EXPECT_TRUE(listener.triggered());
 }
 
 TEST(EventDispatcherTests, DeliveringNullEventReturnsFalse) {
@@ -398,7 +456,7 @@ TEST(EventDispatcherTests, DeliveringNullEventReturnsFalse) {
     EventDispatcher dispatcher;
 
     // Deliver the event.
-    EXPECT_EQ(false, dispatcher.Deliver(nullptr).get());
+    EXPECT_FALSE(dispatcher.Deliver(nullptr).get());
 }
 
 TEST(EventDispatcherTests, TriggeringNullEventDoesNothing) {
@@ -420,7 +478,7 @@ TEST(EventDispatcherTests, NotifyingListenersSetsTimestamp) {
     dispatcher.Notify(my_event);    
     dispatcher.Tick(1).get();
 
-    EXPECT_EQ(100, my_event->timestamp());
+    EXPECT_EQ(uint64_t(100), my_event->timestamp());
 }
 
 TEST(EventDispatcherTests, DeliveringEventsSetsTimestamp) {
@@ -433,7 +491,7 @@ TEST(EventDispatcherTests, DeliveringEventsSetsTimestamp) {
     // Deliver the event.
     dispatcher.Deliver(my_event).get();    
 
-    EXPECT_EQ(100, my_event->timestamp());
+    EXPECT_EQ(uint64_t(100), my_event->timestamp());
 }
 
 }

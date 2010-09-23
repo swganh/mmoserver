@@ -41,6 +41,72 @@ using ::common::EventListenerType;
 
 namespace {
 
+class MockEvent : public ::common::BaseEvent {
+public:
+    explicit MockEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0) 
+        : BaseEvent(subject_id, delay_ms)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback) 
+        : BaseEvent(subject_id, delay_ms, callback)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(::common::ByteBuffer& in) {
+        deserialize(in);
+    }
+
+    ~MockEvent() {}
+
+    const ::common::EventType& event_type() const { return event_type_; }
+
+    int some_event_val() const { return some_event_val_; }
+    void some_event_val(int some_event_val) { some_event_val_ = some_event_val; }
+
+private:
+    void onSerialize(::common::ByteBuffer& out) const {
+        out << some_event_val_;
+    }
+
+    void onDeserialize(::common::ByteBuffer& in) {
+        some_event_val_ = in.Read<int>();
+    }
+
+    bool onConsume(bool handled) const {
+        return true;
+    }
+
+    static const ::common::EventType event_type_;
+    int some_event_val_;
+};
+
+class MockListener {
+public:
+    MockListener() : triggered_(false) {}
+    ~MockListener() {}
+
+    bool triggered() const { return triggered_; }
+
+    bool HandleEvent(::common::IEventPtr triggered_event) {
+        triggered_event;
+        triggered_ = true;
+        return true;
+    }
+
+private:
+    bool triggered_;
+};
+
+class MockListenerAlt {
+public:
+    MockListenerAlt() {}
+    ~MockListenerAlt() {}
+
+    bool HandleEvent(::common::IEventPtr triggered_event) {
+        triggered_event;
+        return true;
+    }
+};
+    
 TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     // Create the EventDispatcher and a MockListener to use for testing.
     EventDispatcher dispatcher;   

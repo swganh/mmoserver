@@ -67,7 +67,7 @@ public:
 
 private:
 
-    bool							mServerService; //marks the service as server / client important to determine packetsize
+    bool                          mServerService; //marks the service as server / client important to determine packetsize
     Service*                      mService;
     SocketWriteThread*            mSocketWriteThread;
     PacketFactory*                mPacketFactory;

@@ -36,13 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/utils.h"
 
-#if defined(__GNUC__)
-// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
-// spec, which requires the header without the tr1/ prefix.
-#include <tr1/functional>
-#else
 #include <functional>
-#endif
 
 #define RECEIVE_BUFFER 512
 
@@ -83,11 +77,11 @@ void PingServer::AsyncReceive()
     socket_.async_receive_from(
         boost::asio::buffer(receive_buffer_),
         remote_endpoint_,
-        std::tr1::bind(
+        std::bind(
             &PingServer::HandleReceive,
             this,
-            std::tr1::placeholders::_1,
-            std::tr1::placeholders::_2
+            std::placeholders::_1,
+            std::placeholders::_2
         )
     );
 }
@@ -106,11 +100,11 @@ void PingServer::HandleReceive(const boost::system::error_code& error, size_t by
         socket_.async_send_to(
             boost::asio::buffer(&receive_buffer_[0], bytesReceived),
             remote_endpoint_,
-            std::tr1::bind(
+            std::bind(
                 &PingServer::HandleSend,
                 this,
-                std::tr1::placeholders::_1,
-                std::tr1::placeholders::_2
+                std::placeholders::_1,
+                std::placeholders::_2
             )
         );
     }
@@ -137,7 +131,7 @@ int main(int argc, char* argv[])
         std::cout << "Unable to find configuration file: " << CONFIG_DIR << "PingServer.cfg" << std::endl;
         exit(-1);
     }
-
+    
     try {
         LogManager::Init(
             static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),

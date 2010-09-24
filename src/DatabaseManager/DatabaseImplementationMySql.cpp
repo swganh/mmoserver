@@ -45,11 +45,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema) :
     DatabaseImplementation(host, port, user, pass, schema)
 {
-    MYSQL*        connect = 0;
-
     // Initialize mysql and make a connection to the server.
     mConnection = mysql_init(0);
-    connect = mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)schema, port, 0, CLIENT_MULTI_STATEMENTS);
+    mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)schema, port, 0, CLIENT_MULTI_STATEMENTS);
     mysql_options(mConnection, MYSQL_OPT_RECONNECT, "true");
 
     // Any errors from the connection attempt?

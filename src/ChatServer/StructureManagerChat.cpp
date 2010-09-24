@@ -139,7 +139,6 @@ void StructureManagerChatHandler::Shutdown()
 void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
-    Player* player(0);
 
     switch(asynContainer->mQueryType)
     {
@@ -825,16 +824,6 @@ void StructureManagerChatHandler::Process()
 void StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate(Message* message,DispatchClient* client)
 {
     mPlayerAccountMap = mChatManager->getPlayerAccountMap();
-    Player* player;
-    PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
-
-    if(accIt != mPlayerAccountMap.end())
-        player = (*accIt).second;
-    else
-    {
-        gLogger->log(LogManager::DEBUG,"StructureManagerChatHandler::ProcessAddHarvesterHopperUpdate Error getting player from account map %u",client->getAccountId());
-        return;
-    }
 
     uint64	harvesterID		= message->getUint64();
     uint8   activation		= message->getUint8();

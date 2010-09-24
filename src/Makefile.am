@@ -4,8 +4,8 @@ SUBDIRS = Utils \
   NetworkManager \
   PingServer \
   LoginServer \
-  ConnectionServer
+  ConnectionServer \
+  ChatServer
 #  ScriptEngine \
 #  MessageLib \
-#  ChatServer \
 #  ZoneServer

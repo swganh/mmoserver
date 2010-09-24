@@ -63,7 +63,7 @@ class CSRAsyncContainer
 {
 public:
 
-    CSRAsyncContainer(CSRQuery cq): mCategory(NULL) {
+    CSRAsyncContainer(CSRQuery cq): mCategory(nullptr) {
         mQueryType = cq;
     }
     ~CSRAsyncContainer() {}

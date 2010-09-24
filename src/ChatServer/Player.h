@@ -62,11 +62,11 @@ class Player
 {
 public:
     Player(uint64 charId,DispatchClient* client,uint32 planetId)
-        : mBazaar(NULL)
+        : mBazaar(nullptr)
         , mClient(client)
         , mCharId(charId)
         , mGroupId(0)
-        , mKey(NULL)
+        , mKey(0)
         , mPlanetId(planetId)
         , mX(0)
         , mZ(0)

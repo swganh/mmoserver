@@ -171,8 +171,7 @@ enum STRMQueryType
     STRMQuery_MaintenanceUpdate			=	8,
     STRMQuery_PowerUpdate				=	9,
     STRMQuery_FactoryUpdate				=	10,
-    STRMQuery_DoneFactoryUpdate			=	11,
-
+    STRMQuery_DoneFactoryUpdate			=	11
 };
 
 class StructureManagerAsyncContainer

@@ -102,12 +102,12 @@ Session::Session(void) :
     mInIncomingQueue(false),
     mStatus(SSTAT_Initialize),
     mCommand(SCOM_None),
-    mPacketBuildTimeLimit(15),
     avgTime(0),
     avgPacketsbuild(0),
     avgUnreliablesbuild(0),
-    lowestCount(0),
-    lowest(0)
+    mPacketBuildTimeLimit(15),
+    lowest(0),
+    lowestCount(0)
 {
     mConnectStartEvent = lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();       // For SCOM_Connect commands
     mLastConnectRequestSent = mConnectStartEvent;
@@ -296,12 +296,7 @@ void Session::ProcessReadThread(void)
 
 void Session::ProcessWriteThread(void)
 {
-
     uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
-    uint64 packetBuildTimeStart;
-    uint64 packetBuildTime = 0;
-
-    uint64 wholeTime = packetBuildTime = packetBuildTimeStart = now;
 
     //only process when we are busy - we dont need to iterate through possible resends all the time
     if((!mUnreliableMessageQueue.size())&&(!mOutgoingMessageQueue.size()) && (!mNewWindowPacketList.size()))
@@ -355,10 +350,7 @@ void Session::ProcessWriteThread(void)
     {
         pBuild += _buildPackets();
     }
-
-    uint32 resendPackets = 0;
-
-
+    
     //build unreliable packets
     while((pUnreliableBuild < 100) && mUnreliableMessageQueue.size())
     {
@@ -399,7 +391,7 @@ void Session::ProcessWriteThread(void)
 
             windowPacket = *iterRoll;
             windowPacket->setReadIndex(2);
-            uint16 sequence = ntohs(windowPacket->getUint16());
+            /*uint16 sequence = ntohs(*/windowPacket->getUint16(); 
 
 
             // If we've sent our mWindowSizeCurrent of packets, break out and wait for some acks.
@@ -415,8 +407,6 @@ void Session::ProcessWriteThread(void)
             mNextPacketSequenceSent++;
         }
     }
-
-    resendPackets = 0;
 
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
@@ -1056,7 +1046,7 @@ void Session::_processDisconnectPacket(Packet* packet)
 void Session::_processMultiPacket(Packet* packet)
 {
     Packet* newPacket = 0;
-    uint16 packetIndex = 0, packetSize = 0;
+    uint16 packetSize = 0;
 
     // Iterate through our multi-packet
 
@@ -1094,8 +1084,8 @@ void Session::_processDataChannelPacket(Packet* packet, bool fastPath)
 
     // Otherwise ack this packet then send it up
     packet->setReadIndex(0);
-    uint16 packetType = packet->getUint16();
-    uint16 sequence = ntohs(packet->getUint16());
+    packet->getUint16(); // packet type
+    packet->getUint16(); // sequence
 
     // check to see if this is a multi-message message
     //uint16 len = packet->getSize() - 4;  // -2 header, -2 sequence
@@ -1203,8 +1193,8 @@ void Session::_processDataChannelB(Packet* packet)
 
     // Otherwise ack this packet then send it up
     packet->setReadIndex(0);
-    uint16 packetType = packet->getUint16();   //session op
-    uint16 sequence = ntohs(packet->getUint16());
+    packet->getUint16();   // packet type
+    packet->getUint16(); // sequence
 
     // check to see if this is a multi-message message
 
@@ -1306,8 +1296,6 @@ void Session::_processDataChannelB(Packet* packet)
 //======================================================================================================================
 void Session::_processDataChannelAck(Packet* packet)
 {
-    uint32 oldsize = mWindowSizeCurrent;
-
     Packet* windowPacket = 0;
     uint16 windowPacketSequence = 0;
     PacketWindowList::iterator iter;
@@ -1521,7 +1509,6 @@ void Session::_processDataOrderPacket(Packet* packet)
     {
         //jupp its on the rolloverlist
 
-        uint16 count = 0;
         for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mRolloverWindowPacketList.end(); iterRoll++)
         {
             // Grab our window packet
@@ -1547,14 +1534,13 @@ void Session::_processDataOrderPacket(Packet* packet)
         }
     }
 
-    uint16 count = 0;
     uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
     for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
     {
         // Grab our window packet
         windowPacket = (*iter);
         windowPacket->setReadIndex(2);
-        uint16 windowSequence = ntohs(windowPacket->getUint16());
+        windowPacket->getUint16(); // windowsequence ?
 
         // If it's smaller than the order packet send it, otherwise break;
         // do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
@@ -1710,7 +1696,6 @@ void Session::_processDataOrderChannelB(Packet* packet)
         //jupp its on the rolloverlist
         //mRolloverWindowPacketList and WindowPacketList get accessed by the socketwritethread and by the socketreadthread both through the session
 
-        uint16 count = 0;
         for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mWindowPacketList.end(); iterRoll++)
         {
             // Grab our window packet
@@ -1740,7 +1725,6 @@ void Session::_processDataOrderChannelB(Packet* packet)
 
     }
 
-    uint16 count = 0;
     uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
     for (iter = mWindowPacketList.begin(); iter != mWindowPacketList.end(); iter++)
     {
@@ -1748,7 +1732,7 @@ void Session::_processDataOrderChannelB(Packet* packet)
         // Grab our window packet
         windowPacket = (*iter);
         windowPacket->setReadIndex(2);
-        uint16 windowSequence = ntohs(windowPacket->getUint16());
+        windowPacket->getUint16(); // windowSequence
 
         // If it's smaller than the order packet send it, otherwise break;
         // do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
@@ -1933,7 +1917,6 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
     uint16 sequence = ntohs(packet->getUint16());
 
     uint8 priority = 0;
-    uint8 routed = 0;
     uint8 dest = 0;
     uint32 accountId = 0;
 
@@ -1984,7 +1967,7 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
                     fragment->setReadIndex(8);	//2opcode, 2 sequence and 4 size
 
                     priority = fragment->getUint8();
-                    routed = fragment->getUint8();
+                    fragment->getUint8(); // routed
                     dest = fragment->getUint8();
                     accountId = fragment->getUint32();
 
@@ -2469,7 +2452,6 @@ void Session::_buildOutgoingReliablePackets(Message* message)
 void Session::_buildOutgoingUnreliablePackets(Message* message)
 {
     Packet* newPacket = 0;
-    uint16 messageIndex = 0;
 
     // Create a new packet and push the data into it.
     newPacket = mPacketFactory->CreatePacket();

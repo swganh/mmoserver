@@ -99,9 +99,10 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
 
     mThread = boost::move(t);
 
+#ifdef _WIN32
     HANDLE mtheHandle = mThread.native_handle();
     SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);
-
+#endif
 
 
     //our thread load values

@@ -106,8 +106,10 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
     boost::thread t(std::tr1::bind(&SocketReadThread::run, this));
     mThread = boost::move(t);
 
+#ifdef _WIN32
     HANDLE th =  mThread.native_handle();
     SetPriorityClass(th,REALTIME_PRIORITY_CLASS);
+#endif
     //SetPriorityClass(th,NORMAL_PRIORITY_CLASS);
 }
 
@@ -188,12 +190,12 @@ void SocketReadThread::run(void)
 
             if(recvLen <= 0)
             {
-                int	errorNr = 0;
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 
+                int errorNr = 0;
                 errorNr = WSAGetLastError();
 
-                char	errorMsg[512];
+                char errorMsg[512];
 
                 if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errorNr, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPTSTR)errorMsg, (sizeof(errorMsg) / sizeof(TCHAR)) - 1, NULL))
                 {
@@ -203,11 +205,6 @@ void SocketReadThread::run(void)
                 {
                     gLogger->log(LogManager::WARNING, "Error(recvFrom): %i",errorNr);
                 }
-
-#elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
-
-                errorNr = recvLen;
-
 #endif
                 continue;
             }

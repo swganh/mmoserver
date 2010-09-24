@@ -1,7 +1,7 @@
 SUBDIRS = Utils \
-  Common
-#  DatabaseManager \
-#  NetworkManager \
+  Common \
+  DatabaseManager \
+  NetworkManager
 #  ScriptEngine \
 #  MessageLib \
 #  ChatServer \

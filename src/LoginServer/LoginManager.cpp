@@ -643,7 +643,7 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
     int8 sql[512];
 
     //call the session_key creation sproc
-    sprintf(sql,"SELECT account_id FROM account WHERE account_username='%s' AND account_password = SHA1('%s');\0", client->getUsername().getAnsi(), client->getPassword().getAnsi());
+    sprintf(sql,"SELECT account_id FROM account WHERE account_username='%s' AND account_password = SHA1('%s');", client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
     //set the state
     client->setState(LCSTATE_RetrieveAccountId);
@@ -671,7 +671,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
 
         //get the session_key made and returned
         int8 sql[512];
-        sprintf(sql,"CALL swganh.sp_AccountSessionKeyGenerate(%d);\0", data.mId);
+        sprintf(sql,"CALL swganh.sp_AccountSessionKeyGenerate(%d);", data.mId);
 
         client->setState(LCSTATE_RetrieveSessionKey);
         mDatabase->ExecuteProcedureAsync(this, client, sql);

@@ -164,9 +164,11 @@ void SocketReadThread::run(void)
             mNewConnection.mPort = 0;
 
             // Add the new session to the main process list
-            boost::mutex::scoped_lock lk(mSocketReadMutex);
+            {
+                boost::mutex::scoped_lock lk(mSocketReadMutex);
 
-            mAddressSessionMap.insert(std::make_pair(hash,newSession));
+                mAddressSessionMap.insert(std::make_pair(hash,newSession));
+            }
             mSocketWriteThread->NewSession(newSession);
         }
 

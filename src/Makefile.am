@@ -2,10 +2,10 @@ SUBDIRS = Utils \
   Common \
   DatabaseManager \
   NetworkManager \
-  PingServer
+  PingServer \
+  LoginServer \
+  ConnectionServer
 #  ScriptEngine \
 #  MessageLib \
 #  ChatServer \
-#  ConnectionServer \
-#  LoginServer \
 #  ZoneServer

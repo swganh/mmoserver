@@ -69,8 +69,8 @@ ConnectionServer::ConnectionServer(void) :
     mClusterId(0),
     mClientService(0),
     mServerService(0),
-    mLastHeartbeat(0),
-    mLocked(false)
+    mLocked(false),
+    mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
     // log msg to default log
@@ -104,7 +104,7 @@ ConnectionServer::ConnectionServer(void) :
     
 
     // In case of a crash, we need to cleanup the DB a little.
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
+    mDatabase->ExecuteSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
     
     // Status:  0=offline, 1=loading, 2=online
     _updateDBServerList(1);

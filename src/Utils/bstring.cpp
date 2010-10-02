@@ -550,8 +550,6 @@ void BString::convert(BStringType type)
             for (size_t i = 0; i < mLength; ++i) {
               tmp[i] = static_cast<uint16_t>(mString[i]);
             }
-            
-            //mbstowcs(reinterpret_cast<wchar_t*>(newBuffer),mString, std::min(allocated/2, mLength+1));
         }
     }
     break;

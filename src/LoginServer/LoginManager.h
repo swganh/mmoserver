@@ -28,9 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_LOGINSERVER_LOGINMANAGER_H
 #define ANH_LOGINSERVER_LOGINMANAGER_H
 
+#include <cstdint>
+
 #include "NetworkManager/NetworkCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 
 #include <boost/pool/pool.hpp>
 
@@ -56,14 +59,12 @@ typedef std::list<ServerData*>       ServerDataList;
 
 //======================================================================================================================
 
-class CharacterInfo
+struct CharacterInfo
 {
-public:
-
-    uint64        mCharacterId;
-    int8          mFirstName[64];
-    int8          mLastName[64];
-    int8          mBaseModel[64];
+    uint64_t        mCharacterId;
+    BString          mFirstName;
+    BString          mLastName;
+    BString          mBaseModel;
     uint32        mServerId;
 };
 

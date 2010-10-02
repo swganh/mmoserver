@@ -28,18 +28,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_ACCOUNTDATA_H
 #define ANH_DATABASEMANAGER_ACCOUNTDATA_H
 
+#include <cstdint>
 #include "Utils/typedefs.h"
 #include "Utils/bstring.h"
 
-
 // These are for DB queries.
 //======================================================================================================================
-class AccountData
+struct AccountData
 {
-public:
-    uint32                mId;
-    int8                  mUsername[32];
-    int8                  mPassword[32];
+    uint64_t            mId;
+    BString                  mUsername;
+    BString                  mPassword;
     uint32                mAccountId;
     int8                  mBanned;
     int8                  mActive;

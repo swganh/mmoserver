@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginManager.h"
 
+#include <glog/logging.h>
+
 #include "AccountData.h"
 #include "LoginClient.h"
 
@@ -265,6 +267,8 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
         client->Disconnect(0);
         return;
     }
+    
+    LOG(INFO) << "Login request for account: [" << username.getAnsi() << "]";
 
     client->setUsername(username);
     client->setPassword(password);
@@ -309,26 +313,28 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* result)
 {
     AccountData data;
-
+    
     // This DataBinding code I'm not sure where to put atm.  I've thought about a base class for any objects that want
     // DataBinding, but I don't want to go overboard on abstraction.  Any suggestions would be appreciated.  :)
     DataBinding* binding = mDatabase->CreateDataBinding(8);
     binding->addField(DFT_int64, offsetof(AccountData, mId), 8);
-    binding->addField(DFT_string, offsetof(AccountData, mUsername), 32);
-    binding->addField(DFT_string, offsetof(AccountData, mPassword), 64);
+    binding->addField(DFT_bstring, offsetof(AccountData, mUsername), 32);
+    binding->addField(DFT_bstring, offsetof(AccountData, mPassword), 64);
     binding->addField(DFT_uint32, offsetof(AccountData, mAccountId), 4);
     binding->addField(DFT_uint8, offsetof(AccountData, mBanned), 1);
     binding->addField(DFT_uint8, offsetof(AccountData, mActive), 1);
     binding->addField(DFT_uint32,offsetof(AccountData, mCharsAllowed), 4);
     binding->addField(DFT_uint8, offsetof(AccountData, mCsr), 1);
-
+        
     if (result->getRowCount())
     {
         result->GetNextRow(binding, (void*)&data);
         client->setAccountId(data.mId);
         client->setCharsAllowed(data.mCharsAllowed);
         client->setCsr(data.mCsr);
-        gLogger->log(LogManager::DEBUG,"void LoginManager::_authenticateClient Login: AccountId: %u Name: %s",data.mId,data.mUsername);
+        
+        LOG(INFO) << "Login: AccountId: " << data.mId << " Name: " << data.mUsername.getAnsi();
+
         _sendAuthSucceeded(client);
     }
     else
@@ -445,10 +451,10 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
     // DataBinding, but I don't want to go overboard on abstraction.  Any suggestions would be appreciated.  :)
     DataBinding* binding = mDatabase->CreateDataBinding(5);
     binding->addField(DFT_uint64, offsetof(CharacterInfo, mCharacterId), 8);
-    binding->addField(DFT_string, offsetof(CharacterInfo, mFirstName), 64);
-    binding->addField(DFT_string, offsetof(CharacterInfo, mLastName), 64);
+    binding->addField(DFT_bstring, offsetof(CharacterInfo, mFirstName), 64);
+    binding->addField(DFT_bstring, offsetof(CharacterInfo, mLastName), 64);
     binding->addField(DFT_uint32, offsetof(CharacterInfo, mServerId), 4);
-    binding->addField(DFT_string, offsetof(CharacterInfo, mBaseModel), 64);
+    binding->addField(DFT_bstring, offsetof(CharacterInfo, mBaseModel), 64);
 
     uint32 charCount = static_cast<uint32>(result->getRowCount());
 
@@ -463,12 +469,12 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
         // Append first and last names
         BString fullName, baseModel;
 
-        fullName << data.mFirstName;
+        fullName << data.mFirstName.getAnsi();
 
-        if(strlen(data.mLastName))
+        if(data.mLastName.getLength())
         {
             fullName << " ";
-            fullName << data.mLastName;
+        //    fullName << data.mLastName.getAnsi();
         }
 
         fullName.convert(BSTRType_Unicode16);
@@ -671,7 +677,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
 
         //get the session_key made and returned
         int8 sql[512];
-        sprintf(sql,"CALL swganh.sp_AccountSessionKeyGenerate(%d);", data.mId);
+        sprintf(sql,"CALL swganh.sp_AccountSessionKeyGenerate(%"PRIu64");", data.mId);
 
         client->setState(LCSTATE_RetrieveSessionKey);
         mDatabase->ExecuteProcedureAsync(this, client, sql);

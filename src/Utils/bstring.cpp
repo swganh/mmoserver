@@ -546,7 +546,12 @@ void BString::convert(BStringType type)
 
         if(mType == BSTRType_ANSI || mType == BSTRType_UTF8)
         {
-            mbstowcs(reinterpret_cast<wchar_t*>(newBuffer),mString, std::min(allocated/2, mLength+1));
+            uint16_t* tmp = reinterpret_cast<uint16_t*>(newBuffer);
+            for (size_t i = 0; i < mLength; ++i) {
+              tmp[i] = static_cast<uint16_t>(mString[i]);
+            }
+            
+            //mbstowcs(reinterpret_cast<wchar_t*>(newBuffer),mString, std::min(allocated/2, mLength+1));
         }
     }
     break;

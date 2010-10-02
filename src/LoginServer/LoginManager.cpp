@@ -318,8 +318,8 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     // DataBinding, but I don't want to go overboard on abstraction.  Any suggestions would be appreciated.  :)
     DataBinding* binding = mDatabase->CreateDataBinding(8);
     binding->addField(DFT_int64, offsetof(AccountData, mId), 8);
-    binding->addField(DFT_bstring, offsetof(AccountData, mUsername), 32);
-    binding->addField(DFT_bstring, offsetof(AccountData, mPassword), 64);
+    binding->addField(DFT_string, offsetof(AccountData, mUsername), 32);
+    binding->addField(DFT_string, offsetof(AccountData, mPassword), 32);
     binding->addField(DFT_uint32, offsetof(AccountData, mAccountId), 4);
     binding->addField(DFT_uint8, offsetof(AccountData, mBanned), 1);
     binding->addField(DFT_uint8, offsetof(AccountData, mActive), 1);
@@ -333,7 +333,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
         client->setCharsAllowed(data.mCharsAllowed);
         client->setCsr(data.mCsr);
         
-        LOG(INFO) << "Login: AccountId: " << data.mId << " Name: " << data.mUsername.getAnsi();
+        LOG(INFO) << "Login: AccountId: " << data.mId << " Name: " << data.mUsername;
 
         _sendAuthSucceeded(client);
     }

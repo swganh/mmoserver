@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstring>
 
 #include <boost/lexical_cast.hpp>
+#include <glog/logging.h>
 
 #include <mysql.h>
 
@@ -204,8 +205,8 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
                 }
                 case DFT_string:
                 {
-                    strncpy(&((char*)object)[binding->mDataFields[i].mDataOffset], row[binding->mDataFields[i].mColumn], lengths[binding->mDataFields[i].mColumn]);
-                    ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0;  // NULL terminate the string
+                    std::string tmp(row[binding->mDataFields[i].mColumn]);
+                    std::copy(tmp.begin(), tmp.end(), &((char*)object)[binding->mDataFields[i].mDataOffset]);
                     break;
                 }
                 case DFT_bstring:

@@ -154,6 +154,7 @@ int main(int argc, char* argv[])
 {
     // Initialize the google logging.
     google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
     
     FLAGS_log_dir = "./logs";
   

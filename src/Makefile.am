@@ -5,7 +5,8 @@ SUBDIRS = Utils \
   PingServer \
   LoginServer \
   ConnectionServer \
-  ChatServer
-#  ScriptEngine \
-#  MessageLib \
-#  ZoneServer
+  ChatServer \
+  ScriptEngine \
+  SwgProtocol \
+  MessageLib \
+  ZoneServer

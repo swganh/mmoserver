@@ -120,6 +120,66 @@ fi
 
 ##########################################################################
 
+##########################################################################
+# adding the lua library (e.g. with static name 'liblua.a')
+##########################################################################
+
+# introduce the optional configure parameter for a non-standard install prefix of XXX
+AC_ARG_WITH([lua],
+    [AS_HELP_STRING([--with-lua=prefix],
+        [try this for a non-standard install prefix of the lua library])],
+    [LUAPATHSET=1],
+    [LUAPATHSET=0])
+
+# if optional parameter used, extend path flags for compliler and linker
+if test $LUAPATHSET = 1 ; then
+    # extend the compiler and linker flags according to the path set
+    AM_CXXFLAGS="$AM_CXXFLAGS -I$with_lua/include"
+    AM_LDFLAGS="$AM_LDFLAGS -L$with_lua/lib"
+fi
+
+##########################################################################
+
+##########################################################################
+# adding the tolua++ library (e.g. with static name 'libtolua++.a')
+##########################################################################
+
+# introduce the optional configure parameter for a non-standard install prefix of XXX
+AC_ARG_WITH([tolua],
+    [AS_HELP_STRING([--with-tolua=prefix],
+        [try this for a non-standard install prefix of the tolua library])],
+    [TOLUAPATHSET=1],
+    [TOLUAPATHSET=0])
+
+# if optional parameter used, extend path flags for compliler and linker
+if test $TOLUAPATHSET = 1 ; then
+    # extend the compiler and linker flags according to the path set
+    AM_CXXFLAGS="$AM_CXXFLAGS -I$with_tolua/include"
+    AM_LDFLAGS="$AM_LDFLAGS -L$with_tolua/lib"
+fi
+
+##########################################################################
+
+##########################################################################
+# adding the spatialindex library (e.g. with static name 'libspatialindex.a')
+##########################################################################
+
+# introduce the optional configure parameter for a non-standard install prefix of XXX
+AC_ARG_WITH([spatialindex],
+    [AS_HELP_STRING([--with-spatialindex=prefix],
+        [try this for a non-standard install prefix of the spatialindex library])],
+    [SPATIALINDEXPATHSET=1],
+    [SPATIALINDEXPATHSET=0])
+
+# if optional parameter used, extend path flags for compliler and linker
+if test $SPATIALINDEXPATHSET = 1 ; then
+    # extend the compiler and linker flags according to the path set
+    AM_CXXFLAGS="$AM_CXXFLAGS -I$with_spatialindex/include"
+    AM_LDFLAGS="$AM_LDFLAGS -L$with_spatialindex/lib"
+fi
+
+##########################################################################
+
 # store current user given compiler flags to avoid default setup via AC_PROG_CXX
 OLD_CXXFLAGS=$CXXFLAGS
 
@@ -419,7 +479,7 @@ AC_COMPILE_IFELSE([AC_LANG_SOURCE([
         AC_MSG_CHECKING([whether the mysqlcppconn library can be linked])
         AC_LINK_IFELSE(
             [AC_LANG_PROGRAM([[#include <mysql_driver.h>]],
-                [[get_driver_instance();]])],
+                [[get_driver_instance()]])],
             [AC_MSG_RESULT([yes])
                 FOUND_MYSQLCPPCONN=1;],
             [AC_MSG_RESULT([no])
@@ -451,6 +511,186 @@ fi
 ##########################################################################
 
 
+##########################################################################
+# check for lua library (lua library)
+##########################################################################
+
+# store current *FLAGS and merge with AM_*FLAGS for compilation and linker check   
+OLD_CXXFLAGS=$CXXFLAGS;
+OLD_LDFLAGS=$LDFLAGS;
+CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+LDFLAGS="$AM_LDFLAGS $LDFLAGS"
+
+# ensure the library to check for is covered by the LIBS variable
+OLD_LIBS=$LIBS
+LIBS="$LIBS -llua"
+
+AC_LANG([C])
+
+# check for glog library headers   
+AC_MSG_CHECKING([for the lua library headers])
+# try to compile a file that includes a header of the library glog
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+    #include <lua.h>
+    ])],
+    [AC_MSG_RESULT([found])
+        # try to link the function 'lua_open' out of library lua
+        AC_MSG_CHECKING([whether the lua library can be linked])
+        AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM([[
+                #include <lua.h>
+                #include <lualib.h>
+                #include <lauxlib.h>
+                ]],
+                [[lua_open()]])],
+            [AC_MSG_RESULT([yes])
+                FOUND_LUA=1;],
+            [AC_MSG_RESULT([no])
+                LIBS=$OLD_LIBS; dnl reset to old value since lua was not found
+                FOUND_LUA=0;])],
+    [AC_MSG_RESULT([not found])
+        FOUND_LUA=0;])
+
+AC_LANG([C++])
+
+# reset original *FLAGS
+LIBS=$OLD_LIBS
+CXXFLAGS=$OLD_CXXFLAGS
+LDFLAGS=$OLD_LDFLAGS
+
+# handle check results
+if test $FOUND_LUA != 1; then
+    AC_MSG_NOTICE([])
+    AC_MSG_NOTICE([The lua library was not found!])
+    if test  $LUAPATHSET = 1 ; then
+        AC_MSG_NOTICE([ The install prefix '$with_lua' for the lua library was set.])
+        AC_MSG_NOTICE([ --> Maybe wrong ???])
+    else
+        AC_MSG_NOTICE([ No non-standard install prefix was set.])
+        AC_MSG_NOTICE([ --> You might want to use '--with-lua=PREFIX' ?!?])
+    fi
+    AC_MSG_NOTICE([])
+    AC_MSG_ERROR([lua library is an essential dependency : cannot build and stop here !])
+fi
+
+##########################################################################
+
+
+##########################################################################
+# check for tolua library (tolua library)
+##########################################################################
+
+# store current *FLAGS and merge with AM_*FLAGS for compilation and linker check   
+OLD_CXXFLAGS=$CXXFLAGS;
+OLD_CPPFLAGS=$CPPFLAGS;
+OLD_LDFLAGS=$LDFLAGS;
+CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+CPPFLAGS="$AM_CXXFLAGS $CPPFLAGS"
+LDFLAGS="$AM_LDFLAGS $LDFLAGS"
+
+# ensure the library to check for is covered by the LIBS variable
+OLD_LIBS=$LIBS
+LIBS="$LIBS -llua -ltolua++"
+
+# check for tolua++ library headers   
+AC_MSG_CHECKING([for the tolua++ library headers])
+# try to compile a file that includes a header of the library tolua++
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+    #include <tolua++.h>
+    ])],
+    [AC_MSG_RESULT([found])
+        # try to link the type 'tolua_iscppstring' out of library glog
+        AC_MSG_CHECKING([whether the tolua++ library can be linked])
+        AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM([[#include <tolua++.h>]],
+                [[tolua_Error e]])],
+            [AC_MSG_RESULT([yes])
+                FOUND_TOLUA=1;],
+            [AC_MSG_RESULT([no])
+                LIBS=$OLD_LIBS; dnl reset to old value since tolua was not found
+                FOUND_TOLUA=0;])],
+    [AC_MSG_RESULT([not found])
+        FOUND_TOLUA=0;])
+
+# reset original *FLAGS
+LIBS=$OLD_LIBS
+CPPFLAGS=$OLD_CPPFLAGS
+CXXFLAGS=$OLD_CXXFLAGS
+LDFLAGS=$OLD_LDFLAGS
+
+# handle check results
+if test $FOUND_TOLUA != 1; then
+    AC_MSG_NOTICE([])
+    AC_MSG_NOTICE([The tolua++ library was not found!])
+    if test  $TOLUAPATHSET = 1 ; then
+        AC_MSG_NOTICE([ The install prefix '$with_tolua' for the tolua++ library was set.])
+        AC_MSG_NOTICE([ --> Maybe wrong ???])
+    else
+        AC_MSG_NOTICE([ No non-standard install prefix was set.])
+        AC_MSG_NOTICE([ --> You might want to use '--with-tolua=PREFIX' ?!?])
+    fi
+    AC_MSG_NOTICE([])
+    AC_MSG_ERROR([tolua++ library is an essential dependency : cannot build and stop here !])
+fi
+
+##########################################################################
+
+##########################################################################
+# check for spatialindex library
+##########################################################################
+
+# store current *FLAGS and merge with AM_*FLAGS for compilation and linker check   
+OLD_CXXFLAGS=$CXXFLAGS;
+OLD_LDFLAGS=$LDFLAGS;
+CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+LDFLAGS="$AM_LDFLAGS $LDFLAGS"
+
+# ensure the library to check for is covered by the LIBS variable
+OLD_LIBS=$LIBS
+LIBS="$LIBS -lspatialindex"
+
+# check for noise library headers   
+AC_MSG_CHECKING([for the spatialindex library headers])
+# try to compile a file that includes a header of the library spatialindex
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+    #include <spatialindex/SpatialIndex.h>
+    ])],
+    [AC_MSG_RESULT([found])
+        # try to link the class 'SpatialIndex::Region' out of library spatialindex
+        AC_MSG_CHECKING([whether the spatialindex library can be linked])
+        AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM([[#include <spatialindex/SpatialIndex.h>]],
+                [[SpatialIndex::Region r;]])],
+            [AC_MSG_RESULT([yes])
+                FOUND_SPATIALINDEX=1;],
+            [AC_MSG_RESULT([no])
+                FOUND_SPATIALINDEX=0;])],
+    [AC_MSG_RESULT([not found])
+        FOUND_SPATIALINDEX=0;])
+
+# reset original *FLAGS
+LIBS=$OLD_LIBS
+CXXFLAGS=$OLD_CXXFLAGS
+LDFLAGS=$OLD_LDFLAGS
+
+# handle check results
+if test $FOUND_SPATIALINDEX != 1; then
+    AC_MSG_NOTICE([])
+    AC_MSG_NOTICE([The spatialindex library was not found!])
+    if test  $SPATIALINDEXPATHSET = 1 ; then
+        AC_MSG_NOTICE([ The install prefix '$with_spatialindex' for the spatialindex library was set.])
+        AC_MSG_NOTICE([ --> Maybe wrong ???])
+    else
+        AC_MSG_NOTICE([ No non-standard install prefix was set.])
+        AC_MSG_NOTICE([ --> You might want to use '--with-spatialindex=PREFIX' ?!?])
+    fi
+    AC_MSG_NOTICE([])
+    AC_MSG_ERROR([spatialindex library is an essential dependency : cannot build and stop here !])
+fi
+
+##########################################################################
+
+
 # Configure DEBUG source code, if requested.
 if test "x$debug" = xyes; then
   AC_DEFINE([_DEBUG], [], [Define to enable Server Directory debug mode features])
@@ -467,16 +707,18 @@ AC_SUBST([AM_LDFLAGS])
 
 AC_CONFIG_FILES([Makefile
                  docs/Makefile
+                 src/Makefile
                  src/ChatServer/Makefile
                  src/Common/Makefile
                  src/ConnectionServer/Makefile
                  src/DatabaseManager/Makefile
                  src/LoginServer/Makefile
-                 src/Makefile
                  src/MathLib/Makefile
                  src/MessageLib/Makefile
                  src/NetworkManager/Makefile
                  src/PingServer/Makefile
+                 src/ScriptEngine/Makefile
+                 src/SwgProtocol/Makefile
                  src/Utils/Makefile
                  src/ZoneServer/Makefile])
 AC_OUTPUT

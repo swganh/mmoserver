@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(BOOST_CPPFLAGS) @AM_CXXFLAGS@
 
 # ZoneServer - executable
 bin_PROGRAMS = zoneserver
@@ -6,6 +6,7 @@ bin_PROGRAMS = zoneserver
 zoneserver_SOURCES = \
 	ActiveConversation.cpp \
 	AdminManager.cpp \
+	ArtisanManager.cpp \
 	AttackableCreature.cpp \
 	AttackableStaticNpc.cpp \
 	BadgeRegion.cpp \
@@ -17,6 +18,7 @@ zoneserver_SOURCES = \
 	BuffDBItem.cpp \
 	BuffEvent.cpp \
 	BuffManager.cpp \
+	BugJar.cpp \
 	BuildingFactory.cpp \
 	BuildingObject.cpp \
 	Camp.cpp \
@@ -24,6 +26,7 @@ zoneserver_SOURCES = \
 	CampTerminal.cpp \
 	CellFactory.cpp \
 	CellObject.cpp \
+	ChanceCube.cpp \
 	CharacterBuilderTerminal.cpp \
 	CharacterLoginHandler.cpp \
 	CharSheetManager.cpp \
@@ -32,12 +35,14 @@ zoneserver_SOURCES = \
 	CloningTerminal.cpp \
 	CombatManager.cpp \
 	Container.cpp \
-	ContainerObjectFactory.cp \
+	ContainerObjectFactory.cpp \
 	Conversation.cpp \
 	ConversationManager.cpp \
 	CraftBatch.cpp \
+	CraftingManager.cpp \
 	CraftingSession.cpp \
 	CraftingSessionFactory.cpp \
+	CraftingSessionHelper.cpp \
 	CraftingStation.cpp \
 	CraftingTool.cpp \
 	CreatureEventFunctions.cpp \
@@ -63,18 +68,24 @@ zoneserver_SOURCES = \
 	EVSurveySample.cpp \
 	EVWeapon.cpp \
 	FactoryBase.cpp \
+	FactoryCrate.cpp \
+	FactoryObject.cpp \
 	FillerNPC.cpp \
 	Firework.cpp \
 	FireworkManager.cpp \
 	Food.cpp \
+	ForageManager.cpp \
 	Furniture.cpp \
 	GroupManager.cpp \
 	GroupManagerHandler.cpp \
 	Ham.cpp \
 	HamProperty.cpp \
+	HamService.cpp \
 	HarvesterFactory.cpp \
 	HarvesterObject.cpp \
 	Heightmap.cpp \
+	HouseFactory.cpp \
+	HouseObject.cpp \
 	ImageDesignManager.cpp \
 	Instrument.cpp \
 	InsuranceTerminal.cpp \
@@ -86,6 +97,7 @@ zoneserver_SOURCES = \
 	ItemFactory.cpp \
 	LairObject.cpp \
 	ManufacturingSchematic.cpp \
+	MedicHandlerHelpers.cpp \
 	Medicine.cpp \
 	MedicManager.cpp \
 	MissionBag.cpp \
@@ -93,6 +105,7 @@ zoneserver_SOURCES = \
 	MissionManager.cpp \
 	MissionObject.cpp \
 	MissionTerminal.cpp \
+	MountObject.cpp \
 	MovingObject.cpp \
 	noiseutils.cpp \
 	nonPersistantObjectFactory.cpp \
@@ -113,6 +126,7 @@ zoneserver_SOURCES = \
 	OCArtisanHandlers.cpp \
 	OCBioEngineerHandlers.cpp \
 	OCBountyHunterHandlers.cpp \
+	OCBrawlerHandlers.cpp \
 	OCCallbackHandlers.cpp \
 	OCCarbineerHandlers.cpp \
 	OCCharacterSheethandlers.cpp \
@@ -122,6 +136,7 @@ zoneserver_SOURCES = \
 	OCCommonHandlers.cpp \
 	OCContactListsHandlers.cpp \
 	OCCraftingHandlers.cpp \
+	OCCrateHandlers.cpp \
 	OCCreatureHandlerHandlers.cpp \
 	OCDatapadHandlers.cpp \
 	OCDataTransformhandlers.cpp \
@@ -160,6 +175,7 @@ zoneserver_SOURCES = \
 	PlayerObject.cpp \
 	PlayerObjectFactory.cpp \
 	PlayerStructure.cpp \
+	PlayerStructureTerminal.cpp \
 	ProcessValidator.cpp \
 	PVHam.cpp \
 	PVPosture.cpp \
@@ -185,6 +201,7 @@ zoneserver_SOURCES = \
 	SchematicManager.cpp \
 	Scout.cpp \
 	ScoutManager.cpp \
+	SendSystemMailMessage.cpp \
 	Shuttle.cpp \
 	ShuttleFactory.cpp \
 	Skill.cpp \
@@ -194,6 +211,9 @@ zoneserver_SOURCES = \
 	StaticObject.cpp \
 	Stomach.cpp \
 	StructureManager.cpp \
+	StructureManagerCallbackHandler.cpp \
+	StructureManagerCommandMap.cpp \
+	StructureManagerUIManager.cpp \
 	SurveyTool.cpp \
 	TangibleFactory.cpp \
 	TangibleObject.cpp \
@@ -210,6 +230,7 @@ zoneserver_SOURCES = \
 	TreasuryManager.cpp \
 	Tutorial.cpp \
 	UIButton.cpp \
+	UICustomWindows.cpp \
 	UIDropdownBox.cpp \
 	UIElement.cpp \
 	UIInputBox.cpp \
@@ -219,8 +240,8 @@ zoneserver_SOURCES = \
 	UIMessageBox.cpp \
 	UITransferBox.cpp \
 	UIWindow.cpp \
-	Vehicle.cpp \
-	VehicleFactory.cpp \
+	VehicleController.cpp \
+	VehicleControllerFactory.cpp \
 	WaypointFactory.cpp \
 	WaypointObject.cpp \
 	Weapon.cpp \
@@ -228,21 +249,33 @@ zoneserver_SOURCES = \
 	WeightsBatch.cpp \
 	WorldConfig.cpp \
 	WorldManager.cpp \
+	WorldManagerDataBaseHandlers.cpp \
+	WorldManagerNPCHandlers.cpp \
+	WorldManagerObjectHandlers.cpp \
+	WorldManagerPlayerHandlers.cpp \
 	ZoneServer.cpp \
 	ZoneTree.cpp
 	
-zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) -I$(top_srcdir)/deps/spatialindex/include -I$(top_srcdir)/deps/spatialindex/tools/include -I$(top_srcdir)/deps/noise/src -Wall -pedantic-errors -Wfatal-errors -fshort-wchar -Wno-invalid-offsetof -Wno-long-long -Wno-write-strings
-zoneserver_LDADD = \
-	../Utils/libutils.la \
-	../LogManager/liblogmanager.la \
-	../Common/libcommon.la \
-	../ConfigManager/libconfigmanager.la \
-	../DatabaseManager/libdatabasemanager.la \
-	../NetworkManager/libnetworkmanager.la \
-	../ScriptEngine/libscriptengine.la \
-	../MessageLib/libmessagelib.la \
-	$(MYSQL_LDFLAGS) \
-	$(BOOST_LDFLAGS) \
-	$(BOOST_THREAD_LIB) \
-	$(BOOST_SYSTEM_LIB)
+zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
+zoneserver_LDADD = $(MYSQL_LDFLAGS) \
+  $(BOOST_LDFLAGS) \
+  $(BOOST_THREAD_LIB) \
+  $(BOOST_SYSTEM_LIB) \
+  -lglog \
+  $(top_builddir)/src/Utils/libutils.la \
+  $(top_builddir)/src/Common/libcommon.la \
+  $(top_builddir)/src/DatabaseManager/libdatabasemanager.la \
+  $(top_builddir)/src/NetworkManager/libnetworkmanager.la
+#../Utils/libutils.la \
+#../LogManager/liblogmanager.la \
+#../Common/libcommon.la \
+#../ConfigManager/libconfigmanager.la \
+#../DatabaseManager/libdatabasemanager.la \
+#../NetworkManager/libnetworkmanager.la \
+#../ScriptEngine/libscriptengine.la \
+#../MessageLib/libmessagelib.la \
+#$(MYSQL_LDFLAGS) \
+#$(BOOST_LDFLAGS) \
+#$(BOOST_THREAD_LIB) \
+#$(BOOST_SYSTEM_LIB)
 	

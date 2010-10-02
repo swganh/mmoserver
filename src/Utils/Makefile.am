@@ -27,6 +27,7 @@ tests_active_object_LDADD = -lgtest_main \
   $(BOOST_DATE_TIME_LIB) \
   $(BOOST_SYSTEM_LIB) \
   $(BOOST_THREAD_LIB) \
+  -ltbb \
   libutils.la
 tests_active_object_CPPFLAGS = $(GTEST_INCLUDE)
 

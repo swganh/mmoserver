@@ -51,7 +51,7 @@ void ActiveObject::Run() {
     boost::unique_lock<boost::mutex> lock(mutex_);
     while (! done_) {
         if (condition_.timed_wait(lock, boost::get_system_time() + boost::posix_time::milliseconds(1),
-                                  [this, &message] { return message_queue_.pop(message); })) {
+                                  [this, &message] { return message_queue_.try_pop(message); })) {
             message();
         }
     }

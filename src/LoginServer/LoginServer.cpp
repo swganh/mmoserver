@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginServer.h"
 
+#include <glog/logging.h>
+
 #include "LoginManager.h"
 
 #include "NetworkManager/NetworkManager.h"
@@ -64,8 +66,8 @@ LoginServer::LoginServer(void) :
     // Initialize our modules.
 
     mNetworkManager = new NetworkManager();
+    LOG(INFO) << "Config port set to " << gConfig->read<uint16>("BindPort");
     mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
-
 
     mDatabaseManager = new DatabaseManager();
 
@@ -150,6 +152,11 @@ void handleExit(void)
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+    
+    FLAGS_log_dir = "./logs";
+  
     try {
         ConfigManager::Init("LoginServer.cfg");
     } catch (file_not_found) {
@@ -166,7 +173,7 @@ int main(int argc, char* argv[])
         std::cout << "Unable to open log file for writing" << std::endl;
         exit(-1);
     }
-
+    
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 

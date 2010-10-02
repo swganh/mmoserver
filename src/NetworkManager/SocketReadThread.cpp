@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SocketReadThread.h"
 
+#include <glog/logging.h>
+
 #include "CompCryptor.h"
 #include "NetworkClient.h"
 #include "Packet.h"
@@ -135,9 +137,10 @@ SocketReadThread::~SocketReadThread()
 void SocketReadThread::run(void)
 {
     struct sockaddr_in  from;
-    uint32              address, fromLen = sizeof(from), count;
-    int16               recvLen;
-    uint16              port, decompressLen;
+    uint32              address, fromLen = sizeof(from);
+    int16               recvLen = 0;
+    uint16              port = 0;
+    uint16              decompressLen = 0;
     Session*            session;
     fd_set              socketSet;
     struct              timeval tv;
@@ -183,10 +186,11 @@ void SocketReadThread::run(void)
         tv.tv_sec   = 0;
         tv.tv_usec  = 250;
 
-        count = select(mSocket, &socketSet, 0, 0, &tv);
-
-        if(count && FD_ISSET(mSocket, &socketSet))
+        select(mSocket+1, &socketSet, 0, 0, &tv);
+        
+        if(FD_ISSET(mSocket, &socketSet))
         {
+            LOG(INFO) << "Message received on port " << port;
             // Read any incoming packets.
             recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen));
 

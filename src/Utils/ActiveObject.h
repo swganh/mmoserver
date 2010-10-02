@@ -32,8 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 
 #include <boost/thread.hpp>
+#include <tbb/concurrent_queue.h>
 
-#include "Utils/ConcurrentQueue.h"
 #include "Utils/declspec.h"
 
 /// The utils namespace hosts a number of useful utility classes intended to
@@ -82,7 +82,7 @@ private:
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
-    utils::ConcurrentQueue<Message> message_queue_;
+    tbb::concurrent_queue<Message> message_queue_;
     boost::thread thread_;
     boost::condition_variable condition_;
     boost::mutex mutex_;

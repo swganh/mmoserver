@@ -30,7 +30,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 15
+#serial 19
 
 AC_DEFUN([AX_BOOST_DATE_TIME],
 [
@@ -46,7 +46,7 @@ AC_DEFUN([AX_BOOST_DATE_TIME],
             ax_boost_user_date_time_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_date_time_lib="$withval"
+		ax_boost_user_date_time_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -65,10 +65,10 @@ AC_DEFUN([AX_BOOST_DATE_TIME],
         AC_CACHE_CHECK(whether the Boost::Date_Time library is available,
 					   ax_cv_boost_date_time,
         [AC_LANG_PUSH([C++])
-		 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/date_time/gregorian/gregorian_types.hpp>]],
+		 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/date_time/gregorian/gregorian_types.hpp>]],
                                    [[using namespace boost::gregorian; date d(2002,Jan,10);
                                      return 0;
-                                   ]]),
+                                   ]])],
          ax_cv_boost_date_time=yes, ax_cv_boost_date_time=no)
          AC_LANG_POP([C++])
 		])
@@ -81,14 +81,14 @@ AC_DEFUN([AX_BOOST_DATE_TIME],
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_DATE_TIME_LIB="-l$ax_lib"; AC_SUBST(BOOST_DATE_TIME_LIB) link_date_time="yes"; break],
                                  [link_date_time="no"])
-  				done
+				done
                 if test "x$link_date_time" != "xyes"; then
                 for libextension in `ls $BOOSTLIBDIR/boost_date_time*.{dll,a}* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_date_time.*\)\.dll.*$;\1;' -e 's;^\(boost_date_time.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_DATE_TIME_LIB="-l$ax_lib"; AC_SUBST(BOOST_DATE_TIME_LIB) link_date_time="yes"; break],
                                  [link_date_time="no"])
-  				done
+				done
                 fi
 
             else
@@ -108,6 +108,6 @@ AC_DEFUN([AX_BOOST_DATE_TIME],
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])

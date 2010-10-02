@@ -202,7 +202,9 @@ LIBS="$LIBS -ltbb"
 # check for tbb library headers   
 AC_MSG_CHECKING([for the tbb library headers])
 # try to compile a file that includes a header of the library tbb
-AC_COMPILE_IFELSE([[#include <tbb/atomic.h>]],
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+    #include <tbb/atomic.h>
+    ])],
     [AC_MSG_RESULT([found])
         # try to link the function 'tbb::atomic< T >' out of library glog
         AC_MSG_CHECKING([whether the tbb library can be linked])
@@ -250,7 +252,9 @@ CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
 # check for glm library headers   
 AC_MSG_CHECKING([for the glm library headers])
 # try to compile a file that includes a header of the library glm
-AC_COMPILE_IFELSE([[#include <glm/glm.hpp>]],
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+    #include <glm/glm.hpp>
+    ])],
     [AC_MSG_RESULT([found])
         FOUND_GLM=1;],
     [AC_MSG_RESULT([not found])
@@ -293,7 +297,9 @@ LIBS="$LIBS -lglog"
 # check for glog library headers   
 AC_MSG_CHECKING([for the glog library headers])
 # try to compile a file that includes a header of the library glog
-AC_COMPILE_IFELSE([[#include <glog/logging.h>]],
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+    #include <glog/logging.h>
+    ])],
     [AC_MSG_RESULT([found])
         # try to link the function 'google::InitGoogleLogging' out of library glog
         AC_MSG_CHECKING([whether the glog library can be linked])
@@ -348,7 +354,9 @@ LIBS="$LIBS -lgtest"
 # check for gtest library headers   
 AC_MSG_CHECKING([for the gtest library headers])
 # try to compile a file that includes a header of the library gtest
-AC_COMPILE_IFELSE([[#include <gtest/gtest.h>]],
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+    #include <gtest/gtest.h>
+    ])],
     [AC_MSG_RESULT([found])
         # try to link the function 'testing::InitGoogleTest' out of library gtest
         AC_MSG_CHECKING([whether the gtest library can be linked])
@@ -402,7 +410,10 @@ LIBS="$LIBS -lmysqlcppconn"
 # check for glog library headers   
 AC_MSG_CHECKING([for the mysqlcppconn library headers])
 # try to compile a file that includes a header of the library mysqlcppconn
-AC_COMPILE_IFELSE([[#include <cppconn/driver.h>]],
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+	#include <mysql_driver.h>
+    #include <cppconn/driver.h>
+    ])],
     [AC_MSG_RESULT([found])
         # try to link the function 'get_driver_instance' out of library mysqlcppconn
         AC_MSG_CHECKING([whether the mysqlcppconn library can be linked])

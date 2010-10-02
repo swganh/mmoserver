@@ -50,6 +50,7 @@ tests_event_dispatcher_LDADD = -lgtest_main \
   $(BOOST_DATE_TIME_LIB) \
   $(BOOST_SYSTEM_LIB) \
   $(BOOST_THREAD_LIB) \
+  -ltbb \
   libcommon.la \
   $(top_builddir)/src/Utils/libutils.la
 tests_event_dispatcher_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors

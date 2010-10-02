@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Service.h"
 
+#include <glog/logging.h>
+
 #include "NetworkCallback.h"
 #include "NetworkClient.h"
 #include "NetworkManager.h"
@@ -110,7 +112,7 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     server.sin_addr.s_addr = INADDR_ANY;
 
     // Attempt to bind to our socket
-    bind(mLocalSocket, (sockaddr*)&server, sizeof(server));
+    bind(mLocalSocket, (struct sockaddr*)&server, sizeof(server));
 
     // We need to call connect on the socket to an address before we can know which address we have.
     // The address specified in the connect call determines which interface our socket is associated with
@@ -131,8 +133,9 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     int valuelength = sizeof(value);
     value = 524288;
     int configvalue = gConfig->read<int32>("UDPBufferSize",4096);
-    gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
-
+    //gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
+    LOG(INFO) << "UDP buffer size set to " << configvalue << "kb";
+    
     if(configvalue < 128)
         configvalue = 128;
 

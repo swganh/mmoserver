@@ -54,7 +54,6 @@ class Packet;
 typedef std::list<Session*>			SessionList;
 typedef std::map<uint64,Session*>	AddressSessionMap;
 
-typedef unsigned int SOCKET;
 
 //======================================================================================================================
 

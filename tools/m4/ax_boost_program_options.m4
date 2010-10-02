@@ -29,7 +29,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 15
+#serial 20
 
 AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
 [
@@ -45,7 +45,7 @@ AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
             ax_boost_user_program_options_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_program_options_lib="$withval"
+		ax_boost_user_program_options_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -63,12 +63,12 @@ AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
 		AC_CACHE_CHECK([whether the Boost::Program_Options library is available],
 					   ax_cv_boost_program_options,
 					   [AC_LANG_PUSH(C++)
- 		                AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/program_options.hpp>
+				AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/program_options.hpp>
                                                           ]],
                                   [[boost::program_options::options_description generic("Generic options");
-                                   return 0;]]),
+                                   return 0;]])],
                            ax_cv_boost_program_options=yes, ax_cv_boost_program_options=no)
-			               	AC_LANG_POP([C++])
+					AC_LANG_POP([C++])
 		])
 		if test "$ax_cv_boost_program_options" = yes; then
 				AC_DEFINE(HAVE_BOOST_PROGRAM_OPTIONS,,[define if the Boost::PROGRAM_OPTIONS library is available])
@@ -79,14 +79,14 @@ AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_PROGRAM_OPTIONS_LIB="-l$ax_lib"; AC_SUBST(BOOST_PROGRAM_OPTIONS_LIB) link_program_options="yes"; break],
                                  [link_program_options="no"])
-  				done
+				done
                 if test "x$link_program_options" != "xyes"; then
                 for libextension in `ls $BOOSTLIBDIR/boost_program_options*.dll* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_program_options.*\)\.dll.*$;\1;'` `ls $BOOSTLIBDIR/boost_program_options*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_program_options.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_PROGRAM_OPTIONS_LIB="-l$ax_lib"; AC_SUBST(BOOST_PROGRAM_OPTIONS_LIB) link_program_options="yes"; break],
                                  [link_program_options="no"])
-  				done
+				done
                 fi
                 else
                   for ax_lib in $ax_boost_user_program_options_lib boost_program_options-$ax_boost_user_program_options_lib; do
@@ -103,6 +103,6 @@ AC_DEFUN([AX_BOOST_PROGRAM_OPTIONS],
 				fi
 		fi
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])

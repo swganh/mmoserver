@@ -60,7 +60,7 @@ public:
         if (mInstance)
         {
             delete mInstance;
-            mInstance = NULL;
+            mInstance = nullptr;
         }
     }
 

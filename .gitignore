@@ -44,7 +44,4 @@ tbb/
 .DS_Store
 
 # ignore eclipse generated files
-.autotools
-.cproject
-.project
 .settings/

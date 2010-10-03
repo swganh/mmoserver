@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.67])
+AC_PREREQ([2.61])
 AC_INIT([MMOServer], [2.0.0], [http://github.com/swganh/mmoserver/issues])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_HOST

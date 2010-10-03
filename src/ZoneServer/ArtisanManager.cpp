@@ -67,8 +67,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 ArtisanManager::ArtisanManager()
 : mSampleActionCost(0)
-, mSurveyMindCost(0){}
+, mSurveyMindCost(0) {}
+
 ArtisanManager::~ArtisanManager() {}
+
 using ::common::SimpleEvent;
 using ::common::EventType;
 

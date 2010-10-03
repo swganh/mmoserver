@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace common {
 
 class EventDispatcher;
-#define gEventDispatcher ::utils::Singleton<::common::EventDispatcher>::Instance()
+#define gEventDispatcher utils::Singleton<common::EventDispatcher>::Instance()
 
 typedef std::function<bool (IEventPtr)> EventListenerCallback;
 

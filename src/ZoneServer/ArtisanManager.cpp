@@ -437,7 +437,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
             if(dieRoll == 200)
             {
                 sampleAmount = (static_cast<uint32>(3*maxSample));
-                sampleAmount = max(sampleAmount,static_cast<uint>(1));
+                sampleAmount = std::max(sampleAmount,static_cast<uint>(1));
                 gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_recovery"), player);
                 gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
                 player->getSampleData()->mSampleEventFlag = false;
@@ -449,11 +449,11 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
                 {
                     if(player->getSampleData()->mSampleGambleFlag)
                     {
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_success"), player);
+                        gMessageLib->SendSystemMessage(common::OutOfBand("survey", "gamble_success"), player);
                         sampleAmount = (static_cast<uint32>(3*maxSample));
-                        sampleAmount = max(sampleAmount, static_cast<uint>(1));
+                        sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
                         actionCost = 300; //300 action
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
+                        gMessageLib->SendSystemMessage(common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
                         player->getSampleData()->mSampleGambleFlag = false;
                         player->getSampleData()->mSampleEventFlag = false;
                     }
@@ -461,9 +461,9 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
                     {
                         //CRITICAL SUCCESS
                         sampleAmount = (static_cast<uint32>(2*maxSample));
-                        sampleAmount = max(sampleAmount, static_cast<uint>(1));
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "critical_success", L"", L"", resName.getUnicode16()), player);
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
+                        sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
+                        gMessageLib->SendSystemMessage(common::OutOfBand("survey", "critical_success", L"", L"", resName.getUnicode16()), player);
+                        gMessageLib->SendSystemMessage(common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
 
                     }
                 }
@@ -471,14 +471,14 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
                 {
                     //NORMAL SUCCESS
                     sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
-                    sampleAmount = max(sampleAmount, static_cast<uint>(1));
-                    gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
+                    sampleAmount = std::max(sampleAmount, static_cast<uint>(1));
+                    gMessageLib->SendSystemMessage(common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
                 }
         }
     }
     else
     {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "density_below_threshold", L"", L"", resName.getUnicode16()), player);
+        gMessageLib->SendSystemMessage(common::OutOfBand("survey", "density_below_threshold", L"", L"", resName.getUnicode16()), player);
         player->setSamplingState(false);
         return;
     }

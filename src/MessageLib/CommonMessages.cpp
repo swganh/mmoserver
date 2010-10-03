@@ -47,7 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/LogManager.h"
 
-#include "Common/ByteBuffer.h"
+#include "Common/byte_buffer.h"
 #include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -638,7 +638,7 @@ bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const Ou
         mMessageFactory->addUint32(0);
 
         const ByteBuffer* attachment = prose.Pack();
-        mMessageFactory->addData(attachment->Data(), attachment->Size());
+        mMessageFactory->addData(attachment->data(), attachment->size());
     }
 
     // If a player was passed in then only send out the message to the appropriate parties.
@@ -752,7 +752,7 @@ bool MessageLib::sendPlayClientEffectObjectMessage(BString effect,BString locati
     {
         if(PlayerObject* playerTargetObject = dynamic_cast<PlayerObject*>(effectObject))
         {
-            _sendToInRange(mMessageFactory->EndMessage(),effectObject,5);
+            _sendToInRange(mMessageFactory->EndMessage(),playerTargetObject,5);
         }
         else
         {

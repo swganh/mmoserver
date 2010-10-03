@@ -95,7 +95,7 @@ unsigned long long
     CreatureState_MountedCreature				=	0x0000000010000000,
     CreatureState_PilotingShip					=	0x0000000020000000,
     CreatureState_ShipOperations				=	0x0000000040000000,
-    CreatureState_ShipGunner					=	0x0000000080000000,
+    CreatureState_ShipGunner					=	0x0000000080000000
     /*CreatureState_ShipInterior				=	0x0000000100000000,
     CreatureState_PilotingPobShip				=	0x0000000200000000,*/
 };
@@ -125,7 +125,7 @@ unsigned long long
     kLocomotionKnockedDown						=	0x0000000000400000,
     kLocomotionIncapacitated					=	0x0000000000800000,
     kLocomotionDead								=	0x0000000010000000,
-    kLocomotionBlocking							=	0x0000000020000000,
+    kLocomotionBlocking							=	0x0000000020000000
 };
 //=============================================================================
 enum CreaturePosture
@@ -201,7 +201,7 @@ unsigned long long
     CreatureEquipSlot_Shoes					= 0x080000000,
     CreatureEquipSlot_Utility_Belt			= 0x100000000,
     CreatureEquipSlot_Wrist_Left			= 0x200000000,
-    CreatureEquipSlot_Wrist_Right			= 0x400000000,
+    CreatureEquipSlot_Wrist_Right			= 0x400000000
 };
 
 #define CREATURE_SLOT_COUNT	35ULL

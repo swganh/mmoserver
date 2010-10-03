@@ -107,7 +107,7 @@ enum CommandQueueErrorStrings
     kInvalidTarget				= 3,
     kTargetTooFarAway			= 4,
     kCannotDoWhileState			= 5,
-    kCmdErrSTF					= 6,
+    kCmdErrSTF					= 6
 };
 //=======================================================================
 enum LocomotionValidator
@@ -133,7 +133,7 @@ enum LocomotionValidator
     kLocoValidKnockedDown						=	18,
     kLocoValidIncapacitated						=	19,
     kLocoValidDead								=	20,
-    kLocoValidBlocking							=	21,
+    kLocoValidBlocking							=	21
 };
 //=============================================================================
 

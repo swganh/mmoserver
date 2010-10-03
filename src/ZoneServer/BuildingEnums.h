@@ -104,13 +104,13 @@ enum HarvesterFamily
 
 enum FactoryFamily
 {
-    FactoryFamily_None						= 0,
+    FactoryFamily_None						= 0
 
 };
 
 enum HouseFamily
 {
-    HouseFamily_None						= 0,
+    HouseFamily_None						= 0
 
 };
 

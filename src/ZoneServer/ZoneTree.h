@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 #include <vector>
-#include <SpatialIndex.h>
+#include <spatialindex/SpatialIndex.h>
 #include "ObjectController.h"
 
 //======================================================================================================================
@@ -95,7 +95,7 @@ private:
     SpatialIndex::StorageManager::IBuffer*	mStorageBuffer;
     SpatialIndex::ISpatialIndex*			mTree;
     int64						            mIndexIdentifier;
-    Tools::ResourceUsage 		            mResourceUsage;
+    //Tools::ResourceUsage 		            mResourceUsage;
 };
 
 //======================================================================================================================

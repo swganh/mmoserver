@@ -81,7 +81,7 @@ enum PlayerFlag
     PlayerFlag_RolePlayer	=	0x00000004,
     PlayerFlag_Afk			=	0x00000080,
     PlayerFlag_LinkDead		=	0x00000100,
-    PlayerFlag_FactionRank	=	0x00000200,
+    PlayerFlag_FactionRank	=	0x00000200
 };
 
 enum PlayerCustomFlag
@@ -92,7 +92,7 @@ enum PlayerCustomFlag
     PlayerCustomFlag_StructurePlacement		=	0x00000008,//custom flag
     PlayerCustomFlag_InjuryTreatment		=	0x00000016, //custom flag
     PlayerCustomFlag_WoundTreatment			=	0x00000032, //custom flag
-    PlayerCustomFlag_QuickHealInjuryTreatment=  0x00000064,
+    PlayerCustomFlag_QuickHealInjuryTreatment=  0x00000064
 };
 
 //=============================================================================

@@ -48,7 +48,7 @@ enum WindowQueryType
 {
     Window_Query_NULL						=	0,
     Window_Query_Radioactive_Sample			=	1,
-    Window_Query_Add_Schematic				=	2,
+    Window_Query_Add_Schematic				=	2
 
 };
 

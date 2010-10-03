@@ -365,7 +365,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 
             if(mDraftSchematic)
             {
-                gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: DraftSchematic : %s / Object : %I64u",mDraftSchematic->getModel(),object->getId());
+                gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: DraftSchematic : %s / Object : %I64u",mDraftSchematic->getModel().getAnsi(), object->getId());
                 gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: DraftSchematic batch: %4u",mDraftSchematic->getWeightsBatchId());
             }
             mManufacturingSchematic = NULL;

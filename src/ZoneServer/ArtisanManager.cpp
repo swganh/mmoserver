@@ -65,8 +65,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/clock.h"
 
 
-ArtisanManager::ArtisanManager(): mSurveyMindCost(0),mSampleActionCost(0) {};
-ArtisanManager::~ArtisanManager() {};
+ArtisanManager::ArtisanManager()
+: mSampleActionCost(0)
+, mSurveyMindCost(0){}
+ArtisanManager::~ArtisanManager() {}
 using ::common::SimpleEvent;
 using ::common::EventType;
 

@@ -82,7 +82,7 @@ public:
 
     void					_createItem(DatabaseResult* result,Item* item);
 
-    TangibleObject*			NonPersistantObjectFactory::cloneTangible(TangibleObject* theTemplate);
+    TangibleObject*			cloneTangible(TangibleObject* theTemplate);
 
 protected:
     NonPersistantObjectFactory(Database* database);

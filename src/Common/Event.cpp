@@ -115,11 +115,11 @@ void BaseEvent::consume(bool handled) const {
     }
 }
 
-SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms)
+SimpleEvent::SimpleEvent(const EventType& event_type, uint64_t subject_id, uint64_t delay_ms)
     : BaseEvent(subject_id, delay_ms)
     , event_type_(event_type) {}
 
-SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+SimpleEvent::SimpleEvent(const EventType& event_type, uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
     : BaseEvent(subject_id, delay_ms, callback)
     , event_type_(event_type) {}
 

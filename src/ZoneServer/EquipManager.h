@@ -54,10 +54,10 @@ public:
     EquipManager();
     ~EquipManager();
 
-    ObjectList*			EquipManager::getEquippedObjects();
+    ObjectList* getEquippedObjects();
 
     // the slot map
-    SlotMap*			getSlotMap() {
+    SlotMap* getSlotMap() {
         return &mSlotMap;
     }
 

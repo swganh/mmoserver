@@ -69,8 +69,8 @@ void PreCommandEvent::onSerialize(ByteBuffer& out) const {
 }
 
 void PreCommandEvent::onDeserialize(ByteBuffer& in) {
-    target_id_ = in.Read<uint64_t>();
-    command_crc_ = in.Read<uint32_t>();
+    target_id_ = in.read<uint64_t>();
+    command_crc_ = in.read<uint32_t>();
 }
 
 bool PreCommandEvent::onConsume(bool handled) const {
@@ -125,8 +125,8 @@ void PreCommandExecuteEvent::onSerialize(ByteBuffer& out) const {
 }
 
 void PreCommandExecuteEvent::onDeserialize(ByteBuffer& in) {
-    target_id_ = in.Read<uint64_t>();
-    command_crc_ = in.Read<uint32_t>();
+    target_id_ = in.read<uint64_t>();
+    command_crc_ = in.read<uint32_t>();
 }
 
 bool PreCommandExecuteEvent::onConsume(bool handled) const {
@@ -176,7 +176,7 @@ void PostCommandEvent::onSerialize(ByteBuffer& out) const {
 }
 
 void PostCommandEvent::onDeserialize(ByteBuffer& in) {
-    command_processed_ = in.Read<bool>();
+    command_processed_ = in.read<bool>();
 }
 
 bool PostCommandEvent::onConsume(bool handled) const {

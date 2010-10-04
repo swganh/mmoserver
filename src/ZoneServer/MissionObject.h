@@ -292,7 +292,7 @@ private:
                 *id_mask |= (1 << i);
                 return (player_id + 700) + (i << 1);
             }
-        return NULL;
+        return 0;
     }
     inline void   freeMissionId(uint16 * id_mask, uint64 player_id) {
         *id_mask &= ~(1<<((this->mId-(player_id + 700))>>1));

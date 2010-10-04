@@ -102,7 +102,7 @@ private:
     CharacterLoginHandler*        mCharacterLoginHandler;
     ObjectControllerDispatch*     mObjectControllerDispatch;
 
-    std::unique_ptr<::zone::HamService>   ham_service_;
+    std::unique_ptr<zone::HamService>   ham_service_;
 };
 
 //======================================================================================================================

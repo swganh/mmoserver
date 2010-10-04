@@ -28,9 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_BUILDING_OBJECT_H
 #define ANH_ZONESERVER_BUILDING_OBJECT_H
 
+#include <vector>
+
 #include "PlayerStructure.h"
 #include "BuildingEnums.h"
-#include <vector>
 
 class CellObject;
 class SpawnPoint;

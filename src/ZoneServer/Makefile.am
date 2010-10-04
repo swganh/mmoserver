@@ -69,6 +69,7 @@ zoneserver_SOURCES = \
 	EVWeapon.cpp \
 	FactoryBase.cpp \
 	FactoryCrate.cpp \
+	FactoryFactory.cpp \
 	FactoryObject.cpp \
 	FillerNPC.cpp \
 	Firework.cpp \
@@ -123,7 +124,6 @@ zoneserver_SOURCES = \
 	ObjectFactory.cpp \
 	ObjectFactoryCallback.cpp \
 	OCAdminHandlers.cpp \
-	OCArtisanHandlers.cpp \
 	OCBioEngineerHandlers.cpp \
 	OCBountyHunterHandlers.cpp \
 	OCBrawlerHandlers.cpp \
@@ -135,7 +135,6 @@ zoneserver_SOURCES = \
 	OCCommandoHandlers.cpp \
 	OCCommonHandlers.cpp \
 	OCContactListsHandlers.cpp \
-	OCCraftingHandlers.cpp \
 	OCCrateHandlers.cpp \
 	OCCreatureHandlerHandlers.cpp \
 	OCDatapadHandlers.cpp \
@@ -256,26 +255,22 @@ zoneserver_SOURCES = \
 	ZoneServer.cpp \
 	ZoneTree.cpp
 	
-zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
+zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) $(MYSQL_CFLAGS) -Wall -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
 zoneserver_LDADD = $(MYSQL_LDFLAGS) \
   $(BOOST_LDFLAGS) \
+  $(BOOST_REGEX_LIB) \
   $(BOOST_THREAD_LIB) \
   $(BOOST_SYSTEM_LIB) \
   -lglog \
+  -llua \
+  -ltolua++ \
+  -lspatialindex \
+  -ltbb \
+  -lnoise \
   $(top_builddir)/src/Utils/libutils.la \
   $(top_builddir)/src/Common/libcommon.la \
   $(top_builddir)/src/DatabaseManager/libdatabasemanager.la \
-  $(top_builddir)/src/NetworkManager/libnetworkmanager.la
-#../Utils/libutils.la \
-#../LogManager/liblogmanager.la \
-#../Common/libcommon.la \
-#../ConfigManager/libconfigmanager.la \
-#../DatabaseManager/libdatabasemanager.la \
-#../NetworkManager/libnetworkmanager.la \
-#../ScriptEngine/libscriptengine.la \
-#../MessageLib/libmessagelib.la \
-#$(MYSQL_LDFLAGS) \
-#$(BOOST_LDFLAGS) \
-#$(BOOST_THREAD_LIB) \
-#$(BOOST_SYSTEM_LIB)
-	
+  $(top_builddir)/src/NetworkManager/libnetworkmanager.la \
+  $(top_builddir)/src/ScriptEngine/libscriptengine.la \
+  $(top_builddir)/src/MessageLib/libmessagelib.la \
+  $(top_builddir)/src/SwgProtocol/libswgprotocol.la

@@ -77,9 +77,9 @@ TreasuryManager::~TreasuryManager()
 
 //======================================================================================================================
 
-std::tr1::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(CreatureObject* creatureObject)
+std::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(CreatureObject* creatureObject)
 {
-    std::tr1::shared_ptr<RadialMenu> radial(new RadialMenu());
+    std::shared_ptr<RadialMenu> radial(new RadialMenu());
 
     Bank*		bank	= dynamic_cast<Bank*>(creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 

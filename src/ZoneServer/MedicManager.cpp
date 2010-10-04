@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _MSC_VER
 #include <regex>  // NOLINT
 #else
+#include <boost/regex.hpp>
 #endif
 
 #include "MedicManager.h"
@@ -48,21 +49,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "Utils/rand.h"
 
-
-#ifndef min
-#define min(a,b)(((a)<(b))?(a):(b))
-#endif
-
 #ifdef WIN32
-using ::std::regex;
-using ::std::smatch;
-using ::std::regex_search;
-using ::std::sregex_token_iterator;
+using std::regex;
+using std::smatch;
+using std::regex_search;
+using std::sregex_token_iterator;
 #else
-using ::boost::regex;
-using ::boost::smatch;
-using ::boost::regex_search;
-using ::boost::sregex_token_iterator;
+using boost::regex;
+using boost::smatch;
+using boost::regex_search;
+using boost::sregex_token_iterator;
 #endif
 
 bool			MedicManager::mInsFlag = false;
@@ -489,8 +485,8 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
     maxhealhealth = MedicManager::CalculateBF(Medic, Target, maxhealhealth);
     maxhealaction = MedicManager::CalculateBF(Medic, Target, maxhealaction);
 
-    int StrengthHealth = min((int)maxhealhealth, TargetMaxHealth-TargetHealth);
-    int StrengthAction = min((int)maxhealaction, TargetMaxAction-TargetAction);
+    int StrengthHealth = std::min((int)maxhealhealth, TargetMaxHealth-TargetHealth);
+    int StrengthAction = std::min((int)maxhealaction, TargetMaxAction-TargetAction);
 
     //Cost.
     int cost = 140;
@@ -643,8 +639,8 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
     maxhealhealth = MedicManager::CalculateBF(Medic, Target, maxhealhealth);
     maxhealaction = MedicManager::CalculateBF(Medic, Target, maxhealaction);
 
-    int StrengthHealth = min((int)maxhealhealth, TargetMaxHealth-TargetHealth);
-    int StrengthAction = min((int)maxhealaction, TargetMaxAction-TargetAction);
+    int StrengthHealth = std::min((int)maxhealhealth, TargetMaxHealth-TargetHealth);
+    int StrengthAction = std::min((int)maxhealaction, TargetMaxAction-TargetAction);
 
     Target->getHam()->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, StrengthHealth);
     Target->getHam()->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, StrengthAction);
@@ -951,7 +947,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
         TargetWounds = ham->mAction.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-        maxwoundheal = min(maxwoundheal, TargetWounds);
+        maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
         {
@@ -969,7 +965,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
         TargetWounds = ham->mConstitution.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-        maxwoundheal = min(maxwoundheal, TargetWounds);
+        maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
         {
@@ -987,7 +983,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
         TargetWounds = ham->mHealth.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-        maxwoundheal = min(maxwoundheal, TargetWounds);
+        maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
         {
@@ -1005,7 +1001,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
         TargetWounds = ham->mQuickness.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-        maxwoundheal = min(maxwoundheal, TargetWounds);
+        maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
         {
@@ -1023,7 +1019,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
         TargetWounds = ham->mStamina.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-        maxwoundheal = min(maxwoundheal, TargetWounds);
+        maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
         {
@@ -1041,7 +1037,7 @@ int32 MedicManager::CalculateHealWound(PlayerObject* Medic, PlayerObject* Target
         TargetWounds = ham->mStrength.getWounds();
         maxwoundheal = MedicManager::CalculateBF(Medic, Target, WoundHealPower);
         maxwoundheal = maxwoundheal * ((100 + healingskill) / 100);
-        maxwoundheal = min(maxwoundheal, TargetWounds);
+        maxwoundheal = std::min(maxwoundheal, TargetWounds);
         ham->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -maxwoundheal);
         if (maxwoundheal > 0)
         {

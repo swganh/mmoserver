@@ -30,7 +30,7 @@
 <option id="program-suffix" value=""/>
 <option id="program-transform-name" value=""/>
 <option id="enable-maintainer-mode" value="false"/>
-<option id="user" value="--with-glm=/opt/local --with-tbb=/Users/apathy/opt/tbb/tbb30_056oss --with-tolua=/opt/local --with-spatialindex=/opt/local"/>
+<option id="user" value="--with-glm=/opt/local --with-tbb=/Users/apathy/opt/tbb/tbb30_056oss --with-tolua=/opt/local --with-spatialindex=/opt/local --with-noise=/opt/local"/>
 <option id="autogen" value="autogen.sh"/>
 <option id="autogenOpts" value=""/>
 </configuration>

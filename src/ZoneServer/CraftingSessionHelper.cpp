@@ -1419,7 +1419,7 @@ void CraftingSession::collectComponents()
         
 
         //now enter it in the relevant manschem table so we can use it in factories
-        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial,(*checkResIt).second);
+        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial.getAnsi(),(*checkResIt).second);
         
 
         checkResIt  ++;

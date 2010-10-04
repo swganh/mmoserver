@@ -412,7 +412,7 @@ bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
     }
     else
     {
-        gLogger->log(LogManager::DEBUG, "resource %u was not found or is inactive",resource->getName());
+        gLogger->log(LogManager::DEBUG, "resource %u was not found or is inactive",resource->getName().getAnsi());
         return false;
     }
 

@@ -180,6 +180,26 @@ fi
 
 ##########################################################################
 
+##########################################################################
+# adding the noise library (e.g. with static name 'libnoise.a')
+##########################################################################
+
+# introduce the optional configure parameter for a non-standard install prefix of XXX
+AC_ARG_WITH([noise],
+    [AS_HELP_STRING([--with-noise=prefix],
+        [try this for a non-standard install prefix of the noise library])],
+    [NOISEPATHSET=1],
+    [NOISEPATHSET=0])
+
+# if optional parameter used, extend path flags for compliler and linker
+if test $NOISEPATHSET = 1 ; then
+    # extend the compiler and linker flags according to the path set
+    AM_CXXFLAGS="$AM_CXXFLAGS -I$with_noise/include"
+    AM_LDFLAGS="$AM_LDFLAGS -L$with_noise/lib"
+fi
+
+##########################################################################
+
 # store current user given compiler flags to avoid default setup via AC_PROG_CXX
 OLD_CXXFLAGS=$CXXFLAGS
 
@@ -206,6 +226,7 @@ AC_PROG_CC
 AX_BOOST_BASE([1.44])
 AX_BOOST_DATE_TIME
 AX_BOOST_PROGRAM_OPTIONS
+AX_BOOST_REGEX
 AX_BOOST_SYSTEM
 AX_BOOST_THREAD
 
@@ -686,6 +707,61 @@ if test $FOUND_SPATIALINDEX != 1; then
     fi
     AC_MSG_NOTICE([])
     AC_MSG_ERROR([spatialindex library is an essential dependency : cannot build and stop here !])
+fi
+
+##########################################################################
+
+##########################################################################
+# check for noise library
+##########################################################################
+
+# store current *FLAGS and merge with AM_*FLAGS for compilation and linker check   
+OLD_CXXFLAGS=$CXXFLAGS;
+OLD_LDFLAGS=$LDFLAGS;
+CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
+LDFLAGS="$AM_LDFLAGS $LDFLAGS"
+
+# ensure the library to check for is covered by the LIBS variable
+OLD_LIBS=$LIBS
+LIBS="$LIBS -lnoise"
+
+# check for noise library headers   
+AC_MSG_CHECKING([for the noise library headers])
+# try to compile a file that includes a header of the library noise
+AC_COMPILE_IFELSE([AC_LANG_SOURCE([
+    #include <noise/noise.h>
+    ])],
+    [AC_MSG_RESULT([found])
+        # try to link the class 'noise::module::Perlin' out of library noise
+        AC_MSG_CHECKING([whether the noise library can be linked])
+        AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM([[#include <noise/noise.h>]],
+                [[noise::module::Perlin p;]])],
+            [AC_MSG_RESULT([yes])
+                FOUND_NOISE=1;],
+            [AC_MSG_RESULT([no])
+                FOUND_NOISE=0;])],
+    [AC_MSG_RESULT([not found])
+        FOUND_NOISE=0;])
+
+# reset original *FLAGS
+LIBS=$OLD_LIBS
+CXXFLAGS=$OLD_CXXFLAGS
+LDFLAGS=$OLD_LDFLAGS
+
+# handle check results
+if test $FOUND_NOISE != 1; then
+    AC_MSG_NOTICE([])
+    AC_MSG_NOTICE([The noise library was not found!])
+    if test  $NOISEPATHSET = 1 ; then
+        AC_MSG_NOTICE([ The install prefix '$with_noise' for the noise library was set.])
+        AC_MSG_NOTICE([ --> Maybe wrong ???])
+    else
+        AC_MSG_NOTICE([ No non-standard install prefix was set.])
+        AC_MSG_NOTICE([ --> You might want to use '--with-noise=PREFIX' ?!?])
+    fi
+    AC_MSG_NOTICE([])
+    AC_MSG_ERROR([noise library is an essential dependency : cannot build and stop here !])
 fi
 
 ##########################################################################

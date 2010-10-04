@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneTree.h"
 #include "BuildingObject.h"
+#include "ZoneTree.h"
 
 #include "ObjectContainer.h"
 #include "CellObject.h"
@@ -72,7 +72,7 @@ void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dime
 
         mTree = RTree::createNewRTree(*mStorageBuffer,fillFactor,indexCap,leafCap,dimensions,SpatialIndex::RTree::RV_RSTAR,mIndexIdentifier);
 
-        mResourceUsage.start();
+        //mResourceUsage.start();
     }
     catch(Tools::Exception& e)
     {
@@ -155,7 +155,7 @@ QTRegion* ZoneTree::getQTRegion(double x,double z)
     dP[1] = z;
 
     Region r = Region(dP,dP,2);
-    Tools::Geometry::Point p(dP,2);
+    Point p(dP,2);
 
     //mTree->containsWhatQuery(r,vis);
     //mTree->intersectsWithQuery(r,vis);
@@ -606,18 +606,18 @@ void ZoneTree::ShutDown()
 {
     gLogger->log(LogManager::DEBUG,"SpatialIndex Shutdown\n");
 
-    try
-    {
-        mResourceUsage.stop();
-    }
-    catch(Tools::Exception& e)
-    {
-        gLogger->log(LogManager::WARNING,"*** ERROR: " + e.what() + " ***\n");
-    }
-    catch(...)
-    {
-        gLogger->log(LogManager::WARNING,"*** ERROR: Unknown Exception ***\n");
-    }
+    //try
+    //{
+    //    mResourceUsage.stop();
+    //}
+    //catch(Tools::Exception& e)
+    //{
+    //    gLogger->log(LogManager::WARNING,"*** ERROR: " + e.what() + " ***\n");
+    //}
+    //catch(...)
+    //{
+    //    gLogger->log(LogManager::WARNING,"*** ERROR: Unknown Exception ***\n");
+    //}
 
     delete(mTree);
     delete(mStorageBuffer);

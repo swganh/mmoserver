@@ -200,7 +200,7 @@ ZoneServer::ZoneServer(int8* zoneName)
     // Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
+    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
 
@@ -262,7 +262,7 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
     _updateDBServerList(2);
-    gLogger->log(LogManager::CRITICAL,"Zone Server startup complete",FOREGROUND_GREEN);
+    gLogger->log(LogManager::CRITICAL,"Zone Server startup complete");
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 

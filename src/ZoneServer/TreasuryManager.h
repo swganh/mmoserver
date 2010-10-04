@@ -147,7 +147,7 @@ public:
     void						    bankDepositAll(PlayerObject* playerObject);
     void						    bankWithdrawAll(PlayerObject* playerObject);
     void						    bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDelta, PlayerObject* playerObject);
-    std::tr1::shared_ptr<RadialMenu>   bankBuildTerminalRadialMenu(CreatureObject* creatureObject);
+    std::shared_ptr<RadialMenu>   bankBuildTerminalRadialMenu(CreatureObject* creatureObject);
     void						    bankOpenSafetyDepositContainer(PlayerObject* playerObject);
     void						    bankQuit(PlayerObject* playerObject);
     void						    bankJoin(PlayerObject* playerObject);

@@ -28,9 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_ZONETREE_H
 #define ANH_ZONESERVER_ZONETREE_H
 
-#include "Utils/typedefs.h"
 #include <vector>
 #include <spatialindex/SpatialIndex.h>
+
+#include "Utils/typedefs.h"
+
 #include "ObjectController.h"
 
 //======================================================================================================================

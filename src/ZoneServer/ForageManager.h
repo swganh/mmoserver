@@ -92,10 +92,10 @@ public:
     void forageUpdate();
     void startForage(PlayerObject* player, forageClasses);
     static void failForage(PlayerObject* player, forageFails fail);
-    static void ForageManager::successForage(PlayerObject* player, forageClasses forageClass);
+    static void successForage(PlayerObject* player, forageClasses forageClass);
 
 protected:
-    ForageManager::ForageManager();
+    ForageManager();
     ~ForageManager(void);
 
 private:

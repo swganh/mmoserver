@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "GroupManager.h"
+
+#include <glog/logging.h>
+
 #include "GroupManagerCallbackContainer.h"
 
 #include "Datapad.h"
@@ -63,6 +66,7 @@ GroupManager*		GroupManager::mSingleton  = NULL;
 
 GroupManager::GroupManager(Database* database, MessageDispatch* dispatch)
 {
+    LOG(INFO) << "Beginning GroupManager initialization";
     mDatabase = database;
     mMessageDispatch = dispatch;
 
@@ -72,6 +76,8 @@ GroupManager::GroupManager(Database* database, MessageDispatch* dispatch)
     mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,std::bind(&GroupManager::_processIsmGroupLootMasterResponse, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeRequest, std::bind(&GroupManager::_processIsmGroupInviteInRangeRequest, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderResponse, std::bind(&GroupManager::_processIsmIsGroupLeaderResponse, this, std::placeholders::_1, std::placeholders::_2));
+    
+    LOG(INFO) << "GroupManager initialization complete";
 }
 
 

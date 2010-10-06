@@ -205,8 +205,11 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
                 }
                 case DFT_string:
                 {
-                    std::string tmp(row[binding->mDataFields[i].mColumn]);
-                    std::copy(tmp.begin(), tmp.end(), &((char*)object)[binding->mDataFields[i].mDataOffset]);
+                	if (lengths[binding->mDataFields[i].mColumn]) {
+                		std::string tmp(row[binding->mDataFields[i].mColumn]);
+                		std::copy(tmp.begin(), tmp.end(), &((char*)object)[binding->mDataFields[i].mDataOffset]);
+                	}
+
                     break;
                 }
                 case DFT_bstring:

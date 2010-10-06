@@ -58,10 +58,9 @@ TradeManager*		TradeManager::mSingleton  = NULL;
 //======================================================================================================================
 
 TradeManager::TradeManager(Database* database, MessageDispatch* dispatch)
-{   mDatabase = database;
-    mMessageDispatch = dispatch;
-    TradeManagerAsyncContainer* asyncContainer;
-
+: mDatabase(database)
+, mMessageDispatch(dispatch)
+{
     mMessageDispatch->RegisterMessageCallback(opCreateAuctionMessage,std::bind(&TradeManager::_processHandleAuctionCreateMessage, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opCreateImmediateAuctionMessage,std::bind(&TradeManager::_processHandleImmediateAuctionCreateMessage, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opProcessSendCreateItem,std::bind(&TradeManager::_processCreateItemMessage, this, std::placeholders::_1, std::placeholders::_2));
@@ -83,16 +82,15 @@ TradeManager::TradeManager(Database* database, MessageDispatch* dispatch)
     mZoneId = gWorldManager->getZoneId();
 
     // load our bazaar terminals
-    asyncContainer = new TradeManagerAsyncContainer(TRMQuery_LoadBazaar, 0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT * FROM commerce_bazaar");
+    TradeManagerAsyncContainer* load_bazaar_container = new TradeManagerAsyncContainer(TRMQuery_LoadBazaar, 0);
+    mDatabase->ExecuteSqlAsync(this, load_bazaar_container, "SELECT * FROM commerce_bazaar");
    
     //AuctionHandler = new AuctionClass;
 
 
-    //load the itemtable for the character builder terminal
-    asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ItemTableFrogQuery, 0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id");
-   
+    //load the item table for the character builder terminal
+    TradeManagerAsyncContainer* frog_query_container = new TradeManagerAsyncContainer(TRMQuery_ItemTableFrogQuery, 0);
+    mDatabase->ExecuteSqlAsync(this, frog_query_container, "SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id");
 }
 
 
@@ -575,7 +573,7 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     TradeManagerAsyncContainer* asyncContainer;
 
     PlayerObject*	playerObject	= gWorldManager->getPlayerByAccId(client->getAccountId());
-    Inventory*		inventory		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    //Inventory*		inventory		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
     //the items description we provide
     BString			Description;
@@ -985,7 +983,7 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
     PlayerObject*	playerObject	= gWorldManager->getPlayerByAccId(client->getAccountId());
     PlayerObject* tradePartner = (PlayerObject*) gWorldManager->getObjectById(playerObject->getTradePartner());
 
-    Inventory*		inventory		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    //Inventory*		inventory		= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
     if(!(playerObject && playerObject->isConnected()))
     {

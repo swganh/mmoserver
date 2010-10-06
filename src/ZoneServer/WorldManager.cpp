@@ -25,8 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "PlayerObject.h"
 #include "WorldManager.h"
+
+#include <glog/logging.h>
+
+#include "PlayerObject.h"
 #include "AdminManager.h"
 #include "Buff.h"
 #include "BuffEvent.h"
@@ -93,11 +96,8 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     , mTotalObjectCount(0)
     , mZoneId(zoneId)
 {
-#if !defined(_DEBUG)
-#endif
-#if defined(_DEBUG)
-    gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
-#endif
+
+	DLOG(INFO) << "WorldManager initialization";
 
 
     // set up spatial index
@@ -135,10 +135,9 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
     //the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client
     //it will have to be initialized in the tutorial, too
-    if(zoneId != 41)
+    if(zoneId != 41) {
         ResourceManager::Init(database,mZoneId);
-    else
-    {
+    } else {
         //by not assigning a db we force the resourcemanager to not load db data
         ResourceManager::Init(NULL,mZoneId);
     }
@@ -345,12 +344,13 @@ RegionObject* WorldManager::getRegionById(uint64 regionId)
 {
     RegionMap::iterator it = mRegionMap.find(regionId);
 
-    if(it != mRegionMap.end())
+    if(it != mRegionMap.end()) {
         return((*it).second);
-    else
-        gLogger->log(LogManager::NOTICE,"Worldmanager::getRegionById: Could not find region %"PRIu64"",regionId);
+    } else {
+    	LOG(WARNING) << "Could not find region: " << regionId;
+    }
 
-    return(NULL);
+    return nullptr;
 }
 
 

@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer.h"
+
+#include <glog/logging.h>
+
 #include "CharacterLoginHandler.h"
 #include "CharSheetManager.h"
 //	Managers
@@ -97,17 +100,17 @@ ZoneServer* gZoneServer = NULL;
 
 ZoneServer::ZoneServer(int8* zoneName)
     : mZoneName(zoneName)
+	, mLastHeartbeat(0)
     , mNetworkManager(0)
     , mDatabaseManager(0)
     , mRouterService(0)
-    , mLastHeartbeat(0)
     , mDatabase(0)
     , ham_service_(nullptr)
 {
     Anh_Utils::Clock::Init();
 
     // gLogger->log(LogManager::DEBUG,"ZoneServer - %s Startup %s",zoneName,GetBuildString());
-    gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", zoneName);
+    gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", static_cast<char*>(zoneName));
 
     // Create and startup our core services.
     mDatabaseManager = new DatabaseManager();
@@ -173,13 +176,13 @@ ZoneServer::ZoneServer(int8* zoneName)
     // We can NOT create these factories among the already existing ones, if we want to have any kind of "ownership structure",
     // since the existing factories are impossible to delete without crashing the server.
     // NonPersistentContainerFactory::Init(mDatabase);
-    (void)NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
+    NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
     // The object will create itself upon first usage,
-    (void)NonPersistentNpcFactory::Instance();
+    NonPersistentNpcFactory::Instance();
 
-    (void)ForageManager::Instance();
-    (void)ScoutManager::Instance();
-    (void)NonPersistantObjectFactory::Instance();
+    ForageManager::Instance();
+    ScoutManager::Instance();
+    NonPersistantObjectFactory::Instance();
 
     //ArtisanManager callback
     CraftingManager::Init(mDatabase);
@@ -197,6 +200,7 @@ ZoneServer::ZoneServer(int8* zoneName)
 
     if(zoneId != 41)
         StructureManager::Init(mDatabase,mMessageDispatch);
+
     // Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
@@ -358,6 +362,12 @@ void ZoneServer::_connectToConnectionServer(void)
 
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+    google::InstallFailureSignalHandler();
+    
+    FLAGS_log_dir = "./logs";
+    
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 

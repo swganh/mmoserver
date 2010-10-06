@@ -452,25 +452,25 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         // world scripts
         case WMQuery_WorldScripts:
         {
-            DataBinding*	scriptBinding = mDatabase->CreateDataBinding(2);
-            scriptBinding->addField(DFT_uint32,offsetof(Script,mPriority),4,0);
-            scriptBinding->addField(DFT_string,offsetof(Script,mFile),255,1);
-
-            uint64 scriptCount = result->getRowCount();
-
-            for(uint64 i = 0; i < scriptCount; i++)
-            {
-                Script* script = gScriptEngine->createScript();
-
-                result->GetNextRow(scriptBinding,script);
-
-                mWorldScripts.push_back(script);
-            }
-
-            if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded world scripts.");
-
-            mDatabase->DestroyDataBinding(scriptBinding);
+            //DataBinding*	scriptBinding = mDatabase->CreateDataBinding(2);
+            //scriptBinding->addField(DFT_uint32,offsetof(Script,mPriority),4,0);
+            //scriptBinding->addField(DFT_string,offsetof(Script,mFile),255,1);
+            //
+            //uint64 scriptCount = result->getRowCount();
+            //
+            //for(uint64 i = 0; i < scriptCount; i++)
+            //{
+            //    Script* script = gScriptEngine->createScript();
+            //
+            //    result->GetNextRow(scriptBinding,script);
+            //
+            //    mWorldScripts.push_back(script);
+            //}
+            //
+            //if(result->getRowCount())
+            //    gLogger->log(LogManager::NOTICE,"Loaded world scripts.");
+            //
+            //mDatabase->DestroyDataBinding(scriptBinding);
         }
         break;
 

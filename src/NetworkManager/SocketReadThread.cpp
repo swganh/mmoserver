@@ -137,7 +137,7 @@ SocketReadThread::~SocketReadThread()
 void SocketReadThread::run(void)
 {
     struct sockaddr_in  from;
-    uint32              address, fromLen = sizeof(from);
+    uint32              address, fromLen = sizeof(from), count;
     int16               recvLen = 0;
     uint16              port = 0;
     uint16              decompressLen = 0;
@@ -186,9 +186,9 @@ void SocketReadThread::run(void)
         tv.tv_sec   = 0;
         tv.tv_usec  = 250;
 
-        select(mSocket+1, &socketSet, 0, 0, &tv);
+        count = select(mSocket+1, &socketSet, 0, 0, &tv);
         
-        if(FD_ISSET(mSocket, &socketSet))
+        if(count && FD_ISSET(mSocket, &socketSet))
         {
             LOG(INFO) << "Message received on port " << port;
             // Read any incoming packets.

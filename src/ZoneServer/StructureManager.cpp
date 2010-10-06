@@ -108,7 +108,7 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
     //do so every hour if no other timeframe is set
     gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureDBCheck),7,structureCheckIntervall*1000,NULL);
     
-    LOG(INFO) << "Structure Manager initialization";
+    LOG(INFO) << "Structure Manager initialization complete";
 }
 
 

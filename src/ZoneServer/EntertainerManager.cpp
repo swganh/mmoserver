@@ -1525,7 +1525,7 @@ void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
     }
     if(entertainer->getPerformingState() == PlayerPerformance_Dance)//who is dancing
     {
-        audience->setTarget(NULL);
+        audience->setTarget(0);
         gMessageLib->sendTargetUpdateDeltasCreo6(audience);
 
         // the caller is now removed from the audienceList
@@ -1635,7 +1635,7 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
         else
             gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "music_listen_stop_self"), audience);
 
-        audience->setTarget(NULL);
+        audience->setTarget(0);
         gMessageLib->sendTargetUpdateDeltasCreo6(audience);
 
         if (audience->getEntertainerWatchToId()== 0 )

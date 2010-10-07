@@ -806,6 +806,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 
 		playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Inventory,inventory);
 		inventory->setParent(playerObject);
+		playerObject->setInventory(inventory);
 
 		QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(0,POFQuery_EquippedItems,client);
 		asContainer->mObject = playerObject;

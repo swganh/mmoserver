@@ -61,8 +61,6 @@ class HouseObject :	public BuildingObject, public DatabaseCallback
 		void				setSign(PlayerStructure* sign){ mSign = sign; }
 
 		bool			hasAdmin(uint64 id);
-	
-		void			prepareDestruction();
 
 		void			checkCellPermission(PlayerObject* player);
 

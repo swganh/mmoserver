@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "UIManager.h"
 
-
+#include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
 
 #include "LogManager/LogManager.h"
@@ -532,8 +532,8 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 {
 	int8 sql[1024];
 
-	const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
-	PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
+	//the reason the hair is unequipped when wearing a helmet is because otherwise parts of the hair looked out of the helmet, which plainly looks stupid
+
 	//hark the equiplist might contain a helmet at this spot
 	TangibleObject*				playerHair		= dynamic_cast<TangibleObject*>(customer->getHair());//dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
 	TangibleObject*				playerHairSlot	= dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
@@ -556,11 +556,11 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 
 			//Udate equiplist
 			customer->getEquipManager()->removeEquippedObject(CreatureEquipSlot_Hair);
-			gMessageLib->sendEquippedListUpdate_InRange(customer);
+			
+			gSpatialIndexManager->updateEquipListToRegisteredPlayers(customer);
+		
+			gSpatialIndexManager->destroyObjectToRegisteredPlayers(customer,playerHair->getId());
 
-			//gMessageLib->sendContainmentMessage(playerHair->getId(),customer->getId(),0xffffffff,customer);
-			//destroy clientside
-			gMessageLib->sendDestroyObject_InRange(playerHair->getId(),customer,true);
 
 			//Update the db only if we remain bald
 			if(!newHairString.getLength())
@@ -604,16 +604,10 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 		if(hairEquipped)
 		{
 			customer->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,playerHair);
-			gMessageLib->sendCreateTangible(playerHair,customer);
-			gMessageLib->sendEquippedListUpdate_InRange(customer);
+			
+			gSpatialIndexManager->updateEquipListToRegisteredPlayers(customer);
+			gSpatialIndexManager->createObjectToRegisteredPlayers(customer,playerHair);
 
-			while(itiR != inRangePlayers->end())
-			{
-				
-				gMessageLib->sendCreateTangible(playerHair,(*itiR));
-
-				++itiR;
-			}
 		}
 	}
 }
@@ -697,10 +691,6 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 		//int32 mindCost = 66;
 		designer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(66));
 	}
-
-
-	const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
-	PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
 
 	int8 sql[1024];
 	EntertainerManagerAsyncContainer* asyncContainer;
@@ -792,6 +782,8 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
 	//please note that hair object customizatio is send updated and maintained b ycommitIdColor
 	customer->buildCustomization(customer->getCustomization());
 
+	//TODO:
+	//sendto registered listeners instead ??
 	gMessageLib->sendCustomizationUpdateCreo3(customer);
 	gMessageLib->sendScaleUpdateCreo3(customer);
 

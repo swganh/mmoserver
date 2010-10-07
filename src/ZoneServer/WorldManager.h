@@ -31,8 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactoryCallback.h"
 #include "QTRegion.h"
 #include "Weather.h"
-#include "zmap.h"
+
 #include "WorldManagerEnums.h"
+
 
 #include "ScriptEngine/ScriptEventListener.h"
 
@@ -187,23 +188,18 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		virtual void			handleTimer(uint32 id, void* container);
 
 		// add / delete an object, make sure to cleanup any other references
-		float					_GetMessageHeapLoadViewingRange();
+		
 		bool					existObject(Object* object);	// Returns true if object does exist.
 		bool					addObject(Object* object,bool manual = false);
 		void					destroyObject(Object* object);
-		void					destroyObjectForKnownPlayers(Object* object);
+		
 		void					createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object);
-		void					createObjectinWorld(PlayerObject* player, Object* object);
-		void					createObjectinWorld(Object* object);
+		
 		Object*					getObjectById(uint64 objId);
 		void					eraseObject(uint64 key);
 
 		// Find object owned by "player"
 		uint64					getObjectOwnedBy(uint64 theOwner);
-
-		// spatial query, creates all objects in range for each other
-		void					initObjectsInRange(PlayerObject* playerObject);
-		void					initPlayersInRange(Object* object,PlayerObject* player);
 
 		// adds a creatures commandqueue to the main process queue
 		uint64					addObjControllerToProcess(ObjectController* objController);
@@ -303,13 +299,12 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		const PlayerAccMap*		getPlayerAccMap(){ return &mPlayerAccMap; }
 		ShuttleList*			getShuttleList(){ return &mShuttleList; }
 
+		ObjectIDList*			getStructureList(){return &mStructureList; }
+
 		// delete Player off of the accountmap
 		void					removePlayerfromAccountMap(uint64 playerID);
 
-		// retrieve spatial index for this zone
-		//ZoneTree*				getSI(){ return mSpatialIndex; }
-		zmap*					getGrid(){ return mSpatialGrid; }
-
+	
 		// removes player from the current scene, and starts a new one after updating his position
 		void					warpPlanet(PlayerObject* playerObject, const glm::vec3& destination,uint64 parentId, const glm::quat& direction = glm::quat());
 
@@ -479,8 +474,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		Anh_Utils::Scheduler*		mNpcManagerScheduler;
 		Anh_Utils::Scheduler*		mObjControllerScheduler;
 		Anh_Utils::Scheduler*		mPlayerScheduler;
-		//ZoneTree*					mSpatialIndex;
-		zmap*						mSpatialGrid;
+		
 		Anh_Utils::Scheduler*		mSubsystemScheduler;
 		ZoneServer*					mZoneServer;
 		WMState						mState;

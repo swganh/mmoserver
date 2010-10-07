@@ -110,14 +110,16 @@ void VehicleController::prepareCustomRadialMenu(CreatureObject* creature, uint8_
 //===============================================================================================
 //spawns the physical body (CreatureObject)
 
-void VehicleController::Call() {
+void VehicleController::Call() 
+{
   
-	if(body_)	{
-	  assert(false && "void Vehicle::call() body already exists");
-    return;
+	if(body_)	
+	{
+		assert(false && "void Vehicle::call() body already exists");
+		return;
 	}
 
-	if(owner_->checkIfMountCalled()) {
+	if(owner_->checkIfMountCalled())	{
 		gLogger->log(LogManager::DEBUG,"void Vehicle::call() mount already called");
 		return;
 	}
@@ -176,8 +178,6 @@ void VehicleController::Call() {
 		SAFE_DELETE(body_);
 		return;
 	}
-
-	gWorldManager->createObjectinWorld(owner_, body_);	
 
 	gMessageLib->sendUpdateTransformMessage(body_);
 

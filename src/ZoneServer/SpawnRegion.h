@@ -34,9 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-class ZoneTree;
+class SpatialIndexManager;
 class PlayerObject;
-class QTRegion;
 
 //=============================================================================
 
@@ -61,10 +60,10 @@ class SpawnRegion : public RegionObject
 	protected:
 
 		Anh_Math::Rectangle mQueryRect;
-		QTRegion*			mQTRegion;
-		ZoneTree*			mSI;
-		uint32				mMission;
-		uint32				mSpawnType;
+
+		SpatialIndexManager*	mSIM;
+		uint32					mMission;
+		uint32					mSpawnType;
 };
 
 

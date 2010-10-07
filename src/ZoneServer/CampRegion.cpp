@@ -44,9 +44,7 @@ struct CampRegion::campLink
 
 //=============================================================================
 
-CampRegion::CampRegion() : RegionObject(),
-mSI(gWorldManager->getSI()),
-mQTRegion(NULL)
+CampRegion::CampRegion() : RegionObject()
 {
 	mActive			= true;
 	mDestroyed		= false;
@@ -101,31 +99,14 @@ void CampRegion::update()
 		return;
 	}
 
-	if(!mSubZoneId)
+	
+	//iterate through our visitors - apply healing
+	ObjectIDSet::iterator objIt = mVisitingPlayers.begin();
+
+	while(objIt != mVisitingPlayers.end())
 	{
-		mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
-		mSubZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth*2,mHeight*2);
-	}
-
-	Object*		object;
-	ObjectSet	objList;
-
-	if(mParentId)
-	{
-		mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
-	}
-
-	if(mQTRegion)
-	{
-		mQTRegion->mTree->getObjectsInRangeContains(this,&objList,ObjType_Player,&mQueryRect);
-	}
-
-	ObjectSet::iterator objIt = objList.begin();
-
-	while(objIt != objList.end())
-	{
-		object = (*objIt);
+		
+		Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById((*objIt)));
 
 		//one xp per player in camp every 2 seconds
 		if(!mAbandoned)
@@ -134,54 +115,29 @@ void CampRegion::update()
 			mXp++;
 		}
 
-		if(!(checkKnownObjects(object)))
+		
+		//Find the right player
+		std::list<campLink*>::iterator i;
+
+		for(i = links.begin(); i != links.end(); i++)
 		{
-			onObjectEnter(object);
-
-			std::list<campLink*>::iterator i;
-			bool alreadyExists = false;
-
-			for(i = links.begin(); i != links.end(); i++)
+			if((*i)->objectID == object->getId())
 			{
-				if((*i)->objectID == object->getId())
+				
+				(*i)->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
+				
+				if((*i)->tickCount == 15)
 				{
-					alreadyExists = true;
+					applyWoundHealing(object);
+					(*i)->tickCount = 0;
 				}
-			}
+				else
+					(*i)->tickCount++;
+				
 
-			if(!alreadyExists)
-			{
-				campLink* temp = new campLink;
-				temp->objectID = object->getId();
-				temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
-				temp->tickCount = 0;
-
-				links.push_back(temp);
+				break;
 			}
 		}
-		else
-		{
-			//Find the right link
-			std::list<campLink*>::iterator i;
-
-			for(i = links.begin(); i != links.end(); i++)
-			{
-				if((*i)->objectID == object->getId())
-				{
-
-					(*i)->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
-
-					if((*i)->tickCount == 15)
-					{
-						applyWoundHealing(object);
-						(*i)->tickCount = 0;
-					}
-					else
-						(*i)->tickCount++;
-
-					break;
-				}
-			}
 
 
 			/*
@@ -190,58 +146,43 @@ void CampRegion::update()
 			int8 text[256];
 			sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.x - this->mPosition.x), (object->mPosition.y - this->mPosition.y), (object->mPosition.z - this->mPosition.z), object->mDirection.x,object->mDirection.y,object->mDirection.z,object->mDirection.w);
 			*/
-		}
 
 		++objIt;
 	}
 
-	PlayerObjectSet oldKnownObjects = mKnownPlayers;
-	PlayerObjectSet::iterator objSetIt = oldKnownObjects.begin();
 
-	while(objSetIt != oldKnownObjects.end())
-	{
-		object = dynamic_cast<Object*>(*objSetIt);
-
-		if(objList.find(object) == objList.end())
-		{
-			onObjectLeave(object);
-		}
-
-		++objSetIt;
-	}
-
-	//prune the list
-	std::list<campLink*>::iterator i = links.begin();
-
-	while(i != links.end())
-	{
-		if(gWorldManager->GetCurrentGlobalTick() - (*i)->lastSeenTime >= 30000)
-		{
-			delete (*i);
-			i = links.erase(i);
-		}
-		else
-		{
-			i++;
-		}
-	}
 }
 
 //=============================================================================
 
 void CampRegion::onObjectEnter(Object* object)
 {
-
-	if(object->getParentId() == mParentId)
+	PlayerObject* player = (PlayerObject*)object;
+	
+	//make sure were not already in it
+	if(addVisitor(object))
 	{
-		//PlayerObject* player = (PlayerObject*)object;
-		this->addKnownObjectSafe(object);
-		object->addKnownObjectSafe(this);
+		//have we been here before ???
+		std::list<campLink*>::iterator i;
+		bool alreadyExists = false;
 
-		VisitorSet::iterator it = mVisitorSet.find(object->getId());
+		for(i = links.begin(); i != links.end(); i++)
+		{
+			if((*i)->objectID == object->getId())
+			{
+				alreadyExists = true;
+			}
+		}
 
-		if(it == mVisitorSet.end())
-			mVisitorSet.insert(object->getId());
+		if(!alreadyExists)
+		{
+			campLink* temp = new campLink;
+			temp->objectID = object->getId();
+			temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
+			temp->tickCount = 0;
+
+			links.push_back(temp);
+		}
 
 		PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
 
@@ -252,7 +193,7 @@ void CampRegion::onObjectEnter(Object* object)
 			sprintf(text,"You have entered %s's camp",this->getCampOwnerName().getAnsi());
 			string uT = text;
 			uT.convert(BSTRType_Unicode16);
-      gMessageLib->sendSystemMessage(player, uT.getUnicode16());
+			gMessageLib->sendSystemMessage(player, uT.getUnicode16());
 		}
 		else
 		{
@@ -269,8 +210,6 @@ void CampRegion::onObjectEnter(Object* object)
 void CampRegion::onObjectLeave(Object* object)
 {
 	PlayerObject* player = (PlayerObject*)object;
-	this->removeKnownObject(object);
-	object->removeKnownObject(this);
 
 	if(object->getId() == mOwnerId)
 	{
@@ -291,9 +230,11 @@ void CampRegion::onObjectLeave(Object* object)
 		sprintf(text,"You have left %s's camp", this->getCampOwnerName().getAnsi());
 		string uT = text;
 		uT.convert(BSTRType_Unicode16);
-    gMessageLib->sendSystemMessage(player, uT.getUnicode16());
+		gMessageLib->sendSystemMessage(player, uT.getUnicode16());
 	}
-		//check whether we are the owner and if yes set our abandoning timer
+
+	removeVisitor(object);
+	
 }
 
 //=============================================================================

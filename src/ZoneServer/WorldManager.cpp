@@ -73,6 +73,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
+#include "SpatialIndexManager.h"
 #include "Utils/Scheduler.h"
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
@@ -100,8 +101,8 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 		gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
 	#endif
 	
-	mSpatialGrid = new zmap();
-	gMessageLib->setGrid(mSpatialGrid);
+	//manages the spatial index
+	SpatialIndexManager::Init(mDatabase);
 
 	// load planet names and terrain files so we can start heightmap loading
 	mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
@@ -274,8 +275,8 @@ void WorldManager::Shutdown()
 	}
 
 	// shutdown SI
-	mSpatialIndex->ShutDown();
-	delete(mSpatialIndex);
+	gSpatialIndexManager->Shutdown();
+	//delete(mSpatialIndex);
 
 	// finally delete them
 	mQTRegionMap.clear();
@@ -310,11 +311,7 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 {
 	if(QTRegion* region = dynamic_cast<QTRegion*>(object))
 	{
-		uint32 key = (uint32)region->getId();
-
-		mQTRegionMap.insert(key,region);
-
-		mSpatialIndex->insertQTRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
+		//qt regions probably should be scrapped altogether
 	}
 	else
 	{
@@ -625,10 +622,11 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 					if(!temp) continue;
 
 					item->setParentId(temp->getId());
+
 					dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->addObject(item);
 					gWorldManager->addObject(item,true);
 
-					gMessageLib->sendCreateTangible(item,player);
+					gMessageLib->sendCreateTano(item,player);
 
 					gMessageLib->sendSystemMessage(player,L"","system_msg","prototype_transferred");
 
@@ -1324,7 +1322,7 @@ bool WorldManager::objectsInRange(uint64 obj1Id, uint64 obj2Id, float range)
 	}
 	else if ((obj1->getParentId() == 0) || (obj2->getParentId() == 0))
 	{
-		// One of us are outside.
+		// One of us is outside
 		inRange = false;
 	}
 	else

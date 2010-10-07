@@ -112,19 +112,18 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		void						setType(ObjectType type){ mType = type; }
 		void						setTypeOptions(uint32 options){ mTypeOptions = options; }
 
-		//use for keeping track of opened containers
-		//// Object Observers
+		
 		//PlayerObjectSet*			getKnownPlayers() { return &mKnownPlayers; }
-		//ObjectSet*					getKnownObjects() { return &mKnownObjects; }
-		//void						destroyKnownObjects();
+		/*
+		PlayerObjectSet*			getKnownPlayers() { return &mKnownPlayers; }
+		ObjectSet*					getKnownObjects() { return &mKnownObjects; }
+		void						destroyKnownObjects();
 		bool						checkKnownPlayer(PlayerObject* player);
-		// Not used void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
-		//bool						addKnownObjectSafe(Object* object);
+//		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
+		bool						addKnownObjectSafe(Object* object);
+		*/
 
-		// I wan't to overload this in some classes, instead of adding "useless code" (for the most objects) in the base method.
-		virtual void				addKnownObject(Object* object);
-		bool						removeKnownObject(Object* object);
-		bool						checkKnownObjects(Object* object) const;
+		
 
 		RadialMenuPtr				getRadialMenu(){ return mRadialMenu; }
         virtual void				ResetRadialMenu() {}//	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
@@ -289,8 +288,6 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		AttributeMap				mAttributeMap;
 		AttributeOrderList			mAttributeOrderList;
 		AttributeMap 				mInternalAttributeMap;
-		ObjectSet					mKnownObjects;
-		PlayerObjectSet				mKnownPlayers;
 		ObjectIDSet					mKnownObjectsIDs;
 		ObjectController			mObjectController;
 		string						mModel;

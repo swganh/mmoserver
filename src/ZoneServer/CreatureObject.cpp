@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "VehicleController.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "WorldConfig.h"
 #include "ZoneTree.h"
 #include "ZoneServer/Tutorial.h"
@@ -824,7 +825,7 @@ void CreatureObject::die()
 		BuildingObject* preDesignatedBuilding = NULL;
 
 		// Search for cloning facilities.
-		gWorldManager->getSI()->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192);
+		gSpatialIndexManager->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192,false);
 
 		ObjectSet::iterator buildingIt = inRangeBuildings.begin();
 
@@ -839,12 +840,11 @@ void CreatureObject::die()
 					preDesignatedBuilding = building;
 				}
 
+				//get the nearest clone location
 				if (building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
 				{
-					// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
-					// Tranformation is needed before the correct distance can be calculated.
 					if(!nearestBuilding	||
-                        (nearestBuilding != building && (glm::distance(mPosition, building->mPosition) < glm::distance(mPosition, nearestBuilding->mPosition))))
+						(nearestBuilding != building && (glm::distance(this->getWorldPosition(), building->mPosition) < glm::distance(this->getWorldPosition(), nearestBuilding->mPosition))))
 					{
 						nearestBuilding = building;
 					}

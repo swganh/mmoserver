@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerEnums.h"
 #include "UIManager.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "Weapon.h"
 
 #include "MessageLib/MessageLib.h"
@@ -2193,16 +2194,9 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 			placedInstrument->mPosition  = player->mPosition;
 			placedInstrument->mDirection = player->mDirection;
 
-			//add it to MainObjectMap and SI
+			//add it to MainObjectMap and SI it will be created for all players nearby
 			gWorldManager->addObject(object);
-
-			//it needs to have a knownplayerlist!!!
-			gWorldManager->initPlayersInRange(object,NULL);
-
-			//create it for us and players around us
-			gWorldManager->createObjectinWorld(player,object);
 			
-			// gMessageLib->sendDataTransform(placedInstrument);
 		}
 		else
 		{
@@ -2691,9 +2685,12 @@ void EntertainerManager::flourish(PlayerObject* entertainer, uint32 mFlourishId)
 
 void EntertainerManager::entertainInRangeNPCs(PlayerObject* entertainer)
 {
-	ObjectSet::iterator it = entertainer->getKnownObjects()->begin();
+	ObjectSet resultSet;
 
-	while(it != entertainer->getKnownObjects()->end())
+	gSpatialIndexManager->getObjectsInRange(entertainer,&resultSet,ObjType_Creature,30.0,true);
+	ObjectSet::iterator it = resultSet.begin();
+
+	while(it != resultSet.end())
 	{
 		CreatureObject* npc = dynamic_cast<CreatureObject*>(*it);
 		if(npc)
@@ -2713,6 +2710,7 @@ void EntertainerManager::entertainInRangeNPCs(PlayerObject* entertainer)
 		}
 		++it;
 	}
+	
 }
 
 

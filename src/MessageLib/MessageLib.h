@@ -100,12 +100,12 @@ public:
 	void				setGrid(zmap*	grid){mGrid = grid;}
 
 	// multiple messages, messagelib.cpp
-	bool				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
+	
 	bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
 	bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
-	bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
-	bool				sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
-	void				sendCreateTangible(TangibleObject* tangibleObject, ObjectList*	knownPlayers, bool sendchildren = true) ;
+	//bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendCreateTano(TangibleObject* tangibleObject,PlayerObject* targetObject);
+
 	bool				sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject);
 	bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
 
@@ -120,10 +120,6 @@ public:
 	// creatures
 	bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
 	bool				sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
-	
-
-	void				sendInventory(PlayerObject* playerObject);
-	bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
 	
 
 	// common messages, commonmessages.cpp
@@ -260,6 +256,7 @@ public:
 	void				sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateType,uint16 index,uint64 defenderId);
 	void				sendNewDefenderList(CreatureObject* creatureObject);
 	bool				sendDeltasCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
+	bool				sendEquippedListUpdate(CreatureObject* creatureObject, CreatureObject* targetObject);
 	bool				sendEquippedListUpdate_InRange(CreatureObject* creatureObject);
 	bool				sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId);
 	void				sendPostureUpdate(CreatureObject* creatureObject);
@@ -363,7 +360,7 @@ public:
 	bool				sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 	bool				sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 
-	bool				sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject);
+	//bool				sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject);
 
 	// deltas
 	bool				sendUpdateComplexity(TangibleObject* tangibleObject,PlayerObject* playerObject);

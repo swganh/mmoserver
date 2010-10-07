@@ -41,8 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/FactoryCrate.h"
 #include "ZoneServer/Inventory.h"
 #include "ZoneServer/ManufacturingSchematic.h"
-#include "ZoneServer/MissionBag.h"
-#include "ZoneServer/MissionObject.h"
+
 #include "ZoneServer/NPCObject.h"
 #include "ZoneServer/ObjectControllerOpcodes.h"
 #include "ZoneServer/ObjectFactory.h"
@@ -527,44 +526,12 @@ void MessageLib::_sendToAll(Message* message,uint16 priority,bool unreliable) co
 	mMessageFactory->DestroyMessage(message);
 }
 
-//======================================================================================================================
-//
-// send creates of the equipped items from player to player
-// iterates all inventory items of the source and sends creates to the target
-//
-bool MessageLib::sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject)
-{
-	if(!_checkPlayer(targetObject))
-		return(false);
-
-	ObjectList*				invObjects		= srcObject->getEquipManager()->getEquippedObjects();
-	ObjectList::iterator	invObjectsIt	= invObjects->begin();
-
-	while(invObjectsIt != invObjects->end())
-	{
-		// items
-		if(Item* item = dynamic_cast<Item*>(*invObjectsIt))
-		{
-			if(item->getParentId() == srcObject->getId())
-			{			
-				gMessageLib->sendCreateTangible(item,targetObject);
-			}
-			else
-			{
-				gLogger->log(LogManager::DEBUG,"MessageLib send equipped objects: Its not equipped ... %I64u",item->getId());
-			}
-		}
-
-		++invObjectsIt;
-	}
-
-	return(true);
-}
 
 //======================================================================================================================
 //
 // creates all items childobjects
 //
+/*
 bool MessageLib::sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject)
 {
 	if(!_checkPlayer(targetObject))
@@ -586,7 +553,7 @@ bool MessageLib::sendItemChildren(TangibleObject* srcObject,PlayerObject* target
 
 	return(true);
 }
-
+*/
 //======================================================================================================================
 //
 // create player
@@ -624,146 +591,24 @@ bool MessageLib::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targe
 
 	sendPostureMessage(playerObject,targetObject);
 
-	if(playerObject->getParentId())
-	{
-		sendContainmentMessage(playerObject->getId(),playerObject->getParentId(),0xffffffff,targetObject);
-	}
 
-	// tangible objects
-	if(TangibleObject* hair = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair)))
-	{
-		//only create the hair as the helmet will be created at a different time
-		if(hair->getTangibleType() == TanType_Hair)
-		{
-			sendCreateTangible(hair,targetObject);
-		}
-	}
+    if(playerObject->getParentId())
+    {
+        sendContainmentMessage(playerObject->getId(),playerObject->getParentId(),4,targetObject);
+    }
 
-	if(targetObject == playerObject)
-	{
-		
-		// create inventory and contents
-		if(dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
-		{
-			sendInventory(playerObject);
-		}
+	//===================================================================================
+	// create inventory, datapad, hair, MissionBag and equipped items get created for the player only !!
+	// equipped items for other watchers are handled via the equiplists
 
-		// mission bag
-		if(TangibleObject* missionBag = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Mission)))
-		{
-			gMessageLib->sendCreateTangible(missionBag,playerObject);
+    
 
-			//Now iterate through the missions and create them clientside
-			MissionBag* mbag = dynamic_cast<MissionBag*> (missionBag);
-			MissionList::iterator it = mbag->getMissions()->begin();
-			while(it != mbag->getMissions()->end())
-			{
-				MissionObject* mission = dynamic_cast<MissionObject*>(*it);
-				sendCreateObjectByCRC(mission, targetObject, false);
-				sendContainmentMessage(mission->getId(), mbag->getId(), 0xffffffff, targetObject);
-				sendBaselinesMISO_3(mission, targetObject);
-				sendBaselinesMISO_6(mission, targetObject);
-				sendBaselinesMISO_8(mission, targetObject);
-				sendBaselinesMISO_9(mission, targetObject);
-				sendEndBaselines(mission->getId(), targetObject);
-				++it;
-			}
+        
+    //equipped items are already in the creo6 so only send them for ourselves
 
-		}
+    sendEndBaselines(playerObject->getId(),targetObject);
 
-		// datapad
-		Datapad* datapad			= playerObject->getDataPad();
-		if(datapad)
-		{
-			//would be nice to use the tangibles objectcontainer for the datapad
-			//need to get missionobjects intangibles, Man Schematics, waypoints and stuff in though, so better do it manually
-			gMessageLib->sendCreateTangible(datapad,playerObject);
-
-			//now iterate through the schematics and create them clientside
-			Datapad* dpad = dynamic_cast<Datapad*> (datapad);
-
-			ManufacturingSchematicList*	manufacturingSchematics = dpad->getManufacturingSchematics();
-			ManufacturingSchematicList::iterator it = manufacturingSchematics->begin();
-
-			while(it != manufacturingSchematics->end())
-			{
-				gMessageLib->sendCreateManufacturingSchematic((dynamic_cast<ManufacturingSchematic*>(*it)),playerObject ,false);
-				++it;
-			}
-
-			//Send player's intangibles vehicles,pets,droids...etc
-			DataList* intangibles = dpad->getData();
-			DataList::iterator ite = intangibles->begin();
-
-			while(ite != intangibles->end())
-			{
-				if(IntangibleObject* itno = dynamic_cast<IntangibleObject*>(*ite))
-				{
-					gMessageLib->sendCreateInTangible(itno, dpad->getId(), playerObject);
-					
-					//dont add it to the MainObjectMap
-					//gWorldManager->addObject(itno,true);
-
-					switch(itno->getItnoGroup())
-					{
-						case ItnoGroup_Vehicle:
-						{
-							// set Owner for vehicles
-							if(VehicleController* vehicle = dynamic_cast<VehicleController*>(itno))
-							{
-								vehicle->set_owner(playerObject);
-							}
-						}
-						break;
-
-						default: break;
-					}
-				}
-
-				++ite;
-			}
-
-			//Should send accepted missions here
-
-		}
-	}
-	else
-	{
-		//sendEndBaselines(playerObject->getId(),targetObject);
-		sendEquippedItems(playerObject,targetObject);
-	}
-	
-	sendEndBaselines(playerObject->getId(),targetObject);
-
-	sendUpdatePvpStatus(playerObject,targetObject);
-
-	if(targetObject == playerObject)
-	{
-		// We are actually sending this info from CharacterLoginHandler::handleDispatchMessage at the opCmdSceneReady event.
-		// sendFriendListPlay9(playerObject);
-		// sendIgnoreListPlay9(playerObject);
-
-		//request the GRUP baselines from chatserver if grouped
-		if(playerObject->getGroupId() != 0)
-		{
-			gMessageLib->sendIsmGroupBaselineRequest(playerObject);
-		}
-	}
-
-	//Player mounts
-	if(playerObject->checkIfMountCalled())
-	{
-		if(playerObject->getMount())
-		{
-			gMessageLib->sendCreateObject(playerObject->getMount(),targetObject);
-			if(playerObject->checkIfMounted())
-			{
-				gMessageLib->sendContainmentMessage(playerObject->getId(), playerObject->getMount()->getId(), 0xffffffff, targetObject);
-			}
-		}
-	}
-
-	return(true);
+    return(true);
 }
 
 //======================================================================================================================
@@ -794,23 +639,6 @@ bool MessageLib::sendCreateCreature(CreatureObject* creatureObject,PlayerObject*
 	return(true);
 }
 
-//======================================================================================================================
-//
-// create tangible
-//
-void MessageLib::sendCreateTangible(TangibleObject* tangibleObject, ObjectList*	knownPlayers, bool sendchildren) 
-{
-	ObjectList::iterator it = knownPlayers->begin();
-
-	while(it != knownPlayers->end())
-	{
-		PlayerObject* targetObject = dynamic_cast<PlayerObject*>(*it);
-
-		gMessageLib->sendCreateTangible(tangibleObject, targetObject, sendchildren);
-
-		++it;
-	}
-}
 
 //======================================================================================================================
 
@@ -855,9 +683,9 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
 
 //======================================================================================================================
 //
-// create tangible
+// create tangible Object in the world
 //
-bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren) 
+bool MessageLib::sendCreateTano(TangibleObject* tangibleObject,PlayerObject* targetObject) 
 {
 	if(!_checkPlayer(targetObject))
 	{
@@ -865,19 +693,7 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 		return(false);
 	}
 
-	if(ResourceContainer* resContainer = dynamic_cast<ResourceContainer*>(tangibleObject))
-	{
-		return sendCreateResourceContainer(resContainer,targetObject);
-	}
-	else if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
-	{
-		return sendCreateFactoryCrate(crate,targetObject);
-	}
-	else if(tangibleObject->getTangibleGroup() == TanGroup_Static)
-	{
-		return sendCreateStaticObject(tangibleObject,targetObject);
-	}
-
+	
 	uint64 parentId = tangibleObject->getParentId();
 
 	sendCreateObjectByCRC(tangibleObject,targetObject,false);
@@ -920,77 +736,11 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
 	sendBaselinesTANO_3(tangibleObject,targetObject);
 	sendBaselinesTANO_6(tangibleObject,targetObject);
 
-	//now check whether we have children!!!
-	ObjectIDList*			ol = tangibleObject->getObjects();
-	ObjectIDList::iterator	it = ol->begin();
-
-	while(it != ol->end())
-	{
-		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-		if(!tO)
-		{
-			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
-			it++;
-			continue;
-		}
-
-		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-		sendCreateObject(tO,player,false);
-		it++;
-	}
-
 	sendEndBaselines(tangibleObject->getId(),targetObject);
 
 	return(true);
 }
 
-//======================================================================================================================
-//
-// create factory crate
-//
-bool MessageLib::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject)
-{
-	if(!_checkPlayer(targetObject))
-		return(false);
-
-	sendCreateObjectByCRC(crate,targetObject,false);
-
-	uint64 parentId = crate->getParentId();
-
-	sendContainmentMessage(crate->getId(),parentId,0xffffffff,targetObject);
-	
-	sendBaselinesTYCF_3(crate,targetObject);
-	sendBaselinesTYCF_6(crate,targetObject);
-
-	sendBaselinesTYCF_8(crate,targetObject);
-	sendBaselinesTYCF_9(crate,targetObject);
-
-	//check for our linked item and create it
-	ObjectIDList*			ol = crate->getObjects();
-	ObjectIDList::iterator	it = ol->begin();
-
-	while(it != ol->end())
-	{
-		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-		if(!tO)
-		{
-			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
-			continue;
-		}
-
-		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-		sendCreateObject(tO,targetObject,false);
-
-		it++;
-	}
-
-	sendEndBaselines(crate->getId(),targetObject);
-
-	//now get the contained tangible and create it
-	//sendCreateTangible();
-
-	return(true);
-}
 
 //======================================================================================================================
 //
@@ -1119,10 +869,10 @@ bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
 	sendBaselinesINSO_6(factory,player);
 
 	TangibleObject* InHopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
-	sendCreateTangible(InHopper,player,false);
+	sendCreateTano(InHopper,player);
 
 	TangibleObject* OutHopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
-	sendCreateTangible(OutHopper,player,false);
+	sendCreateTano(OutHopper,player);
 
 
 	sendEndBaselines(factory->getId(),player);
@@ -1234,200 +984,7 @@ bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSch
 	return(true);
 }
 
-//======================================================================================================================
-//
-// create the inventory contents for its owner
-//
-void MessageLib::sendInventory(PlayerObject* playerObject)
-{
-	if(!_checkPlayer(playerObject))
-		return;
 
-	Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	//uint64		parentId	= inventory->getParentId();
-
-	//to stop the server from crashing.
-	if(!inventory)
-		return;
-
-	inventory->setTypeOptions(256);
-
-	//todo - just use sendcreate tangible and have it send the children, too!!!!
-
-	// create the inventory
-	sendCreateObjectByCRC(inventory,playerObject,false);
-	sendContainmentMessage(inventory->getId(),inventory->getParentId(),4,playerObject);
-	sendBaselinesTANO_3(inventory,playerObject);
-	sendBaselinesTANO_6(inventory,playerObject);
-
-	// create objects contained
-	ObjectIDList* invObjects		= inventory->getObjects();
-	ObjectIDList::iterator objIt	= invObjects->begin();
-
-	while(objIt != invObjects->end())
-	{
-		Object* object = gWorldManager->getObjectById((*objIt));
-		
-		sendCreateObject(object,playerObject,false);
-		++objIt;
-	}
-
-	sendEndBaselines(inventory->getId(),playerObject);
-
-	ObjectList* invEquippedObjects		= playerObject->getEquipManager()->getEquippedObjects();
-	ObjectList::iterator objEIt			= invEquippedObjects->begin();
-
-	while(objEIt != invEquippedObjects->end())
-	{
-		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objEIt))
-		{
-			sendCreateTangible(tangible,playerObject);
-		}
-
-		++objEIt;
-	}
-}
-
-//======================================================================================================================
-//
-// send the matching object creates
-//
-bool MessageLib::sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget)
-{
-	if(!object)
-	{
-		gLogger->log(LogManager::DEBUG,"Attempting sendCreateObject on an invalid object instance");
-		return false;
-	}
-
-	switch(object->getType())
-	{
-		case ObjType_NPC:
-		// creatures
-		case ObjType_Creature:
-		{
-		
-			// If it's a creature owned by me or my group I want to see it.
-			if (CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(object))
-			{
-				if (targetCreature->getPrivateOwner())
-				{
-					if (targetCreature->isOwnedBy(player))
-					{
-						return gMessageLib->sendCreateCreature(targetCreature,player);
-					}
-				}
-				else
-				{
-					// No owner.. a "normal" creature
-					return gMessageLib->sendCreateCreature(targetCreature,player);
-				}
-			}
-		}
-		break;
-
-		// players
-		case ObjType_Player:
-		{
-			// send creates to each other
-			if (!gWorldConfig->isInstance())
-			{
-				if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(object))
-				{
-					if(sendSelftoTarget)
-					{
-						gMessageLib->sendCreatePlayer(player,targetPlayer);
-					}
-
-					gMessageLib->sendCreatePlayer(targetPlayer,player);
-				}
-			}
-			else
-			{
-				if (PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(object))
-				{
-					// Update players in instanced group only.
-					if (targetPlayer->getGroupId())
-					{
-						if (targetPlayer->getGroupId() == player->getGroupId())
-						{
-							if(sendSelftoTarget)
-							{
-								gMessageLib->sendCreatePlayer(player,targetPlayer);
-							}
-							gMessageLib->sendCreatePlayer(targetPlayer,player);
-						}
-					}
-				}
-			}
-		}
-		break;
-
-		// tangibles
-		case ObjType_Tangible:
-		{
-			// skip, if its static
-#if defined(_MSC_VER)
-			if(object->getId() <= 0x0000000100000000)
-#else
-			if(object->getId() <= 0x0000000100000000LLU)
-#endif
-			{
-				//skip statics
-				break;
-			}
-
-			TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
-
-			return gMessageLib->sendCreateTangible(tangibleObject,player);		
-		}
-		break;
-
-		// buildings
-		case ObjType_Building:
-		{
-			// skip, if its static
-#if defined(_MSC_VER)
-			if(object->getId() > 0x0000000100000000)
-#else
-			if(object->getId() > 0x0000000100000000LLU)
-#endif
-			{
-				if(BuildingObject* building = dynamic_cast<BuildingObject*>(object))
-				{
-					gMessageLib->sendCreateBuilding(building,player);
-				}
-			}
-		}
-		break;
-
-		case ObjType_Structure:
-		{
-			// skip, if its static
-#if defined(_MSC_VER)
-			if(object->getId() > 0x0000000100000000)
-#else
-			if(object->getId() > 0x0000000100000000LLU)
-#endif
-			{
-				if(PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object))
-				{
-					sendCreateStructure(structure,player);
-				}
-			}
-		}
-		break;
-
-		// unknown types
-		default:
-		{
-			gLogger->log(LogManager::DEBUG,"MessageLib::createObject: Unhandled object type: %i",object->getType());
-		}
-		break;
-	}
-
-	return true;
-}
 
 //======================================================================================================================
 

@@ -1145,7 +1145,7 @@ void TradeManager::informTradePartner(TangibleObject* item,PlayerObject* tradePa
 
 		default:
 		{
-			gMessageLib->sendCreateTangible(item,tradePartner);
+			gMessageLib->sendCreateTano(item,tradePartner);
 		}
 		break;
 	}

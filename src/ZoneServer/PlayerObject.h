@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "CreatureObject.h"
 #include "EntertainerManager.h"
+#include "Inventory.h"
 #include "Stomach.h"
 #include "Trade.h"
 #include "MountObject.h"
@@ -114,6 +115,9 @@ class PlayerObject : public CreatureObject
 		//datapad
 		Datapad*			getDataPad(){return mDataPad;}
 		void				setDataPad(Datapad* pad){mDataPad = pad;}
+
+		Inventory*			getInventory(){return mInventory;}
+		void				setInventory(Inventory* pad){mInventory = pad;}
 
 		void				setMotdReceived(bool b){ mMotdReceived = b; }
 		bool				getMotdReceived(){ return mMotdReceived; }
@@ -416,6 +420,7 @@ class PlayerObject : public CreatureObject
 		bool				mHasCamp;
 
 		Datapad*			mDataPad;
+		Inventory*			mInventory;
 		bool				mAcceptsBandFlourishes;
 		AudienceList		mAudienceList;
 		BadgesList			mBadgeList;

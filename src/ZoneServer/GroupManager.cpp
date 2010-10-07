@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -319,12 +320,15 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message)
 	}
 
 	// to in-range folks
-	const PlayerObjectSet*	const inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::const_iterator	it				= inRangePlayers->begin();
+	ObjectSet resultSet;
+
+	gSpatialIndexManager->getObjectsInRange(player,&resultSet,ObjType_Creature,30.0,true);
 	
-	while(it != inRangePlayers->end())
+	ObjectSet::const_iterator	it				= resultSet.begin();
+	
+	while(it != resultSet.end())
 	{
-		const PlayerObject* const targetObject = (*it);
+		const PlayerObject* const targetObject = dynamic_cast<PlayerObject*>(*it);
 
 		if(targetObject->isConnected())
 		{

@@ -285,6 +285,8 @@ void AttackableStaticNpc::respawn(void)
 //	Spawn.
 //
 
+//where the %*@ did he put the methods for creation ??
+//this code requires that the object creates are already send .... grml .. what mess
 void AttackableStaticNpc::spawn(void)
 {
 	// Update the world about my presence.
@@ -307,13 +309,6 @@ void AttackableStaticNpc::spawn(void)
 		}
 	}
 	else
-	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-		{
-			this->setSubZoneId((uint32)region->getId());
-			region->mTree->addObject(this);
-		}
-	}
 
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);

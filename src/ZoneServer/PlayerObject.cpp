@@ -195,8 +195,9 @@ PlayerObject::~PlayerObject()
 		}
 	}
 
+	//thats done with removing the player ouot of the grid
 	// remove us from active regions we are in
-	ObjectSet regions;
+	/*ObjectSet regions;
 	gWorldManager->getSI()->getObjectsInRange(this,&regions,ObjType_Region,20);
 
 	ObjectSet::iterator objListIt = regions.begin();
@@ -212,6 +213,7 @@ PlayerObject::~PlayerObject()
 
 		++objListIt;
 	}
+	*/
 
 	// make sure we are deleted out of entertainer Ticks when entertained
 	if(mEntertainerWatchToId)

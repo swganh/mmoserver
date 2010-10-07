@@ -31,9 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NonPersistentNpcFactory.h"
 #include "NpcManager.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
+#include "SpatialIndexManager.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
+
 #include "MessageLib/MessageLib.h"
 #include "utils/rand.h"
 
@@ -103,6 +103,7 @@ void LairObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 i
 
 void LairObject::addKnownObject(Object* object)
 {
+	/*
 	if(checkKnownObjects(object))
 	{
 		gLogger->log(LogManager::DEBUG,"AttackableCreature::addKnownObject %I64u couldnt be added to %I64u already in it", object->getId(), this->getId());
@@ -122,6 +123,7 @@ void LairObject::addKnownObject(Object* object)
 	{
 		mKnownObjects.insert(object);
 	}
+	*/
 }
 
 void LairObject::handleEvents(void)
@@ -135,6 +137,7 @@ void LairObject::handleEvents(void)
 
 	switch (mLairState)
 	{
+		/*
 		case State_LairUnspawned:
 			{
 			// Are there any reasons for me to be alerted?
@@ -242,6 +245,7 @@ void LairObject::handleEvents(void)
 		{
 		}
 		break;
+		*/
 	}
 }
 
@@ -451,29 +455,8 @@ void LairObject::spawn(void)
 	gLogger->log(LogManager::DEBUG,"Spawned lair # %"PRIu64" (%"PRIu64")", gLairSpawnCounter, gLairSpawnCounter - gLairDeathCounter);
 
 	// Update the world about my presence.
-	if (this->getParentId())
-	{
-		// insert into cell
-		this->setSubZoneId(0);
-
-		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-		{
-			cell->addObjectSecure(this);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"LairObject::spawn: couldn't find cell %"PRIu64"", this->getParentId());
-		}
-	}
-	else
-	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-		{
-			this->setSubZoneId((uint32)region->getId());
-			region->mTree->addObject(this);
-		}
-	}
-
+	gSpatialIndexManager->createCreatureinWorld(this);
+	
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(this,this->getParentId(), -1);
 
@@ -538,18 +521,16 @@ void LairObject::spawnInitialWave(void)
 
 bool LairObject::playerInRange(float range)
 {
-	ObjectSet inRangeObjects;
-	// ObjectSet::iterator objectSetIt;
+	// to in-range folks
+	ObjectSet resultSet;
 
-	// Make Set ready,
-	// inRangeObjects.clear();
-	// objectSetIt = mInRangeObjects.begin();	// Will point to end of Set
-	if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-	{
-		Anh_Math::Rectangle qRect = Anh_Math::Rectangle(this->mPosition.x - range, this->mPosition.z - range, range * 2, range * 2);
-		region->mTree->getObjectsInRange(this, &inRangeObjects, ObjType_Player, &qRect);
-	}
-	return !inRangeObjects.empty();
+	gSpatialIndexManager->getObjectsInRange(this,&resultSet,ObjType_Creature,30.0,true);
+	ObjectSet::iterator it = resultSet.begin();
+
+	
+	bool result = !resultSet.empty();
+	
+	return result;
 }
 
 //=============================================================================

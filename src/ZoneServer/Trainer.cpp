@@ -35,10 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "QuadTree.h"
 #include "SkillManager.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "UIManager.h"
 #include "WorldConfig.h"
 #include "Tutorial.h"
-#include "ZoneTree.h"
+
 
 #include "MessageLib/MessageLib.h"
 
@@ -1258,7 +1259,7 @@ void Trainer::restorePosition(PlayerObject* player)
 	}
 }
 
-
+//prepare the spawn event by initialization
 void Trainer::respawn(void)
 {
 	gLogger->log(LogManager::DEBUG,"Trainer::respawn: Added new trainer for spawn, with id = %"PRIu64"",  this->getId());
@@ -1312,32 +1313,10 @@ void Trainer::spawn(void)
 	// gLogger->log(LogManager::DEBUG,"Spawned static objects # %"PRIu64" (%"PRIu64")",  gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
 	// Update the world about my presence.
-	
-	if (this->getParentId())
-	{
-		// insert into cell
-		this->setSubZoneId(0);
+	//we are here in the worldmanager already ?? if not do
+	//gWorldManager->addObject(this);
+	gSpatialIndexManager->createCreatureInWorld(this);
 
-		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-		{
-			cell->addObjectSecure(this);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"Trainer::spawn: couldn't find cell %"PRIu64, this->getParentId());
-			
-			// It's a serious isse that we need to investigate.
-			assert(cell && "Trainer::spawn WorldManager unable to find CellObject");
-		}
-	}
-	else
-	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-		{
-			this->setSubZoneId((uint32)region->getId());
-			region->mTree->addObject(this);
-		}
-	}
 
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);

@@ -839,6 +839,90 @@ bool MessageLib::sendEquippedListUpdate_InRange(CreatureObject* creatureObject)
 	return(true);
 }
 
+
+bool MessageLib::sendEquippedListUpdate(CreatureObject* creatureObject, CreatureObject* targetObject)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
+	if(player)
+	{
+		if(!player->isConnected())
+			return(false);
+	}
+	PlayerObject* target = dynamic_cast<PlayerObject*>(targetObject);
+	if(!target || !target->isConnected())
+	{
+		return(false);
+	}
+
+	ObjectList*				equippedObjects				= creatureObject->getEquipManager()->getEquippedObjects();
+	ObjectList::iterator	eqIt						= equippedObjects->begin();
+	uint32					cSize						= 0;
+
+	// customization is necessary for haircolor on imagedesign
+	while(eqIt != equippedObjects->end())
+	{
+		if(TangibleObject* object = dynamic_cast<TangibleObject*>(*eqIt))
+		{
+			cSize += object->getCustomizationStr().getLength();
+		}
+		else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(*eqIt))
+		{
+			cSize += pet->getCustomizationStr().getLength();
+		}
+
+		++eqIt;
+	}
+
+	mMessageFactory->StartMessage();
+	mMessageFactory->addUint32(opDeltasMessage);
+	mMessageFactory->addUint64(creatureObject->getId());
+	mMessageFactory->addUint32(opCREO);
+	mMessageFactory->addUint8(6);
+
+	mMessageFactory->addUint32(15 + (equippedObjects->size() * 18)+ cSize);
+	mMessageFactory->addUint16(1);   //one update
+	mMessageFactory->addUint16(15);				 //id 15
+
+	// creatures tangible objects
+	eqIt = equippedObjects->begin();
+
+	mMessageFactory->addUint32(equippedObjects->size());
+	mMessageFactory->addUint32(creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(equippedObjects->size()));//+1
+	creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
+
+	mMessageFactory->addUint8(3);
+	mMessageFactory->addUint16(equippedObjects->size());
+
+	while(eqIt != equippedObjects->end())
+	{
+		Object* object = (*eqIt);
+
+		if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object))
+		{
+			mMessageFactory->addString(tObject->getCustomizationStr());
+		}
+		else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
+		{
+			mMessageFactory->addString(pet->getCustomizationStr());
+		}
+		else
+		{
+			mMessageFactory->addUint16(0);
+		}
+
+		mMessageFactory->addUint32(4);
+		mMessageFactory->addUint64(object->getId());
+		mMessageFactory->addUint32((object->getModelString()).getCrc());
+
+		++eqIt;
+	}
+
+	(target->getClient())->SendChannelA(mMessageFactory->EndMessage(),target->getAccountId(),CR_Client,4);
+
+	return(true);
+}
+
+
 //======================================================================================================================
 //
 // Creature Deltas Type 6

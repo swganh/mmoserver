@@ -71,33 +71,17 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 
 		ObjectIDList*		getObjects() { return &mData; }
 		Object*				getObjectById(uint64 id);
-		bool				addObject(Object* Data);
-		bool				addObjectSecure(Object* Data);
-		bool				addObjectSecure(Object* Data, PlayerObject* player);
-		void				addObjectSecure(Object* object, PlayerObjectSet* inRangePlayers, PlayerObject* player = NULL);
-
-		void				createContent(PlayerObject* player);
 		
-		//creates the object for the provided player/s
-		bool				addObject(Object* Data,PlayerObject* player);
-		bool				addObject(Object* Data,PlayerObjectSet*	knownPlayers);
+		bool				addObject(Object* data);
+		bool				addObjectSecure(Object* data);
 		
 		bool				checkForObject(Object* object);
 		
-		
 		bool				deleteObject(Object* data);
-
 		bool				removeObject(uint64 id);
-		bool				removeObject(uint64 id, PlayerObject* player);
-		bool				removeObject(uint64 id, PlayerObjectSet*	knownPlayers);
-		
 		bool				removeObject(Object* Data);
-		bool				removeObject(Object* Data, PlayerObject* player);
-		bool				removeObject(Object* Data, PlayerObjectSet*	knownPlayers);
-
 		ObjectIDList::iterator removeObject(ObjectIDList::iterator it);
-		ObjectIDList::iterator removeObject(ObjectIDList::iterator it, PlayerObject*	player);
-		ObjectIDList::iterator removeObject(ObjectIDList::iterator it, PlayerObjectSet*	knownPlayers);
+		
 		
 		//we need to check the content of our children, too!!!!
 		virtual bool		checkCapacity(){return((mCapacity-mData.size()) > 0);}
@@ -105,6 +89,19 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		void				setCapacity(uint16 cap){mCapacity = cap;}
 		uint16				getCapacity(){return mCapacity;}
 		uint16				getHeadCount();
+
+
+		//Known Objectslist to keep track of players watching container content
+		PlayerObjectSet*			getRegisteredWatchers() { return &mKnownPlayers; }
+		//ObjectSet*					getContainerKnownObjects() { return &mKnownObjects; }
+		void						destroyContainerKnownObjects();
+		bool						checkRegisteredWatchers(PlayerObject* player);
+//		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
+		bool						addContainerKnownObjectSafe(Object* object);
+
+		virtual void				addContainerKnownObject(Object* object);
+		bool						removeContainerKnownObject(Object* object);
+		bool						checkContainerKnownObjects(Object* object) const;
 		
 		//===========================================================================================
 		//gets the contents of containers including their subcontainers
@@ -140,8 +137,11 @@ private:
 
 
 
-		ObjectIDList			mData;
-		uint16					mCapacity;
+		ObjectIDList				mData;
+		uint16						mCapacity;
+		
+		ObjectSet					mKnownObjects;
+		PlayerObjectSet				mKnownPlayers;
 
 		
 		

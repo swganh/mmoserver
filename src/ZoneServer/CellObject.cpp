@@ -72,27 +72,23 @@ void CellObject::prepareDestruction()
 
 		if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))
 		{
-			//place the player in the world
-			glm::vec3 playerWorldPosition = player->getWorldPosition();
-			playerWorldPosition.x += 2;
-			playerWorldPosition.z += 2;
-			player->updatePosition(0,playerWorldPosition);
-			player->setParentIdIncDB(0);
-			//already removed out of the cell
-			objIt = cellObjects->begin();
-		}
+			//should be already dealt with - shouldnt be any players left
+
+		} 
 		else
 		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
 		{
+			//put the creature into the world
 			pet->setParentIdIncDB(0);
 			pet->updatePosition(0,pet->getWorldPosition());
-			//already removed out of the cell
+			
+			//remove out of the cell
+			cellObjects->erase(objIt);
+
 			objIt = cellObjects->begin();
 		}
 		else
 		{
-			gWorldManager->destroyObjectForKnownPlayers(object);
-			
 			//Carefull! destroyObject removes the object from the cell!!!
 			//the iterator is invalid afterwards!!!
 			gWorldManager->destroyObject(object);

@@ -73,7 +73,9 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 		structure->getTTS()->playerId = player->getId();
 		structure->getTTS()->projectedTime = mBuildingFenceInterval + Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-		gWorldManager->handleObjectReady(structure,player->getClient());
+		//add structure to the mainObjectMap, do not create yet
+		gWorldManager->addObject(structure,true);
+		gWorldManager->getStructureList()->push_back(structure->getId());
 
 		addStructureforConstruction(structure->getId());
 	}
@@ -257,17 +259,8 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 {
 	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
 
-	//if its a playerstructure boot all players and pets inside
-	HouseObject* house = dynamic_cast<HouseObject*>(structure);
-	if(house)
-	{
-		house->prepareDestruction();
-	}
-	
-
 	//destroy the structure here so the sf can still access the relevant data
 	gObjectFactory->deleteObjectFromDB(structure);
-	gMessageLib->sendDestroyObject_InRangeofObject(structure);
 
 	gWorldManager->destroyObject(structure);
 	

@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerStructure.h"
 #include "QuadTree.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 
@@ -140,14 +141,27 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 		return;
 	}
 
-	PlayerObjectSet* playerSet = structure->getKnownPlayers();
-	PlayerObjectSet::iterator it = playerSet->begin();
+	//get all players in range and alter their permissionlists
+	// to in-range folks
+	ObjectSet resultSet;
 
-	while(it != playerSet->end())
+	gSpatialIndexManager->getObjectsInRange(structure,&resultSet,ObjType_Creature,30.0,true);
+	ObjectSet::iterator it = resultSet.begin();
+
+
+	
+	ObjectSet::iterator it = resultSet.begin();
+
+	while(it != resultSet.end())
 	{
-		PlayerObject* player = (*it);
-		house->checkCellPermission(player);
+		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
 		
+		if(player)
+		{
+			house->checkCellPermission(player);
+		}
+		
+
 		it++;
 	}
 
@@ -292,34 +306,20 @@ StructureDeedLink* StructureManager::getDeedData(uint32 type)
 }
 
 //======================================================================================================================
-//returns true when we are NOT within 25m of a camp
-//======================================================================================================================
+// returns true when we are NOT within 25m of a campregion!!
+// so that camps are not to close to each other
 
 bool StructureManager::checkCampRadius(PlayerObject* player)
 {
-	QTRegion*			mQTRegion = NULL;
-	uint32				subZoneId = player->getSubZoneId();
-	float				width  = 25.0;
-	float				height = 25.0;
+	float				range  = 25.0;
 
-	Anh_Math::Rectangle mQueryRect;
-	if(!subZoneId)
-	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
-		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
-	}
-
+	//search the grids subcells
 	RegionObject*	object;
 	ObjectSet		objList;
 
-	gWorldManager->getSI()->getObjectsInRange(player,&objList,ObjType_Region,width*2);
+	gSpatialIndexManager->getObjectsInRange(player,&objList,ObjType_Region,range*2, false);
 
-	if(mQTRegion)
-	{
-		mQTRegion->mTree->getObjectsInRange(player,&objList,ObjType_Region,&mQueryRect);
-	}
-
+	
 	ObjectSet::iterator objIt = objList.begin();
 
 	while(objIt != objList.end())
@@ -344,28 +344,14 @@ bool StructureManager::checkCampRadius(PlayerObject* player)
 
 bool StructureManager::checkCityRadius(PlayerObject* player)
 {
-	QTRegion*			mQTRegion = NULL;
-	uint32				subZoneId = player->getSubZoneId();
-	float				width  = 5.0;
-	float				height = 5.0;
+	float				range  = 5.0;
 
-	Anh_Math::Rectangle mQueryRect;
-	if(!subZoneId)
-	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
-		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
-	}
-
+	//search the grids subcells
 	RegionObject*	object;
 	ObjectSet		objList;
 
-	gWorldManager->getSI()->getObjectsInRangeIntersection(player,&objList,ObjType_Region,width*2);
+	gSpatialIndexManager->getObjectsInRange(player,&objList,ObjType_Region,range*2, false);
 
-	if(mQTRegion)
-	{
-		mQTRegion->mTree->getObjectsInRange(player,&objList,ObjType_Region,&mQueryRect);
-	}
 
 	ObjectSet::iterator objIt = objList.begin();
 
@@ -386,33 +372,19 @@ bool StructureManager::checkCityRadius(PlayerObject* player)
 }
 
 //======================================================================================================================
-//returns true when we are within 1m of a camp
+//returns true when we are within a camp
 //======================================================================================================================
 
 bool StructureManager::checkinCamp(PlayerObject* player)
 {
-	QTRegion*			mQTRegion = NULL;
-	uint32				subZoneId = player->getSubZoneId();
-	float				width  = 1.0;
-	float				height = 1.0;
+	float				range  = 1.0;
 
-	Anh_Math::Rectangle mQueryRect;
-	if(!subZoneId)
-	{
-		mQTRegion	= gWorldManager->getSI()->getQTRegion(player->mPosition.x,player->mPosition.z);
-		subZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(player->mPosition.x - width,player->mPosition.z - height,width * 2,height * 2);
-	}
-
+	//search the grids subcells
 	RegionObject*	object;
 	ObjectSet		objList;
 
-	gWorldManager->getSI()->getObjectsInRange(player,&objList,ObjType_Region,width*2);
+	gSpatialIndexManager->getObjectsInRange(player,&objList,ObjType_Region,range*2, false);
 
-	if(mQTRegion)
-	{
-		mQTRegion->mTree->getObjectsInRange(player,&objList,ObjType_Region,&mQueryRect);
-	}
 
 	ObjectSet::iterator objIt = objList.begin();
 
@@ -519,23 +491,18 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			//delete the deed
 			{
 
-				//if its a playerstructure boot all players and pets inside
-				HouseObject* house = dynamic_cast<HouseObject*>(structure);
-				if(house)
-				{
-					house->prepareDestruction();
-				}
-
-
 				gMessageLib->sendSystemMessage(player,L"","player_structure","structure_destroyed");
+				
+				//deletes the deed
 				int8 sql[200];
 				sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
 				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+				
 				gObjectFactory->deleteObjectFromDB(structure);
-				gMessageLib->sendDestroyObject_InRangeofObject(structure);
+							
 				gWorldManager->destroyObject(structure);
+				
 				UpdateCharacterLots(structure->getOwner());
-
 
 			}
 
@@ -559,8 +526,11 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			if(!player)
 			{
 				gLogger->log(LogManager::DEBUG,"StructureManager::_handleStructureObjectTimers: No Player");
-				gMessageLib->sendDestroyObject_InRangeofObject(fence);
+				
+				//should be handled by the grid
+				//gMessageLib->sendDestroyObject_InRangeofObject(fence);
 				gWorldManager->destroyObject(fence);
+				
 				gWorldManager->handleObjectReady(structure,player->getClient());
 				it = objectList->erase(it);
 				continue;
@@ -577,10 +547,13 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			}
 
 			//delete the fence
-			gMessageLib->sendDestroyObject_InRangeofObject(fence);
+			//gMessageLib->sendDestroyObject_InRangeofObject(fence); handled by the grid
 			gWorldManager->destroyObject(fence);
 
-			gWorldManager->createObjectinWorld(player,structure);	
+			//create the structure in the world
+			gSpatialIndexManager->AddObject(structure);
+
+			//send the EMail
 			gMessageLib->sendConstructionComplete(player,structure);
 
 			/*
@@ -826,14 +799,14 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				return;
 			}
 
-			//send the hopper as tangible if we havnt done that already ...
-			//add each other to the known objects list
 			Item* outHopper = dynamic_cast<Item*>(gWorldManager->getObjectById(factory->getOutputHopper()));
 			if(!outHopper)
 			{
 				gLogger->log(LogManager::DEBUG,"StructureManager::processVerification : No outHopper (Structure_Command_AccessInHopper) ");
 				return;
 			}
+
+			//create the outputhoppers contents
 
 			ObjectIDList*			ol = outHopper->getObjects();
 			ObjectIDList::iterator	it = ol->begin();
@@ -846,12 +819,12 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 					assert(false && "StructureManager::processVerification Structure_Command_AccessOutHopper WorldManager unable to find tangible object");
 				}
 
-				//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-				if(!tO->checkKnownPlayer(player))
+				//we need to keep track of who is watching a container
+				if(!tO->checkContainerKnownPlayer(player))
 				{
-					gMessageLib->sendCreateObject(tO,player,false);
-					tO->addKnownObjectSafe(player);
-					player->addKnownObjectSafe(tO);
+					gMessageLib->sendCreateTano(tO,player);
+					tO->addContainerKnownObjectSafe(player);
+					player->addContainerKnownObjectSafe(tO);
 				}
 				it++;
 			}
@@ -881,28 +854,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				return;
 			}
 
-			//now create the hoppers content - put it on the knownobjectslist so it gets deleted once we move ... ?
-			ObjectIDList*			ol = inHopper->getObjects();
-			ObjectIDList::iterator	it = ol->begin();
-
-			while(it != ol->end())
-			{
-				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-				if(!tO)
-				{
-					assert(false && "StructureManager::processVerification Structure_Command_AccessInHopper WorldManager unable to find tangible object");
-				}
-
-				//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetObject->getId()));
-				if(!tO->checkKnownPlayer(player))
-				{
-					tO->addKnownObjectSafe(player);
-					player->addKnownObjectSafe(tO);
-					gMessageLib->sendCreateObject(tO,player,false);
-									
-				}
-				it++;
-			}
+			//now register the hopper with the player who opened it
+			gSpatialIndexManager->registerPlayerToContainer(inHopper,player);
 
 
 			gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);

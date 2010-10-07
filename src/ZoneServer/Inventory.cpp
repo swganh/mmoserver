@@ -105,8 +105,11 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 
 	//generally we presume that objects are created UNEQUIPPED
 	//equipped objects are handled through the playerfactory on load
-	gWorldManager->addObject(object,true);//true means its not added to the si!!
 
+	//let the spatialIndexManager take care of creation
+	gWorldManager->addObject(object);
+
+	/*
 	// send the creates, if we are owned by a player
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(mParent))
 	{
@@ -115,7 +118,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 
 	else
 		addObjectSecure(object);
-	
+	*/
 }
 
 //=============================================================================

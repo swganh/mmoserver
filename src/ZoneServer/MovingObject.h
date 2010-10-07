@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_MOVING_OBJECT_H
 #define ANH_ZONESERVER_MOVING_OBJECT_H
 
-#include "Object.h"
+#include "ObjectContainer.h"
 //#include "QuadTree.h"
 
 class Message;
@@ -36,7 +36,7 @@ class DispatchClient;
 class QTRegion;
 //=============================================================================
 
-class MovingObject : public Object
+class MovingObject : public ObjectContainer
 {
 	friend class ObjectFactory;
 	friend class PlayerObjectFactory;
@@ -96,9 +96,6 @@ class MovingObject : public Object
 
 		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount){}
 
-
-		QTRegion*					getSubZone() const { return mSubZone; }
-		void						setSubZone(QTRegion* zone){ mSubZone = zone; }
 
 	protected:
 

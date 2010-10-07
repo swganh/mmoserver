@@ -54,7 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 //
 // server destroy object
-//
+// remove from db if indicated, then call worldmanager destroyObject
 
 void ObjectController::destroyObject(uint64 objectId)
 {
@@ -94,39 +94,23 @@ void ObjectController::destroyObject(uint64 objectId)
 	// waypoint
 	if(object->getType() == ObjType_Waypoint)
 	{
-		// update our datapad
-		if(!(datapad->removeWaypoint(objectId)))
-		{
-			gLogger->log(LogManager::DEBUG,"ObjController::handleDestroyObject: Error removing Waypoint from datapad %"PRIu64"",objectId);
-		}
-
-		gMessageLib->sendUpdateWaypoint(dynamic_cast<WaypointObject*>(object),ObjectUpdateDelete,playerObject);
-
 		// delete from db
 		gObjectFactory->deleteObjectFromDB(object);
 
-		delete(object);
+		//remove from grid and/or container
+		gWorldManager->destroyObject(object);
+		
 	}
 
 	//Inangible Objects
 	if(object->getType() == ObjType_Intangible)
 	{
-		//update the datapad
-		if(!(datapad->removeData(objectId)))
-		{
-			gLogger->log(LogManager::DEBUG,"ObjController::handleDestroyObject: Error removing Data from datapad %"PRIu64"",objectId);
-		}
-
-		if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
-		{
-			vehicle->Store();
-		}
 		
 		gObjectFactory->deleteObjectFromDB(object);
-		gMessageLib->sendDestroyObject(objectId,playerObject);
-
-		delete(object);
-
+		
+		//remove from grid and/or container
+		gWorldManager->destroyObject(object);
+		
 	}
 
 
@@ -148,37 +132,8 @@ void ObjectController::destroyObject(uint64 objectId)
 				default:break;
 			}
 
-			// update the equiplist, if its an equipable item
-			CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(item->getParentId()));
-			if(creature)
-			{
-				// remove from creatures slotmap
-				creature->getEquipManager()->removeEquippedObject(object);
-
-				//unequip it
-				object->setParentId(inventory->getId());
-				gMessageLib->sendContainmentMessage_InRange(object->getId(),inventory->getId(),0xffffffff,creature);
-
-				// send out the new equiplist
-				gMessageLib->sendEquippedListUpdate_InRange(creature);				
-			}
 		}
-		//tangible includes items and resourcecontainers
-		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
-		{
-			//if(tangible->getObjectMainParent(object) != inventory->getId())
-			if(tangibleObject->getKnownPlayers()->size())
-			{
-				//this automatically destroys the object for the players in its vicinity
-				tangibleObject->destroyKnownObjects();
-			}
-			else
-			{
-				// destroy it for the player
-				gMessageLib->sendDestroyObject(objectId,playerObject);
-			}
-
-		}
+		
 		
 		// reset pending ui callbacks
 		playerObject->resetUICallbacks(object);
@@ -187,17 +142,9 @@ void ObjectController::destroyObject(uint64 objectId)
 		// temporary placed instruments are not saved in the db
 		gObjectFactory->deleteObjectFromDB(object);
 
-		//it might be in a cell or in a container or in the inventory :)
-		ObjectContainer* oc = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(object->getParentId()));
-		if(oc)
-		{
-			oc->deleteObject(object);
-		}
-		// remove from world
-		else
-		{
-			gWorldManager->destroyObject(object);
-		}
+		//remove from grid and/or container
+		gWorldManager->destroyObject(object);
+		
 	}
 }
 

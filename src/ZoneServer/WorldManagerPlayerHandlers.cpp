@@ -78,63 +78,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
 
-//======================================================================================================================
-
-void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
-{
-	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
-	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(object,&inRangeObjects,(ObjType_Player),gWorldConfig->getPlayerViewingRange());
-
-	// query the according qtree, if we are in one
-	if(object->getSubZoneId())
-	{
-		if(QTRegion* region = getQTRegion(object->getSubZoneId()))
-		{
-			float				viewingRange	= _GetMessageHeapLoadViewingRange();
-			//float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
-			Anh_Math::Rectangle qRect;
-
-			if(!object->getParentId())
-			{
-				qRect = Anh_Math::Rectangle(object->mPosition.x - viewingRange,object->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-			}
-			else
-			{
-				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(object->getParentId()));
-				BuildingObject* building	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId()));
-
-				qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-			}
-
-			region->mTree->getObjectsInRange(object,&inRangeObjects,ObjType_Player,&qRect);
-		}
-	}
-
-	// iterate through the results
-	ObjectSet::iterator it = inRangeObjects.begin();
-
-	while(it != inRangeObjects.end())
-	{
-		PlayerObject* pObject = dynamic_cast<PlayerObject*>(*it);
-
-		if(pObject)
-		{
-			if(pObject != player)
-			{
-				gMessageLib->sendCreateObject(object,pObject);
-				pObject->addKnownObjectSafe(object);
-				object->addKnownObjectSafe(pObject);
-			}
-
-		}
-
-		++it;
-	}
-
-}
-
-
+#include "SpatialIndexManager.h"
 //======================================================================================================================
 
 void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, CharacterLoadingContainer* clContainer)
@@ -348,18 +292,10 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	// remove player from objects in his range.
 	removePlayerMovementUpdateTime(playerObject);
 
-	//remove the player out of his group - if any
-	//why the fuck would we do that ???
-	/*
-	GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
+	//*replaced through grid
+	//playerObject->destroyKnownObjects();
 
-	if(group)
-		group->removePlayer(playerObject->getId());
-		*/
-
-	playerObject->destroyKnownObjects();
-
-	// remove from cell / SI
+	// remove from cell if we are in one / SI
 	if(playerObject->getParentId())
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId())))
@@ -383,16 +319,12 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 		}
 	}
 
-	// remove any timers running
-	//why remove that ?
-	//removeObjControllerToProcess(playerObject->getController()->getTaskId());
-	//playerObject->getController()->clearQueues();
-	//playerObject->getController()->setTaskId(0);
 	
 	//why remove that ?	
-	removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
-	removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
-	removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
+	//removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
+	//removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
+	//removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
+	
 	//we've removed the taskId, now lets reset the Id
 	playerObject->getHam()->setTaskId(0);
 
@@ -407,7 +339,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	gMessageLib->sendStartScene(mZoneId,playerObject);
 	gMessageLib->sendServerTime(gWorldManager->getServerTime(),playerObject->getClient());
 
-	// add us to cell / SI
+	// add us to the cell should we be in one
 	if(parentId)
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId)))
@@ -419,23 +351,9 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 			gLogger->log(LogManager::DEBUG,"WorldManager::warpPlanet: couldn't find cell %"PRIu64"",parentId);
 		}
 	}
-	else
-	{
-		if(QTRegion* region = mSpatialIndex->getQTRegion(playerObject->mPosition.x,playerObject->mPosition.z))
-		{
-			playerObject->setSubZoneId((uint32)region->getId());
-			region->mTree->addObject(playerObject);
-		}
-		else
-		{
-			// we should never get here !
-			gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map");
-			return;
-		}
-	}
-
-	// initialize objects in range
-	initObjectsInRange(playerObject);
+	
+	//places us in new grid and handles updates
+	gSpatialIndexManager->UpdateObject(playerObject);
 
 	// initialize at new position
 	gMessageLib->sendCreatePlayer(playerObject,playerObject);

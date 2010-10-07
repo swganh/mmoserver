@@ -26,9 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <list>
-#include "QTRegion.h"
-#include "QuadTree.h"
-#include "ZoneTree.h"
+
 #include "ForageManager.h"
 #include "PlayerObject.h"
 #include "MedicManager.h"
@@ -40,7 +38,6 @@ ForageManager*	ForageManager::mSingleton = NULL;
 
 ForageManager::ForageManager()
 {
-	mSI = gWorldManager->getSI();
 	pHead = NULL;
 }
 
@@ -77,10 +74,9 @@ public:
 class ForagePocket
 {
 public:
-	ForagePocket::ForagePocket(PlayerObject* player, ZoneTree* mSI)
+	ForagePocket::ForagePocket(PlayerObject* player)
 	{
-		region = mSI->getQTRegion(player->mPosition.z,player->mPosition.z);
-
+		
 		innerRect = Anh_Math::Rectangle(player->mPosition.x - 10,player->mPosition.z - 10,20,20);
 		outterRect = Anh_Math::Rectangle(player->mPosition.x - 30,player->mPosition.z - 30,60,60);
 
@@ -100,8 +96,13 @@ public:
 
 	bool containsPlayer(PlayerObject* player)
 	{
-		if(region->mTree->ObjectContained(&outterRect, player))
-			return true;
+		if((outterRect.getPosition().x > player->mPosition.x) && ((outterRect.getPosition().x + outterRect.getWidth()) < player->mPosition.x))
+		{
+			if((outterRect.getPosition().z > player->mPosition.z) && ((outterRect.getPosition().z + outterRect.getHeight()) < player->mPosition.z))
+				return true;
+			else
+				return false;
+		}
 		else
 			return false;
 	}
@@ -114,13 +115,14 @@ public:
 	bool updateAttempts(uint64 currentTime); //if True Delete this Pocket, if False don't
 
 	ForagePocket* pNext;
+	Anh_Math::Rectangle outterRect;
 
 private:
 	std::list<ForageAttempt*> attempts;
 
 	QTRegion* region;
 	Anh_Math::Rectangle innerRect;
-	Anh_Math::Rectangle outterRect;
+
 };
 
 
@@ -191,7 +193,7 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 
 	//None of them contained the player. We need to make new one.
 
-	ForagePocket* new_pocket = new ForagePocket(player, mSI);
+	ForagePocket* new_pocket = new ForagePocket(player);
 	it = pHead;
 	ForagePocket* previousHead = NULL;
 	while(it != NULL)
@@ -298,7 +300,16 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 					continue;
 				}
 
-				if(region->mTree->ObjectContained(&innerRect, player) && AttemptCount < 4)
+				bool inIt = false;
+				if((innerRect.getPosition().x > player->mPosition.x) && ((innerRect.getPosition().x + innerRect.getWidth()) < player->mPosition.x))
+				{
+					if((innerRect.getPosition().z > player->mPosition.z) && ((innerRect.getPosition().z + innerRect.getHeight()) < player->mPosition.z))
+					{
+						inIt = true;
+					}
+				}
+
+				if(inIt && AttemptCount < 4)
 				{
 					//The player has a chance to get something
 					ForageManager::successForage(player, (*it)->mForageClass);

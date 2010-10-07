@@ -280,6 +280,8 @@ Datapad* DatapadFactory::_createDatapad(DatabaseResult* result)
 	result->GetNextRow(mDatapadBinding,(void*)datapad);
 	datapad->setParentId(datapad->mId - 3);
 
+	gWorldManager->addObject(datapad, true);
+
 	return datapad;
 }
 

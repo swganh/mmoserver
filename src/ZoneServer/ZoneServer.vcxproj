@@ -57,7 +57,7 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\lua\src;$(SolutionDir)deps\noise\src;$(SolutionDir)deps\spatialindex\include;$(SolutionDir)deps\spatialindex\tools\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -294,6 +294,8 @@
     <ClCompile Include="ShuttleFactory.cpp" />
     <ClCompile Include="Skill.cpp" />
     <ClCompile Include="SkillManager.cpp" />
+    <ClCompile Include="SpatialIndexManager.cpp" />
+    <ClCompile Include="SpatialIndexMessagingServices.cpp" />
     <ClCompile Include="SpawnRegion.cpp" />
     <ClCompile Include="SpawnRegionFactory.cpp" />
     <ClCompile Include="StaticObject.cpp" />
@@ -523,6 +525,7 @@
     <ClInclude Include="Skill.h" />
     <ClInclude Include="SkillEnums.h" />
     <ClInclude Include="SkillManager.h" />
+    <ClInclude Include="SpatialIndexManager.h" />
     <ClInclude Include="SpawnPoint.h" />
     <ClInclude Include="SpawnRegion.h" />
     <ClInclude Include="SpawnRegionFactory.h" />

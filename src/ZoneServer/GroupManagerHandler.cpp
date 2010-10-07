@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "GroupManagerHandler.h"
 #include "UIManager.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "PlayerObject.h"
 #include "MessageLib/MessageLib.h"
 #include "Common/MessageDispatch.h"
@@ -166,12 +167,13 @@ void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message)
 
 	player->setGroupId(message->getUint64());
 
-
 	// to in-range folks
-	const PlayerObjectSet*	const inRangePlayers	= player->getKnownPlayers();
-	PlayerObjectSet::const_iterator	it				= inRangePlayers->begin();
+	PlayerObjectSet		inRangePlayers;
+	gSpatialIndexManager->getPlayersInRange(player,&inRangePlayers,true);
 
-	while(it != inRangePlayers->end())
+	PlayerObjectSet::const_iterator	it				= inRangePlayers.begin();
+
+	while(it != inRangePlayers.end())
 	{
 		const PlayerObject* const targetObject = (*it);
 

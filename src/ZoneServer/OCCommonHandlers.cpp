@@ -58,6 +58,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "ZoneOpcodes.h"
 #include "Utils/clock.h"
 #include "ZoneTree.h"
@@ -175,8 +176,8 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 				{
 					aContainer = true;
 					
-					//create containers content for us	
-					tangObj->createContent(playerObject);
+					//register the player to the container and create the content
+					gSpatialIndexManager->registerPlayerToContainer(tangObj,playerObject);
 				}
 			}
 		}

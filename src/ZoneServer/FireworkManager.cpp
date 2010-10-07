@@ -118,7 +118,6 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 
 	//add it to the world!!!
 	gWorldManager->addObject(firework);
-	gWorldManager->createObjectinWorld(player,firework);
 	
 	FireworkEvent* fevent = new FireworkEvent;
 

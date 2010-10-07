@@ -27,17 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SpawnRegion.h"
 #include "PlayerObject.h"
-#include "QTRegion.h"
-#include "QuadTree.h"
+#include "SpatialIndexManager.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
+
 
 //=============================================================================
 
 SpawnRegion::SpawnRegion()
 : RegionObject()
-, mQTRegion(NULL)
-, mSI(gWorldManager->getSI())
 , mMission(0)
 {
 	mActive		= true;

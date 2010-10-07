@@ -51,7 +51,7 @@ typedef enum _Lair_State
 	State_LairCombat = 5
 } Lair_State;
 
-class LairObject :	public AttackableStaticNpc, ObjectFactoryCallback
+class LairObject :	public AttackableStaticNpc//, ObjectFactoryCallback
 {
 	friend class NonPersistentNpcFactory;
 

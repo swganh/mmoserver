@@ -179,7 +179,7 @@ void SocketReadThread::run(void)
 		tv.tv_sec   = 0;
 		tv.tv_usec  = 250;
 
-		count = select(mSocket, &socketSet, 0, 0, &tv);
+		count = select(mSocket+1, &socketSet, 0, 0, &tv);
 
 		if(count && FD_ISSET(mSocket, &socketSet))
 		{

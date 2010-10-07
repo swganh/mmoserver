@@ -74,7 +74,16 @@ class RegionObject : public Object
 		virtual void		onObjectEnter(Object* object){}
 		virtual void		onObjectLeave(Object* object){}
 
+		bool				addVisitor(Object* visitor);
+		void				removeVisitor(Object* visitor);
+		
+		bool				checkVisitor(Object* object);
+
+		uint32				subCellId;
+
 	protected:
+
+		ObjectIDSet			mVisitingPlayers;
 
 		RegionType			mRegionType;
 		float				mWidth;

@@ -37,12 +37,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "FactoryObject.h"
-#include "QuadTree.h"
 #include "Tutorial.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "VehicleController.h"
-#include "ZoneTree.h"
 #include "zmap.h"
 
 #include "MessageLib/MessageLib.h"
@@ -142,7 +141,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		gMessageLib->broadcastContainmentMessage(player->getId(),0,4,player);
 		
 		//grid uses worldposition when were in a cell
-		mGrid->UpdateObject(player);
+		gSpatialIndexManager->UpdateObject(player);
 
 		// Inform tutorial about cell change.
 		if (gWorldConfig->isTutorial())
@@ -150,19 +149,14 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 			player->getTutorial()->setCellId(0);
 		}
 
-		/*//now destroy the buildings contents
-		BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-		handleBuildingContentDespawn(building,player);
-		  */
-
 	}
 	else //we have not been in a building
 	{
-		mGrid->UpdateObject(player);
+		gSpatialIndexManager->UpdateObject(player);
 		
 		if(player->checkIfMounted() && player->getMount())
 		{
-			mGrid->UpdateObject(player->getMount());		
+			gSpatialIndexManager->UpdateObject(player->getMount());
 		}		
 	}
 
@@ -222,22 +216,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	
 	}
 }
-//=============================================================================
-//
-// position update in cell
-//
 
-void ObjectController::handleBuildingContentDespawn(BuildingObject* building, PlayerObject* player)
-{
-
-	ObjectList list = building->getAllCellChilds();
-	ObjectList::iterator cellChildsIt = list.begin();
-	
-	while(cellChildsIt != list.end())
-	{
-		gMessageLib->sendDestroyObject((*cellChildsIt)->getId(),player);
-	}
-}
 
 //=============================================================================
 //
@@ -311,12 +290,12 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		else
 		{
 		 	// update grid with world position
-			mGrid->UpdateObject(player);//grid uses playerworldposition in these cases
+			gSpatialIndexManager->UpdateObject(player);
 
 			if(player->checkIfMounted() && player->getMount())
 			{
-				
-				mGrid->UpdateObject(player->getMount());//
+			
+				gSpatialIndexManager->UpdateObject(player->getMount());
 
 				//Can't ride into a building with a mount! :-p
 				//However, its easy to do so we have handling incase the client is tricked.
@@ -437,6 +416,7 @@ float ObjectController::_GetMessageHeapLoadViewingRange()
 
 void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 {
+	/*
 	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
 
 	//scale down viewing range when busy
@@ -475,15 +455,11 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Building | ObjType_Lair | ObjType_Structure), viewingRange);
 
 	}
-	/*
-	{
-		// This may be good when we are moving around outside.
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player | ObjType_NPC | ObjType_Creature | ObjType_Tangible | ObjType_Building), viewingRange);
-	}
-	*/
+
 
 	// Update the iterator to start of Set.
 	mObjectSetIt = mInRangeObjects.begin();
+	*/
 }
 
 //=========================================================================================
@@ -491,6 +467,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 
 bool ObjectController::_updateInRangeObjectsOutside()
 {
+	/*
 	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
 
 	// We may wan't to limit the amount of messages sent in one session.
@@ -564,6 +541,7 @@ bool ObjectController::_updateInRangeObjectsOutside()
 		++mObjectSetIt;
 	}
 	return (mObjectSetIt == mInRangeObjects.end());
+	*/
 }
 
 
@@ -573,6 +551,7 @@ bool ObjectController::_updateInRangeObjectsOutside()
 //
 void ObjectController::_findInRangeObjectsInside(bool updateAll)
 {
+	/*
 	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
 	float			viewingRange = _GetMessageHeapLoadViewingRange();
 	CellObject*		playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
@@ -640,6 +619,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 	}
 	// Update the iterator to start of Set.
 	mObjectSetIt = mInRangeObjects.begin();
+	*/
 }
 
 
@@ -650,6 +630,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
 
 bool ObjectController::_updateInRangeObjectsInside()
 {
+	/*
 	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
 	CellObject*		playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
 
@@ -732,6 +713,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 		++mObjectSetIt;
 	}
 	return (mObjectSetIt == mInRangeObjects.end());
+	*/
 }
 
 //=========================================================================================
@@ -742,6 +724,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 
 bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 {
+	/*
 	//TODO: when a container gets out of range
 	//we need to destroy the children, too!!!!!!!
 
@@ -892,6 +875,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 		allDestroyed = true;
 	}
 	return allDestroyed;
+	*/
 }
 
 //=============================================================================
@@ -903,7 +887,7 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 //	2nd when the amount of update Objects is to big (>50) this function gets revisited 
 //		and _updateInRangeObjectsInside updates the remaining objects
 //		UNLESS we need to force another update
-
+/*
 uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
@@ -1061,3 +1045,4 @@ uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 	}
 	return msToWait;
 }
+*/

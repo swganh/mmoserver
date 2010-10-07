@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "EquipManager.h"
 #include "PlayerObject.h"
+#include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
 #include "Inventory.h"
 #include "Object.h"
@@ -266,9 +267,7 @@ bool EquipManager::EquipItem(Object* object)
 	//update containment and db
 	object->setParentId(parentId,4,owner,true);
 
-	//create it for all nearby players
-	PlayerObjectSet*	inRangePlayers	= owner->getKnownPlayers();
-	gMessageLib->sendCreateTangible(item,inRangePlayers);
+	gSpatialIndexManager->createObjectToRegisteredPlayers(owner,object);
 
 	//Update the Equipped List
 	gMessageLib->sendEquippedListUpdate_InRange(owner);

@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "WaypointObject.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
+#include "SpatialIndexManager.h"
 
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -1147,13 +1147,15 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
     //END TEMP
 
 	ObjectSet inRangeNPCs;
-	gWorldManager->getSI()->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500);
+
+	gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_Creature,30.0,true);
+	ObjectSet::iterator it = inRangeNPCs.begin();
+
 
 	//Start & End
 	bool found = false;
 	Location mission_start;
     Location mission_dest;
-	ObjectSet::iterator it = inRangeNPCs.begin();
 
 	//we may stall the main thread with the way it was done ???? however often enough the mission generation never finished!!!!!!!!!!!!!!!
 

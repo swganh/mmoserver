@@ -758,6 +758,12 @@
     <ClCompile Include="Zmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SpatialIndexManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SpatialIndexMessagingServices.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h">
@@ -1466,6 +1472,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Zmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SpatialIndexManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

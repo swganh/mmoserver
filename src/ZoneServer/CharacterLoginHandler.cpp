@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Tutorial.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
@@ -156,8 +157,6 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			delete playerObject->getClient();
 
 			playerObject->setClient(client);
-			
-			playerObject->destroyKnownObjects();
 
 			gWorldManager->addReconnectedPlayer(playerObject);
 
@@ -170,10 +169,16 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 
 			gMessageLib->sendWeatherUpdate(weather->mClouds,weather->mWeather,playerObject);
 
-			//playerObject->toggleStateOff(CreatureState_Crafting);
-			// resend our objects
-			gWorldManager->initObjectsInRange(playerObject);
-			gMessageLib->sendCreatePlayer(playerObject,playerObject);
+			
+			//get that to the spatialIndexManager at some point ???
+			//create ourselves
+			gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
+			
+			//create us for others
+			gSpatialIndexManager->createCreatureinWorld(playerObject);
+
+			//gWorldManager->addObject(playerObject);
+
 			playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
 			gMessageLib->sendUpdatePlayerFlags(playerObject);
 

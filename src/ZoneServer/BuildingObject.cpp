@@ -24,7 +24,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-
+#include "SpatialIndexManager.h"
 #include "BuildingObject.h"
 #include "PlayerObject.h"
 #include "CellObject.h"
@@ -202,6 +202,52 @@ void BuildingObject::updateCellPermissions(PlayerObject* player, bool access)
 			
 			
 		}
+
+		++cellIt;
+	}
+
+}
+
+void BuildingObject::prepareDestruction()
+{
+	//iterate through all the cells and destroy the contents
+	//place players inside a cell in the world
+	
+	ObjectList				objectList	= getAllCellChilds();
+	ObjectList::iterator	It			= objectList.begin();
+
+	while(It != objectList.end())
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>((*It));
+		if(player)
+		{
+			// update playerworld - remove all structures items for the player
+			gSpatialIndexManager->removeStructureItemsForPlayer(player,this);
+
+			//place the player in the world
+			glm::vec3 playerWorldPosition = player->getWorldPosition();
+			//playerWorldPosition.x += 2;
+			//playerWorldPosition.z += 2;
+			player->updatePosition(0,playerWorldPosition);
+			player->setParentIdIncDB(0);
+			
+			CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById((*It)->getParentId()));
+			cell->removeObject(player);
+		}
+		
+		It++;
+	}
+
+	//remove items in the building from the world 
+	CellObjectList*				cellList	= getCellList();
+	CellObjectList::iterator	cellIt		= cellList->begin();
+
+	while(cellIt != cellList->end())
+	{
+		CellObject* cell = (*cellIt);
+					
+		
+		cell->prepareDestruction();
 
 		++cellIt;
 	}

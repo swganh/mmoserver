@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Shuttle.h"
 #include "TicketCollector.h"
 #include "TravelMapHandler.h"
+#include "SpatialIndexManager.h"
 #include "WorldManager.h"
 #include "ZoneTree.h"
 #include "ZoneServer/ZoneOpcodes.h"
@@ -92,7 +93,7 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		ObjectSet objects;
 
 		// see if a shuttle is in range
-		gWorldManager->getSI()->getObjectsInRange(player,&objects,ObjType_NPC | ObjType_Creature,25.0f);
+		gSpatialIndexManager->getObjectsInRange(player,&objects,ObjType_NPC | ObjType_Creature,25.0f,false);
 
 		ObjectSet::iterator objIt = objects.begin();
 

@@ -36,3 +36,45 @@ RegionObject::RegionObject() : Object()
 RegionObject::~RegionObject()
 {
 }
+
+bool RegionObject::addVisitor(Object* visitor)
+{
+	if(checkVisitor(visitor))
+	{
+		return false;
+	}
+
+	mVisitingPlayers.insert(visitor);
+	return true;
+}
+
+//=============================================================================
+// returns true when item *is* found
+
+bool RegionObject::checkVisitor(Object* object)
+{
+	
+	ObjectIDSet::const_iterator it = mVisitingPlayers.find(object->getId());
+
+	if(it != mVisitingPlayers.end())
+	{
+		return(true);
+	}
+	
+	return(false);
+}
+
+void RegionObject::removeVisitor(Object* object)
+{
+	
+	ObjectIDSet::iterator it = mVisitingPlayers.find(object->getId());
+
+		if(it != mVisitingPlayers.end())
+		{
+	
+			mVisitingPlayers.erase(it);
+
+		}
+	}
+	
+}

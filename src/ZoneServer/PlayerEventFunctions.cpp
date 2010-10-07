@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Heightmap.h"
 #include "WaypointObject.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "DatabaseManager/Database.h"
 #include "Utils/clock.h"
 #include "MessageLib/MessageLib.h"
@@ -199,7 +200,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	float					ratio			= (resource->getDistribution((int)mPosition.x + 8192,(int)mPosition.z + 8192));
 	int32					surveyMod		= getSkillModValue(SMod_surveying);
 	uint32					sampleAmount	= 0;
-	ObjectSet::iterator	it					= mKnownObjects.begin();
+	
 	string					resName			= resource->getName().getAnsi();
 	uint32					resType			= resource->getType()->getCategoryId();
 	uint16					resPE			= resource->getAttribute(ResAttr_PE);
@@ -428,15 +429,19 @@ void PlayerObject::onSample(const SampleEvent* event)
 	if (successSample) 
 	{
 		gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,this);
+		
+		ObjectContainer* parent = dynamic_cast<ObjectContainer*>(this);
 
-		while(it != mKnownObjects.end())
+		PlayerObjectSet* knownPlayers = parent->getRegisteredWatchers();
+		PlayerObjectSet::iterator it = knownPlayers->begin();
+		
+		while(it != knownPlayers->end())
 		{
-			if(PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(*it))
-			{
-				gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,targetPlayer);
-			}
-
-			++it;
+			//create it for the registered Players
+			PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
+			gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,player);
+	
+			it++;
 		}
 	}
 

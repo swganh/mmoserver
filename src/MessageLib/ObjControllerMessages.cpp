@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
+#include "ZoneServer/SpatialIndexManager.h"
 #include "ZoneServer/ActiveConversation.h"
 #include "ZoneServer/CharSheetManager.h"
 #include "ZoneServer/Conversation.h"
@@ -1266,19 +1267,13 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 		{
 			position = player->mPosition;
 		}
-	
-		std::list<Object*>*		inRangePlayers	= mGrid->GetObjectViewingRangeCellContents(mGrid->getCellId(position.x, position.z));
+
 
 		string				regionName;
 
-		for(std::list<Object*>::iterator regionIt = inRangePlayers->begin(); regionIt != inRangePlayers->end(); regionIt++)
+		for(std::set<uint32>::iterator regionIt = player->zmapSubCells.begin(); regionIt != player->zmapSubCells.end(); regionIt++)
 		{		
-			if((*regionIt)->getType() != ObjType_Region)
-			{
-				continue;
-			}
-
-			RegionObject* region = dynamic_cast<RegionObject*>(*regionIt);
+			RegionObject* region = gSpatialIndexManager->getRegion(*regionIt);
 
 			if(region->getRegionType() == Region_City)
 			{
@@ -1292,7 +1287,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 
 			++regionIt;
 		}
-
+		
 		mMessageFactory->addString(regionName);
 
 		mMessageFactory->addString(BString(gWorldManager->getPlanetNameThis()));

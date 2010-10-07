@@ -55,7 +55,6 @@ class ObjControllerCommandMessage;
 class ObjectFactory;
 class Database;
 class DatabaseResult;
-class ZoneTree;
 class ObjControllerAsyncContainer;
 class UIWindow;
 class EnqueueValidator;
@@ -201,8 +200,6 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		void					handleDataTransform(Message* message,bool inRangeUpdate);
 		void					handleDataTransformWithParent(Message* message,bool inRangeUpdate);
 		uint64					playerWorldUpdate(bool forcedUpdate);	// Is called from the two above AND from timer function. We need updates even when client are not moving the player.
-
-		void					handleBuildingContentDespawn(BuildingObject* building, PlayerObject* player);
 
 		// trade
 		void					handleSecureTradeInvitation(uint64 targetId,Message* message);
@@ -747,8 +744,7 @@ class ObjectController : public DatabaseCallback, public ObjectFactoryCallback, 
 		ProcessValidators	mProcessValidators;
 
 		Database*			mDatabase;
-		ZoneTree*			mSI;
-		zmap*				mGrid;
+		
 		Object*				mObject;
 
 		uint64				mCommandQueueProcessTimeLimit;

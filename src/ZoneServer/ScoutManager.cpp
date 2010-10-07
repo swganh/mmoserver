@@ -118,9 +118,7 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
 	camp->setNameFile(deedData->stf_file.getAnsi());
 
 	//create it in the world
-	gWorldManager->addObject(camp);
-	gWorldManager->createObjectinWorld(player,camp);	
-	
+	gWorldManager->addObject(camp);	
 
 	//now get all the respective templates chairs/fires/torches and stuff
 

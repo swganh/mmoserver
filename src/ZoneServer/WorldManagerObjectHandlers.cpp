@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#include "SpatialIndexManager.h"
 #include "WorldManager.h"
 #include "AdminManager.h"
 #include "Buff.h"
@@ -32,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BuffManager.h"
 #include "BuildingObject.h"
 #include "CellObject.h"
+#include "DataPad.h"
 #include "HouseObject.h"
 #include "PlayerObject.h"
 #include "CharacterLoginHandler.h"
@@ -42,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CreatureSpawnRegion.h"
 #include "GroupManager.h"
 #include "GroupObject.h"
+#include "Inventory.h"
 #include "Heightmap.h"
 #include "MissionManager.h"
 #include "MountObject.h"
@@ -53,10 +56,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SchematicManager.h"
 #include "TreasuryManager.h"
 #include "Terminal.h"
+#include "VehicleController.h"
 #include "WorldConfig.h"
+#include "WaypointObject.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
-#include "ZoneTree.h"
 #include "HarvesterFactory.h"
 #include "HarvesterObject.h"
 #include "FactoryFactory.h"
@@ -64,7 +68,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "MissionObject.h"
 #include "ObjectFactory.h"
-#include "QuadTree.h"
 #include "Shuttle.h"
 #include "TicketCollector.h"
 #include "ConfigManager/ConfigManager.h"
@@ -162,40 +165,14 @@ bool WorldManager::addObject(Object* object,bool manual)
 			// insert into the player map
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));
 
-			// insert into cell
-			if(player->getParentId())
-			{
-				player->setSubZoneId(0);
-
-				if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(player->getParentId())))
-				{
-					cell->addObjectSecure(player);
-				}
-				else
-				{
-					gLogger->log(LogManager::DEBUG,"WorldManager::addObject: couldn't find cell %"PRIu64"",player->getParentId());
-				}
-			}
-			// query the rtree for the qt region we are in
-			else
-			{
-				if(QTRegion* region = mSpatialIndex->getQTRegion(player->mPosition.x,player->mPosition.z))
-				{
-					player->setSubZone(region);
-					player->setSubZoneId((uint32)region->getId());
-					region->mTree->addObject(player);
-					mSpatialGrid->AddObject(object);
-				}
-				else
-				{
-					// we should never get here !
-					gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map");
-					return false;
-				}
-			}
-
-			// initialize
-			initObjectsInRange(player);
+			//create the creature in the world
+			gSpatialIndexManager->createCreatureinWorld(player);
+			
+			
+			// add us to the grid	
+			// not used currently - use with grid regions later ??
+			player->setSubZoneId(0);
+			
 			gMessageLib->sendCreatePlayer(player,player);
 
 			// add ham to regeneration scheduler
@@ -209,6 +186,11 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params);
 
+			//we need to listen to ourselves when the equiplist/inventory is updated
+			//please note the pecularities as items on the equiplist are not part of the objectcontainer
+			gSpatialIndexManager->registerPlayerToContainer(player,player);
+			gSpatialIndexManager->registerPlayerToContainer(player->getInventory(),player);
+
 			// Start player world position update. Used when player don't get any events from client (player not moving).
 			// addPlayerMovementUpdateTime(player, 1000);
 		}
@@ -216,10 +198,11 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 		case ObjType_Structure:
 		{
-		//	HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(object);
+	
 			mStructureList.push_back(object->getId());
-			mSpatialIndex->InsertPoint(key,object->mPosition.x,object->mPosition.z);
-			mSpatialGrid->AddObject(object);
+			
+			//create the building in the world
+			gSpatialIndexManager->createObjectinWorld(object);
 
 		}
 		break;
@@ -229,34 +212,21 @@ bool WorldManager::addObject(Object* object,bool manual)
 			mStructureList.push_back(object->getId());
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 			
-			mSpatialIndex->InsertRegion(key,building->mPosition.x,building->mPosition.z,building->getWidth(),building->getHeight());
-			mSpatialGrid->AddObject(object);
+			//create the building in the world
+			gSpatialIndexManager->createObjectinWorld(object);
 		}
 		break;
 
 
 		case ObjType_Tangible:
 		{
-			uint64 parentId = object->getParentId();
 
-			if(parentId == 0)
-			{
-				mSpatialIndex->InsertPoint(key,object->mPosition.x,object->mPosition.z);
-				mSpatialGrid->AddObject(object);
-			}
-			else
-			{
-				CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId));
-
-				if(cell)
-					cell->addObjectSecure(object);
-				else
-					gLogger->log(LogManager::DEBUG,"WorldManager::addObject couldn't find cell %"PRIu64"",parentId);
-			}
+			//create the tangible in the world
+			gSpatialIndexManager->createObjectinWorld(object);
+			
 		}
 		break;
 
-		// TODO: add moving creatures to qtregions
 		case ObjType_NPC:
 		case ObjType_Creature:
 		case ObjType_Lair:
@@ -266,51 +236,11 @@ bool WorldManager::addObject(Object* object,bool manual)
 			if(creature->getCreoGroup() == CreoGroup_Shuttle)
 				mShuttleList.push_back(dynamic_cast<Shuttle*>(creature));
 
-			uint64 parentId = creature->getParentId();
-
-			if(parentId)
-			{
-				CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId));
-
-				if(cell)
-					cell->addObjectSecure(creature);
-				else
-					gLogger->log(LogManager::DEBUG,"WorldManager::addObject: couldn't find cell %"PRIu64"",parentId);
-			}
-			else
-			{
-
-				switch(creature->getCreoGroup())
-				{
-					// moving creature, add to QT
-					case CreoGroup_Vehicle :
-					{
-						if(QTRegion* region = mSpatialIndex->getQTRegion(creature->mPosition.x,creature->mPosition.z))
-						{
-							creature->setSubZoneId((uint32)region->getId());
-							region->mTree->addObject(creature);
-							mSpatialGrid->AddObject(object);
-						}
-						else
-						{
-							gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map for creature");
-							return false;
-						}
-
-					}
-					break;
-
-					// still creature, add to SI
-					default :
-					{
-						mSpatialIndex->InsertPoint(key,creature->mPosition.x,creature->mPosition.z);
-						mSpatialGrid->AddObject(object);
-
-					}
-				}
-
-
-			}
+			//create the creature in the world
+			gSpatialIndexManager->createCreatureinWorld(creature);
+			
+			creature->setSubZoneId(0);
+					
 		}
 		break;
 
@@ -320,8 +250,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			mRegionMap.insert(std::make_pair(key,region));
 
-			mSpatialIndex->InsertRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
-			mSpatialGrid->AddObject(object);
+			gSpatialIndexManager->addRegion(region);
 
 			if(region->getActive())
 				addActiveRegion(region);
@@ -330,6 +259,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 		case ObjType_Intangible:
 		{
+			//they dont get added here in the firstplace ...
 			gLogger->log(LogManager::NOTICE,"Object of type ObjType_Intangible UNHANDLED in WorldManager::addObject:");
 		}
 		break;
@@ -343,6 +273,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		}
 		break;
 	}
+
 	return true;
 }
 
@@ -350,185 +281,19 @@ bool WorldManager::addObject(Object* object,bool manual)
 //======================================================================================================================
 //
 // removes an object from the world
-//
-
-void WorldManager::destroyObjectForKnownPlayers(Object* object)
-{
-
-	PlayerObjectSet* knownPlayers = object->getKnownPlayers();
-	PlayerObjectSet::iterator it = knownPlayers->begin();
-	while(it != knownPlayers->end())
-	{
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendDestroyObject(object->getId(),targetObject);
-		targetObject->removeKnownObject(object);
-		++it;
-	}
-	object->destroyKnownObjects();
-	
-}
-
-//======================================================================================================================
-//
-// creates an object in the world around a player
-//
-
-void WorldManager::createObjectinWorld(PlayerObject* player, Object* object)
-{
-	//create it for players around us
-	createObjectForKnownPlayers(player->getKnownPlayers(),object);
-			
-	//create it for us
-	gMessageLib->sendCreateObject(object,player);
-	player->addKnownObjectSafe(object);
-	object->addKnownObjectSafe(player);
-}
-
-//======================================================================================================================
-//
-//make sure we scale down viewing range under high load
-float WorldManager::_GetMessageHeapLoadViewingRange()
-{
-	uint32 heapWarningLevel = gMessageFactory->HeapWarningLevel();
-	float view = (float)gWorldConfig->getPlayerViewingRange();
-
-	if(gMessageFactory->getHeapsize() > 90.0)
-		return 16.0;
-
-	//just send everything we have
-	if(heapWarningLevel < 3)
-		return view; 
-	else
-	if(heapWarningLevel < 4)
-		return 96.0;
-	else
-	if (heapWarningLevel < 5)
-	{
-		return 64.0;
-	}
-	else
-	if (heapWarningLevel < 8)
-	{
-		return 32.0;
-	}
-	else
-	if (heapWarningLevel <= 10)
-	{
-		return 16.0;
-	}
-	else
-	if (heapWarningLevel > 10)
-		return 8.0;
-
-	return (float)gWorldConfig->getPlayerViewingRange();
-}
-
-//======================================================================================================================
-//
-// creates an object in the world queries the si to find relevant players
-// generally querying the si is slow so beware to use this
-
-void WorldManager::createObjectinWorld(Object* object)
-{
-	float				viewingRange	= _GetMessageHeapLoadViewingRange();
-	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(object,&inRangeObjects,(ObjType_Player),viewingRange);
-
-	// query the according qtree, if we are in one
-	if(object->getSubZoneId())
-	{
-		if(QTRegion* region = getQTRegion(object->getSubZoneId()))
-		{
-			
-			Anh_Math::Rectangle qRect;
-
-			if(!object->getParentId())
-			{
-				qRect = Anh_Math::Rectangle(object->mPosition.x - viewingRange,object->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-			}
-			else
-			{
-				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(object->getParentId()));
-				
-				
-				if(BuildingObject* house	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId())))
-				{
-					qRect = Anh_Math::Rectangle(house->mPosition.x - viewingRange,house->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-				}
-			}
-
-			region->mTree->getObjectsInRange(object,&inRangeObjects,ObjType_Player,&qRect);
-		}
-	}
-
-	// iterate through the results
-	ObjectSet::iterator it = inRangeObjects.begin();
-
-	while(it != inRangeObjects.end())
-	{
-		PlayerObject* player = dynamic_cast<PlayerObject*> (*it);
-		if(player)
-		{
-			// send create for the type of object
-			if (object->getPrivateOwner())	//what is this about ?? does it concern instances ????
-			{
-				if (object->isOwnedBy(player))
-				{
-					gMessageLib->sendCreateObject(object,player);
-					object->addKnownObjectSafe(player);
-					player->addKnownObjectSafe(object);
-				}
-			}
-			else
-			{
-				gMessageLib->sendCreateObject(object,player);
-				
-				object->addKnownObjectSafe(player);
-				player->addKnownObjectSafe(object);
-			}
-		}
-		++it;
-	}
-	
-}
-
-//======================================================================================================================
-//
-// creates an object from the world
-//
-
-void WorldManager::createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object)
-{
-
-	PlayerObjectSet::iterator it = knownPlayers->begin();
-	while(it != knownPlayers->end())
-	{	
-		PlayerObject* targetObject = (*it);
-		gMessageLib->sendCreateObject(object,targetObject);
-		targetObject->addKnownObjectSafe(object);
-		object->addKnownObjectSafe(targetObject);
-		++it;
-	}
-	
-}
-
-//======================================================================================================================
-//
-// removes an object from the world
-//
+// destroys are send via the spatialindexmanager
+// the db is NOT touched
 
 void WorldManager::destroyObject(Object* object)
 {
 
 	switch(object->getType())
 	{
+		//players are always in the grid
 		case ObjType_Player:
 		{
 			//destroys knownObjects in the destructor
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-
-			// moved most of the code to the players destructor
-
 
 
 			// onPlayerLeft event, notify scripts
@@ -537,11 +302,33 @@ void WorldManager::destroyObject(Object* object)
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params);
 			// gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: Player Client set to NULL");
+			
 			delete player->getClient();
+			
 			player->setClient(NULL);
 			player->setConnectionState(PlayerConnState_Destroying);
+
+			//remove out of grid and send destroys
+			gSpatialIndexManager->RemoveObject(object);
+
+			// remove us from cell / SI
+			uint64 cellId = player->getParentId();
+			if(player->getParentId())
+			{
+				CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(cellId));
+				if(cell)
+				{
+					cell->removeObject(player);
+				}
+				else
+				{
+					gLogger->log(LogManager::DEBUG,"PlayerObject::destructor: couldn't find cell %"PRIu64"",cellId);
+				}
+			}
+
 		}
 		break;
+
 		case ObjType_NPC:
 		case ObjType_Creature:
 		{
@@ -550,37 +337,19 @@ void WorldManager::destroyObject(Object* object)
 			// remove any timers we got running
 			removeCreatureHamToProcess(creature->getHam()->getTaskId());
 
-			// remove from cell / SI
-			if (!object->getParentId())
+			// remove from cell 
+			if (object->getParentId())
 			{
-				// Not all objects-creatures of this type are points.
-				if(creature->getSubZoneId())
-				{
-					if(QTRegion* region = getQTRegion(creature->getSubZoneId()))
-					{
-						creature->setSubZoneId(0);
-						region->mTree->removeObject(creature);
-					}
-				}
-				else
-				{
-					mSpatialIndex->RemovePoint(object->getId(),object->mPosition.x,object->mPosition.z);
-				}
-			}
-			else
-			{
+				
 				if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(object->getParentId())))
 				{
 					cell->removeObject(object);
 				}
-				else
-				{
-					//gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: couldn't find cell %"PRIu64"",object->getParentId());
-				}
+			
 			}
-
-			// destroy known objects
-			object->destroyKnownObjects();
+			
+			//remove out of grid and send destroys
+			gSpatialIndexManager->RemoveObject(object);
 
 			// if its a shuttle, remove it from the shuttle list
 			if(creature->getCreoGroup() == CreoGroup_Shuttle)
@@ -603,24 +372,9 @@ void WorldManager::destroyObject(Object* object)
 
 		case ObjType_Structure:
 		{
-			// cave what do we do with player cities ??
-			// then the parent Id should be the region object. shouldnt it????
 
-			if(object->getSubZoneId())
-			{
-				if(QTRegion* region = getQTRegion(object->getSubZoneId()))
-				{
-					object->setSubZoneId(0);
-					region->mTree->removeObject(object);
-				}
-			}
-			else
-			{
-				mSpatialIndex->RemovePoint(object->getId(),object->mPosition.x,object->mPosition.z);
-			}
-
-			object->destroyKnownObjects();
-
+			//remove out of grid and send destroys
+			gSpatialIndexManager->RemoveObject(object);
 
 			//remove it out of the worldmanagers structurelist now that it is deleted
 			ObjectIDList::iterator itStruct = mStructureList.begin();
@@ -635,26 +389,19 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 
+		// called when a structure gets destroyed - not on shutdown
 		case ObjType_Building:
 		{
 
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 			if(building)
 			{
-				if(object->getSubZoneId())
-				{
-					if(QTRegion* region = getQTRegion(object->getSubZoneId()))
-					{
-						object->setSubZoneId(0);
-						region->mTree->removeObject(object);
-					}
-				}
-				else
-				{	
-					//mSpatialIndex->InsertRegion(key,building->mPosition.x,building->mPosition.z,building->getWidth(),building->getHeight());
-					mSpatialIndex->RemoveRegion(object->getId(),object->mPosition.x-building->getWidth(),object->mPosition.z-building->getHeight(),object->mPosition.x+building->getWidth(),object->mPosition.z+building->getHeight());
-				}
+				building->prepareDestruction();
 
+				//remove out of grid and send destroys
+				gSpatialIndexManager->RemoveObject(object);
+
+				
 				//remove it out of the worldmanagers structurelist now that it is deleted
 				ObjectIDList::iterator itStruct = mStructureList.begin();
 				while(itStruct != mStructureList.end())
@@ -670,14 +417,14 @@ void WorldManager::destroyObject(Object* object)
 				gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: nearly did not remove: %"PRIu64"s knownObjectList",object->getId());
 
 
-			object->destroyKnownObjects();
 		}
 		break;
 
 		case ObjType_Cell:
 		{
-			//a cell shouldnt have knownobjects ... -that should be checked to make sure it is true
-			object->destroyKnownObjects();
+			// do nothing - cells get destroyed in the structures destructor
+			// the cells ID will be removed below
+			
 		}
 		break;
 
@@ -687,25 +434,46 @@ void WorldManager::destroyObject(Object* object)
 			{
 				uint64 parentId = tangible->getParentId();
 
+				//tangible was in the main cell
 				if(parentId == 0)
 				{
-					mSpatialIndex->RemovePoint(tangible->getId(),tangible->mPosition.x,tangible->mPosition.z);
+					//remove out of grid and send destroys
+					gSpatialIndexManager->RemoveObject(object);
 				}
 				else
 				{
+					//tangible was in a building
 					if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId)))
 					{
+						BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+
+						//destroy for players in the structure
+						gSpatialIndexManager->removeObjectFromBuilding(object, building);
+						
+						//remove out of cell
 						cell->removeObject(object);
 					}
 					else
+					//tangible was equipped
+					if(CreatureObject* owner = dynamic_cast<CreatureObject*>(getObjectById(parentId)))
 					{
-						// Well, Tangible can have more kind of parents than just cells or SI. For example players or Inventory.
-						// the tangible is owned by its containing object (please note exeption of inventory / player with equipped stuff)
+						// remove from creatures slotmap
+						owner->getEquipManager()->removeEquippedObject(object);
 
-						// however we should leave the object link in the worldmanagers Objectmap and only store references in the object
-						// we will have great trouble finding items otherwise 
+						// send out the new equiplist
+						gMessageLib->sendEquippedListUpdate_InRange(owner);				
 
-						//gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject couldn't find cell %"PRIu64"",parentId);
+						//destroy for players in the grid
+						gSpatialIndexManager->SendDestroyEquippedObject(object);
+						
+
+					}
+					else
+					//in a container - 
+					//TODO: find out who was watching
+					if(ObjectContainer* oc = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(object->getParentId())))
+					{
+						oc->deleteObject(object);
 					}
 				}
 
@@ -714,8 +482,7 @@ void WorldManager::destroyObject(Object* object)
 			{
 				gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: error removing : %"PRIu64"",object->getId());
 			}
-			// destroy known objects
-			object->destroyKnownObjects();
+			
 		}
 		break;
 
@@ -732,29 +499,62 @@ void WorldManager::destroyObject(Object* object)
 				gLogger->log(LogManager::DEBUG,"Worldmanager::destroyObject: Could not find region %"PRIu64"",object->getId());
 			}
 
-			//camp regions are in here, too
-			QTRegionMap::iterator itQ = mQTRegionMap.find(static_cast<uint32>(object->getId()));
-			if(itQ != mQTRegionMap.end())
+			gSpatialIndexManager->RemoveRegion(dynamic_cast<RegionObject*>(object));
+
+		}
+		break;
+
+		case ObjType_Waypoint:
+		{
+			uint64 parentId = object->getParentId();
+			
+			Datapad* pad = dynamic_cast<Datapad*>(gWorldManager->getObjectById(parentId));
+			
+			//update the datapad
+			if(!pad || !(pad->removeData(object->getId())))
 			{
-				mQTRegionMap.erase(itQ);
-				gLogger->log(LogManager::DEBUG,"Worldmanager::destroyObject: qt region %"PRIu64"",object->getId());
+				gLogger->log(LogManager::DEBUG,"Worldmanager::destroyObject: Error removing Waypoint from datapad %"PRIu64"",pad->getId());
 			}
 
-			object->destroyKnownObjects();
+			PlayerObject* owner = dynamic_cast<PlayerObject*>(getObjectById(pad->getParentId()));
+			if(owner)
+			{
+				gMessageLib->sendUpdateWaypoint(dynamic_cast<WaypointObject*>(object),ObjectUpdateDelete,owner);
+			}
 
+			//waypoints are not part of the main Objectmap
+			delete(object);
+			return;
 		}
 		break;
 
 		case ObjType_Intangible:
 		{
-			gLogger->log(LogManager::DEBUG,"Object of type ObjType_Intangible almost UNHANDLED in WorldManager::destroyObject:");
+			uint64 parentId = object->getParentId();
+			
+			Datapad* pad = dynamic_cast<Datapad*>(gWorldManager->getObjectById(parentId));
+			
+			//update the datapad
+			if(!pad || !(pad->removeData(object->getId())))
+			{
+				gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject : Error removing Data from datapad %"PRIu64"",object->getId());
+			}
+
+			if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
+			{
+				vehicle->Store();
+			}
+		
 
 			// intangibles are controllers / pets in the datapad
 			// they are NOT in the world
-
-			//we really shouldnt have any of thoose
-			object->destroyKnownObjects();
-
+			PlayerObject* owner = dynamic_cast<PlayerObject*>(getObjectById(pad->getParentId()));
+			if(owner)
+			{
+				gMessageLib->sendDestroyObject(object->getId(),owner);
+			}
+			
+			
 		}
 		break;
 
@@ -769,8 +569,6 @@ void WorldManager::destroyObject(Object* object)
 		break;
 	}
 
-	object->destroyKnownObjects();
-
 
 	// finally delete it
 	ObjectMap::iterator objMapIt = mObjectMap.find(object->getId());
@@ -781,6 +579,7 @@ void WorldManager::destroyObject(Object* object)
 	}
 	else
 	{
+		delete(object);
 		gLogger->log(LogManager::CRITICAL,"WorldManager::destroyObject: error removing from objectmap: %"PRIu64"",object->getId());
 	}
 }
@@ -814,84 +613,7 @@ void WorldManager::eraseObject(uint64 key)
 }
 
 
-//======================================================================================================================
 
-void WorldManager::initObjectsInRange(PlayerObject* playerObject)
-{
-	float				viewingRange	= _GetMessageHeapLoadViewingRange();
-	//if we are in a playerbuilding create the playerbuilding first
-	//otherwise our items will not show when they are created before the cell
-	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId())))
-	{
-		if(HouseObject* playerHouse = dynamic_cast<HouseObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
-			//gLogger->log(LogManager::DEBUG,"create playerbuilding");
-			gMessageLib->sendCreateObject(playerHouse,playerObject);
-			playerHouse->addKnownObjectSafe(playerObject);
-			playerObject->addKnownObjectSafe(playerHouse);	
-		}
-	}
-
-
-
-	// we still query for players here, cause they are found through the buildings and arent kept in a qtree
-	ObjectSet inRangeObjects;
-	mSpatialIndex->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure ),viewingRange);
-
-	// query the according qtree, if we are in one
-	if(playerObject->getSubZoneId())
-	{
-		if(QTRegion* region = getQTRegion(playerObject->getSubZoneId()))
-		{
-			Anh_Math::Rectangle qRect;
-
-			if(!playerObject->getParentId())
-			{
-				qRect = Anh_Math::Rectangle(playerObject->mPosition.x - viewingRange,playerObject->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-			}
-			else
-			{
-				CellObject*		cell		= dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId()));
-				
-				
-				if(BuildingObject* house	= dynamic_cast<BuildingObject*>(getObjectById(cell->getParentId())))
-				{
-					qRect = Anh_Math::Rectangle(house->mPosition.x - viewingRange,house->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-				}
-			}
-
-			region->mTree->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Player,&qRect);
-		}
-	}
-
-	// iterate through the results
-	ObjectSet::iterator it = inRangeObjects.begin();
-
-	while(it != inRangeObjects.end())
-	{
-		Object* object = (*it);
-
-		// send create for the type of object
-		if (object->getPrivateOwner())	//what is this about ?? does it concern instances ????
-		{
-			if (object->isOwnedBy(playerObject))
-			{
-				gMessageLib->sendCreateObject(object,playerObject);
-				object->addKnownObjectSafe(playerObject);
-				playerObject->addKnownObjectSafe(object);
-			}
-		}
-		else
-		{
-			gMessageLib->sendCreateObject(object,playerObject);
-				
-			object->addKnownObjectSafe(playerObject);
-			playerObject->addKnownObjectSafe(object);
-			
-		}
-		++it;
-	}
-}
 
 //======================================================================================================================
 
@@ -985,10 +707,11 @@ bool WorldManager::_handleGeneralObjectTimers(uint64 callTime, void* ref)
 Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType terminalType, float searchrange)
 {
 
-
 	//this will get the nearest terminal in the world - we need to check playerbuildings, too
 	ObjectSet		inRangeObjects;
-	this->getSI()->getObjectsInRange(player,&inRangeObjects,(ObjType_Tangible|ObjType_Building),searchrange);//range is debateable
+
+	//gets all terminals in rangeb even those in building
+	gSpatialIndexManager->getObjectsInRange(player,&inRangeObjects,(ObjType_Tangible),searchrange,true);
 
 	ObjectSet::iterator it = inRangeObjects.begin();
 	
@@ -1001,7 +724,8 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 		Terminal* terminal = dynamic_cast<Terminal*> (*it);
 		if(terminal&&(terminal->getTangibleType() == terminalType))
 		{
-            float nr = glm::distance(terminal->mPosition, player->mPosition);
+            float nr = glm::distance(terminal->getWorldPosition(), player->getWorldPosition());
+			
 			//double check the distance
 			if((nearestTerminal && (nr < range ))||(!nearestTerminal))
 			{
@@ -1009,38 +733,7 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 				nearestTerminal = terminal;
 			}
 		}
-		else
-		if(BuildingObject* building = dynamic_cast<BuildingObject*> (*it))
-		{
-			//iterate through the structure and look for terminals
-			ObjectList list = building->getAllCellChilds();
-			ObjectList::iterator cellChildsIt = list.begin();
-
-			while(cellChildsIt != list.end())
-			{
-				Object* cellChild = (*cellChildsIt);
-
-				uint32 tmpType = cellChild->getType();
-
-				if((tmpType & ObjType_Tangible) == static_cast<uint32>(ObjType_Tangible))
-				{
-					
-					Terminal* terminal = dynamic_cast<Terminal*> (cellChild);
-					if(terminal&&(terminal->getTangibleType() == terminalType))
-					{
-                        float nr = glm::distance(terminal->mPosition, player->mPosition);
-						//double check the distance
-						if((nearestTerminal && (nr < range))||(!nearestTerminal))
-						{
-							range = nr;
-							nearestTerminal = terminal;
-						}
-					}
-				}
-
-				++cellChildsIt;
-			}
-		}
+		
 
 		++it;
 	}

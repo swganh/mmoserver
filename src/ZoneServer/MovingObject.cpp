@@ -30,16 +30,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "MovingObject.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
 #include "VehicleController.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
+#include "SpatialIndexManager.h"
  
 
 //=============================================================================
 
 MovingObject::MovingObject()
-: Object()
+: ObjectContainer()
 , mInMoveCount(0)
 , mBaseAcceleration(1.50f)
 , mBaseRunSpeedLimit(5.75f)
@@ -72,14 +71,16 @@ MovingObject::~MovingObject()
 
 void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPosition)
 {
+
+	gSpatialIndexManager->UpdateObject(this);
+	this->mPosition = newPosition;
+	
 	//we have been inside - move us outside
 	if (this->getParentId() != 0)
 	{
 		// if we just left a building we need to update our containment - send a zero to uncontain us from that old cell
-		if (!this->getKnownPlayers()->empty())
-		{
-			gMessageLib->broadcastContainmentMessage(this,this->getParentId(),0);
-		}
+		gMessageLib->broadcastContainmentMessage(this,this->getParentId(),0);
+		
 
 		// remove us from the last cell we were in
 		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
@@ -96,62 +97,10 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 		//and update the position
 		this->mPosition = newPosition;
 
-		// Add us to the world and set our new containment for all watchers
-		if (!this->getKnownPlayers()->empty())
-		{
-			gMessageLib->broadcastContainmentMessage(this,0,4);
-		}
+		gMessageLib->broadcastContainmentMessage(this,0,4);
 
-		// add us to the qtree
-
-		if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))		
-		{
-			this->setSubZoneId((uint32)newRegion->getId());
-			newRegion->mTree->addObject(this);
-		}
-		else
-		{
-			// we should never get here !
-			gLogger->log(LogManager::DEBUG,"NPCObject::updatePosition: could not find zone region in map");
-		}
 	}
-	else
-	{
-		// We have been outside
 
-		// get the qt of the new position
-		// if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))
-		if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)newPosition.x, (double)newPosition.z))
-		{
-			// we didnt change so update the old one
-			if((uint32)newRegion->getId() == this->getSubZoneId())
-			{
-				// this also updates the object (npcs) position
-				newRegion->mTree->updateObject(this, newPosition);
-
-				if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
-				{
-					if(player->checkIfMounted() && player->getMount())
-					{
-						newRegion->mTree->updateObject(player->getMount(),newPosition);
-					}
-				}
-			}
-			else
-			{
-				// remove from old
-				if (QTRegion* oldRegion = gWorldManager->getQTRegion(this->getSubZoneId()))
-				{
-					oldRegion->mTree->removeObject(this);
-				}
-
-				// put into new
-				this->mPosition = newPosition;
-				this->setSubZoneId((uint32)newRegion->getId());
-				newRegion->mTree->addObject(this);
-			}
-		}
-	}
 }
 
 void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPosition)

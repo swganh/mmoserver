@@ -32,13 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "NpcManager.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
+#include "SpatialIndexManager.h"
 #include "ResourceContainer.h"
 #include "Weapon.h"
 #include "WorldManager.h"
 #include "ScoutManager.h"
 #include "WorldConfig.h"
-#include "ZoneTree.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "utils/rand.h"
 
@@ -158,39 +157,10 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 						Inventory* inventory = dynamic_cast<Inventory*>(this->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 						if (inventory)
 						{
-							// Open the Inventory.
-							ObjectIDList*			objList				= inventory->getObjects();
-							ObjectIDList::iterator	containerObjectIt	= objList->begin();
 
-							while (containerObjectIt != objList->end())
-							{
-								Object* object = gWorldManager->getObjectById((*containerObjectIt));
-
-								if (TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
-								{
-									// reminder: objects are owned by the global map, containers only keeps references
-									// send the creates, if we are not owned by any player OR by exactly this player.
-									if (playerObject)
-									{
-										if (!object->getPrivateOwner() || (object->isOwnedBy(playerObject)))
-										{
-											// could be a resource container, need to check this first, since it inherits from tangible
-											if (ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object))
-											{
-												gMessageLib->sendCreateResourceContainer(resCont,playerObject);
-											}
-											// or a tangible
-											else
-											{
-												gMessageLib->sendCreateTangible(tangibleObject,playerObject);
-											}
-										}
-									}
-								}
-								++containerObjectIt;
-							}
+							gSpatialIndexManager->registerPlayerToContainer(inventory,playerObject);
 							gMessageLib->sendOpenedContainer(this->getId()+1, playerObject);
-							// gMessageLib->sendOpenedContainer(this->getId(), playerObject);
+							
 
 							int32 lootedCredits = inventory->getCredits();
 							inventory->setCredits(0);
@@ -213,8 +183,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 									if (splittedCredits == 0)
 									{
 										// To little to split.
-										// "GROUP] You split %TU credits and receive %TT credits as your share."
-                    gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", lootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
+										gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", lootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
 										// "There are insufficient group funds to split"
 										gMessageLib->sendSystemMessage(playerObject, L"", "error_message", "nsf_to_split");
 									}
@@ -242,8 +211,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 										string splitedLootCreditsString(str);
 										splitedLootCreditsString.convert(BSTRType_Unicode16);
 
-										// "GROUP] You split %TU credits and receive %TT credits as your share."
-                    gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", splitedLootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
+										gMessageLib->sendSystemMessage(playerObject, L"", "group", "prose_split_coins_self", "", "", L"", 0, "", "", splitedLootCreditsString.getUnicode16(), 0, 0, 0, "", "", lootCreditsString.getUnicode16());
 
 										// Now we need to add the credits to our own inventory.
 										Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -256,11 +224,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 								else
 								{
 									// We looted some credits, always a start.
-									// int8 str[128];
-									// sprintf(str,"%u credits", lootedCredits);
-									// string lootCreditsString(str);
-									// lootCreditsString.convert(BSTRType_Unicode16);
-									// gMessageLib->sendSystemMessage(playerObject, L"", "spam", "loot_item_self", "", "", L"", 0, getSpeciesGroup(), getSpeciesString(), L"", 0, 0, 0, "", "", lootCreditsString);
+	
 									gMessageLib->sendSystemMessage(playerObject, L"", "base_player", "prose_coin_loot", "", "", L"", lootedCredits, getSpeciesGroup().getAnsi(), getSpeciesString().getAnsi());
 
 									// Now we need to add the credits to our own inventory.
@@ -273,7 +237,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 							}
 
 							// @error_message:corpse_empty "You find nothing else of value on the selected corpse."
-							if (objList->size() == 0)
+							if (inventory->getObjects()->size() == 0)
 							{
 								if (lootedCredits == 0)
 								{
@@ -323,13 +287,17 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 
 //=============================================================================
 //
-//	Routines realted to NPC AI
+//	Routines related to NPC AI
 //
 //=============================================================================
 
+
+//register target 
+
 void AttackableCreature::addKnownObject(Object* object)
 {
-	if(checkKnownObjects(object))
+	// register object as target - do not keep knownplayer list - need to look into that as soon as Im looking into spawns
+	/*if(checkKnownObjects(object))
 	{
 		gLogger->log(LogManager::NOTICE,"AttackableCreature::addKnownObject %I64u couldnt be added to %I64u already in it", object->getId(), this->getId());
 		return;
@@ -339,6 +307,8 @@ void AttackableCreature::addKnownObject(Object* object)
 	{
 		mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));
 
+		//why do we have stuff that is not spawned in the si in the first place???
+		//thats ridiculous ...
 		if ((this->getAiState() == NpcIsDormant) && this->isAgressive() && isSpawned())	// Do not wake up the not spawned.
 		{
 			gWorldManager->forceHandlingOfDormantNpc(this->getId());
@@ -348,6 +318,7 @@ void AttackableCreature::addKnownObject(Object* object)
 	{
 		mKnownObjects.insert(object);
 	}
+	*/
 }
 
 
@@ -365,6 +336,7 @@ void AttackableCreature::addKnownObject(Object* object)
 
 bool AttackableCreature::setTargetInAttackRange(void)
 {
+	/*
 	bool targetSet = false;
 
 	// Attack nearest target or the first target found within range?
@@ -395,7 +367,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 				}
 				*/
 				// Only test players not having aggro.
-
+	/*
 				if ((!this->attackerHaveAggro((*it)->getId())) && gWorldManager->objectsInRange(this->getId(), (*it)->getId(), this->getAttackRange()))
 				{
 					if (gWorldConfig->isInstance())
@@ -477,6 +449,8 @@ bool AttackableCreature::setTargetInAttackRange(void)
 		}
 	}
 	return targetSet;
+	*/
+return false;
 }
 
 //=============================================================================
@@ -487,6 +461,7 @@ bool AttackableCreature::setTargetInAttackRange(void)
 
 bool AttackableCreature::showWarningInRange(void)
 {
+	/*
 	bool targetSet = false;
 
 	// Attack nearest target or the first target found within range?
@@ -575,6 +550,8 @@ bool AttackableCreature::showWarningInRange(void)
 		}
 	}
 	return targetSet;
+	*/
+	return false;
 }
 
 
@@ -710,6 +687,7 @@ bool AttackableCreature::isTargetWithinMaxRange(uint64 targetId)
 
 bool AttackableCreature::isTargetValid(void)
 {
+	/*
 	bool foundTarget = false;
 
 	if (this->getTarget())
@@ -731,6 +709,8 @@ bool AttackableCreature::isTargetValid(void)
 		}
 	}
 	return foundTarget;
+	*/
+	return true;
 }
 
 
@@ -879,6 +859,7 @@ void AttackableCreature::unequipWeapon(void)
 
 void AttackableCreature::handleEvents(void)
 {
+	/*
 	// General issues like life and death first.
 	if (this->isDead())
 	{
@@ -1331,6 +1312,7 @@ void AttackableCreature::handleEvents(void)
 		default:
 		break;
 	}
+	*/
 }
 
 
@@ -1559,6 +1541,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 
 void AttackableCreature::spawn(void)
 {
+	/*
 	gCreatureSpawnCounter++;
 
 	// Update the world about my presence.
@@ -1635,6 +1618,7 @@ void AttackableCreature::spawn(void)
 			gMessageLib->sendUpdateTransformMessage(this);
 		}
 	}
+	*/
 }
 
 //=============================================================================

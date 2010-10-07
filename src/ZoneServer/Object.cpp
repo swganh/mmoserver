@@ -83,8 +83,6 @@ Object::Object(uint64 id,uint64 parentId,string model,ObjectType type)
 
 Object::~Object()
 {
-	mKnownObjects.clear();
-	mKnownPlayers.clear();
 
 	mAttributeMap.clear();
 	mInternalAttributeMap.clear();
@@ -220,83 +218,10 @@ float Object::rotation_angle() const {
   return glm::angle(tmp);
 }
 
-//=============================================================================
 
-bool Object::removeKnownObject(Object* object)
-{
-	PlayerObject* player = dynamic_cast<PlayerObject*>(this);
-	if(player)
-	{
-		if(player->getTargetId() == object->getId())
-			player->setTarget(0);
-	}
 
-	if(object->getType() == ObjType_Player)
-	{
-		PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-		PlayerObjectSet::iterator it = mKnownPlayers.find(player);
-
-		if(it != mKnownPlayers.end())
-		{
-			//we might be its target
-			if(player->getTargetId() == this->getId())
-				player->setTarget(0);
-
-			mKnownPlayers.erase(it);
-
-			return(true);
-		}
-	}
-	else
-	{
-		ObjectSet::iterator it = mKnownObjects.find(object);
-
-		if(it != mKnownObjects.end())
-		{
-			mKnownObjects.erase(it);
-
-			return(true);
-		}
-	}
-
-	return(false);
-}
 
 //=============================================================================
-// returns true when item *is* found
-
-bool Object::checkKnownObjects(Object* object) const
-{
-	if(object->getType() == ObjType_Player)
-	{
-		PlayerObjectSet::const_iterator it = mKnownPlayers.find(dynamic_cast<PlayerObject*>(object));
-
-		if(it != mKnownPlayers.end())
-		{
-			return(true);
-		}
-	}
-	else
-	{
-		ObjectSet::const_iterator it = mKnownObjects.find(object);
-
-		if(it != mKnownObjects.end())
-		{
-			return(true);
-		}
-	}
-
-	return(false);
-}
-//=============================================================================
-
-
-
-bool Object::checkKnownPlayer(PlayerObject* player)
-{
-	PlayerObjectSet::iterator it = mKnownPlayers.find(player);
-	return (it != mKnownPlayers.end());
-}
 
 
 string Object::getBazaarName()
@@ -616,98 +541,7 @@ void Object::removeInternalAttribute(string key)
 }
 
 
-//=============================================================================
 
-bool Object::addKnownObjectSafe(Object* object)
-{
-	if(!checkKnownObjects(object))
-	{
-		addKnownObject(object);
-
-		return(true);
-	}
-
-	return(false);
-}
-
-//=============================================================================
-// known objects are those that are in the SI NEAR to our object and have been created
-// all known objects that are NOT found in the next SI update will be destroyed as out of range
-
-void Object::addKnownObject(Object* object)
-{
-	if(this->getId() == object->getId())
-	{
-		//we cannot (should not) add ourselves to our owm KnownObjectsList!!!!!
-		//assert(false);
-		return;
-	}
-	if(checkKnownObjects(object))
-	{
-		gLogger->log(LogManager::DEBUG,"Object::addKnownObject %I64u couldnt be added to %I64u - already in it", object->getId(), this->getId());
-		return;
-	}
-
-	if(object->getType() == ObjType_Player)
-	{
-		mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));
-	}
-	else
-	{
-		mKnownObjects.insert(object);
-	}
-}
-
-//=============================================================================
-
-void Object::destroyKnownObjects()
-{
-	ObjectSet::iterator			objIt		= mKnownObjects.begin();
-	PlayerObjectSet::iterator	playerIt	= mKnownPlayers.begin();
-
-	/*
-	ObjectIDSet::iterator IDIt				= mKnownObjectsIDs.begin();
-	
-	while(IDIt != mKnownObjectsIDs.end())
-	{		
-		Object* object = gWorldManager->getObjectById(*IDIt);
-		if(!object)
-		{
-			(*IDIt)++;
-		}
-		ObjectIDSet::iterator itID = mKnownObjectsIDs.find(object->getId());
-
-		if(itID != mKnownObjectsIDs.end())
-		{
-			mKnownObjectsIDs.erase(itID);
-		}
-		else
-		{
-			IDIt++;
-		}		
-	
-	}
-	*/
-	// objects
-	while(objIt != mKnownObjects.end())
-	{
-		(*objIt)->removeKnownObject(this);
-		mKnownObjects.erase(objIt++);
-	}
-
-	// players
-	while(playerIt != mKnownPlayers.end())
-	{			 
-		PlayerObject* targetPlayer = (*playerIt);
-
-		gMessageLib->sendDestroyObject(mId,targetPlayer);
-
-		targetPlayer->removeKnownObject(this);
-		mKnownPlayers.erase(playerIt++);
-
-		
-	}
-}
 
 //=============================================================================
 

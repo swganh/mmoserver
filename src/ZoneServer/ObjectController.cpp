@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PVState.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
@@ -76,8 +77,7 @@ ObjectController::ObjectController()
 , mRemoveCommandQueue(false)
 , mUpdatingObjects(false)
 {
-	mSI		= gWorldManager->getSI();
-	mGrid	= gWorldManager->getGrid();
+	mGrid	= gSpatialIndexManager->getGrid();
 	
 }
 

@@ -71,6 +71,9 @@ class BuildingObject :	public PlayerStructure
 		bool			removeCell(CellObject* cellObject);
 		bool			checkForCell(CellObject* cellObject);
 		ObjectList		getAllCellChilds();
+
+		void			prepareDestruction();
+
 		
 		uint16			getCellContentCount();
 

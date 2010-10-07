@@ -36,13 +36,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-class ZoneTree;
+
 class PlayerObject;
-class QTRegion;
+
 
 //=============================================================================
 
-typedef std::set<uint64>						VisitorSet;
+
 class CampRegion : public RegionObject
 {
 
@@ -70,8 +70,8 @@ class CampRegion : public RegionObject
 
 				uint64	getUpTime(){return((gWorldManager->GetCurrentGlobalTick() - mSetUpTime)/1000);}
 				
-				uint32	getVisitors(){return(mVisitorSet.size());}
-				uint32	getCurrentVisitors(){return(mKnownPlayers.size());}
+				uint32	getVisitors(){return(links.size());}
+				uint32	getCurrentVisitors(){return(mVisitingPlayers.size());}
 				
 
 				void	setCampOwnerName(string name){mOwnerName = name;}
@@ -87,9 +87,6 @@ class CampRegion : public RegionObject
 
 	protected:
 
-		ZoneTree*			mSI;
-		QTRegion*			mQTRegion;
-		Anh_Math::Rectangle mQueryRect;
 		uint64				mCampId;
 		uint64				mOwnerId;
 		bool				mAbandoned;
@@ -104,8 +101,6 @@ class CampRegion : public RegionObject
 		uint32				mHealingDone;
 
 		bool				mDestroyed;
-
-		VisitorSet			mVisitorSet;
 
 		struct				campLink;
 		std::list<campLink*>	links;

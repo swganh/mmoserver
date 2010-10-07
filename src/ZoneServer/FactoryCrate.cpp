@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "StructureManager.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -229,17 +230,10 @@ void FactoryCrate::upDateFactoryVolume(string amount)
 	}
 	this->setAttribute("factory_count",amount.getAnsi());
 
-	PlayerObjectSet*			knownPlayers	= this->getKnownPlayers();
-	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
-
-	while(playerIt != knownPlayers->end())
-	{
-		PlayerObject* player = (*playerIt);
-		if(player)
-			gMessageLib->sendUpdateCrateContent(this,player);
-
-		playerIt++;
-	}
+	//update parentcontainers registered players
+	gSpatialIndexManager->updateObjectToRegisteredPlayers(this);
+	
+	
 
 }
 

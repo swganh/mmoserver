@@ -254,7 +254,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 
 			gMessageLib->sendCreateManufacturingSchematic(mManufacturingSchematic,mOwner);
-			gMessageLib->sendCreateTangible(mItem,mOwner);
+			gMessageLib->sendCreateTano(mItem,mOwner);
 			gMessageLib->sendManufactureSlots(mManufacturingSchematic,mTool,mItem,mOwner);
 			gMessageLib->sendUpdateCraftingStage(mOwner);
 			gMessageLib->sendBaselinesMSCO_7(mManufacturingSchematic,mOwner);

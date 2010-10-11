@@ -2,18 +2,18 @@ AM_CXXFLAGS = -I$(top_srcdir)/src $(BOOST_CPPFLAGS) @AM_CXXFLAGS@
   
 # Common library - noinstall shared library
 noinst_LTLIBRARIES = libcommon.la
-libcommon_la_SOURCES = ApplicationService.cpp \
-  atMacroString.cpp \
-  BuildInfo.cpp \
+libcommon_la_SOURCES = ApplicationService.cc \
+  atMacroString.cc \
+  BuildInfo.cc \
   byte_buffer.cc \
-  ConfigFile.cpp \
-  ConfigManager.cpp \
-  Crc.cpp \
-  Event.cpp \
-  EventDispatcher.cpp \
-  HashString.cpp \
-  LogManager.cpp \
-  OutOfBand.cpp
+  ConfigFile.cc \
+  ConfigManager.cc \
+  Crc.cc \
+  Event.cc \
+  EventDispatcher.cc \
+  HashString.cc \
+  LogManager.cc \
+  OutOfBand.cc
     
 libcommon_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors
 

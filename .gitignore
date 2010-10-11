@@ -1,6 +1,5 @@
 # These files should be ignored
 bin/
-build-aux/
 deps/
 data/heightmaps/
 ipch/
@@ -32,7 +31,7 @@ tools/m4/lt*.m4
 
 # ignore directories created for the build process
 build/*
-build-aux/*
+build-aux/
 
 # ignore 3rd party libraries
 cppconn/

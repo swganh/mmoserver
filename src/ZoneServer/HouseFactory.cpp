@@ -223,8 +223,9 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void HouseFactory::_createHouse(DatabaseResult* result, HouseObject* house)
 {
-
-    uint64 count = result->getRowCount();
+    if (!result->getRowCount()) {
+       	return;
+    }
 
     result->GetNextRow(mHouseBinding,house);
 

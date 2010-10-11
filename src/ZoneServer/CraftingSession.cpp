@@ -73,8 +73,8 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,Database* database,Play
     , mCriticalCount(0)
     , mExpFlag(expFlag)
     , mStage(1)
+	, mFirstFill(false)
     , mCounter(2)
-    , mFirstFill(false)
     , mItemLoaded(false)
 {
 

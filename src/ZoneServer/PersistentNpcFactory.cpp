@@ -139,11 +139,12 @@ void PersistentNpcFactory::requestObject(ObjectFactoryCallback* ofCallback,uint6
 
 NPCObject* PersistentNpcFactory::_createPersistentNpc(DatabaseResult* result)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
+
     NPCObject*		npc	;
     NpcIdentifier	npcIdentifier;
-
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
     result->ResetRowIndex();

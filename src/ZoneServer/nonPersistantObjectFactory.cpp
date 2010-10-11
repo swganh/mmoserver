@@ -283,7 +283,9 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 
 void NonPersistantObjectFactory::_createItem(DatabaseResult* result,Item* item)
 {
-    uint64 count = result->getRowCount();
+    if (!result->getRowCount()) {
+    	return;
+    }
 
     result->GetNextRow(mItemBinding,item);
 

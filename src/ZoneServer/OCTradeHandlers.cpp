@@ -62,8 +62,6 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     uint32 unknown,error;
     uint64 receiverId,unknown64;
-    const uint32 error0 = 0;
-    const uint32 error2 = 2;
     message->getUint32(unknown);
     message->getUint32(error);
     message->getUint64(unknown64);//sender (target) id
@@ -75,7 +73,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     switch(error)
     {
-    case error2:
+    case 2:
     {
         // snd invitation returns error as 2 and the id of the invited as 0 :(
         invitedPlayer = dynamic_cast<PlayerObject*>(invitingPlayer->getTarget());
@@ -83,7 +81,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
     }
     break;
 
-    case error0:
+    case 0:
     {
         //first invitation set the setInvite to the Inviter
         //invitedPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(receiverId));

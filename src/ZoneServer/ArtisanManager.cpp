@@ -337,8 +337,6 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     if (!player->isConnected())
         return;
 
-    Ham*				ham			= player->getHam();
-
     //====================================================
     //check whether we are able to sample in the first place
     //
@@ -354,10 +352,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     uint32					sampleAmount	= 0;
     ObjectSet::iterator	it					= player->getKnownObjects()->begin();
     BString					resName			= resource->getName().getAnsi();
-    uint32					resType			= resource->getType()->getCategoryId();
-    uint16					resPE			= resource->getAttribute(ResAttr_PE);
     bool					successSample	= false;
-    bool					resAvailable	= true;
     resName.convert(BSTRType_Unicode16);
 
     if (getRadioactiveSample(player, resource, tool))

@@ -89,9 +89,6 @@ void PlayerObject::onLogout(const LogOutEvent* event)
 // CAVE we only remove it out of the inventory / objectmap
 void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
 {
-
-    uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
-
     //do we have to remove the cooldown?
 
     Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(event->getItem()));

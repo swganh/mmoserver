@@ -122,11 +122,13 @@ void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id,
 
 Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
+
     Shuttle*	shuttle				= new Shuttle();
     Inventory*	shuttleInventory	= new Inventory();
     shuttleInventory->setParent(shuttle);
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(mShuttleBinding,(void*)shuttle);
 

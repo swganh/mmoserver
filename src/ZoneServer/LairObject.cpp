@@ -189,7 +189,7 @@ void LairObject::handleEvents(void)
             else
             {
                 // We have no target.
-                this->setTarget(NULL);
+                this->setTarget(0);
 
             }
 
@@ -227,7 +227,7 @@ void LairObject::handleEvents(void)
             else
             {
                 // We have no target.
-                this->setTarget(NULL);
+                this->setTarget(0);
 
             }
             // THE solution...

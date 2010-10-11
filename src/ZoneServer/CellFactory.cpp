@@ -174,10 +174,12 @@ void CellFactory::requestStructureCell(ObjectFactoryCallback* ofCallback,uint64 
 
 CellObject* CellFactory::_createCell(DatabaseResult* result)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
+
     CellObject* cellObject = new CellObject();
     cellObject->setCapacity(500);
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(mCellBinding,(void*)cellObject);
 

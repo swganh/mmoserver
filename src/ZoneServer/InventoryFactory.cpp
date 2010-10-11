@@ -198,9 +198,11 @@ void InventoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 Inventory* InventoryFactory::_createInventory(DatabaseResult* result)
 {
-    Inventory*	inventory = new Inventory();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    Inventory*	inventory = new Inventory();
 
     // get our results
     result->GetNextRow(mInventoryBinding,(void*)inventory);

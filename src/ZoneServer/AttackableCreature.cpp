@@ -1004,7 +1004,7 @@ void AttackableCreature::handleEvents(void)
         else if (!this->isTargetValid())
         {
             // We lost our target.
-            this->setTarget(NULL);
+            this->setTarget(0);
             // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
             mCombatState = State_Alerted;
@@ -1116,7 +1116,7 @@ void AttackableCreature::handleEvents(void)
                 else
                 {
                     // We lost our target.
-                    this->setTarget(NULL);
+                    this->setTarget(0);
                     // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
                 }
             }
@@ -1129,7 +1129,7 @@ void AttackableCreature::handleEvents(void)
         if (!this->isTargetValid())
         {
             // We lost our target.
-            this->setTarget(NULL);
+            this->setTarget(0);
             // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
             mCombatState = State_CombatReady;
@@ -1193,7 +1193,7 @@ void AttackableCreature::handleEvents(void)
                 this->setupRoaming(15, 15);
 
                 // We drop the target, it's out of range.
-                this->setTarget(NULL);
+                this->setTarget(0);
                 // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
                 mCombatState = State_CombatReady;
@@ -2098,9 +2098,9 @@ void AttackableCreature::respawn(void)
         mIsKiller = false;
     }
 
-    if(this->hasAttribute("res_bone"))
-        if(this->hasAttribute("res_meat"))
-            if(this->hasAttribute("res_hide"))
+    if(this->hasAttribute("res_bone")) {
+        if(this->hasAttribute("res_meat")) {
+            if(this->hasAttribute("res_hide")) {
 
 
                 if (this->hasInternalAttribute("creature_warning_range"))
@@ -2114,6 +2114,10 @@ void AttackableCreature::respawn(void)
                     gLogger->log(LogManager::NOTICE,"AttackableCreature::respawn Unable to locate creature_warning_range, defaulting to 20.0");
                     mAttackWarningRange = 20.0;
                 }
+            }
+        }
+    }
+
 
     if (mIsAgressive)
     {

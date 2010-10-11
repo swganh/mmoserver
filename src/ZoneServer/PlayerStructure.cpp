@@ -478,7 +478,7 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
         int8	sql[255],end[128],*sqlPointer;
 
         sprintf(sql,"UPDATE structures SET structures.name = '");
-        sprintf(end,"' WHERE structures.ID = %I64u",this->getId());
+        sprintf(end,"' WHERE structures.ID = %"PRIu64"",this->getId());
         sqlPointer = sql + strlen(sql);
         sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,inputStr.getAnsi(),inputStr.getLength());
         strcat(sql,end);

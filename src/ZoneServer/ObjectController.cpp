@@ -325,7 +325,6 @@ bool ObjectController::_processCommandQueue()
             uint64		targetId	= cmdMsg->getTargetId();
             uint32		reply1		= 0;
             uint32		reply2		= 0;
-            bool		consumeHam	= true;
 
             ObjectControllerCmdProperties*	cmdProperties = cmdMsg->getCmdProperties();
 
@@ -350,12 +349,6 @@ bool ObjectController::_processCommandQueue()
                         timeToNextCommand = cmdProperties->mDefaultTime / 2;
                         mUnderrunTime -= timeToNextCommand;
                     }
-                }
-
-                bool internalCommand = false;
-                if (!message)
-                {
-                    internalCommand = true;
                 }
 
                 // keep a pointer to the start
@@ -393,7 +386,7 @@ bool ObjectController::_processCommandQueue()
                         // any listeners to veto the processing of the command (such as validators).
                         // Only process the command if it passed validation.
                         if (gEventDispatcher.Deliver(pre_event).get()) {
-                            bool command_processed = ((*it).second)(mObject, target, message, cmdProperties);
+                            ((*it).second)(mObject, target, message, cmdProperties);
 
                             auto post_event = std::make_shared<PostCommandEvent>(mObject->getId());
                             gEventDispatcher.Deliver(post_event);
@@ -405,11 +398,9 @@ bool ObjectController::_processCommandQueue()
                         if (message && it != gObjControllerCmdMap.end()) {
                             ((*it).second)(this, targetId, message, cmdProperties);
                             //(this->*((*it).second))(targetId,message,cmdProperties);
-                            consumeHam = mHandlerCompleted;
                         } else {
                             gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",command,mObject->getId());
                             //gLogger->hexDump(message->getData(),message->getSize());
-                            consumeHam = false;
                         }
                     }
                 }
@@ -431,8 +422,6 @@ bool ObjectController::_processCommandQueue()
                             // We have lost our target.
                             player->setCombatTargetId(0);
                             player->disableAutoAttack();
-
-                            consumeHam = mHandlerCompleted;
                         }
                         else
                         {
@@ -469,8 +458,6 @@ bool ObjectController::_processCommandQueue()
                 default:
                 {
                     gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %"PRIu64"",cmdProperties->mCmdGroup,mObject->getId());
-
-                    consumeHam = false;
                 }
                 break;
                 }
@@ -591,7 +578,6 @@ bool ObjectController::_processEventQueue()
 //
 void ObjectController::enqueueCommandMessage(Message* message)
 {
-    uint32	clientTicks		= message->getUint32();
     uint32	sequence		= message->getUint32();
     uint32	opcode			= message->getUint32();
     uint64	targetId		= message->getUint64();

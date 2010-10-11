@@ -207,7 +207,6 @@ void Food::handleFoodUse(Object* srcObject)
     //when empty delete
     if(toDelete)
     {
-        Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
         //the db
         gObjectFactory->deleteObjectFromDB(this);
 

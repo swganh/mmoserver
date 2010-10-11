@@ -111,7 +111,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         uint64 count = result->getRowCount();
         mvExpGroups.reserve((uint32)count);
-        uint32 num = 0;
+
         for(uint64 i = 0; i < count; i++)
         {
             result->GetNextRow(binding,&expGroup);
@@ -132,7 +132,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         uint64 count = mGroupCount = mGroupLoadCount = static_cast<uint32>(result->getRowCount());
         mSchematicGroupList.reserve((uint32)count);
-        uint32 num = 0;
+
         for(uint64 i = 0; i < count; i++)
         {
             scGroup = new SchematicGroup();

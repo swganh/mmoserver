@@ -405,7 +405,6 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 {
     uint8	randomHitPool			= 100;
     //uint8	randomPoolHitChance		= 100;
-    uint8	stateApplied			= 0;
     int32	multipliedDamage		= 0;
     BString	combatSpam				= "melee";
 
@@ -460,7 +459,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
         multipliedDamage = _mitigateDamage(attacker,defender,cmdProperties,multipliedDamage,weapon);
 
         // state effects
-        stateApplied = _tryStateEffects(attacker,defender,cmdProperties,weapon);
+        _tryStateEffects(attacker,defender,cmdProperties,weapon);
 
 
         // Here is the deal. When a player makes damage to a npc, we have to register the player, its group, damage done and what (kind of) weapon used.

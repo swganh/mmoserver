@@ -153,7 +153,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         int8 sql[250];
-        sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+        sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
         mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
     }
@@ -201,7 +201,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         int8 sql[250];
-        sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+        sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
         mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
         
 
@@ -250,7 +250,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
             // now we need to link the deed to the harvester in the db and remove it out of the inventory
             int8 sql[250];
-            sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+            sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
             mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
          
         }
@@ -485,7 +485,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 
     gLogger->log(LogManager::DEBUG,"New Harvester dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
-    sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
     
 }
@@ -546,7 +546,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 
     gLogger->log(LogManager::DEBUG,"New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
-    sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
     
 }
@@ -603,7 +603,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 
     gLogger->log(LogManager::DEBUG,"New House dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
-    sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
     
 }
@@ -865,20 +865,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
         {
             Object* childObject = gWorldManager->getObjectById((*objIt));
 
-            if(PlayerObject* player = dynamic_cast<PlayerObject*>(childObject))
-            {
-                //place the player in the world	and db	- do *NOT* delete him :P
-                //player->setParentId(0,0xffffffff,player->getKnownPlayers(),true);
-            }
-            else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(childObject))
-            {
-                //place the player in the world	and db	- do *NOT* delete him :P
-                //pet->setParentId(0,0xffffffff,pet->getKnownPlayers(),true);
-            }
-            else
-            {
-                deleteObjectFromDB(childObject);
-            }
+            deleteObjectFromDB(childObject);
 
             ++objIt;
 

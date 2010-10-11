@@ -120,9 +120,11 @@ void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 
 City* CityFactory::_createCity(DatabaseResult* result)
 {
-    City*	city = new City();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    City*	city = new City();
 
     result->GetNextRow(mCityBinding,(void*)city);
 

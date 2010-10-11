@@ -259,8 +259,6 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
     Item*			item;
     ItemIdentifier	itemIdentifier;
 
-    uint64 count = result->getRowCount();
-
     result->GetNextRow(mItemIdentifierBinding,(void*)&itemIdentifier);
     result->ResetRowIndex();
 

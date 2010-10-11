@@ -33,13 +33,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "math.h"
 //=============================================================================
 Heightmap::Heightmap(const char* planet_name, uint16 resolution)
-    : mHeightmapCache(NULL)
+    : mResolution(resolution)
+	, mHeightmapCache(nullptr)
     , mCacheHeight(0)
     , mCacheWidth(0)
     , mCacheResoulutionDivider(3)
     , WIDTH(15361)
     , HEIGHT(15361)
-    , mResolution(resolution)
     , mReady(false)
 {
     mFilename = "heightmaps/";

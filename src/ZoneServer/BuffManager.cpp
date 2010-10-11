@@ -390,8 +390,8 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
     PlayerObject* target = nullptr;
 
     try {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(buff->GetTarget());
-        PlayerObject* target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
+        player = dynamic_cast<PlayerObject*>(buff->GetTarget());
+        target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
     } catch (...) {
         // The target or the instigator may have logged off in the process, bail out.
         return false;

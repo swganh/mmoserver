@@ -496,7 +496,6 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
         cost = 1000;
 
     int MedicMind = Medic->getHam()->mMind.getCurrentHitPoints();
-    int MedicMaxMind = Medic->getHam()->mMind.getMaxHitPoints();
 
     if (MedicMind < cost) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "not_enough_mind"), Medic);
@@ -629,8 +628,8 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
     //TODO - BEClothing, and Med Center/city bonuses.
     int healthpower = Stim->getHealthHeal();
     int actionpower = Stim->getActionHeal();
-    uint BEClothes = NULL;
-    uint MedCityBonus = NULL;
+    uint BEClothes = 0;
+    uint MedCityBonus = 0;
     uint maxhealhealth = healthpower * ((100 + healingskill + BEClothes) / 100) * MedCityBonus;
     uint maxhealaction = actionpower * ((100 + healingskill + BEClothes) / 100) * MedCityBonus;
 
@@ -649,7 +648,6 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
 
 
     int MedicMind = Medic->getHam()->mMind.getCurrentHitPoints();
-    int MedicMaxMind = Medic->getHam()->mMind.getMaxHitPoints();
 
     if (MedicMind < cost) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "not_enough_mind"), Medic);
@@ -722,8 +720,6 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
     Medicine* WoundPack = dynamic_cast<Medicine*>(gWorldManager->getObjectById(WoundPackobjectID));
     isSelf = (Medic->getId() == Target->getId());
 
-    uint32 healingskill = Medic->getSkillModValue(SMod_healing_wound_treatment);
-
     if(Medic->checkPlayerCustomFlag(PlayerCustomFlag_WoundTreatment))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "enhancement_must_wait"), Medic);
@@ -740,7 +736,6 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
     }
     gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
-    int TargetWounds = 0;
     BString bhealType= healType.c_str();
     int32 WoundHealPower = 0;
     if (WoundPack)
@@ -781,7 +776,6 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
         cost = 500;
 
     int MedicMind = Medic->getHam()->mMind.getCurrentHitPoints();
-    int MedicMaxMind = Medic->getHam()->mMind.getMaxHitPoints();
 
     if (MedicMind < cost) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "not_enough_mind"), Medic);

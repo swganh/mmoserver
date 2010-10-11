@@ -451,7 +451,7 @@ void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, fl
     glm::vec3 positionOffset;
 
     positionOffset.x = (sin(angle) * length);
-    positionOffset.y = 0;
+    positionOffset.y = y;
     positionOffset.z = (cos(angle) * length);
 
     npcMember->setPositionOffset(positionOffset);
@@ -488,6 +488,7 @@ void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, f
     // npc->mPosition.z = posZ + (cos(angle) * length);
 
     posX += (sin(angle) * length);
+    posY += y;
     posZ += (cos(angle) * length);
 
     // send out position updates to known players

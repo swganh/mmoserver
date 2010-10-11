@@ -116,9 +116,11 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
 
 SpawnRegion* SpawnRegionFactory::_createSpawnRegion(DatabaseResult* result)
 {
-    SpawnRegion*	spawnRegion = new SpawnRegion();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    SpawnRegion*	spawnRegion = new SpawnRegion();
 
     result->GetNextRow(mSpawnRegionBinding,spawnRegion);
 

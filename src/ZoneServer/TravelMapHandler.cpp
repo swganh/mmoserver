@@ -287,8 +287,6 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
     if(playerObject != NULL && playerObject->isConnected())
     {
-        bool excludeQueryPosition = false;
-
         // we need to know where we query from
         TravelTerminal* terminal = playerObject->getTravelPoint();
 
@@ -304,7 +302,6 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
         // find our planetId
         uint8 planetId = gWorldManager->getPlanetIdByName(requestedPlanet);
 
-        uint32 pointCount = 0;
         char	queryPoint[64];
         TravelPoint* qP = NULL;
 

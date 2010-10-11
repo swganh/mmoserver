@@ -183,7 +183,7 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 
     int8 sql[512],*sqlPointer,restStr[128];
 //	int8 sql[1024]
-    sprintf(sql,"select sf_CheckPermissionList(%I64u,'",structureId);
+    sprintf(sql,"select sf_CheckPermissionList(%"PRIu64",'",structureId);
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
@@ -1120,8 +1120,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
     case Structure_Command_AccessSchem:
     {
-        PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
-
         StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
         asyncContainer->mStructureId	= command.StructureId;
         asyncContainer->mPlayerId		= command.PlayerId;
@@ -1383,6 +1381,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
     }
 
+    default:
+    	break;
+
     }
 }
 
@@ -1463,8 +1464,6 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 {
     ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
     ObjectIDList::iterator	listIt		= invObjects->begin();
-
-    uint32 power = 0;
 
     while(listIt != invObjects->end())
     {
@@ -1835,5 +1834,7 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
         }
         break;
     }
+    default:
+    	break;
     }
 }

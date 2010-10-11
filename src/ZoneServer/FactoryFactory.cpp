@@ -341,8 +341,9 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void FactoryFactory::_createFactory(DatabaseResult* result, FactoryObject* factory)
 {
-
-    uint64 count = result->getRowCount();
+    if (!result->getRowCount()) {
+       	return;
+    }
 
     result->GetNextRow(mFactoryBinding,factory);
 

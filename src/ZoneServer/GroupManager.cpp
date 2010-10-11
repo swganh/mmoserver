@@ -464,7 +464,6 @@ MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
 
         while(missionRangeListIt != missionRangeList.end())
         {
-            MissionObject* nearestMission = NULL;
             float	nearestDistance = 88000.0;
 
             MissionObject* currentMission = (*missionRangeListIt).first;
@@ -474,11 +473,9 @@ MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
             if(currentDistance < nearestDistance)
             {
                 nearestDistance = currentDistance;
-                nearestMission = currentMission;
 
                 //store the lists iterator for future reference
                 missionRangeListStorage = missionRangeListIt;
-
             }
 
 
@@ -540,7 +537,6 @@ void GroupManager::_processIsmGroupInviteInRangeRequest(Message *message, Dispat
 {
     PlayerObject* sender = gWorldManager->getPlayerByAccId(message->getUint32());
     PlayerObject* target = gWorldManager->getPlayerByAccId(message->getUint32());
-    Message* newMessage = new Message();
 
     if( sender == NULL || target == NULL )
     {

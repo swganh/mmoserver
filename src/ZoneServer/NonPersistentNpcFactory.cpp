@@ -205,7 +205,9 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         lairSpawnNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mSpeciesGroup),255,11);
         lairSpawnNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mFaction),32,12);
 
-        uint64 count = result->getRowCount();
+        if (!result->getRowCount()) {
+        	break;
+        }
 
         result->GetNextRow(lairSpawnBinding,&lair);
 
@@ -379,9 +381,11 @@ void NonPersistentNpcFactory::requestObject(ObjectFactoryCallback* ofCallback,ui
 
 NPCObject* NonPersistentNpcFactory::_createNonPersistentNpc(DatabaseResult* result, uint64 templateId, uint64 npcNewId, uint64 controllingObject)
 {
-    NpcIdentifier	npcIdentifier;
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    NpcIdentifier	npcIdentifier;
 
     result->GetNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
     result->ResetRowIndex();
@@ -392,6 +396,10 @@ NPCObject* NonPersistentNpcFactory::_createNonPersistentNpc(DatabaseResult* resu
 
 NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* result, uint64 templateId, uint64 npcNewId, uint32 familyId, uint64 controllingObject)
 {
+	if (!result->getRowCount()) {
+		return nullptr;
+	}
+
     NPCObject*		npc;
 
     switch(familyId)
@@ -457,8 +465,6 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
     Inventory*	npcInventory = new Inventory();
     npcInventory->setCapacity(50);//we want to be able to fill something in our inventory
     npcInventory->setParent(npc);
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(mNonPersistentNpcBinding,(void*)npc);
 

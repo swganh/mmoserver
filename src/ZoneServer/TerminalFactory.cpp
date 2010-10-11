@@ -172,13 +172,15 @@ void TerminalFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 
 Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
+
     Terminal*		terminal(0);
     TangibleType	tanType;
 
     DataBinding* typeBinding = mDatabase->CreateDataBinding(1);
     typeBinding->addField(DFT_uint32, 0, 4, 9);
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(typeBinding, &tanType);
     result->ResetRowIndex();

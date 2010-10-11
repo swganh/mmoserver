@@ -144,11 +144,12 @@ void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 
 Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
     Item*			item;
     ItemIdentifier	itemIdentifier;
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(mItemIdentifierBinding,(void*)&itemIdentifier);
     result->ResetRowIndex();

@@ -223,9 +223,11 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
 
 Container* ContainerObjectFactory::_createContainer(DatabaseResult* result)
 {
-    Container*	container = new Container();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    Container*	container = new Container();
 
     result->GetNextRow(mContainerBinding,(void*)container);
 

@@ -96,7 +96,6 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
             HResourceList*	hRList = harvester->getResourceList();
             hRList->resize(hRList->size()+count);
-            HResourceList::iterator it = hRList->begin();
 
             HarvesterHopperItem hopperTemp;
             for(uint64 i=0; i <count; i++)
@@ -179,8 +178,9 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 void HarvesterFactory::_createHarvester(DatabaseResult* result, HarvesterObject* harvester)
 {
-
-    uint64 count = result->getRowCount();
+    if (!result->getRowCount()) {
+       	return;
+    }
 
     result->GetNextRow(mHarvesterBinding,harvester);
 

@@ -275,9 +275,11 @@ void DatapadFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 
 Datapad* DatapadFactory::_createDatapad(DatabaseResult* result)
 {
-    Datapad* datapad = new Datapad();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    Datapad* datapad = new Datapad();
 
     // get our results
     result->GetNextRow(mDatapadBinding,(void*)datapad);

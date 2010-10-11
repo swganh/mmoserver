@@ -194,9 +194,11 @@ void BuildingFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
 
 BuildingObject* BuildingFactory::_createBuilding(DatabaseResult* result)
 {
-    BuildingObject*	buildingObject = new BuildingObject();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+	BuildingObject*	buildingObject = new BuildingObject();
 
     result->GetNextRow(mBuildingBinding,buildingObject);
 

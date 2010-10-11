@@ -134,11 +134,13 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
     case VehicleControllerFactoryQuery_TypesId:
     {
 
+    	if (!result->getRowCount()) {
+    		break;
+    	}
+
         uint32 vehicleType = 0;
         DataBinding* binding = mDatabase->CreateDataBinding(1);
         binding->addField(DFT_uint32,0,4);
-
-        uint64	count = result->getRowCount();
 
         result->GetNextRow(binding,&vehicleType);
         mDatabase->DestroyDataBinding(binding);

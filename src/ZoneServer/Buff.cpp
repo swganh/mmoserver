@@ -80,7 +80,8 @@ int32 BuffAttribute::GetFinalValue()
 }
 
 Buff::Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, uint64 Tick, uint32 Icon, uint64 CurrentGlobalTick)
-    : mChild(0)
+    : Attributes(0)
+    , mChild(0)
     , mParent(0)
     , mInstigator(Instigator)
     , mTarget(Target)
@@ -91,7 +92,6 @@ Buff::Buff(CreatureObject* Target, CreatureObject* Instigator, uint NoOfTicks, u
     , mNoTicks(NoOfTicks)
     , mDoInit(true)
     , mMarkedForDeletion(false)
-    , Attributes(0)
 {}
 
 

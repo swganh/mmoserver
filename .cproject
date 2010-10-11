@@ -45,6 +45,7 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
+			<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 			<storageModule moduleId="scannerConfiguration">
 				<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 				<profile id="org.eclipse.cdt.make.core.GCCStandardMakePerProjectProfile">
@@ -175,7 +176,7 @@
 							<parser enabled="true"/>
 						</buildOutputProvider>
 						<scannerInfoProvider id="specsFile">
-							<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="gcc-mp-4.6" useDefault="true"/>
+							<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.c" command="/Users/apathy/opt/gcc/bin/gcc-mp-4.6" useDefault="true"/>
 							<parser enabled="true"/>
 						</scannerInfoProvider>
 					</profile>
@@ -248,7 +249,7 @@
 							<parser enabled="true"/>
 						</buildOutputProvider>
 						<scannerInfoProvider id="specsFile">
-							<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="g++-mp-4.6" useDefault="true"/>
+							<runAction arguments="-E -P -v -dD ${plugin_state_location}/specs.cpp" command="/Users/apathy/opt/gcc/bin/g++-mp-4.6" useDefault="true"/>
 							<parser enabled="true"/>
 						</scannerInfoProvider>
 					</profile>
@@ -294,7 +295,6 @@
 					</profile>
 				</scannerConfigBuildInfo>
 			</storageModule>
-			<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 			<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 				<buildTargets>
 					<target name="all" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
@@ -401,6 +401,14 @@
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>false</runAllBuilders>
 					</target>
+					<target name="dist-lzma" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+						<buildCommand>make</buildCommand>
+						<buildArguments/>
+						<buildTarget>dist-lzma</buildTarget>
+						<stopOnError>true</stopOnError>
+						<useDefaultCommand>true</useDefaultCommand>
+						<runAllBuilders>false</runAllBuilders>
+					</target>
 					<target name="dist-shar" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>make</buildCommand>
 						<buildArguments/>
@@ -413,6 +421,14 @@
 						<buildCommand>make</buildCommand>
 						<buildArguments/>
 						<buildTarget>dist-tarZ</buildTarget>
+						<stopOnError>true</stopOnError>
+						<useDefaultCommand>true</useDefaultCommand>
+						<runAllBuilders>false</runAllBuilders>
+					</target>
+					<target name="dist-xz" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
+						<buildCommand>make</buildCommand>
+						<buildArguments/>
+						<buildTarget>dist-xz</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>false</runAllBuilders>

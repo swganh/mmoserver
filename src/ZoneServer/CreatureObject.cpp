@@ -1417,10 +1417,6 @@ void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uin
 void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 
-    if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
-    {
-
-    }
 }
 //=============================================================================
 // maps the incoming posture

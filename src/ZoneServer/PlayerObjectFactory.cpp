@@ -531,6 +531,10 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 
 PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
+
     PlayerObject*	playerObject	= new PlayerObject();
     TangibleObject*	playerHair		= new TangibleObject();
     MissionBag*		playerMissionBag;
@@ -539,8 +543,6 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
     playerBank->setId(playerObject->getId()+BANK_OFFSET);
     playerBank->setParent(playerObject);
-
-    uint64 count = result->getRowCount();
 
     //check for 3 rows as we need to call GetNextRow 3 times
     /*if(count < 3)

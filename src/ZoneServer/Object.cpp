@@ -39,7 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 Object::Object()
-    : mModel("")
+    : mMovementMessageToggle(true)
+	, mModel("")
     , mLoadState(LoadState_Loading)
     , mId(0)
     , mParentId(0)
@@ -48,7 +49,6 @@ Object::Object()
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
-    , mMovementMessageToggle(true)
 {
     mDirection = glm::quat();
     mPosition  = glm::vec3();
@@ -59,7 +59,8 @@ Object::Object()
 //=============================================================================
 
 Object::Object(uint64 id,uint64 parentId,BString model,ObjectType type)
-    : mModel(model)
+    : mMovementMessageToggle(true)
+    , mModel(model)
     , mLoadState(LoadState_Loading)
     , mType(type)
     , mId(id)
@@ -69,7 +70,6 @@ Object::Object(uint64 id,uint64 parentId,BString model,ObjectType type)
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
-    , mMovementMessageToggle(true)
 {
     mObjectController.setObject(this);
 
@@ -418,7 +418,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"'WHERE item_id=%I64u AND attribute_id=%u",this->getId(),attributeID);
+    sprintf(restStr,"'WHERE item_id=%"PRIu64" AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
     //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
@@ -527,7 +527,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"'WHERE item_id=%I64u AND attribute_id=%u",this->getId(),attributeID);
+    sprintf(restStr,"'WHERE item_id=%"PRIu64" AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
     //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);

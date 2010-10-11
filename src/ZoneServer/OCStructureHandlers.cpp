@@ -627,8 +627,6 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
         return;
     }
 
-    HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
-
     StructureAsyncCommand command;
 
     command.Command = Structure_Command_DiscardHopper;
@@ -687,8 +685,6 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
     message->getUint32(amount);
     message->getUint8(b1);
     message->getUint8(b2);
-
-    HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
 
     StructureAsyncCommand command;
 

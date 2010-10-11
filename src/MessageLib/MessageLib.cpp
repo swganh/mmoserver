@@ -386,7 +386,7 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
     // Is this a player object sending the message? If so we need a crc of their name
     // for checking recipient's ignore lists.
     if (object->getType() == ObjType_Player) {
-        if (source_player = dynamic_cast<PlayerObject*>(object)) {
+        if ((source_player = dynamic_cast<PlayerObject*>(object))) {
             // Make sure the player is valid and online.
             if (!_checkPlayer(source_player) || !source_player->isConnected()) {
                 // This is an invalid player, clean up the message and exit.
@@ -851,7 +851,7 @@ bool MessageLib::sendCreateTangible(TangibleObject* tangibleObject,PlayerObject*
             else if(parentObject)
             {
                 Item* item = dynamic_cast<Item*>(tangibleObject);
-                sendContainmentMessage(tangibleObject->getId(),parentObject->getId(),4,targetObject);
+                sendContainmentMessage(item->getId(),parentObject->getId(),4,targetObject);
             }
             else
             {
@@ -1003,7 +1003,6 @@ bool MessageLib::sendCreateBuilding(BuildingObject* buildingObject,PlayerObject*
     CellObjectList*				cellList	= buildingObject->getCellList();
     CellObjectList::iterator	cellIt		= cellList->begin();
 
-    uint64 cellCount = cellList->size();
     while(cellIt != cellList->end())
     {
         CellObject* cell = (*cellIt);

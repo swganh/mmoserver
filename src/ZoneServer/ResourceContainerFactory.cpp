@@ -129,21 +129,23 @@ void ResourceContainerFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 
 ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseResult* result)
 {
-    ResourceContainer*	resourceContainer = new ResourceContainer();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    ResourceContainer*	resourceContainer = new ResourceContainer();
 
     result->GetNextRow(mResourceContainerBinding,(void*)resourceContainer);
 
     Resource* resource = gResourceManager->getResourceById(resourceContainer->mResourceId);
 
-    if(resource != NULL)
+    if(resource != nullptr)
     {
         resourceContainer->setResource(resource);
         resourceContainer->setModelString((resource->getType())->getContainerModel().getAnsi());
-    }
-    else
+    } else {
         gLogger->log(LogManager::DEBUG,"ResourceContainerFactory::_createResourceContainer: Resource not found %"PRIu64"",resourceContainer->mResourceId);
+    }
 
     resourceContainer->mMaxCondition = 100;
 

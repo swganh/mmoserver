@@ -112,9 +112,11 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64
 
 BadgeRegion* BadgeRegionFactory::_createBadgeRegion(DatabaseResult* result)
 {
-    BadgeRegion*	badgeRegion = new BadgeRegion();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    BadgeRegion*	badgeRegion = new BadgeRegion();
 
     result->GetNextRow(mBadgeRegionBinding, badgeRegion);
 

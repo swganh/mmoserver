@@ -7,9 +7,6 @@
     <Filter Include="Common">
       <UniqueIdentifier>{4f3e690b-dd02-4836-b306-aa4f38394d8a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Common\MockObjects">
-      <UniqueIdentifier>{11653b4d-ab3f-43de-b45b-90c6e3af2b91}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Utils\MockObjects">
       <UniqueIdentifier>{7ea6d2ef-4037-48ac-9adf-2211491b8ebf}</UniqueIdentifier>
     </Filter>
@@ -19,49 +16,37 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Common\TestByteBuffer.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\TestOutOfBand.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\TestEventDispatcher.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\TestHashString.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <ClCompile Include="Utils\TestConcurrentQueue.cpp">
       <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\TestCrc.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
-    <ClCompile Include="Common\TestEvent.cpp">
-      <Filter>Common</Filter>
     </ClCompile>
     <ClCompile Include="Utils\TestActiveObject.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="Common\MockObjects\MockEvent.cpp">
-      <Filter>Common\MockObjects</Filter>
+    <ClCompile Include="..\src\Common\byte_buffer_unittest.cc">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Common\crc_unittest.cc">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Common\event_dispatcher_unittest.cc">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Common\event_unittest.cc">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Common\hash_string_unittest.cc">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Common\out_of_band_unittest.cc">
+      <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\MockObjects\MockListener.h">
-      <Filter>Common\MockObjects</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\MockObjects\MockListenerAlt.h">
-      <Filter>Common\MockObjects</Filter>
-    </ClInclude>
     <ClCompile Include="Utils\TestInRectangle.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
     <ClInclude Include="Utils\MockObjects\MockActiveObjectImpl.h">
       <Filter>Utils\MockObjects</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\MockObjects\MockEvent.h">
-      <Filter>Common\MockObjects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

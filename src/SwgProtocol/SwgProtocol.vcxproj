@@ -48,13 +48,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\boost.atomic;$(SolutionDir)deps\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\glog\src\windows;$(SolutionDir)deps\tbb\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;SWGPROTOCOL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\noise\win32\Debug;$(SolutionDir)deps\spatialindex\Debug;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\glog\$(Configuration);$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\tbb\lib\ia32\vc10;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\noise\win32\Debug;$(SolutionDir)deps\spatialindex\Debug;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libglog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -63,7 +64,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\boost.atomic;$(SolutionDir)deps\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\glog\src\windows;$(SolutionDir)deps\tbb\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;SWGPROTOCOL_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
@@ -71,7 +72,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\noise\win32\Release;$(SolutionDir)deps\spatialindex\Release;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\glog\$(Configuration);$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\tbb\lib\ia32\vc10;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\noise\win32\Release;$(SolutionDir)deps\spatialindex\Release;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libglog.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

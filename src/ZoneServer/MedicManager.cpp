@@ -25,6 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include <cstdint>
+
+#define NOMINMAX
+#include <algorithm>
+
 #ifdef _MSC_VER
 #include <regex>  // NOLINT
 #else

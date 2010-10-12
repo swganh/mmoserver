@@ -13,9 +13,11 @@
 #include <string>
 #include <stdexcept>
 
+#include "Common/declspec.h"
+
 namespace common {
 
-class ByteBuffer {
+class COMMON_API ByteBuffer {
  public:
   enum { SWAP_ENDIAN = 1 };
 
@@ -39,8 +41,8 @@ class ByteBuffer {
   template<typename T> const T peekAt(size_t offset, bool doSwapEndian = false) const;
   template<typename T> const T read(bool doSwapEndian = false);
 
-  void write(const unsigned char* data, size_t size);
-  void write(size_t offset, const unsigned char* data, size_t size);
+  void write(const unsigned char* data, uint32_t size);
+  void write(size_t offset, const unsigned char* data, uint32_t size);
   void clear();
 
   size_t readPosition() const;
@@ -62,7 +64,16 @@ class ByteBuffer {
   template<typename T> void swapEndian32(T& data) const;
   template<typename T> void swapEndian64(T& data) const;
 
-  std::vector<unsigned char> data_;
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+    std::vector<uint8_t> data_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
   size_t read_position_;
   size_t write_position_;
 };

@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <gtest/gtest.h>
 
-#include "Common/ByteBuffer.h"
+#include "Common/byte_buffer.h"
 
 using ::common::ByteBuffer;
 using ::common::OutOfBand;
@@ -77,20 +77,20 @@ TEST(OutOfBandTests, PackingAttachmentReturnsCorrectOutput) {
     const ByteBuffer* output = attachment.Pack();
 
     // Make sure it's the correct length.
-    EXPECT_EQ(108, output->Size());
+    EXPECT_EQ(108, output->size());
 
     // Make sure the test from our adding a prose package worked.
     // Check the 'test' from 'test_file' is in the right location.
-    EXPECT_EQ('t', output->PeekAt<uint8_t>(13));    
-    EXPECT_EQ('e', output->PeekAt<uint8_t>(14));    
-    EXPECT_EQ('s', output->PeekAt<uint8_t>(15));    
-    EXPECT_EQ('t', output->PeekAt<uint8_t>(16));
+    EXPECT_EQ('t', output->peekAt<uint8_t>(13));    
+    EXPECT_EQ('e', output->peekAt<uint8_t>(14));    
+    EXPECT_EQ('s', output->peekAt<uint8_t>(15));    
+    EXPECT_EQ('t', output->peekAt<uint8_t>(16));
     
     // Check the 'test' from 'test_label' is in the right location.
-    EXPECT_EQ('t', output->PeekAt<uint8_t>(28));    
-    EXPECT_EQ('e', output->PeekAt<uint8_t>(29));    
-    EXPECT_EQ('s', output->PeekAt<uint8_t>(30));    
-    EXPECT_EQ('t', output->PeekAt<uint8_t>(31));
+    EXPECT_EQ('t', output->peekAt<uint8_t>(28));    
+    EXPECT_EQ('e', output->peekAt<uint8_t>(29));    
+    EXPECT_EQ('s', output->peekAt<uint8_t>(30));    
+    EXPECT_EQ('t', output->peekAt<uint8_t>(31));
 }
 
 TEST(OutOfBandTests, CanCreateOutOfBandFromProse) {

@@ -68,12 +68,12 @@ size_t ByteBuffer::capacity() const {
   return data_.capacity();
 }
 
-void ByteBuffer::write(const unsigned char* data, size_t size) {
+void ByteBuffer::write(const unsigned char* data, uint32_t size) {
   data_.insert(data_.begin() + write_position_, data, data + size);
   write_position_ += size;
 }
 
-void ByteBuffer::write(size_t offset, const unsigned char* data, size_t size) {
+void ByteBuffer::write(size_t offset, const unsigned char* data, uint32_t size) {
   if (data_.size() < offset) {
     data_.resize(offset * 2);
   }

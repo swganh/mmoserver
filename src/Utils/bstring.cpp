@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "bstring.h"
 
+#include <cstdint>
 #include "typedefs.h"  // This must be first here to remove the dependency from the header.
 
 #include <algorithm>

@@ -100,7 +100,7 @@ ZoneServer* gZoneServer = NULL;
 
 ZoneServer::ZoneServer(int8* zoneName)
     : mZoneName(zoneName)
-	, mLastHeartbeat(0)
+    , mLastHeartbeat(0)
     , mNetworkManager(0)
     , mDatabaseManager(0)
     , mRouterService(0)
@@ -364,7 +364,10 @@ int main(int argc, char* argv[])
 {
     // Initialize the google logging.
     google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
     google::InstallFailureSignalHandler();
+#endif
     
     FLAGS_log_dir = "./logs";
     

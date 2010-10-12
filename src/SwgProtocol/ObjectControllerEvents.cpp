@@ -27,10 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SwgProtocol/ObjectControllerEvents.h"
 
-using ::common::BaseEvent;
-using ::common::ByteBuffer;
-using ::common::EventCallback;
-using ::common::EventType;
+using common::BaseEvent;
+using common::ByteBuffer;
+using common::EventCallback;
+using common::EventType;
 
 namespace swg_protocol {
 

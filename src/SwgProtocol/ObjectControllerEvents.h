@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_SWGPROTOCOL_OBJECTCONTROLLEREVENTS_H_
 #define SRC_SWGPROTOCOL_OBJECTCONTROLLEREVENTS_H_
 
+#include "Common/byte_buffer.h"
 #include "Common/Event.h"
 
 #include "SwgProtocol/declspec.h"
@@ -40,7 +41,7 @@ namespace swg_protocol {
 
 namespace object_controller {
 
-class SWGPROTOCOL_API PreCommandEvent : public ::common::BaseEvent {
+class SWGPROTOCOL_API PreCommandEvent : public common::BaseEvent {
 public:
     static const ::common::EventType type;
 

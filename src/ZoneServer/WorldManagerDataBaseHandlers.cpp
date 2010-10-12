@@ -102,7 +102,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 
                 mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcConverseAnimations),"SELECT * FROM conversation_animations ORDER BY id;");
                 
-				// load npc chatter
+                // load npc chatter
                 mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcChatter),"SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;",mZoneId);
                 
 

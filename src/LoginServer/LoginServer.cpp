@@ -27,6 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginServer.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
 #include <glog/logging.h>
 
 #include "LoginManager.h"
@@ -154,8 +158,11 @@ int main(int argc, char* argv[])
 {
     // Initialize the google logging.
     google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
     google::InstallFailureSignalHandler();
-    
+#endif
+
     FLAGS_log_dir = "./logs";
   
     try {

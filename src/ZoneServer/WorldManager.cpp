@@ -97,7 +97,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     , mZoneId(zoneId)
 {
 
-	DLOG(INFO) << "WorldManager initialization";
+    DLOG(INFO) << "WorldManager initialization";
 
 
     // set up spatial index
@@ -347,7 +347,7 @@ RegionObject* WorldManager::getRegionById(uint64 regionId)
     if(it != mRegionMap.end()) {
         return((*it).second);
     } else {
-    	LOG(WARNING) << "Could not find region: " << regionId;
+        LOG(WARNING) << "Could not find region: " << regionId;
     }
 
     return nullptr;

@@ -31,6 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstring>
 
 #include <boost/lexical_cast.hpp>
+
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #include <glog/logging.h>
 
 #include <mysql.h>
@@ -208,6 +214,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
                 	if (lengths[binding->mDataFields[i].mColumn]) {
                 		std::string tmp(row[binding->mDataFields[i].mColumn]);
                 		std::copy(tmp.begin(), tmp.end(), &((char*)object)[binding->mDataFields[i].mDataOffset]);
+                        ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0; 
                 	}
 
                     break;

@@ -300,7 +300,7 @@ void ZoneServer::Process(void)
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        gLogger->log(LogManager::NOTICE,"ZoneServer (%s) Heartbeat. Total  Players on zone : %i",gZoneServer->getZoneName().getAnsi(),(gWorldManager->getPlayerAccMap())->size());
+        //gLogger->log(LogManager::NOTICE,"ZoneServer (%s) Heartbeat. Total  Players on zone : %i",gZoneServer->getZoneName().getAnsi(),(gWorldManager->getPlayerAccMap())->size());
     }
 }
 
@@ -324,7 +324,7 @@ void ZoneServer::_connectToConnectionServer(void)
     // setup our databinding parameters.
     DataBinding* binding = mDatabase->CreateDataBinding(5);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mType), 4);
-    binding->addField(DFT_string, offsetof(ProcessAddress, mAddress), 16);
+    binding->addField(DFT_bstring, offsetof(ProcessAddress, mAddress), 16);
     binding->addField(DFT_uint16, offsetof(ProcessAddress, mPort), 2);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mStatus), 4);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
@@ -347,7 +347,7 @@ void ZoneServer::_connectToConnectionServer(void)
 
     // Now connect to the ConnectionServer
     DispatchClient* client = new DispatchClient();
-    mRouterService->Connect(client, processAddress.mAddress, processAddress.mPort);
+    mRouterService->Connect(client, processAddress.mAddress.getAnsi(), processAddress.mPort);
 
     // Send our registration message
     gMessageFactory->StartMessage();

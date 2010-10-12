@@ -214,7 +214,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
                 	if (lengths[binding->mDataFields[i].mColumn]) {
                 		std::string tmp(row[binding->mDataFields[i].mColumn]);
                 		std::copy(tmp.begin(), tmp.end(), &((char*)object)[binding->mDataFields[i].mDataOffset]);
-                        ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0; 
+                        ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0;
                 	}
 
                     break;

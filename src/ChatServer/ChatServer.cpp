@@ -25,10 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#include "ChatServer.h"
 
+#include <glog/logging.h>
 // External references
 #include "ChatManager.h"
-#include "ChatServer.h"
 #include "CSRManager.h"
 #include "GroupManager.h"
 #include "TradeManagerChat.h"
@@ -209,7 +210,7 @@ void ChatServer::_connectToConnectionServer()
     // setup our databinding parameters.
     DataBinding* binding = mDatabase->CreateDataBinding(5);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mType), 4);
-    binding->addField(DFT_string, offsetof(ProcessAddress, mAddress), 1);
+    binding->addField(DFT_bstring, offsetof(ProcessAddress, mAddress), 16);
     binding->addField(DFT_uint16, offsetof(ProcessAddress, mPort), 2);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mStatus), 4);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
@@ -232,7 +233,9 @@ void ChatServer::_connectToConnectionServer()
 
     // Now connect to the ConnectionServer
     mClient = new DispatchClient();
-    mRouterService->Connect(mClient, processAddress.mAddress, processAddress.mPort);
+
+	LOG(INFO) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
+    mRouterService->Connect(mClient, processAddress.mAddress.getAnsi(), processAddress.mPort);
 }
 
 //======================================================================================================================

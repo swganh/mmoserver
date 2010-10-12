@@ -719,9 +719,6 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
         designer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(66));
     }
 
-
-    const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
-
     int8 sql[1024];
     EntertainerManagerAsyncContainer* asyncContainer;
 

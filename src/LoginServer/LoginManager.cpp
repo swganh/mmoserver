@@ -93,7 +93,7 @@ void LoginManager::Process(void)
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        gLogger->log(LogManager::NOTICE,"LoginServer Heartbeat. Total clients (non-unique) processed since boot: %u", mNumClientsProcessed);
+        //gLogger->log(LogManager::NOTICE,"LoginServer Heartbeat. Total clients (non-unique) processed since boot: %u", mNumClientsProcessed);
     }
 }
 

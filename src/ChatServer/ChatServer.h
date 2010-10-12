@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_CHATSERVER_H
 #define ANH_CHATSERVER_H
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 
 //======================================================================================================================
@@ -53,7 +54,7 @@ class ProcessAddress
 public:
 
     uint32		mType;
-    int8        mAddress[16];
+    BString        mAddress;
     uint16      mPort;
     uint32      mStatus;
     uint32      mActive;

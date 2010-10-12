@@ -182,7 +182,7 @@ void ConnectionServer::Process(void)
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
+        //gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
     }
 
 }

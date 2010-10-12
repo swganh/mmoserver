@@ -30,29 +30,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Session.h"
 
-#include "NetworkClient.h"
-#include "Packet.h"
-#include "PacketFactory.h"
-#include "Service.h"
-#include "SocketReadThread.h"
-#include "SocketWriteThread.h"
-
-#include "Common/LogManager.h"
-
-#include "NetworkManager/MessageFactory.h"
-
-#include <boost/thread/thread.hpp>
-
-#include "Utils/rand.h"
-#include "Utils/utils.h"
+#include <cstdio>
+#include <algorithm>
 
 #if !defined(_MSC_VER)
 #include <arpa/inet.h>
 #endif
 
-#include <algorithm>
-#include <stdio.h>
+#include <boost/thread/thread.hpp>
+#include <glog/logging.h>
 
+#include "Utils/rand.h"
+#include "Utils/utils.h"
+
+#include "Common/LogManager.h"
+
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/NetworkClient.h"
+#include "NetworkManager/Packet.h"
+#include "NetworkManager/PacketFactory.h"
+#include "NetworkManager/Service.h"
+#include "NetworkManager/SocketReadThread.h"
+#include "NetworkManager/SocketWriteThread.h"
 
 //======================================================================================================================
 
@@ -2149,6 +2148,7 @@ void Session::_processConnectCommand(void)
         mStatus = SSTAT_Connecting;
         mConnectStartEvent = Anh_Utils::Clock::getSingleton()->getLocalTime();
         mLastConnectRequestSent = 0;
+        LOG(INFO) << "Attempting to make a connection at [" << mConnectStartEvent << "]";
     }
 
     // Otherwise, see if we need to send another request packet, or if our timeout expired
@@ -2166,6 +2166,8 @@ void Session::_processConnectCommand(void)
             else
             {
                 mLastConnectRequestSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
+
+                LOG(INFO) << "Sending session request";
 
                 // Build a session request packet and send it.
                 Packet* newPacket = mPacketFactory->CreatePacket();

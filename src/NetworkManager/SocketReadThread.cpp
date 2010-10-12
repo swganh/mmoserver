@@ -155,6 +155,7 @@ void SocketReadThread::run(void)
         // Check to see if *WE* are about to connect to a remote server
         if(mNewConnection.mPort != 0)
         {
+        	LOG(INFO) << "Connecting to remote server";
             Session* newSession = mSessionFactory->CreateSession();
             newSession->setCommand(SCOM_Connect);
             newSession->setAddress(inet_addr(mNewConnection.mAddress));
@@ -187,7 +188,7 @@ void SocketReadThread::run(void)
         tv.tv_usec  = 250;
 
         count = select(mSocket+1, &socketSet, 0, 0, &tv);
-        
+
         if(count && FD_ISSET(mSocket, &socketSet))
         {
             LOG(INFO) << "Message received on port " << port;
@@ -451,6 +452,7 @@ void SocketReadThread::NewOutgoingConnection(int8* address, uint16 port)
     // queue so we can process these async.  This is NOT thread safe, and won't be.  Only should be called by the Service.
 
     // Init our NewConnection object
+	LOG(INFO) << "New connection to " << address << " on port " << port;
     strcpy(mNewConnection.mAddress, address);
     mNewConnection.mPort = port;
     mNewConnection.mSession = 0;

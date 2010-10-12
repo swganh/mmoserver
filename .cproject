@@ -9,31 +9,33 @@
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GNU_ELF" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.MachO64" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1602362013" name="Build (GNU)" parent="org.eclipse.linuxtools.cdt.autotools.core.configuration.build">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.linuxtools.cdt.autotools.core.buildArtefactType.autotools" cleanCommand="rm -rf" description="" errorParsers="org.eclipse.cdt.core.MakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser;org.eclipse.cdt.core.GmakeErrorParser" id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1602362013" name="Build (GNU)" parent="org.eclipse.linuxtools.cdt.autotools.core.configuration.build">
 					<folderInfo id="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1602362013." name="/" resourcePath="">
-						<toolChain id="org.eclipse.linuxtools.cdt.autotools.core.toolChain.1261111488" name="GNU Autotools Toolchain" resourceTypeBasedDiscovery="true" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolChain">
-							<targetPlatform id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.targetPlatform.1651438406" isAbstract="false" name="GNU Autotools Target Platform" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.targetPlatform"/>
-							<builder buildPath="${workspace_loc:/mmoserver/build}" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder.1845955798" keepEnvironmentInBuildfile="false" managedBuildOn="true" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder">
+						<toolChain errorParsers="" id="org.eclipse.linuxtools.cdt.autotools.core.toolChain.1261111488" name="GNU Autotools Toolchain" resourceTypeBasedDiscovery="true" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolChain">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF;org.eclipse.cdt.core.MachO64" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.targetPlatform.1651438406" isAbstract="false" name="GNU Autotools Target Platform" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.targetPlatform"/>
+							<builder buildPath="${workspace_loc:/mmoserver/build}" errorParsers="" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder.1845955798" keepEnvironmentInBuildfile="false" managedBuildOn="true" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="build"/>
 								</outputEntries>
 							</builder>
-							<tool id="org.eclipse.linuxtools.cdt.autotools.core.gnu.toolchain.tool.configure.463415147" name="configure" superClass="org.eclipse.linuxtools.cdt.autotools.core.gnu.toolchain.tool.configure">
+							<tool errorParsers="" id="org.eclipse.linuxtools.cdt.autotools.core.gnu.toolchain.tool.configure.463415147" name="configure" superClass="org.eclipse.linuxtools.cdt.autotools.core.gnu.toolchain.tool.configure">
 								<option id="org.eclipse.linuxtools.cdt.autotools.core.option.configure.name.343912722" name="Name" superClass="org.eclipse.linuxtools.cdt.autotools.core.option.configure.name" value="org.eclipse.linuxtools.cdt.autotools.core.configuration.build.1602362013" valueType="string"/>
 							</tool>
-							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen.992103949" name="autogen.sh" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen"/>
-							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.625523352" name="GCC C Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc">
+							<tool errorParsers="" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen.992103949" name="autogen.sh" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.autogen"/>
+							<tool errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc.625523352" name="GCC C Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gcc">
 								<option id="gnu.c.compiler.option.include.paths.866823385" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.891798746" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
-							<tool id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.1419648818" name="GCC C++ Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp">
+							<tool errorParsers="org.eclipse.cdt.core.GCCErrorParser" id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp.1419648818" name="GCC C++ Compiler" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.tool.gpp">
 								<option id="gnu.cpp.compiler.option.include.paths.149175462" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/Users/apathy/opt/gcc/include/c++/4.6.0"/>
 								</option>
@@ -401,14 +403,6 @@
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>false</runAllBuilders>
 					</target>
-					<target name="dist-lzma" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-						<buildCommand>make</buildCommand>
-						<buildArguments/>
-						<buildTarget>dist-lzma</buildTarget>
-						<stopOnError>true</stopOnError>
-						<useDefaultCommand>true</useDefaultCommand>
-						<runAllBuilders>false</runAllBuilders>
-					</target>
 					<target name="dist-shar" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 						<buildCommand>make</buildCommand>
 						<buildArguments/>
@@ -421,14 +415,6 @@
 						<buildCommand>make</buildCommand>
 						<buildArguments/>
 						<buildTarget>dist-tarZ</buildTarget>
-						<stopOnError>true</stopOnError>
-						<useDefaultCommand>true</useDefaultCommand>
-						<runAllBuilders>false</runAllBuilders>
-					</target>
-					<target name="dist-xz" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-						<buildCommand>make</buildCommand>
-						<buildArguments/>
-						<buildTarget>dist-xz</buildTarget>
 						<stopOnError>true</stopOnError>
 						<useDefaultCommand>true</useDefaultCommand>
 						<runAllBuilders>false</runAllBuilders>

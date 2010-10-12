@@ -15,11 +15,6 @@ AC_CONFIG_MACRO_DIR([tools/m4])
 AC_CONFIG_SRCDIR([README])
 AC_CONFIG_HEADERS([config.h])
 
-# Configure options: --enable-debug[=no].
-AC_ARG_ENABLE([debug],
-  [AS_HELP_STRING([--enable-debug],
-    [enable debug code (default is no)])],
-  [debug="$withval"], [debug=no])
 
 ##########################################################################
 # adding the tbb library (e.g. with static name 'libtbb.a')
@@ -767,8 +762,13 @@ fi
 ##########################################################################
 
 
+# Configure options: --enable-debug[=no].
+AC_ARG_ENABLE([debug],
+  [AS_HELP_STRING([--enable-debug],
+    [enable debug code (default is no)])],
+  [_debug=yes], [_debug=no])
 # Configure DEBUG source code, if requested.
-if test "x$debug" = xyes; then
+if test "x$_debug" = xyes; then
   AC_DEFINE([_DEBUG], [], [Define to enable Server Directory debug mode features])
   AM_CXXFLAGS="${AM_CXXFLAGS} -g -Wall -Werror -Wno-uninitialized -O0"
 else
@@ -801,7 +801,7 @@ AC_OUTPUT
 echo "
   ($PACKAGE_NAME) v$PACKAGE_VERSION
   Prefix..........: $prefix
-  Debug Build.....: $debug
+  Debug Build.....: $_debug
   C++ Compiler....: $CXX $AM_CXXFLAGS $DEFS $DEFAULT_INCLUDES $INCLUDES
   Linker..........: $LD $LDFLAGS $LIBS
   GLOG Compiler...: ${GLOGINC:-INSTALLED}

@@ -311,6 +311,9 @@ void Service::Process()
 
 void Service::Connect(NetworkClient* client, int8* address, uint16 port)
 {
+
+	LOG(INFO) << "New connection to " << address << " on port " << port;
+
     // Setup our new connection object and pass it to SocketReadThread.  This is temporary until there is time to implemnt
     // a queue/async connect method.  FIXME:  Make queue based, async using NetworkCallback for status changes.
 

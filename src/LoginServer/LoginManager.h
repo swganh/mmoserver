@@ -114,8 +114,8 @@ private:
     ServerDataList          mServerDataList;
     bool                    mSendServerList;
 
-    uint32                  mLastStatusQuery;
-    uint32                  mLastHeartbeat;
+    uint64                  mLastStatusQuery;
+    uint64                  mLastHeartbeat;
     uint32					mNumClientsProcessed;
 
     boost::pool<boost::default_user_allocator_malloc_free>	mLoginClientPool;

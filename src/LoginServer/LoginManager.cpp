@@ -82,18 +82,17 @@ LoginManager::~LoginManager(void)
 void LoginManager::Process(void)
 {
     // Update our galaxy status list once in a while.
-    if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery > 5000)
+    if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery) > 5000)
     {
-        mLastStatusQuery = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
+        mLastStatusQuery = Anh_Utils::Clock::getSingleton()->getLocalTime();
         mDatabase->ExecuteProcedureAsync(this, (void*)1, "CALL swganh.sp_ReturnGalaxyStatus;");
-        
     }
 
     // Heartbeat once in awhile
-    if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
+    if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat) > 180000)//main loop every 10mins
     {
-        mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        //gLogger->log(LogManager::NOTICE,"LoginServer Heartbeat. Total clients (non-unique) processed since boot: %u", mNumClientsProcessed);
+        mLastHeartbeat = Anh_Utils::Clock::getSingleton()->getLocalTime();
+        LOG(INFO) << "LoginServer Heartbeat. Total clients (non-unique) processed since boot [" << mNumClientsProcessed << "]";
     }
 }
 

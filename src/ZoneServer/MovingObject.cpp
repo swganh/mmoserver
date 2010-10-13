@@ -215,6 +215,8 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 
 void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 {
+    // Face the direction we are moving.
+    this->facePosition(newPosition);
 
     if (parentId == 0)
     {
@@ -225,7 +227,6 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
     {
         updatePositionInCell(parentId, newPosition);
     }
-
     this->mPosition = newPosition;
 
     //TODO do we need to update our known Objects ???

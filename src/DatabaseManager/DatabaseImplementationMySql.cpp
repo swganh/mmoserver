@@ -148,7 +148,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
         {
             for (i = 0; i < binding->getFieldCount(); i++)
             {
-                unsigned int* lengths = (unsigned int*)mysql_fetch_lengths(mySqlResult);
+            	long unsigned int* lengths = mysql_fetch_lengths(mySqlResult);
                 switch (binding->mDataFields[i].mDataType)
                 {
                 case DFT_int8:
@@ -211,11 +211,8 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
                 }
                 case DFT_string:
                 {
-                	if (lengths[binding->mDataFields[i].mColumn]) {
-                		std::string tmp(row[binding->mDataFields[i].mColumn]);
-                		std::copy(tmp.begin(), tmp.end(), &((char*)object)[binding->mDataFields[i].mDataOffset]);
-                        ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0;
-                	}
+                	strncpy(&((char*)object)[binding->mDataFields[i].mDataOffset], row[binding->mDataFields[i].mColumn], lengths[binding->mDataFields[i].mColumn]);
+                    ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0;
 
                     break;
                 }

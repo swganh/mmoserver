@@ -63,7 +63,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
-#include "Common/LogManager.h"
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 #include "DatabaseManager/Database.h"
@@ -109,8 +108,7 @@ ZoneServer::ZoneServer(int8* zoneName)
 {
     Anh_Utils::Clock::Init();
 
-    // gLogger->log(LogManager::DEBUG,"ZoneServer - %s Startup %s",zoneName,GetBuildString());
-    gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", static_cast<char*>(zoneName));
+    LOG(INFO) << "ZoneServer startup sequence for [" << zoneName << "]";
 
     // Create and startup our core services.
     mDatabaseManager = new DatabaseManager();
@@ -138,6 +136,8 @@ ZoneServer::ZoneServer(int8* zoneName)
 
     if (!result->getRowCount())
     {
+        LOG(ERROR) << "Map not found for [" << zoneName << "]";
+
         gLogger->log(LogManager::CRITICAL, "FATAL: Map \'%s\' not found.  Aborting startup.", zoneName);
         abort();
     }
@@ -217,7 +217,7 @@ ZoneServer::ZoneServer(int8* zoneName)
 
 ZoneServer::~ZoneServer(void)
 {
-    gLogger->log(LogManager::CRITICAL,"ZoneServer shutting down...");
+	LOG(INFO) << "ZoneServer shutting down";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -258,7 +258,7 @@ ZoneServer::~ZoneServer(void)
     // NOW, I can feel that it should be safe to delete the data holding messages.
     gMessageFactory->destroySingleton();
 
-    gLogger->log(LogManager::CRITICAL,"ZoneServer::Shutdown Complete\n");
+    LOG(INFO) << "ZoneServer shutdown complete";
 }
 
 //======================================================================================================================
@@ -266,12 +266,7 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
     _updateDBServerList(2);
-    gLogger->log(LogManager::CRITICAL,"Zone Server startup complete");
-    //gLogger->printLogo();
-    // std::string BuildString(GetBuildString());
-
-    gLogger->log(LogManager::INFORMATION,"Zone Server:%s %s",getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
-    gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
+    LOG(INFO) << "ZoneServer startup complete";
 
     // Connect to the ConnectionServer;
     _connectToConnectionServer();

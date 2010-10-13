@@ -237,7 +237,7 @@ void WorldConfig::setConfiguration(BString key,std::string value)
 
     if(it == mConfigurationMap.end())
     {
-        gLogger->log(LogManager::INFORMATION,"WorldConfig::setConfiguration: could not find %s",key.getAnsi());
+    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
         return;
     }
 
@@ -270,7 +270,7 @@ void WorldConfig::removeConfiguration(BString key)
     if(it != mConfigurationMap.end())
         mConfigurationMap.erase(it);
     else
-        gLogger->log(LogManager::INFORMATION,"WorldConfig::removeConfiguration: could not find %s",key.getAnsi());
+    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
 }
 
 //=========================================================================

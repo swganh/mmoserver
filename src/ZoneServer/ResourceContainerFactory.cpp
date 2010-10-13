@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ResourceContainerFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "ObjectFactoryCallback.h"
 #include "Resource.h"
 #include "ResourceContainer.h"
@@ -144,7 +150,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseRe
         resourceContainer->setResource(resource);
         resourceContainer->setModelString((resource->getType())->getContainerModel().getAnsi());
     } else {
-        gLogger->log(LogManager::DEBUG,"ResourceContainerFactory::_createResourceContainer: Resource not found %"PRIu64"",resourceContainer->mResourceId);
+    	LOG(WARNING) << "Resource not found [" << resourceContainer->mResourceId << "]";
     }
 
     resourceContainer->mMaxCondition = 100;

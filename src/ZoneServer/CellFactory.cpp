@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "CellFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "CellObject.h"
 #include "CreatureEnums.h"
 #include "CreatureObject.h"
@@ -33,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactory.h"
 #include "Shuttle.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -209,7 +214,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc = _getObject(object->getParentId());
 
     if (! ilc) {//Crashbug fix: http://paste.swganh.org/viewp.php?id=20100627114151-8f7df7f74013af71c0d0b00bc240770d
-        gLogger->log(LogManager::WARNING,"CellFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
+        LOG(WARNING) << "Could not locate InLoadingContainer for object parent id [" << object->getParentId() << "]";
         return;
     }
 
@@ -261,7 +266,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(cell->getLoadCount() == cell->getObjects()->size())
     {
         if(!(_removeFromObjectLoadMap(cell->getId())))
-            gLogger->log(LogManager::DEBUG,"CellFactory: Failed removing object from loadmap");
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(cell,ilc->mClient);
 

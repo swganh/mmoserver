@@ -26,10 +26,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ResourceManager.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "CurrentResource.h"
 #include "ResourceCategory.h"
 #include "ResourceType.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -293,8 +298,8 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             else
                 delete(resource);
         }
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded resources.");
+
+        LOG_IF(INFO, count) << "Loaded " << count << " resources";
     }
     break;
 
@@ -303,7 +308,6 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         CurrentResource* resource;
 
         uint64 count = result->getRowCount();
-        gLogger->log(LogManager::INFORMATION,"Starting Build of Resource Distribution Maps");
         for(uint64 i = 0; i < count; i++)
         {
             resource = new CurrentResource();
@@ -316,10 +320,8 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             (getResourceCategoryById(resource->mType->mCatId))->insertResource(resource);
         }
 
-        if(result->getRowCount())
-            gLogger->log(LogManager::DEBUG,"%u Resource Maps Generated",result->getRowCount());
+        LOG_IF(INFO, count) << "Generated " << count << " resource maps";
 
-        gLogger->log(LogManager::DEBUG,"Querying for Old Resource Spawns");
         // query old and current resources not from this planet
         mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");
     }
@@ -412,7 +414,7 @@ bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
     }
     else
     {
-        gLogger->log(LogManager::DEBUG, "resource %u was not found or is inactive",resource->getName().getAnsi());
+        LOG(WARNING) << "Resource " << resource->getName().getAnsi() << " was not found or is inactive";
         return false;
     }
 

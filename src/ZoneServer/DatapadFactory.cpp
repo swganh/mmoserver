@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "DatapadFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Datapad.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
@@ -38,7 +44,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WaypointObject.h"
 #include "WorldManager.h"
 
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -168,7 +173,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(!player)
         {
             //factoryPanic!!!!!!!!
-            gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting player to create MS");
+        	LOG(WARNING) << "Failed getting player to create MS";
             return;
         }
 
@@ -177,7 +182,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(!datapad)
         {
             //factoryPanic!!!!!!!!
-            gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed getting datapad to create MS");
+        	LOG(ERROR) << "Failed getting datapad to create MS";
             return;
         }
         mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,datapad,NULL,1)));
@@ -340,7 +345,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
             if(!mIlc)
             {
-                gLogger->log(LogManager::DEBUG,"DatapadFactory::handleObjectReady: Failed getting ilc during ObjType_Tangible where ItemType_ManSchematic");
+            	LOG(WARNING) << "Failed getting ilc during ObjType_Tangible where ItemType_ManSchematic";
                 return;
             }
 
@@ -372,7 +377,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
             InLoadingContainer*mIlcDPad		= _getObject(id);
             if(!mIlcDPad)
             {
-                gLogger->log(LogManager::DEBUG,"DatapadFactory::handleObjectReady: Failed getting mIlcDPad during ObjType_Tangible");
+            	LOG(WARNING) << "Failed getting mIlcDPad during ObjType_Tangible";
                 return;
             }
             datapad							= dynamic_cast<Datapad*>(mIlcDPad->mObject);
@@ -385,7 +390,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
             if(!mIlc)
             {
-                gLogger->log(LogManager::DEBUG,"DatapadFactory::handleObjectReady: Failed getting ilc during ObjType_Tangible");
+            	LOG(WARNING) << "Failed getting ilc during ObjType_Tangible";
                 return;
             }
 
@@ -407,7 +412,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
         mIlc	= _getObject(theID);
         if(!mIlc)//sanity
         {
-            gLogger->log(LogManager::DEBUG,"DatapadFactory::handleObjectReady: Failed getting ilc during ObjType_Intangible");
+            LOG(WARNING) << "Failed getting ilc during ObjType_Intangible";
             return;
         }
 
@@ -426,7 +431,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
                 }
                 else
                 {
-                    gLogger->log(LogManager::DEBUG,"DatapadFactory: Datapad at max Capacity!!!");
+                	LOG(WARNING) << "Datapad at max Capacity";
                     delete(object);
                 }
             }
@@ -444,7 +449,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(!(mIlc->mLoadCounter))
     {
         if(!(_removeFromObjectLoadMap(theID)))
-            gLogger->log(LogManager::DEBUG,"DatapadFactory: Failed removing object from loadmap");
+        	LOG(WARNING) << "Failed removing object from loadmap";
 
         mIlc->mOfCallback->handleObjectReady(datapad,mIlc->mClient);
 

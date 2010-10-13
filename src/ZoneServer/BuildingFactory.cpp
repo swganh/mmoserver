@@ -26,12 +26,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "BuildingFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "BuildingObject.h"
 #include "CellFactory.h"
 #include "CellObject.h"
 #include "SpawnPoint.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -122,7 +127,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
         if(!spawnCount)
         {
-            gLogger->log(LogManager::DEBUG,"BuildingFactory: Cloning facility %"PRIu64" has no spawn points",building->getId());
+        	LOG(ERROR) << "Cloning facility [" << building->getId() << "] has no spawn points";
         }
 
         for(uint64 i = 0; i < spawnCount; i++)
@@ -255,7 +260,7 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc = _getObject(object->getParentId());
 
     if (! ilc) {//ILC sanity check...
-        gLogger->log(LogManager::WARNING,"BuildingFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
+    	LOG(WARNING) << "Could not locate InLoadingContainer for object parent [" << object->getParentId() << "]";
         return;
     }
 
@@ -269,7 +274,7 @@ void BuildingFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(building->getLoadCount() == (building->getCellList())->size())
     {
         if(!(_removeFromObjectLoadMap(building->getId())))
-            gLogger->log(LogManager::DEBUG,"BuildingFactory: Failed removing object from loadmap");
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(building,ilc->mClient);
 

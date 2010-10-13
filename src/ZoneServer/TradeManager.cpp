@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "TradeManager.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Bank.h"
 #include "CharacterBuilderTerminal.h"
 #include "Datapad.h"
@@ -362,8 +368,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             type->InsertItem(item);
 
         }
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded frog items.");
+    	LOG_IF(INFO, count) << "Loaded " << count << " frog items";
 
     }
     break;

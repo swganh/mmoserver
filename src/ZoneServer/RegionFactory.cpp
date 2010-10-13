@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "RegionFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "BadgeRegionFactory.h"
 #include "CityFactory.h"
 #include "ObjectFactoryCallback.h"
@@ -33,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "RegionObject.h"
 #include "SpawnRegionFactory.h"
 
-#include "Common/LogManager.h"
 #include "Utils/utils.h"
 
 #include <assert.h>
@@ -95,7 +100,7 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
         break;
 
     default:
-        gLogger->log(LogManager::DEBUG,"RegionFactory::requestObject Unknown Group\n");
+    	LOG(ERROR) << "Unknown group [" << subGroup << "]";
         break;
     }
 }

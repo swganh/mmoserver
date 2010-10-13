@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ConversationManager.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "ActiveConversation.h"
 #include "Conversation.h"
 #include "NPCObject.h"
@@ -34,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -111,9 +116,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
             
         }
 
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded conversations.");
-
+        LOG_IF(INFO, count) << "Loaded " << count << " conversations";
 
         mDatabase->DestroyDataBinding(binding);
     }
@@ -322,7 +325,7 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
 
     if(!av)
     {
-        gLogger->log(LogManager::DEBUG,"ConversationManager::updateConversation: could not find conversation for %"PRIu64,player->getId());
+    	LOG(ERROR) << "Could not find conversation intended for player [" << player->getId() << "]";
         return;
     }
 

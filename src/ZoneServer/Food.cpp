@@ -25,6 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "Food.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Buff.h"
 #include "Inventory.h"
 #include "NPCObject.h"
@@ -151,7 +157,7 @@ void Food::handleFoodUse(Object* srcObject)
         mIcon = 0;
         mIcon = this->getInternalAttribute<uint32>("food_icon");
     } else {
-        gLogger->log(LogManager::DEBUG,"Food/Drink found with no Buff Icon in food.cpp: handleFoodUse()");
+    	LOG(WARNING) << "Food/Drink found with no buff icon";
     }
 
     if(this->hasAttribute("counter_uses_remaining"))

@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "EntertainerManager.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "GroupManager.h"
 #include "GroupManagerCallbackContainer.h"
 
@@ -485,7 +491,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"Image Designer : transaction failed");
+        	LOG(ERROR) << "Image design transaction failed";
             // oh woe we need to rollback :(
             // (ie do nothing)
 
@@ -518,8 +524,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             holo->pCRC = emote.getCrc();
         }
 
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loading holo emotes.");
+    	LOG_IF(INFO, count) << "Loaded " << count << " holo emotes";
 
     }
     break;
@@ -615,8 +620,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             else
             {
                 //somebodies trying to cheat here
-                gLogger->log(LogManager::WARNING,"EntertainerManager: CHEATER : newHamCount != oldHamCount : %"PRIu64"",asynContainer->customer->getId());
-
+            	LOG(ERROR) << "newHamCount != oldHamCount ";
             }
 
 
@@ -733,8 +737,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             mIDList.push_back(idData);
         }
 
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded image designer attributes.");
+    	LOG_IF(INFO, count) << "Loaded " << count << " image designer attributes";
     }
     break;
 
@@ -765,8 +768,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
         }
 
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded performances.");
+    	LOG_IF(INFO, count) << "Loaded " << count << " performances";
     }
     break;
 

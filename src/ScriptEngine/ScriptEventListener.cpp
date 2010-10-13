@@ -26,8 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ScriptEventListener.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Script.h"
-#include "Common/LogManager.h"
 
 
 //======================================================================================================================
@@ -68,7 +73,7 @@ void ScriptEventListener::registerFunction(const int8* functionName)
 
     if(scriptList)
     {
-        gLogger->log(LogManager::NOTICE, "Script Event Listener: function already registered %s", functionName);
+    	LOG(WARNING) << "Function already registered [" << functionName << "]";
         return;
     }
 
@@ -86,7 +91,7 @@ void ScriptEventListener::unregisterFunction(const int8* functionName)
 
     if(!scriptList)
     {
-        gLogger->log(LogManager::NOTICE, "Script Event Listener could not find %s to unregister.", functionName);
+    	LOG(WARNING) << "Could not function to unregister [" << functionName << "]";
         return;
     }
 
@@ -115,7 +120,7 @@ void ScriptEventListener::registerScript(Script* script,const int8* functionName
 
     if(!scriptList)
     {
-        gLogger->log(LogManager::NOTICE,"Script Event Listener: No function mapped for %s",functionName);
+    	LOG(WARNING) << "Function not mapped [" << functionName << "]";
         return;
     }
 
@@ -137,7 +142,7 @@ void ScriptEventListener::handleScriptEvent(const int8* functionName,BString par
 
     if(!scriptList)
     {
-        gLogger->log(LogManager::NOTICE, "Script Event Listener: No function mapped for %s",functionName);
+    	LOG(WARNING) << "Function not mapped [" << functionName << "]";
         return;
     }
 

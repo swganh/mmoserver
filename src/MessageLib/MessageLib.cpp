@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "ZoneServer/BuildingObject.h"
 #include "ZoneServer/CellObject.h"
 #include "ZoneServer/CharSheetManager.h"
@@ -35,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/CurrentResource.h"
 #include "ZoneServer/Datapad.h"
 #include "ZoneServer/HouseObject.h"
-#include "ZoneServer/InTangibleObject.h"
+#include "ZoneServer/IntangibleObject.h"
 #include "ZoneServer/HarvesterObject.h"
 #include "ZoneServer/FactoryObject.h"
 #include "ZoneServer/FactoryCrate.h"
@@ -125,7 +130,7 @@ bool MessageLib::_checkPlayer(uint64 playerId) const
 
     if(!tested)
     {
-        gLogger->log(LogManager::NOTICE,"Player Id (%I64u) invalid",playerId);
+    	LOG(WARNING) << "Invalid player id [" << playerId << "]";
         return false;
     }
 
@@ -178,7 +183,6 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
     PlayerObjectSet*			inRangePlayers	= object->getKnownPlayers();
     PlayerObjectSet::iterator	playerIt		= inRangePlayers->begin();
 
-    bool failed = false;
     //save us some cycles if traffic is low
 
     if(mMessageFactory->HeapWarningLevel() <= 4)
@@ -197,14 +201,10 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
             {
                 //an invalid player at this point is like armageddon and Ultymas birthday combined at one time
                 assert(false && "Invalid Player in sendtoInrange");
-                failed = true;
             }
 
             ++playerIt;
         }
-
-        if( failed)
-            gLogger->log(LogManager::NOTICE,"MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
     }
     else
     {
@@ -220,10 +220,6 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
                     mMessageFactory->addData(message->getData(),message->getSize());
 
                     ((*playerIt)->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),(*playerIt)->getAccountId(),CR_Client,static_cast<uint8>(priority));
-                }
-                else
-                {
-                    failed = true;
                 }
             }
             ++playerIt;

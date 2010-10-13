@@ -462,6 +462,10 @@ void SocketReadThread::NewOutgoingConnection(int8* address, uint16 port)
 
 void SocketReadThread::RemoveAndDestroySession(Session* session)
 {
+	if (! session) {
+		return;
+	}
+
     // Find and remove the session from the address map.
     uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 

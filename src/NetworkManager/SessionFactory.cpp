@@ -108,6 +108,7 @@ void SessionFactory::DestroySession(Session* session)
 {
     session->~Session();
     SessionPool::free(session);
+    session = nullptr;
 }
 
 //======================================================================================================================

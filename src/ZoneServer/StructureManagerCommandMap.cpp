@@ -24,12 +24,9 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#include "WorldConfig.h"
+
 #include "StructureManager.h"
 
-#include "Common/LogManager.h"
-#include "DatabaseManager/Database.h"
-#include "Utils/rand.h"
 //======================================================================================================================
 
 bool								StructureManagerCommandMapClass::mInsFlag = false;

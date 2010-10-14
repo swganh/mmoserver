@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ObjectControllerCommandMap.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ScriptEngine/ScriptEngine.h"
@@ -168,8 +174,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 
     mDatabase->DestroyDataBinding(binding);
 
-    if(result->getRowCount())
-        gLogger->log(LogManager::NOTICE,"Mapped functions.");
+    LOG_IF(INFO, !mCmdPropertyMap.empty()) << "Mapped " << mCmdPropertyMap.size() << " commands";
 }
 
 const CommandMap& ObjectControllerCommandMap::getCommandMap() {

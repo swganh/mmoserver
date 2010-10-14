@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BadgeRegionFactory.h"
 #include "BadgeRegion.h"
 #include "ObjectFactoryCallback.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -112,9 +111,11 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64
 
 BadgeRegion* BadgeRegionFactory::_createBadgeRegion(DatabaseResult* result)
 {
-    BadgeRegion*	badgeRegion = new BadgeRegion();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    BadgeRegion*	badgeRegion = new BadgeRegion();
 
     result->GetNextRow(mBadgeRegionBinding, badgeRegion);
 

@@ -89,7 +89,7 @@ public:
     uint32 getCreatureFactor(CreatureObject* object);
 
 protected:
-    ScoutManager::ScoutManager();
+    ScoutManager();
     ~ScoutManager(void);
 
 private:

@@ -478,7 +478,6 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
     // View info about skills
     case 4:
     {
-        bool requirementsMet;
         bool noviceSkill = false;
         bool gotAllSkills = true;	// As long as we have not detected any missing skills.
 
@@ -486,22 +485,9 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         while(optionIt != page->mOptions.end())
         {
             Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
-            requirementsMet = false;
 
             // its no skill option
-            if (!skill)
-            {
-                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Its no skill option");
-                requirementsMet = true;
-            }
-
-            // see if we have it already
-            else if(player->checkSkill(skill->mId))
-            {
-                // We already have this skill.
-                requirementsMet = false;
-            }
-            else
+            if (skill && ! player->checkSkill(skill->mId))
             {
                 // If we end up here, we have at least some skill to train.
                 gotAllSkills = false;
@@ -511,20 +497,17 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
                 {
                     // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Novice");
                     noviceSkill = true;
-                    requirementsMet = true;
                 }
                 // see if we got the required skills
                 else
                 {
                     SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
-                    requirementsMet = true;
 
                     while(reqSkillIt != skill->mSkillsRequired.end())
                     {
                         // we don't have the requirements
                         if(!player->checkSkill(*reqSkillIt))
                         {
-                            requirementsMet = false;
                             break;
                         }
                         ++reqSkillIt;

@@ -27,11 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SkillManager.h"
 
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "CreatureObject.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -135,7 +139,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
-        //gLogger->log(LogManager::DEBUG,"Finished Loading Skill Mods.");
+        LOG(INFO) << "Loaded "<< count << " skill mods";
     }
     break;
 
@@ -155,6 +159,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " skill commands";
         //gLogger->log(LogManager::DEBUG,"Finished Loading Skill Commands.");
     }
     break;
@@ -182,6 +187,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " skill xp types";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill XP Types.");
     }
     break;
@@ -282,6 +288,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " skill species requirements";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Species Requirements.");
     }
     break;
@@ -304,6 +311,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " skill precisions";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Preclusions.");
     }
     break;
@@ -326,6 +334,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " skill requirements";
         //gLogger->log(LogManager::DEBUG,"Finished Loading Skill Requirements.");
     }
     break;
@@ -348,6 +357,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " skill xp types";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill XP Types.");
     }
     break;
@@ -370,6 +380,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " granted skill commands";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Commands Granted.");
     }
     break;
@@ -392,6 +403,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " granted skill schematics";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Schematics Granted.");
     }
     break;
@@ -415,6 +427,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< count << " granted skill mods";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Mods Granted.");
     }
     break;
@@ -442,6 +455,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             mSkillInfoList.push_back(std::make_pair(skillDescription->skillId, skillDescription->skillInfo));
         }
         mDatabase->DestroyDataBinding(binding);
+        LOG(INFO) << "Loaded "<< rowCount << " skill descriptions";
         //gLogger->log(LogManager::DEBUG,"Finish Loading Skill Descriptions.");
     }
     break;
@@ -452,6 +466,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
     if(++mLoadCounter == mTotalLoadCount)
     {
+        LOG(INFO) << "Loaded all skill mod data";
         gLogger->log(LogManager::NOTICE,"Loaded all Skill Data.");
     }
 
@@ -470,13 +485,13 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
 
     if (skill == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: could not find skill %u",skillId);
+        LOG(ERROR) << "Could not find skill [" << skillId << "]";
         return false;
     }
 
     if (creatureObject->checkSkill(skillId))
     {
-        gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: %"PRIu64" already got skill %u",creatureObject->getId(),skillId);
+        LOG(ERROR) << "Object [" << creatureObject->getId() << "] already has skill [" << skillId << "]";
         return false;
     }
 
@@ -808,18 +823,18 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 
     if(skill == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: could not find skill %u",skillId);
+    	LOG(ERROR) << "Could not find skill [" << skillId << "]";
         return;
     }
 
     if(!(creatureObject->checkSkill(skillId)))
     {
-        gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: %"PRIu64" hasn't got skill %u",creatureObject->getId(),skillId);
+    	LOG(ERROR) << "Object [" << creatureObject->getId() << "] does not have skill [" << skillId << "]";
         return;
     }
 
     if(!(creatureObject->removeSkill(skill)))
-        gLogger->log(LogManager::DEBUG,"SkillManager::dropSkill: failed removing %u from %"PRIu64"",skillId,creatureObject->getId());
+    	LOG(ERROR) << "Failed removing skill [" << skillId << "] from object [" << creatureObject->getId() << "]";
 
     creatureObject->prepareSkillMods();
     creatureObject->prepareSkillCommands();
@@ -1121,7 +1136,7 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
 
         if (!(playerObject->UpdateXp(xpType, newXpBoost)))
         {
-            gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: could not find xptype %u for %"PRIu64"",xpType,playerObject->getId());
+        	LOG(WARNING) << "Could not find xp type [" << xpType << "] for object [" << playerObject->getId() << "]";
             return;
         }
         // gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: XP cap = %u", xpCap);

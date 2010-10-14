@@ -26,7 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "WorldConfig.h"
-#include "Common/LogManager.h"
+
+#include <glog/logging.h>
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -223,10 +225,7 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
         }
     }
 
-    if(count > 0)
-    {
-        gLogger->log(LogManager::NOTICE,"Mapped %u Server Attributes.",count);
-    }
+    LOG_IF(INFO, count > 0) << "Mapped attributes mapped: [" << count << "]";
 
 }
 
@@ -238,7 +237,7 @@ void WorldConfig::setConfiguration(BString key,std::string value)
 
     if(it == mConfigurationMap.end())
     {
-        gLogger->log(LogManager::INFORMATION,"WorldConfig::setConfiguration: could not find %s",key.getAnsi());
+    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
         return;
     }
 
@@ -271,7 +270,7 @@ void WorldConfig::removeConfiguration(BString key)
     if(it != mConfigurationMap.end())
         mConfigurationMap.erase(it);
     else
-        gLogger->log(LogManager::INFORMATION,"WorldConfig::removeConfiguration: could not find %s",key.getAnsi());
+    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
 }
 
 //=========================================================================

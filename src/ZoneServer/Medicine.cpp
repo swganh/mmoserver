@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "ObjectControllerOpcodes.h"
-#include "Utils\rand.h"
+#include "Utils/rand.h"
 
 //consts
 const char* const woundpack = "woundpack";

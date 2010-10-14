@@ -48,7 +48,7 @@ enum WindowQueryType
 {
     Window_Query_NULL						=	0,
     Window_Query_Radioactive_Sample			=	1,
-    Window_Query_Add_Schematic				=	2,
+    Window_Query_Add_Schematic				=	2
 
 };
 
@@ -77,7 +77,7 @@ class UIWindow : public UIElement
 {
 public:
 
-    UIWindow(UICallback* callback,uint32 id,uint8 windowType,const BString windowTypeStr,const int8* eventStr, void* container = NULL);
+    UIWindow(UICallback* callback,uint32 id,uint8 windowType,const BString windowTypeStr,const int8* eventStr, void* container = nullptr);
     virtual ~UIWindow();
 
     uint8			getWindowType() {

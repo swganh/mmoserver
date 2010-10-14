@@ -54,7 +54,10 @@ class NET_API Message
 {
 public:
     Message(void)
-        : mCreateTime(0)
+        : mLogged(false)
+        , mLogTime(0)
+        , mSession(nullptr)
+        , mCreateTime(0)
         , mQueueTime(0)
         , mAccountId(0xffffffff)
         , mSize(0)
@@ -65,9 +68,6 @@ public:
         , mFastpath(false)
         , mPendingDelete(false)
         , mData(0)
-        , mLogged(false)
-        , mLogTime(0)
-        , mSession(NULL)
     {}
 
     void                        Init(int8* data, uint16 len)      {

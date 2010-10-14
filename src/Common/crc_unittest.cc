@@ -25,55 +25,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "Common/HashString.h"
-
-#include <cstring>
+#include <gtest/gtest.h>
 
 #include "Common/Crc.h"
 
-namespace common {
-
-std::ostream& operator<<(std::ostream& message, const HashString& string) {
-    message << string.ident_string();
-    return message;
+/// This test shows how to find the 32bit checksum of a c-style string.
+TEST(CrcTests, CanCrcCstyleStrings) {
+    EXPECT_EQ(0x338BCFAC, ::common::memcrc("test"));
+    EXPECT_EQ(0x2643D57C, ::common::memcrc("anothertest"));
+    EXPECT_EQ(0x19522193, ::common::memcrc("aThirdTest"));
 }
 
-HashString::HashString(char const * const ident_string)
-    : ident_(reinterpret_cast<void*>(0))
-    , ident_string_(ident_string) {
-    if (ident_string) {
-        ident_ = reinterpret_cast<void*>(memcrc(ident_string, strlen(ident_string)));
-    }
+/// This test shows how to find the 32bit checksum of a std::string.
+TEST(CrcTests, CanCrcStdStrings) {
+    EXPECT_EQ(0x338BCFAC, ::common::memcrc(std::string("test")));
+    EXPECT_EQ(0x2643D57C, ::common::memcrc(std::string("anothertest")));
+    EXPECT_EQ(0x19522193, ::common::memcrc(std::string("aThirdTest")));
 }
-
-HashString::~HashString() {}
-
-bool HashString::operator<(const HashString& other) const {
-    bool r = (ident() < other.ident());
-    return r;
-}
-
-bool HashString::operator>(const HashString& other) const {
-    bool r = (ident() > other.ident());
-    return r;
-}
-
-bool HashString::operator==(const HashString& other) const {
-    bool r = (ident() == other.ident());
-    return r;
-}
-
-bool HashString::operator!=(const HashString& other) const {
-    bool r = (ident() != other.ident());
-    return r;
-}
-
-uint32_t HashString::ident() const {
-    return reinterpret_cast<uint32_t>(ident_);
-}
-
-const std::string& HashString::ident_string() const {
-    return ident_string_;
-}
-
-}  // namespace common

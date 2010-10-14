@@ -254,16 +254,16 @@ void ScoutManager::successForage(PlayerObject* player)
         {
             itemFamily = ItemFamily_Foods;
 
-            uint MaxItemCount = 0;
-            //Determine #
-            uint32 skillModValue = player->getSkillModValue(9);
-
-            if(skillModValue < 25)
-                MaxItemCount = 1;
-            else if(skillModValue < 50)
-                MaxItemCount = 2;
-            else
-                MaxItemCount = 3;
+            //uint MaxItemCount = 0;
+            ////Determine #
+            //uint32 skillModValue = player->getSkillModValue(9);
+            //
+            //if(skillModValue < 25)
+            //    MaxItemCount = 1;
+            //else if(skillModValue < 50)
+            //    MaxItemCount = 2;
+            //else
+            //    MaxItemCount = 3;
 
             //Determine Type
 
@@ -429,95 +429,6 @@ void ScoutManager::successForage(PlayerObject* player)
 //================================================================================
 void ScoutManager::handleHarvestCorpse(PlayerObject* player, CreatureObject* target, HarvestSelection harvest)
 {
-    /*
-    if(!target || !player)
-    	return;
-
-    //Perform Checking...
-    if(player->checkState(CreatureState_Combat))
-    	gMessageLib->sendSystemMessage(player, L"", "internal_command_string","prose_harvest_corpse_failed");
-
-    if(harvest != HARVEST_ANY)
-    	player->setPreviousHarvestSelection(harvest);
-    else
-    	harvest = (HarvestSelection)player->getPreviousHarvestSelection();
-
-    std::vector<HarvestSelection> availableSelections;
-
-    if(target->hasAttribute("res_meat"))
-    	availableSelections.push_back(HARVEST_MEAT);
-
-    if(target->hasAttribute("res_bone"))
-    	availableSelections.push_back(HARVEST_BONE);
-
-    if(target->hasAttribute("res_hide"))
-    	availableSelections.push_back(HARVEST_HIDE);
-
-
-    if(harvest == HARVEST_ANY)
-    {
-    	//get a random one.
-    	harvest = (HarvestSelection)((gRandom->getRand() % (availableSelections.size()-1))+1);
-    }
-    else
-    {
-    	bool good = false;
-
-    	for(unsigned int i=0; i < availableSelections.size(); i++)
-    		if(availableSelections[i] == harvest) good = true;
-
-    	if(!good)
-    	{
-    		gMessageLib->sendSystemMessage(player, L"", "internal_command_string","no_resource");
-    		return;
-    	}
-    }
-
-    switch(harvest)
-    {
-    case HARVEST_MEAT:
-    	gMessageLib->sendSystemMessage(player, L"YOU WANTED TO HARVEST MEAT");
-    	break;
-    case HARVEST_BONE:
-    	gMessageLib->sendSystemMessage(player, L"YOU WANTED TO HARVEST BONE");
-    	break;
-    case HARVEST_HIDE:
-    	gMessageLib->sendSystemMessage(player, L"YOU WANTED TO HARVEST HIDE");
-    	break;
-    }
-
-    //Do the deed
-
-    /*
-    float rangerFactor = 1; //# of times to increase yield due to ranger.
-    //If Grouped and nearby (64m)
-    rangerFactor = 1.20;
-    //If Ranger in group and nearby (64m)
-    rangerFactor = 1.30;
-    //If Mager Ranger in group and nearby (64m)
-    rangerFactor = 1.40;
-    */
-
-    /*
-    //Calc Creature Quality
-    switch((gRandom->getRand() % 2))
-    {
-    case 0:
-    	gMessageLib->sendSystemMessage(player, L"", "internal_command_string","creature_quality_fat");
-    case 1:
-    	gMessageLib->sendSystemMessage(player, L"", "internal_command_string","creature_quality_medium");
-    case 2:
-    	gMessageLib->sendSystemMessage(player, L"", "internal_command_string","creature_quality_skinny");
-    }
-
-    //get creature factor
-    getCreatureFactor(target);
-
-    //TODO; HANDLE BABYS!
-
-    //gGroupManager->
-
-    */
 }
 
 uint32 ScoutManager::getHarvestSkillFactor(CreatureObject* object)

@@ -25,10 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#include "ChatServer.h"
 
+#include <glog/logging.h>
 // External references
 #include "ChatManager.h"
-#include "ChatServer.h"
 #include "CSRManager.h"
 #include "GroupManager.h"
 #include "TradeManagerChat.h"
@@ -53,10 +54,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/utils.h"
 #include "Utils/clock.h"
-
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
 
 #include <boost/thread/thread.hpp>
 #include <cstring>
@@ -209,7 +206,7 @@ void ChatServer::_connectToConnectionServer()
     // setup our databinding parameters.
     DataBinding* binding = mDatabase->CreateDataBinding(5);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mType), 4);
-    binding->addField(DFT_string, offsetof(ProcessAddress, mAddress), 1);
+    binding->addField(DFT_bstring, offsetof(ProcessAddress, mAddress), 16);
     binding->addField(DFT_uint16, offsetof(ProcessAddress, mPort), 2);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mStatus), 4);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
@@ -232,7 +229,9 @@ void ChatServer::_connectToConnectionServer()
 
     // Now connect to the ConnectionServer
     mClient = new DispatchClient();
-    mRouterService->Connect(mClient, processAddress.mAddress, processAddress.mPort);
+
+	LOG(INFO) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
+    mRouterService->Connect(mClient, processAddress.mAddress.getAnsi(), processAddress.mPort);
 }
 
 //======================================================================================================================
@@ -246,6 +245,16 @@ void handleExit()
 
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
+
     try {
         ConfigManager::Init("ChatServer.cfg");
     } catch (file_not_found) {

@@ -421,8 +421,6 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 
     gWorldManager->addObject(object,true);
 
-    CraftingTool* tool = dynamic_cast<CraftingTool*>(object);
-
     //==========================
     //update the world - who is looking into our container ?
 

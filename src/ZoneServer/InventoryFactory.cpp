@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "InventoryFactory.h"
+
+#ifdef WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Inventory.h"
 #include "ObjectFactoryCallback.h"
 #include "TangibleFactory.h"
@@ -33,7 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/LogManager.h"
 
 #include "Utils/utils.h"
 
@@ -198,9 +203,11 @@ void InventoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 Inventory* InventoryFactory::_createInventory(DatabaseResult* result)
 {
-    Inventory*	inventory = new Inventory();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    Inventory*	inventory = new Inventory();
 
     // get our results
     result->GetNextRow(mInventoryBinding,(void*)inventory);
@@ -242,11 +249,12 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     InLoadingContainer* ilc	= _getObject(object->getParentId());
 
-    if (! ilc) {//Crashbug fix
-        gLogger->log(LogManager::WARNING,"InventoryFactory::handleObjectReady could not locate ILC for objectId:%I64u",object->getId());
+
+    if (! ilc) {
+    	LOG(WARNING) << "Could not locate InLoadingContainer for object with id [" << object->getId() << "]";
+        assert(ilc && "InventoryFactory::handleObjectReady unable to find InLoadingContainer");//moved below the return
         return;
     }
-    assert(ilc && "InventoryFactory::handleObjectReady unable to find InLoadingContainer");//moved below the return
 
     Inventory*			inventory	= dynamic_cast<Inventory*>(ilc->mObject);
 
@@ -257,12 +265,10 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     if(inventory->getObjectLoadCounter() == (inventory->getObjects())->size())
     {
-        gLogger->log(LogManager::DEBUG,"InventoryFactory: remove inventory %I64u from loadmap",inventory->getId());
-
         inventory->setLoadState(LoadState_Loaded);
 
         if(!(_removeFromObjectLoadMap(inventory->getId())))
-            gLogger->log(LogManager::DEBUG,"InventoryFactory: Failed removing object from loadmap");
+        	LOG(INFO) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(inventory,ilc->mClient);
 

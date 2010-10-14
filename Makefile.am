@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I tools/m4 --install
 
-SUBDIRS = src tests docs
+SUBDIRS = $(subdirs) docs src
 
 # Keep documentation files when creating a distributable version of the source.
 doc_DATA = AUTHORS ChangeLog COPYING INSTALL NEWS README

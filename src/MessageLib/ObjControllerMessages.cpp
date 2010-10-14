@@ -55,7 +55,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/LogManager.h"
 
-#include "Common/ByteBuffer.h"
+#include "Common/byte_buffer.h"
 #include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -73,17 +73,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef WIN32
-using ::std::regex;
-using ::std::smatch;
-using ::std::regex_search;
-#else
-using ::boost::regex;
-using ::boost::smatch;
-using ::boost::regex_search;
+using std::regex;
+using std::smatch;
+using std::regex_search;
+#else 
+using boost::regex;
+using boost::smatch;
+using boost::regex_search;
 #endif
 
-using ::common::ByteBuffer;
-using ::common::OutOfBand;
+using common::ByteBuffer;
+using common::OutOfBand;
 
 //======================================================================================================================
 //
@@ -145,7 +145,7 @@ void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const s
     // Add the ProsePackage to the message if no custom string was set.
     if (!custom_message.length()) {
         const ByteBuffer* attachment = prose_message.Pack();
-        mMessageFactory->addData(attachment->Data(), attachment->Size());
+        mMessageFactory->addData(attachment->data(), attachment->size());
     } else {
         mMessageFactory->addUint32(0);
     }

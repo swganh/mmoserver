@@ -26,11 +26,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "NonPersistentItemFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Food.h"
 #include "ItemFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -144,11 +149,12 @@ void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 
 Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
     Item*			item;
     ItemIdentifier	itemIdentifier;
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(mItemIdentifierBinding,(void*)&itemIdentifier);
     result->ResetRowIndex();
@@ -174,7 +180,7 @@ Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId
     default:
     {
         item = new Item();
-        gLogger->log(LogManager::DEBUG,"ItemFactory::NonPersistentItemFactory::_createItem unknown Family %u",itemIdentifier.mFamilyId);
+    	LOG(ERROR) << "Created item for unknown family [" << itemIdentifier.mFamilyId << "]";
     }
     break;
     }

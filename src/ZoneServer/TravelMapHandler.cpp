@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "TravelMapHandler.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Inventory.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
@@ -174,6 +180,8 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
 
+        LOG_IF(INFO, count) << "Loaded " << count << " outdoor travel points";
+
         mPointCount += static_cast<uint32>(count);
         mWorldPointsLoaded = true;
 
@@ -205,6 +213,8 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
 
+        LOG_IF(INFO, count) << "Loaded " << count << " in-cell travel points";
+
         mPointCount += static_cast<uint32>(count);
         mCellPointsLoaded = true;
 
@@ -230,6 +240,8 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelRoutes[route.srcId].push_back(std::make_pair(route.destId,route.price));
         }
 
+        LOG_IF(INFO, count) << "Loaded " << count << " routes";
+
         mRouteCount = static_cast<uint32>(count);
         mRoutesLoaded = true;
 
@@ -248,9 +260,6 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         mWorldPointsLoaded = false;
         mCellPointsLoaded = false;
         mRoutesLoaded = false;
-
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded travel routes and travel points.");
     }
 }
 
@@ -287,8 +296,6 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
     if(playerObject != NULL && playerObject->isConnected())
     {
-        bool excludeQueryPosition = false;
-
         // we need to know where we query from
         TravelTerminal* terminal = playerObject->getTravelPoint();
 
@@ -304,7 +311,6 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
         // find our planetId
         uint8 planetId = gWorldManager->getPlanetIdByName(requestedPlanet);
 
-        uint32 pointCount = 0;
         char	queryPoint[64];
         TravelPoint* qP = NULL;
 

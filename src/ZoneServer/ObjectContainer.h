@@ -28,13 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_OBJECTCONTAINER_H
 #define ANH_ZONESERVER_OBJECTCONTAINER_H
 
-#include "Utils/typedefs.h"
+#include <vector>
 #include "Object_Enums.h"
 #include "Object.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
 //#include "TangibleObject.h"
-#include <vector>
 
 
 //=============================================================================

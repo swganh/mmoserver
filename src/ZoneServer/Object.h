@@ -28,30 +28,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_OBJECT_H
 #define ANH_ZONESERVER_OBJECT_H
 
-#include "ObjectController.h"
-#include "RadialMenu.h"
-#include "UICallback.h"
-#include "Object_Enums.h"
-#include "Common/LogManager.h" // @todo: this needs to go.	  where does it need to go ?
-#include "Utils/EventHandler.h"
-#include "Utils/typedefs.h"
+#include <vector>
+#include <map>
+#include <memory>
+#include <set>
+#include <list>
 
 #include <boost/lexical_cast.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-#include <vector>
-#include <map>
-#include <set>
-#include <list>
+#include "Utils/EventHandler.h"
+#include "Utils/typedefs.h"
 
-#if defined(__GNUC__)
-// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
-// spec, which requires the header without the tr1/ prefix.
-#include <tr1/memory>
-#else
-#include <memory>
-#endif
+#include "Common/LogManager.h" // @todo: this needs to go.	  where does it need to go ?
+
+#include "ObjectController.h"
+#include "RadialMenu.h"
+#include "UICallback.h"
+#include "Object_Enums.h"
 
 //=============================================================================
 
@@ -60,7 +55,7 @@ class PlayerObject;
 class CreatureObject;
 
 typedef std::map<uint32,std::string>	AttributeMap;
-typedef std::tr1::shared_ptr<RadialMenu>	RadialMenuPtr;
+typedef std::shared_ptr<RadialMenu>	RadialMenuPtr;
 // typedef std::vector<uint64>				ObjectIDList;
 typedef std::list<uint64>				ObjectIDList;
 typedef std::set<Object*>				ObjectSet;

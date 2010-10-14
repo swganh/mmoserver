@@ -73,7 +73,7 @@ private:
     Service*				mClientService;
     Service*				mServerService;
     bool					mLocked;
-    uint32					mLastHeartbeat;
+    uint64					mLastHeartbeat;
 };
 
 //======================================================================================================================

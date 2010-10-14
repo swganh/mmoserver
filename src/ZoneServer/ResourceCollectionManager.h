@@ -28,11 +28,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_RESOURCECOLLECTIONMANAGER_H
 #define ANH_ZONESERVER_RESOURCECOLLECTIONMANAGER_H
 
-#define	 gResourceCollectionManager		ResourceCollectionManager::getSingletonPtr()
+#include <boost/pool/pool.hpp>
+#include <glm/glm.hpp>
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include <boost/pool/pool.hpp>
+
+
+#define	 gResourceCollectionManager		ResourceCollectionManager::getSingletonPtr()
 
 //======================================================================================================================
 
@@ -46,12 +50,6 @@ namespace Anh_Utils
 {
 class Clock;
 }
-
-typedef struct tagResourceLocation
-{
-    glm::vec3 position;
-    float			 ratio;
-} ResourceLocation;
 
 //======================================================================================================================
 

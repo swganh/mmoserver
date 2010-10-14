@@ -28,11 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_PLAYERSTRUCTURE_OBJECT_H
 #define ANH_ZONESERVER_PLAYERSTRUCTURE_OBJECT_H
 
+#include <vector>
+
 #include "TangibleObject.h"
 #include "BuildingEnums.h"
 #include "StructureManager.h"
 #include "UICallback.h"
-#include <vector>
 
 
 //=============================================================================

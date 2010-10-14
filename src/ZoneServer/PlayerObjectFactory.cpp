@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "PlayerObjectFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Bank.h"
 #include "BuffManager.h"
 #include "Datapad.h"
@@ -41,7 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Weapon.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -102,7 +107,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = _createPlayer(result);
         if(!playerObject)
         {
-            gLogger->log(LogManager::CRITICAL,"Failed to Load Player (Account id=%u) at PlayerObjectFactory::handleDatabaseJobComplete.",asyncContainer->mClient->getAccountId());
+        	LOG(ERROR) << "Failed to load player account [" << asyncContainer->mClient->getAccountId() << "]";
             return;
         }
 
@@ -436,7 +441,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         uint64 count = result->getRowCount();
         if(!count)
         {
-            gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: sf_getLotCount did not return a value");
+            LOG(WARNING) << "sf_getLotCount did not return a value";
             //now we have a problem ...
             mDatabase->DestroyDataBinding(binding);
             break;
@@ -447,7 +452,6 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
         maxLots -= static_cast<uint8>(lotCount);
         playerObject->setLots((uint8)maxLots);
-        gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: %I64u has %u lots remaining",playerObject->getId(),maxLots);
 
         mDatabase->DestroyDataBinding(binding);
     }
@@ -531,6 +535,10 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 
 PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
+
     PlayerObject*	playerObject	= new PlayerObject();
     TangibleObject*	playerHair		= new TangibleObject();
     MissionBag*		playerMissionBag;
@@ -539,8 +547,6 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
     playerBank->setId(playerObject->getId()+BANK_OFFSET);
     playerBank->setParent(playerObject);
-
-    uint64 count = result->getRowCount();
 
     //check for 3 rows as we need to call GetNextRow 3 times
     /*if(count < 3)
@@ -562,7 +568,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     if(dataElements.size() > 1) {
         playerObject->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
     } else { //couldn't find data, default to male. Is this acceptable? Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627013612-b69ab274646815fb2a9befa4553c93f7
-        gLogger->log(LogManager::WARNING,"PlayerObjectFactory::_createPlayer: Could not determine requested gender, defaulting to male. PlayerId:%u", playerObject->getId());
+        LOG(WARNING) << "Player [" << playerObject->getId() << "] Could not determine requested gender, defaulting to male";
         playerObject->setGender(false);
     }
 
@@ -791,7 +797,7 @@ void PlayerObjectFactory::_setupDatabindings()
     mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);				 //70
 
     for(uint16 i = 0; i < 0x71; i++)
-        mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[i]),2,i + 17);//+113 = 183
+        mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization)+(i*2),2,i + 17);//+113 = 183
 
     mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
     mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);				   //185
@@ -826,8 +832,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     ilc= _getObject(object->getParentId());
     if(!ilc)
     {
-        gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::handleObjectReady:: no ilc :(");
-        assert(false);
+        assert(false && "[PlayerObjectFactory::handleObjectReady] no InLoadingContainer");
         return;
     }
     ilc->mLoadCounter--;
@@ -835,8 +840,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     PlayerObject*		playerObject = dynamic_cast<PlayerObject*>(ilc->mObject);
     if(!playerObject)
     {
-        gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::handleObjectReady:: no playerObject :(");
-        assert(false);
+        assert(false && "[PlayerObjectFactory::handleObjectReady] no playerObject");
         return;
     }
 
@@ -873,18 +877,18 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::handleObjectReady : no idea what this was");
+    	LOG(WARNING) << "Unable to determine the object type";
     }
 
     if((!ilc->mLoadCounter) && ((!ilc->mInventory) || (!ilc->mDPad)))
     {
-        gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::handleObjectReady : mIlc LoadCounter is messed up - we have a racecondition");
+    	LOG(WARNING) << "mIlc LoadCounter is messed up - we have a race condition";
     }
 
     if((!ilc->mLoadCounter) && (ilc->mInventory) && (ilc->mDPad))
     {
         if(!(_removeFromObjectLoadMap(playerObject->getId())))
-            gLogger->log(LogManager::DEBUG,"PlayerObjectFactory: Failed removing object from loadmap");
+        	LOG(WARNING) << "Failed removing object from loadmap";
 
         // if weapon slot is empty, equip the unarmed default weapon
         if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))

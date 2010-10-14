@@ -27,6 +27,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Database.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 #include "DataBinding.h"
 #include "DataBindingFactory.h"
 #include "DatabaseCallback.h"
@@ -173,8 +180,9 @@ DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 
     int8 message[8192];
     sprintf(message, "SYNCHRONOUS SQL STATEMENT: %s",localSql);
-    gLogger->logS(LogManager::DEBUG,(LOG_CHANNEL_FILE | LOG_CHANNEL_SYSLOG), message);
-	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
+    DLOG(INFO) << "SYNCHRONOUS SQL: " << localSql;
+    //gLogger->logS(LogManager::DEBUG,(LOG_CHANNEL_FILE | LOG_CHANNEL_SYSLOG), message);
+    //gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
     va_end(args);
     return ExecuteSql(localSql);
 }
@@ -208,9 +216,10 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8
     int8    localSql[20192];
     /*int32 len = */
     vsnprintf(localSql, sizeof(localSql), sql, args);
-
-	//just put it here centrally so we can save tons of time editing ???
-	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
+    
+    DLOG(INFO) << "sql: " << localSql;
+    //just put it here centrally so we can save tons of time editing ???
+    //gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
 
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
@@ -238,8 +247,9 @@ void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref,
     int8    localSql[20192];
 
     sprintf(localSql,"%s", sql);
-
-	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
+    
+    DLOG(INFO) << "sql: " << localSql;
+    //gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
 
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
@@ -284,8 +294,9 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, cons
     int8    localSql[20192];
     /*int32 len = */
     vsnprintf(localSql, sizeof(localSql), sql, args);
-
-	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
+    
+    DLOG(INFO) << "sql: " << localSql;
+    //gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
     job->setCallback(callback);

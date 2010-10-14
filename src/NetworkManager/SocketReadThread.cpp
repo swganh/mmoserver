@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SocketReadThread.h"
 
+#include <glog/logging.h>
+
 #include "CompCryptor.h"
 #include "NetworkClient.h"
 #include "Packet.h"
@@ -106,8 +108,10 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
     boost::thread t(std::tr1::bind(&SocketReadThread::run, this));
     mThread = boost::move(t);
 
+#ifdef _WIN32
     HANDLE th =  mThread.native_handle();
     SetPriorityClass(th,REALTIME_PRIORITY_CLASS);
+#endif
     //SetPriorityClass(th,NORMAL_PRIORITY_CLASS);
 }
 
@@ -134,8 +138,9 @@ void SocketReadThread::run(void)
 {
     struct sockaddr_in  from;
     uint32              address, fromLen = sizeof(from), count;
-    int16               recvLen;
-    uint16              port, decompressLen;
+    int16               recvLen = 0;
+    uint16              port = 0;
+    uint16              decompressLen = 0;
     Session*            session;
     fd_set              socketSet;
     struct              timeval tv;
@@ -150,6 +155,7 @@ void SocketReadThread::run(void)
         // Check to see if *WE* are about to connect to a remote server
         if(mNewConnection.mPort != 0)
         {
+        	LOG(INFO) << "Connecting to remote server";
             Session* newSession = mSessionFactory->CreateSession();
             newSession->setCommand(SCOM_Connect);
             newSession->setAddress(inet_addr(mNewConnection.mAddress));
@@ -162,9 +168,11 @@ void SocketReadThread::run(void)
             mNewConnection.mPort = 0;
 
             // Add the new session to the main process list
-            boost::mutex::scoped_lock lk(mSocketReadMutex);
+            {
+                boost::mutex::scoped_lock lk(mSocketReadMutex);
 
-            mAddressSessionMap.insert(std::make_pair(hash,newSession));
+                mAddressSessionMap.insert(std::make_pair(hash,newSession));
+            }
             mSocketWriteThread->NewSession(newSession);
         }
 
@@ -179,21 +187,22 @@ void SocketReadThread::run(void)
         tv.tv_sec   = 0;
         tv.tv_usec  = 250;
 
-        count = select(mSocket, &socketSet, 0, 0, &tv);
+        count = select(mSocket+1, &socketSet, 0, 0, &tv);
 
         if(count && FD_ISSET(mSocket, &socketSet))
         {
+            LOG(INFO) << "Message received on port " << port;
             // Read any incoming packets.
             recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen));
 
             if(recvLen <= 0)
             {
-                int	errorNr = 0;
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 
+                int errorNr = 0;
                 errorNr = WSAGetLastError();
 
-                char	errorMsg[512];
+                char errorMsg[512];
 
                 if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, errorNr, MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPTSTR)errorMsg, (sizeof(errorMsg) / sizeof(TCHAR)) - 1, NULL))
                 {
@@ -203,11 +212,6 @@ void SocketReadThread::run(void)
                 {
                     gLogger->log(LogManager::WARNING, "Error(recvFrom): %i",errorNr);
                 }
-
-#elif(ANH_PLATFORM == ANH_PLATFORM_LINUX)
-
-                errorNr = recvLen;
-
 #endif
                 continue;
             }
@@ -448,6 +452,7 @@ void SocketReadThread::NewOutgoingConnection(int8* address, uint16 port)
     // queue so we can process these async.  This is NOT thread safe, and won't be.  Only should be called by the Service.
 
     // Init our NewConnection object
+	LOG(INFO) << "New connection to " << address << " on port " << port;
     strcpy(mNewConnection.mAddress, address);
     mNewConnection.mPort = port;
     mNewConnection.mSession = 0;
@@ -457,6 +462,10 @@ void SocketReadThread::NewOutgoingConnection(int8* address, uint16 port)
 
 void SocketReadThread::RemoveAndDestroySession(Session* session)
 {
+	if (! session) {
+		return;
+	}
+
     // Find and remove the session from the address map.
     uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 

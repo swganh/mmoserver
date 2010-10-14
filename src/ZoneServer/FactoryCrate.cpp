@@ -63,18 +63,6 @@ FactoryCrate::~FactoryCrate()
 
 void FactoryCrate::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-    if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
-    {
-        switch(messageType)
-        {
-        case radId_itemUse:
-        {
-
-        }
-
-        }
-
-    }
 }
 
 //=============================================================================

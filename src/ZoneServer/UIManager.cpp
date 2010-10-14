@@ -25,6 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "WorldConfig.h"
+
+#include <glog/logging.h>
+
 #include "UIManager.h"
 #include "Common/atMacroString.h"
 #include "PlayerObject.h"
@@ -39,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UITicketSelectListBox.h"
 #include "UITransferBox.h"
 #include "UISkillSelectBox.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -49,6 +51,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "Utils/rand.h"
 
+#ifdef WIN32
+#undef ERROR
+#endif
 //======================================================================================================================
 
 bool		UIManager::mInsFlag		= false;
@@ -124,7 +129,7 @@ void UIManager::_processEventNotification(Message* message,DispatchClient* clien
 
     if(window == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"UIManager::_processEventNotification: could not find window %u",windowId);
+    	LOG(ERROR) << "Could not find window [" << windowId << "]";
         return;
     }
 
@@ -343,7 +348,7 @@ void UIManager::destroyUIWindow(uint32 id,bool sendForceClose)
         mUIWindows.erase(it);
     }
     else
-        gLogger->log(LogManager::DEBUG,"UIManager::destroyWindow: couldn't find window %u",id);
+    	LOG(ERROR) << "Could not find window [" << id << "]";
 }
 
 //======================================================================================================================

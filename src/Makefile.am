@@ -1,16 +1,12 @@
-SUBDIRS = \
-	Utils \
-	MathLib \
-	Common \
-	ConfigManager \
-	DatabaseManager \
-	LogManager \
-	NetworkManager \
-	ScriptEngine \
-	MessageLib \
-	AdminServer \
-	ChatServer \
-	ConnectionServer \
-	LoginServer \
-	PingServer \
-	ZoneServer
+SUBDIRS = Utils \
+  Common \
+  DatabaseManager \
+  NetworkManager \
+  PingServer \
+  LoginServer \
+  ConnectionServer \
+  ChatServer \
+  ScriptEngine \
+  SwgProtocol \
+  MessageLib \
+  ZoneServer

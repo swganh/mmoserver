@@ -50,10 +50,10 @@ enum HeightmapCallbackTypes
 class HeightmapAsyncContainer
 {
 public:
-    HeightmapAsyncContainer(HeightMapCallBack* backCall, HeightmapCallbackTypes Type)
-        : callback(backCall)
-        , type(Type)
-    {
+	HeightmapAsyncContainer(HeightMapCallBack* backCall, HeightmapCallbackTypes Type)
+	: type(Type)
+	, callback(backCall)
+	{
         mHeightResults = new HeightResultMap();
     }
 
@@ -81,4 +81,4 @@ private:
     HeightMapCallBack* callback;
 
 };
-#endif HEIGHTMAPASYNCCONTAINER_H
+#endif // HEIGHTMAPASYNCCONTAINER_H

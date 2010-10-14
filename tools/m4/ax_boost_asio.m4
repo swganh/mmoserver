@@ -1,5 +1,5 @@
 # ===========================================================================
-#             http://autoconf-archive.cryp.to/ax_boost_asio.html
+#       http://www.gnu.org/software/autoconf-archive/ax_boost_asio.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -27,7 +27,10 @@
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 13
 
 AC_DEFUN([AX_BOOST_ASIO],
 [
@@ -43,7 +46,7 @@ AC_DEFUN([AX_BOOST_ASIO],
             ax_boost_user_asio_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_asio_lib="$withval"
+		ax_boost_user_asio_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -62,7 +65,7 @@ AC_DEFUN([AX_BOOST_ASIO],
         AC_CACHE_CHECK(whether the Boost::ASIO library is available,
 					   ax_cv_boost_asio,
         [AC_LANG_PUSH([C++])
-		 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[ @%:@include <boost/asio.hpp>
+		 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[ @%:@include <boost/asio.hpp>
 											]],
                                   [[
 
@@ -72,7 +75,7 @@ AC_DEFUN([AX_BOOST_ASIO],
                                     t.cancel();
                                     io.run_one();
 									return 0;
-                                   ]]),
+                                   ]])],
                              ax_cv_boost_asio=yes, ax_cv_boost_asio=no)
          AC_LANG_POP([C++])
 		])
@@ -85,7 +88,7 @@ AC_DEFUN([AX_BOOST_ASIO],
                               $BN-mgw $BN-mgw $BN-mgw-mt $BN-mgw-mt-s $BN-mgw-s ; do
 				    AC_CHECK_LIB($ax_lib, main, [BOOST_ASIO_LIB="-l$ax_lib" AC_SUBST(BOOST_ASIO_LIB) link_thread="yes" break],
                                  [link_thread="no"])
-  				done
+				done
             else
                for ax_lib in $ax_boost_user_asio_lib $BN-$ax_boost_user_asio_lib; do
 				      AC_CHECK_LIB($ax_lib, main,
@@ -94,12 +97,15 @@ AC_DEFUN([AX_BOOST_ASIO],
                   done
 
             fi
+            if test "x$ax_lib" = "x"; then
+                AC_MSG_ERROR(Could not find a version of the library!)
+            fi
 			if test "x$link_asio" = "xno"; then
 				AC_MSG_ERROR(Could not link against $ax_lib !)
 			fi
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])

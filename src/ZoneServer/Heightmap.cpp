@@ -33,13 +33,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "math.h"
 //=============================================================================
 Heightmap::Heightmap(const char* planet_name, uint16 resolution)
-    : mHeightmapCache(NULL)
+    : mResolution(resolution)
+	, mHeightmapCache(nullptr)
     , mCacheHeight(0)
     , mCacheWidth(0)
     , mCacheResoulutionDivider(3)
     , WIDTH(15361)
     , HEIGHT(15361)
-    , mResolution(resolution)
     , mReady(false)
 {
     mFilename = "heightmaps/";
@@ -47,7 +47,7 @@ Heightmap::Heightmap(const char* planet_name, uint16 resolution)
     mFilename += ".hmpw";
     Connect();
 
-    boost::thread t(std::tr1::bind(&Heightmap::RunThread, this));
+    boost::thread t(std::bind(&Heightmap::RunThread, this));
     mThread = boost::move(t);
 
     mExit = false;
@@ -263,7 +263,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 
     if (fseek(hmp,startOffset,SEEK_SET) != 0)
     {
-        gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: File seek error",FOREGROUND_RED);
+        gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: File seek error");
         assert(false);
         return false;
     }
@@ -271,7 +271,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
     int32 bytesRead = fread(buffer,1, len, hmp);
     if (bytesRead != len)
     {
-        gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: File read error",FOREGROUND_RED);
+        gLogger->log(LogManager::DEBUG,"Heightmap::ERROR: File read error");
         gLogger->log(LogManager::DEBUG,"bytesRead = %d",  bytesRead);
         assert(false);
         return false;

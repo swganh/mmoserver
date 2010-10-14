@@ -20,9 +20,6 @@
     <ClCompile Include="EventHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mdump.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="rand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -71,9 +68,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lockfree_queue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mdump.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PriorityVector.h">

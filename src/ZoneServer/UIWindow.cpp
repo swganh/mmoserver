@@ -71,7 +71,7 @@ UIElement* UIWindow::getChildById(uint32 id)
         ++it;
     }
 
-    return(NULL);
+    return nullptr;
 }
 
 //================================================================================

@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CityFactory.h"
 #include "City.h"
 #include "ObjectFactoryCallback.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -120,9 +119,11 @@ void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
 
 City* CityFactory::_createCity(DatabaseResult* result)
 {
-    City*	city = new City();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    City*	city = new City();
 
     result->GetNextRow(mCityBinding,(void*)city);
 

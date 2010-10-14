@@ -26,14 +26,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "SchematicManager.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "CraftBatch.h"
 #include "DraftSchematic.h"
 #include "DraftSlot.h"
 #include "DraftWeight.h"
 #include "SchematicGroup.h"
 #include "WeightsBatch.h"
-
-#include "Common/LogManager.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -111,7 +115,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         uint64 count = result->getRowCount();
         mvExpGroups.reserve((uint32)count);
-        uint32 num = 0;
+
         for(uint64 i = 0; i < count; i++)
         {
             result->GetNextRow(binding,&expGroup);
@@ -132,7 +136,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         uint64 count = mGroupCount = mGroupLoadCount = static_cast<uint32>(result->getRowCount());
         mSchematicGroupList.reserve((uint32)count);
-        uint32 num = 0;
+
         for(uint64 i = 0; i < count; i++)
         {
             scGroup = new SchematicGroup();
@@ -181,7 +185,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
             if(elements < 3)
             {
-                gLogger->log(LogManager::DEBUG,"SchematicManager: Error in Schematic String");
+            	LOG(ERROR) << "Error in Schematic String";
                 break;
             }
 

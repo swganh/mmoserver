@@ -62,8 +62,6 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
     PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
     FactoryCrate*		crate				= dynamic_cast<FactoryCrate*>(gWorldManager->getObjectById(targetId));
 
-    Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-
     if(!crate)
     {
         gLogger->log(LogManager::DEBUG,"ObjectController::_ExtractObject: Crate does not exist!");

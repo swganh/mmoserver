@@ -57,7 +57,7 @@ class ProcessAddress
 public:
 
     uint32	mType;
-    int8		mAddress[16];
+    BString		mAddress;
     uint16	mPort;
     uint32	mStatus;
     uint32	mActive;
@@ -102,7 +102,7 @@ private:
     CharacterLoginHandler*        mCharacterLoginHandler;
     ObjectControllerDispatch*     mObjectControllerDispatch;
 
-    std::unique_ptr<::zone::HamService>   ham_service_;
+    std::unique_ptr<zone::HamService>   ham_service_;
 };
 
 //======================================================================================================================

@@ -25,8 +25,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "PlayerObject.h"
 #include "WorldManager.h"
+
+#ifdef WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
+#include "PlayerObject.h"
 #include "AdminManager.h"
 #include "Buff.h"
 #include "BuffEvent.h"
@@ -93,11 +100,8 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     , mTotalObjectCount(0)
     , mZoneId(zoneId)
 {
-#if !defined(_DEBUG)
-#endif
-#if defined(_DEBUG)
-    gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
-#endif
+
+    DLOG(INFO) << "WorldManager initialization";
 
 
     // set up spatial index
@@ -135,10 +139,9 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
     //the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client
     //it will have to be initialized in the tutorial, too
-    if(zoneId != 41)
+    if(zoneId != 41) {
         ResourceManager::Init(database,mZoneId);
-    else
-    {
+    } else {
         //by not assigning a db we force the resourcemanager to not load db data
         ResourceManager::Init(NULL,mZoneId);
     }
@@ -265,9 +268,7 @@ void WorldManager::Shutdown()
 #endif
         if (container)
         {
-            gLogger->log(LogManager::DEBUG,"WorldManager::Shutdown(): Deleting the Tutorial container");
             this->destroyObject(container);
-            gLogger->log(LogManager::INFORMATION,"WorldManager::Shutdown(): Delete done!");
         }
     }
 
@@ -345,12 +346,13 @@ RegionObject* WorldManager::getRegionById(uint64 regionId)
 {
     RegionMap::iterator it = mRegionMap.find(regionId);
 
-    if(it != mRegionMap.end())
+    if(it != mRegionMap.end()) {
         return((*it).second);
-    else
-        gLogger->log(LogManager::NOTICE,"Worldmanager::getRegionById: Could not find region %"PRIu64"",regionId);
+    } else {
+        LOG(WARNING) << "Could not find region [" << regionId << "]";
+    }
 
-    return(NULL);
+    return nullptr;
 }
 
 
@@ -380,9 +382,8 @@ void WorldManager::LoadCurrentGlobalTick()
     mDatabase->DestroyDataBinding(tickbinding);
     mDatabase->DestroyResult(temp);
 
-    char strtemp[100];
-    sprintf(strtemp, "Current Global Tick Count = %"PRIu64"",Tick);
-    gLogger->log(LogManager::INFORMATION,strtemp, FOREGROUND_GREEN);
+
+    LOG(INFO) << "Current global tick count [" << Tick << "]";
     mTick = Tick;
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
 }
@@ -618,7 +619,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
         CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
         if(!tool)
         {
-            gLogger->log(LogManager::DEBUG,"WorldManager::_handleCraftToolTimers missing crafting tool");
+            LOG(ERROR) << "Missing crafting tool";
             it = mBusyCraftTools.erase(it);
             continue;
         }
@@ -786,8 +787,6 @@ void WorldManager::updateWeather(float cloudX,float cloudY,float cloudZ,uint32 w
 
 void WorldManager::addAdminRequest(uint64 requestId, uint64 when)
 {
-    gLogger->log(LogManager::NOTICE,"Adding admin request %d for schedule in %"PRIu64" minutes(s) and %"PRIu64" second(s)", requestId, when/60000, when % 60000);
-
     uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
     mAdminRequestHandlers.insert(std::make_pair(requestId, expireTime + when));
 
@@ -834,8 +833,6 @@ bool WorldManager::_handleAdminRequests(uint64 callTime, void* ref)
             }
             else
             {
-                gLogger->log(LogManager::DEBUG,"Removed expired handler for admin request %d", (*it).first);
-
                 // Requested to remove the handler.
                 mAdminRequestHandlers.erase(it++);
                 continue;
@@ -877,7 +874,7 @@ void WorldManager::_handleLoadComplete()
     // register script hooks
     _startWorldScripts();
 
-    gLogger->log(LogManager::NOTICE,"World load complete");
+    LOG(INFO) << "World load complete";
 
     if(mZoneId != 41)
     {
@@ -1232,7 +1229,7 @@ void WorldManager::_startWorldScripts()
 
         ++scriptIt;
     }
-    gLogger->log(LogManager::DEBUG,"Loaded world scripts.");
+    LOG(ERROR) << "Loaded world scripts";
 }
 
 //======================================================================================================================
@@ -1463,16 +1460,16 @@ void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 
         if(playerAccIt != mPlayerAccMap.end())
         {
-            gLogger->log(LogManager::INFORMATION,"Player left: %"PRIu64", Total Players on zone : %i",player->getId(),(getPlayerAccMap())->size() -1);
+            LOG(INFO) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
             mPlayerAccMap.erase(playerAccIt);
         }
         else
         {
-            gLogger->log(LogManager::WARNING,"WorldManager::destroyObject: error removing from playeraccmap : %u",player->getAccountId());
+            LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
         }
     }
     else
     {
-        gLogger->log(LogManager::WARNING,"Worldmanager","WorldManager::destroyObject: error removing from playeraccmap : %u",player->getAccountId());
+        LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
     }
 }

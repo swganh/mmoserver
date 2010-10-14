@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ObjectFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "BuildingFactory.h"
 #include "CreatureFactory.h"
 #include "Deed.h"
@@ -51,7 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TravelMapHandler.h"
 #include "WaypointFactory.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -116,7 +121,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
         if(!result->getRowCount())
         {
-            gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create house failed : no result");
+        	LOG(ERROR) << "create house failed : no result";
             break;
         }
 
@@ -128,7 +133,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if(!requestId)
         {
-            gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create house failed : result is 0");
+            LOG(ERROR) << "Create house failed : result is 0";
         }
         mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
@@ -153,7 +158,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         int8 sql[250];
-        sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+        sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
         mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
 
     }
@@ -164,7 +169,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
         if(!result->getRowCount())
         {
-            gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Factory failed : no result");
+        	LOG(ERROR) << "Create factory failed : no result";
             break;
         }
 
@@ -176,7 +181,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if(!requestId)
         {
-            gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Factory failed : result is 0");
+        	LOG(ERROR) << "Create factor failed : result is 0";
         }
         mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
@@ -201,7 +206,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         int8 sql[250];
-        sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+        sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
         mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
         
 
@@ -212,7 +217,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     {
         if(!result->getRowCount())
         {
-            gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+        	LOG(ERROR) << "Create harvester failed : no result";
             break;
         }
 
@@ -250,12 +255,12 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
             // now we need to link the deed to the harvester in the db and remove it out of the inventory
             int8 sql[250];
-            sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+            sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
             mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
          
         }
         else
-            gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
+        	LOG(ERROR) << "Create harvester failed";
     }
     break;
 
@@ -270,7 +275,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(requestId)
             mWaypointFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
         else
-            gLogger->log(LogManager::DEBUG,"ObjFactory::createWaypoint failed");
+        	LOG(ERROR) << "Create waypoint failed";
     }
     break;
     case QFQuery_WaypointUpdate:
@@ -288,7 +293,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             mWaypointFactory->requestObject(asyncContainer->ofCallback,asyncContainer->Id,0,0,asyncContainer->client);
             break;
         default:
-            gLogger->log(LogManager::DEBUG,"ObjFactory::updateWaypoint failed");
+        	LOG(ERROR) << "Update waypoint failed";
         }
     }
     break;
@@ -303,7 +308,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(requestId)
             mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_Item,0,asyncContainer->client);
         else
-            gLogger->log(LogManager::DEBUG,"ObjFactory::createItem failed");
+        	LOG(ERROR) << "Create item failed";
     }
     break;
 
@@ -318,7 +323,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(requestId)
             mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_ResourceContainer,0,asyncContainer->client);
         else
-            gLogger->log(LogManager::DEBUG,"ObjFactory::createResourceContainer failed");
+        	LOG(ERROR) << "Create resource container failed";
     }
     break;
 
@@ -482,10 +487,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
         oW = static_cast<float>(0.71);
     }
 
-
-    gLogger->log(LogManager::DEBUG,"New Harvester dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
-
-    sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
     
 }
@@ -546,7 +548,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 
     gLogger->log(LogManager::DEBUG,"New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
-    sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
     
 }
@@ -603,7 +605,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 
     gLogger->log(LogManager::DEBUG,"New House dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
 
-    sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
     
 }
@@ -865,20 +867,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
         {
             Object* childObject = gWorldManager->getObjectById((*objIt));
 
-            if(PlayerObject* player = dynamic_cast<PlayerObject*>(childObject))
-            {
-                //place the player in the world	and db	- do *NOT* delete him :P
-                //player->setParentId(0,0xffffffff,player->getKnownPlayers(),true);
-            }
-            else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(childObject))
-            {
-                //place the player in the world	and db	- do *NOT* delete him :P
-                //pet->setParentId(0,0xffffffff,pet->getKnownPlayers(),true);
-            }
-            else
-            {
-                deleteObjectFromDB(childObject);
-            }
+            deleteObjectFromDB(childObject);
 
             ++objIt;
 

@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -77,9 +76,9 @@ TreasuryManager::~TreasuryManager()
 
 //======================================================================================================================
 
-std::tr1::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(CreatureObject* creatureObject)
+std::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(CreatureObject* creatureObject)
 {
-    std::tr1::shared_ptr<RadialMenu> radial(new RadialMenu());
+    std::shared_ptr<RadialMenu> radial(new RadialMenu());
 
     Bank*		bank	= dynamic_cast<Bank*>(creatureObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
@@ -571,7 +570,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             //CAVE galaxy id is hardcoded!!!!!!1
             int8 galaxyId = 2;
 
-            sprintf(sql, "CALL sp_GalaxyAccountDepositCredits(%u, %u, %"PRIu64",%u",galaxyId, Account_TipSurcharge, asynContainer->player, asynContainer->surcharge);
+            sprintf(sql, "CALL sp_GalaxyAccountDepositCredits(%u, %u, %"PRIu64",%u",galaxyId, Account_TipSurcharge, asynContainer->player->getId(), asynContainer->surcharge);
             TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipUpdateGalaxyAccount,0);
 
             mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);

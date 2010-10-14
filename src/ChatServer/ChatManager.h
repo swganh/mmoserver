@@ -91,9 +91,9 @@ class ChatAsyncContainer
 public:
     ChatAsyncContainer(ChatQuery qt)
         : mQueryType(qt)
-        , mMail(NULL)
-        , mSender(NULL)
-        , mReceiver(NULL)
+        , mMail(nullptr)
+        , mSender(nullptr)
+        , mReceiver(nullptr)
         , mMailCounter(0)
     {}
 

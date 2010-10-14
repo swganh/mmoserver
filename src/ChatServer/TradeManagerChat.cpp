@@ -1374,13 +1374,9 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
 void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message,DispatchClient* client)
 {
     TradeManagerAsyncContainer* asyncContainer;
-    Player* player;
     PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
-        player = (*accIt).second;
-    else
-    {
+    if(accIt != mPlayerAccountMap.end()) {
         gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
         return;
     }
@@ -1453,13 +1449,9 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
 {
     TradeManagerAsyncContainer* asyncContainer;
 
-    Player* player;
     PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
-        player = (*accIt).second;
-    else
-    {
+    if(accIt != mPlayerAccountMap.end()) {
         gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
         return;
     }
@@ -1482,13 +1474,9 @@ void TradeManagerChatHandler::processGetAuctionDetails(Message* message,Dispatch
 {
     TradeManagerAsyncContainer* asyncContainer;
 
-    Player* player;
     PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
 
-    if(accIt != mPlayerAccountMap.end())
-        player = (*accIt).second;
-    else
-    {
+    if(accIt != mPlayerAccountMap.end()) {
         gLogger->log(LogManager::EMERGENCY,"Error getting player from account map %u",client->getAccountId());
         return;
     }

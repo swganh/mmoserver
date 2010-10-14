@@ -51,7 +51,7 @@ ForageManager::ForageManager()
 class ForageAttempt
 {
 public:
-    ForageAttempt::ForageAttempt(PlayerObject* player, uint64 time, forageClasses forageClass)
+    ForageAttempt(PlayerObject* player, uint64 time, forageClasses forageClass)
     {
         startTime = time;
         playerID = player->getId();
@@ -77,7 +77,7 @@ public:
 class ForagePocket
 {
 public:
-    ForagePocket::ForagePocket(PlayerObject* player, ZoneTree* mSI)
+    ForagePocket(PlayerObject* player, ZoneTree* mSI)
     {
         region = mSI->getQTRegion(player->mPosition.z,player->mPosition.z);
 
@@ -87,7 +87,7 @@ public:
         pNext = NULL;
     }
 
-    ForagePocket::~ForagePocket()
+    ~ForagePocket()
     {
         //This shouldn't be a problem, but it's here just in case.
 

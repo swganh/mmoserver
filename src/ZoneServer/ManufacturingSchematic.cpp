@@ -370,7 +370,6 @@ bool ManufactureSlot::addResourcetoSlot(uint64 resID, uint32 amount, uint8 type)
 
 void ManufactureSlot::addComponenttoSlot(uint64 resID, uint32 amount, uint8 type)
 {
-    uint32 counter = 0;
     if(mFilledResources.empty())
         mFilledIndicatorChange = true;
 

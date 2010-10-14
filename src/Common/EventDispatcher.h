@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace common {
 
 class EventDispatcher;
-#define gEventDispatcher ::utils::Singleton<::common::EventDispatcher>::Instance()
+#define gEventDispatcher utils::Singleton<common::EventDispatcher>::Instance()
 
 typedef std::function<bool (IEventPtr)> EventListenerCallback;
 
@@ -159,15 +159,21 @@ private:
     bool AddEventType_(const EventType& event_type);
     void Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type);
     bool Deliver_(IEventPtr triggered_event);
-
-    // Win32 complains about stl during linkage, disable the warning.
+        
+    // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
     EventTypeSet event_type_set_;
 
     EventListenerMap event_listener_map_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 
+    uint64_t current_timestep_;
+    
     // Uses a double buffered queue to prevent events that generate events from creating
     // an infinite loop.
 
@@ -175,17 +181,20 @@ private:
     {
         kNumQueues = 2
     };
-
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     EventQueue event_queue_[kNumQueues];
-    int active_queue_;
-
-    ::boost::atomic<uint64_t> current_timestep_;
     // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (default : 4251)
 #endif
 
-    ::utils::ActiveObject active_;
+    int active_queue_;
+    
+    utils::ActiveObject active_;
 };
 
 }  // namespace common

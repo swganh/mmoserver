@@ -26,6 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "CharSheetManager.h"
 
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Badge.h"
 #include "Bank.h"
 #include "PlayerObject.h"
@@ -131,14 +136,11 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             mvFactions.push_back(BString(name.getAnsi()));
         }
 
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded factions.");
+        LOG_IF(INFO, count) << "Loaded " << count << " factions";
 
         mDatabase->DestroyDataBinding(binding);
 
-        gLogger->log(LogManager::DEBUG,"Finished Loading Factions.");
         // load badge categories
-        gLogger->log(LogManager::NOTICE,"Loading Badge Categories.");
         mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_BadgeCategories),"SELECT * FROM badge_categories ORDER BY id");
         
     }
@@ -157,6 +159,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             result->GetNextRow(binding,&name);
             mvBadgeCategories.push_back(BString(name.getAnsi()));
         }
+
+        LOG_IF(INFO, count) << "Loaded " << count << " badge categories";
 
         mDatabase->DestroyDataBinding(binding);
 
@@ -185,6 +189,8 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             result->GetNextRow(binding,badge);
             mvBadges.push_back(badge);
         }
+
+        LOG_IF(INFO, count) << "Loaded " << count << " badges";
 
         mDatabase->DestroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");

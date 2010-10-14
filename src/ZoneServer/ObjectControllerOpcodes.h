@@ -85,7 +85,7 @@ enum object_controller_opcodes
     opImageDesignStopMessage			= 0x00000239,
     opApplyBuff							= 0x00000229,
     opRemoveBuff						= 0x0000022A,
-    opMissionComplete					= 0x000004C5, //Actual name unknown
+    opMissionComplete					= 0x000004C5 //Actual name unknown
 
 };
 

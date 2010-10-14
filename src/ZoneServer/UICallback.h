@@ -39,8 +39,8 @@ class UIWindow;
 class UICallback
 {
 public:
-    virtual void	handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = NULL) {};
-    virtual void	handleUIEvent(BString leftValue = "", BString rightValue = "", UIWindow* window = NULL) {};
+    virtual void	handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = nullptr) {};
+    virtual void	handleUIEvent(BString leftValue = "", BString rightValue = "", UIWindow* window = nullptr) {};
     virtual void	handleAsktoTeachSkill(uint32 action,int32 element,BString inputStr,UIWindow* window, void* pupil, void* skill) {};
     virtual void	handleSelectSkilltoTeach(uint32 action,int32 element,BString inputStr,UIWindow* window, void* pupil, void* skillContainer) {};
 };

@@ -202,14 +202,14 @@ class ManufactureSlot
 public:
 
     ManufactureSlot(DraftSlot* draftSlot)
-        :	mDraftSlot(draftSlot)
+        : mDraftSlot(draftSlot)
+        , mResourceId(0)
         , mFilled(0)
         , mFilledType(DST_Empty)
         , mUnknown1(0)
         , mUnknown2(0xffffffff)
         , mUnknown3(0)
         , mFilledIndicatorChange(false)
-        , mResourceId(0)
     {
         mSerial = "";
     }
@@ -352,7 +352,7 @@ T	ManufacturingSchematic::getPPAttribute(uint32 keyCrc) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            gLogger->log(LogManager::NOTICE,"ManufacturingSchematic::getPPAttribute: cast failed (%u)",dkeyCrc);
+            gLogger->log(LogManager::NOTICE,"ManufacturingSchematic::getPPAttribute: cast failed (%u)",keyCrc);
         }
     }
     else

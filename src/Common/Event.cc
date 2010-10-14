@@ -90,7 +90,7 @@ void BaseEvent::next(IEventPtr next) {
 }
 
 void BaseEvent::serialize(ByteBuffer& out) const {
-    out.Write<uint32_t>(event_type().ident());
+    out.write<uint32_t>(event_type().ident());
 
     onSerialize(out);
 }
@@ -99,7 +99,7 @@ void BaseEvent::deserialize(ByteBuffer& in) {
     // If the buffer size is less than at least the size of the crc or
     // if the crc read from the buffer doesn't match this event trigger
     // an assert and return.
-    if (in.Size() < sizeof(uint32_t) || event_type().ident() != in.Read<uint32_t>()) {
+    if (in.size() < sizeof(uint32_t) || event_type().ident() != in.read<uint32_t>()) {
         assert(!"Invalid buffer passed to this event");
         return;
     }
@@ -115,11 +115,11 @@ void BaseEvent::consume(bool handled) const {
     }
 }
 
-SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms)
+SimpleEvent::SimpleEvent(const EventType& event_type, uint64_t subject_id, uint64_t delay_ms)
     : BaseEvent(subject_id, delay_ms)
     , event_type_(event_type) {}
 
-SimpleEvent::SimpleEvent(EventType& event_type, uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
+SimpleEvent::SimpleEvent(const EventType& event_type, uint64_t subject_id, uint64_t delay_ms, EventCallback callback)
     : BaseEvent(subject_id, delay_ms, callback)
     , event_type_(event_type) {}
 

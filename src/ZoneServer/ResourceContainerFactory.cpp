@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ResourceContainerFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "ObjectFactoryCallback.h"
 #include "Resource.h"
 #include "ResourceContainer.h"
@@ -129,21 +135,23 @@ void ResourceContainerFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 
 ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseResult* result)
 {
-    ResourceContainer*	resourceContainer = new ResourceContainer();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    ResourceContainer*	resourceContainer = new ResourceContainer();
 
     result->GetNextRow(mResourceContainerBinding,(void*)resourceContainer);
 
     Resource* resource = gResourceManager->getResourceById(resourceContainer->mResourceId);
 
-    if(resource != NULL)
+    if(resource != nullptr)
     {
         resourceContainer->setResource(resource);
         resourceContainer->setModelString((resource->getType())->getContainerModel().getAnsi());
+    } else {
+    	LOG(WARNING) << "Resource not found [" << resourceContainer->mResourceId << "]";
     }
-    else
-        gLogger->log(LogManager::DEBUG,"ResourceContainerFactory::_createResourceContainer: Resource not found %"PRIu64"",resourceContainer->mResourceId);
 
     resourceContainer->mMaxCondition = 100;
 

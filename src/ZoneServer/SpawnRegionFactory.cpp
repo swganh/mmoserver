@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SpawnRegionFactory.h"
 #include "SpawnRegion.h"
 #include "ObjectFactoryCallback.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -116,9 +115,11 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
 
 SpawnRegion* SpawnRegionFactory::_createSpawnRegion(DatabaseResult* result)
 {
-    SpawnRegion*	spawnRegion = new SpawnRegion();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    SpawnRegion*	spawnRegion = new SpawnRegion();
 
     result->GetNextRow(mSpawnRegionBinding,spawnRegion);
 

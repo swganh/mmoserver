@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "HarvesterFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Deed.h"
 #include "HarvesterObject.h"
 #include "ResourceContainerFactory.h"
@@ -96,7 +102,6 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
             HResourceList*	hRList = harvester->getResourceList();
             hRList->resize(hRList->size()+count);
-            HResourceList::iterator it = hRList->begin();
 
             HarvesterHopperItem hopperTemp;
             for(uint64 i=0; i <count; i++)
@@ -137,7 +142,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         harvester->setLoadState(LoadState_Loaded);
 
-        gLogger->log(LogManager::NOTICE,"HarvesterFactory: loaded Harvester %I64u", harvester->getId());
+        LOG(INFO) << "Loaded harvester with id [" << harvester->getId() << "]";
         asyncContainer->mOfCallback->handleObjectReady(harvester,asyncContainer->mClient);
 
     }
@@ -179,8 +184,9 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
 void HarvesterFactory::_createHarvester(DatabaseResult* result, HarvesterObject* harvester)
 {
-
-    uint64 count = result->getRowCount();
+    if (!result->getRowCount()) {
+       	return;
+    }
 
     result->GetNextRow(mHarvesterBinding,harvester);
 
@@ -257,7 +263,7 @@ void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     InLoadingContainer* ilc = _getObject(object->getParentId());
     if (! ilc) {//ILC sanity check...
-        gLogger->log(LogManager::WARNING,"HarvesterFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
+    	LOG(WARNING) << "Could not locate InLoadingContainer for object parent [" << object->getParentId() << "]";
         return;
     }
 
@@ -270,7 +276,7 @@ void HarvesterFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(harvester->decLoadCount() == 0)
     {
         if(!(_removeFromObjectLoadMap(harvester->getId())))
-            gLogger->log(LogManager::DEBUG,"HarvesterFactory: Failed removing object from loadmap");
+        	LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(harvester,ilc->mClient);
 

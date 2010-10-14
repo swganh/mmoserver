@@ -34,8 +34,7 @@ enum connection_opcodes
     opClientIdMsg				=	0xd5899226,
     opClientPermissionsMessage	=	0xE00730E5,
     opClusterClientDisconnect	=	0x44e7e4fa,
-
-    opHeartBeat					=	0xa16cf9af,
+    opHeartBeat					=	0xa16cf9af
 };
 
 #endif

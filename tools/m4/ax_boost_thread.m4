@@ -1,5 +1,5 @@
 # ===========================================================================
-#            http://autoconf-archive.cryp.to/ax_boost_thread.html
+#      http://www.gnu.org/software/autoconf-archive/ax_boost_thread.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -27,7 +27,10 @@
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 22
 
 AC_DEFUN([AX_BOOST_THREAD],
 [
@@ -43,7 +46,7 @@ AC_DEFUN([AX_BOOST_THREAD],
             ax_boost_user_thread_lib=""
         else
 		    want_boost="yes"
-        	ax_boost_user_thread_lib="$withval"
+		ax_boost_user_thread_lib="$withval"
 		fi
         ],
         [want_boost="yes"]
@@ -66,15 +69,15 @@ AC_DEFUN([AX_BOOST_THREAD],
 			 CXXFLAGS_SAVE=$CXXFLAGS
 
 			 if test "x$build_os" = "xsolaris" ; then
-  				 CXXFLAGS="-pthreads $CXXFLAGS"
+				 CXXFLAGS="-pthreads $CXXFLAGS"
 			 elif test "x$build_os" = "xming32" ; then
 				 CXXFLAGS="-mthreads $CXXFLAGS"
 			 else
 				CXXFLAGS="-pthread $CXXFLAGS"
 			 fi
-			 AC_COMPILE_IFELSE(AC_LANG_PROGRAM([[@%:@include <boost/thread/thread.hpp>]],
+			 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[@%:@include <boost/thread/thread.hpp>]],
                                    [[boost::thread_group thrds;
-                                   return 0;]]),
+                                   return 0;]])],
                    ax_cv_boost_thread=yes, ax_cv_boost_thread=no)
 			 CXXFLAGS=$CXXFLAGS_SAVE
              AC_LANG_POP([C++])
@@ -106,14 +109,14 @@ AC_DEFUN([AX_BOOST_THREAD],
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_THREAD_LIB="-l$ax_lib"; AC_SUBST(BOOST_THREAD_LIB) link_thread="yes"; break],
                                  [link_thread="no"])
-  				done
+				done
                 if test "x$link_thread" != "xyes"; then
                 for libextension in `ls $BOOSTLIBDIR/boost_thread*.dll* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_thread.*\)\.dll.*$;\1;'` `ls $BOOSTLIBDIR/boost_thread*.a* 2>/dev/null | sed 's,.*/,,' | sed -e 's;^\(boost_thread.*\)\.a*$;\1;'` ; do
                      ax_lib=${libextension}
 				    AC_CHECK_LIB($ax_lib, exit,
                                  [BOOST_THREAD_LIB="-l$ax_lib"; AC_SUBST(BOOST_THREAD_LIB) link_thread="yes"; break],
                                  [link_thread="no"])
-  				done
+				done
                 fi
 
             else
@@ -124,12 +127,15 @@ AC_DEFUN([AX_BOOST_THREAD],
                   done
 
             fi
+            if test "x$ax_lib" = "x"; then
+                AC_MSG_ERROR(Could not find a version of the library!)
+            fi
 			if test "x$link_thread" = "xno"; then
 				AC_MSG_ERROR(Could not link against $ax_lib !)
                         else
                            case "x$build_os" in
                               *bsd* )
-			        BOOST_LDFLAGS="-pthread $BOOST_LDFLAGS"
+				BOOST_LDFLAGS="-pthread $BOOST_LDFLAGS"
                               break;
                               ;;
                            esac
@@ -138,6 +144,6 @@ AC_DEFUN([AX_BOOST_THREAD],
 		fi
 
 		CPPFLAGS="$CPPFLAGS_SAVED"
-    	LDFLAGS="$LDFLAGS_SAVED"
+	LDFLAGS="$LDFLAGS_SAVED"
 	fi
 ])

@@ -32,6 +32,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 #include <mysql.h>
 
 #include "Utils/bstring.h"
@@ -45,11 +52,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema) :
     DatabaseImplementation(host, port, user, pass, schema)
 {
-    MYSQL*        connect = 0;
-
     // Initialize mysql and make a connection to the server.
     mConnection = mysql_init(0);
-    connect = mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)schema, port, 0, CLIENT_MULTI_STATEMENTS);
+    mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)schema, port, 0, CLIENT_MULTI_STATEMENTS);
     mysql_options(mConnection, MYSQL_OPT_RECONNECT, "true");
 
     // Any errors from the connection attempt?
@@ -143,7 +148,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
         {
             for (i = 0; i < binding->getFieldCount(); i++)
             {
-                unsigned int* lengths = (unsigned int*)mysql_fetch_lengths(mySqlResult);
+            	long unsigned int* lengths = mysql_fetch_lengths(mySqlResult);
                 switch (binding->mDataFields[i].mDataType)
                 {
                 case DFT_int8:
@@ -206,8 +211,9 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
                 }
                 case DFT_string:
                 {
-                    strncpy(&((char*)object)[binding->mDataFields[i].mDataOffset], row[binding->mDataFields[i].mColumn], lengths[binding->mDataFields[i].mColumn]);
-                    ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0;  // NULL terminate the string
+                	strncpy(&((char*)object)[binding->mDataFields[i].mDataOffset], row[binding->mDataFields[i].mColumn], lengths[binding->mDataFields[i].mColumn]);
+                    ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0;
+
                     break;
                 }
                 case DFT_bstring:

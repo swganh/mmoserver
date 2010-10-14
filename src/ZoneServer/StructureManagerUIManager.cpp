@@ -151,7 +151,7 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 
     //Owner
     int8 text[128];
-    sprintf(text,"Owner:%s",structure->getOwnersName());
+    sprintf(text,"Owner:%s",structure->getOwnersName().getAnsi());
     attributesMenu.push_back(text);
 
 

@@ -41,13 +41,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/Message.h"
 #include "ForageManager.h"
+
+#include "Utils/bstring.h"
 
 #ifdef WIN32
 using ::std::regex;
@@ -55,10 +57,10 @@ using ::std::smatch;
 using ::std::regex_search;
 using ::std::sregex_token_iterator;
 #else
-using ::boost::regex;
-using ::boost::smatch;
-using ::boost::regex_search;
-using ::boost::sregex_token_iterator;
+using boost::regex;
+using boost::smatch;
+using boost::regex_search;
+using boost::sregex_token_iterator;
 #endif
 
 bool			MedicHandlerHelpers::mInsFlag = false;
@@ -75,7 +77,7 @@ MedicHandlerHelpers::~MedicHandlerHelpers()
 std::string MedicHandlerHelpers::handleMessage(Message* message, std::string regexPattern)
 {
     // Read the message out of the packet.
-    string tmp;
+    BString tmp;
     message->getStringUnicode16(tmp);
 
     // If the string has no length the message is ill-formatted, send the

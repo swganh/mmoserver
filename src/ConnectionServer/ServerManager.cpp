@@ -55,9 +55,9 @@ ServerManager::ServerManager(Service* service, Database* database, MessageRouter
     mServerService(service),
     mDatabase(database),
     mConnectionDispatch(dispatch),
+    mClientManager(clientManager),
     mTotalActiveServers(0),
-    mTotalConnectedServers(0),
-    mClientManager(clientManager)
+    mTotalConnectedServers(0)
 {
     memset(&mServerAddressMap, 0, sizeof(mServerAddressMap));
 

@@ -33,7 +33,7 @@ namespace common {
 
 BaseApplicationService::BaseApplicationService(EventDispatcher& event_dispatcher)
     : event_dispatcher_(event_dispatcher)
-    , current_timestamp_(0) {}
+    , current_timestamp_(static_cast<uint64_t>(0)) {}
 
 BaseApplicationService::~BaseApplicationService() {}
 
@@ -44,14 +44,14 @@ void BaseApplicationService::tick(uint64_t new_timestamp) {
             return;
         }
 
-        current_timestamp_.exchange(new_timestamp);
+        current_timestamp_ = new_timestamp;
 
         onTick();
     } );
 }
 
 uint64_t BaseApplicationService::current_timestamp() const {
-    return current_timestamp_.load();
+    return current_timestamp_;
 }
 
 }  // namespace common

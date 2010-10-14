@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer.h"
+
+#include <glog/logging.h>
+
 #include "CharacterLoginHandler.h"
 #include "CharSheetManager.h"
 //	Managers
@@ -60,7 +63,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
-#include "Common/LogManager.h"
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 #include "DatabaseManager/Database.h"
@@ -80,14 +82,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/HamService.h"
 
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
-
 #include <boost/thread/thread.hpp>
 
-using ::utils::Singleton;
-using ::common::EventDispatcher;
+using utils::Singleton;
+using common::EventDispatcher;
+
+#ifdef WIN32
+#undef ERROR
+#endif
+
 
 //======================================================================================================================
 
@@ -97,17 +100,16 @@ ZoneServer* gZoneServer = NULL;
 
 ZoneServer::ZoneServer(int8* zoneName)
     : mZoneName(zoneName)
+    , mLastHeartbeat(0)
     , mNetworkManager(0)
     , mDatabaseManager(0)
     , mRouterService(0)
-    , mLastHeartbeat(0)
     , mDatabase(0)
     , ham_service_(nullptr)
 {
     Anh_Utils::Clock::Init();
 
-    // gLogger->log(LogManager::DEBUG,"ZoneServer - %s Startup %s",zoneName,GetBuildString());
-    gLogger->log(LogManager::CRITICAL,"ZoneServer initializing for zone %s", zoneName);
+    LOG(INFO) << "ZoneServer startup sequence for [" << zoneName << "]";
 
     // Create and startup our core services.
     mDatabaseManager = new DatabaseManager();
@@ -135,7 +137,8 @@ ZoneServer::ZoneServer(int8* zoneName)
 
     if (!result->getRowCount())
     {
-        gLogger->log(LogManager::CRITICAL, "FATAL: Map \'%s\' not found.  Aborting startup.", zoneName);
+        LOG(ERROR) << "Map not found for [" << zoneName << "]";
+        
         abort();
     }
 
@@ -173,13 +176,13 @@ ZoneServer::ZoneServer(int8* zoneName)
     // We can NOT create these factories among the already existing ones, if we want to have any kind of "ownership structure",
     // since the existing factories are impossible to delete without crashing the server.
     // NonPersistentContainerFactory::Init(mDatabase);
-    (void)NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
+    NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
     // The object will create itself upon first usage,
-    (void)NonPersistentNpcFactory::Instance();
+    NonPersistentNpcFactory::Instance();
 
-    (void)ForageManager::Instance();
-    (void)ScoutManager::Instance();
-    (void)NonPersistantObjectFactory::Instance();
+    ForageManager::Instance();
+    ScoutManager::Instance();
+    NonPersistantObjectFactory::Instance();
 
     //ArtisanManager callback
     CraftingManager::Init(mDatabase);
@@ -197,10 +200,11 @@ ZoneServer::ZoneServer(int8* zoneName)
 
     if(zoneId != 41)
         StructureManager::Init(mDatabase,mMessageDispatch);
+
     // Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<::zone::HamService>(new ::zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
+    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
 
@@ -213,7 +217,7 @@ ZoneServer::ZoneServer(int8* zoneName)
 
 ZoneServer::~ZoneServer(void)
 {
-    gLogger->log(LogManager::CRITICAL,"ZoneServer shutting down...");
+    LOG(INFO) << "ZoneServer shutting down";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -254,7 +258,7 @@ ZoneServer::~ZoneServer(void)
     // NOW, I can feel that it should be safe to delete the data holding messages.
     gMessageFactory->destroySingleton();
 
-    gLogger->log(LogManager::CRITICAL,"ZoneServer::Shutdown Complete\n");
+    LOG(INFO) << "ZoneServer shutdown complete";
 }
 
 //======================================================================================================================
@@ -262,12 +266,7 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
     _updateDBServerList(2);
-    gLogger->log(LogManager::CRITICAL,"Zone Server startup complete",FOREGROUND_GREEN);
-    //gLogger->printLogo();
-    // std::string BuildString(GetBuildString());
-
-    gLogger->log(LogManager::INFORMATION,"Zone Server:%s %s",getZoneName().getAnsi(),ConfigManager::getBuildString().c_str());
-    gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
+    LOG(WARNING) << "ZoneServer startup complete";
 
     // Connect to the ConnectionServer;
     _connectToConnectionServer();
@@ -296,7 +295,7 @@ void ZoneServer::Process(void)
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        gLogger->log(LogManager::NOTICE,"ZoneServer (%s) Heartbeat. Total  Players on zone : %i",gZoneServer->getZoneName().getAnsi(),(gWorldManager->getPlayerAccMap())->size());
+        //gLogger->log(LogManager::NOTICE,"ZoneServer (%s) Heartbeat. Total  Players on zone : %i",gZoneServer->getZoneName().getAnsi(),(gWorldManager->getPlayerAccMap())->size());
     }
 }
 
@@ -320,7 +319,7 @@ void ZoneServer::_connectToConnectionServer(void)
     // setup our databinding parameters.
     DataBinding* binding = mDatabase->CreateDataBinding(5);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mType), 4);
-    binding->addField(DFT_string, offsetof(ProcessAddress, mAddress), 16);
+    binding->addField(DFT_bstring, offsetof(ProcessAddress, mAddress), 16);
     binding->addField(DFT_uint16, offsetof(ProcessAddress, mPort), 2);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mStatus), 4);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
@@ -343,7 +342,7 @@ void ZoneServer::_connectToConnectionServer(void)
 
     // Now connect to the ConnectionServer
     DispatchClient* client = new DispatchClient();
-    mRouterService->Connect(client, processAddress.mAddress, processAddress.mPort);
+    mRouterService->Connect(client, processAddress.mAddress.getAnsi(), processAddress.mPort);
 
     // Send our registration message
     gMessageFactory->StartMessage();
@@ -358,6 +357,16 @@ void ZoneServer::_connectToConnectionServer(void)
 
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+    
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
+    
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 

@@ -91,7 +91,7 @@ enum Structure_QueryType
     Structure_Query_Ban_Permission_Data			=	22,
     Structure_Query_UpdateAdminPermission		=	23,
 
-    Structure_Query_NoBuildRegionData			=	24,
+    Structure_Query_NoBuildRegionData			=	24
 
 };
 
@@ -125,7 +125,7 @@ enum Structure_Async_CommandEnum
     Structure_Command_PermissionEntry	=	25,
     Structure_Command_PermissionBan		=	26,
     Structure_Command_CellEnter			=	27,
-    Structure_Command_CellEnterDenial	=	28,
+    Structure_Command_CellEnterDenial	=	28
 
 
 };

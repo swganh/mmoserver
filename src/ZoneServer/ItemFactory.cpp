@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ItemFactory.h"
 
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "CraftingTool.h"
 #include "CraftingStation.h"
 #include "Deed.h"
@@ -48,7 +53,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Wearable.h"
 #include "ChanceCube.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -258,8 +262,6 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
 {
     Item*			item;
     ItemIdentifier	itemIdentifier;
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(mItemIdentifierBinding,(void*)&itemIdentifier);
     result->ResetRowIndex();
@@ -487,6 +489,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc	= _getObject(object->getParentId());
 
     if (! ilc) {
+        LOG(WARNING) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
         gLogger->log(LogManager::WARNING,"ItemFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
         return;
     }
@@ -507,7 +510,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
         ilc->mOfCallback->handleObjectReady(item,ilc->mClient);
 
         if(!(_removeFromObjectLoadMap(item->getId())))
-            gLogger->log(LogManager::DEBUG,"ItemFactory: Failed removing object from loadmap");
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         mILCPool.free(ilc);
         return;

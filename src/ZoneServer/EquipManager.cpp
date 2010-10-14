@@ -315,7 +315,6 @@ bool EquipManager::unEquipItem(Object* object)
     //unequipped ones by the inventory!
 
     Inventory*		inventory		=	dynamic_cast<Inventory*>(getEquippedObject(CreatureEquipSlot_Inventory));
-    uint64			parentId		=	inventory->getId();
 
     //the object is now in the inventory
     //update the containment for owner and db

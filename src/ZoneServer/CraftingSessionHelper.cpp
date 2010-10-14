@@ -69,7 +69,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 bool CraftingSession::AdjustComponentStack(Item* item, uint32 uses)
 {
     gLogger->log(LogManager::DEBUG,"CraftingSession::AdjustComponentStack");
-    bool deleteStack = false;
 
     //is this a stack ???
     if(item->hasAttribute("stacksize"))
@@ -95,7 +94,6 @@ bool CraftingSession::AdjustComponentStack(Item* item, uint32 uses)
         {
             //just adjust the stacks size
             item->setAttributeIncDB("stacksize",boost::lexical_cast<std::string>(stackSize-uses));
-            deleteStack = true;
         }
 
     }
@@ -104,7 +102,6 @@ bool CraftingSession::AdjustComponentStack(Item* item, uint32 uses)
         if(uses == 1)
         {
             gLogger->log(LogManager::DEBUG,"CraftingSession::AdjustComponentStack no stacksize attribute set stack to 1");
-            deleteStack = true;
         }
         else
         {
@@ -126,9 +123,6 @@ bool CraftingSession::AdjustComponentStack(Item* item, uint32 uses)
 
 uint32 CraftingSession::AdjustFactoryCrate(FactoryCrate* crate, uint32 uses)
 {
-
-    bool deleteCrate = false;
-
     uint32 crateSize = 1;
     uint32 stackSize = 1;
 
@@ -384,15 +378,11 @@ void CraftingSession::handleFillSlotComponent(uint64 componentId,uint32 slotId,u
 
     ManufactureSlot*	manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);
 
-    uint64 crateID = 0;
-
     Item*		component	= dynamic_cast<Item*>(gWorldManager->getObjectById(componentId));
 
     //remove the component out of its container and attach it to the man schematic
     //alternatively remove the amount necessary from a stack / crate
 
-
-    uint32				availableAmount		= 0;
     uint32				existingAmount		= 0;
     uint32				totalNeededAmount	= manSlot->mDraftSlot->getNecessaryAmount();
 
@@ -710,8 +700,6 @@ void CraftingSession::handleFillSlotResourceRewrite(uint64 resContainerId,uint32
     ResourceContainer*			resContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(resContainerId));
     ManufactureSlot*			manSlot			= mManufacturingSchematic->getManufactureSlots()->at(slotId);
 
-    FilledResources::iterator	filledResIt		= manSlot->mFilledResources.begin();
-
     //bool resourceBool = false;
     bool smallupdate = false;
 
@@ -826,8 +814,6 @@ void CraftingSession::bagComponents(ManufactureSlot* manSlot,uint64 containerId)
     {
         Item*	filledComponent	= dynamic_cast<Item*>((*compIt).first);
         gLogger->log(LogManager::DEBUG,"CraftingSession::bagComponent %I64u",filledComponent->getId());
-
-        uint32 amount = (*compIt).second;
 
         if(!filledComponent)
         {
@@ -1364,8 +1350,6 @@ void CraftingSession::collectComponents()
             if(tO->hasAttribute("serial"))
                 componentSerial = tO->getAttribute<std::string>("serial").c_str();
 
-            uint32 serialCRC = componentSerial.getCrc();
-
             checkResIt = mCheckRes.find(componentID);
             if(checkResIt == mCheckRes.end())
             {
@@ -1419,7 +1403,7 @@ void CraftingSession::collectComponents()
         
 
         //now enter it in the relevant manschem table so we can use it in factories
-        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial,(*checkResIt).second);
+        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial.getAnsi(),(*checkResIt).second);
         
 
         checkResIt  ++;

@@ -1220,7 +1220,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
             BString effect = gWorldManager->getClientEffect(requestedEmote->pId);
             gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
             int8 sql[256];
-            sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %I64u", we->getId());
+            sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %"PRIu64"", we->getId());
             mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope),sql);
             
         }

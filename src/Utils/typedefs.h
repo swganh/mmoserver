@@ -125,7 +125,7 @@ typedef uint64_t  	uint64;
 typedef int64_t		sint64;
 #endif
 
-typedef unsigned int        SOCKET;
+typedef unsigned SOCKET;
 
 // Windows and unix handle their long long specifiers differently since windows doesn't
 // fully support C99. To make everything play nicely across platforms we define our own

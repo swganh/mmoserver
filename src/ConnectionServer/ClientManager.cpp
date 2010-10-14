@@ -281,7 +281,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
 {
     uint64 characterId = message->getUint64();
 
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM characters WHERE id=%I64u;", characterId);
+    DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM characters WHERE id=%"PRIu64";", characterId);
 
     uint32 serverId;
     DataBinding* binding = mDatabase->CreateDataBinding(1);

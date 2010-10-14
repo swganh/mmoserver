@@ -24,8 +24,14 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#include "WorldConfig.h"
 #include "StructureManager.h"
+
+#ifdef WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
+#include "WorldConfig.h"
 #include "PlayerStructureTerminal.h"
 #include "FactoryFactory.h"
 #include "nonPersistantObjectFactory.h"
@@ -69,6 +75,8 @@ StructureManager*			StructureManager::mSingleton  = NULL;
 
 StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 {
+    LOG(INFO) << "Beginning structure manager initialization";
+    
     mBuildingFenceInterval = gWorldConfig->getConfiguration<uint16>("Zone_BuildingFenceInterval",(uint16)10000);
     //uint32 structureCheckIntervall = gWorldConfig->getConfiguration("Zone_structureCheckIntervall",(uint32)3600);
     uint32 structureCheckIntervall = gWorldConfig->getConfiguration<uint32>("Zone_structureCheckIntervall",(uint32)30);
@@ -104,6 +112,8 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
     //check regularly the harvesters - they might have been turned off by the db, harvesters without condition might need to be deleted
     //do so every hour if no other timeframe is set
     gWorldManager->getPlayerScheduler()->addTask(fastdelegate::MakeDelegate(this,&StructureManager::_handleStructureDBCheck),7,structureCheckIntervall*1000,NULL);
+    
+    LOG(INFO) << "Structure Manager initialization complete";
 }
 
 
@@ -146,7 +156,7 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
     HouseObject* house = dynamic_cast<HouseObject*>(structure);
     if(!house)
     {
-        gLogger->log(LogManager::DEBUG,"StructureManager::updateKownPlayerPermissions: No structure");
+        LOG(WARNING) << "Structure is not a HouseObject";
         return;
     }
 
@@ -178,7 +188,7 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 
     int8 sql[512],*sqlPointer,restStr[128];
 //	int8 sql[1024]
-    sprintf(sql,"select sf_CheckPermissionList(%I64u,'",structureId);
+    sprintf(sql,"select sf_CheckPermissionList(%"PRIu64",'",structureId);
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
@@ -1115,8 +1125,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
     case Structure_Command_AccessSchem:
     {
-        PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
-
         StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes,player->getClient());
         asyncContainer->mStructureId	= command.StructureId;
         asyncContainer->mPlayerId		= command.PlayerId;
@@ -1378,6 +1386,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
     }
 
+    default:
+    	break;
+
     }
 }
 
@@ -1458,8 +1469,6 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 {
     ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
     ObjectIDList::iterator	listIt		= invObjects->begin();
-
-    uint32 power = 0;
 
     while(listIt != invObjects->end())
     {
@@ -1830,5 +1839,7 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
         }
         break;
     }
+    default:
+    	break;
     }
 }

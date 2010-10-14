@@ -91,7 +91,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.3.2
+set DEPENDENCIES_VERSION=0.3.3
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
@@ -193,6 +193,7 @@ if exist "bin" (
 		if exist *.ilk del /Q *.ilk
 		if exist *.pdb del /Q *.pdb
 		if exist *.map del /Q *.map
+		if exist *.bat del /Q *.bat
 
 	cd "%PROJECT_BASE%"
 	)
@@ -204,6 +205,7 @@ if exist "bin" (
 		if exist *.ilk del /Q *.ilk
 		if exist *.pdb del /Q *.pdb
 		if exist *.map del /Q *.map
+		if exist *.bat del /Q *.bat
 
 	cd "%PROJECT_BASE%"
 	)
@@ -330,8 +332,8 @@ if not %current_version% == %DEPENDENCIES_VERSION% (
 )
 
 if exist "deps\boost" call :BUILD_BOOST
+if exist "deps\glog" call :BUILD_GLOG
 if exist "deps\gtest" call :BUILD_GTEST
-if exist "deps\gmock" call :BUILD_GMOCK
 if exist "deps\lua" call :BUILD_LUA
 if exist "deps\mysql-connector-cpp" call :BUILD_MYSQLCONN
 if exist "deps\noise" call :BUILD_NOISE
@@ -435,6 +437,72 @@ rem ----------------------------------------------------------------------------
 
 
 rem ----------------------------------------------------------------------------
+rem --- Start of BUILD_GLOG ----------------------------------------------------
+rem --- Builds glog library used for logging.                                ---
+:BUILD_GLOG
+
+echo BUILDING: Google glog - http://code.google.com/p/google-glog/
+
+cd "%PROJECT_BASE%deps\glog"
+
+rem Only build gtest if it hasn't been built already.
+if "%BUILD_TYPE%" == "debug" (
+	if exist "debug\libglog.lib" (
+		echo Google glog library already built ... skipping
+		echo.
+		cd "%PROJECT_BASE%"
+		goto :eof
+	)
+)
+if "%BUILD_TYPE%" == "release" (
+	if exist "release\libglog.lib" (
+		echo Google glog library already built ... skipping
+		echo.
+		cd "%PROJECT_BASE%"
+		goto :eof
+	)
+)
+
+if "%BUILD_TYPE%" == "all" (
+	if exist "debug\libglog.lib" (
+		if exist "release\libglog.lib" (
+			echo Google glog library already built ... skipping
+			echo.
+			cd "%PROJECT_BASE%"
+			goto :eof
+		)
+	)
+)
+
+if exist "*.cache" del /S /Q "*.cache" >NUL
+
+if "%BUILD_TYPE%" == "debug" (
+	"%MSBUILD%" "google-glog.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+if "%BUILD_TYPE%" == "release" (
+	"%MSBUILD%" "google-glog.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+if "%BUILD_TYPE%" == "all" (
+	"%MSBUILD%" "google-glog.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+
+	"%MSBUILD%" "google-glog.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if exist "*.cache" del /S /Q "*.cache" >NUL
+)
+
+cd "%PROJECT_BASE%"
+
+goto :eof
+rem --- End of BUILD_GLOG ------------------------------------------------------
+rem ----------------------------------------------------------------------------
+
+
+
+rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_GTEST ---------------------------------------------------
 rem --- Builds all googletest library used for unit testing.                 ---
 :BUILD_GTEST
@@ -497,72 +565,6 @@ cd "%PROJECT_BASE%"
 goto :eof
 rem --- End of BUILD_GTEST -----------------------------------------------------
 rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_GMOCK ---------------------------------------------------
-rem --- Builds all googlemock library used for unit testing.                 ---
-:BUILD_GMOCK
-
-echo BUILDING: Google Mock - http://code.google.com/p/googlemock/
-
-cd "%PROJECT_BASE%deps\gmock\msvc"
-
-rem Only build mock if it hasn't been built already.
-if "%BUILD_TYPE%" == "debug" (
-	if exist "debug\gmock.lib" (
-		echo Google Mock library already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-if "%BUILD_TYPE%" == "release" (
-	if exist "release\gmock.lib" (
-		echo Google Mock library already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-if "%BUILD_TYPE%" == "all" (
-	if exist "debug\gmock.lib" (
-		if exist "release\gmock.lib" (
-			echo Google Mock library already built ... skipping
-			echo.
-			cd "%PROJECT_BASE%"
-			goto :eof
-		)
-	)
-)
-
-if exist "%PROJECT_BASE%deps\gmock\msvc\*.cache" del /S /Q "%PROJECT_BASE%deps\gmock\msvc\*.cache" >NUL
-
-if "%BUILD_TYPE%" == "debug" (
-	"%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-if "%BUILD_TYPE%" == "release" (
-	"%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-if "%BUILD_TYPE%" == "all" (
-	"%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-
-	"%MSBUILD%" "gmock.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_GMOCK -----------------------------------------------------
-rem ----------------------------------------------------------------------------
-
 
 
 rem ----------------------------------------------------------------------------
@@ -805,7 +807,6 @@ rem --- End of BUILD_NOISE -----------------------------------------------------
 rem ----------------------------------------------------------------------------
 
 
-
 rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_SPATIALINDEX --------------------------------------------
 rem --- Builds the spatial index library for use with this project.          ---
@@ -872,7 +873,6 @@ cd "%PROJECT_BASE%"
 goto :eof
 rem --- End of BUILD_SPATIALINDEX ----------------------------------------------
 rem ----------------------------------------------------------------------------
-
 
 
 rem ----------------------------------------------------------------------------

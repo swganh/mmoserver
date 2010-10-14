@@ -124,7 +124,7 @@ void CharacterBuilderTerminal::InitProfessions()
 
         char profession_nam[64];
 
-        snprintf(profession_nam, 64, "@skl_n:%s", (*skillIt)->mName);
+        snprintf(profession_nam, 64, "@skl_n:%s", (*skillIt)->mName.getAnsi());
         mProfessionMenu.push_back(profession_nam);
 
         ++skillIt;

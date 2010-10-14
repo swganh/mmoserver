@@ -330,7 +330,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
     //check we don't have ghosted buffs
     if(playerObject->GetNoOfBuffs() > 0)
     {
-        gLogger->log(LogManager::WARNING,"PlayerObject has ghosted Buffs. Inform a developer\n", FOREGROUND_RED);
+        gLogger->log(LogManager::WARNING,"PlayerObject has ghosted Buffs. Inform a developer\n");
         gMessageLib->SendSystemMessage(L"You appear to have Ghosted Buffs (Bug #958). Please inform an SWG:ANH developer or Server Admin you saw this message", playerObject);
         return;
     }
@@ -342,7 +342,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
     envelope->player		= playerObject;
 
     int8 sql[550];
-    sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %"PRIu64"", playerObject->getId());
+    sprintf(sql, "SELECT buff_id,character_id,instigator_id,max_ticks,tick_length,current_tick,icon,current_global_tick,start_global_tick from character_buffs where character_id = %"PRIu64, playerObject->getId());
     mDatabase->ExecuteSqlAsync(this,envelope,sql);
     
 }
@@ -390,8 +390,8 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
     PlayerObject* target = nullptr;
 
     try {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(buff->GetTarget());
-        PlayerObject* target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
+        player = dynamic_cast<PlayerObject*>(buff->GetTarget());
+        target = dynamic_cast<PlayerObject*>(buff->GetInstigator());   //what is the difference ?
     } catch (...) {
         // The target or the instigator may have logged off in the process, bail out.
         return false;

@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ConnectionServer.h"
+
+#include <glog/logging.h>
+
 #include "ConnectionServerOpcodes.h"
 #include "ClientManager.h"
 #include "ConnectionDispatch.h"
@@ -44,10 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/ConfigManager.h"
 #include "Utils/utils.h"
 #include "Utils/clock.h"
-
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
 
 //#include "stackwalker.h"
 #include <boost/thread/thread.hpp>
@@ -69,8 +68,8 @@ ConnectionServer::ConnectionServer(void) :
     mClusterId(0),
     mClientService(0),
     mServerService(0),
-    mLastHeartbeat(0),
-    mLocked(false)
+    mLocked(false),
+    mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
     // log msg to default log
@@ -104,7 +103,7 @@ ConnectionServer::ConnectionServer(void) :
     
 
     // In case of a crash, we need to cleanup the DB a little.
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
+    mDatabase->ExecuteSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
     
     // Status:  0=offline, 1=loading, 2=online
     _updateDBServerList(1);
@@ -121,11 +120,8 @@ ConnectionServer::ConnectionServer(void) :
 
     // We're done initiailizing.
     _updateDBServerList(2);
-    gLogger->log(LogManager::CRITICAL, "Connection Server Boot Complete");
-    // std::string BuildString(GetBuildString());
 
-    gLogger->log(LogManager::INFORMATION,"Connection Server - Build %s",ConfigManager::getBuildString().c_str());
-    gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
+    LOG(WARNING) << "Connection server startup complete";
 }
 
 //======================================================================================================================
@@ -182,7 +178,7 @@ void ConnectionServer::Process(void)
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
+        //gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
     }
 
 }
@@ -218,6 +214,16 @@ void ConnectionServer::ToggleLock()
 
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
+
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 

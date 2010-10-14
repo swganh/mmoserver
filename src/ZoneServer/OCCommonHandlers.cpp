@@ -514,7 +514,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
                 PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
                 if(CellObject* playercell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
                 {
-                    if(BuildingObject* playerparent = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playercell->getParentId())))
+                    if(dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playercell->getParentId())))
                     {
                         //still get in a range check ???
                         return true;
@@ -540,9 +540,6 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
     //todo handle factory hoppers
 
     //todo handle loot permissions
-    if(CreatureObject* creature = dynamic_cast<CreatureObject*>(mainObject))
-    {
-    }
 
     gLogger->log(LogManager::DEBUG,"ObjController::checkContainingContainer: COULDNT CAST MAIN CONTAINING CONTAINER PARENT CONTAINER ID%I64u :(",container->getId());
 
@@ -558,7 +555,6 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* object)
 {
     PlayerObject*	player			=	dynamic_cast<PlayerObject*>(mObject);
-    Inventory*		inventory		=	dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
     TangibleObject* tangibleItem = dynamic_cast<TangibleObject*>(object);
 
@@ -724,7 +720,6 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
     PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
     Object*			itemObject		=	gWorldManager->getObjectById(targetId);
     Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-    TangibleObject* targetContainer =	dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
 
     TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
 
@@ -810,7 +805,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 
 
     CellObject* cell;
-    if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(itemObject->getParentId())))
+    if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(itemObject->getParentId()))))
     {
         gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: pick up from cell %"PRIu64"", itemObject->getParentId());
 
@@ -973,9 +968,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
         gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is not valid :(");
         return;
     }
-
-    ObjectContainer* parentContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(tangible->getParentId()));
-
 
     if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
     {

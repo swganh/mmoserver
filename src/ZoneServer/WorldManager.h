@@ -28,33 +28,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_WORLDMANAGER_H
 #define ANH_ZONESERVER_WORLDMANAGER_H
 
-#include "ObjectFactoryCallback.h"
-#include "QTRegion.h"
-#include "Weather.h"
-#include "WorldManagerEnums.h"
+#include <list>
+#include <map>
+#include <vector>
 
-#include "ScriptEngine/ScriptEventListener.h"
+#include <boost/ptr_container/ptr_unordered_map.hpp>
+
+#include "Utils/TimerCallback.h"
+#include "Utils/typedefs.h"
 
 #include "DatabaseManager/DatabaseCallback.h"
 
 #include "MathLib/Rectangle.h"
 
-#include "Utils/TimerCallback.h"
-#include "Utils/typedefs.h"
+#include "ScriptEngine/ScriptEventListener.h"
 
-#include <boost/ptr_container/ptr_unordered_map.hpp>
-
-#include <list>
-#include <map>
-#include <vector>
+#include "ZoneServer/ObjectFactoryCallback.h"
+#include "ZoneServer/QTRegion.h"
+#include "ZoneServer/TangibleEnums.h"
+#include "ZoneServer/Weather.h"
+#include "ZoneServer/WorldManagerEnums.h"
 
 //======================================================================================================================
 
 #define	 gWorldManager	WorldManager::getSingletonPtr()
-
-//======================================================================================================================
-
-enum TangibleType;
 
 //======================================================================================================================
 

@@ -110,9 +110,11 @@ void TicketCollectorFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
 
 TicketCollector* TicketCollectorFactory::_createTicketCollector(DatabaseResult* result)
 {
-    TicketCollector*	ticketCollector = new TicketCollector();
+	if (!result->getRowCount()) {
+		return nullptr;
+	}
 
-    uint64 count = result->getRowCount();
+    TicketCollector*	ticketCollector = new TicketCollector();
 
     result->GetNextRow(mTicketCollectorBinding,(void*)ticketCollector);
 

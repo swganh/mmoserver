@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "HouseFactory.h"
 
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Deed.h"
 #include "HouseObject.h"
 #include "PlayerObject.h"
@@ -35,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CellObject.h"
 #include "TangibleFactory.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -223,8 +227,9 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void HouseFactory::_createHouse(DatabaseResult* result, HouseObject* house)
 {
-
-    uint64 count = result->getRowCount();
+    if (!result->getRowCount()) {
+       	return;
+    }
 
     result->GetNextRow(mHouseBinding,house);
 
@@ -307,7 +312,6 @@ void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
     //Perform checking.
     if(!ilc)
     {
-        gLogger->log(LogManager::NOTICE,"House creation failed (HouseFactory.cpp line 289)");
         return;
     }
 
@@ -322,7 +326,7 @@ void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(house->getLoadCount() == (house->getCellList())->size())
     {
         if(!(_removeFromObjectLoadMap(house->getId())))
-            gLogger->log(LogManager::NOTICE,"BuildingFactory: Failed removing object from loadmap");
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(house,ilc->mClient);
 

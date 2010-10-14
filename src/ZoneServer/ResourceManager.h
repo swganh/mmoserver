@@ -54,7 +54,7 @@ enum RMQueryType
     RMQuery_OldResources		= 2,
     RMQuery_CurrentResources	= 3,
     RMQuery_Categories			= 4,
-    RMQuery_DepleteResources	= 5,
+    RMQuery_DepleteResources	= 5
 };
 
 //======================================================================================================================

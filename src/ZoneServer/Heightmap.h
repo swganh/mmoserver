@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define     gHeightmap    Heightmap::getSingletonPtr()
 
 #include "Utils/typedefs.h"
-#include "Utils/lockfree_queue.h"
 #include <boost/thread/thread.hpp>
 #include <string>
 #include "HeightmapAsyncContainer.h"
@@ -75,7 +74,7 @@ public:
         return (mCacheResoulutionDivider == 1);
     }
     float getCachedHeightAt2DPosition(float xPos, float zPos) const;
-    float Heightmap::getHeight(float x, float y);
+    float getHeight(float x, float y);
     bool isReady();
     float compensateForInvalidHeightmap(float hmapRes, float clientRes, float allowedDeviation);//TODO: Re-evaluate need once heightmaps are corrected
 protected:

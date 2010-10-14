@@ -102,7 +102,7 @@ WeightsBatch* DraftSchematic::getAssemblyWeightsBatchByListId(uint32 listId)
             return(*it);
         ++it;
     }
-    return(NULL);
+    return nullptr;
 }
 
 //=============================================================================
@@ -116,7 +116,7 @@ WeightsBatch* DraftSchematic::getExperimentWeightsBatchByListId(uint32 listId)
             return(*it);
         ++it;
     }
-    return(NULL);
+    return nullptr;
 }
 
 //=============================================================================
@@ -131,7 +131,8 @@ CraftBatch* DraftSchematic::getCraftBatchByListId(uint32 listId)
 
         ++it;
     }
-    return(NULL);
+
+    return nullptr;
 }
 
 //=============================================================================

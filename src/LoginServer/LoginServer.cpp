@@ -27,6 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginServer.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "LoginManager.h"
 
 #include "NetworkManager/NetworkManager.h"
@@ -41,10 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/ConfigManager.h"
 #include "Utils/utils.h"
 
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
-
 #include <boost/thread/thread.hpp>
 #include "Utils/clock.h"
 
@@ -56,16 +58,14 @@ LoginServer* gLoginServer = 0;
 LoginServer::LoginServer(void) :
     mNetworkManager(0)
 {
-    // log msg to default log
-
     Anh_Utils::Clock::Init();
     gLogger->log(LogManager::INFORMATION, "Login Server Startup");
 
     // Initialize our modules.
 
     mNetworkManager = new NetworkManager();
+    LOG(INFO) << "Config port set to " << gConfig->read<uint16>("BindPort");
     mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
-
 
     mDatabaseManager = new DatabaseManager();
 
@@ -150,6 +150,16 @@ void handleExit(void)
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
+  
     try {
         ConfigManager::Init("LoginServer.cfg");
     } catch (file_not_found) {
@@ -166,7 +176,7 @@ int main(int argc, char* argv[])
         std::cout << "Unable to open log file for writing" << std::endl;
         exit(-1);
     }
-
+    
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <functional>
 #include <memory>
 
-#include "Common/ByteBuffer.h"
+#include "Common/byte_buffer.h"
 #include "Common/HashString.h"
 #include "Common/declspec.h"
 
@@ -178,8 +178,8 @@ private:
  */
 class COMMON_API SimpleEvent : public BaseEvent {
 public:
-    explicit SimpleEvent(::common::EventType& event_type, uint64_t subject_id = 0, uint64_t delay_ms = 0);
-    SimpleEvent(::common::EventType& event_type, uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    explicit SimpleEvent(const common::EventType& event_type, uint64_t subject_id = 0, uint64_t delay_ms = 0);
+    SimpleEvent(const common::EventType& event_type, uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
 
     ~SimpleEvent();
 

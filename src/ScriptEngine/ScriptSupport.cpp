@@ -433,14 +433,12 @@ void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, fl
     float alpha = atan(xOffset/zOffset);
 
     float w = npcMember->mDirection.w;
-    float y = 1.0;
 
     if (w > 0.0)
     {
         if (npcMember->mDirection.y < 0.0)
         {
             w *= -1;
-            y = -1.0;
         }
     }
     float angle = 2.0f*acos(w);
@@ -468,14 +466,12 @@ void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, f
     float alpha = atan(xOffset/zOffset);
 
     float w = npc->mDirection.w;
-    float y = 1.0;
 
     if (w > 0.0)
     {
         if (npc->mDirection.y < 0.0)
         {
             w *= -1;
-            y = -1.0;
         }
     }
     float angle = 2.0f*acos(w);

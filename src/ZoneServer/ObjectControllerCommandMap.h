@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_OBJECTCONTROLLERCOMMANDMAP_H
 
 #include <cstdint>
+#include <functional>
 #include <map>
 
 #ifdef _MSC_VER

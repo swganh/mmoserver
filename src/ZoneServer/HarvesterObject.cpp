@@ -293,8 +293,6 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
 
     uint32 rAmount = amount;
 
-    bool	foundSameType	= false;
-
     while(listIt != invObjects->end())
     {
         // we are looking for resource containers

@@ -50,7 +50,6 @@ void AuctionClass::AddAuction(AuctionItem Auction)
 
     //ListStringList::iterator it = mListStringList.begin();
     NameStringList::iterator itD = mNameStringList.begin();
-    AuctionStringList::iterator itA = mAuctionStringList.begin();
 
     //insert bazaar and seller into the lists
     //so every bazaar and every seller are only once in memory

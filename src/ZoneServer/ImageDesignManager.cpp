@@ -85,7 +85,6 @@ HoloStruct* EntertainerManager::getHoloEmoteByClientCRC(uint32 crc)
 BString EntertainerManager::getHoloNames()
 {
     int8 collection[512];
-    sprintf(collection,"");
     bool isNew = true;
 
     HoloEmoteEffects::iterator it = mHoloList.begin();
@@ -719,10 +718,6 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
         //int32 mindCost = 66;
         designer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(66));
     }
-
-
-    const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
-    PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
 
     int8 sql[1024];
     EntertainerManagerAsyncContainer* asyncContainer;

@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_UTILS_EVENTHANDLER_H
 #define ANH_UTILS_EVENTHANDLER_H
 
-#include <boost/ptr_container/ptr_map.hpp>
 #include <typeinfo>
+#include <boost/ptr_container/ptr_map.hpp>
 
 #include "Utils/declspec.h"
 

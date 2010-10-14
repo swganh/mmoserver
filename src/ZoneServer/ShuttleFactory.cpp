@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "ObjectFactoryCallback.h"
 #include "Shuttle.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -122,11 +121,13 @@ void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id,
 
 Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
+
     Shuttle*	shuttle				= new Shuttle();
     Inventory*	shuttleInventory	= new Inventory();
     shuttleInventory->setParent(shuttle);
-
-    uint64 count = result->getRowCount();
 
     result->GetNextRow(mShuttleBinding,(void*)shuttle);
 

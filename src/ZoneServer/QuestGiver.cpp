@@ -325,7 +325,6 @@ uint32 QuestGiver::handleConversationEvent(ActiveConversation* av,ConversationPa
 {
     // gLogger->log(LogManager::DEBUG,"QuestGiver::conversationEvent: page->mId = %u",page->mId);
 
-    std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
     uint32 pageLink = page->mId;
 
     if (gWorldConfig->isTutorial())

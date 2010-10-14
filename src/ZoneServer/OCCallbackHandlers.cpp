@@ -195,6 +195,10 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         if (!asyncContainer->playerObject)
             break;
 
+        if (!result->getRowCount()) {
+        	break;
+        }
+
         DataBinding* binding = mDatabase->CreateDataBinding(9);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mWounds),4,0);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mWounds),4,1);
@@ -205,8 +209,6 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mWounds),4,6);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mWounds),4,7);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,8);
-
-        uint64	count = result->getRowCount();
 
         result->GetNextRow(binding,asyncContainer->playerObject);
 

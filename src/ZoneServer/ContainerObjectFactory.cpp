@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ContainerObjectFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Container.h"
 #include "CreatureObject.h"
 #include "ObjectFactoryCallback.h"
@@ -34,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -223,9 +228,11 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
 
 Container* ContainerObjectFactory::_createContainer(DatabaseResult* result)
 {
-    Container*	container = new Container();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-    uint64 count = result->getRowCount();
+    Container*	container = new Container();
 
     result->GetNextRow(mContainerBinding,(void*)container);
 
@@ -268,7 +275,7 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
 {
     InLoadingContainer* ilc	= _getObject(object->getParentId());
     if(!ilc) { //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627024455-d7efda0b4aebaa96b06438b2c42dfe6c
-        gLogger->log(LogManager::WARNING,"ContainerObjectFactory::handleObjectReady: Failed to locate ilc for object with parentId:%u.", object->getParentId());
+        LOG(WARNING) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
         //if(!_removeFromObjectLoadMap(object->getParentId())){
         //	gLogger->log(LogManager::WARNING,"ContainerObjectFactory::handleObjectReady: Failed to locate ilc for object with parentId:%u. Removal from loadMap failed.", object->getParentId());
         //}
@@ -293,7 +300,7 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
         container->setLoadState(LoadState_Loaded);
 
         if (!(_removeFromObjectLoadMap(container->getId())))
-            gLogger->log(LogManager::DEBUG,"ContainerObjectFactory: Failed removing object from loadmap");
+            LOG(WARNING) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(container,ilc->mClient);
 

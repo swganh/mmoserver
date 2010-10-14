@@ -151,7 +151,7 @@ void Trade::cancelTradeSession()
 {
     gMessageLib->sendAbortTradeMessage(getPlayerObject());
     TradeListDelete();
-    getPlayerObject()->setTradePartner(NULL);
+    getPlayerObject()->setTradePartner(0);
     getPlayerObject()->setTradeStatus(false);
     ItemTradeList::iterator it = mItemTradeList.begin();
     while(it != mItemTradeList.end())
@@ -192,7 +192,7 @@ void Trade::endTradeSession()
 {
     gMessageLib->sendTradeCompleteMessage(getPlayerObject());
     TradeListDelete();
-    getPlayerObject()->setTradePartner(NULL);
+    getPlayerObject()->setTradePartner(0);
     getPlayerObject()->setTradeStatus(false);
     mMoney = 0;
     mTradingFin = false;
@@ -203,7 +203,6 @@ void Trade::endTradeSession()
 
 bool Trade::checkTradeListtoInventory()
 {
-    ItemTradeList::iterator it			= mItemTradeList.begin();
     Inventory*				inventory	= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
     if(!inventory)
@@ -285,7 +284,6 @@ void  Trade::processTradeListPostTransaction()
     //The transaction has now been approved so we can do all the other stuff
 
     ItemTradeList::iterator it					= mItemTradeList.begin();
-    Inventory*				inventory			= dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
     //Tradepartners Inventory
     PlayerObject*			TradePartner		= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(getPlayerObject()->getTradePartner()));

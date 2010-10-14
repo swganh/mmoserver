@@ -82,14 +82,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/HamService.h"
 
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
-
 #include <boost/thread/thread.hpp>
 
-using ::utils::Singleton;
-using ::common::EventDispatcher;
+using utils::Singleton;
+using common::EventDispatcher;
 
 //======================================================================================================================
 
@@ -266,7 +262,7 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
     _updateDBServerList(2);
-    LOG(INFO) << "ZoneServer startup complete";
+    LOG(WARNING) << "ZoneServer startup complete";
 
     // Connect to the ConnectionServer;
     _connectToConnectionServer();
@@ -365,6 +361,7 @@ int main(int argc, char* argv[])
 #endif
     
     FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
     
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);

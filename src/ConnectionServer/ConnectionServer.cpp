@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ConnectionServer.h"
+
+#include <glog/logging.h>
+
 #include "ConnectionServerOpcodes.h"
 #include "ClientManager.h"
 #include "ConnectionDispatch.h"
@@ -44,10 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/ConfigManager.h"
 #include "Utils/utils.h"
 #include "Utils/clock.h"
-
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
 
 //#include "stackwalker.h"
 #include <boost/thread/thread.hpp>
@@ -121,11 +120,8 @@ ConnectionServer::ConnectionServer(void) :
 
     // We're done initiailizing.
     _updateDBServerList(2);
-    gLogger->log(LogManager::CRITICAL, "Connection Server Boot Complete");
-    // std::string BuildString(GetBuildString());
 
-    gLogger->log(LogManager::INFORMATION,"Connection Server - Build %s",ConfigManager::getBuildString().c_str());
-    gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
+    LOG(WARNING) << "Connection server startup complete";
 }
 
 //======================================================================================================================
@@ -218,6 +214,16 @@ void ConnectionServer::ToggleLock()
 
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
+
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 

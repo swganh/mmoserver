@@ -47,10 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/ConfigManager.h"
 #include "Utils/utils.h"
 
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
-
 #include <boost/thread/thread.hpp>
 #include "Utils/clock.h"
 
@@ -62,8 +58,6 @@ LoginServer* gLoginServer = 0;
 LoginServer::LoginServer(void) :
     mNetworkManager(0)
 {
-    // log msg to default log
-
     Anh_Utils::Clock::Init();
     gLogger->log(LogManager::INFORMATION, "Login Server Startup");
 
@@ -164,6 +158,7 @@ int main(int argc, char* argv[])
 #endif
 
     FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
   
     try {
         ConfigManager::Init("LoginServer.cfg");

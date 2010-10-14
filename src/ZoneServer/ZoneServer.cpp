@@ -82,11 +82,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/HamService.h"
 
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
-
 #include <boost/thread/thread.hpp>
+
+#ifdef WIN32
+#undef ERROR
+#endif
 
 using ::utils::Singleton;
 using ::common::EventDispatcher;
@@ -137,8 +137,7 @@ ZoneServer::ZoneServer(int8* zoneName)
     if (!result->getRowCount())
     {
         LOG(ERROR) << "Map not found for [" << zoneName << "]";
-
-        gLogger->log(LogManager::CRITICAL, "FATAL: Map \'%s\' not found.  Aborting startup.", zoneName);
+        
         abort();
     }
 
@@ -217,7 +216,7 @@ ZoneServer::ZoneServer(int8* zoneName)
 
 ZoneServer::~ZoneServer(void)
 {
-	LOG(INFO) << "ZoneServer shutting down";
+    LOG(INFO) << "ZoneServer shutting down";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);

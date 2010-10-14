@@ -159,10 +159,18 @@ private:
     bool AddEventType_(const EventType& event_type);
     void Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type);
     bool Deliver_(IEventPtr triggered_event);
-
+        
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     EventTypeSet event_type_set_;
 
     EventListenerMap event_listener_map_;
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 
     uint64_t current_timestep_;
     
@@ -173,8 +181,17 @@ private:
     {
         kNumQueues = 2
     };
-
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     EventQueue event_queue_[kNumQueues];
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
     int active_queue_;
     
     utils::ActiveObject active_;

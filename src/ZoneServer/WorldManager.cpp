@@ -27,6 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "WorldManager.h"
 
+#ifdef WIN32
+#undef ERROR
+#endif
+
 #include <glog/logging.h>
 
 #include "PlayerObject.h"
@@ -379,7 +383,7 @@ void WorldManager::LoadCurrentGlobalTick()
     mDatabase->DestroyResult(temp);
 
 
-	LOG(INFO) << "Current global tick count [" << Tick << "]";
+    LOG(INFO) << "Current global tick count [" << Tick << "]";
     mTick = Tick;
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
 }
@@ -615,7 +619,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
         CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
         if(!tool)
         {
-        	LOG(ERROR) << "Missing crafting tool";
+            LOG(ERROR) << "Missing crafting tool";
             it = mBusyCraftTools.erase(it);
             continue;
         }
@@ -870,7 +874,7 @@ void WorldManager::_handleLoadComplete()
     // register script hooks
     _startWorldScripts();
 
-	LOG(INFO) << "World load complete";
+    LOG(INFO) << "World load complete";
 
     if(mZoneId != 41)
     {
@@ -1225,7 +1229,7 @@ void WorldManager::_startWorldScripts()
 
         ++scriptIt;
     }
-	LOG(ERROR) << "Loaded world scripts";
+    LOG(ERROR) << "Loaded world scripts";
 }
 
 //======================================================================================================================
@@ -1456,16 +1460,16 @@ void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 
         if(playerAccIt != mPlayerAccMap.end())
         {
-        	LOG(INFO) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
+            LOG(INFO) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
             mPlayerAccMap.erase(playerAccIt);
         }
         else
         {
-        	LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
+            LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
         }
     }
     else
     {
-    	LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
+        LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
     }
 }

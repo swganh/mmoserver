@@ -26,9 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "WorldConfig.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
 #include <glog/logging.h>
 
 #include "UIManager.h"
@@ -54,6 +51,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "Utils/rand.h"
 
+#ifdef WIN32
+#undef ERROR
+#endif
 //======================================================================================================================
 
 bool		UIManager::mInsFlag		= false;

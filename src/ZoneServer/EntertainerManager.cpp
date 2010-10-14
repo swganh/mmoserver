@@ -27,9 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "EntertainerManager.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
 #include <glog/logging.h>
 
 #include "GroupManager.h"
@@ -54,6 +51,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/atMacroString.h"
 #include "Utils/utils.h"
 
+#ifdef WIN32
+#undef ERROR
+#endif
 
 bool EntertainerManager::mInsFlag = false;
 EntertainerManager*	EntertainerManager::mSingleton = NULL;

@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "InventoryFactory.h"
 
+#ifdef WIN32
+#undef ERROR
+#endif
 #include <glog/logging.h>
 
 #include "Inventory.h"

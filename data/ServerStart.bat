@@ -1,3 +1,10 @@
+@echo off
+
+set BINDIR=%~dp0
+cd %BINDIR%
+
+PATH=%BINDIR%..\..\deps\tbb\bin\ia32\vc10;%PATH%
+
 start ConnectionServer.exe
 
 start LoginServer.exe

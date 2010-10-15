@@ -584,6 +584,10 @@ bool ObjectController::_processEventQueue()
 //
 void ObjectController::enqueueCommandMessage(Message* message)
 {
+	// this is required with how we are grabbing the packets
+	// basically think of this as just grabbing the first uint32
+	// value and throwing it away to get to the get stuff...
+	message->getUint32();
     uint32	sequence		= message->getUint32();
     uint32	opcode			= message->getUint32();
     uint64	targetId		= message->getUint64();

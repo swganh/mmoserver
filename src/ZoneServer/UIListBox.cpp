@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIOpcodes.h"
 #include "UIManager.h"
 
-#include "Common/LogManager.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 
@@ -77,7 +76,7 @@ void UIListBox::handleEvent(Message* message)
         message->getStringUnicode16(selectedDataItemStr);
 
         if(swscanf(selectedDataItemStr.getUnicode16(),L"%i",&selectedItem) != 1)
-            gLogger->log(LogManager::DEBUG,"UIListBox::handleEvent: item mismatch");
+            DLOG(INFO) << "UIListBox::handleEvent: item mismatch";
 
         if(items >= 2)
             message->getStringUnicode16(caption);

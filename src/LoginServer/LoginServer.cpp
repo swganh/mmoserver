@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 
-#include "Common/LogManager.h"
+
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
@@ -59,12 +59,12 @@ LoginServer::LoginServer(void) :
     mNetworkManager(0)
 {
     Anh_Utils::Clock::Init();
-    gLogger->log(LogManager::INFORMATION, "Login Server Startup");
+    LOG(WARNING) << "Login Server Startup";
 
     // Initialize our modules.
 
     mNetworkManager = new NetworkManager();
-    LOG(INFO) << "Config port set to " << gConfig->read<uint16>("BindPort");
+    LOG(WARNING) << "Config port set to " << gConfig->read<uint16>("BindPort");
     mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
 
     mDatabaseManager = new DatabaseManager();
@@ -102,12 +102,12 @@ LoginServer::LoginServer(void) :
     // We're done initializing.
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, '%s', %u);", 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
 
-    gLogger->log(LogManager::CRITICAL, "Login Server startup complete");
+    LOG(WARNING) << "Login Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    gLogger->log(LogManager::INFORMATION, "Login Server - Build %s", ConfigManager::getBuildString().c_str());
-    gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
+    LOG(WARNING) <<  "Login Server - Build " << ConfigManager::getBuildString().c_str();
+    LOG(WARNING) << "Welcome to your SWGANH Experience!";
 }
 
 
@@ -116,7 +116,7 @@ LoginServer::~LoginServer(void)
 {
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 2); // SQL - Update server status
     
-    gLogger->log(LogManager::CRITICAL, "LoginServer shutting down...");
+    LOG(WARNING) << "LoginServer shutting down...";
 
     delete mLoginManager;
 
@@ -127,7 +127,7 @@ LoginServer::~LoginServer(void)
 
     delete mDatabaseManager;
 
-    gLogger->log(LogManager::CRITICAL, "LoginServer Shutdown complete");
+    LOG(WARNING) << "LoginServer Shutdown complete";
 }
 
 //======================================================================================================================
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    try {
+    /*try {
         LogManager::Init(
             static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
             static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
@@ -175,7 +175,7 @@ int main(int argc, char* argv[])
     } catch (...) {
         std::cout << "Unable to open log file for writing" << std::endl;
         exit(-1);
-    }
+    }*/
     
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);

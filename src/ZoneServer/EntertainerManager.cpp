@@ -1470,7 +1470,7 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 
     if(!entertainer->getAudienceList())
     {
-        gLogger->log(LogManager::DEBUG,"CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!");
+        DLOG(INFO) << "CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!";
         return;
     }
 
@@ -1977,7 +1977,6 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
     }
 
     //check distance and remove offending audience
-    gLogger->log(LogManager::DEBUG,"check the audience distances %"PRIu64"",entertainer->getId());
     CheckDistances(entertainer);
 
     //heal BF and Mindwounds
@@ -2020,11 +2019,9 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 
         gMessageLib->SendSystemMessage(::common::OutOfBand(prose), entertainer);
 
-        gLogger->log(LogManager::DEBUG,"end tick %"PRIu64"",entertainer->getId());
         return (false);
 
     }
-    gLogger->log(LogManager::DEBUG,"end tick %"PRIu64"",entertainer->getId());
     return (true);
 }
 
@@ -2180,7 +2177,6 @@ void EntertainerManager::handleObjectReady(Object* object,DispatchClient* client
 
             if(!permanentinstrument)
             {
-                gLogger->log(LogManager::DEBUG,"EntertainerManager::handleObjectReady: no permanent instrument");
                 return;
             }
 

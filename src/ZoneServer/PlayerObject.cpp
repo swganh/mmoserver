@@ -61,7 +61,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "Common/atMacroString.h"
 #include "NetworkManager/Message.h"
@@ -902,8 +901,6 @@ void PlayerObject::addBadge(uint32 badgeId)
 
         (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
 
-        gLogger->log(LogManager::DEBUG,"Badge %u granted to %"PRIu64"",badgeId,mId);
-
         _verifyBadges();
 
         if(badge->getCategory() >= 3 && badge->getCategory() <= 5)
@@ -914,7 +911,6 @@ void PlayerObject::addBadge(uint32 badgeId)
     else
     {
         // This is an unexpected condition.
-        gLogger->log(LogManager::DEBUG,"Badge %u already exists for player with id %"PRIu64"",badgeId,mId);
     }
 }
 
@@ -1187,7 +1183,7 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
     default:
     {
-        gLogger->log(LogManager::DEBUG,"PlayerObject: Unhandled MenuSelect: %u",messageType);
+        DLOG(INFO) << "PlayerObject: Unhandled MenuSelect: " << messageType;
     }
     break;
     }
@@ -1348,7 +1344,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
         if(!skill)
         {
-            gLogger->log(LogManager::DEBUG,"PlayerObject: teach skill : skill list surprisingly empty\n");
+            DLOG(INFO) << "PlayerObject: teach skill : skill list surprisingly empty";
             return;
         }
 
@@ -1523,7 +1519,6 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
         if(selectedPlayer == NULL)
         {
-            gLogger->log(LogManager::DEBUG,"SUI_Window_SelectGroupLootMaster_Listbox: Invalid player selection");
             break;
         }
 
@@ -1533,7 +1528,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
     default:
     {
-        gLogger->log(LogManager::DEBUG,"handleUIEvent:Default: %u, %u, %s,", action, element, inputStr.getAnsi());
+		DLOG(INFO) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
     }
     break;
     }
@@ -1632,7 +1627,7 @@ void PlayerObject::addToDuelList(PlayerObject* player)
     if(this->getId()!= player->getId())
         mDuelList.push_back(player);
     else
-        gLogger->log(LogManager::DEBUG,"PlayerObject::addToDuelList: %I64u wanted to add himself to his/her duel list", player->getId());
+		DLOG(INFO) << "PlayerObject::addToDuelList: "<<player->getId() << " wanted to add himself to his/her duel list";
 }
 //=============================================================================
 //
@@ -1978,7 +1973,7 @@ Object* PlayerObject::getHealingTarget(PlayerObject* Player) const
         if(Player->getPvPStatus() != PlayerTarget->getPvPStatus())
         {
             //send pvp_no_help
-            gLogger->log(LogManager::DEBUG,"PVP Flag not right");
+            DLOG(INFO) << "PVP Flag not right";
             gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "pvp_no_help"), Player);
             //return Player as the healing target
             return Player;
@@ -2143,7 +2138,7 @@ void PlayerObject::setSitting(Message* message)
                 else
                 {
                     // we should never get here !
-                    gLogger->log(LogManager::DEBUG,"SitOnObject: could not find zone region in map");
+                    DLOG(INFO) << "SitOnObject: could not find zone region in map";
 
                     // hammertime !
                     exit(-1);
@@ -2160,7 +2155,7 @@ void PlayerObject::setSitting(Message* message)
                     if(cell)
                         cell->removeObject(this);
                     else
-                        gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell %"PRIu64"",this->getId(),this->getParentId());
+						DLOG(INFO) << "Error removing " <<this->getId() << "from cell " << this->getParentId();
 
                     this->setParentId(chairCell);
 
@@ -2169,7 +2164,7 @@ void PlayerObject::setSitting(Message* message)
                     if(cell)
                         cell->addObjectSecure(this);
                     else
-                        gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell %"PRIu64"",this->getId(),chairCell);
+                        DLOG(INFO) << "Error adding " <<this->getId() << "to cell " << chairCell;
                 }
 
                 this->mPosition = chair_position;

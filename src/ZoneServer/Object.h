@@ -41,7 +41,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/EventHandler.h"
 #include "Utils/typedefs.h"
 
-#include "Common/LogManager.h" // @todo: this needs to go.	  where does it need to go ?
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "ObjectController.h"
 #include "RadialMenu.h"
@@ -108,7 +113,7 @@ public:
     //just sets a new ParentID and sends Containment to TargetObject
     virtual void				setParentIdIncDB(uint64 parentId) {
         mParentId = parentId;
-        gLogger->log(LogManager::NOTICE, "Object no table specified setting ID: %I64u", this->getId());
+        DLOG(INFO) << "Object no table specified setting ID: " <<  this->getId();
     }
 
 
@@ -396,11 +401,11 @@ T	Object::getAttribute(BString key) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            gLogger->log(LogManager::INFORMATION, "Object::getAttribute: cast failed (%s)", key.getAnsi());
+            DLOG(INFO) << "Object::getAttribute: cast failed " << key.getAnsi();
         }
     }
     else
-        gLogger->log(LogManager::INFORMATION, "Object::getAttribute: could not find %s", key.getAnsi());
+        DLOG(INFO) << "Object::getAttribute: could not find " << key.getAnsi();
 
     return(T());
 }
@@ -442,11 +447,11 @@ T	Object::getAttribute(uint32 keyCrc) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            gLogger->log(LogManager::DEBUG,"Object::getAttribute: cast failed (%s)",keyCrc);
+            DLOG(INFO) << "Object::getAttribute: cast failed " << keyCrc;
         }
     }
     else
-        gLogger->log(LogManager::DEBUG,"Object::getAttribute: could not find %s",keyCrc);
+        DLOG(INFO) << "Object::getAttribute: could not find " << keyCrc;
 
     return(T());
 }
@@ -467,11 +472,11 @@ T	Object::getInternalAttribute(BString key)
         }
         catch(boost::bad_lexical_cast &)
         {
-            gLogger->log(LogManager::DEBUG,"Object::getInternalAttribute: cast failed (%s)",key.getAnsi());
+			DLOG(INFO) << "Object::getInternalAttribute: cast failed " << key.getAnsi();
         }
     }
     else
-        gLogger->log(LogManager::DEBUG,"Object::getInternalAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::getInternalAttribute: could not find " << key.getAnsi();
 
     return(T());
 }

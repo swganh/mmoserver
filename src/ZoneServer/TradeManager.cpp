@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/Transaction.h"
@@ -164,13 +163,13 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if((!asynContainer->player1)||(!asynContainer->player2))
         {
-            gLogger->log(LogManager::DEBUG,"TradeManager TRMQuery_MoneyTransaction : one of the tradepartners doesnt exist");
+            DLOG(INFO) << "TradeManager TRMQuery_MoneyTransaction : one of the tradepartners doesnt exist";
             error = 1;
         }
 
         if (error )
         {
-            gLogger->log(LogManager::DEBUG,"TradeManager Trade transaction failed");
+            DLOG(INFO) << "TradeManager Trade transaction failed";
             // oh woe we need to rollback :(
             // (ie do nothing)
             //oh and send an error to the client!
@@ -301,7 +300,6 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if (error)
         {
-            gLogger->log(LogManager::DEBUG,"TradeManager TRMQuery_CreateAuctionTransaction: transaction failed");
             gMessageLib->sendCreateAuctionItemResponseMessage(asynContainer->player1,itemId,2);
             return;
         }
@@ -597,7 +595,6 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     if(!(playerObject && playerObject->isConnected()))
     {
         //some error
-        gLogger->log(LogManager::DEBUG,"TradeManager::_processHandleAuctionCreateMessage No player!!!");
         gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,ItemID,1);
         return;
     }
@@ -629,8 +626,6 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     if(!requestedObject)
     {
         //cave we might sell datapad schematics, too
-        gLogger->log(LogManager::DEBUG,"TradeManager::_processHandleCreateAuction could not find object");
-
         return;
     }
 
@@ -763,7 +758,6 @@ void TradeManager::_processAbortTradeMessage(Message* message,DispatchClient* cl
 
             playerObject->getTrade()->cancelTradeSession();
 
-            gLogger->log(LogManager::DEBUG,"TradeManager Canceled Trade");
         }
     }
 }
@@ -818,7 +812,7 @@ void TradeManager::_processTradeCompleteMessage(Message* message,DispatchClient*
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"TradeManager Trade finished without Accept !!!!!");
+            DLOG(INFO) << "TradeManager Trade finished without Accept !!!!!";
         }
     }
 }
@@ -863,15 +857,15 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
         player1->getTrade()->cancelTradeSession();
         player2->getTrade()->cancelTradeSession();
 
-        gLogger->log(LogManager::DEBUG,"TradeManager Trade likely to have been tampered with");
+        DLOG(INFO) << "TradeManager Trade likely to have been tampered with";
 
         if (!player1->testCash(asyncContainer->amount1) )
         {
-            gLogger->log(LogManager::DEBUG,"Player : %s, id %"PRIu64" wanted to trade %u credits but had only %u left",player1->getFirstName().getAnsi(),player1->getId(),asyncContainer->amount1,dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+			DLOG(INFO) <<"Player : "<<player1->getFirstName().getAnsi()<< "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had only " << dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
         }
         if (!player2->testCash(asyncContainer->amount2) )
         {
-            gLogger->log(LogManager::DEBUG,"Player : %s, id %"PRIu64" wanted to trade %u credits but had only %u left",player2->getFirstName().getAnsi(),player2->getId(),asyncContainer->amount2,dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+            DLOG(INFO) <<"Player : "<<player2->getFirstName().getAnsi()<< "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had only " << dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
         }
     }
 }
@@ -992,13 +986,11 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 
     if(!(playerObject && playerObject->isConnected()))
     {
-        gLogger->log(LogManager::DEBUG,"TradeManager::_processAddItemMessage:: No player");
         return;
     }
 
     if (!playerObject->getTradeStatus())
     {
-        gLogger->log(LogManager::DEBUG,"TradeManager::_processAddItemMessage:: Not trading");
         return;
     }
 
@@ -1007,7 +999,6 @@ void TradeManager::_processAddItemMessage(Message* message,DispatchClient* clien
 
     if (!addedItem)
     {
-        gLogger->log(LogManager::DEBUG,"TradeManager::_processAddItemMessage:: No (tangible) Item");
         return;
     }
 

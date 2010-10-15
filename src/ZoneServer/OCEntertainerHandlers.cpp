@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -93,7 +92,6 @@ void ObjectController::_handlewatch(uint64 targetId,Message* message,ObjectContr
     if(!targetPlayer)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "dance_watch_npc"), targetPlayer);
-        gLogger->log(LogManager::DEBUG,"OC :: handle startwatch No entertainer");
         return;
     }
     gEntertainerManager->startWatching((PlayerObject*)mObject, targetPlayer);
@@ -915,7 +913,6 @@ void ObjectController::handleImageDesignChangeMessage(Message* message,uint64 ta
     {
         uint32 idTimer	= gWorldConfig->getConfiguration<uint32>("Player_Timer_IDSessionTimeOut",(uint32)60000);
         messageGenerator->setImageDesignerTaskId(gWorldManager->addImageDesignerToProcess(messageGenerator,idTimer));
-        gLogger->log(LogManager::DEBUG,"Added ID Tick Control !!!");
     }
 
     //if(imageDesigner->getImageDesignSession() == IDSessionPREY)

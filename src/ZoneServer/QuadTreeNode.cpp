@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "QuadTreeNode.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
+
 #include "MathLib/Rectangle.h"
 #include "MathLib/Circle.h"
 
@@ -120,7 +120,7 @@ int32 QuadTreeNode::addObject(Object* object)
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"QuadTreeNode::addObject: INSERTED OBJECT already exist = %"PRIu64"",  object->getId());
+            DLOG(INFO) << "QuadTreeNode::addObject: INSERTED OBJECT already exist = " <<  object->getId();
             return(2);
         }
 
@@ -189,7 +189,6 @@ void QuadTreeNode::getObjectsInRange(Object* object,ObjectSet* resultSet,uint32 
             }
             else
             {
-                gLogger->log(LogManager::CRITICAL,"QuadTreeNode::getObjectsInRange ERROR INVALID ID\n");
                 assert(false && "QuadTreeNode::getObjectsInRange ERROR INVALID ID");
             }
             ++it;
@@ -327,7 +326,7 @@ int32 QuadTreeNode::removeObject(Object* object)
 
             return(1);
         }
-        gLogger->log(LogManager::DEBUG,"QuadTreeNode::removeObject ERROR FAILED to REMOVE object with id = %"PRIu64"",  object->getId());
+        DLOG(INFO) << "QuadTreeNode::removeObject ERROR FAILED to REMOVE object with id = " << object->getId();
         return(2);
     }
     // traverse our children

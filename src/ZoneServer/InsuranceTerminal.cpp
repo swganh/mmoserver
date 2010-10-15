@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 
 
@@ -209,7 +208,6 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
             default:
             {
-                gLogger->log(LogManager::NOTICE,"InsuranceTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",messageType);
             }
             break;
             }
@@ -263,7 +261,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
 
         default:
         {
-            gLogger->log(LogManager::DEBUG,"SUI_Window_Insurance_Newbie_MessageBox Invalid selection!");
         }
         break;
         }
@@ -412,7 +409,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
 
         default:
         {
-            gLogger->log(LogManager::DEBUG,"SUI_Window_InsureAll_Newbie_MessageBox Invalid selection!");
         }
         break;
         }
@@ -549,7 +545,6 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
 
         default:
         {
-            gLogger->log(LogManager::DEBUG,"SUI_Window_InsuranceAll_MessageBox Invalid selection!");
         }
         break;
         }

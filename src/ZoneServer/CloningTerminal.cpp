@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 
 
@@ -110,8 +110,6 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
     break;
 
     default:
-        gLogger->log(LogManager::NOTICE,"CloningTerminal::handleObjectMenuSelect Unhandled MenuSelect: %u",messageType);
-
         break;
     }
 }
@@ -202,8 +200,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr
 
                 // You lack the bank funds to complete this transaction request
                 gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_funds_bank"), playerObject);
-                gLogger->log(LogManager::DEBUG,"CloningTerminal::handleUIEvent: ERROR: Error verifying credits\n");
-            }
+			}
         }
     }
 }

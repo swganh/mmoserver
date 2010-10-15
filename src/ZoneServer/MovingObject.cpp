@@ -88,7 +88,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
         }
         else
         {
-            gLogger->log(LogManager::NOTICE,"Error removing %"PRIu64" from cell(%"PRIu64")",this->getId(),this->getParentId());
+			LOG(WARNING) << "Error removing " << this->getId() << " from cell " << this->getParentId();
         }
 
         // now set our new ParentId
@@ -112,7 +112,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
         else
         {
             // we should never get here !
-            gLogger->log(LogManager::DEBUG,"NPCObject::updatePosition: could not find zone region in map");
+            DLOG(INFO) << "NPCObject::updatePosition: could not find zone region in map";
         }
     }
     else
@@ -178,7 +178,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
             }
             else
             {
-                gLogger->log(LogManager::NOTICE,"Error removing %"PRIu64" from cell(%"PRIu64")",this->getId(),oldParentId);
+                LOG(WARNING) << "Error removing " << this->getId() << " from cell " << this->getParentId();
             }
         }
         else
@@ -206,7 +206,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
         }
         else
         {
-            gLogger->log(LogManager::NOTICE,"Error adding %"PRIu64" to cell(%"PRIu64")",this->getId(),parentId);
+            LOG(WARNING) << "Error adding " << this->getId() << " from cell " << this->getParentId();
         }
         // update the player
         this->setParentId(parentId);

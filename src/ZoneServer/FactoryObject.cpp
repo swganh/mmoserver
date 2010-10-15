@@ -69,14 +69,11 @@ void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uin
     Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(hopper));
     if(!item)
     {
-        gLogger->log(LogManager::CRITICAL,"FactoryObject::handleObjectReady::could not find Hopper");
         assert(false && "FactoryObject::handleObjectReady WorldManager could not find hopper");
     }
 
     if((item->getId() == this->getIngredientHopper())||(item->getId() == this->getOutputHopper()))
     {
-        gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::handleObjectReady - Hopper found - open container");
-
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getPlayerByAccId(client->getAccountId()));
         if(player)
         {
@@ -84,14 +81,12 @@ void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uin
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::handleObjectReady - Player NOT found - open container");
         }
 
 
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::could not find Hopper");
     }
 
 
@@ -107,7 +102,6 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectMenuSelect::could not find player");
         return;
     }
 
@@ -265,7 +259,6 @@ void FactoryObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint
     PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG,"HarvesterObject::handleObjectMenuSelect::could not find player");
         return;
     }
 

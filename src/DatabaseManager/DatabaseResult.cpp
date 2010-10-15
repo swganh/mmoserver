@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseResult.h"
 #include "DatabaseImplementation.h"
-#include "Common/LogManager.h"
 
 #include <mysql.h>
 #include <stdlib.h>

@@ -34,7 +34,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "GroupObject.h"
 #include "Player.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -64,7 +69,7 @@ GroupObject::GroupObject(Player* leader, uint64 groupId)
 
     mMembers.push_back(leader);
 
-    gLogger->log(LogManager::DEBUG, "New group created by %s with id %"PRIu64".",leader->getName().getAnsi(),groupId);
+	DLOG(INFO) << "New group created by "<<leader->getName().getAnsi() << " with id " << groupId;
 }
 
 
@@ -76,9 +81,9 @@ GroupObject::~GroupObject()
     {
         gChatManager->unregisterChannel(mChannel);
         delete mChannel;
-        gLogger->log(LogManager::DEBUG,"Group Channel destroyed.");
+        DLOG(INFO) << "Group Channel destroyed.";
     }
-    gLogger->log(LogManager::DEBUG, "Group destroyed.");
+    DLOG(INFO)<< "Group destroyed.";
 }
 
 //======================================================================================================================
@@ -330,7 +335,7 @@ void GroupObject::createChannel()
     tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),64,L"%"WidePRIu64, mId));
     channel->setTitle(tmpValueStr);
 
-    gLogger->log(LogManager::DEBUG,"Group channel created: '%s' with id %u.", channel->getName().getAnsi(), channel->getId());
+	DLOG(INFO)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();
     channel->setOwner(gSystemAvatar);
     mChannel = channel;
     gChatManager->registerChannel(mChannel);

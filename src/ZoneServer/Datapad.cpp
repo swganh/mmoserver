@@ -58,7 +58,6 @@ Datapad::Datapad()
     mMissionCapacity = static_cast<uint8>(gWorldConfig->getConfiguration<uint32_t>("Player_Datapad_MissionCapacity", static_cast<uint32_t>(100)));
 
     if(mMissionCapacity	> 6) {
-        gLogger->log(LogManager::DEBUG,"Datapad::Datapad() : mMissionCapacity	was bigger than 6 - bigger entries are not supported due to the way Mission IDs are handled");
         mMissionCapacity = 6;
     }
 }

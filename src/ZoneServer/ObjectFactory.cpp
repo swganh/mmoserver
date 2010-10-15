@@ -546,11 +546,9 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
     }
 
 
-    gLogger->log(LogManager::DEBUG,"New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
+    DLOG(INFO) << "New Factory dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
 
-    sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    
 }
 
 void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player)
@@ -603,7 +601,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
     }
 
 
-    gLogger->log(LogManager::DEBUG,"New House dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
+    DLOG(INFO) << "New House dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
 
     sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -1022,7 +1020,7 @@ void ObjectFactory::requestObject(ObjectType objType,uint16 subGroup,uint16 subT
     break;
 
     default:
-        gLogger->log(LogManager::DEBUG,"ObjectFactory::requestObject Unknown Object type");
+        DLOG(INFO) << "ObjectFactory::requestObject Unknown Object type";
         break;
     }
 }

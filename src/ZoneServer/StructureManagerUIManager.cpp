@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerStructure.h"
 #include "WorldManager.h"
 
-#include "Common/LogManager.h"
 #include "UIManager.h"
 #include "Utils/colors.h"
 
@@ -82,7 +81,6 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
         ManufacturingSchematic* man = (*mListIt);
         if(!man)
         {
-            gLogger->log(LogManager::DEBUG,"UIManager::Man Schematic doesnt exist");
             mListIt++;
             continue;
 
@@ -91,7 +89,6 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
         Item* item = man->getItem();
         if(!item)
         {
-            gLogger->log(LogManager::DEBUG,"UIManager::Man Schematic Item doesnt exist");
             mListIt++;
             continue;
 

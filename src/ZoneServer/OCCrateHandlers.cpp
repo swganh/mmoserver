@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "NetworkManager/Message.h"
 #include <boost/lexical_cast.hpp>
 
@@ -64,7 +63,7 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 
     if(!crate)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_ExtractObject: Crate does not exist!");
+        DLOG(INFO) << "ObjectController::_ExtractObject: Crate does not exist!";
         return;
     }
 
@@ -72,7 +71,6 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
     TangibleObject* tO = dynamic_cast<TangibleObject* >(gWorldManager->getObjectById(crate->getParentId()));
     if(!tO)
     {
-        gLogger->log(LogManager::CRITICAL,"ObjectController::_ExtractObject: Crates parent does not exist!");
         assert(false && "ObjectController::_ExtractObject inventory must be a tangible object");
         return;
     }
@@ -100,7 +98,6 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
 
     if(content < 0)
     {
-        gLogger->log(LogManager::CRITICAL,"ObjectController::_ExtractObject: the crate now has negative content!");
         assert(false && "ObjectController::_ExtractObject crate must not have negative content");
         return;
     }

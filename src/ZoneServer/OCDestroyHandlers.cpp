@@ -47,7 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 
@@ -87,7 +86,6 @@ void ObjectController::destroyObject(uint64 objectId)
     // or something else
     if(object == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::destroyObject: could not find object %"PRIu64"",objectId);
 
         return;
     }
@@ -98,7 +96,6 @@ void ObjectController::destroyObject(uint64 objectId)
         // update our datapad
         if(!(datapad->removeWaypoint(objectId)))
         {
-            gLogger->log(LogManager::DEBUG,"ObjController::handleDestroyObject: Error removing Waypoint from datapad %"PRIu64"",objectId);
         }
 
         gMessageLib->sendUpdateWaypoint(dynamic_cast<WaypointObject*>(object),ObjectUpdateDelete,playerObject);
@@ -115,7 +112,6 @@ void ObjectController::destroyObject(uint64 objectId)
         //update the datapad
         if(!(datapad->removeData(objectId)))
         {
-            gLogger->log(LogManager::DEBUG,"ObjController::handleDestroyObject: Error removing Data from datapad %"PRIu64"",objectId);
         }
 
         if(VehicleController* vehicle = dynamic_cast<VehicleController*>(object))
@@ -286,7 +282,6 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 
         if(!tempInstrument)
         {
-            gLogger->log(LogManager::DEBUG,"ObjectController::handleDestroyInstrument : no temporary Instrument");
             return;
         }
 
@@ -294,7 +289,6 @@ void ObjectController::_handleDestroyInstrument(Item* item)
 
         if(!permanentInstrument)
         {
-            gLogger->log(LogManager::DEBUG,"ObjectController::handleDestroyInstrument : no parent Instrument");
             return;
         }
 

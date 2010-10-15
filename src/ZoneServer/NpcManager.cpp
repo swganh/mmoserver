@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -167,7 +167,6 @@ uint64 NpcManager::handleNpc(NPCObject* npc, uint64 timeOverdue)
         }
         else
         {
-            gLogger->log(LogManager::CRITICAL,"NpcManager::handleNpc() Invalid AI state.\n");
             assert(false && "NpcManager::handleNpc invalid AI state");
         }
     }
@@ -279,14 +278,12 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 
     if (!attacker || !defenderId)
     {
-        gLogger->log(LogManager::DEBUG,"NpcManager::_verifyCombatState() Invalid attacker or defender");
         return false;
     }
 
     CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
     if (!defender)
     {
-        gLogger->log(LogManager::DEBUG,"NpcManager::_verifyCombatState() Invalid attacker");
         return false;
     }
 

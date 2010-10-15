@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/DatabaseCallback.h"
 
 #define	gWorldConfig	WorldConfig::getSingletonPtr()
@@ -223,7 +223,7 @@ T	WorldConfig::getConfiguration(BString key, T fallback) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            gLogger->log(LogManager::NOTICE,"WorldConfig::getConfiguration: cast failed (%s)",key.getAnsi());
+            
         }
     }
     //else
@@ -245,7 +245,7 @@ T	WorldConfig::getConfiguration(BString key) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            gLogger->log(LogManager::INFORMATION,"WorldConfig::getConfiguration: cast failed ('%s')",key.getAnsi());
+            
         }
     }
 
@@ -267,7 +267,7 @@ T	WorldConfig::getConfiguration(uint32 keyCrc) const
         }
         catch(boost::bad_lexical_cast &)
         {
-            gLogger->log(LogManager::INFORMATION,"Object::getAttribute: cast failed ('%s')",keyCrc);
+            
         }
     }
 

@@ -82,7 +82,6 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     ObjectContainer* parentContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(this->getParentId()));
                     if(!parentContainer)
                     {
-                        gLogger->log(LogManager::DEBUG,"Deed::handleObjectMenuSelect: couldnt cast deeds parent %I64u !",this->getParentId());
                         return;
                     }
                     parentContainer->removeObject(this);

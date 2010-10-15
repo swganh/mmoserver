@@ -38,8 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Session.h"
 
-#include "Common/LogManager.h"
-
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -146,7 +144,7 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     case opLoginClientId:  // sent username and password.
     {
         // Start the login process
-        gLogger->log(LogManager::DEBUG,"opLoginClientId");
+        DLOG(INFO) << "opLoginClientId";
 
         _handleLoginClientId(loginClient, message);
         break;
@@ -266,7 +264,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
     if(strcmp("20050408-18:00",clientId.getAnsi()) != 0)
     {
-        gLogger->log(LogManager::NOTICE, "illegal client: %s",clientId.getAnsi());
+        LOG(WARNING) << "illegal client: " << clientId.getAnsi();
         client->Disconnect(0);
         return;
     }
@@ -348,7 +346,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
         errType = "@cpt_login_fail";
         errMsg = "@msg_login_fail";
 
-        gLogger->log(LogManager::DEBUG," Login failed for username: %s, password: ********", client->getUsername().getAnsi(), client->getPassword().getAnsi());
+        LOG(WARNING) << " Login failed for username: " <<  client->getUsername().getAnsi() << " password: ********" << client->getPassword().getAnsi();
 
         gMessageFactory->StartMessage();
         gMessageFactory->addUint32(opErrorMessage);
@@ -641,7 +639,7 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
 
     if(strcmp("20090610-18:00",clientId.getAnsi()) != 0)
     {
-        gLogger->log(LogManager::NOTICE, "illegal launcher: %s",clientId.getAnsi());
+        LOG(WARNING) << "illegal launcher: " << clientId.getAnsi();
         client->Disconnect(0);
         return;
     }
@@ -676,7 +674,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
         client->setAccountId(data.mId);
 
         //log it
-        gLogger->log(LogManager::DEBUG,"void LoginManager::_sendLauncherSessionKey Login: AccountId: %u Name: %s", data.mId, client->getUsername().getAnsi());
+        DLOG(INFO) << "void LoginManager::_sendLauncherSessionKey Login: AccountId: " << data.mId<< " Name: " << client->getUsername().getAnsi();
 
         //get the session_key made and returned
         int8 sql[512];
@@ -694,7 +692,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
         errType = "@cpt_login_fail";
         errMsg = "@msg_login_fail";
 
-        gLogger->log(LogManager::DEBUG," Login failed for username: %s, password: ********", client->getUsername().getAnsi(), client->getPassword().getAnsi());
+        DLOG(INFO) << " Login failed for username: "  << client->getUsername().getAnsi() <<", password: ********" << client->getPassword().getAnsi();
 
         gMessageFactory->StartMessage();
         gMessageFactory->addUint32(opErrorMessage);

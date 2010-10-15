@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Tutorial.h"
 #include "WorldConfig.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 
 
 //=============================================================================
@@ -105,7 +105,6 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"TravelTerminal: Unhandled MenuSelect: %u",messageType);
     }
 }
 

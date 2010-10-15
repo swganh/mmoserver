@@ -327,7 +327,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
     default:
     {
-        gLogger->log(LogManager::WARNING,"CraftSession: unhandled DatabaseQuery");
+        
     }
     break;
     }
@@ -343,7 +343,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
     Item* item = dynamic_cast<Item*>(object);
     if(!item)
     {   //Manufacturingschematic couldnt be created!!! Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627064849-3d026388be3dc63f7d9706f737e6d510
-        gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Couldnt Cast item.");
+        LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt Cast item.";
         mManufacturingSchematic = NULL;
 
         gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -357,16 +357,14 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
         //reset - we just started from scratch
         mItemLoaded = false;
 
-        gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded schematic.");
         mManufacturingSchematic = dynamic_cast<ManufacturingSchematic*>(item);
         if(!mManufacturingSchematic)
         {
-            gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Couldnt Cast ManufacturingSchematic.");
+            LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt Cast ManufacturingSchematic.";
 
             if(mDraftSchematic)
             {
-                gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: DraftSchematic : %s / Object : %I64u",mDraftSchematic->getModel().getAnsi(), object->getId());
-                gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: DraftSchematic batch: %4u",mDraftSchematic->getWeightsBatchId());
+                LOG(WARNING) << "CraftingSession::handleObjectReady: DraftSchematic : " << mDraftSchematic->getModel().getAnsi() << " Object " << object->getId();
             }
             mManufacturingSchematic = NULL;
             gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -383,7 +381,6 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
     // its the item we load
     else if(!mItemLoaded)
     {
-        gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded item.");
         //mark it as loaded the next item we might receive will be a component
         mItemLoaded = true;
         mItem = item;
@@ -415,7 +412,6 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
     //as the main item has been loaded we can now only receive components when we fill slots with stack-/crate- content
     else if(mItemLoaded)
     {
-        gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: loaded component.");
         uint32 maxsize = mAsyncStackSize;
 
         //make sure we have the proper stacksizes
@@ -440,11 +436,9 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
             mAsyncComponentAmount--;
         }
 
-        gLogger->log(LogManager::DEBUG,"CraftingSession::handleObjectReady: stacksize : %u",mAsyncComponentAmount);
-
         if(!mAsyncManSlot)
         {
-            gLogger->log(LogManager::CRITICAL,"CraftingSession::handleObjectReady: Couldnt find Slot!!!.");
+            LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt find Slot!!!.";
 
             mManufacturingSchematic = NULL;
             gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -514,7 +508,6 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
     // invalid index
     if(filteredPlayerSchematics->empty() || filteredPlayerSchematics->size() < schematicIndex)
     {
-        gLogger->log(LogManager::DEBUG,"CraftingSession::selectDraftSchematic: Invalid Index : %u",schematicIndex);
         return(false);
     }
 
@@ -527,14 +520,14 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
 
     if(!mDraftSchematic)
     {
-        gLogger->log(LogManager::NOTICE,"CraftingSession::selectDraftSchematic: not found crc:%u",schemCrc);
+        LOG(INFO) << "CraftingSession::selectDraftSchematic: not found crc:" << schemCrc;
         return(false);
     }
 
     // temporary check until all items are craftable
     if(!mDraftSchematic->isCraftEnabled())
     {
-        gLogger->log(LogManager::NOTICE,"CraftingSession::selectDraftSchematic: schematic not craftable crc:%u",schemCrc);
+        LOG(INFO) << "CraftingSession::selectDraftSchematic: schematic not craftable crc:" <<schemCrc;
         gMessageLib->SendSystemMessage(L"This item is currently not craftable.", mOwner);
         return(true);
     }
@@ -684,8 +677,6 @@ void CraftingSession::addComponentAttribute()
 
             if(!filledComponent)
             {
-                // uh  oh what did I just say ???
-                gLogger->log(LogManager::NOTICE,"CraftingSession::addComponentAttribute component not found");
                 continue;
             }
 
@@ -696,28 +687,20 @@ void CraftingSession::addComponentAttribute()
             while(cAPPiT != cAPP->end())
             {
                 // see whether our filled component has the relevant attribute
-                gLogger->log(LogManager::DEBUG,"CraftingSession::addComponentAttribute checking component for attribute %s ",(*cAPPiT)->getAttributeKey().getAnsi() );
                 if(!filledComponent->hasAttribute( (*cAPPiT)->getAttributeKey().getAnsi() ))
                 {
-                    gLogger->log(LogManager::NOTICE,"CraftingSession::addComponentAttribute : attribute %s not found",(*cAPPiT)->getAttributeKey().getAnsi() );
-                    cAPPiT++;
+					cAPPiT++;
                     continue;
                 }
-                gLogger->log(LogManager::DEBUG,"CraftingSession::addComponentAttribute : attribute %s has been found",(*cAPPiT)->getAttributeKey().getAnsi() );
-
                 // now that we have the attribute lets check how we want to manipulate what attribute of our final item
                 // here we are during the items assembly so we want to initialize value additions or add new attributes to the final item
 
                 if((*cAPPiT)->getManipulation() == AttributePPME_AddValue)
                 {
-                    gLogger->log(LogManager::DEBUG,"CraftingSession::addComponentAttribute : Manipulation : AttributePPME_AddValue");
                     // just add our value to the items attribute in case the attribute on the item exists
                     // do NOT add the attribute in case it wont exist
-                    gLogger->log(LogManager::DEBUG,"addComponentAttribute checking item for attribute %s",(*cAPPiT)->getAffectedAttributeKey().getAnsi());
                     if(mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey().getAnsi() ))
                     {
-                        gLogger->log(LogManager::DEBUG,"CraftingSession::addComponentAttribute %s will affect %s",(*cAPPiT)->getAttributeKey().getAnsi() ,(*cAPPiT)->getAffectedAttributeKey().getAnsi() );
-
                         // add the attribute (to the schematic) if it doesnt exist already to the relevant list for storage
                         // on sending the msco deltas respective producing the final items the values will be added to the attributes
                         if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
@@ -737,7 +720,7 @@ void CraftingSession::addComponentAttribute()
                     }
                     else
                     {
-                        gLogger->log(LogManager::DEBUG,"CraftingSession::addComponentAttribute  : Attribute %s is not part of the item",(*cAPPiT)->getAffectedAttributeKey().getAnsi() );
+                        DLOG(INFO) << "CraftingSession::addComponentAttribute  : Attribute " << (*cAPPiT)->getAffectedAttributeKey().getAnsi()  << " is not part of the item";
                     }
 
                 }
@@ -1061,8 +1044,6 @@ void CraftingSession::experiment(uint8 counter,std::vector<std::pair<uint32,uint
         expPoints = (*it).first;
         ExperimentationProperty* expProperty = expPropList->at((*it).second).second;
 
-        gLogger->log(LogManager::DEBUG,"CraftingSession:: experiment expProperty : %s",expProperty->mExpAttributeName.getAnsi());
-
         // make sure that we only experiment once for exp properties that might be entered twice in our list !!!!
         roll = getExperimentationRoll(expProperty,expPoints);
 
@@ -1172,11 +1153,11 @@ float CraftingSession::_calcWeightedResourceValue(CraftWeights* weights)
         if(manSlot->mFilledResources.size() == 0)
         {
             //PANICK - theres no resource filled !!!!!!!!!!!!!!!!!!!!!!!!!!
-            gLogger->log(LogManager::DEBUG,"CraftingSession::_calcWeightedResourceValue: NO REOURCE IN RESOURCE SLOT :");
+            DLOG(INFO) << "CraftingSession::_calcWeightedResourceValue: NO REOURCE IN RESOURCE SLOT :";
 
             if(manSlot->mDraftSlot->getOptional())
             {
-                gLogger->log(LogManager::DEBUG,"CraftingSession::_calcWeightedResourceValue: SLOT WAS OPTIONAL:");
+                DLOG(INFO) << "CraftingSession::_calcWeightedResourceValue: SLOT WAS OPTIONAL:";
             }
             assert(false&&"CraftingSession::_calcWeightedResourceValue: NO RESSOURCE IN RESOURCE SLOT ");
             ++manIt;
@@ -1239,7 +1220,6 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
 
     if(!datapad->addManufacturingSchematic(mManufacturingSchematic))
     {
-        gLogger->log(LogManager::DEBUG,"CraftingSession:: createManufactureSchematic : datapad full");
         //TODO
         //delete the man schem from the objectlist and the db
         gObjectFactory->deleteObjectFromDB(mItem);

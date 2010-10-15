@@ -31,9 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "ZoneServer/WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
-
-
 
 
 //=============================================================================
@@ -103,8 +100,6 @@ void CampTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
         return;
     }
-
-    gLogger->log(LogManager::NOTICE,"CampTerminal: Unhandled MenuSelect: %u",messageType);
 
 }
 

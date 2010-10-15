@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "UIManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 
 //=============================================================================
@@ -324,7 +323,6 @@ void FireworkShow::handleUIEvent(BString strAvailable, BString strDelay, UIWindo
     //uint32 delay = atoi(strDelay.getAnsi());
     strDelay.convert(BSTRType_ANSI);
     int32 delay = atoi(strDelay.getAnsi());
-    gLogger->log(LogManager::DEBUG,"strDealay atoi = %i",delay);
     fireworkShowList.at(this->fireworkShowListModify).delay = delay;
 
 }

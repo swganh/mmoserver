@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 //===========================================================================
 
 Ham::Ham()
@@ -470,7 +469,6 @@ int32 Ham::updatePropertyValue(uint8 barIndex,uint8 valueIndex,int32 propertyDel
 
     case HamProperty_Encumbrance:
     {
-        gLogger->log(LogManager::DEBUG,"couldnt update encumbrance");
         // TODO
     }
     break;
@@ -523,7 +521,6 @@ void Ham::updateSingleHam(int32 propertyDelta, bool damage)
 
     default:
     {
-        gLogger->log(LogManager::DEBUG,"Ham::updateSingleHam Action = Default");
     }
     break;
     }

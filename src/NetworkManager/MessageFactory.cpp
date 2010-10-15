@@ -27,14 +27,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Message.h"
 #include "MessageFactory.h"
 
-#include "Common/LogManager.h"
-
 #include "Utils/clock.h"
 #include "NetworkManager/Session.h"
 
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 // TODO: There is no bounds checking on the heap yet.
 //======================================================================================================================
@@ -183,7 +188,7 @@ Message* MessageFactory::EndMessage(void)
     if(mCurrentUsed > mHeapWarnLevel)
     {
         mHeapWarnLevel = static_cast<float>(mCurrentUsed+1.2);
-        gLogger->log(LogManager::EMERGENCY,"MessageFactory Heap at %2.2f usage", mCurrentUsed);
+        LOG(WARNING) << "MessageFactory Heap at " << mCurrentUsed;
     } else if (((mCurrentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
         mHeapWarnLevel = mCurrentUsed;
 
@@ -522,8 +527,8 @@ void MessageFactory::_processGarbageCollection(void)
                 further = false;
                 if (!message->mLogged)
                 {
-                    gLogger->log(LogManager::WARNING, "Garbage Collection found a new stuck message!");
-                    gLogger->logCont(LogManager::INFORMATION, "age : %u ", uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
+                    LOG(WARNING) <<  "Garbage Collection found a new stuck message!"
+						<< "age : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
 
                     message->mLogged = true;
                     message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();
@@ -532,12 +537,12 @@ void MessageFactory::_processGarbageCollection(void)
 
                     if(!session)
                     {
-                        gLogger->logCont(LogManager::INFORMATION, "Packet is Sessionless.");
+                        LOG(INFO) << "Packet is Sessionless.";
                         message->setPendingDelete(true);
                     }
                     else if(session->getStatus() > SSTAT_Disconnected || session->getStatus() == SSTAT_Disconnecting)
                     {
-                        gLogger->logCont(LogManager::INFORMATION, "Session is about to be destroyed.");
+                        LOG(INFO) << "Session is about to be destroyed.";
                     }
                 }
 
@@ -545,14 +550,14 @@ void MessageFactory::_processGarbageCollection(void)
 
                 if(!session)
                 {
-                    gLogger->log(LogManager::INFORMATION, "Garbage Collection found sessionless packet");
+                    LOG(INFO) << "Garbage Collection found sessionless packet";
                     message->setPendingDelete(true);
                 }
                 else if(Anh_Utils::Clock::getSingleton()->getStoredTime() >(message->mLogTime +10000))
                 {
-                    gLogger->log(LogManager::EMERGENCY, "Garbage Collection found a old stuck message!");
-                    gLogger->logCont(LogManager::INFORMATION, "age : %u ", uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
-                    gLogger->logCont(LogManager::INFORMATION, "Session status : %u ", session->getStatus());
+                    LOG(WARNING) << "Garbage Collection found a old stuck message!"
+                    << "age : "<< (uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000))
+                    << "Session status : " << session->getStatus();
                     message->mLogTime  = Anh_Utils::Clock::getSingleton()->getStoredTime();
                     return;
                 }
@@ -565,18 +570,18 @@ void MessageFactory::_processGarbageCollection(void)
                         if(session->getStatus() < SSTAT_Disconnecting)
                         {
                             session->setCommand(SCOM_Disconnect);
-                            gLogger->log(LogManager::EMERGENCY, "Garbage Collection Message Heap Time out. Destroying Session");
+                            LOG(WARNING) << "Garbage Collection Message Heap Time out. Destroying Session";
                         }
                         if(session->getStatus() == SSTAT_Destroy)
                         {
-                            gLogger->log(LogManager::EMERGENCY, "Garbage Collection Message Heap Time out. Session about to Destroyed.");
+                            LOG(WARNING) << "Garbage Collection Message Heap Time out. Session about to Destroyed.";
                         }
                         return;
                     }
                     else
                     {
                         message->setPendingDelete(true);
-                        gLogger->log(LogManager::EMERGENCY, "Garbage Collection Message Heap Time out. Session Already Destroyed. Tagged Message as Deletable.");
+                        LOG(WARNING) << "Garbage Collection Message Heap Time out. Session Already Destroyed. Tagged Message as Deletable.";
                         return;
                     }
 
@@ -637,7 +642,8 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
 
         mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
-        gLogger->log(LogManager::WARNING, "Heap Rollover Service %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
+       LOG(WARNING)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
+		<< heapSize << " maxUsed: " << mMaxHeapUsedPercent <<", created: " << mMessagesCreated <<", destroyed: " << mMessagesDestroyed;
     }
 }
 
@@ -679,7 +685,8 @@ void MessageFactory::_adjustMessageStart(uint32 size)
 
         //mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
-        gLogger->log(LogManager::WARNING, "Heap Rollover Service %u STATS: MessageHeap - size: %u, maxUsed: %2.2f%, created: %u, destroyed: %u\n", mServiceId,heapSize, mMaxHeapUsedPercent, mMessagesCreated, mMessagesDestroyed);
+		LOG(WARNING)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
+		<< heapSize << " maxUsed: " << mMaxHeapUsedPercent <<", created: " << mMessagesCreated <<", destroyed: " << mMessagesDestroyed;
     }
 }
 

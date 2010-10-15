@@ -28,7 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ChatManager.h"
 #include "Player.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "Utils/typedefs.h"
 
@@ -47,14 +52,14 @@ void ChatAvatarId::setPlayer(Player* player)
     //lcName.toLower();
     mName = player->getName();
     mName.toLower();
-    gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s\n", mName.getAnsi());
+    DLOG(INFO) << "Chatavatar:: setplayer " << mName.getAnsi();
 }
 
 //======================================================================================================================
 
 void ChatAvatarId::setPlayer(const BString player)
 {
-    gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s string only\n", mName.getAnsi());
+	DLOG(INFO) << "Chatavatar:: setplayer " << mName.getAnsi() << " string only";
     mPlayer = gChatManager->getPlayerByName(player);
 
     mName = player;

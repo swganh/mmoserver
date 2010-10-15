@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <mysql.h>
 
 #include "Utils/bstring.h"
-#include "Common/LogManager.h"
 
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -60,7 +59,7 @@ DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port
     // Any errors from the connection attempt?
     if(mysql_errno(mConnection) != 0)
     {
-        gLogger->log(LogManager::EMERGENCY, "DatabaseError: %s", mysql_error(mConnection));
+        LOG(FATAL) << "DatabaseError: " << mysql_error(mConnection);
     }
 
 // int i = 0;
@@ -87,7 +86,7 @@ DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure
 
     if(mysql_errno(mConnection) != 0)
     {
-        gLogger->log(LogManager::EMERGENCY, "DatabaseError: %s", mysql_error(mConnection));
+        LOG(FATAL) << "DatabaseError: " << mysql_error(mConnection);
 
 
     }
@@ -246,13 +245,13 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
 void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64 index)
 {
     if(!result) {
-        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.");
+        LOG(ERROR) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
     MYSQL_RES* temp = (MYSQL_RES*)result->getResultSetReference();
     if(!temp)
     {
-        gLogger->log(LogManager::CRITICAL,"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.");
+        LOG(ERROR) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
     mysql_data_seek(temp, index);
@@ -271,12 +270,12 @@ uint32 DatabaseImplementationMySql::Escape_String(int8* target,const int8* sourc
 {
     if(!target)
     {
-        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.");
+        LOG(ERROR) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
     if(!source)
     {
-        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.");
+        LOG(ERROR) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
     return(mysql_real_escape_string(mConnection,target,source,length));

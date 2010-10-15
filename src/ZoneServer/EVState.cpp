@@ -42,7 +42,6 @@ bool EVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
     CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
     if(creature && cmdProperties)
     {
-        //gLogger->log(LogManager::DEBUG, "locomotionMask(%u) & creature->getLocomotion (%u) ==%u",
         //cmdProperties->mLocomotionMask,mController->getLocoValidator(creature->getLocomotion()), cmdProperties->mLocomotionMask & creature->getLocomotion());
         // skip over commands with no state requirement and check the rest
         if((cmdProperties->mStates != 0) && creature->checkStates(cmdProperties->mStates))

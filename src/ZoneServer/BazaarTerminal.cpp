@@ -26,9 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "BazaarTerminal.h"
 #include "PlayerObject.h"
-#include "Common/LogManager.h"
-
-
 
 //=============================================================================
 
@@ -51,9 +48,10 @@ void BazaarTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
     }
     else
-        gLogger->log(LogManager::NOTICE,"BazaarTerminal: Unhandled MenuSelect: %u",messageType);
-}
+	{
 
+	}
+}
 
 //=============================================================================
 

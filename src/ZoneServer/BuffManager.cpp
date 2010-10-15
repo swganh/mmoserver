@@ -37,6 +37,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 
 
 
@@ -330,7 +337,7 @@ void BuffManager::LoadBuffs(PlayerObject* playerObject, uint64 currenttime)
     //check we don't have ghosted buffs
     if(playerObject->GetNoOfBuffs() > 0)
     {
-        gLogger->log(LogManager::WARNING,"PlayerObject has ghosted Buffs. Inform a developer\n");
+        LOG(WARNING) << "PlayerObject has ghosted Buffs. Inform a developer";
         gMessageLib->SendSystemMessage(L"You appear to have Ghosted Buffs (Bug #958). Please inform an SWG:ANH developer or Server Admin you saw this message", playerObject);
         return;
     }

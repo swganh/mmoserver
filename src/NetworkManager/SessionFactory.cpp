@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SessionFactory.h"
 #include "NetConfig.h"
 #include "Session.h"
-#include "Common/LogManager.h"
+
 
 
 //======================================================================================================================

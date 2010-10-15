@@ -48,7 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/Message.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 
 //======================================================================================================================
 //
@@ -91,7 +90,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
     default:
     {
         // Always use a default if message damaged....
-        gLogger->log(LogManager::DEBUG,"ObjController:: Error in trade invitation");
+        DLOG(INFO) << "ObjController:: Error in trade invitation";
         // Since receiver is default NULL, we can use the error message below
         // return;
     }
@@ -127,8 +126,6 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     if (error == 0)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController:: %s invited %s to trade",invitingPlayer->getFirstName().getAnsi(),invitedPlayer->getFirstName().getAnsi());
-
         if (invitedPlayer->getTradeStatus() == false )
         {
             // If sender is invited by receiver already, then accept even if receiver have sender in the Ignore-list.
@@ -154,10 +151,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
         }
 
     }
-    else
-    {
-        gLogger->log(LogManager::DEBUG,"ObjController:: Error in trade invitation");
-    }
+    
 }
 
 //======================================================================================================================

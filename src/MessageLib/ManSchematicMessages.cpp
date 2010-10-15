@@ -45,7 +45,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
@@ -136,8 +141,8 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
             {
                 float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
                 float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));
-                gLogger->log(LogManager::DEBUG,"MessageLib::sendBaselinesMSCO_3 Attribute Add Value");
-                gLogger->log(LogManager::DEBUG,"MessageLib::sendBaselinesMSCO_3 we will add %f to %s",attributeAddValue,gWorldManager->getAttributeKey((*it).first).getAnsi());
+                DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 Attribute Add Value";
+                DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 we will add " << attributeAddValue << " to " << gWorldManager->getAttributeKey((*it).first).getAnsi();
                 mMessageFactory->addFloat(attributeValue+attributeAddValue);
             }
             else

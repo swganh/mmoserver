@@ -137,19 +137,14 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
 
     uint64 MedicinePackObjectID = 0;
 
-    gLogger->log(LogManager::DEBUG,"Check the type of Medicine");
-
     //If we don't have an OC Controller Cmd Property (ie we have been called by using an item) - go get one
     if(cmdProperties == 0)
     {
-        gLogger->log(LogManager::DEBUG,"We need to get Object Properties");
-
         CmdPropertyMap::iterator it = gObjControllerCmdPropertyMap.find(opcode);
 
         if(it == gObjControllerCmdPropertyMap.end())
         {
             //Cannot find properties
-            gLogger->log(LogManager::DEBUG,"Failed to get Object Properties");
             return false;
         } else {
             cmdProperties = ((*it).second);
@@ -314,7 +309,7 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
             }
             else
             {
-                gLogger->log(LogManager::DEBUG, "Invalid Medicine Type");
+                DLOG(INFO) << "Invalid Medicine Type" ;
             }
 
             if(medicine)
@@ -329,16 +324,13 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
         //Check if a Stim was found
         if(medicine == 0)
         {
-            gLogger->log(LogManager::DEBUG,"No valid medicine Found");
             gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_60"), Medic);
             return false;
         }
     } else
     {
-        gLogger->log(LogManager::DEBUG,"We already have medicine Selected");
         medicine = dynamic_cast<Medicine*>(gWorldManager->getObjectById(MedicinePackObjectID));
     }
-    gLogger->log(LogManager::DEBUG,"Medicine ID Found OK");
 
     //Is the medicine suitable for skill level
     uint64 medicSkill;
@@ -355,7 +347,6 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
     if(medicSkill < req)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "insufficient_skill_heal", L"", L"", L"healingskill", static_cast<int32_t>(req)), Medic);
-        gLogger->log(LogManager::DEBUG,"The selected medicine is too high level.");
         return false;
     }
 
@@ -406,14 +397,11 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
     //If we don't have an OC Controller Cmd Property (ie we have been called by using an item) - go get one
     if(cmdProperties == 0)
     {
-        gLogger->log(LogManager::DEBUG,"We need to get Object Properties");
-
         CmdPropertyMap::iterator it = gObjControllerCmdPropertyMap.find(opOChealdamage);
 
         if(it == gObjControllerCmdPropertyMap.end())
         {
             //Cannot find properties
-            gLogger->log(LogManager::DEBUG,"Failed to get Object Properties");
             return false;
         } else {
             cmdProperties = ((*it).second);
@@ -426,11 +414,9 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
     //Does Medic have ability
     if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
     {
-        gLogger->log(LogManager::DEBUG,"Medic does not have ability");
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "cannot_heal"), Medic);
         return false;
     }
-    gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
     //Does Target Need Healing take into account wounds
     int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();
@@ -443,18 +429,15 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
         if(!(TargetAction < TargetMaxAction))
         {
             if (isSelf) {
-                gLogger->log(LogManager::DEBUG,"You don't need healing");
                 gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "no_damage_to_heal_self"), Medic);
                 return false;
             }
             if (!isSelf) {
-                gLogger->log(LogManager::DEBUG,"Target does not need healing");
                 gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "no_damage_to_heal_target", 0, Target->getId(), 0), Medic);
                 return false;
             }
         }
     }
-    gLogger->log(LogManager::DEBUG,"Target Needs Healing");
 
 
     //Get Heal Strength
@@ -603,12 +586,10 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
     //Does Medic have ability
     if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
     {
-        gLogger->log(LogManager::DEBUG,"Medic does not have ability");
 
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "cannot_heal"), Medic);
         return false;
     }
-    gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
     //Does Target Need Healing
     int TargetHealth = Target->getHam()->mHealth.getCurrentHitPoints();
@@ -620,12 +601,10 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
     {
         if(!(TargetAction < TargetMaxAction))
         {
-            gLogger->log(LogManager::DEBUG,"Target doesn't need healing");
             gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_63"), Medic);
             return false;
         }
     }
-    gLogger->log(LogManager::DEBUG,"Target Needs Healing");
 
 
     //Get Heal Strength
@@ -734,11 +713,9 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
     //Does Medic have ability
     if(!Medic->verifyAbility(cmdProperties->mAbilityCrc))
     {
-        gLogger->log(LogManager::DEBUG,"Medic does not have ability");
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "cannot_enhance"), Medic);
         return false;
     }
-    gLogger->log(LogManager::DEBUG,"Medic has Ability Rights");
 
     BString bhealType= healType.c_str();
     int32 WoundHealPower = 0;
@@ -764,12 +741,10 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
     if(maxwoundheal <= 0)
     {
         if (isSelf) {
-            gLogger->log(LogManager::DEBUG,"You don't need wound healing");
             gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_67"), Medic);
             return false;
         }
         if (!isSelf) {
-            gLogger->log(LogManager::DEBUG,"Unable to find any wounds which you can heal");
             gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_64"), Medic);
             return false;
         }
@@ -1057,10 +1032,8 @@ bool MedicManager::CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, fl
 
     if(glm::distance(Medic->mPosition, Target->mPosition) > distance)
     {
-        gLogger->log(LogManager::DEBUG,"Heal Target is out of range");
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing", "no_line_of_sight"), Medic);
         return false;
     }
-    gLogger->log(LogManager::DEBUG,"Heal Target is within range");
     return true;
 }

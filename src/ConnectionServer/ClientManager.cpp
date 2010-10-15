@@ -31,7 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Service.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -398,7 +403,7 @@ void ClientManager::_processClusterZoneTransferCharacter(ConnectionClient* clien
     else
     {
         // client may have disconnected right in the middle of the transfer
-        gLogger->log(LogManager::WARNING,"Client not found during zone transfer.\n");
+        LOG(WARNING) << "Client not found during zone transfer.\n";
     }
 }
 

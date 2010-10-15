@@ -119,7 +119,6 @@ void VehicleController::Call() {
     }
 
     if(owner_->checkIfMountCalled()) {
-        gLogger->log(LogManager::DEBUG,"void Vehicle::call() mount already called");
         return;
     }
 
@@ -172,7 +171,7 @@ void VehicleController::Call() {
         float hmapHighest = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
         body_->mPosition.y = gHeightmap->compensateForInvalidHeightmap(hmapHighest, body_->mPosition.y, (float)10.0);
         if(hmapHighest != body_->mPosition.y) {
-            gLogger->log(LogManager::INFORMATION," VehicleController::Call: PlayerID(%u) calling vehicle... Heightmap found inconsistent, compensated height.", owner_->getId());
+            DLOG(INFO) << " VehicleController::Call: PlayerID("<<owner_->getId() << ") calling vehicle... Heightmap found inconsistent, compensated height.";
         }
     }//end TODO
 
@@ -181,7 +180,7 @@ void VehicleController::Call() {
 
     // add to world
     if(!gWorldManager->addObject(body_)) {
-        gLogger->log(LogManager::DEBUG,"void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", body_->getId());
+		DLOG(INFO) << "void Vehicle::call() creating vehicle with id "<<body_->getId()<<" failed : couldnt add to world";
         SAFE_DELETE(body_);
         return;
     }
@@ -202,13 +201,13 @@ void VehicleController::Store()
 {
     if(!body_)
     {
-        gLogger->log(LogManager::DEBUG,"Vehicle::store() Error: Store was called for a nonexistant body object!");
+        DLOG(INFO) << "Vehicle::store() Error: Store was called for a nonexistant body object!";
         return;
     }
 
     if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
     {
-        gLogger->log(LogManager::DEBUG,"Vehicle::store() couldnt find owner");
+        DLOG(INFO) << "Vehicle::store() couldnt find owner";
         return;
     }
 
@@ -221,7 +220,7 @@ void VehicleController::Store()
 
     if(!owner_->checkIfMountCalled())
     {
-        gLogger->log(LogManager::DEBUG,"Vehicle::store() Mount wasnt called !!!");
+        DLOG(INFO) << "Vehicle::store() Mount wasnt called !!!";
         return;
     }
 

@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIOpcodes.h"
 #include "PlayerObject.h"
 
-#include "Common/LogManager.h"
+
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 

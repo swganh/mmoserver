@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CellObject.h"
 #include "WorldManager.h"
 
-
 using namespace SpatialIndex;
 
 //=============================================================================
@@ -58,7 +57,7 @@ ZoneTree::~ZoneTree(void)
 
 void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dimensions,double horizon)
 {
-    gLogger->log(LogManager::NOTICE,"SpatialIndex initializing...");
+    LOG(INFO) << "SpatialIndex initializing...";
     //gLogger->logCont(LogManager::INFORMATION, "FillFactor:%.2f,",fillFactor);
     //gLogger->logCont(LogManager::INFORMATION, "IndexCap:%u,",indexCap);
     //gLogger->logCont(LogManager::INFORMATION, "LeafCap:%u,",leafCap);
@@ -76,11 +75,11 @@ void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dime
     }
     catch(Tools::Exception& e)
     {
-        gLogger->log(LogManager::EMERGENCY,"*** ERROR: " + e.what() + " ***\n");
+        LOG(FATAL) <<"*** ERROR: " << e.what() << " ***";
     }
     catch(...)
     {
-        gLogger->log(LogManager::EMERGENCY,"*** ERROR: Unknown Exception ***\n");
+        LOG(FATAL) << "*** ERROR: Unknown Exception ***";
     }
 }
 
@@ -95,10 +94,6 @@ void ZoneTree::InsertPoint(int64 objId,double x,double z)
     Point p = Point(coords,2);
 
     mTree->insertData(0,0,p,objId);
-
-    /*std::ostringstream ss;
-    ss << "SI(InsertPoint): " << objId << " at " << p;
-    gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
 }
 
 //=============================================================================
@@ -115,10 +110,6 @@ void ZoneTree::InsertRegion(int64 objId,double x,double z,double width,double he
     Region r = Region(low,high,2);
 
     mTree->insertData(0,0,r,objId);
-
-    /*std::ostringstream ss;
-    ss << "SI(InsertRegion): " << objId << " at " << r;
-    gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
 }
 
 //=============================================================================
@@ -174,7 +165,6 @@ QTRegion* ZoneTree::getQTRegion(double x,double z)
     }
 
     // We need a region for the Tutorial...
-    // gLogger->log(LogManager::DEBUG,"SI could not find qtregion at %f %f",x,z);
 
     return(NULL);
 }
@@ -224,7 +214,6 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
                     // if its a building, add objects of our types it contains
                     if(tmpType == ObjType_Building)
                     {
-                        // gLogger->log(LogManager::DEBUG,"Found a building");
 
                         ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
                         ObjectList::iterator cellChildsIt = cellChilds.begin();
@@ -263,13 +252,13 @@ void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet
         }
         else
         {
-            gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
+            LOG(WARNING) << "SI could not find cell " << object->getParentId();
             return;
         }
 
         if(!buildingObject)
         {
-            gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
+            LOG(WARNING) << "SI could not find building " << cell->getParentId();
             return;
         }
 
@@ -400,7 +389,6 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
                     //should we query cellchildren here or rather just create them with their cell regardless
                     if((tmpType == ObjType_Building)&&cellContent)
                     {
-                        // gLogger->log(LogManager::DEBUG,"Found a building");
 
                         ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
                         ObjectList::iterator cellChildsIt = cellChilds.begin();
@@ -435,7 +423,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
 
         if(!cell)
         {
-            gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
+            LOG(WARNING) << "SI could not find cell " << object->getParentId();
             return;
         }
 
@@ -443,7 +431,7 @@ void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet
         buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
         if(!buildingObject)
         {
-            gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
+            LOG(WARNING) << "SI could not find building " << cell->getParentId();
             return;
         }
         float buildingWidth		= buildingObject->getWidth();
@@ -551,13 +539,10 @@ void ZoneTree::RemovePoint(int64 objId,double x,double z)
     {
         std::ostringstream ss;
         ss << "ZoneTree::RemovePoint *** ERROR: Cannot delete id: " << objId << std::endl;
-        gLogger->log(LogManager::DEBUG,ss.str());
+        DLOG(INFO) << ss.str();
     }
     else
     {
-        /*std::ostringstream ss;
-        ss << "SI(RemovePoint): " << objId << " at " << p;
-        gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
     }
 }
 
@@ -578,13 +563,10 @@ void ZoneTree::RemoveRegion(int64 objId,double xLow,double zLow,double xHigh,dou
     {
         std::ostringstream ss;
         ss << " ZoneTree::RemoveRegion *** ERROR: Cannot delete id: " << objId << std::endl;
-        gLogger->log(LogManager::DEBUG,ss.str());
+        LOG(WARNING) << ss.str();
     }
     else
     {
-        /*std::ostringstream ss;
-        ss << "SI(RemoveRegion): " << objId << " at " << r;
-        gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
     }
 }
 
@@ -597,27 +579,14 @@ void ZoneTree::DumpStats()
     ss << *mTree;
     ss << "Buffer Hits: " << mStorageBuffer->getHits() << std::endl;
     ss << "IndexIdentifier: " << mIndexIdentifier << std::endl;
-    gLogger->log(LogManager::DEBUG,ss.str());
+    LOG(WARNING) << ss.str();
 }
 
 //=============================================================================
 
 void ZoneTree::ShutDown()
 {
-    gLogger->log(LogManager::DEBUG,"SpatialIndex Shutdown\n");
-
-    //try
-    //{
-    //    mResourceUsage.stop();
-    //}
-    //catch(Tools::Exception& e)
-    //{
-    //    gLogger->log(LogManager::WARNING,"*** ERROR: " + e.what() + " ***\n");
-    //}
-    //catch(...)
-    //{
-    //    gLogger->log(LogManager::WARNING,"*** ERROR: Unknown Exception ***\n");
-    //}
+    LOG(WARNING) << "SpatialIndex Shutdown";
 
     delete(mTree);
     delete(mStorageBuffer);
@@ -625,7 +594,7 @@ void ZoneTree::ShutDown()
 
     mIndexIdentifier = 0;
 
-    gLogger->log(LogManager::WARNING,"SpatialIndex Shutdown complete\n");
+    LOG(WARNING) << "SpatialIndex Shutdown complete";
 }
 //=============================================================================
 
@@ -715,13 +684,13 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
         }
         else
         {
-            gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
+            LOG(WARNING) << "SI could not find cell " << object->getParentId();
             return;
         }
 
         if(!buildingObject)
         {
-            gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
+            LOG(WARNING) << "SI could not find building " << cell->getParentId();
             return;
         }
 
@@ -731,22 +700,6 @@ void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 ob
 
         // adjusting inside -> outside viewing range
         // we always want to see a bit outside
-
-        // ERU: No, no, no...NO!
-        // The solution is: "Max(range,buildingWidth + 32);"
-        // or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
-        /*
-        if(buildingWidth - range <= 0)
-        	queryWidth = buildingWidth - (buildingWidth - range);
-        	// ERU: ehh saying queryWidth = range; in a more complicated way :)
-        else
-        	queryWidth = buildingWidth + 32;
-
-        if(buildingHeight - range <= 0)
-        	queryHeight = buildingHeight - (buildingHeight - range);
-        else
-        	queryHeight = buildingHeight + 32;
-        */
 
         if (range > (buildingWidth + 32))
         {

@@ -31,7 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CSROpcodes.h"
 #include "Player.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -205,7 +211,6 @@ void CSRManager::_destroyDatabindings()
 void CSRManager::_processConnectPlayerMessage(Message* message, DispatchClient* client)
 {
     uint32 errorcode = message->getUint32();
-    gLogger->log(LogManager::DEBUG,"CSRManager::_processConnectPlayer, Errorcode: %u\n", errorcode);
     gChatMessageLib->sendConnectPlayerResponseMessage(client);
 }
 
@@ -213,7 +218,6 @@ void CSRManager::_processConnectPlayerMessage(Message* message, DispatchClient* 
 
 void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient* client )
 {
-    gLogger->log(LogManager::DEBUG,"CSRManager::_processAppendCommentMessage");
     BString poster;
     BString comment;
 
@@ -332,8 +336,7 @@ void CSRManager::_processGetTicketsMessage(Message *message, DispatchClient* cli
 
 void CSRManager::_processNewTicketActivityMessage(Message *message, DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"CSRManager::_processNewTicketActivityMessage\n");
-    CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_TicketActivity);
+	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_TicketActivity);
     asyncContainer->mClient = client;
     mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketActivityGet (%"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
     
@@ -345,7 +348,6 @@ void CSRManager::_processRequestCategoriesMessage(Message *message, DispatchClie
 {
     BString language;
     message->getStringAnsi(language);
-    gLogger->log(LogManager::DEBUG,"CSRManager::_processRequestCategoriesMessage %s\n", language.getAnsi());
     gChatMessageLib->sendRequestCategoriesResponseMessage(client, &mCategoryList);
 
 }

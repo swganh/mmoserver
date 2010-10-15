@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MissionTerminal.h"
 #include "ObjectFactoryCallback.h"
 #include "TravelTerminal.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -374,7 +373,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 
     default:
     {
-        gLogger->log(LogManager::DEBUG,"TerminalFactory::_createTerminal: unknown eType: %u",tanType);
+        DLOG(INFO) << "TerminalFactory::_createTerminal: unknown eType: " << tanType;
 
         terminal = new Terminal();
         terminal->setTangibleType(tanType);

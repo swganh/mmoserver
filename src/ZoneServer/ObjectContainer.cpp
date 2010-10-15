@@ -67,7 +67,6 @@ ObjectContainer::~ObjectContainer()
         Object* object = gWorldManager->getObjectById((*objectIt));
         if(!object)
         {
-            gLogger->log(LogManager::DEBUG,"ObjectContainer::remove Object : No Object!!!!");
             assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
             objectIt = removeObject(objectIt);
 
@@ -101,7 +100,6 @@ bool ObjectContainer::addObjectSecure(Object* Data)
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"ObjectContainer::addObjectSecure No Capacity!!!!");
         return true;
 
     }
@@ -119,15 +117,9 @@ bool ObjectContainer::addObject(Object* Data)
     }
     else
     {
-        //PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
-        gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
-        //assert(false);// Another case where....why crash? We can continue just fine.
-        //because crashing is fun :)))
-        //plus obvioulsly someone uses the code without proper failsafes
-        //and its good practice to find these spots :))))
+        
         return false;
 
-        //its not my fault I cant reach snows tc for 2 weeks ...
     }
 }
 
@@ -142,7 +134,6 @@ bool ObjectContainer::addObject(Object* Data, PlayerObject* player)
     if(!player)
     {
         //its still added to the container
-        gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
         return true;
 
     }
@@ -162,7 +153,6 @@ bool ObjectContainer::addObjectSecure(Object* Data, PlayerObject* player)
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No player!!!!");
         return addObjectSecure(Data);
 
     }
@@ -188,7 +178,6 @@ bool ObjectContainer::addObject(Object* Data,PlayerObjectSet*	knownPlayers)
     if(!knownPlayers||(!knownPlayers->size()))
     {
         //its still added to the container
-        gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity!!!!");
         return true;
 
     }
@@ -254,7 +243,6 @@ Object* ObjectContainer::getObjectById(uint64 id)
 
         ++it;
     }
-    gLogger->log(LogManager::DEBUG,"ObjectContainer::getDataById Data %I64u not found", id);
     return NULL;
 }
 
@@ -273,7 +261,6 @@ bool ObjectContainer::removeObject(Object* data)
         }
         ++it;
     }
-    gLogger->log(LogManager::DEBUG,"ObjectContainer::removeDataByPointer Data %I64u not found", data->getId());
 //	assert(false);
     return false;
 }
@@ -294,7 +281,6 @@ bool ObjectContainer::deleteObject(Object* data)
         }
         ++it;
     }
-    gLogger->log(LogManager::DEBUG,"ObjectContainer::removeDataByPointer Data %I64u not found", data->getId());
     return false;
 }
 
@@ -313,7 +299,6 @@ bool ObjectContainer::removeObject(uint64 id)
         }
         ++it;
     }
-    gLogger->log(LogManager::DEBUG,"ObjectContainer::removeDataById  %I64u not found", id);
     return false;
 }
 
@@ -414,7 +399,6 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
     TangibleObject* tO = dynamic_cast<TangibleObject*>(object);
     if(!tO)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectContainer::handleObjectReady :No tangible ????");
         return;
     }
     // reminder: objects are owned by the global map, our item (container) only keeps references
@@ -431,7 +415,6 @@ void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 
     if(!mainParent)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectContainer::handleObjectReady :No main parent ???? Object ID %I64u", object->getId());
         return;
 
     }

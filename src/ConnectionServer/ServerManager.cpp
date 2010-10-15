@@ -35,7 +35,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Session.h"
 #include "NetworkManager/Service.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -114,7 +119,7 @@ void ServerManager::SendMessageToServer(Message* message)
     }
     else
     {
-        gLogger->log(LogManager::INFORMATION,"ServerManager: failed routing message to server %u",message->getDestinationId());
+        LOG(INFO) << "ServerManager: failed routing message to server " << message->getDestinationId();
         gMessageFactory->DestroyMessage(message);
     }
 }
@@ -154,7 +159,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
         memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
         mServerAddressMap[serverAddress.mId].mConnectionClient = connClient;
 
-        gLogger->log(LogManager::DEBUG,"*** Backend server connected id: %u\n",mServerAddressMap[serverAddress.mId].mId);
+        DLOG(INFO) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId;
 
         // If this is one of the servers we're waiting for, then update our count
         if(mServerAddressMap[serverAddress.mId].mActive)
@@ -170,9 +175,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
     }
     else
     {
-        gLogger->log(LogManager::CRITICAL,"*** Backend server connect error - Server not found in DB\n");
-        gLogger->log(LogManager::DEBUG,sql);
-        gLogger->log(LogManager::DEBUG,"\n");
+        LOG(WARNING) << "*** Backend server connect error - Server not found in DB" << sql;
     }
 
     // Delete our DB objects.
@@ -211,7 +214,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
         
     }
 
-    gLogger->log(LogManager::DEBUG,"Servermanager handle server down\n");
+    DLOG(INFO) << "Servermanager handle server down";
     mClientManager->handleServerDown(connClient->getServerId());
 
     connClient->getSession()->setStatus(SSTAT_Destroy);
@@ -347,7 +350,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
 
 void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
 {
-    gLogger->log(LogManager::DEBUG,"Sending Tutorial Status Reply\n");
+    DLOG(INFO) << "Sending Tutorial Status Reply";
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opTutorialServerStatusReply);

@@ -58,7 +58,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -98,7 +97,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleModifyPermissionList Player not found");
+        DLOG(INFO) << " ObjectController::_handleModifyPermissionList Player not found";
         return;
     }
 
@@ -122,8 +121,6 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
         return;
     }
 
-    gLogger->log(LogManager::DEBUG," %s %s %s", playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
-
     //TODO is target a structure?? used when using the commandline option
     uint64 id = player->getTargetId();
     Object* object = gWorldManager->getObjectById(id);
@@ -139,7 +136,6 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
     if(!structure)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleModifyPermissionList No structure found :(");
         return;
     }
 
@@ -203,7 +199,6 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleTransferStructure Player not found");
         return;
     }
 
@@ -231,7 +226,6 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
         // we need to get the nearest structure that we own
         // for now dustoff
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "command_no_building"), player);
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferStructure No structure found :(");
         return;
     }
 
@@ -273,7 +267,6 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleTransferStructure Player not found");
         return;
     }
 
@@ -332,7 +325,6 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Player not found");
         return;
     }
 
@@ -344,7 +336,6 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not found");
         return;
     }
 
@@ -352,7 +343,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
+        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData Structure not in Range";
         return;
     }
 
@@ -369,7 +360,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     return;
     gMessageLib->sendHarvesterResourceData(structure,player);
 
-    gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline");
+    DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline";
     gMessageLib->sendBaselinesHINO_7(harvester,player);
 
     //add the structure to the timer so the resource amounts are updated while we look at the hopper
@@ -393,13 +384,10 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 //
 void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource");
-
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
         return;
     }
 
@@ -411,7 +399,6 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
 
@@ -419,7 +406,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
+        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData Structure not in Range";
         return;
     }
 
@@ -436,7 +423,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 
     if((!tmpResource)||(!tmpResource->getCurrent()))
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData No valid resource!");
+        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData No valid resource!";
         return;
     }
 
@@ -505,7 +492,6 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
         return;
     }
 
@@ -517,7 +503,6 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
 
@@ -525,7 +510,6 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterActivate Structure not in Range");
         return;
     }
 
@@ -554,7 +538,6 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
         return;
     }
 
@@ -566,7 +549,6 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
 
@@ -574,7 +556,6 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
         return;
     }
 
@@ -603,7 +584,6 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
         return;
     }
 
@@ -615,7 +595,6 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
 
@@ -623,7 +602,6 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
         return;
     }
 
@@ -654,7 +632,6 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::ResourceEmptyHopper Player not found");
         return;
     }
 
@@ -665,7 +642,6 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
 
@@ -673,7 +649,6 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
         return;
     }
 

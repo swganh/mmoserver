@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Service.h"
 #include "Session.h"
 
-#include "Common/LogManager.h"
+
 
 #include "Utils/rand.h"
 
@@ -117,7 +117,7 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
 
 SocketWriteThread::~SocketWriteThread()
 {
-    gLogger->log(LogManager::INFORMATION, "Socket Write Thread Ended.");
+    LOG(INFO) << "Socket Write Thread Ended.";
 
     // shutdown our thread
     mExit = true;
@@ -196,7 +196,7 @@ void SocketWriteThread::run()
             }
             else
             {
-                gLogger->log(LogManager::DEBUG, "Socket Write Thread: Destroy Session");
+                DLOG(INFO) << "Socket Write Thread: Destroy Session";
 
                 session->setStatus(SSTAT_Destroy);
                 mService->AddSessionToProcessQueue(session);
@@ -335,7 +335,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
 
     if (sent < 0)
     {
-        gLogger->log(LogManager::ALERT, "Unkown Error from socket sendto: %u", errno);
+        LOG(WARNING) << "Unkown Error from socket sendto: " << errno;
     }
 }
 

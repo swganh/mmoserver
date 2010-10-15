@@ -37,7 +37,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 #include "DatabaseManager/Database.h"
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -126,8 +133,6 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
         // If we send this info to client as soon as we get connected, client will miss the info most of the time.
         // In this case client will end up with an empty "Ignore List" even if the Ignore-list should be populated.
 
-        gLogger->log(LogManager::DEBUG,"CharacterLoginHandler::handleDispatchMessage: opCmdSceneReady");
-
         // Update: The same apply to frindsList.
         gMessageLib->sendFriendListPlay9(player);
         gMessageLib->sendIgnoreListPlay9(player);
@@ -214,7 +219,6 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
     }
     else if(playerObject  && playerObject->isBeingDestroyed())
     {
-        gLogger->log(LogManager::DEBUG,"Were being destroyed but want to log in again ");
         //dont quite understand this one - the player is about to be destroyed
         //so just ignore it ????
 
@@ -229,7 +233,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
     else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
     {
 
-        gLogger->log(LogManager::DEBUG,"same account : new player ");
+        LOG(WARNING) << "same account : new player ";
         // remove old char immidiately
         gWorldManager->removePlayerFromDisconnectedList(playerObject);
 
@@ -248,7 +252,6 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
     // request a load from db
     else
     {
-        gLogger->log(LogManager::DEBUG,"all other cases");
         gObjectFactory->requestObject(ObjType_Player,0,0,this,playerId,client);
     }
 }
@@ -261,16 +264,11 @@ void	CharacterLoginHandler::_processNewbieTutorialResponse(Message* message, Dis
     {
         BString tutorialEventString;
         message->getStringAnsi(tutorialEventString);
-        gLogger->log(LogManager::DEBUG,"%s",tutorialEventString.getAnsi());
         if (gWorldConfig->isTutorial())
         {
             // Notify tutorial
             player->getTutorial()->tutorialResponse(tutorialEventString);
         }
-    }
-    else
-    {
-        gLogger->log(LogManager::DEBUG,"CharacterLoginHandler::handleDispatchMessage (case:opNewbieTutorialResponse): could not find player who was connected %u",client->getAccountId());
     }
 }
 
@@ -342,7 +340,6 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
     break;
 
     default:
-        gLogger->log(LogManager::NOTICE,"CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: %i",object->getType());
         break;
     }
 }
@@ -358,7 +355,7 @@ void CharacterLoginHandler::_processClusterClientDisconnect(Message* message, Di
 
     if (reason == 1)
     {
-        gLogger->log(LogManager::DEBUG,"Removed Player: Total Players on zone : %i",(gWorldManager->getPlayerAccMap())->size());
+        DLOG(INFO) << "Removed Player: Total Players on zone : " << gWorldManager->getPlayerAccMap()->size();
     }
     else
     {
@@ -394,8 +391,6 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         destination.x = dstPoint->spawnX + (gRandom->getRand()%5 - 2);
         destination.y = dstPoint->spawnY;
         destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
-
-        gLogger->log(LogManager::DEBUG,"CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket : (x)%f:(z)%f:(y)%f", destination.x, destination.y, destination.z);
 
         // Reset to standing
         playerObject->setPosture(CreaturePosture_Upright);

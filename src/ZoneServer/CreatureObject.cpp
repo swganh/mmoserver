@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AttackableStaticNpc.h"
 #include "Buff.h"
 #include "BuildingObject.h"
-//#include "Datapad.h"
 #include "EntertainerManager.h"
 #include "IncapRecoveryEvent.h"
 #include "PlayerObject.h"
@@ -509,7 +508,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
         if(player != 0)
         {
             //gMessageLib->sendSystemMessage(player, "You appear to have attempted to stack Buffs. The server has prevented this");
-            gLogger->log(LogManager::DEBUG,"Attempt to duplicate buffs prevented.");
+            DLOG(INFO) << "Attempt to duplicate buffs prevented.";
         }
         SAFE_DELETE(buff);
         return;
@@ -753,7 +752,7 @@ void CreatureObject::incap()
     }
     else
     {
-        gLogger->log(LogManager::NOTICE,"CreatureObject::incap Incapped unsupported type %u\n", this->getType());
+        LOG(INFO) << "CreatureObject::incap Incapped unsupported type " <<  this->getType();
     }
 
 }
@@ -894,7 +893,7 @@ void CreatureObject::die()
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"No cloning facility available\n");
+            DLOG(INFO) << "No cloning facility available ";
         }
     }
     else // if(CreatureObject* creature = dynamic_cast<CreatureObject*>(this))
@@ -1313,7 +1312,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
     }
     else
     {
-        gLogger->log(LogManager::NOTICE,"Defender is of unknown type...");
         return;
     }
 

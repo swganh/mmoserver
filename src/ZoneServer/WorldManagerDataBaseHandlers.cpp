@@ -68,7 +68,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             result->GetNextRow(binding,&mTotalObjectCount);
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loading objects...");
+                LOG(INFO) << "Loading objects...";
 
             if(mTotalObjectCount > 0)
             {
@@ -170,7 +170,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded harvesters.");
+                LOG(INFO) << "Loaded harvesters.";
 
             mDatabase->DestroyDataBinding(harvesterBinding);
 
@@ -195,7 +195,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded playerhouses.");
+                LOG(INFO) << "Loaded playerhouses.";
 
             mDatabase->DestroyDataBinding(houseBinding);
         }
@@ -218,7 +218,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded factories.");
+                LOG(INFO) << "Loaded factories.";
 
             mDatabase->DestroyDataBinding(factoryBinding);
         }
@@ -243,7 +243,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded zone regions.");
+                LOG(INFO) << "Loaded zone regions.";
 
             mDatabase->DestroyDataBinding(regionBinding);
         }
@@ -317,7 +317,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded attribute keys.");
+                LOG(INFO) << "Loaded attribute keys.";
 
             mDatabase->DestroyDataBinding(binding);
         }
@@ -340,7 +340,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded Client Effects.");
+                LOG(INFO) << "Loaded Client Effects.";
 
 
             mDatabase->DestroyDataBinding(binding);
@@ -364,7 +364,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded sound effects.");
+                LOG(INFO) << "Loaded sound effects.";
 
             mDatabase->DestroyDataBinding(binding);
         }
@@ -387,7 +387,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded moods.");
+                LOG(INFO) << "Loaded moods.";
 
 
             mDatabase->DestroyDataBinding(binding);
@@ -411,7 +411,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded NPC conversational animations.");
+                LOG(INFO) << "Loaded NPC conversational animations.";
 
             mDatabase->DestroyDataBinding(binding);
         }
@@ -442,7 +442,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded NPC phrases.");
+                LOG(INFO) << "Loaded NPC phrases.";
 
             mDatabase->DestroyDataBinding(binding);
             mDatabase->DestroyDataBinding(animbinding);
@@ -468,7 +468,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded world scripts.");
+                LOG(INFO) << "Loaded world scripts.";
 
             mDatabase->DestroyDataBinding(scriptBinding);
         }
@@ -493,7 +493,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded buildings");
+                LOG(INFO) << "Loaded buildings";
 
             mDatabase->DestroyDataBinding(buildingBinding);
         }
@@ -516,7 +516,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded city regions.");
+                LOG(INFO) << "Loaded city regions.";
 
 
 
@@ -541,7 +541,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded badge regions.");
+                LOG(INFO) << "Loaded badge regions.";
 
 
             mDatabase->DestroyDataBinding(badgeBinding);
@@ -565,7 +565,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded spawn regions.");
+                LOG(INFO) << "Loaded spawn regions.";
 
 
             mDatabase->DestroyDataBinding(spawnBinding);
@@ -592,7 +592,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded creature spawn regions.");
+                LOG(INFO) << "Loaded creature spawn regions.";
 
 
             mDatabase->DestroyDataBinding(creatureSpawnBinding);
@@ -636,7 +636,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             }
 
             if(result->getRowCount())
-                gLogger->log(LogManager::NOTICE,"Loaded cell children...");
+                LOG(INFO) << "Loaded cell children...";
 
             mDatabase->DestroyDataBinding(binding);
         }
@@ -757,7 +757,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     break;
 
     default:
-        gLogger->log(LogManager::EMERGENCY,"World Manager Database Callback: unknown state: %i",mState);
+        LOG(FATAL)<<"World Manager Database Callback: unknown state: " << mState;
         break;
     }
 

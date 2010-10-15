@@ -73,7 +73,6 @@ LairObject::LairObject(uint64 templateId) : AttackableStaticNpc()
 LairObject::~LairObject()
 {
     // mRadialMenu.reset();
-    gLogger->log(LogManager::DEBUG,"LairObject::~LairObject() DESTRUCTED\n");
 }
 
 //=============================================================================
@@ -105,7 +104,6 @@ void LairObject::addKnownObject(Object* object)
 {
     if(checkKnownObjects(object))
     {
-        gLogger->log(LogManager::DEBUG,"AttackableCreature::addKnownObject %I64u couldnt be added to %I64u already in it", object->getId(), this->getId());
         return;
     }
 
@@ -285,7 +283,6 @@ uint64 LairObject::handleState(uint64 timeOverdue)
 
     default:
     {
-        gLogger->log(LogManager::NOTICE,"LairObject: UNKNOWN state");
     }
     break;
 
@@ -448,7 +445,6 @@ void LairObject::makePeaceWithDefendersOutOfRange(void)
 void LairObject::spawn(void)
 {
     gLairSpawnCounter++;
-    gLogger->log(LogManager::DEBUG,"Spawned lair # %"PRIu64" (%"PRIu64")", gLairSpawnCounter, gLairSpawnCounter - gLairDeathCounter);
 
     // Update the world about my presence.
     if (this->getParentId())
@@ -462,7 +458,6 @@ void LairObject::spawn(void)
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"LairObject::spawn: couldn't find cell %"PRIu64"", this->getParentId());
         }
     }
     else

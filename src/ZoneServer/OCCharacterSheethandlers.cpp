@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -191,7 +190,6 @@ void ObjectController::_handleRequestBadges(uint64 targetId,Message* message,Obj
 
     if(targetObject == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestbages: could not find %"PRIu64"",targetId);
         return;
     }
 
@@ -222,7 +220,6 @@ void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,
 
     if(targetObject == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestBiography: could not find %"PRIu64"",targetId);
         return;
     }
 
@@ -293,7 +290,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
     if(elementCount != 9)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestCharacterMatch: argument mismatch %"PRIu64"",player->getId());
+        DLOG(INFO) << "ObjController::_handleRequestCharacterMatch: argument mismatch " << player->getId();
         return;
     }
 
@@ -303,7 +300,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
         if(skill == NULL)
         {
-            gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestCharacterMatch: could not find matching skill for %s",titleStr);
+            DLOG(INFO) << "ObjController::_handleRequestCharacterMatch: could not find matching skill for " << titleStr;
             return;
         }
     }

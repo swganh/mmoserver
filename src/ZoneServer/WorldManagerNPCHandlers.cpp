@@ -119,7 +119,6 @@ bool WorldManager::_handleDormantNpcs(uint64 callTime, void* ref)
             {
                 // Remove the expired object...
                 mNpcDormantHandlers.erase(it++);
-                gLogger->log(LogManager::DEBUG,"Removed expired dormant NPC handler...");
             }
         }
         else
@@ -328,7 +327,6 @@ uint64 WorldManager::getRandomNpNpcIdSequence()
         if (counter++ > 1000)
         {
             // TODO: Better handling of this...
-            gLogger->log(LogManager::DEBUG,"This place gonna blow...");
             randomNpIdPair = 0;
             break;
         }
@@ -366,7 +364,6 @@ uint64 WorldManager::getRandomNpId()
     if (found == false)
     {
         id = 0;
-        gLogger->log(LogManager::DEBUG,"WorldManager::getRandomNpId() SYSTEM FAILURE");
     }
     return id;
 

@@ -395,7 +395,6 @@ void Buff::FinalChanges()
     CreatureObject*	creature = dynamic_cast<PlayerObject*>(mTarget);
     if(!creature)
     {
-        gLogger->log(LogManager::DEBUG,"Buff::FinalChanges :Creature Object nonexistant)");
         mMarkedForDeletion =true;
         EraseAttributes();
         return;
@@ -507,7 +506,7 @@ int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
     }
     break;
     case bleed_resist : {
-        gLogger->log(LogManager::NOTICE,"Unhandled Attribute: bleed_resist in Buff.cpp");
+        //gLogger->log(LogManager::NOTICE,"Unhandled Attribute: bleed_resist in Buff.cpp");
     }
     break;
     case blind_defense : {
@@ -529,19 +528,19 @@ int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
     }
     break;
     case creature_action : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: creature_action in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: creature_action in Buff.cpp");
     }
     break;
     case creature_health : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_health in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_health in Buff.cpp");
     }
     break;
     case creature_mind : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_mind in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_mind in Buff.cpp");
     }
     break;
     case creature_tohit : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_tohit in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute creature_tohit in Buff.cpp");
     }
     break;
     case dizzy_defense : {
@@ -553,15 +552,15 @@ int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
     }
     break;
     case experiment_bonus : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: experimentation_bonus in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: experimentation_bonus in Buff.cpp");
     }
     break;
     case fire_resist : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: fire_resist in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: fire_resist in Buff.cpp");
     }
     break;
     case food_reduce : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute in Buff.cpp");
     }
     break;
     case general_assembly : {
@@ -598,7 +597,7 @@ int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
     }
     break;
     case incap_recovery : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: incap_recovery in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: incap_recovery in Buff.cpp");
     }
     break;
     case innate_regeneration :  {
@@ -624,15 +623,15 @@ int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
     }
     break;
     case mind_heal : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: mind_heal in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: mind_heal in Buff.cpp");
     }
     break;
     case mitigate_damage : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: mitigate_damage in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: mitigate_damage in Buff.cpp");
     }
     break;
     case poison_disease_resist : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: poison_disease_resist in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: poison_disease_resist in Buff.cpp");
     }
     break;
     case ranged_defense :  {
@@ -640,11 +639,11 @@ int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
     }
     break;
     case reduce_clone_wounds : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: reduce_clone_wounds in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: reduce_clone_wounds in Buff.cpp");
     }
     break;
     case reduce_spice_downtime : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: reduce_spice_downtime in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: reduce_spice_downtime in Buff.cpp");
     }
     break;
     case stun_defense :  {
@@ -671,7 +670,7 @@ int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
     }
     break;
     case xp_increase : {
-        gLogger->log(LogManager::DEBUG,"Unhandled Attribute: xp_increase in Buff.cpp");
+        //gLogger->log(LogManager::DEBUG,"Unhandled Attribute: xp_increase in Buff.cpp");
     }
     break;
     default:

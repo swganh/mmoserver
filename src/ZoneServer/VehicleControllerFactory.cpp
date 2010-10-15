@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "MessageLib/MessageLib.h"
-//#include "Common/LogManager.h"
+//
 //#include "Utils/utils.h"
 
 
@@ -111,7 +111,6 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
         uint64	count	= result->getRowCount();
         if(!count)
         {
-            gLogger->log(LogManager::DEBUG,"VehicleControllerFactory::createVehicle query without result");
             mDatabase->DestroyDataBinding(binding);
             return;
         }
@@ -121,7 +120,6 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
         if(!id)
         {
-            gLogger->log(LogManager::DEBUG,"VehicleControllerFactory::createVehicle query with invalid result");
             mDatabase->DestroyDataBinding(binding);
             return;
         }
@@ -222,7 +220,6 @@ void VehicleControllerFactory::createVehicle(uint32 vehicle_type,PlayerObject* t
     int8 sql[256];
 
     sprintf(sql,"SELECT sf_DefaultVehicleCreate(%u, %"PRIu64")",vehicle_type,targetPlayer->getId());
-    gLogger->log(LogManager::DEBUG,"VehicleControllerFactory::createVehicle query %s",  sql);
     mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),sql);
     
 }

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceType.h"
 #include "WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
-#include "Common/LogManager.h"
+
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 #include "DatabaseManager/Database.h"

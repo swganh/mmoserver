@@ -26,7 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "HamProperty.h"
-#include "Common/LogManager.h"
+
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 //===============================================================
 
@@ -257,11 +263,11 @@ int32 HamProperty::updateWounds(int32 wounds)
 //
 void HamProperty::log()
 {
-    gLogger->log(LogManager::DEBUG,"mCurrentHitPoints: %i",mCurrentHitPoints);
-    gLogger->log(LogManager::DEBUG,"mModifiedHitPoints: %i",mModifiedHitPoints);
-    gLogger->log(LogManager::DEBUG,"mMaxHitPoints: %i",mMaxHitPoints);
-    gLogger->log(LogManager::DEBUG,"mEncumbrance: %i",mEncumbrance);
-    gLogger->log(LogManager::DEBUG,"mWounds: %i",mWounds);
+    DLOG(INFO) << "mCurrentHitPoints: " << mCurrentHitPoints;
+    DLOG(INFO) << "mModifiedHitPoints: " << mModifiedHitPoints;
+    DLOG(INFO) << "mMaxHitPoints: "<< mMaxHitPoints;
+    DLOG(INFO) << "mEncumbrance: " << mEncumbrance;
+    DLOG(INFO) << "mWounds: " << mWounds;
 }
 
 //===============================================================

@@ -40,8 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 
-#include "Common/LogManager.h"
-
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
@@ -68,7 +66,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
 {
     Anh_Utils::Clock::Init();
     //gLogger->printSmallLogo();
-    gLogger->log(LogManager::CRITICAL,"Chat Server Startup");
+    LOG(WARNING) << "Chat Server Startup";
 
     // Create and startup our core services.
     mDatabaseManager = new DatabaseManager();
@@ -84,7 +82,6 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
                                           (char*)(gConfig->read<std::string>("DBName")).c_str());
 
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);");
-    gLogger->log(LogManager::DEBUG, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);"); // SQL Debug Log
 
     mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
@@ -120,19 +117,19 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
     // We're done initializing.
     _updateDBServerList(2);
 
-    gLogger->log(LogManager::CRITICAL,"Chat Server startup complete");
+    LOG(WARNING) << "Chat Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    gLogger->log(LogManager::INFORMATION,"Chat Server - Build %s",ConfigManager::getBuildString().c_str());
-    gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
+    LOG(WARNING) << "Chat Server - Build " << ConfigManager::getBuildString().c_str();
+    LOG(WARNING) << "Welcome to your SWGANH Experience!";
 }
 
 //======================================================================================================================
 
 ChatServer::~ChatServer()
 {
-    gLogger->log(LogManager::CRITICAL,"ChatServer shutting down...");
+    LOG(WARNING) << "ChatServer shutting down...";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -157,7 +154,7 @@ ChatServer::~ChatServer()
 
     delete mDatabaseManager;
 
-    gLogger->log(LogManager::CRITICAL,"ChatServer Shutdown Complete");
+    LOG(WARNING) << "ChatServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -181,7 +178,7 @@ void ChatServer::Process()
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        gLogger->log(LogManager::NOTICE,"ChatServer Heartbeat.");
+        DLOG(INFO) << "ChatServer Heartbeat.";
     }
 }
 
@@ -259,16 +256,6 @@ int main(int argc, char* argv[])
         ConfigManager::Init("ChatServer.cfg");
     } catch (file_not_found) {
         std::cout << "Unable to find configuration file: " << CONFIG_DIR << "ChatServer.cfg" << std::endl;
-        exit(-1);
-    }
-
-    try {
-        LogManager::Init(
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
-            gConfig->read<std::string>("FileLog_Name", "chat_server.log"));
-    } catch (...) {
-        std::cout << "Unable to open log file for writing" << std::endl;
         exit(-1);
     }
 

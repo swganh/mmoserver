@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 
 #include <time.h>
 #include "utils/rand.h"
@@ -68,13 +67,11 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 
         if(!playerObject)
         {
-            gLogger->log(LogManager::DEBUG,"TicketCollector: no player");
             return;
         }
 
         if(!mShuttle)
         {
-            gLogger->log(LogManager::DEBUG,"TicketCollector: no shuttle");
             return;
         }
 
@@ -103,7 +100,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         }
     }
     else
-        gLogger->log(LogManager::DEBUG,"TravelTerminal: Unhandled MenuSelect: %u",messageType);
+        DLOG(INFO) << "TravelTerminal: Unhandled MenuSelect: " << messageType;
 }
 
 //=============================================================================
@@ -215,7 +212,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,BString inputStr
                     }
                     else
                     {
-                        gLogger->log(LogManager::DEBUG,"TicketCollector: Error getting TravelPoint");
+                        DLOG(INFO) << "TicketCollector: Error getting TravelPoint";
                     }
                     break;
                 }
@@ -273,7 +270,7 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
             }
             else
             {
-                gLogger->log(LogManager::DEBUG,"TicketCollector: Error getting TravelPoint\n");
+                DLOG(INFO) << "TicketCollector: Error getting TravelPoint";
             }
         }
     }

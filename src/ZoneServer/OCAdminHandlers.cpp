@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 #include "Utils/utils.h"
@@ -174,12 +173,12 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
         // gMessageLib->sendSystemMessage(player, dataStr, true);
 
         dataStr.convert(BSTRType_ANSI);
-        gLogger->log(LogManager::DEBUG,"Admin (%s): %s", player->getFirstName().getAnsi(), dataStr.getAnsi());
+        DLOG(INFO) << "Admin "<< player->getFirstName().getAnsi() <<":" << dataStr.getAnsi();
     }
     else
     {
         dataStr.convert(BSTRType_ANSI);
-        gLogger->log(LogManager::DEBUG,"Admin (anon): %s", dataStr.getAnsi());
+        DLOG(INFO) << "Admin (anon): " <<  dataStr.getAnsi();
     }
 
     int8 rawData[128];
@@ -757,24 +756,22 @@ void ObjectController::sendAdminFeedback(BString reply) const
     {
         if (reply.getLength())
         {
-            gLogger->log(LogManager::NOTICE,"Admin (%s): %s", player->getFirstName().getAnsi(), reply.getAnsi());
             reply.convert(BSTRType_Unicode16);
             gMessageLib->SendSystemMessage(reply.getUnicode16(), player, true);
         }
         else
         {
-            gLogger->log(LogManager::NOTICE,"Admin (%s):", player->getFirstName().getAnsi());
+            DLOG(INFO) << "Admin :" << player->getFirstName().getAnsi();
         }
     }
     else
     {
         if (reply.getDataLength())
         {
-            gLogger->log(LogManager::NOTICE,"Admin (anon): %s", reply.getAnsi());
+            DLOG(INFO) << "Admin (anon): " << reply.getAnsi();
         }
         else
         {
-            gLogger->log(LogManager::NOTICE,"Admin (anon):");
         }
     }
 }

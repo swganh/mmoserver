@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneTree.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -66,7 +65,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
     if (!player)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::handleDataTransform Object is NOT A PLAYER, id = %"PRIu64"", mObject->getId());
         return;
     }
 
@@ -130,7 +128,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell(%"PRIu64")",player->getId(),player->getParentId());
+			DLOG(INFO) << "Error removing" << player->getId() << " from cell " << player->getParentId();
         }
 
         // we are outside again
@@ -151,8 +149,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         {
             // we should never get here !
             // it basically means we left the map
-            gLogger->log(LogManager::DEBUG,"ObjController::handleDataTransform: could not find zone region in map");
-            gLogger->log(LogManager::DEBUG,"ObjController:: probably a bot : %i64u",static_cast<int>(player->getId()));
+            DLOG(INFO) << "ObjController::handleDataTransform: could not find zone region in map";
+            DLOG(INFO) << "ObjController:: probably a bot : " << player->getId();
 
             // hammertime !
             //muglies botter sometimes sends us weird positions
@@ -191,7 +189,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
             {
                 updateAll = true;
 
-                gLogger->log(LogManager::DEBUG,"ObjController::DataTransform: Changing subzone");
                 // remove from old
                 if(QTRegion* oldRegion = player->getSubZone())
                 {
@@ -226,9 +223,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
             else
             {
                 // we should never get here !
-                gLogger->log(LogManager::DEBUG,"ObjController::DataTransform: could not find zone region in map");
-
-                gLogger->log(LogManager::DEBUG,"ObjController:: probably a bot : %I64u",static_cast<int>(player->getId()));
+                DLOG(INFO) << "ObjController::handleDataTransform: could not find zone region in map";
+	            DLOG(INFO) << "ObjController:: probably a bot : " << player->getId();
 
                 // hammertime !
                 // muglies botter sometimes sends us weird positions  with X or Y far out of possible regions
@@ -383,7 +379,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
                 }
                 else
                 {
-                    gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell(%"PRIu64")",player->getId(),oldParentId);
+					DLOG(INFO) << "Error removing "<<player->getId() << " from cell" << oldParentId;
                 }
             }
             else
@@ -434,7 +430,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
             }
             else
             {
-                gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell(%"PRIu64")",player->getId(),parentId);
+                DLOG(INFO) << "Error adding "<<player->getId() << " from cell" << parentId;
             }
         }
 
@@ -694,7 +690,6 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
     // make sure we got a cell
     if (!playerCell)
     {
-        gLogger->log(LogManager::DEBUG,"ERROR: No playerCell.");
         return;
     }
 
@@ -705,7 +700,6 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
     if (!building)
     {
 
-        gLogger->log(LogManager::DEBUG,"ERROR: No building.");
         return;
     }
 
@@ -763,7 +757,6 @@ bool ObjectController::_updateInRangeObjectsInside()
     // make sure we got a cell
     if (!playerCell)
     {
-        gLogger->log(LogManager::DEBUG,"Error getting cell %"PRIu64" for %"PRIu64" type %u",player->getParentId(),player->getId(),player->getType());
         return true;	// We are done, nothing we can do...
     }
 
@@ -802,7 +795,6 @@ bool ObjectController::_updateInRangeObjectsInside()
                 }
                 else
                 {
-                    gLogger->log(LogManager::DEBUG,"Error getting cell %"PRIu64" for %"PRIu64" type %u",object->getParentId(),object->getId(),object->getType());
                 }
             }
             if (validObject)

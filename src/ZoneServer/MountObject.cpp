@@ -98,16 +98,16 @@ void MountObject::handleObjectMenuSelect(uint8 message_type, Object* source_obje
     }
     break;
 
-    case radId_serverVehicleEnter:
+	case radId_serverVehicleEnter:
     case radId_serverVehicleExit:
     {
-        gLogger->log(LogManager::DEBUG, "MountObject::handleObjectMenuSelect - still in radial selection");
+        DLOG(INFO) << "MountObject::handleObjectMenuSelect - still in radial selection";
     }
     break;
 
     default:
     {
-        gLogger->log(LogManager::DEBUG, "MountObject::handleObjectMenuSelect - unknown radial selection: %d",message_type);
+        DLOG(INFO) << "MountObject::handleObjectMenuSelect - unknown radial selection: " << message_type;
     }
     break;
     }

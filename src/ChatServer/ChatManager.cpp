@@ -35,7 +35,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Mail.h"
 #include "Player.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -252,7 +257,7 @@ void ChatManager::unregisterChannel(Channel* channel)
     }
     else
     {
-        gLogger->log(LogManager::CRITICAL,"Could not find channel for removing. %u",channel->getId());
+        DLOG(FATAL) << "Could not find channel for removing. " << channel->getId();
     }
 }
 
@@ -393,7 +398,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             
         }
         else
-            gLogger->log(LogManager::NOTICE,"Could not find account %u",asyncContainer->mClient->getAccountId());
+            LOG(WARNING) << "Could not find account " << asyncContainer->mClient->getAccountId();
     }
     break;
 
@@ -402,7 +407,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         uint64 count = result->getRowCount();
 
         if (count == 0) {
-            gLogger->log(LogManager::NOTICE,"Could not find Galaxy ");
+            LOG(WARNING) << "Could not find Galaxy ";
             return;
         }
 
@@ -411,7 +416,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         result->GetNextRow(binding,&mGalaxyName);
 
-        gLogger->log(LogManager::DEBUG,"Main: [%s] Galaxy: [%s]",mMainCategory.getAnsi(),mGalaxyName.getAnsi());
+        DLOG(INFO) <<"Main: ["<<mMainCategory.getAnsi()<<"] Galaxy: ["<<mGalaxyName.getAnsi()<<"]";
 
         mDatabase->DestroyDataBinding(binding);
     }
@@ -521,7 +526,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             name.toLower();
             if (receiver)
             {
-                gLogger->log(LogManager::DEBUG," %s ChatMailQuery_PlayerIgnores [%s]", receiver->getName().getAnsi(), name.getAnsi());
+				DLOG(INFO) << receiver->getName().getAnsi() << " ChatMailQuery_PlayerIgnores ["<< name.getAnsi()<<"]";
             }
             ignoreList.insert(std::make_pair(name.getCrc(),name.getAnsi()));
         }
@@ -576,7 +581,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     {
         if(!result->getRowCount())
         {
-            gLogger->log(LogManager::DEBUG," not found mail with id %u",asyncContainer->mRequestId);
+            DLOG(WARNING) << " not found mail with id %u" << asyncContainer->mRequestId;
             SAFE_DELETE(asyncContainer);
             return;
         }
@@ -707,7 +712,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             Player* player = getPlayerByAccId(asyncContainer->mClient->getAccountId());
             if(player == NULL)
             {
-                gLogger->log(LogManager::DEBUG,"Error getting player from account map %u", asyncContainer->mClient->getAccountId());
+                DLOG(INFO) << "Error getting player from account map " << asyncContainer->mClient->getAccountId();
                 continue;
             }
             ChatAvatarId* avatar = new ChatAvatarId();
@@ -717,14 +722,14 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             //If I'm banned or not invited to a private channel then stay out.
             if (channel->isBanned(avatar->getLoweredName()))
             {
-                gLogger->log(LogManager::DEBUG,"Player was banned\n");
+                DLOG(INFO) << "Player was banned";
                 continue;
             }
             if (channel->isPrivate())
             {
                 if (!channel->isInvited(avatar->getLoweredName()))
                 {
-                    gLogger->log(LogManager::DEBUG,"Player was not invited to private channel\n");
+                    DLOG(INFO) << "Player was not invited to private channel";
                     continue;
                 }
             }
@@ -882,7 +887,7 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 
     Player* player = new Player(charId,client,planetId);
 
-    gLogger->log(LogManager::DEBUG,"Connecting account %u with player id %"PRIu64"", client->getAccountId(), charId);
+	DLOG(INFO) << "Connecting account " << client->getAccountId() << " with player id " << charId;
 
     mPlayerAccountMap.insert(std::make_pair(accountId,player));
     mPlayerList.push_back(player);
@@ -926,7 +931,7 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"Error finding player in player account map %u",client->getAccountId());
+		DLOG(INFO) <<"Error finding player in player account map " << client->getAccountId();
         return;
     }
 
@@ -964,13 +969,13 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"ChatManager:: Can't find player %s in planet channel", player->getName().getAnsi());
+			DLOG(INFO) << "ChatManager:: Can't find player " << player->getName().getAnsi() << "in planet channel";
         }
     }
     else
     {
         // This is the normal path for the Tutorial, it has no planet channel.
-        gLogger->log(LogManager::DEBUG,"Can't find channel for planet %u", player->getPlanetId());
+        DLOG(INFO) << "Can't find channel for planet " << player->getPlanetId();
 
         // We cant just return here, we need to continue and remove the player from the account map etc below.
     }
@@ -1019,7 +1024,7 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"Error removing player %s from name map",player->getName().getAnsi());
+        DLOG(INFO) << "Error removing player " << player->getName().getAnsi() <<" from name map";
     }
 }
 
@@ -1040,7 +1045,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
             Channel* channel = getChannelById(player->getPlanetId() + 23);
             if (channel == NULL)
             {
-                gLogger->log(LogManager::DEBUG,"No channel for planet %u\n", player->getPlanetId());
+                DLOG(INFO) << "Can't find channel for planet " << player->getPlanetId();
             }
             else
             {
@@ -1080,7 +1085,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
 
 void ChatManager::_processZoneTransfer(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"_processZoneTransfer");
+    DLOG(INFO) << "_processZoneTransfer";
 
     uint32 planetId = message->getUint32();
 
@@ -1094,7 +1099,7 @@ void ChatManager::_processZoneTransfer(Message* message,DispatchClient* client)
         Channel* channel = getChannelById(player->getPlanetId() + 23);
         if (channel == NULL)
         {
-            gLogger->log(LogManager::DEBUG,"No channel for depature planet %u", player->getPlanetId());
+            DLOG(INFO) << "No channel for depature planet " << player->getPlanetId();
         }
         else
         {
@@ -1102,7 +1107,7 @@ void ChatManager::_processZoneTransfer(Message* message,DispatchClient* client)
             ChatAvatarId* avatar = channel->findUser(player->getName());
             if(!avatar)
             {
-                gLogger->log(LogManager::DEBUG,"ChatManager::_processZoneTransfer No avatar \n");
+				return;
 
             }
             else
@@ -1115,7 +1120,7 @@ void ChatManager::_processZoneTransfer(Message* message,DispatchClient* client)
         channel = getChannelById(planetId + 23);
         if (channel == NULL)
         {
-            gLogger->log(LogManager::DEBUG,"No channel for destination planet %u\n", planetId);
+            DLOG(INFO) << "No channel for destination planet " << planetId;
         }
         else
         {
@@ -1130,7 +1135,7 @@ void ChatManager::_processZoneTransfer(Message* message,DispatchClient* client)
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"Error getting player %u",client->getAccountId());
+        DLOG(INFO) << "Error getting player " << client->getAccountId();
         return;
     }
 }
@@ -1144,7 +1149,7 @@ void ChatManager::_processRoomlistRequest(Message* message,DispatchClient* clien
     Player* player = getPlayerByAccId(client->getAccountId());
     if(player == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"Error getting player from account map %u",client->getAccountId());
+        DLOG(INFO) << "Error getting player from account map " << client->getAccountId();
         return;
     }
 }
@@ -1173,14 +1178,14 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 
     // modpath.toLower();
 
-    gLogger->log(LogManager::DEBUG,"Attempting to create channel %s at %s\n", title.getAnsi(), modpath.getAnsi());
+	DLOG(INFO) << "Attempting to create channel "<< title.getAnsi() << " at " << modpath.getAnsi();
 
     ChannelList::iterator iter = mvChannels.begin();
     while (iter != mvChannels.end())
     {
         if (Anh_Utils::cmpistr((*iter)->getName().getAnsi(), modpath.getAnsi()) == 0)
         {
-            gLogger->log(LogManager::DEBUG,"Channel %s already exist\n", modpath.getAnsi());
+			DLOG(INFO) << "Channel " << modpath.getAnsi() << " already exist";
             delete playername;
             return;
         }
@@ -1226,7 +1231,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     
 
     // TEST
-    gLogger->log(LogManager::DEBUG,"Channel %s created at %s\n", title.getAnsi(), modpath.getAnsi());
+	DLOG(INFO) << "Channel " <<title.getAnsi()<<" created at " << modpath.getAnsi();
 
     delete playername;
 }
@@ -1235,7 +1240,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 
 void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"DestroyRoom");
+    DLOG(INFO) << "DestroyRoom";
     uint32 roomId = message->getUint32();
     /* uint32 requestId = */
     message->getUint32();
@@ -1243,7 +1248,7 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
     Channel* channel = getChannelById(roomId);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %u", roomId);
+        DLOG(INFO) << "No channel for room" << roomId;
         return;
     }
 
@@ -1260,7 +1265,7 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
         return;
     }
 
-    gLogger->log(LogManager::DEBUG,"Player %s destroying channel %s\n", playername.getAnsi(), channel->getName().getAnsi());
+	DLOG(INFO) << "Player " << playername.getAnsi() <<" destroying channel " << channel->getName().getAnsi();
     ChatAvatarId* avatar = channel->findUser(playername);
     if (avatar == NULL)
     {
@@ -1275,7 +1280,7 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
     PlayerList::iterator listIt = mPlayerList.begin();
     while(listIt != mPlayerList.end())
     {
-        gLogger->log(LogManager::DEBUG,"Channel %s gone for %s\n", channel->getName().getAnsi(), (*listIt)->getName().getAnsi());
+		DLOG(INFO) << "Channel "<<channel->getName().getAnsi() << "gone for " << (*listIt)->getName().getAnsi();
         gChatMessageLib->sendChatOnDestroyRoom((*listIt)->getClient(), channel, 0);
         ++listIt;
     }
@@ -1325,7 +1330,7 @@ void ChatManager::_processRoomQuery(Message* message,DispatchClient* client)
     Channel* channel = getChannelByName(roomname);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %s", roomname.getAnsi());
+        DLOG(INFO) << "No channel for room " << roomname.getAnsi();
         return;
     }
     gChatMessageLib->sendChatQueryRoomResults(client, channel, requestId);
@@ -1335,7 +1340,7 @@ void ChatManager::_processRoomQuery(Message* message,DispatchClient* client)
 
 void ChatManager::_processRoomMessage(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"_processRoomMessage");
+    DLOG(INFO) << "_processRoomMessage";
 }
 
 //======================================================================================================================
@@ -1363,7 +1368,7 @@ void ChatManager::_processInstantMessageToCharacter(Message* message,DispatchCli
 
     if(sender == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"Error finding sender %u",client->getAccountId());
+        DLOG(INFO) << "Error finding sender " << client->getAccountId();
         return;
     }
 
@@ -1428,13 +1433,13 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
     Channel* channel = getChannelById(roomId);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %u", roomId);
+        DLOG(INFO) <<"No channel for room " << roomId;
         return;
     }
     Player* player = getPlayerByAccId(client->getAccountId());
     if (player == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No player for account %u", client->getAccountId());
+        DLOG(INFO) << "No player for account "<< client->getAccountId();
         return;
     }
 
@@ -1450,7 +1455,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
         if ((*iter)->getLoweredName().getCrc() == player->getKey())
         {
             gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
-            gLogger->log(LogManager::DEBUG,"Player %s already in room %s\n", player->getName().getAnsi(),channel->getName().getAnsi());
+			DLOG(INFO) << "Player " << player->getName().getAnsi() <<" already in room " <<  channel->getName().getAnsi();
             return;
         }
         ++iter;
@@ -1460,7 +1465,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
     {
         // You cannot join '%TU (room name)' because you are not invted to the room
         gChatMessageLib->sendChatFailedToEnterRoom(client, avatar, 16, channel, requestId);
-        gLogger->log(LogManager::DEBUG,"Player was banned\n");
+        DLOG(INFO) << "Player was banned";
         return;
     }
 
@@ -1468,13 +1473,13 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
     {
         if (channel->isInvited(avatar->getLoweredName()))
         {
-            gLogger->log(LogManager::DEBUG,"Channel was private\n");
+            DLOG(INFO) << "Channel was private";
         }
         else
         {
             // You cannot join '%TU (room name)' because you are not invted to the room
             gChatMessageLib->sendChatFailedToEnterRoom(client, avatar, 16, channel, requestId);
-            gLogger->log(LogManager::DEBUG,"Player was not invited\n");
+            DLOG(INFO) << "Player was not invited";
             return;
         }
     }
@@ -1504,13 +1509,13 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
 
 void ChatManager::_processSendToRoom(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"_processSendToRoom");
+    DLOG(INFO) << "_processSendToRoom";
 
     Player*	player = getPlayerByAccId(client->getAccountId());
 
     if (player == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"Error getting player from account map %u",client->getAccountId());
+        DLOG(INFO) << "Error getting player from account map " << client->getAccountId();
         return;
     }
 
@@ -1525,7 +1530,7 @@ void ChatManager::_processSendToRoom(Message* message,DispatchClient* client)
     Channel* channel = getChannelById(channelId);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel with id %u", channelId);
+        DLOG(INFO) << "No channel with id " << channelId;
         gChatMessageLib->sendChatOnSendRoomMessage(client, 1, requestId);	// Error code 1 will give the default error message.
         return;
     }
@@ -1559,7 +1564,7 @@ void ChatManager::_processSendToRoom(Message* message,DispatchClient* client)
 
 void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"Add moderator to room");
+    DLOG(INFO) << "Add moderator to room";
     BString playerName;
     BString roompath;
     BString roomname;
@@ -1575,12 +1580,12 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
     uint32 index = 5 + mGalaxyName.getLength();
     roompath.substring(roomname, static_cast<uint16>(index), roompath.getLength());
 
-    gLogger->log(LogManager::DEBUG,"Channel is %s", roomname.getAnsi());
+    DLOG(INFO) << "Channel is "<< roomname.getAnsi();
 
     Channel* channel = getChannelByName(roomname);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %s", roomname.getAnsi());
+        DLOG(INFO) << "No channel for room " << roomname.getAnsi();
         return;
     }
 
@@ -1602,7 +1607,7 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
     {
         errorCode = 4;
         realPlayerName = playerName;	// We have to stick with this name when error reporting.
-        gLogger->log(LogManager::DEBUG,"No player with name %s found\n", playerName.getAnsi());
+        DLOG(INFO) << "No player with name " << playerName.getAnsi();
     }
     else
     {
@@ -1618,28 +1623,27 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
     if (!isValidName(playerName))
     {
         errorCode = 4;
-        gLogger->log(LogManager::DEBUG,"No player with name %s found", playerName.getAnsi());
+        DLOG(INFO) << "No player with name " << playerName.getAnsi();
     }
 #endif
     // We check in logical order, even if we know that playername is not valid.
     if (!channel->isModerated())
     {
         // Channel is not moderated.
-        gLogger->log(LogManager::DEBUG,"Channel is not moderated");
+        DLOG(INFO) << "Channel is not moderated";
         errorCode = 9;
     }
     else if ((!channel->isModerator(sender)) && (!channel->isOwner(sender)))
     {
         errorCode = 16;
-        gLogger->log(LogManager::DEBUG,"%s is not owner or moderated in channel %s.",realSenderName.getAnsi(), roomname.getAnsi());
+		DLOG(INFO) << realSenderName.getAnsi() << " is not owner or moderated in channel " << roomname.getAnsi();
         // gChatMessageLib->sendChatFailedToAddMod(client, mGalaxyName, sender, playername, channel, 16, requestId);
         // return;
     }
     // If we have invalid player name, we don't need the following checks.
     else if ((errorCode == 0) && (channel->isModerator(playerName)))
     {
-        gLogger->log(LogManager::DEBUG,"%s is already a moderator in channel %s.", realPlayerName.getAnsi(), roomname.getAnsi());
-        // gChatMessageLib->sendChatFailedToAddMod(client, mGalaxyName, sender, playername, channel, 1, requestId);
+		// gChatMessageLib->sendChatFailedToAddMod(client, mGalaxyName, sender, playername, channel, 1, requestId);
         errorCode = 1;
         // return;
     }
@@ -1669,7 +1673,6 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
 
 void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"Invite avatar to room");
     BString nameOfInvitedPlayer;
     BString roompath;
     BString roomname;
@@ -1689,7 +1692,6 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
     Channel* channel = getChannelByName(roomname);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %s", roomname.getAnsi());
         return;
     }
 
@@ -1709,7 +1711,6 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
     {
         errorCode = 4;
         realPlayerName = playerName;	// We have to stick with this name when error reporting.
-        gLogger->log(LogManager::DEBUG,"No player with name %s found\n", playerName.getAnsi());
     }
     else
     {
@@ -1725,7 +1726,6 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
     if (!isValidName(playerName))
     {
         errorCode = 4;
-        gLogger->log(LogManager::DEBUG,"No player with name %s found", playerName.getAnsi());
     }
 #endif
     // We check in logical order, even if we know that playername is not valid.
@@ -1759,7 +1759,6 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"%s has invited %s to join channel %s",realSenderName.getAnsi(), realPlayerName.getAnsi(), roomname.getAnsi());
         channel->addInvitedUser(&playerName);
         int8 sql[128];
         mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
@@ -1767,8 +1766,6 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
         //mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_invited VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi() */);
         mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_ChatRoomUserInvite(%u, '%s');", channel->getId(), sql);
         
-        gLogger->log(LogManager::DEBUG, "Player %s is added to database for invited", playerName.getAnsi());
-
         gChatMessageLib->sendChatOnInviteToRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
         gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
     }
@@ -1781,7 +1778,6 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
 
 void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"Uninvite avatar from room");
     BString nameOfInvitedPlayer;
     BString roompath;
     BString roomname;
@@ -1802,7 +1798,6 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
     Channel* channel = getChannelByName(roomname);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %s", roomname.getAnsi());
         return;
     }
 
@@ -1823,7 +1818,6 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
     {
         errorCode = 4;
         realPlayerName = playerName;	// We have to stick with this name when error reporting.
-        gLogger->log(LogManager::DEBUG,"No player with name %s found\n", playerName.getAnsi());
     }
     else
     {
@@ -1839,7 +1833,6 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
     if (!isValidName(playerName))
     {
         errorCode = 4;
-        gLogger->log(LogManager::DEBUG,"No player with name %s found", playerName.getAnsi());
     }
 #endif
     // We check in logical order, even if we know that playername is not valid.
@@ -1871,8 +1864,7 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"PLayer %s becomes un-invited", realPlayerName.getAnsi());
-        (void)channel->removeInvitedUser(playerName);
+		(void)channel->removeInvitedUser(playerName);
 
         int8 sql[128];
         mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
@@ -1895,7 +1887,6 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
 
 void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"Remove Moderator from room");
     BString playerName;
     BString roompath;
     BString roomname;
@@ -1914,7 +1905,6 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
     Channel* channel = getChannelByName(roomname);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %s", roomname.getAnsi());
         return;
     }
 
@@ -1935,7 +1925,6 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
     {
         errorCode = 4;
         realPlayerName = playerName;	// We have to stick with this name when error reporting.
-        gLogger->log(LogManager::DEBUG,"No player with name %s found\n", playerName.getAnsi());
     }
     else
     {
@@ -1951,7 +1940,6 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
     if (!isValidName(playerName))
     {
         errorCode = 4;
-        gLogger->log(LogManager::DEBUG,"No player with name %s found", playerName.getAnsi());
     }
 #endif
     // We check in logical order, even if we know that playername is not valid.
@@ -1959,7 +1947,6 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
     {
         // Channel is not moderated.
         errorCode = 9;
-        gLogger->log(LogManager::DEBUG,"Channel is not moderated");
         // gChatMessageLib->sendChatFailedToRemoveMod(client, mGalaxyName, sender, playername, channel, 9, requestId);
         // return;
     }
@@ -2031,7 +2018,6 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
     Channel* channel = getChannelByName(roomname);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %s", roomname.getAnsi());
         return;
     }
 
@@ -2042,8 +2028,7 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
     {
         // User not in room.
         // errorCode = 4; We can't use it since the Avatar is not defined...
-        gLogger->log(LogManager::DEBUG,"Can't find user %s in channel", playerName.getAnsi());
-    }
+        }
     else
     {
         //mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
@@ -2059,7 +2044,6 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
 
 void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"Ban Avatar from room");
     BString playerName;
     BString roompath;
     BString roomname;
@@ -2078,8 +2062,7 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
     Channel* channel = getChannelByName(roomname);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %s", roomname.getAnsi());
-        return;
+       return;
     }
 
     // We use two versions of names, one with the real spelling and one with pure lowercase.
@@ -2099,7 +2082,6 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
     {
         errorCode = 4;
         realPlayerName = playerName;	// We have to stick with this name when error reporting.
-        gLogger->log(LogManager::DEBUG,"No player with name %s found\n", playerName.getAnsi());
     }
     else
     {
@@ -2115,7 +2097,6 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
     if (!isValidName(playerName))
     {
         errorCode = 4;
-        gLogger->log(LogManager::DEBUG,"No player with name %s found", playerName.getAnsi());
     }
 #endif
     // We check in logical order, even if we know that playername is not valid.
@@ -2146,8 +2127,6 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"PLayer %s becomes kicked, banned and un-invited", playerName.getAnsi());
-
         // Kick the player if present in channel.
         ChatAvatarId* avatar = channel->findUser(playerName);
         if (avatar)
@@ -2217,7 +2196,6 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
     Channel* channel = getChannelByName(roomname);
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"No channel for room %s", roomname.getAnsi());
         return;
     }
 
@@ -2238,7 +2216,6 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
     {
         errorCode = 4;
         realPlayerName = playerName;	// We have to stick with this name when error reporting.
-        gLogger->log(LogManager::DEBUG,"No player with name %s found\n", playerName.getAnsi());
     }
     else
     {
@@ -2254,7 +2231,6 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
     if (!isValidName(playerName))
     {
         errorCode = 4;
-        gLogger->log(LogManager::DEBUG,"No player with name %s found", playerName.getAnsi());
     }
 #endif
     // We check in logical order, even if we know that playername is not valid.
@@ -2273,7 +2249,6 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
     }
     if (errorCode != 0)
     {
-        gLogger->log(LogManager::DEBUG,"Can't un-ban player %s", realPlayerName.getAnsi());
         gChatMessageLib->sendChatFailedToUnban(client, mGalaxyName, realSenderName, realPlayerName, channel, errorCode, requestId);
     }
     else
@@ -2297,7 +2272,7 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
 
 void ChatManager::_processAvatarId(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG, "Avatar Id");
+    DLOG(INFO) <<  "Avatar Id";
 
 }
 
@@ -2473,7 +2448,6 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
 
     if(!sender)
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processPersistentMessageToServer Error finding sender %u",client->getAccountId());
         return;
     }
 
@@ -2604,14 +2578,14 @@ void ChatManager::_processDeletePersistentMessage(Message* message,DispatchClien
 
 void ChatManager::_processFriendlistUpdate(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"Friendlist update");
+    DLOG(INFO) << "Friendlist update";
 }
 
 //======================================================================================================================
 
 void ChatManager::_processAddFriend(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"Add friend");
+    DLOG(INFO) << "Add friend";
 }
 
 //======================================================================================================================
@@ -2622,8 +2596,6 @@ Channel* ChatManager::getChannelById(uint32 id)
 
     if(it != mChannelMap.end())
         return((*it).second);
-    else
-        gLogger->log(LogManager::DEBUG,"chat","ChatManager::getChannelById Could not find channel %u",id);
 
     return(NULL);
 }
@@ -2667,7 +2639,7 @@ void ChatManager::_processNotifyChatAddFriend(Message* message,DispatchClient* c
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processNotifyChatAddFriend Can't find user with account id %u", message->getAccountId());
+        DLOG(INFO) << "ChatManager::_processNotifyChatAddFriend Can't find user with account id " <<  message->getAccountId();
     }
 }
 
@@ -2690,7 +2662,7 @@ void ChatManager::_processNotifyChatRemoveFriend(Message* message,DispatchClient
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processNotifyChatRemoveFriend Can't find user with account id %u", message->getAccountId());
+        DLOG(INFO) << "ChatManager::_processNotifyChatRemoveFriend Can't find user with account id " <<  message->getAccountId();
     }
 }
 
@@ -2865,7 +2837,7 @@ void ChatManager::_processNotifyChatAddIgnore(Message* message,DispatchClient* c
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processNotifyChatAddIgnore Can't find player for add ignore with account id %u", message->getAccountId());
+        DLOG(INFO) << "ChatManager::_processNotifyChatAddIgnore Can't find user with account id " <<  message->getAccountId();
     }
 }
 
@@ -2889,7 +2861,7 @@ void ChatManager::_processNotifyChatRemoveIgnore(Message* message,DispatchClient
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processNotifyChatRemoveIgnore Can't find player for remove ignore with account id %u", message->getAccountId());
+        DLOG(INFO) << "ChatManager::_processNotifyChatRemoveIgnore Can't find user with account id " <<  message->getAccountId();
     }
 }
 
@@ -3109,7 +3081,6 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 
     if(player == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processGroupSaySend Error getting player from account map %u",client->getAccountId());
         return;
     }
 
@@ -3134,14 +3105,12 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
     group = gGroupManager->getGroupById(player->getGroupId());
     if (group == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processGroupSaySend Can't find group with group-id %u",player->getGroupId());
         return;
     }
 
     Channel* channel = group->getChannel();
     if (channel == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processGroupSaySend Can't find channel from group with group-id %u",player->getGroupId());
         return;
     }
 
@@ -3158,8 +3127,6 @@ void ChatManager::_processGroupSaySend(Message* message,DispatchClient* client)
 //======================================================================================================================
 void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"_processBroadcastGalaxy");
-
     // gLogger->hexDump(message->getData(), message->getSize());
     message->ResetIndex();
 
@@ -3167,7 +3134,6 @@ void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* clien
 
     if (player == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ChatManager::_processBroadcastGalaxy() Error getting player from account map %u",client->getAccountId());
         return;
     }
 
@@ -3200,8 +3166,6 @@ void ChatManager::_processBroadcastGalaxy(Message* message,DispatchClient* clien
 //======================================================================================================================
 void ChatManager::_processScheduleShutdown(Message* message, DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"_processScheduleShutdown");
-
     message->ResetIndex();
 
     BString msg;
@@ -3247,8 +3211,6 @@ void ChatManager::_processScheduleShutdown(Message* message, DispatchClient* cli
 
 void ChatManager::_processCancelScheduledShutdown(Message* message, DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"_processCancelScheduledShutdown");
-
     message->ResetIndex();
 
     BString msg;

@@ -276,9 +276,6 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
     InLoadingContainer* ilc	= _getObject(object->getParentId());
     if(!ilc) { //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627024455-d7efda0b4aebaa96b06438b2c42dfe6c
         LOG(WARNING) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
-        //if(!_removeFromObjectLoadMap(object->getParentId())){
-        //	gLogger->log(LogManager::WARNING,"ContainerObjectFactory::handleObjectReady: Failed to locate ilc for object with parentId:%u. Removal from loadMap failed.", object->getParentId());
-        //}
         return;
     }
     ilc->mLoadCounter--;

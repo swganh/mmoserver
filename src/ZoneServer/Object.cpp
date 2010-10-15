@@ -378,7 +378,7 @@ void Object::setAttribute(BString key,std::string value)
 
     if(it == mAttributeMap.end())
     {
-        gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -399,7 +399,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
 
     if(it == mAttributeMap.end())
     {
-        gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -408,7 +408,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table :" << key.getAnsi();
         return;
     }
 
@@ -453,7 +453,7 @@ void Object::addAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
         return;
     }
     int8 sql[512],*sqlPointer,restStr[128];
@@ -489,7 +489,7 @@ void Object::removeAttribute(BString key)
     if(it != mAttributeMap.end())
         mAttributeMap.erase(it);
     else
-        gLogger->log(LogManager::DEBUG,"Object::removeAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::removeAttribute: could not find " << key.getAnsi();
 }
 
 //=========================================================================
@@ -508,7 +508,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
 
     if(it == mInternalAttributeMap.end())
     {
-        gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -517,7 +517,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table :" << key.getAnsi();
         return;
     }
 
@@ -541,7 +541,7 @@ void	Object::setInternalAttribute(BString key,std::string value)
 
     if(it == mInternalAttributeMap.end())
     {
-        gLogger->log(LogManager::DEBUG,"Object::setInternalAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::setInternalAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -564,7 +564,7 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
         return;
     }
     int8 sql[512],*sqlPointer,restStr[128];
@@ -608,7 +608,7 @@ void Object::removeInternalAttribute(BString key)
     if(it != mInternalAttributeMap.end())
         mInternalAttributeMap.erase(it);
     else
-        gLogger->log(LogManager::DEBUG,"Object::removeInternalAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::removeInternalAttribute: could not find " << key.getAnsi();
 }
 
 
@@ -640,7 +640,7 @@ void Object::addKnownObject(Object* object)
     }
     if(checkKnownObjects(object))
     {
-        gLogger->log(LogManager::DEBUG,"Object::addKnownObject %I64u couldnt be added to %I64u - already in it", object->getId(), this->getId());
+		DLOG(INFO) << "Object::addKnownObject " << object->getId() << " couldnt be added to " <<this->getId()<< " - already in it";
         return;
     }
 

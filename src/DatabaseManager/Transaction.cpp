@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseImplementation.h"
 #include "DatabaseImplementationMySql.h"
 
-#include "Common/LogManager.h"
-
 #include <cstdarg>
 
 //======================================================================================================================
@@ -61,8 +59,7 @@ void Transaction::addQuery(int8* query,...)
     int8	localSql[2048],escapedSql[2500];
     int32	len = vsnprintf(localSql,sizeof(localSql),query,args);
 
-    //gLogger->log(LogManager::DEBUG, "Transaction: Add query");
-	gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
+	//LOG(ERROR) << "sql :: " << localSql; // SQL Debug Log
     // need to escape
     mDatabase->Escape_String(escapedSql,localSql,len);
 

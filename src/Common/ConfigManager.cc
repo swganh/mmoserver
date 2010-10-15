@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Common/ConfigManager.h"
-#include "Common/LogManager.h"
+
 #include "Common/BuildInfo.h"
 
 #include <string>

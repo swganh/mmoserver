@@ -31,7 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TradeManagerHelp.h"
 #include "StructureManagerChat.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
@@ -179,7 +184,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
         x = "";
         y = "";
         region = "";
-        gLogger->log(LogManager::NOTICE, "ChatMessageLib :: Bazaar not found");
+        DLOG(WARNING) << "ChatMessageLib :: Bazaar not found";
     }
     else
     {
@@ -240,16 +245,13 @@ void ChatMessageLib::SendHarvesterHopperUpdate(StructureManagerAsyncContainer* a
     gMessageFactory->addUint32(mHopperList->size());
     gMessageFactory->addUint32(asynContainer->updateCounter+mHopperList->size());
 
-    gLogger->log(LogManager::DEBUG, "SendHarvesterHopperUpdate:: listsize %u updatecounter %u",mHopperList->size(),asynContainer->updateCounter);
-
     gMessageFactory->addUint8(3);
     gMessageFactory->addUint16(mHopperList->size());
 
     asynContainer->updateCounter += mHopperList->size();
     while(it != mHopperList->end())
     {
-        gLogger->log(LogManager::DEBUG,"SendHarvesterHopperUpdate:: resource %I64u quantity %f",(*it)->ResourceID,(float)asynContainer->updateCounter);
-        gMessageFactory->addUint64((*it)->ResourceID);
+		gMessageFactory->addUint64((*it)->ResourceID);
         //gMessageFactory->addFloat((*it)->Quantity);
         gMessageFactory->addFloat((float)asynContainer->updateCounter);
         it++;

@@ -32,7 +32,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/TangibleEnums.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -453,7 +459,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         if(exitCode == 3)
         {
             //unspecified db error
-            gLogger->log(LogManager::NOTICE,"StructureManagerChat::HarvesterPowerUsage %I64u unspecified db error",asynContainer->harvesterID);
+            LOG(WARNING) << "StructureManagerChat::HarvesterPowerUsage "<< asynContainer->harvesterID <<" %I64u unspecified db error" ;
         }
 
 
@@ -493,7 +499,6 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             if(exitCode == 3)
             {
                 //resource never existed in the first place
-                gLogger->log(LogManager::DEBUG,"StructureMabagerChat::Factory %I64u general error",asynContainer->harvesterID);
             }
 
         }
@@ -527,17 +532,17 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             if(exitCode == 1)
             {
                 //resource never existed in the first place
-                gLogger->log(LogManager::DEBUG,"StructureMabagerChat::Harvester %I64u hopper full",asynContainer->harvesterID);
+				DLOG(INFO ) << "StructureMabagerChat::Harvester "<<asynContainer->harvesterID << " hopper full";
             }
             if(exitCode == 2)
             {
                 //resource never existed in the first place
-                gLogger->log(LogManager::DEBUG,"StructureMabagerChat::Harvester %I64u resourcechange",asynContainer->harvesterID);
+                DLOG(INFO) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID << " resourcechange";
             }
             if(exitCode == 3)
             {
                 //resource never existed in the first place
-                gLogger->log(LogManager::DEBUG,"StructureMabagerChat::Harvester %I64u harvested an invalid resource",asynContainer->harvesterID);
+               DLOG(INFO) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID <<" harvested an invalid resource";
             }
 
         }
@@ -738,7 +743,6 @@ void StructureManagerChatHandler::processTimerEvents()
         break;
 
         default:
-            gLogger->log(LogManager::DEBUG,"WorldManager::processTimerEvents: Unknown Timer %u",id);
             break;
         }
 

@@ -140,7 +140,7 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
 {
     PlayerObject* playerObject			= getPlayerByAccId(accId);
     if(!playerObject) {
-        gLogger->log(LogManager::DEBUG,"WorldManager::savePlayer could not find player with AccId:%u, save aborted.",accId);
+        DLOG(INFO) << "WorldManager::savePlayer could not find player with AccId:" <<accId<<", save aborted.";
         return;
     }
 
@@ -189,7 +189,7 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
         }
         break;
     default:
-        gLogger->log(LogManager::DEBUG,"We should never get in here, make sure to call savePlayer with the enum WMLogOut");
+        DLOG(INFO) << "We should never get in here, make sure to call savePlayer with the enum WMLogOut";
     }
 }
 
@@ -264,8 +264,6 @@ PlayerObject*	WorldManager::getPlayerByAccId(uint32 accId)
 void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 {
     uint32 timeOut = gWorldConfig->getConfiguration<uint32>("Zone_Player_Logout",300);
-
-    gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") disconnected,reconnect timeout in %u seconds",playerObject->getId(),timeOut);
 
     // Halt the tutorial scripts, if running.
     playerObject->stopTutorial();
@@ -346,8 +344,6 @@ void WorldManager::addReconnectedPlayer(PlayerObject* playerObject)
     playerObject->setClientTickCount(0);
     playerObject->setSaveTimer(0);
 
-    gLogger->log(LogManager::DEBUG,"Player(%"PRIu64") reconnected",playerObject->getId());
-
     removePlayerFromDisconnectedList(playerObject);
 }
 
@@ -360,7 +356,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
     it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
     if(it == mPlayersToRemove.end())
     {
-        gLogger->log(LogManager::DEBUG,"WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: %"PRIu64"",playerObject->getId());
+        DLOG(INFO) << "WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: " << playerObject->getId();
     }
     else
     {
@@ -378,7 +374,7 @@ void WorldManager::addPlayerToDisconnectedList(PlayerObject* playerObject)
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"WorldManager::addPlayerToDisconnectedList: Error adding Player : already on List: %"PRIu64"",playerObject->getId());
+        DLOG(INFO) << "WorldManager::addPlayerToDisconnectedList: Error adding Player : already on List: " << playerObject->getId();
     }
 }
 
@@ -403,7 +399,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"WorldManager::removePlayer: couldn't find cell %"PRIu64"",playerObject->getParentId());
+            DLOG(INFO) << "WorldManager::removePlayer: couldn't find cell " << playerObject->getParentId();
         }
     }
     else
@@ -451,7 +447,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"WorldManager::warpPlanet: couldn't find cell %"PRIu64"",parentId);
+            DLOG(INFO) << "WorldManager::warpPlanet: couldn't find cell " << parentId;
         }
     }
     else
@@ -464,7 +460,6 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
         else
         {
             // we should never get here !
-            gLogger->log(LogManager::DEBUG,"WorldManager::addObject: could not find zone region in map");
             return;
         }
     }
@@ -510,7 +505,7 @@ bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
 
         ++playerIt;
     }
-    gLogger->log(LogManager::NOTICE, "Periodic Save of %u Players", playerSaveCount);
+    LOG(WARNING) << "Periodic Save of "<< playerSaveCount <<"Players";
     //setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 60000, NULL));
     return true;
 }
@@ -531,12 +526,10 @@ bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
         {
             if (player->isConnected())
             {
-                // gLogger->log(LogManager::DEBUG,"WorldManager::_handleObjectMovementUpdateTimers: Checking player update time %"PRIu64" againts %"PRIu64"", callTime, (*it).second);
                 //  The timer has expired?
                 if (callTime >= ((*it).second))
                 {
                     // Yes, handle it.
-                    // gLogger->log(LogManager::DEBUG,"Calling UPDATEPOSITION-bla-ha ()");
 
                     ObjectController* ObjCtl = player->getController();
 

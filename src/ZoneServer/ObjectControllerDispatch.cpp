@@ -98,7 +98,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
             break;
 
             default:
-                gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000021) %x",subOp2);
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000021) " << subOp2;
                 break;
             }
         }
@@ -163,7 +163,7 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
             break;
 
             default:
-                gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000023) %x",subOp2);
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000023) " << subOp2;
                 break;
             }
         }
@@ -233,19 +233,19 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
                 break;
 
             default:
-                gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000083) %x",subOp2);
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000083) " << subOp2;
                 break;
             }
         }
         break;
 
         default:
-            gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(op1) %x %x",subOp1,subOp2);
+            DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(op1) "<<subOp1<<subOp2;
             break;
         }
     }
     else
-        gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Couldn't find Object %"PRIu64"",objId);
+        DLOG(INFO) << "ObjectControllerDispatch: Couldn't find Object " << objId;
 
     message->setPendingDelete(true);
 }
@@ -260,7 +260,7 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
     if(object != NULL)
         object->handleObjectMenuSelect(message->getUint8(),gWorldManager->getPlayerByAccId(client->getAccountId()));
     else
-        gLogger->log(LogManager::DEBUG,"ObjController::handleRadialSelect: Object not found %"PRIu64"",objectId);
+        DLOG(INFO) << "ObjectControllerDispatch: Couldn't find Object " << objectId;
 
     message->setPendingDelete(true);
 }

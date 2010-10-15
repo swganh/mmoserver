@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "ZoneOpcodes.h"
 
-#include "Common/LogManager.h"
+
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -212,7 +212,7 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 
     if(player == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"CharSheetManager::_processFactionRequest: could not find player %u",client->getAccountId());
+        DLOG(INFO) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
         return;
     }
 
@@ -258,7 +258,7 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 
     if(player == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"CharSheetManager::_processPlayerMoneyRequest: could not find player %u",client->getAccountId());
+        DLOG(INFO) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
         return;
     }
 

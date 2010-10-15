@@ -30,7 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ChatAvatarId.h"
 #include "Player.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -258,10 +263,10 @@ void Channel::removeUser(Player* player)
     if(mapiter != mUserMap.end())
     {
         mUserMap.erase(mapiter);
-        gLogger->log(LogManager::DEBUG,"Channel::remove user : removing player from channel user map : %s", player->getName().getAnsi());
+        DLOG(INFO) << "Channel::remove user : removing player from channel user map : " << player->getName().getAnsi();
     }
     else
-        gLogger->log(LogManager::DEBUG,"Channel::remove user : Can't find player on channel user map : %s",  player->getName().getAnsi());
+        DLOG(INFO) << "Channel::remove user : Can't find player on channel user map : " <<  player->getName().getAnsi();
 }
 
 //======================================================================================================================

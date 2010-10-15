@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "NetworkManager/Message.h"
 
@@ -69,7 +68,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
         if(!elementCount)
         {
-            gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerTransfer: Error in requestStr");
+            DLOG(INFO) << "ObjectController::_handleResourceContainerTransfer: Error in requestStr";
             return;
         }
 
@@ -82,7 +81,6 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
             uint32	maxAmount		= targetContainer->getMaxAmount();
             uint32	newAmount;
 
-            gLogger->log(LogManager::DEBUG,"transfer  resi");
             // all fits
             if((newAmount = targetAmount + selectedAmount) <= maxAmount)
             {
@@ -132,11 +130,9 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
     PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
     ResourceContainer*	selectedContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(targetId));
 
-    gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: Container : %I64u",targetId);
-
-    if(!selectedContainer)
+	if(!selectedContainer)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: Container does not exist!");
+        DLOG(INFO) << "ObjectController::_handleResourceContainerSplit: Container does not exist!";
         return;
     }
 
@@ -150,7 +146,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
     if(!elementCount)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: Error in requestStr");
+        DLOG(INFO) << "ObjectController::_handleResourceContainerSplit: Error in requestStr";
         return;
     }
 
@@ -161,7 +157,6 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
     TangibleObject* parentContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(parentId));
     if(!parentContainer)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleResourceContainerSplit: resourcecontainers parent does not exist!");
         assert(false && "ObjectController::_handleResourceContainerSplitresourcecontainers parent does not exist");
         return;
     }

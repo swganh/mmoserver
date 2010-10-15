@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PlayerObject.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "MessageLib/MessageLib.h"
 #include "UIManager.h"
 #include "UIResourceSelectListBox.h"
@@ -876,8 +875,6 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
             return;
         }
 
-        gLogger->log(LogManager::DEBUG,"input: %u", mInputBoxAmount);
-
         // bank or inv?
         if(window->getWindowType() == SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox)
         {
@@ -1247,7 +1244,6 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
         }
         catch (...)
         {
-            gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
             return;
         }
 
@@ -2422,10 +2418,6 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
                 gUIManager->createNewListBox(this,"handleMainMenu","Main menu","Select a category.", mMainMenu,playerObject,SUI_Window_CharacterBuilderMainMenu_ListBox,SUI_LB_OK,this->getId());
             }
         }
-    }
-    else
-    {
-        gLogger->log(LogManager::NOTICE,"TravelTerminal: Unhandled MenuSelect: %u",messageType);
     }
 }
 

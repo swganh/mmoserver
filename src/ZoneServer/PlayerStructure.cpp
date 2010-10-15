@@ -68,11 +68,9 @@ uint32 PlayerStructure::getCurrentMaintenance()
     if (this->hasAttribute("examine_maintenance"))
     {
         uint32 maintenance = this->getAttribute<uint32>("examine_maintenance");
-        gLogger->log(LogManager::DEBUG,"structure maintenance = %u",  maintenance);
         return maintenance;
     }
 
-    gLogger->log(LogManager::DEBUG,"PlayerStructure::getMaintenance structure maintenance not set!!!!");
     setCurrentMaintenance(0);
     return 0;
 }
@@ -92,8 +90,6 @@ void PlayerStructure::setCurrentMaintenance(uint32 maintenance)
 
 
     this->addAttribute("examine_maintenance",boost::lexical_cast<std::string>(maintenance));
-    gLogger->log(LogManager::DEBUG,"PlayerStructure::setMaintenanceRate structure maintenance rate not set!!!!");
-
 }
 
 //=============================================================================
@@ -104,11 +100,9 @@ uint32 PlayerStructure::getCurrentPower()
     if (this->hasAttribute("examine_power"))
     {
         uint32 power = this->getAttribute<uint32>("examine_power");
-        gLogger->log(LogManager::DEBUG,"structure power = %u",  power);
         return power;
     }
 
-    gLogger->log(LogManager::DEBUG,"PlayerStructure::getCurrentPower structure power not set!!!!");
     setCurrentPower(0);
     return 0;
 }
@@ -129,7 +123,6 @@ void PlayerStructure::setCurrentPower(uint32 power)
 
 
     this->addAttribute("examine_power",boost::lexical_cast<std::string>(power));
-    gLogger->log(LogManager::DEBUG,"PlayerStructure::setCurrentPower structure Power not set!!!!");
 
 }
 
@@ -288,8 +281,6 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
 
         if(inventoryFunds < 0)
         {
-            gLogger->log(LogManager::DEBUG,"PlayerStructure::PayMaintenance finances screwed up !!!!!!!!");
-            gLogger->log(LogManager::DEBUG,"Player : %I64u !!!!!", player->getId());
             return;
         }
 
@@ -297,8 +288,6 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
 
         if(maintenance < 0)
         {
-            gLogger->log(LogManager::DEBUG,"PlayerStructure::PayMaintenance finances screwed up !!!!!!!!");
-            gLogger->log(LogManager::DEBUG,"Player : %I64u !!!!!", player->getId());
             return;
         }
 
@@ -380,11 +369,9 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
         b.convert(BSTRType_ANSI);
         if(strcmp(b.getAnsi(),"false") == 0)
         {
-            gLogger->log(LogManager::DEBUG,"PlayerStructure:: Button 3 (ok) was pressed!!!!");
             WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();
             if(!asyncContainer)
             {
-                gLogger->log(LogManager::DEBUG,"PlayerStructure:: Handle Add Manufacture Schematic Asynccontainer is NULL!!!!");
                 return;
             }
             if(asyncContainer->SortedList.size())
@@ -408,7 +395,6 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
         }
         else if(strcmp(b.getAnsi(),"true") == 0) //remove schematic pressed
         {
-            gLogger->log(LogManager::DEBUG,"PlayerStructure:: Button 4 (other) was pressed!!!!");
 
             WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();
             SAFE_DELETE(asyncContainer);
@@ -486,8 +472,6 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
         gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
         
 
-        gLogger->log(LogManager::DEBUG,"PlayerStructure::Rename Structure sql : %s", sql);
-
     }
     break;
 
@@ -499,7 +483,6 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
             if((this->checkStatesEither(PlayerStructureState_Destroy)))
             {
                 //dont start structure destruction more than once
-                //gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::structure in the process of being deleted");
                 return;
             }
             this->toggleStateOn(PlayerStructureState_Destroy);

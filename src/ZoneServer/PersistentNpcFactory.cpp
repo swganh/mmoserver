@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/LogManager.h"
 #include "Utils/utils.h"
 
 
@@ -164,7 +163,7 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(DatabaseResult* result)
     default:
     {
         npc = new NPCObject();
-        gLogger->log(LogManager::DEBUG,"PersistentNpcFactory::createPersistent unknown Family %u",npcIdentifier.mFamilyId);
+        DLOG(INFO) << "PersistentNpcFactory::createPersistent unknown Family " << npcIdentifier.mFamilyId;
     }
     break;
     }

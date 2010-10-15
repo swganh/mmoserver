@@ -52,7 +52,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -193,7 +192,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
         }
     }
     else
-        gLogger->log(LogManager::DEBUG,"ObjController::_handleNPCConversationStart: Couldn't find object %"PRIu64"",targetId);
+        DLOG(INFO) << "ObjController::_handleNPCConversationStart: Couldn't find object " << targetId;
 }
 
 //=============================================================================
@@ -223,7 +222,7 @@ void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* mes
 
     if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handleNPCConversationSelect: Error in parameters\n");
+        DLOG(INFO) << "ObjController::handleNPCConversationSelect: Error in parameters";
         return;
     }
 

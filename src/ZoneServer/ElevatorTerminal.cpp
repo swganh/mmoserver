@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
-
 
 //=============================================================================
 
@@ -87,10 +85,7 @@ void ElevatorTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObjec
 
         //gMessageLib->sendDataTransformWithParent053(playerObject);
     }
-    else
-    {
-        gLogger->log(LogManager::NOTICE,"ElevatorTerminal: Unhandled MenuSelect: %u",messageType);
-    }
+    
 }
 
 //=============================================================================

@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 
 
@@ -96,7 +95,6 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 
     if ((!player) ||(!player->isConnected()))
     {
-        gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::could not find player");
         return;
     }
 
@@ -104,7 +102,6 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
     //this->getStructure()->toggleStateOn(PlayerStructureState_StartDestruction);
     if(!structure)
     {
-        gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::could not find structure %I64u",this->getStructure());
         assert(false&&"PlayerStructureTerminal::handleObjectMenuSelect:: Panik!!! No structure");
         return;
     }
@@ -161,7 +158,6 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
         if((structure->checkStatesEither(PlayerStructureState_Destroy)))
         {
             //dont start structure destruction more than once
-            gLogger->log(LogManager::DEBUG,"PlayerStructureTerminal::handleObjectMenuSelect::structure in the process of being deleted");
             return;
         }
 

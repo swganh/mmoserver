@@ -43,7 +43,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
@@ -181,7 +186,7 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
         waypointList		= datapad->getWaypoints();
         waypointIt			= waypointList->begin();
     } else { //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627075254-3882bd68067f13266819ae6d0c4428e4
-        gLogger->log(LogManager::WARNING,"MessageLib::sendBaselinesPLAY_8: Failed to find datapad for playerId:%u. Did not initialize waypList(s).", playerObject->getId());
+        LOG(WARNING) << "MessageLib::sendBaselinesPLAY_8: Failed to find datapad for playerId: " <<  playerObject->getId() << ". Did not initialize waypList(s).";
         gWorldManager->addPlayerToDisconnectedList(playerObject);
         return false;
     }

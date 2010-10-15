@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "Utils/clock.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 #include "Common/OutOfBand.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
@@ -94,7 +94,6 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
     Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(event->getItem()));
     if(!item)
     {
-        gLogger->log(LogManager::DEBUG,"PlayerObject::onItemDeleteEvent: Item %I64u not found",event->getItem());
         return;
     }
 

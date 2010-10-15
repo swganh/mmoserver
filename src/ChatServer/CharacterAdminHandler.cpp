@@ -28,7 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CharacterAdminHandler.h"
 #include "ChatOpcodes.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -191,7 +196,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
 
                 if(++specialCount > 2)
                 {
-                    gLogger->log(LogManager::DEBUG,"specialCount > 2 in name");
+                    DLOG(INFO) << "specialCount > 2 in name";
                     _sendCreateCharacterFailed(10,client);
                     return;
                 }
@@ -204,7 +209,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
             }
             else
             {
-                gLogger->log(LogManager::DEBUG,"Invalid chars in name");
+                DLOG(INFO) << "Invalid chars in name";
                 _sendCreateCharacterFailed(10,client);
                 return;
             }
@@ -412,7 +417,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
     // Get the size of the data block
     uint16 dataSize = message->getUint16();
-    gLogger->log(LogManager::DEBUG,"datasize : %u ", dataSize);
+    DLOG(INFO) << "datasize : " << dataSize;
 
     uint8 startindex = 0;
     uint8 endindex = 0;
@@ -426,7 +431,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
             startindex = message->getUint8();
             endindex = message->getUint8();
-            gLogger->log(LogManager::DEBUG,"StartIndex : %u   : EndIndex %u", startindex, endindex);
+            DLOG(INFO) << "StartIndex : "<< startindex << " : EndIndex " << endindex;
             dataIndex = 2;
         }
 
@@ -460,7 +465,7 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
 
             // Set our attribute value
             info->mHairCustomization[attributeIndex] = ((uint16)valueHighByte << 8) | valueLowByte;
-            gLogger->log(LogManager::DEBUG,"Hair Customization Index : %u   : data %u", attributeIndex,info->mHairCustomization[attributeIndex]);
+            DLOG(INFO) << "Hair Customization Index : " << attributeIndex << "   : data " << info->mHairCustomization[attributeIndex];
         }
 
         /* uint16 end2  = */message->getUint16();
@@ -668,7 +673,7 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 
     default:
         errorString = "name_declined_internal_error";
-        gLogger->log(LogManager::DEBUG,"CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: %u", errorCode);
+        DLOG(INFO) << "CharacterAdminHandler::_sendCreateCharacterFailed Unknown Errorcode in CharacterCreation: " << errorCode;
         break;
     }
 

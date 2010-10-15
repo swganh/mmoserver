@@ -44,7 +44,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -273,7 +280,6 @@ bool ObjectController::_processCommandQueue()
     PlayerObject* player  = dynamic_cast<PlayerObject*>(mObject);
     if (!player)
     {
-        gLogger->log(LogManager::CRITICAL,"ObjectController::_processCommandQueue() Invalid object");
         assert(false && "ObjectController::_processCommandQueue mObject is not a PlayerObject");
         return false;
     }
@@ -399,7 +405,7 @@ bool ObjectController::_processCommandQueue()
                             ((*it).second)(this, targetId, message, cmdProperties);
                             //(this->*((*it).second))(targetId,message,cmdProperties);
                         } else {
-                            gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",command,mObject->getId());
+                            DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<command<<" for "<<mObject->getId();
                             //gLogger->hexDump(message->getData(),message->getSize());
                         }
                     }
@@ -457,7 +463,7 @@ bool ObjectController::_processCommandQueue()
 
                 default:
                 {
-                    gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %"PRIu64"",cmdProperties->mCmdGroup,mObject->getId());
+					DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<cmdProperties->mCmdGroup <<" for "<<mObject->getId();
                 }
                 break;
                 }
@@ -696,7 +702,6 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
         CreatureObject* creature = dynamic_cast<CreatureObject*>(mObject);
         if (!creature)
         {
-            gLogger->log(LogManager::CRITICAL,"ObjectController::enqueueAutoAttack() Invalid object");
             assert(false && "ObjectController::enqueueAutoAttack mObject is not a CreatureObject");
         }
 
@@ -748,7 +753,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
             if (player)
             {
                 player->disableAutoAttack();
-                gLogger->log(LogManager::DEBUG,"ObjectController::enqueueAutoAttack() Error adding command.");
+                DLOG(INFO) << "ObjectController::enqueueAutoAttack() Error adding command.";
             }
         }
     }
@@ -807,7 +812,7 @@ void ObjectController::removeMsgFromCommandQueueBySequence(uint32 sequence)
     // sanity check
     if (!sequence)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!");
+        DLOG(INFO) << "ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!";
         return;
     }
 

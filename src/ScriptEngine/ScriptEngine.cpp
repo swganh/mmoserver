@@ -33,7 +33,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "glue_files/tolua++.h"
 #include "glue_files/LuaInterface.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "Utils/clock.h"
 
@@ -161,7 +166,7 @@ void ScriptEngine::removeScript(Script* script)
     {
         if((*it) == script)
         {
-            gLogger->log(LogManager::DEBUG, "ScriptEngine::removeScript found a script\n");
+            DLOG(INFO) << "ScriptEngine::removeScript found a script";
             (*it)->mState = SS_Not_Loaded;
             mScriptPool.free(*it);
             mScripts.erase(it);

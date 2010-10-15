@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -51,7 +50,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
     // And some parameter validation...
     if (targetId == 0)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle ID :(");
+        DLOG(INFO) << "ObjectController::_handleMount : Cannot find vehicle ID :(";
         return;
     }
 
@@ -81,7 +80,7 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
                 }
                 else
                 {
-                    gLogger->log(LogManager::DEBUG,"ObjectController::_handleMount : Cannot find vehicle");
+                    DLOG(INFO) << "ObjectController::_handleMount : Cannot find vehicle";
                 }
             }
         } else {

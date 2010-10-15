@@ -77,23 +77,19 @@ void AttackableStaticNpc::prepareCustomRadialMenu(CreatureObject* creatureObject
 
     if (this->checkPvPState(CreaturePvPStatus_Attackable))
     {
-        gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::prepareCustomRadialMenu IS attackable\n");
-
+        
         // mRadialMenu = RadialMenuPtr(new RadialMenu());
         mRadialMenu->addItem(1,0,radId_combatAttack,radAction_Default);
         mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::prepareCustomRadialMenu is NOT attackable\n");
         mRadialMenu->addItem(1,0,radId_examine,radAction_Default);
     }
 }
 
 void AttackableStaticNpc::respawn(void)
 {
-    gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::respawn: Added new static object for spawn, with id = %"PRIu64"", this->getId());
-
     // The cell we will spawn in.
     this->setParentId(getCellIdForSpawn());
 
@@ -300,8 +296,6 @@ void AttackableStaticNpc::spawn(void)
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: couldn't find cell %"PRIu64"\n", this->getParentId());
-
             // It's a serious isse that we need to investigate.
             assert(cell);
         }
@@ -329,7 +323,6 @@ void AttackableStaticNpc::spawn(void)
             PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
             if (playerObject)
             {
-                gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Spawned a private object.");
                 if (this->getParentId())
                 {
                     // We are inside a cell.
@@ -345,13 +338,11 @@ void AttackableStaticNpc::spawn(void)
             else
             {
                 assert(false);
-                gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Failed to spawn a private object.");
-            }
+                }
         }
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Spawned an object.");
         if (this->getParentId())
         {
             // We are inside a cell.

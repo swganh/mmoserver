@@ -36,7 +36,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -665,7 +670,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
     {
         // Reset all
         // Not suported yet
-        gLogger->log(LogManager::DEBUG,"MessageLib::sendDefenderUpdate Invalid option = %u",updateType);
+        DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
         return;
     }
 
@@ -892,7 +897,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 
     if(!found)
     {
-        gLogger->log(LogManager::DEBUG,"MessageLib::sendEquippedItemUpdate_InRange : Item not found : %I64u",itemId);
+        DLOG(INFO) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
         return false;
     }
 

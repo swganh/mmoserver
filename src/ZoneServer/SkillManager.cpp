@@ -466,8 +466,7 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
     if(++mLoadCounter == mTotalLoadCount)
     {
-        LOG(INFO) << "Loaded all skill mod data";
-        gLogger->log(LogManager::NOTICE,"Loaded all Skill Data.");
+        LOG(WARNING) << "Loaded all skill mod data";
     }
 
     mDBAsyncPool.ordered_free(asyncContainer);

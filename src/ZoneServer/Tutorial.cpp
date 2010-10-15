@@ -54,7 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/EventHandler.h"
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -165,8 +165,6 @@ Tutorial::~Tutorial()
 
 void Tutorial::warpToStartingLocation(BString startingLocation)
 {
-    gLogger->log(LogManager::DEBUG,"Tutorial::warpToStartingLocation: Starting city = %s", startingLocation.getAnsi());
-
     TutorialQueryContainer* asContainer = new TutorialQueryContainer();
     asContainer->mQueryType = TutorialQuery_PlanetLocation;
     asContainer->mId = mPlayerObject->getId();
@@ -193,7 +191,6 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if (count == 1)
         {
             result->GetNextRow(binding,this);
-            gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Starting profession = %s", mStartingProfession.getAnsi());
         }
         else if (count == 0)
         {
@@ -230,8 +227,6 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             startingLocation.destX += (gRandom->getRand()%5 - 2);
             startingLocation.destZ += (gRandom->getRand()%5 - 2);
 
-            gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: New destination planet = %u", startingLocation.destinationPlanet);
-
             gMessageLib->sendClusterZoneTransferRequestByPosition(player,
                     glm::vec3(startingLocation.destX, startingLocation.destY, startingLocation.destZ),
                     startingLocation.destinationPlanet);
@@ -256,14 +251,12 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Player gone!");
         }
     }
     break;
 
     default:
     {
-        gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Unknown query = %u\n",  asyncContainer->mQueryType);
     }
     break;
     }
@@ -925,7 +918,7 @@ uint64 Tutorial::getSkillTrainerTypeId(void)
     uint64 typeId = getSkillTrainerTypeId(this->mStartingProfession);
     if (typeId == 0)
     {
-        gLogger->log(LogManager::DEBUG,"Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.");
+        DLOG(INFO) << "Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.";
     }
     return typeId;
 }
@@ -1039,7 +1032,7 @@ void Tutorial::makeCreatureAttackable(uint64 npcId)
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"Tutorial::makeCreatureAttackable FAILED\n");
+        DLOG(INFO) << "Tutorial::makeCreatureAttackable FAILED";
     }
 }
 
@@ -1053,7 +1046,6 @@ void Tutorial::npcSendAnimation(uint64 npcId, uint32 animId, uint64 targetId)
         {
             if (creature->getTargetId() != targetId)
             {
-                gLogger->log(LogManager::DEBUG,"Tutorial::npcSendAnimation Setting new target for npc\n");
                 creature->setTarget(targetId);
                 gMessageLib->sendTargetUpdateDeltasCreo6(creature);
             }

@@ -42,7 +42,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -305,13 +304,11 @@ void ObjectController::_handleGroupChat(uint64 targetId,Message* message,ObjectC
     // make sure its a fully grouped player
     if (!player)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleGroupChat NO PLAYER\n");
     }
 
     if(!player->getGroupId())
     {
 
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleGroupChat NO GROUP");
     }
 
     // let the chatserver handle this.
@@ -339,7 +336,6 @@ void ObjectController::_handleGroupLootMode(uint64 targetId,Message* message,Obj
     // disabled for now
     //return;
 
-    gLogger->log(LogManager::DEBUG,"_handleGroupLootMode");
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
     // make sure its a fully grouped player
@@ -366,7 +362,6 @@ void ObjectController::_handleMakeMasterLooter(uint64 targetId,Message* message,
     // disabled for now
     //return;
 
-    gLogger->log(LogManager::DEBUG,"_handleMakeMasterLooter");
 
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 

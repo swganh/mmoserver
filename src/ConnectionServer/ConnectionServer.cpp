@@ -27,8 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ConnectionServer.h"
 
-#include <glog/logging.h>
-
 #include "ConnectionServerOpcodes.h"
 #include "ClientManager.h"
 #include "ConnectionDispatch.h"
@@ -38,7 +36,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
@@ -74,7 +77,7 @@ ConnectionServer::ConnectionServer(void) :
     Anh_Utils::Clock::Init();
     // log msg to default log
     //gLogger->printSmallLogo();
-    gLogger->log(LogManager::INFORMATION,"ConnectionServer Startup");
+    LOG(WARNING) << "ConnectionServer Startup";
 
     // Startup our core modules
     mNetworkManager = new NetworkManager();
@@ -128,7 +131,7 @@ ConnectionServer::ConnectionServer(void) :
 
 ConnectionServer::~ConnectionServer(void)
 {
-    gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutting down...");
+    LOG(WARNING) << "ConnectionServer Shutting down...";
 
     // Update our status for the LoginServer
     mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 0, mClusterId); // Status set to offline
@@ -152,7 +155,7 @@ ConnectionServer::~ConnectionServer(void)
 
     MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-    gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutdown Complete");
+    LOG(WARNING) << "ConnectionServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -202,12 +205,12 @@ void ConnectionServer::ToggleLock()
         // Update our status for the LoginServer
         mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 3, mClusterId); // Status set to online (DEV / CSR Only)
         
-        gLogger->log(LogManager::INFORMATION,"Locking server to normal users");
+        LOG(WARNING) << "Locking server to normal users";
     } else {
         // Update our status for the LoginServer
         mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Status set to online
         
-        gLogger->log(LogManager::INFORMATION,"unlocking server to normal users");
+        LOG(WARNING) << "unlocking server to normal users";
     }
 }
 //======================================================================================================================
@@ -234,7 +237,7 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    try {
+    /*try {
         LogManager::Init(
             static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
             static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
@@ -242,7 +245,7 @@ int main(int argc, char* argv[])
     } catch (...) {
         std::cout << "Unable to open log file for writing" << std::endl;
         exit(-1);
-    }
+    }*/
 
     gConnectionServer = new ConnectionServer();
 

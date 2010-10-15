@@ -295,7 +295,6 @@ void ZoneServer::Process(void)
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        //gLogger->log(LogManager::NOTICE,"ZoneServer (%s) Heartbeat. Total  Players on zone : %i",gZoneServer->getZoneName().getAnsi(),(gWorldManager->getPlayerAccMap())->size());
     }
 }
 
@@ -398,16 +397,6 @@ int main(int argc, char* argv[])
         ConfigManager::Init(configfileName);
     } catch (file_not_found) {
         std::cout << "Unable to find configuration file: " << CONFIG_DIR << configfileName << std::endl;
-        exit(-1);
-    }
-
-    try {
-        LogManager::Init(
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
-            gConfig->read<std::string>("FileLog_Name", std::string(zone)+std::string(".log")));
-    } catch (...) {
-        std::cout << "Unable to open log file for writing" << std::endl;
         exit(-1);
     }
 

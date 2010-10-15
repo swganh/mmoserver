@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer/HamService.h"
-#include "Common/LogManager.h"
+
 #include "SwgProtocol/ObjectControllerEvents.h"
 #include "ZoneServer/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"

@@ -68,7 +68,6 @@ bool Inventory::checkSlots(uint8 amount)
     if((mMaxSlots - getObjects()->size()) >= amount)
         return true;
 
-    gLogger->log(LogManager::DEBUG,"Inventory::checkslots(): Inventory full : max Inv capacity :%u, current capacity %u, nr of items we tried to add", mMaxSlots,getObjects()->size(),amount);
     return false;
 }
 
@@ -97,7 +96,6 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
     TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
     if(!tangibleObject)
     {
-        gLogger->log(LogManager::CRITICAL,"Inventory::handleObjectReady : Not a tangible ???");
         assert(false && "Inventory::handleObjectReady object is not tangible");
         return;
     }

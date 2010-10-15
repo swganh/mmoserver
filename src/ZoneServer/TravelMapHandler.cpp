@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -301,7 +301,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
         if(terminal == NULL)
         {
-            gLogger->log(LogManager::DEBUG,"TravelMapHandler::_processTravelListRequest: No TravelPosition set, player %"PRIu64"",playerObject->getId());
+            DLOG(INFO) << "TravelMapHandler::_processTravelListRequest: No TravelPosition set, player "<<playerObject->getId();
             return;
         }
 
@@ -387,7 +387,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
         playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
     }
     else
-        gLogger->log(LogManager::DEBUG,"TravelMapHandler::_processTravelListRequest: Couldnt find player for %u",client->getAccountId());
+        DLOG(INFO) << "TravelMapHandler::_processTravelListRequest: Couldnt find player for " << client->getAccountId();
 }
 
 //=======================================================================================================================
@@ -602,7 +602,6 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
                     }
                     else
                     {
-                        gLogger->log(LogManager::DEBUG,"TicketCollector: Error getting TravelPoint");
                     }
                     break;
                 }
@@ -680,7 +679,6 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"TicketCollector: Error getting TravelPoint");
     }
 }
 

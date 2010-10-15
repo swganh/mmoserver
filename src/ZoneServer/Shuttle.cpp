@@ -102,7 +102,7 @@ void Shuttle::useShuttle(PlayerObject* playerObject)
 
         gMessageLib->SendSystemMessage(u.getUnicode16(), playerObject);
 
-        gLogger->log(LogManager::DEBUG, errmsg);
+        LOG(WARNING) <<  errmsg;
 
         return;
     }

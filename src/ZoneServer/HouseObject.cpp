@@ -101,7 +101,6 @@ void HouseObject::handleObjectReady(Object* object,DispatchClient* client, uint6
     Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(hopper));
     if(!item)
     {
-        gLogger->log(LogManager::CRITICAL,"FactoryObject::handleObjectReady::could not find Hopper");
         assert(false && "HouseObject::handleObjectReady could not find hopper");
     }
 }
@@ -116,7 +115,6 @@ void HouseObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectMenuSelect::could not find player");
         return;
     }
 

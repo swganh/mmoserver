@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -83,7 +82,6 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
     {
         if(elementCount < 4)
         {
-            gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: Error in parameters(count %u)",elementCount);
             return;
         }
         else
@@ -113,7 +111,6 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
     if(planetId == -1)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: could not find planet id for %s",planetStr.getAnsi());
         return;
     }
 
@@ -140,7 +137,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handleSetWaypointStatus: could not find waypoint %"PRIu64"",targetId);
+        DLOG(INFO) << "ObjController::handleSetWaypointStatus: could not find waypoint " << targetId;
     }
 }
 
@@ -215,7 +212,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
     if(waypoint == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handlesetwaypointname: could not find waypoint %"PRIu64"",targetId);
+        DLOG(INFO) << "ObjController::handlesetwaypointname: could not find waypoint "<< targetId;
         return;
     }
 

@@ -352,7 +352,7 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
     default:
     {
         item = new Item();
-        gLogger->log(LogManager::NOTICE,"ItemFactory::createItem (itemType: %u) with unknown Family %u",itemIdentifier.mTypeId, itemIdentifier.mFamilyId);
+        LOG(INFO) << "ItemFactory::createItem (itemType:"<< itemIdentifier.mTypeId << ") with unknown Family " << itemIdentifier.mFamilyId;
     }
     break;
     }
@@ -490,7 +490,7 @@ void ItemFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     if (! ilc) {
         LOG(WARNING) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
-        gLogger->log(LogManager::WARNING,"ItemFactory::handleObjectReady could not locate ILC for objectParentId:%I64u",object->getParentId());
+        LOG(WARNING) << "ItemFactory::handleObjectReady could not locate ILC for objectParentId: " << object->getParentId();
         return;
     }
     assert(ilc && "ItemFactory::handleObjectReady unable to find InLoadingContainer");

@@ -31,7 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "Object.h"
 #include "Weapon.h"
-#include "Common/LogManager.h"
+
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 //=============================================================================
 
@@ -294,14 +300,12 @@ bool EquipManager::unEquipItem(Object* object)
     Item* item = dynamic_cast<Item*>(object);
     if(!item)
     {
-        gLogger->log(LogManager::DEBUG,"Inventory::unEquipItem : No Item object ID : %"PRIu64"",object->getId());
         return false;
     }
 
     PlayerObject*	owner		= dynamic_cast<PlayerObject*> (this->getParent());
     if(!owner)
     {
-        gLogger->log(LogManager::DEBUG,"Inventory::unEquipItem : No one has it equipped");
         return false;
     }
 
@@ -357,13 +361,11 @@ bool EquipManager::CheckEquipable(Object* object)
 
     if(!item)
     {
-        gLogger->log(LogManager::DEBUG,"Inventory::EquipItem : No Item object ID : %I64u",object->getId());
         return(false);
     }
 
     if(!owner)
     {
-        gLogger->log(LogManager::DEBUG,"Inventory::EquipItem : No owner");
         return(false);
     }
 

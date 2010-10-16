@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "CharacterLoginHandler.h"
+
+#include <iostream>
+#include <sstream>
+
 #include "BuffManager.h"
 #include "Inventory.h"
 #include "ObjectFactory.h"
@@ -114,14 +118,12 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
         }
 
         // send our message of the day
-        BString moT = "welcome to swgAnh";
-        moT	= (int8*)((gWorldConfig->getConfiguration<std::string>("motD",moT.getAnsi())).c_str());
+        std::string motd = gWorldConfig->getConfiguration<std::string>("motD", "Welcome to SWG:ANH");
 
-        moT.convert(BSTRType_Unicode16);
-        if(player && !(player->getMotdReceived()) && moT.getLength())
+        if(player && !(player->getMotdReceived()) && motd.length())
         {
             player->setMotdReceived(true);
-            gMessageLib->SendSystemMessage(moT.getUnicode16(), player);
+            gMessageLib->SendSystemMessage(std::wstring(motd.begin(), motd.end()), player);
         }
 
         // Send newbie info.
@@ -149,30 +151,11 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
         gBuffManager->InitBuffs(player);
 
         // Some info about the current build
-        int8 rawData[128];
-        // sprintf(rawData,"Running %s",ConfigManager::getBuildString());
-        sprintf(rawData,"Running build %s created %s", ConfigManager::getBuildNumber().c_str(), ConfigManager::getBuildTime().c_str());
+        std::stringstream ss;
+        ss << "Running build " << ConfigManager::getBuildNumber() << " created " << ConfigManager::getBuildTime();
+        std::string tmp(ss.str());
 
-        BString buildString(rawData);
-        buildString.convert(BSTRType_Unicode16);
-        gMessageLib->SendSystemMessage(buildString.getUnicode16(), player);
-
-        // Temp fix for testing instances at normal planets (Corellia).
-        /*
-        if (player->isConnected())
-        {
-            if (!gWorldConfig->isTutorial())
-            {
-                // Some special message when we are testing...
-                if (gWorldConfig->isInstance())
-                {
-                    gMessageLib->sendSystemMessage(player,L"Welcome to Corellia. This planet is temporarily used for testing of instancing.");
-                    gMessageLib->sendSystemMessage(player,L"You should not see any other players. But if you are in a group, the member of the group should see each other and also be able to interact.");
-                    gMessageLib->sendSystemMessage(player,L"Hard to group with a friend when you can't find him or her? Go back to another planet and group and then come back!");
-                }
-            }
-        }
-        */
+        gMessageLib->SendSystemMessage(std::wstring(tmp.begin(), tmp.end()), player);
     }
 }
 
@@ -430,7 +413,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
         gWorldManager->savePlayerSync(playerObject->getAccountId(),false);
 
         // Now update the DB with the new location/planetId
-        mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%I64u';",x,z,planetId,playerObject->getId()));
+        mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%"PRIu64"';",x,z,planetId,playerObject->getId()));
         
 
         gMessageLib->sendClusterZoneTransferCharacter(playerObject,planetId);

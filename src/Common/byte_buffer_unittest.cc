@@ -170,8 +170,8 @@ TEST(ByteBufferTests, CanClearBufferData)
 
     buffer.clear();
     EXPECT_EQ(uint32_t(0), buffer.size());
-    EXPECT_EQ(uint32_t(0), buffer.readPosition());
-    EXPECT_EQ(uint32_t(0), buffer.writePosition());
+    EXPECT_EQ(uint32_t(0), buffer.read_position());
+    EXPECT_EQ(uint32_t(0), buffer.write_position());
 }
 
 TEST(ByteBufferTests, CanStreamData)

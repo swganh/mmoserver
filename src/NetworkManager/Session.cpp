@@ -1622,7 +1622,6 @@ void Session::_resendData()
         }
         else
         {
-            //gLogger->log(LogManager::WARNING, "_resendData WaitTime : %I64u; Packets send %u", waitTime, packetsSend);
             return;
         }
     }

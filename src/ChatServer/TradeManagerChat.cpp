@@ -890,7 +890,6 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
                 //set the new Owner
                 TradeManagerAsyncContainer* asyncContainer;
 
-                //sprintf(sql," UPDATE commerce_bidhistory SET proxy_bid = '%u'WHERE auction_id = '%I64u' AND bidder_name = '%s'",asynContainer->MyProxy  ,asynContainer->AuctionTemp->ItemID ,Name);
                 sprintf(sql,"UPDATE swganh.commerce_auction SET owner_id = %"PRIu64", bidder_name = '' WHERE auction_id = %"PRIu64" ",auctionTemp->BidderID,auctionTemp->ItemID);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
                 mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -1248,8 +1247,6 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         {
 
             //just update the high proxy
-            //strcpy(Name,player->getName().getAnsi());
-            //sprintf(sql,"UPDATE commerce_bidhistory SET proxy_bid = '%u'WHERE auction_id = '%I64u' AND bidder_name = %s",asynContainer->MyProxy  ,asynContainer->AuctionTemp->ItemID ,Name);
             sprintf(sql,"UPDATE commerce_bidhistory SET proxy_bid = '%"PRIu32"'WHERE auction_id = '%"PRIu64"' AND bidder_name = '%s'", asynContainer->MyProxy, asynContainer->AuctionTemp->ItemID, PlayerName);
 
             TradeManagerAsyncContainer* asyncContainer;

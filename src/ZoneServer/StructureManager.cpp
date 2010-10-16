@@ -221,7 +221,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
     StructureManagerAsyncContainer* asyncContainer;
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Remove_Permission, 0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_RemovePermissionList(%I64u,'%s','%s')",structureId,playerName,list.getAnsi());
+    mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_RemovePermissionList(%"PRIu64",'%s','%s')",structureId,playerName,list.getAnsi());
 
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
@@ -713,7 +713,7 @@ void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 player
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'HOPPER'",structureId);
+    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'HOPPER'",structureId);
 
 
 }
@@ -732,7 +732,7 @@ void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerI
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'ADMIN'",structureId);
+    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'ADMIN'",structureId);
 
 }
 
@@ -750,7 +750,7 @@ void StructureManager::OpenStructureEntryList(uint64 structureId, uint64 playerI
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'Entry'",structureId);
+    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'Entry'",structureId);
 
 }
 
@@ -769,7 +769,7 @@ void StructureManager::OpenStructureBanList(uint64 structureId, uint64 playerId)
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %I64u AND sad.AdminType like 'BAN'",structureId);
+    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'BAN'",structureId);
 
 
 }
@@ -842,7 +842,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         //set to private
         if(house->getPublic())
         {
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
+            mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %"PRIu64"",command.StructureId);
             house->setPublic(false);
             gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_private"), player);
             updateKownPlayerPermissions(house);
@@ -851,7 +851,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
         house->setPublic(true);
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "structure_now_public"), player);
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %"PRIu64"",command.StructureId);
         updateKownPlayerPermissions(house);
     }
     break;
@@ -869,7 +869,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         factory->setActive(false);
 
         //now turn the factory on - in db and otherwise
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 0 WHERE f.ID = %I64u",command.StructureId);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 0 WHERE f.ID = %"PRIu64"",command.StructureId);
 
         gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
@@ -895,7 +895,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         factory->setActive(true);
 
         //now turn the factory on - in db and otherwise
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 1 WHERE f.ID = %I64u",command.StructureId);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories f SET f.active = 1 WHERE f.ID = %"PRIu64"",command.StructureId);
 
         gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
@@ -1020,7 +1020,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
         //change the ManSchems Owner ID and load it into the datapad
         gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = 0 WHERE ID = %I64u",command.StructureId);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = 0 WHERE ID = %"PRIu64"",command.StructureId);
 
         //finally reset the schem ID in the factory
         factory->setManSchemID(0);
@@ -1084,9 +1084,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         factory->setManSchemID(command.SchematicId);
 
         //link the schematic to the factory in the db
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = %I64u WHERE ID = %I64u",command.SchematicId,command.StructureId);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE factories SET ManSchematicID = %"PRIu64" WHERE ID = %"PRIu64"",command.SchematicId,command.StructureId);
 
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id = %"PRIu64" WHERE ID = %"PRIu64"",command.StructureId,command.SchematicId);
 
 
         //remove the schematic from the player
@@ -1113,9 +1113,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         asyncContainer->command			= command;
         //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->ExecuteSqlAsync(this,asyncContainer,
-                                   "		(SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
-                                   "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-                                   "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+                                   "		(SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %"PRIu64")"
+                                   "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %"PRIu64")"
+                                   "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %"PRIu64")"
                                    ,command.StructureId);
 
     }
@@ -1246,7 +1246,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         asyncContainer = new StructureManagerAsyncContainer(Structure_HopperDiscard, 0);
         asyncContainer->mStructureId	= command.StructureId;
         asyncContainer->mPlayerId		= command.PlayerId;
-        mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"select sf_DiscardHopper(%I64u)",command.StructureId);
+        mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"select sf_DiscardHopper(%"PRIu64")",command.StructureId);
 
 
     }
@@ -1402,7 +1402,7 @@ void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
     asyncContainer->mPlayerId = command.PlayerId;
     asyncContainer->mTargetId = command.RecipientId;
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",command.PlayerId);
+    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%"PRIu64")",command.PlayerId);
 
 }
 
@@ -1550,7 +1550,7 @@ void StructureManager::UpdateCharacterLots(uint64 charId)
     asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateCharacterLots, 0);
     asyncContainer->mPlayerId = charId;
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%I64u)",charId);
+    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%"PRIu64")",charId);
 
 }
 
@@ -1574,7 +1574,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     pVec.z = 0;
     uint64 deedId;
 
-    swscanf(dataStr.getUnicode16(),L"%I64u %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
+    swscanf(dataStr.getUnicode16(),L"%"PRIu64" %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
 
     //check the region whether were allowed to build
     if(checkNoBuildRegion(pVec) /*|| !checkCityRadius(player)*/)

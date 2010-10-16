@@ -22,7 +22,7 @@ chatserver_SOURCES = \
   TradeManagerHelp.cpp \
   TradeMessages.cpp
 
-chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
+chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
 chatserver_LDADD = $(MYSQL_LDFLAGS) \
   $(BOOST_LDFLAGS) \
   $(BOOST_THREAD_LIB) \

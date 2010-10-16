@@ -15,8 +15,6 @@ libcommon_la_SOURCES = ApplicationService.cc \
   LogManager.cc \
   OutOfBand.cc
     
-libcommon_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors
-
 TESTS=
 check_PROGRAMS=
 
@@ -29,7 +27,7 @@ tests_byte_buffer_LDADD = -lgtest_main \
   $(BOOST_SYSTEM_LIB) \
   $(BOOST_THREAD_LIB) \
   libcommon.la
-tests_byte_buffer_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+tests_byte_buffer_CPPFLAGS = $(GTEST_INCLUDE)
 
 TESTS += tests/event
 check_PROGRAMS += tests/event
@@ -40,7 +38,7 @@ tests_event_LDADD = -lgtest_main \
   $(BOOST_SYSTEM_LIB) \
   $(BOOST_THREAD_LIB) \
   libcommon.la
-tests_event_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+tests_event_CPPFLAGS = $(GTEST_INCLUDE)
 
 TESTS += tests/event_dispatcher
 check_PROGRAMS += tests/event_dispatcher
@@ -53,7 +51,7 @@ tests_event_dispatcher_LDADD = -lgtest_main \
   -ltbb \
   libcommon.la \
   $(top_builddir)/src/Utils/libutils.la
-tests_event_dispatcher_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+tests_event_dispatcher_CPPFLAGS = $(GTEST_INCLUDE)
 
 TESTS += tests/hash_string
 check_PROGRAMS += tests/hash_string
@@ -64,7 +62,7 @@ tests_hash_string_LDADD = -lgtest_main \
   $(BOOST_SYSTEM_LIB) \
   $(BOOST_THREAD_LIB) \
   libcommon.la
-tests_hash_string_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+tests_hash_string_CPPFLAGS = $(GTEST_INCLUDE)
 
 TESTS += tests/out_of_band
 check_PROGRAMS += tests/out_of_band
@@ -75,4 +73,4 @@ tests_out_of_band_LDADD = -lgtest_main \
   $(BOOST_SYSTEM_LIB) \
   $(BOOST_THREAD_LIB) \
   libcommon.la
-tests_out_of_band_CPPFLAGS = $(GTEST_INCLUDE) -Wall -pedantic-errors -Wfatal-errors
+tests_out_of_band_CPPFLAGS = $(GTEST_INCLUDE)

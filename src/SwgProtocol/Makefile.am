@@ -5,4 +5,3 @@ noinst_LTLIBRARIES = libswgprotocol.la
 libswgprotocol_la_SOURCES = BurstRunEvents.cpp \
   ObjectControllerEvents.cpp
     
-libswgprotocol_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors

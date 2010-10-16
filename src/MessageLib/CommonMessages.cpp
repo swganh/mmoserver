@@ -584,17 +584,16 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 //
 
 bool MessageLib::SendSystemMessage(const std::wstring& custom_message, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
+
     // Use regex to check if the chat string matches the stf string format.
     static const regex pattern("@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
     smatch result;
 
     std::string stf_string(custom_message.begin(), custom_message.end());
 
-    regex_search(stf_string, result, pattern);
-
     // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
     // Reroute the call to the appropriate overload.
-    if (result.size() == 3)
+    if (regex_search(stf_string, result, pattern))
     {
         std::string file(result[1].str());
         std::string string(result[2].str());

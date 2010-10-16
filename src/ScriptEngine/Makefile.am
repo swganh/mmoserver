@@ -10,4 +10,4 @@ libscriptengine_la_SOURCES = \
   ScriptSupport.cpp \
   glue_files/LuaInterface.cpp
 
-libscriptengine_la_CPPFLAGS = -Wno-write-strings -Wall -pedantic-errors -Wfatal-errors
+libscriptengine_la_CPPFLAGS = -Wno-write-strings

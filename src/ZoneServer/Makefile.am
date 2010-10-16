@@ -255,7 +255,7 @@ zoneserver_SOURCES = \
 	ZoneServer.cpp \
 	ZoneTree.cpp
 	
-zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) $(MYSQL_CFLAGS) -Wall -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof -Wno-write-strings
+zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) $(MYSQL_CFLAGS) -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof -Wno-write-strings
 zoneserver_LDADD = $(MYSQL_LDFLAGS) \
   $(BOOST_LDFLAGS) \
   $(BOOST_REGEX_LIB) \

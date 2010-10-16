@@ -417,7 +417,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
     message->getStringUnicode16(dataStr);
 
     uint64 resourceId;
-    swscanf(dataStr.getUnicode16(),L"%I64u",&resourceId);
+    swscanf(dataStr.getUnicode16(),L"%"PRIu64"",&resourceId);
 
     Resource* tmpResource = gResourceManager->getResourceById(resourceId);
 

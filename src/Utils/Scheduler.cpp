@@ -59,7 +59,6 @@ uint64 Scheduler::addTask(FDCallback callback,uint8 priority,uint64 interval,voi
 
 void Scheduler::removeTask(uint64 id)
 {
-    //printf("scheduler to do remove task : %I64u",id);
     if(!id)
         return;
 
@@ -70,7 +69,6 @@ void Scheduler::removeTask(uint64 id)
         if(it->mId == id)
         {
             mTasks.erase(it);
-            //		printf("scheduler removeD task : %I64u",id);
             break;
         }
 
@@ -82,7 +80,6 @@ void Scheduler::removeTask(uint64 id)
 
 bool Scheduler::checkTask(uint64 id)
 {
-    //printf("scheduler to do remove task : %I64u",id);
     if(!id)
         return false;
 
@@ -92,7 +89,6 @@ bool Scheduler::checkTask(uint64 id)
     {
         if(it->mId == id)
         {
-            //		printf("scheduler removeD task : %I64u",id);
             return true;
         }
 

@@ -142,7 +142,7 @@ Tutorial::Tutorial(PlayerObject* player) :
     asContainer->mQueryType = TutorialQuery_MainData;
     asContainer->mId = player->getId();
 
-    (gWorldManager->getDatabase())->ExecuteSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM character_tutorial WHERE character_id = %I64u",player->getId());
+    (gWorldManager->getDatabase())->ExecuteSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM character_tutorial WHERE character_id = %"PRIu64"",player->getId());
     
 }
 

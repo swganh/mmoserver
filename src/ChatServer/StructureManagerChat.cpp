@@ -459,7 +459,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         if(exitCode == 3)
         {
             //unspecified db error
-            LOG(WARNING) << "StructureManagerChat::HarvesterPowerUsage "<< asynContainer->harvesterID <<" %I64u unspecified db error" ;
+            LOG(WARNING) << "StructureManagerChat::HarvesterPowerUsage "<< asynContainer->harvesterID <<" unspecified db error" ;
         }
 
 

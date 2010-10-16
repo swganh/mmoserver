@@ -460,11 +460,11 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
     {
         //yay we were succesful
         structure->setOwner(asynContainer->mTargetId);
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE structures SET structures.owner = %I64u WHERE structures.id = %I64u",asynContainer->mTargetId,asynContainer->mStructureId);
+        mDatabase->ExecuteSqlAsync(0,0,"UPDATE structures SET structures.owner = %"PRIu64" WHERE structures.id = %"PRIu64"",asynContainer->mTargetId,asynContainer->mStructureId);
         
-        mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM structure_admin_data where playerId = %I64u AND StructureID = %I64u",asynContainer->mPlayerId,asynContainer->mStructureId);
+        mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM structure_admin_data where playerId = %"PRIu64" AND StructureID = %"PRIu64"",asynContainer->mPlayerId,asynContainer->mStructureId);
         
-        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO structure_admin_data VALUES (NULL,%I64u,%I64u,'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId);
+        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO structure_admin_data VALUES (NULL,%"PRIu64",%"PRIu64",'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId);
         
 
 

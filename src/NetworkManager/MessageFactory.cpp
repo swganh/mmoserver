@@ -366,8 +366,15 @@ void MessageFactory::addString(const std::string& string)
 
 void MessageFactory::addString(const std::wstring& string)
 {
-    BString str(string.c_str());
-    addString(str);
+    // Adjust start bounds if necessary.
+    _adjustHeapStartBounds(string.size());
+
+    // First insert the string length
+    *((uint32*)mCurrentMessageEnd) = string.length();
+    mCurrentMessageEnd += 4;
+
+    std::copy(string.begin(), string.end(), reinterpret_cast<uint16_t*>(mCurrentMessageEnd));
+    mCurrentMessageEnd += string.length() * 2;
 //return;
 }
 

@@ -103,7 +103,7 @@ void City::update()
 
 void City::onObjectEnter(Object* object)
 {
-    PlayerObject* player = (PlayerObject*)object;
+    //PlayerObject* player = (PlayerObject*)object;
     //player->setCityRegionId(this->getId());
 
     addKnownObjectSafe(object);
@@ -114,8 +114,7 @@ void City::onObjectEnter(Object* object)
 
 void City::onObjectLeave(Object* object)
 {
-
-    PlayerObject* player = (PlayerObject*)object;
+    //PlayerObject* player = (PlayerObject*)object;
 
     //if(player->getCityRegionId() == this->getId())
     //player->setCityRegionId(0);

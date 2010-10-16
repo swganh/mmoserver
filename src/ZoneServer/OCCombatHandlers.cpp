@@ -385,7 +385,7 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
         // There is noo need to do it, we will save the correct in DB when we store the player data.
         // And... pick a better name for the sp_.. below... like updateWoundsWithCloneData-something....
         // int8 sql_sp[128];
-        // sprintf(sql_sp,"call swganh.sp_CharacterActivateClone(%I64u)", player->getId());
+        // sprintf(sql_sp,"call swganh.sp_CharacterActivateClone(%"PRIu64")", player->getId());
         // (gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql_sp);
 
         // Update player objct with new data for wounds.

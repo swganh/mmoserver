@@ -21,4 +21,3 @@ libmessagelib_la_SOURCES = \
 	SystemMessages.cpp \
 	TangibleMessages.cpp
 	
-libmessagelib_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors

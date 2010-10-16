@@ -16,5 +16,5 @@ libnetworkmanager_la_SOURCES = CompCryptor.cpp \
   SocketReadThread.cpp \
   SocketWriteThread.cpp
 
-libnetworkmanager_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors -fshort-wchar -fno-strict-aliasing
+libnetworkmanager_la_CPPFLAGS = -fno-strict-aliasing
 libnetworkmanager_la_LIBADD = $(top_builddir)/src/Utils/libutils.la

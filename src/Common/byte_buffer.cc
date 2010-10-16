@@ -69,12 +69,12 @@ size_t ByteBuffer::capacity() const {
   return data_.capacity();
 }
 
-void ByteBuffer::write(const unsigned char* data, uint32_t size) {
+void ByteBuffer::write(const unsigned char* data, size_t size) {
   data_.insert(data_.begin() + write_position_, data, data + size);
   write_position_ += size;
 }
 
-void ByteBuffer::write(size_t offset, const unsigned char* data, uint32_t size) {
+void ByteBuffer::write(size_t offset, const unsigned char* data, size_t size) {
   if (data_.size() < offset) {
     data_.resize(offset * 2);
   }
@@ -91,19 +91,19 @@ void ByteBuffer::clear() {
   write_position_ = 0;
 }
 
-size_t ByteBuffer::readPosition() const {
+size_t ByteBuffer::read_position() const {
   return read_position_;
 }
 
-void ByteBuffer::readPosition(size_t position) {
+void ByteBuffer::read_position(size_t position) {
   read_position_ = position;
 }
 
-size_t ByteBuffer::writePosition() const {
+size_t ByteBuffer::write_position() const {
   return write_position_;
 }
 
-void ByteBuffer::writePosition(size_t position) {
+void ByteBuffer::write_position(size_t position) {
   write_position_ = position;
 }
 
@@ -191,7 +191,7 @@ ByteBuffer& ByteBuffer::write<std::wstring>(std::wstring data) {
 #else
   std::copy(data.begin(), data.end(), reinterpret_cast<uint16_t*>(&data_[write_position_]));
 #endif
-  
+
   write_position_ += length * 2;
 
   return *this;

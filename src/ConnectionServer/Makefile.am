@@ -9,7 +9,7 @@ connserver_SOURCES = \
 	MessageRouter.cpp \
 	ServerManager.cpp
 	
-connserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
+connserver_CPPFLAGS = $(MYSQL_CFLAGS) -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
 connserver_LDADD = $(MYSQL_LDFLAGS) \
   $(BOOST_LDFLAGS) \
   $(BOOST_THREAD_LIB) \

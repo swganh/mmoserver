@@ -770,7 +770,7 @@ AC_ARG_ENABLE([debug],
 # Configure DEBUG source code, if requested.
 if test "x$_debug" = xyes; then
   AC_DEFINE([_DEBUG], [], [Define to enable Server Directory debug mode features])
-  AM_CXXFLAGS="${AM_CXXFLAGS} -g -Wall -Werror -Wno-uninitialized -O0"
+  AM_CXXFLAGS="${AM_CXXFLAGS} -g -Wall -pedantic-errors -Wfatal-errors -Werror -Wno-uninitialized -O0"
 else
   AC_DEFINE([NDEBUG], [], [Define to enable Server Directory release mode features])
   AM_CXXFLAGS="${AM_CXXFLAGS} -O3"

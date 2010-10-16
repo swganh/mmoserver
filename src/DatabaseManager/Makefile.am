@@ -11,5 +11,5 @@ libdatabasemanager_la_SOURCES = \
   DataBindingFactory.cpp \
   Transaction.cpp
 
-libdatabasemanager_la_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fshort-wchar
+libdatabasemanager_la_CPPFLAGS = $(MYSQL_CFLAGS)
 libdatabasemanager_la_LIBADD = $(top_builddir)/src/Utils/libutils.la

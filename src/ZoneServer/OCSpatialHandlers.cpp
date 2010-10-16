@@ -89,9 +89,12 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
         byteCount++;
         data++;
     }
-
+    std::string tmp(data);
+    std::cout << "Chat message [" << tmp << "]\n";
+    return;
     BString chatMessage(data);
-
+    std::cout << "Chat message [" << chatMessage.getAnsi() << "]\n";
+    return;
     // need to truncate or we may get in trouble
     if(len - byteCount > 256)
     {

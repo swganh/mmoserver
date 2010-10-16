@@ -56,7 +56,6 @@ uint64 VariableTimeScheduler::addTask(VariableTimeCallback callback,uint8 priori
 
 void VariableTimeScheduler::removeTask(uint64 id)
 {
-    //printf("scheduler to do remove task : %I64u",id);
     if(!id)
         return;
 
@@ -67,7 +66,6 @@ void VariableTimeScheduler::removeTask(uint64 id)
         if(it->mId == id)
         {
             mTasks.erase(it);
-            //		printf("scheduler removeD task : %I64u",id);
             break;
         }
 
@@ -79,7 +77,6 @@ void VariableTimeScheduler::removeTask(uint64 id)
 
 bool VariableTimeScheduler::checkTask(uint64 id)
 {
-    //printf("scheduler to do remove task : %I64u",id);
     if(!id)
         return false;
 
@@ -89,7 +86,6 @@ bool VariableTimeScheduler::checkTask(uint64 id)
     {
         if(it->mId == id)
         {
-            //		printf("scheduler removeD task : %I64u",id);
             return true;
         }
 

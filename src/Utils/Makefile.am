@@ -14,8 +14,6 @@ libutils_la_SOURCES = ActiveObject.cpp \
   utils.cpp \
   VariableTimeScheduler.cpp
 
-libutils_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors -fshort-wchar
-
 TESTS=
 check_PROGRAMS=
 

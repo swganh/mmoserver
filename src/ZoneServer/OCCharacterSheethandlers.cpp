@@ -354,7 +354,7 @@ void ObjectController::_handleMatch(uint64 targetId,Message* message,ObjectContr
 
     swscanf(matchfield.getUnicode16(),L"%u %u %u %u %u",&i1,&i2,&i3,&i4,&i5);
 
-    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope), "UPDATE character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %I64u", i2, i3, i4, i5, matchObject->getId());
+    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope), "UPDATE character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %"PRIu64"", i2, i3, i4, i5, matchObject->getId());
     
 
     // update the players Object

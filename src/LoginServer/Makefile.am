@@ -5,7 +5,7 @@ bin_PROGRAMS = loginserver
 loginserver_SOURCES = LoginManager.cpp \
 	LoginServer.cpp
 	
-loginserver_CPPFLAGS = $(MYSQL_CFLAGS) -Wall -pedantic-errors -Wfatal-errors -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
+loginserver_CPPFLAGS = $(MYSQL_CFLAGS) -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
 loginserver_LDADD = $(MYSQL_LDFLAGS) \
   $(BOOST_LDFLAGS) \
   $(BOOST_THREAD_LIB) \

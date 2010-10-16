@@ -324,7 +324,7 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
 
                     gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
-                    gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId());
+                    gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
                     
                 }
             }

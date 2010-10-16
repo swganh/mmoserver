@@ -210,7 +210,8 @@ void CSRManager::_destroyDatabindings()
 
 void CSRManager::_processConnectPlayerMessage(Message* message, DispatchClient* client)
 {
-    uint32 errorcode = message->getUint32();
+    /*uint32 errorcode = */message->getUint32();
+
     gChatMessageLib->sendConnectPlayerResponseMessage(client);
 }
 

@@ -60,11 +60,11 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
     BString			chatData;
 
 
-    message->getStringUnicode16(chatData);
-    chatData.convert(BSTRType_ANSI);
+    //message->getStringUnicode16(chatData);
+    std::vector<uint16_t> tmpdata = message->getStringUnicode16();
+    std::string tmp2(tmpdata.begin(), tmpdata.end());
 
-    int8* data = chatData.getRawData();
-    uint16 len = chatData.getLength();
+    const char* data = tmp2.c_str();
 
     char chatElement[5][32];
 
@@ -89,25 +89,13 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
         byteCount++;
         data++;
     }
-    std::string tmp(data);
-    std::cout << "Chat message [" << tmp << "]\n";
-    return;
-    BString chatMessage(data);
-    std::cout << "Chat message [" << chatMessage.getAnsi() << "]\n";
-    return;
-    // need to truncate or we may get in trouble
-    if(len - byteCount > 256)
-    {
-        chatMessage.setLength(256);
-        chatMessage.getRawData()[256] = 0;
-    }
-    else
-    {
-        chatMessage.setLength(len - byteCount);
-        chatMessage.getRawData()[len - byteCount] = 0;
-    }
 
-    chatMessage.convert(BSTRType_Unicode16);
+    std::string spatial_text(data);
+
+    // need to truncate or we may get in trouble
+    if(spatial_text.length() > 256) {
+        spatial_text.resize(256);
+    }
 
     // Convert the chat elements to logical types before passing them on.
     uint64_t chat_target_id;
@@ -120,13 +108,10 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
     SocialChatType chat_type_id = static_cast<SocialChatType>(atoi(chatElement[1]));
     MoodType mood_id = static_cast<MoodType>(atoi(chatElement[2]));
 
-    if (!gWorldConfig->isInstance())
-    {
-        gMessageLib->SendSpatialChat(playerObject, chatMessage.getUnicode16(), NULL, chat_target_id, 0x32, chat_type_id, mood_id);
-    }
-    else
-    {
-        gMessageLib->SendSpatialChat(playerObject, chatMessage.getUnicode16(), playerObject, chat_target_id, 0x32, chat_type_id, mood_id);
+    if (!gWorldConfig->isInstance()) {
+        gMessageLib->SendSpatialChat(playerObject, std::wstring(spatial_text.begin(), spatial_text.end()), NULL, chat_target_id, 0x32, chat_type_id, mood_id);
+    } else {
+        gMessageLib->SendSpatialChat(playerObject, std::wstring(spatial_text.begin(), spatial_text.end()), playerObject, chat_target_id, 0x32, chat_type_id, mood_id);
     }
 }
 

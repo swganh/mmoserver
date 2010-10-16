@@ -284,6 +284,16 @@ public:
         return data.getLength();
     }
 
+    std::vector<uint16_t> getStringUnicode16() {
+    	uint32_t size = getUint32();
+    	std::vector<uint16_t> tmp(reinterpret_cast<uint16_t*>(&mData[mIndex]),
+    			reinterpret_cast<uint16_t*>(&mData[mIndex]) + size);
+
+    	mIndex += tmp.size() * 2;
+
+    	return tmp;
+    }
+
     bool                        mLogged;
     uint64                      mLogTime;
     void*						  mSession;

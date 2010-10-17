@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_LOGINSERVER_MESSAGE_H
 #define ANH_LOGINSERVER_MESSAGE_H
 
+#include <cstdint>
+
 #include "Utils/typedefs.h"
 #include "Utils/bstring.h"
 
@@ -284,10 +286,10 @@ public:
         return data.getLength();
     }
 
-    std::vector<uint16_t> getStringUnicode16() {
+    std::u16string getStringUnicode16() {
     	uint32_t size = getUint32();
-    	std::vector<uint16_t> tmp(reinterpret_cast<uint16_t*>(&mData[mIndex]),
-    			reinterpret_cast<uint16_t*>(&mData[mIndex]) + size);
+    	std::u16string tmp(reinterpret_cast<char16_t*>(&mData[mIndex]),
+    			reinterpret_cast<char16_t*>(&mData[mIndex]) + size);
 
     	mIndex += tmp.size() * 2;
 

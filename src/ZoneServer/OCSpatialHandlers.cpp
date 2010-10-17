@@ -25,6 +25,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "BankTerminal.h"
+
+#include <string>
+#include <algorithm>
+#include <iterator>
+#include <sstream>
+#include <iostream>
+
+#include <glog/logging.h>
+
 #include "CraftingTool.h"
 #include "CurrentResource.h"
 #include "Item.h"
@@ -49,6 +58,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+#ifdef WIN32
+#undef ERROR
+#endif
+
 //=============================================================================
 //
 // chat
@@ -57,61 +70,50 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 {
     // FIXME: for now assume only players send chat
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-    BString			chatData;
 
+    // Get the unicode data and convert it to ansii, then get the raw data.
+    std::u16string chat_data = message->getStringUnicode16();
 
-    //message->getStringUnicode16(chatData);
-    std::vector<uint16_t> tmpdata = message->getStringUnicode16();
-    std::string tmp2(tmpdata.begin(), tmpdata.end());
+    std::vector<std::u16string> tmp;
+    std::vector<uint64_t> chat_elements;
+    int elements_size = 0;
 
-    const char* data = tmp2.c_str();
+    // The spatial chat data is all in a ustring. This consists of 5 chat elements
+    // and the text of the spatial chat. The 5 chat elements are integers that are
+    // sent as strings so here we use an istream_iterator which splits the strings
+    // at spaces and then we use a transform to converts them to uint64_t's.
+    std::basic_istringstream<char16_t> iss(chat_data);
+    std::copy_n(std::istream_iterator<std::u16string, char16_t, std::char_traits<char16_t>>(iss), 5,
+              std::back_inserter<std::vector<std::u16string>>(tmp));
 
-    char chatElement[5][32];
+    try {
+        std::transform(tmp.begin(), tmp.end(), std::back_inserter<std::vector<uint64_t>>(chat_elements),
+            [&elements_size] (std::u16string s) -> uint64_t {
+                // Convert the element to a uint64_t
+                uint64_t output = boost::lexical_cast<uint64_t>(std::string(s.begin(), s.end())); 
 
-    uint8 element		= 0;
-    uint8 elementIndex	= 0;
-    uint16 byteCount	= 0;
+                // After successful conversion update we need to store how long
+                // the string was (plus 1 for the space delimiter that came after it).
+                elements_size += s.size() + 1; 
 
-    while(element < 5)
-    {
-        if(*data == ' ')
-        {
-            chatElement[element][elementIndex] = 0;
-            byteCount++;
-            element++;
-            data++;
-            elementIndex = 0;
-            continue;
-        }
-
-        chatElement[element][elementIndex] = *data;
-        elementIndex++;
-        byteCount++;
-        data++;
+                return output;
+            });
+    } catch(const boost::bad_lexical_cast& e) {
+        LOG(ERROR) << e.what();
+        return; // We suffered an unrecoverable error, bail out now.
     }
+    
+    uint64_t chat_target_id     = chat_elements[0];
+    SocialChatType chat_type_id = static_cast<SocialChatType>(chat_elements[1]);
+    MoodType mood_id            = static_cast<MoodType>(chat_elements[2]);
 
-    std::string spatial_text(data);
-
-    // need to truncate or we may get in trouble
-    if(spatial_text.length() > 256) {
-        spatial_text.resize(256);
-    }
-
-    // Convert the chat elements to logical types before passing them on.
-    uint64_t chat_target_id;
-    try	{
-        chat_target_id	= boost::lexical_cast<uint64>(chatElement[0]);
-    } catch(boost::bad_lexical_cast &) {
-        chat_target_id	= 0;
-    }
-
-    SocialChatType chat_type_id = static_cast<SocialChatType>(atoi(chatElement[1]));
-    MoodType mood_id = static_cast<MoodType>(atoi(chatElement[2]));
-
+    // After pulling out the chat elements store the rest of the data as the spatial text body.
+    std::wstring spatial_text(chat_data.begin()+elements_size, chat_data.end());
+        
     if (!gWorldConfig->isInstance()) {
-        gMessageLib->SendSpatialChat(playerObject, std::wstring(spatial_text.begin(), spatial_text.end()), NULL, chat_target_id, 0x32, chat_type_id, mood_id);
+        gMessageLib->SendSpatialChat(playerObject, spatial_text, NULL, chat_target_id, 0x32, chat_type_id, mood_id);
     } else {
-        gMessageLib->SendSpatialChat(playerObject, std::wstring(spatial_text.begin(), spatial_text.end()), playerObject, chat_target_id, 0x32, chat_type_id, mood_id);
+        gMessageLib->SendSpatialChat(playerObject, spatial_text, playerObject, chat_target_id, 0x32, chat_type_id, mood_id);
     }
 }
 

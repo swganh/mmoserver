@@ -1369,7 +1369,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
     }
 
     default:
-    	break;
+        break;
 
     }
 }
@@ -1574,7 +1574,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
     pVec.z = 0;
     uint64 deedId;
 
-    swscanf(dataStr.getUnicode16(),L"%"PRIu64" %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
+    swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %f %f %f",&deedId, &pVec.x, &pVec.z, &dir);
 
     //check the region whether were allowed to build
     if(checkNoBuildRegion(pVec) /*|| !checkCityRadius(player)*/)
@@ -1779,7 +1779,7 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
             float hmapHighest = highest;
             highest = gHeightmap->compensateForInvalidHeightmap(highest, player->mPosition.y, (float)10.0);
             if(hmapHighest != highest) {
-				DLOG(INFO) << "StructureManager::HeightmapStructureHandler: PlayerID("<< player->getId() << ") placing structure...Heightmap found inconsistent, compensated height.";
+                DLOG(INFO) << "StructureManager::HeightmapStructureHandler: PlayerID("<< player->getId() << ") placing structure...Heightmap found inconsistent, compensated height.";
             }
         }//end TODO
 
@@ -1816,6 +1816,6 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
         break;
     }
     default:
-    	break;
+        break;
     }
 }

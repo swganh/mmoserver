@@ -194,8 +194,16 @@ private:
     template<typename T> void swapEndian16(T& data) const;
     template<typename T> void swapEndian32(T& data) const;
     template<typename T> void swapEndian64(T& data) const;
-
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
     std::vector<unsigned char> data_;
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
     size_t read_position_;
     size_t write_position_;
 };
@@ -231,7 +239,7 @@ ByteBuffer& operator<<(ByteBuffer& buffer, const T& value);
 *
 * \return Reference to the output stream.
 */
-std::ostream& operator<<(std::ostream& message, const ByteBuffer& buffer);
+COMMON_API std::ostream& operator<<(std::ostream& message, const ByteBuffer& buffer);
 
 }  // namespace common
 

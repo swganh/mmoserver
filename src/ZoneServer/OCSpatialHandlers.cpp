@@ -69,8 +69,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #ifdef WIN32
-using std::regex;
-using std::smatch;
+using std::wregex;
+using std::wsmatch;
 using std::regex_search;
 #else
 using boost::wregex;
@@ -102,7 +102,7 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
     }
    
     gMessageLib->SendSpatialChat(player, 
-        m[6].str(), // This is the text message
+        m[6].str().substr(0, 256), // This is the text message
         (gWorldConfig->isInstance()) ? player : nullptr, // If it's an instance we send the player object
         std::stoull(m[1].str()), // Convert this item to a uint64_t character id
         0x32, // Always show spatial chat in the text box.

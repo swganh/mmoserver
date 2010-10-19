@@ -73,9 +73,9 @@ using std::regex;
 using std::smatch;
 using std::regex_search;
 #else
-using boost::regex;
-using boost::smatch;
-using boost::regex_search;
+using boost::wregex;
+using boost::wsmatch;
+using boost::regex_match;
 #endif
 
 //=============================================================================
@@ -93,10 +93,10 @@ void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* messa
 
     // This regular expression searches for 5 numbers separated by spaces
     // followed by a string text message.
-    const std::wregex p(L"(\\d+) (\\d+) (\\d+) (\\d+) (\\d+) (.*)");
-    std::wsmatch m;
+    const wregex p(L"(\\d+) (\\d+) (\\d+) (\\d+) (\\d+) (.*)");
+    wsmatch m;
 
-    if (! std::regex_match(tmp, m, p)) {
+    if (! regex_match(tmp, m, p)) {
         LOG(ERROR) << "Invalid spatial chat message format";
         return; // We suffered an unrecoverable error, bail out now.
     }

@@ -32,6 +32,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <sstream>
 #include <iostream>
 
+#ifdef WIN32
+#include <regex>
+#else
+#include <boost/regex.hpp>
+#endif
+
 #include <glog/logging.h>
 
 #include "CraftingTool.h"
@@ -62,6 +68,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 
+#ifdef WIN32
+using std::regex;
+using std::smatch;
+using std::regex_search;
+#else
+using boost::regex;
+using boost::smatch;
+using boost::regex_search;
+#endif
+
 //=============================================================================
 //
 // chat
@@ -69,52 +85,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     // FIXME: for now assume only players send chat
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-    // Get the unicode data and convert it to ansii, then get the raw data.
+    // Get the u16string and convert it to wstring for processing.
     std::u16string chat_data = message->getStringUnicode16();
+    std::wstring tmp(chat_data.begin(), chat_data.end());
 
-    std::vector<std::u16string> tmp;
-    std::vector<uint64_t> chat_elements;
-    int elements_size = 0;
+    // This regular expression searches for 5 numbers separated by spaces
+    // followed by a string text message.
+    const std::wregex p(L"(\\d+) (\\d+) (\\d+) (\\d+) (\\d+) (.*)");
+    std::wsmatch m;
 
-    // The spatial chat data is all in a ustring. This consists of 5 chat elements
-    // and the text of the spatial chat. The 5 chat elements are integers that are
-    // sent as strings so here we use an istream_iterator which splits the strings
-    // at spaces and then we use a transform to converts them to uint64_t's.
-    std::basic_istringstream<char16_t> iss(chat_data);
-    std::copy_n(std::istream_iterator<std::u16string, char16_t, std::char_traits<char16_t>>(iss), 5,
-              std::back_inserter<std::vector<std::u16string>>(tmp));
-
-    try {
-        std::transform(tmp.begin(), tmp.end(), std::back_inserter<std::vector<uint64_t>>(chat_elements),
-            [&elements_size] (std::u16string s) -> uint64_t {
-                // Convert the element to a uint64_t
-                uint64_t output = boost::lexical_cast<uint64_t>(std::string(s.begin(), s.end())); 
-
-                // After successful conversion update we need to store how long
-                // the string was (plus 1 for the space delimiter that came after it).
-                elements_size += s.size() + 1; 
-
-                return output;
-            });
-    } catch(const boost::bad_lexical_cast& e) {
-        LOG(ERROR) << e.what();
+    if (! std::regex_match(tmp, m, p)) {
+        LOG(ERROR) << "Invalid spatial chat message format";
         return; // We suffered an unrecoverable error, bail out now.
     }
-    
-    uint64_t chat_target_id     = chat_elements[0];
-    SocialChatType chat_type_id = static_cast<SocialChatType>(chat_elements[1]);
-    MoodType mood_id            = static_cast<MoodType>(chat_elements[2]);
-
-    // After pulling out the chat elements store the rest of the data as the spatial text body.
-    std::wstring spatial_text(chat_data.begin()+elements_size, chat_data.end());
-        
-    if (!gWorldConfig->isInstance()) {
-        gMessageLib->SendSpatialChat(playerObject, spatial_text, NULL, chat_target_id, 0x32, chat_type_id, mood_id);
-    } else {
-        gMessageLib->SendSpatialChat(playerObject, spatial_text, playerObject, chat_target_id, 0x32, chat_type_id, mood_id);
-    }
+   
+    gMessageLib->SendSpatialChat(player, 
+        m[6].str(), // This is the text message
+        (gWorldConfig->isInstance()) ? player : nullptr, // If it's an instance we send the player object
+        std::stoull(m[1].str()), // Convert this item to a uint64_t character id
+        0x32, // Always show spatial chat in the text box.
+        static_cast<SocialChatType>(std::stoi(m[2].str())), 
+        static_cast<MoodType>(std::stoi(m[3].str())));
 }
 
 //=============================================================================

@@ -1244,7 +1244,8 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
 	mission->setNum(mission_num);
 
 	ObjectSet inRangeNPCs;
-	gWorldManager->getSI()->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,3000);
+	
+	gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,3000,false);
 	//Start
 	uint32 cntLoop = 0;
 	bool found = false;
@@ -1427,7 +1428,7 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
     //END TEMP
 
 	ObjectSet inRangeNPCs;
-	gWorldManager->getSI()->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500);
+	gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500,false);
 
 	uint32 cntLoop = 0;
 	//Start & End

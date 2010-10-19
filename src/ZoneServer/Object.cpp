@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Object.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
 #include "Common/Message.h"
@@ -575,16 +576,13 @@ void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObjectSet*	kno
 		this->setParentIdIncDB(parentId);		
 	}
 
-	PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+	uint64 id = this->getId();
+	
+	//need to query the grid here!!!
 
-	while(playerIt != knownPlayers->end())
+	gSpatialIndexManager->sendToPlayersInRange(this,false,[id,parentId,contaiment] (PlayerObject* player)
 	{
-		PlayerObject* player = (*playerIt);
-		if(player)
-			gMessageLib->sendContainmentMessage(this->getId(),this->getParentId(),contaiment,player);
-
-		playerIt++;
-	}
+		gMessageLib->sendContainmentMessage(id,parentId,contaiment,player);
+	}	);
 
 }
-

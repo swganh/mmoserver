@@ -712,7 +712,7 @@ ObjectListType* zmap::GetAllViewingRangeCellContents(uint32 CellID)
 
 ObjectListType* zmap::GetPlayerViewingRangeCellContents(uint32 CellID)
 {
-	//Pesudo
+	//Pseudo
 	// 1. Combine the lists of Neiboring cells to 1
 
 	ObjectListType* ReturnList = new ObjectListType;

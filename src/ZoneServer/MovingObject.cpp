@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "MovingObject.h"
 #include "PlayerObject.h"
+#include "BuildingObject.h"
 #include "VehicleController.h"
 #include "WorldManager.h"
 #include "SpatialIndexManager.h"
@@ -83,6 +84,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 		
 
 		// remove us from the last cell we were in
+		// leave building content known - we might enter again
 		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
 		{
 			cell->removeObject(this);
@@ -112,56 +114,78 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 		CellObject* cell = NULL;
 
 		// Remove us.
-		if (!this->getKnownPlayers()->empty())
+		if (!this->getRegisteredWatchers()->empty())
 		{
 			gMessageLib->broadcastContainmentMessage(this,oldParentId,0);
 		}
 
-		// only remove us from si, if we just entered the building
 		if (oldParentId != 0)
 		{
+			//ONLY REMOVE US FROM BUILDING; WHEN WE CHANGED THE BUILDING - we might have been teleporting
+
 			// We are still inside.
-			if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
-			{
-				cell->removeObject(this);
-			}
-			else
+			cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId));
+			if(!cell)
 			{
 				gLogger->log(LogManager::NOTICE,"Error removing %"PRIu64" from cell(%"PRIu64")",this->getId(),oldParentId);
+				assert(false);
+				return;
 			}
-		}
-		else
-		{
-			// remove us from qt
-			// We just entered a building.
-			if (this->getSubZoneId())
+			
+			// update grid with world position
+			gSpatialIndexManager->UpdateObject(this);
+
+			//Did we change the building ??? (teleport moving to cloning center etc)
+			if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
 			{
-				if (QTRegion* region = gWorldManager->getQTRegion(this->getSubZoneId()))
+				BuildingObject* oldBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+			
+				CellObject* newCell;
+				newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
+				if (!newCell)
 				{
-					this->setSubZoneId(0);
-					region->mTree->removeObject(this);
+					gLogger->log(LogManager::NOTICE,"%"PRIu64" error casting new cell cell(%"PRIu64")",this->getId(),parentId);
+					assert(false);
+					return;
 				}
+				BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
+
+				if(newBuilding != oldBuilding)
+				{
+					//unregister player from the old building - either always or only when out of range??
+					gSpatialIndexManager->unRegisterPlayerFromBuilding(oldBuilding,player);
+
+					//and register player for the new building
+					gSpatialIndexManager->registerPlayerToBuilding(oldBuilding,player);
+									
+				}
+
 			}
+			
+			cell->removeObject(this);
+			
 		}
+		
 
 		// put us into new one
-		if (!this->getKnownPlayers()->empty())
-		{
-			gMessageLib->broadcastContainmentMessage(this,parentId,4);
-		}
-		if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
-		{
-			cell->addObjectSecure(this);
-		}
-		else
+		gMessageLib->broadcastContainmentMessage(this,parentId,4);
+		
+		cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
+		if (!cell)
 		{
 			gLogger->log(LogManager::NOTICE,"Error adding %"PRIu64" to cell(%"PRIu64")",this->getId(),parentId);
+			assert(false);
+			return;
 		}
+		
+		cell->addObjectSecure(this);
+		
 		// update the player
 		this->setParentId(parentId);
 	}
 }
 
+//server initiated movement
 void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 {
 
@@ -204,7 +228,7 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 	}
 
 	//check whether updates are necessary before building the packet and then destroying it
-	if ((!isPlayer) && this->getKnownPlayers()->empty())
+	if ((!isPlayer) && this->getRegisteredWatchers()->empty())
 	{
 		return;
 	}

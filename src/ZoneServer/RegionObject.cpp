@@ -44,7 +44,7 @@ bool RegionObject::addVisitor(Object* visitor)
 		return false;
 	}
 
-	mVisitingPlayers.insert(visitor);
+	mVisitingPlayers.insert(visitor->getId());
 	return true;
 }
 
@@ -69,12 +69,11 @@ void RegionObject::removeVisitor(Object* object)
 	
 	ObjectIDSet::iterator it = mVisitingPlayers.find(object->getId());
 
-		if(it != mVisitingPlayers.end())
-		{
+	if(it != mVisitingPlayers.end())
+	{
 	
-			mVisitingPlayers.erase(it);
+		mVisitingPlayers.erase(it);
 
-		}
 	}
 	
 }

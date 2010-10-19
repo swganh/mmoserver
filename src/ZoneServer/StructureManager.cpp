@@ -148,10 +148,6 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 	gSpatialIndexManager->getObjectsInRange(structure,&resultSet,ObjType_Creature,30.0,true);
 	ObjectSet::iterator it = resultSet.begin();
 
-
-	
-	ObjectSet::iterator it = resultSet.begin();
-
 	while(it != resultSet.end())
 	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);

@@ -77,7 +77,7 @@ ObjectController::ObjectController()
 , mRemoveCommandQueue(false)
 , mUpdatingObjects(false)
 {
-	mGrid	= gSpatialIndexManager->getGrid();
+	
 	
 }
 
@@ -104,8 +104,7 @@ ObjectController::ObjectController(Object* object)
 , mRemoveCommandQueue(false)
 , mUpdatingObjects(false)
 {
-	mSI		= gWorldManager->getSI();
-	mGrid	= gWorldManager->getGrid();
+	
 }
 
 //=============================================================================

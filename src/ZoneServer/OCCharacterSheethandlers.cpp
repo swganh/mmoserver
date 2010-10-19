@@ -308,7 +308,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 	}
 
 	// for now check players in viewing range
-	PlayerObjectSet* inRangePlayers	= player->getKnownPlayers();
+	PlayerObjectSet* inRangePlayers	= player->getRegisteredWatchers();
 
 	// and ourselve =)
 	playersMatched.push_back(player);

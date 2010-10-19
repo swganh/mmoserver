@@ -96,7 +96,10 @@ ObjectContainer::~ObjectContainer()
 bool ObjectContainer::addObjectSecure(Object* data) 
 { 
 	mData.push_back(data->getId()); 
-	gSpatialIndexManager->createObjectToRegisteredPlayers(this,data);
+	//make sure were not a player!!
+	if((data->getType() != ObjType_Creature) && (data->getType() != ObjType_Player))
+		gSpatialIndexManager->createObjectToRegisteredPlayers(this,data);
+
 	if(mCapacity)
 	{
 		return true;
@@ -109,15 +112,19 @@ bool ObjectContainer::addObjectSecure(Object* data)
 	}
 }
 
-//==============================================================================0
+//===============================================
 //use only when youre prepared to receive a false result with a not added item
+//returns false when the item couldnt be added (container full)
+
 bool ObjectContainer::addObject(Object* data) 
 { 
 	if(mCapacity)
 	{
+	
 		mData.push_back(data->getId()); 
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gSpatialIndexManager->createObjectToRegisteredPlayers(this,data);
+		if((data->getType() != ObjType_Creature) && (data->getType() != ObjType_Player))
+			gSpatialIndexManager->createObjectToRegisteredPlayers(this,data);
 		return true;
 	}
 	else
@@ -362,7 +369,7 @@ bool ObjectContainer::checkForObject(Object* object)
 }
 
 
-bool ObjectContainer::checkContainerKnownPlayer(PlayerObject* player)
+bool ObjectContainer::checkRegisteredWatchers(PlayerObject* player)
 {
 	PlayerObjectSet::iterator it = mKnownPlayers.find(player);
 	return (it != mKnownPlayers.end());

@@ -51,57 +51,11 @@ SpawnRegion::~SpawnRegion()
 
 void SpawnRegion::update()
 {
+	// not necessary anymore 
+	//regions get updated by the grid when someone enters
 	//this is very problematic - currently we assume an object entered us when it is in the same qtregion we are in
 
-	//run about every 4.5 seconds
-	if(!mSubZoneId)
-	{
-		mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
-		mSubZoneId	= (uint32)mQTRegion->getId();
-		mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth * 2,mHeight * 2);
-	}
-
-	Object*		object;
-	ObjectSet	objList;
-
-	if(mParentId)
-	{
-		mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
-	}
-
-	if(mQTRegion)
-	{
-		mQTRegion->mTree->getObjectsInRange(this,&objList,ObjType_Player,&mQueryRect);
-	}
-
-	ObjectSet::iterator objIt = objList.begin();
-
-	while(objIt != objList.end())
-	{
-		object = dynamic_cast<Object*>(*objIt);
-
-		if(!(checkKnownObjects(object)))
-		{
-			onObjectEnter(object);
-		}
-
-		++objIt;
-	}
-
-	PlayerObjectSet oldKnownObjects = mKnownPlayers;
-	PlayerObjectSet::iterator objSetIt = oldKnownObjects.begin();
-
-	while(objSetIt != oldKnownObjects.end())
-	{
-		object = dynamic_cast<Object*>(*objSetIt);
-
-		if(objList.find(object) == objList.end())
-		{
-			onObjectLeave(object);
-		}
-
-		++objSetIt;
-	}
+	
 }
 
 //=============================================================================
@@ -111,7 +65,7 @@ void SpawnRegion::onObjectEnter(Object* object)
 	if(object->getParentId() == mParentId)
 	{
 		//PlayerObject* player = (PlayerObject*)object;
-		addKnownObjectSafe(object);
+	//	addKnownObjectSafe(object);
 	}
 }
 
@@ -120,7 +74,7 @@ void SpawnRegion::onObjectEnter(Object* object)
 void SpawnRegion::onObjectLeave(Object* object)
 {
 	//PlayerObject* player = (PlayerObject*)object;
-	removeKnownObject(object);
+	//removeKnownObject(object);
 }
 
 //=============================================================================

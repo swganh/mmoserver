@@ -99,7 +99,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
 		return;
 	}
 
-	mSI->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC, boardingRange);
+	gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC, boardingRange, true);
 
 	// iterate through the results
 	ObjectSet::iterator it = inRangeObjects.begin();
@@ -219,6 +219,10 @@ void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,Ob
 
 void ObjectController::_handleTransferItem(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+
+	//*********************************************
+	//1) establish whether we are watching the container *before* transfer
+	//2) establish whether we need to watch the container *after* transfer
 
 
 	CellObject*		cell;
@@ -371,23 +375,12 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 		itemObject->setParentId(targetContainerId,linkType,playerObject,false); 
 		itemObject->updateWorldPosition();
 		
-		/*ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
-
-		if(rc)
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
-		else
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
-		  */
-		
-		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
-		
-		//do this manually - we need to destroy the object and create it freshly for it to display properly 
-		//to the owner
-		playerObject->addKnownObjectSafe(itemObject);
-		itemObject->addKnownObjectSafe(playerObject);
-		
+		//destroy the Object for the Owner - it gets newly created by addObjectSecure
+		//which is a requirement by the client
 		gMessageLib->sendDestroyObject(itemObject->getId(),playerObject);
-		gMessageLib->sendCreateObject(itemObject,playerObject);
+
+		//the object is added to the cell and registered watchers are being updated
+		
 		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u",playerObject->getId(),playerObject->getParentId());
 		
 	}	
@@ -396,11 +389,24 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 	
 	if (inventory && (inventory->getId() == targetContainerId))	// Valid player inventory.
 	{
+		//==========================================
 		// Add object to OUR inventory.
-		tangible->destroyKnownObjects();
-		gMessageLib->sendCreateObject(itemObject,playerObject);
+		
+		// add us as watcher in case we do not already watch the container
+		
+		ObjectContainer* container = dynamic_cast<ObjectContainer*>(itemObject);
+		
+		if(!container->checkRegisteredWatchers(playerObject))
+		{
+			gSpatialIndexManager->registerPlayerToContainer(container,playerObject);
+			
+			//container->addContainerKnownObjectSafe(playerObject);
+		}
 
+		//update the containment for the client
 		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
+		
+		//as long as we are registered watchers of our inventory the item will now be created for us wil
 		inventory->addObjectSecure(itemObject);
 		
 		return;
@@ -751,6 +757,9 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			gLogger->log(LogManager::DEBUG,"ObjectController::removeFromContainer: Internal Error could not remove  %"PRIu64" from %I64u", itemObject->getId(),inventory->getId());
 			return false;
 		}
+		
+		//at a later time we need to establish whether it needs to be destroyed always or just the containment changed
+		gSpatialIndexManager->destroyObjectToRegisteredPlayers(inventory,tangible->getId());
 		return true;
 
 	}
@@ -786,7 +795,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		gLogger->log(LogManager::DEBUG,"Transfer item from creature inventory to player inventory (looting)");
 		// gMessageLib->sendContainmentMessage(targetId,itemObject->getParentId(),-1,playerObject);
 
-		gMessageLib->sendDestroyObject(targetId,playerObject);
+		gSpatialIndexManager->destroyObjectToRegisteredPlayers(creatureInventory,targetId);
 		
 		if(!creatureInventory->removeObject(itemObject))
 		{
@@ -840,39 +849,16 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		}
 
 		// Remove object from cell.
-		if (cell->removeObject(itemObject))
-		{
-			//gMessageLib->sendDestroyObject_InRange(tangible->getId(),playerObject,false);
-			//gMessageLib->sendContainmentMessage(targetId,targetContainerId,linkType,playerObject);
-	
-			PlayerObjectSet* inRangePlayers	= playerObject->getKnownPlayers();
-			PlayerObjectSet::iterator it = inRangePlayers->begin();
-			while(it != inRangePlayers->end())
-			{
-				PlayerObject* targetObject = (*it);
-				gMessageLib->sendDestroyObject(tangible->getId(),targetObject);
-				targetObject->removeKnownObject(tangible);
-				tangible->removeKnownObject(targetObject);
-				++it;
-			}
-			return true;
-		
-		}
-		else
-		{
-			assert(false && "ObjectController::removeFromContainer unable to remove itemObject");
-		}
+		gSpatialIndexManager->destroyObjectToRegisteredPlayers(cell,tangible->getId());
+		cell->removeObject(itemObject);
 
 	}
-
 
 	//some other container ... hopper backpack chest etc
 	TangibleObject* containingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
 	if(containingContainer&&containingContainer->removeObject(itemObject))
-
 	{
-		playerObject->removeKnownObject(tangible);
-		tangible->removeKnownObject(playerObject);
+		gSpatialIndexManager->destroyObjectToRegisteredPlayers(containingContainer,tangible->getId());
 		return true;
 	
 	}

@@ -44,7 +44,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
+
+#include "SpatialIndexManager.h"
+
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -167,7 +169,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 
 	// get the tangible objects in range
-	mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
+	gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range,yes);
 
 	//and see if a fitting crafting station is near
 	station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());

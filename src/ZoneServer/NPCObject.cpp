@@ -174,7 +174,7 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
 	}
 
 	// send out position updates to known players
-	if (this->getKnownPlayers()->empty())
+	if (this->getRegisteredWatchers()->empty())
 	{
 		return;
 	}
@@ -618,7 +618,7 @@ void NPCObject::updateAttackersWeaponAndCombatXp(uint64 playerId, uint64 groupId
 		if (PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId)))
 		{
 			// Only update XP for players in range and still in group, if specified.
-			if (playerObject && this->checkKnownPlayer(playerObject))
+			if (playerObject && this->checkRegisteredWatchers(playerObject))
 			{
 				bool valid = true;
 				if (groupId)

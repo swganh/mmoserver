@@ -115,7 +115,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 
 	uint32 oldCell = updateObject->zmapCellID;
 	
-	//sets the new cell, updates subcells
+	//sets the new gridcell, updates subcells
 	getGrid()->UpdateObject(updateObject);
 
 	if(updateObject->zmapCellID != oldCell)
@@ -1018,12 +1018,36 @@ void SpatialIndexManager::getPlayersInRange(const Object* const object,PlayerObj
 	}
 }
 
+
+void SpatialIndexManager::sendToPlayersInRange(const Object* const object, bool cellContent, std::function<void (PlayerObject* player)> callback)
+{
+	
+	PlayerObjectSet		inRangePlayers;
+	gSpatialIndexManager->getPlayersInRange(object,&inRangePlayers,cellContent);
+
+	PlayerObjectSet::const_iterator	it				= inRangePlayers.begin();
+
+	while(it != inRangePlayers.end())
+	{
+		PlayerObject* targetObject = (*it);
+
+		if(targetObject->isConnected())
+		{
+			callback(targetObject);
+		}
+
+		++it;
+	}
+
+
+}
+
 // registers a containers content as known to a player
 // a container can be a backpack placed in a cell (or a cell itself ??? need to think of that - it might give us the ability to keep cell content loaded for a player until he leaves range)
 void SpatialIndexManager::registerPlayerToContainer(ObjectContainer* container,PlayerObject* player)
 {
 	//are we sure the player doesnt know the container already ???
-	if(container->checkContainerKnownPlayer(player))
+	if(container->checkRegisteredWatchers(player))
 	{
 
 		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: Container %I64u already known to player %I64u",container->getId(),player->getId());
@@ -1041,24 +1065,88 @@ void SpatialIndexManager::registerPlayerToContainer(ObjectContainer* container,P
 	while(it != contentList->end())
 	{
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-		if(!tO)
+		if(tO)
 		{
-			assert(false && "SpatialIndexManager::registerPlayerToContainer ::unable to find tangible object (container content)");
+			sendCreateObject(tO,player,false);
+			registerPlayerToContainer(tO,player);
 		}
-
-		sendCreateObject(tO,player,false);
 		
 		it++;
 	}
 	
 }
 
+//registering a player to a building is different, as the cells of a building must be known at all time to a player
+//even if the cellscontent is not loaded
+void SpatialIndexManager::registerPlayerToBuilding(BuildingObject* building,PlayerObject* player)
+{
+	//iterate through all the cells and add and register their content
+	
+	//BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+
+	if(!building)
+	{
+		assert(false);
+		return;
+	}
+	
+	//cells are not subcontainers that get autoregistered on registering a building!!
+	//they already are registered, as a building cannot be created without cells without crashing the client
+	//the buildings contents however we want to create once we enter the building
+
+	registerPlayerToContainer(building,player);
+
+	//iterate through all the cells and add the player as listener
+	if(player)
+	{		
+		CellObjectList::iterator cellIt = building->getCellList()->begin();
+
+		while(cellIt != building->getCellList()->end())
+		{
+			registerPlayerToContainer((*cellIt),player);
+			++cellIt;
+		}
+	}
+
+}
+
+//unregistering a player from a building is different, as the cells of a building must be known at all time to a player
+//even if the cellscontent can be destroyed unless of course we go out of range and the building is destroyed
+void SpatialIndexManager::unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player)
+{
+	if(!building)
+	{
+		assert(false);
+		return;
+	}
+	
+	//cells are not subcontainers that get autoregistered on registering a building!!
+	//they already are registered, as a building cannot be created without cells without crashing the client
+	//the buildings contents however we want to create once we enter the building
+
+	unRegisterPlayerFromContainer(building,player);
+
+	//iterate through all the cells and add the player as listener
+	if(player)
+	{		
+		CellObjectList::iterator cellIt = building->getCellList()->begin();
+
+		while(cellIt != building->getCellList()->end())
+		{
+			unRegisterPlayerFromContainer((*cellIt),player);
+			++cellIt;
+		}
+	}
+	
+}
+
 // UnRegisters a container to a player
 // a container can be a backpack placed in a cell (or a cell itself ??? need to think of that - it might give us the ability to keep cell content loaded for a player until he leaves range)
+// we will only destroy the contents for the client however, not the container
 void SpatialIndexManager::unRegisterPlayerFromContainer(ObjectContainer* container,PlayerObject* player)
 {
 	//are we sure the player doesnt know the container already ???
-	if(!container->checkContainerKnownPlayer(player))
+	if(!container->checkRegisteredWatchers(player))
 	{
 
 		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::UnRegisterPlayerToContainer :: Container %I64u not known to player %I64u",container->getId(),player->getId());
@@ -1071,7 +1159,8 @@ void SpatialIndexManager::unRegisterPlayerFromContainer(ObjectContainer* contain
 
 	ObjectIDList*			contentList		= container->getObjects();
 	ObjectIDList::iterator	it				= contentList->begin();
-
+	
+	//its important we do not destroy cells when unregistering a building!!
 	while(it != contentList->end())
 	{
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
@@ -1095,7 +1184,7 @@ void SpatialIndexManager::createObjectToRegisteredPlayers(ObjectContainer* conta
 		return;
 	}
 
-	PlayerObjectSet* knownPlayers = container->getContainerKnownPlayers();
+	PlayerObjectSet* knownPlayers = container->getRegisteredWatchers();
 	PlayerObjectSet::iterator it = knownPlayers->begin();
 		
 	while(it != knownPlayers->end())
@@ -1103,6 +1192,10 @@ void SpatialIndexManager::createObjectToRegisteredPlayers(ObjectContainer* conta
 		//create it for the registered Players
 		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
 		sendCreateObject(object,player,false);
+		
+		//the registered object likely is a container in itself
+		ObjectContainer* oc = dynamic_cast<ObjectContainer*>(object);
+		registerPlayerToContainer(oc,player);
 		it++;
 	}
 }
@@ -1127,7 +1220,7 @@ void SpatialIndexManager::updateEquipListToRegisteredPlayers(PlayerObject* playe
 	}
 }
 
-// a crate changed its conten for example sur I find other uses, too
+// a crate changed its conten for example sur I find other uses, too	(change attribute not container content)
 void SpatialIndexManager::updateObjectToRegisteredPlayers(Object* object)
 {
 
@@ -1154,15 +1247,24 @@ void SpatialIndexManager::updateObjectToRegisteredPlayers(Object* object)
 void SpatialIndexManager::destroyObjectToRegisteredPlayers(ObjectContainer* container,uint64 object)
 {
 	
-	PlayerObjectSet* knownPlayers = container->getContainerKnownPlayers();
+	PlayerObjectSet* knownPlayers = container->getRegisteredWatchers();
 	PlayerObjectSet::iterator it = knownPlayers->begin();
 		
 	while(it != knownPlayers->end())
 	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
 
+		//cover the fact that the detroyed item might be a container in itself
+		ObjectContainer* destroyObject = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(object));
+		if(destroyObject)
+			unRegisterPlayerFromContainer(destroyObject,player);
+
 		//destroy it for the registered Players
 		gMessageLib->sendDestroyObject(object,player);
 		it++;
 	}
+
+	//the destroyed object can be a container in itself
+	//if so destroy it for the parent containers known players
+	
 }

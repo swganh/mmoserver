@@ -276,6 +276,9 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		// (4 for add and 0 for remove)
 		gMessageLib->broadcastContainmentMessage(player->getId(),oldParentId,0,player);
 
+		// update grid with world position
+		gSpatialIndexManager->UpdateObject(player);
+
 		if (oldParentId != 0)
 		{
 			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
@@ -289,8 +292,19 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		}
 		else
 		{
-		 	// update grid with world position
-			gSpatialIndexManager->UpdateObject(player);
+		 	//we just entered the building - go register us
+			
+			CellObject* newCell;
+			newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
+			if (!newCell)
+			{
+				gLogger->log(LogManager::NOTICE,"Player %"PRIu64" error casting new cell cell(%"PRIu64")",player->getId(),parentId);
+				assert(false);
+				return;
+			}
+			BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
+			
+			gSpatialIndexManager->registerPlayerToBuilding(newBuilding,player);
 
 			if(player->checkIfMounted() && player->getMount())
 			{
@@ -319,6 +333,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			{
 				player->getTutorial()->setCellId(parentId);
 			}
+
 		}
 		else
 		{

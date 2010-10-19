@@ -99,7 +99,7 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 
 		gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,playerObject);
 
-		PlayerObjectSet*			playerList	= playerObject->getKnownPlayers();
+		PlayerObjectSet*			playerList	= playerObject->getRegisteredWatchers();
 		PlayerObjectSet::iterator	it			= playerList->begin();
 
 		while(it != playerList->end())

@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "GroupManager.h"
 #include "GroupObject.h"
 #include "Inventory.h"
-#include "QuadTree.h"
+#include "SpatialIndexManager.h"
 
 #include "SampleEvent.h"
 #include "SchematicGroup.h"
@@ -59,7 +59,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
 
-#include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "LogManager/LogManager.h"
@@ -195,26 +194,6 @@ PlayerObject::~PlayerObject()
 		}
 	}
 
-	//thats done with removing the player ouot of the grid
-	// remove us from active regions we are in
-	/*ObjectSet regions;
-	gWorldManager->getSI()->getObjectsInRange(this,&regions,ObjType_Region,20);
-
-	ObjectSet::iterator objListIt = regions.begin();
-
-	while(objListIt != regions.end())
-	{
-		RegionObject* region = dynamic_cast<RegionObject*>(*objListIt);
-
-		if(region->getActive())
-		{
-			region->onObjectLeave(this);
-		}
-
-		++objListIt;
-	}
-	*/
-
 	// make sure we are deleted out of entertainer Ticks when entertained
 	if(mEntertainerWatchToId)
 	{
@@ -282,7 +261,7 @@ PlayerObject::~PlayerObject()
 		std::vector<BuildingObject*>	buildings;
 		BuildingObject*					nearestBuilding = NULL;
 
-		gWorldManager->getSI()->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192);
+		gSpatialIndexManager->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192,false);
 
 		ObjectSet::iterator buildingIt = inRangeBuildings.begin();
 
@@ -2149,42 +2128,9 @@ void PlayerObject::setSitting(Message* message)
 
 		if(elementCount == 4)
 		{
+			this->updatePosition(chairCell,chair_position);
 			// outside
-			if(!chairCell)
-			{
-				if(QTRegion* newRegion = gWorldManager->getSI()->getQTRegion(chair_position.x, chair_position.z))
-				{
-					// we didnt change so update the old one
-					if((uint32)newRegion->getId() == this->getSubZoneId())
-					{
-						// this also updates the players position
-						newRegion->mTree->updateObject(this, chair_position);
-					}
-					else
-					{
-						// remove from old
-						if(QTRegion* oldRegion = gWorldManager->getQTRegion(this->getSubZoneId()))
-						{
-							oldRegion->mTree->removeObject(this);
-						}
-
-						// update players position
-						this->mPosition = chair_position;
-
-						// put into new
-						this->setSubZoneId((uint32)newRegion->getId());
-						newRegion->mTree->addObject(this);
-					}
-				}
-				else
-				{
-					// we should never get here !
-					gLogger->log(LogManager::DEBUG,"SitOnObject: could not find zone region in map");
-
-					// hammertime !
-					exit(-1);
-				}
-			}
+			
 			// we are in a cell
 			else
 			{

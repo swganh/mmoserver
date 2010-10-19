@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseCallback.h"
 
 #include "MathLib/Rectangle.h"
+#include "MessageLib/MessageLib.h"
 
 #include "Utils/TimerCallback.h"
 #include "Utils/typedefs.h"
@@ -127,6 +128,9 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 
 		void					removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building);
 		
+		//iterate through all players in range and call our callback with the player as parameter
+		void					sendToPlayersInRange(const Object* const object, bool cellContent, std::function<void (PlayerObject* player)> callback);
+
 		//registers player as watcher to a container
 		void					registerPlayerToContainer(ObjectContainer* container,PlayerObject* player);
 		void					unRegisterPlayerFromContainer(ObjectContainer* container,PlayerObject* player);
@@ -138,6 +142,10 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 
 		// removes an item from a structure
 		void					removeObjectFromBuilding(Object* object, BuildingObject* building);
+
+		//buildings are special containers as they always have their cells loaded even if otherwise unloaded
+		void					registerPlayerToBuilding(BuildingObject* building,PlayerObject* player);
+		void					unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player);
 
 		//======================================================================================================================
 		// when creating a player and the player is in a cell we need to create all the cells contents for the player

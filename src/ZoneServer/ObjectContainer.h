@@ -72,6 +72,10 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		ObjectIDList*		getObjects() { return &mData; }
 		Object*				getObjectById(uint64 id);
 		
+		/// =====================================================
+		/// adds an Object to the cObjectContainer
+		///	returns false if the container was full and the item not added
+		
 		bool				addObject(Object* data);
 		bool				addObjectSecure(Object* data);
 		
@@ -102,7 +106,8 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		virtual void				addContainerKnownObject(Object* object);
 		bool						removeContainerKnownObject(Object* object);
 		bool						checkContainerKnownObjects(Object* object) const;
-		
+
+	
 		//===========================================================================================
 		//gets the contents of containers including their subcontainers
 		uint16				getContentSize(uint16 iteration)

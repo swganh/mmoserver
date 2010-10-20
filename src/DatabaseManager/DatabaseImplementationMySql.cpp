@@ -74,7 +74,7 @@ DatabaseImplementationMySql::~DatabaseImplementationMySql(void)
 }
 
 //======================================================================================================================
-DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure)
+DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const int8* sql,bool procedure)
 {
     DatabaseResult* newResult = new(ResultPool::ordered_malloc()) DatabaseResult(procedure);
 

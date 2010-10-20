@@ -28,9 +28,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASECALLBACK_H
 #define ANH_DATABASEMANAGER_DATABASECALLBACK_H
 
+#include <functional>
+
 //======================================================================================================================
 
 class DatabaseResult;
+
+typedef std::function<void (DatabaseResult*)> AsyncDatabaseCallback;
 
 //======================================================================================================================
 class DatabaseCallback
@@ -39,10 +43,4 @@ public:
     virtual void                    handleDatabaseJobComplete(void* ref, DatabaseResult* result) {};
 };
 
-
-
-
-
 #endif //MMOSERVER_DATABASEMANAGER_DATABASECALLBACK_H
-
-

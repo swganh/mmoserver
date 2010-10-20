@@ -48,7 +48,7 @@ public:
     DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema);
     virtual							~DatabaseImplementationMySql(void);
 
-    virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false);
+    virtual DatabaseResult*			ExecuteSql(const int8* sql,bool procedure = false);
     virtual DatabaseWorkerThread*		DestroyResult(DatabaseResult* result);
 
     virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object);

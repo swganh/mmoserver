@@ -106,6 +106,32 @@ Database::~Database(void)
     delete(mDataBindingFactory);
 }
 
+void Database::executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback) {    
+    // Setup our job.
+    DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
+    job->callback = callback;
+    job->query = sql;
+    job->multi_job = false;
+
+    // Add the job to our processList;
+    mJobPendingQueue.push(job);
+}
+
+void Database::executeAsyncSql(const std::string& sql, const QueryParameters& parameters, AsyncDatabaseCallback calback) {
+
+}
+
+void Database::executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback) {    
+    // Setup our job.
+    DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
+    job->callback = callback;
+    job->query = sql;
+    job->multi_job = true;
+
+    // Add the job to our processList;
+    mJobPendingQueue.push(job);
+}
+
 //======================================================================================================================
 
 void Database::Process(void)
@@ -133,13 +159,18 @@ void Database::Process(void)
         job = mJobCompleteQueue.pop();
 
         // let our client handle the result, if theres a callback
-        if(job && job->getCallback())
-        {
-            job->getCallback()->handleDatabaseJobComplete(job->getClientReference(), job->getDatabaseResult());
+        if(job) {
+            if (job->old_callback) {
+                job->old_callback->handleDatabaseJobComplete(job->client_reference, job->result);
+            } 
+            
+            if (boost::optional<AsyncDatabaseCallback> c = job->callback) {
+                (*c)(job->result);
+            }
         }
 
         // Free the result and the job
-        this->DestroyResult(job->getDatabaseResult());
+        this->DestroyResult(job->result);
 
         mJobPool.ordered_free(job);
     }
@@ -221,10 +252,10 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8
 
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
-    job->setCallback(callback);
-    job->setClientReference(ref);
-    job->setSql(localSql);
-    job->setMultiJob(false);
+    job->old_callback = callback;
+    job->client_reference = ref;
+    job->query = localSql;
+    job->multi_job = false;
 
     // Add the job to our processList;
     mJobPendingQueue.push(job);
@@ -251,10 +282,10 @@ void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref,
 
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
-    job->setCallback(callback);
-    job->setClientReference(ref);
-    job->setSql(localSql);
-    job->setMultiJob(false);
+    job->old_callback = callback;
+    job->client_reference = ref;
+    job->query = localSql;
+    job->multi_job = false;
 
     // Add the job to our processList;
     mJobPendingQueue.push(job);
@@ -297,10 +328,10 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, cons
     //gLogger->log(LogManager::SQL,"sql :: %s",localSql); // SQL Debug Log
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
-    job->setCallback(callback);
-    job->setClientReference(ref);
-    job->setSql(localSql);
-    job->setMultiJob(true);
+    job->old_callback = callback;
+    job->client_reference = ref;
+    job->query = localSql;
+    job->multi_job = true;
 
     // Add the job to our processList
     mJobPendingQueue.push(job);

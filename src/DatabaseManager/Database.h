@@ -28,12 +28,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASE_H
 #define ANH_DATABASEMANAGER_DATABASE_H
 
-#include "DatabaseType.h"
+#include <functional>
+#include <list>
+#include <queue>
+
+#include <boost/any.hpp>
+#include <boost/pool/pool.hpp>
+
 #include "Utils/typedefs.h"
 #include "Utils/concurrent_queue.h"
-#include <queue>
-#include "DataBindingFactory.h"
-#include <boost/pool/pool.hpp>
+
+#include "DatabaseManager/DatabaseCallback.h"
+#include "DatabaseManager/DatabaseType.h"
+#include "DatabaseManager/DataBindingFactory.h"
 #include "DatabaseManager/declspec.h"
 
 
@@ -42,13 +49,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class DataBinding;
 class DatabaseWorkerThread;
 class DatabaseImplementation;
-class DatabaseCallback;
 class DatabaseResult;
 class DatabaseJob;
 class Transaction;
 
 typedef Anh_Utils::concurrent_queue<DatabaseJob*>				DatabaseJobQueue;
 typedef Anh_Utils::concurrent_queue<DatabaseWorkerThread*>		DatabaseWorkerThreadQueue;
+
+typedef std::list<boost::any> QueryParameters;
 
 //======================================================================================================================
 
@@ -57,9 +65,14 @@ class DBMANAGER_API Database
 public:
     Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
     ~Database(void);
+    
+    void executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback);
+    void executeAsyncSql(const std::string& sql, const QueryParameters& parameters, AsyncDatabaseCallback callback);
+    
+    void executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback);
 
     void                                    Process(void);
-
+    
     DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);
     //DatabaseResult*                         ExecuteSql(int8* sql, ...);
     void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);

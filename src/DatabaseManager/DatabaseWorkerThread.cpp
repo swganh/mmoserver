@@ -116,10 +116,10 @@ void DatabaseWorkerThread::run()
         {
             boost::mutex::scoped_lock lk(mWorkerThreadMutex);
             // Execute our query
-            DatabaseResult* result = mDatabaseImplementation->ExecuteSql(mCurrentJob->getSql(),mCurrentJob->isMultiJob());
+            DatabaseResult* result = mDatabaseImplementation->ExecuteSql(mCurrentJob->query.c_str(),mCurrentJob->multi_job);
 
             // Attach the result to our job and send it back.
-            mCurrentJob->setDatabaseResult(result);
+            mCurrentJob->result = result;
 
             // put it on the complete list
             mDatabase->pushDatabaseJobComplete(mCurrentJob);

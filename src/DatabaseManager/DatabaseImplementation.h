@@ -48,7 +48,7 @@ public:
     DatabaseImplementation(char* host, uint16 port, char* user, char* pass, char* schema) {};
     virtual							~DatabaseImplementation(void) {};
 
-    virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false) = 0;
+    virtual DatabaseResult*			ExecuteSql(const int8* sql, bool procedure = false) = 0;
 
     virtual DatabaseWorkerThread*	DestroyResult(DatabaseResult* result) = 0;
 

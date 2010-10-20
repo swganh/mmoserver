@@ -533,18 +533,6 @@
     <ClCompile Include="PVState.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QTRegion.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="QTRegionFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="QuadTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="QuadTreeNode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="QuestGiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -744,9 +732,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ZoneServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ZoneTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VehicleController.cpp">
@@ -1201,18 +1186,6 @@
     <ClInclude Include="PVState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QTRegion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="QTRegionFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="QuadTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="QuadTreeNode.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="QuestGiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1445,9 +1418,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ZoneServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ZoneTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VehicleController.h">

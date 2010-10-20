@@ -29,10 +29,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_WORLDMANAGER_H
 
 #include "ObjectFactoryCallback.h"
-#include "QTRegion.h"
-#include "Weather.h"
 
+#include "Weather.h"
 #include "WorldManagerEnums.h"
+#include "SpatialIndexManager.h"
 
 
 #include "ScriptEngine/ScriptEventListener.h"
@@ -87,7 +87,7 @@ namespace Anh_Utils
 typedef boost::ptr_unordered_map<uint64,Object>			ObjectMap;
 
 // seperate map for qt regions, since ids may match object ids
-typedef boost::ptr_unordered_map<uint32,QTRegion>		QTRegionMap;
+//typedef boost::ptr_unordered_map<uint32,QTRegion>		QTRegionMap;
 
 // Maps for objects in world
 typedef std::map<uint32,const PlayerObject*>	PlayerAccMap;
@@ -344,10 +344,7 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		RegionObject*			getRegionById(uint64 regionId);
 		void					addActiveRegion(RegionObject* regionObject){ mActiveRegions.push_back(regionObject); }
 		void					removeActiveRegion(RegionObject* regionObject);
-		QTRegion*				getQTRegion(uint32 id);
-		QTRegionMap*			getQTRegionMap(){ return &mQTRegionMap; }
-		RegionMap*				getRegionMap(){ return &mRegionMap; }
-
+		
 		Anh_Utils::Scheduler*	getPlayerScheduler(){ return mPlayerScheduler; }
 
 		Weather*				getCurrentWeather(){ return &mCurrentWeather; }
@@ -369,8 +366,6 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		void					LoadCurrentGlobalTick();
 
 		bool					_handleTick(uint64 callTime,void* ref);
-
-		void					removePlayerMovementUpdateTime(PlayerObject* player);
 
 		//find objects in the world
 		Object*					getNearestTerminal(PlayerObject* player, TangibleType terminalType, float searchrange = 32);
@@ -401,8 +396,6 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		bool	_handleNpcConversionTimers(uint64 callTime,void* ref);
 		bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
 		bool	_handleVariousUpdates(uint64 callTime, void* ref);
-
-		bool	_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref);
 
 		bool	_handleGeneralObjectTimers(uint64 callTime, void* ref);
 		bool	_handleGroupObjectTimers(uint64 callTime, void* ref);
@@ -441,9 +434,9 @@ class WorldManager : public ObjectFactoryCallback, public DatabaseCallback, publ
 		ObjectIDList			    mStructureList;
 		ObjectMap					mObjectMap;
 		PlayerAccMap				mPlayerAccMap;
-		PlayerMovementUpdateMap		mPlayerMovementUpdateMap;
+		
 		PlayerObjectReviveMap		mPlayerObjectReviveMap;
-		QTRegionMap					mQTRegionMap;
+		
 		RegionMap					mRegionMap;
 		NpIdSet						mUsedTmpIds;
 		BStringVector				mvClientEffects;

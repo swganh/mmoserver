@@ -430,19 +430,12 @@ void PlayerObject::onSample(const SampleEvent* event)
 	{
 		gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,this);
 		
-		ObjectContainer* parent = dynamic_cast<ObjectContainer*>(this);
+		gSpatialIndexManager->sendToRegisteredPlayers(this,[effect,this] (PlayerObject* recipient) 
+			{
+				gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,recipient);
+			}
+		);
 
-		PlayerObjectSet* knownPlayers = parent->getRegisteredWatchers();
-		PlayerObjectSet::iterator it = knownPlayers->begin();
-		
-		while(it != knownPlayers->end())
-		{
-			//create it for the registered Players
-			PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
-			gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,player);
-	
-			it++;
-		}
 	}
 
 	if (sampleAmount > 0)

@@ -41,7 +41,6 @@ class DatabaseResult;
 class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
-class QTRegionFactory;
 class SpawnRegionFactory;
 
 //=============================================================================
@@ -70,7 +69,7 @@ class RegionFactory : public FactoryBase
 		CityFactory*			mCityFactory;
 		BadgeRegionFactory*		mBadgeRegionFactory;
 		SpawnRegionFactory*		mSpawnRegionFactory;
-		QTRegionFactory*		mQTRegionFactory;
+		
 };
 
 //=============================================================================

@@ -51,7 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
-#include "ZoneServer/ZoneTree.h"
+#include "ZoneServer/RegionObject.h"
 
 #include "LogManager/LogManager.h"
 
@@ -1275,7 +1275,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 		{		
 			RegionObject* region = gSpatialIndexManager->getRegion(*regionIt);
 
-			if(region->getRegionType() == Region_City)
+			if(region && region->getRegionType() == Region_City)
 			{
 				regionName = "@";
 				regionName << region->getNameFile().getAnsi();

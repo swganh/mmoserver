@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Heightmap.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -99,19 +100,16 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 
 		gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,playerObject);
 
-		PlayerObjectSet*			playerList	= playerObject->getRegisteredWatchers();
-		PlayerObjectSet::iterator	it			= playerList->begin();
-
-		while(it != playerList->end())
-		{
-			gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,(*it));
-
-			++it;
-		}
+		gSpatialIndexManager->sendToRegisteredPlayers(playerObject,[effect,playerObject] (PlayerObject* recipient) 
+			{
+				gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,recipient);
+			}
+		);
+		
 
 		// send system message
 		resourceName.convert(BSTRType_Unicode16);
-    gMessageLib->sendSystemMessage(playerObject,L"","survey","start_survey","","",resourceName.getUnicode16());
+		gMessageLib->sendSystemMessage(playerObject,L"","survey","start_survey","","",resourceName.getUnicode16());
 
 		// schedule execution
 		addEvent(new SurveyEvent(tool,resource),5000);

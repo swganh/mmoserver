@@ -326,7 +326,7 @@ class PlayerObject : public CreatureObject
 		SchematicsIdList*	getSchematicsAddList(){ return &mSchematicAddList; }
 
 		// groups
-		PlayerList			getInRangeGroupMembers(bool self = false) const;
+		PlayerList			getInRangeGroupMembers(bool self = false);
 		uint64				getLastGroupMissionUpdateTime(){return mLastGroupMissionUpdateTime;}
 		void				setLastGroupMissionUpdateTime(uint64 time){mLastGroupMissionUpdateTime = time;}
 

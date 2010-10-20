@@ -179,9 +179,6 @@ PlayerObject::~PlayerObject()
 	mStomach->mFoodTaskId = 0;
 	mStomach->mDrinkTaskId = 0;
 
-	// remove player from movement update timer.
-	gWorldManager->removePlayerMovementUpdateTime(this);
-
 	// remove us from the player map
 	gWorldManager->removePlayerfromAccountMap(mId);
 
@@ -325,10 +322,9 @@ PlayerObject::~PlayerObject()
 		++defenderIt;
 	}
 
-	// destroy known objects
-	destroyKnownObjects();
-
 	// remove us from cell / SI
+	//please note that players are always in the si and get handled through it!
+	//we dont need to update the cellcontainer to make them disappear
 	if(mParentId)
 	{
 		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mParentId)))
@@ -340,15 +336,9 @@ PlayerObject::~PlayerObject()
 			gLogger->log(LogManager::DEBUG,"PlayerObject::destructor: couldn't find cell %"PRIu64"",mParentId);
 		}
 	}
-	else if(mSubZoneId)
-	{
-		if(QTRegion* region = gWorldManager->getQTRegion(mSubZoneId))
-		{
-			mSubZoneId = 0;
-
-			region->mTree->removeObject(this);
-		}
-	}
+	
+	gSpatialIndexManager->RemoveObject(this);
+	
 
 	clearAllUIWindows();
 
@@ -1181,10 +1171,10 @@ bool PlayerObject::checkIgnoreList(uint32 nameCrc) const
 
 //=============================================================================
 
-PlayerList PlayerObject::getInRangeGroupMembers(bool self) const
+PlayerList PlayerObject::getInRangeGroupMembers(bool self)
 {
-	PlayerObjectSet::const_iterator	it			= mKnownPlayers.begin();
 	PlayerList						members;
+	PlayerList*						pMembers = &members;
 
 	if(self)
 	{
@@ -1196,15 +1186,18 @@ PlayerList PlayerObject::getInRangeGroupMembers(bool self) const
 		return members;
 	}
 
-	while(it != mKnownPlayers.end())
-	{
-		if((*it)->getGroupId() == mGroupId)
+	gSpatialIndexManager->sendToRegisteredPlayers(this,[this, pMembers] (PlayerObject* recipient) 
 		{
-			members.push_back(*it);
-		}
 
-		++it;
-	}
+			if(recipient->getGroupId() == mGroupId)
+			{
+				pMembers->push_back(recipient);
+			}
+
+		}
+	);
+	
+	
 
 	return members;
 }
@@ -2129,40 +2122,12 @@ void PlayerObject::setSitting(Message* message)
 		if(elementCount == 4)
 		{
 			this->updatePosition(chairCell,chair_position);
-			// outside
 			
-			// we are in a cell
-			else
-			{
-				// switch cells, if needed
-				if(this->getParentId() != chairCell)
-				{
-					CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId()));
-
-					if(cell)
-						cell->removeObject(this);
-					else
-						gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell %"PRIu64"",this->getId(),this->getParentId());
-
-					this->setParentId(chairCell);
-
-					cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(chairCell));
-
-					if(cell)
-						cell->addObjectSecure(this);
-					else
-						gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell %"PRIu64"",this->getId(),chairCell);
-				}
-
-				this->mPosition = chair_position;
-			}
-
 			//this->mDirection = Anh_Math::Quaternion();
 			this->toggleStateOn(CreatureState_SittingOnChair);
 
 			this->updateMovementProperties();
 
-			// TODO: check if we need to send transforms to others
 			if(chairCell)
 			{
 				gMessageLib->sendDataTransformWithParent053(this);

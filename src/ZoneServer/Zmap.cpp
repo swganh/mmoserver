@@ -215,7 +215,7 @@ void zmap::RemoveObject(Object *removeObject)
 
 
 
-ObjectStruct*	zmap::GetCellContents(uint32 CellID)
+ObjectStruct*	zmap::GetCellContents(uintCellID, ObjectListType* list);
 {
 	//Pesudo
 	// 1. Return list of objects in cell
@@ -227,7 +227,7 @@ ObjectStruct*	zmap::GetCellContents(uint32 CellID)
 	return &ZMapCells[CellID];
 }
 
-ObjectListType*	zmap::GetAllCellContents(uint32 CellID)
+void	zmap::GetAllCellContents(uint32 CellID, ObjectListType* list)
 {
 	//Pesudo
 	// 1. Return list of objects in cell
@@ -236,41 +236,34 @@ ObjectListType*	zmap::GetAllCellContents(uint32 CellID)
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
 		return &EmptyCell;
 
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
+	ObjectListType::iterator it = list->begin();
 
-	ObjectListType temp = ZMapCells[CellID].Objects;
-	ReturnList->splice(it, temp);
-
-	temp = ZMapCells[CellID].Players;
-	ReturnList->splice(it, temp);
-
-	return ReturnList;
+	list->splice(it, ZMapCells[CellID].Objects);
+	list->splice(it, ZMapCells[CellID].Players);
 }
 
-ObjectListType*	zmap::GetPlayerCellContents(uint32 CellID)
+void	zmap::GetPlayerCellContents(uint32 CellID, ObjectListType* list)
 {
 	//Pesudo
 	// 1. Return list of objects in cell
 	//if(CellID) >
 	
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
-		return &EmptyCell;
+		return;
 
-	return &ZMapCells[CellID].Players;
+	list->splice(it, ZMapCells[CellID].Players);
 }
 
-ObjectListType*	zmap::GetObjectCellContents(uint32 CellID)
+void	zmap::GetObjectCellContents(uint32 CellID, ObjectListType* list)
 {
 	//Pesudo
 	// 1. Return list of objects in cell
 	//if(CellID) >
 	
-	if(GetCellValidFlag(CellID))
-		return &ZMapCells[CellID].Objects;
+	if(!GetCellValidFlag(CellID))
+		return;
 	
-	return &EmptyCell;
-	
+	list->splice(it, ZMapCells[CellID].Objects);
 	
 }
 
@@ -287,43 +280,29 @@ bool zmap::GetCellValidFlag(uint32 CellID)
 //=================================================
 //returns Players in chatrange
 
-ObjectListType* zmap::GetChatRangeCellContents(uint32 CellID)
+void	zmap::GetChatRangeCellContents(uint32 CellID, ObjectListType* list)
 {
 	//Pesudo
-	// 1. Combine the lists of Neiboring cells to 1
+	// 1. Combine the lists of Neighboring cells to 1
 
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
+	GetPlayerCellContents(CellID, list);
 
-	ObjectListType temp = *GetPlayerCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetPlayerCellContents(CellID + GRIDWIDTH, list);
 
-	temp = *GetPlayerCellContents(CellID + GRIDWIDTH);
-	ReturnList->splice(it, temp);
+	GetPlayerCellContents(CellID - GRIDWIDTH, list);
+	
+	GetPlayerCellContents(CellID + 1, list);
 
-	temp = *GetPlayerCellContents(CellID - GRIDWIDTH);
-	ReturnList->splice(it, temp);
+	GetPlayerCellContents(CellID - 1, list);
 
-	temp = *GetPlayerCellContents(CellID + 1);
-	ReturnList->splice(it, temp);
+	GetPlayerCellContents(CellID + GRIDWIDTH-1, list);
 
-	temp = *GetPlayerCellContents(CellID - 1);
-	ReturnList->splice(it, temp);
+	GetPlayerCellContents(CellID + GRIDWIDTH+1, list);
 
-	temp = *GetPlayerCellContents(CellID + GRIDWIDTH-1);
-	ReturnList->splice(it, temp);
+	GetPlayerCellContents(CellID - GRIDWIDTH+1, list);
 
-	temp = *GetPlayerCellContents(CellID + GRIDWIDTH+1);
-	ReturnList->splice(it, temp);
+	GetPlayerCellContents(CellID - GRIDWIDTH-1, list);
 
-	temp = *GetPlayerCellContents(CellID - GRIDWIDTH+1);
-	ReturnList->splice(it, temp);
-
-	temp = *GetPlayerCellContents(CellID - GRIDWIDTH-1);
-	ReturnList->splice(it, temp);
-
-
-	return ReturnList;
 }
 
 //=====================================================
@@ -331,76 +310,41 @@ ObjectListType* zmap::GetChatRangeCellContents(uint32 CellID)
 //depending on how far we are away of the player we need to resize the row
 //this will be done by the var iteration
 
-ObjectListType* zmap::GetAllGridContentsListRow(uint32 CellID)
+void	zmap::GetAllGridContentsListRow(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectStruct temp = *GetCellContents(CellID);
-	ReturnList->splice(it, temp.Objects);
-	ReturnList->splice(it, temp.Players);
+	GetAllCellContents(CellID,list);
 	
-
 	for(int i = 1; i <= viewRange; i++)
 	{
-		//if(fmod(CellID+1,))
-		temp = *GetCellContents(CellID + i);
-		ReturnList->splice(it, temp.Objects);
-		ReturnList->splice(it, temp.Players);
 		
-		temp = *GetCellContents(CellID - i);
-		ReturnList->splice(it, temp.Objects);
-		ReturnList->splice(it, temp.Players);
+		GetAllCellContents(CellID + i,list);
+		GetAllCellContents(CellID - i,list);
+		
 	}
-
-	return ReturnList;
 
 }
 
-ObjectListType* zmap::GetPlayerGridContentsListRow(uint32 CellID)
+void	 zmap::GetPlayerGridContentsListRow(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectStruct temp = *GetCellContents(CellID);
-	ReturnList->splice(it, temp.Players);
+	GetPlayerCellContents(CellID,list);
 	
-
 	for(int i = 1; i <= viewRange; i++)
-	{
-		//if(fmod(CellID+1,))
-		temp = *GetCellContents(CellID + i);
-		ReturnList->splice(it, temp.Players);
-		
-		temp = *GetCellContents(CellID - i);
-		ReturnList->splice(it, temp.Players);
+	{		
+		GetPlayerCellContents(CellID + i,list);
+		GetPlayerCellContents(CellID - i,list);	
 	}
-
-	return ReturnList;
 
 }
 
-ObjectListType* zmap::GetObjectGridContentsListRow(uint32 CellID)
+void	zmap::GetObjectGridContentsListRow(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectStruct temp = *GetCellContents(CellID);
-	ReturnList->splice(it, temp.Objects);
+	GetObjectCellContents(CellID,list);
 	
-
 	for(int i = 1; i <= viewRange; i++)
-	{
-		//if(fmod(CellID+1,))
-		temp = *GetCellContents(CellID + i);
-		ReturnList->splice(it, temp.Objects);
-		
-		temp = *GetCellContents(CellID - i);
-		ReturnList->splice(it, temp.Objects);
+	{		
+		GetObjectCellContents(CellID + i,list);
+		GetObjectCellContents(CellID - i,list);	
 	}
-
-	return ReturnList;
-
 }
 
 //==========================================================================
@@ -408,357 +352,234 @@ ObjectListType* zmap::GetObjectGridContentsListRow(uint32 CellID)
 //when we move along the edges
 ///15.6 sch
 //
-ObjectListType* zmap::GetPlayerGridContentsListColumnDown(uint32 CellID)
+void	zmap::GetPlayerGridContentsListColumnDown(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetPlayerCellContents(CellID);
-	ReturnList->splice(it, temp);
+	
+	GetPlayerCellContents(CellID, list);
 
 	for(int i = 1; i <= (viewRange*2)-1; i++)
 	{		
-		temp = *GetPlayerCellContents(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetPlayerCellContents(CellID - (i*GRIDWIDTH), list);
 	}
-
-	return ReturnList;
 }
 
-ObjectListType* zmap::GetObjectGridContentsListColumnDown(uint32 CellID)
+void	zmap::GetObjectGridContentsListColumnDown(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetObjectCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetObjectCellContents(CellID, list);
 
 	for(int i = 1; i <= (viewRange*2)-1; i++)
 	{		
-		temp = *GetObjectCellContents(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetObjectCellContents(CellID - (i*GRIDWIDTH), list);
 	}
-
-	return ReturnList;
 }
 
-ObjectListType* zmap::GetAllGridContentsListColumnDown(uint32 CellID)
+void	zmap::GetAllGridContentsListColumnDown(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-								 
-	ObjectListType temp = *GetAllCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetAllCellContents(CellID, list);
 
 	for(int i = 1; i <= (viewRange*2)-1; i++)
 	{		
-		temp = *GetAllCellContents(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetAllCellContents(CellID - (i*GRIDWIDTH), list);
 	}
-
-	return ReturnList;
 }
 
-ObjectListType* zmap::GetAllGridContentsListColumnUp(uint32 CellID)
+void	zmap::GetAllGridContentsListColumnUp(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
 
-	ObjectListType temp = *GetAllCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetAllCellContents(CellID, list);
 
 	for(int i = 1; i <= (viewRange*2)-1; i++)
 	{		
-		temp = *GetAllCellContents(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetAllCellContents(CellID + (i*GRIDWIDTH), list);
 	}
-
-	return ReturnList;
 }
 
-ObjectListType* zmap::GetPlayerGridContentsListColumnUp(uint32 CellID)
+void	zmap::GetPlayerGridContentsListColumnUp(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetPlayerCellContents(CellID);
-	ReturnList->splice(it, temp);
+	
+	GetPlayerCellContents(CellID, list);
 
 	for(int i = 1; i <= (viewRange*2)-1; i++)
 	{		
-		temp = *GetPlayerCellContents(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetPlayerCellContents(CellID + (i*GRIDWIDTH), list);
 	}
 
-	return ReturnList;
 }
 
-ObjectListType* zmap::GetObjectGridContentsListColumnUp(uint32 CellID)
+void	zmap::GetObjectGridContentsListColumnUp(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetObjectCellContents(CellID);
-	ReturnList->splice(it, temp);
+	
+	GetObjectCellContents(CellID, list);
 
 	for(int i = 1; i <= (viewRange*2)-1; i++)
 	{		
-		temp = *GetObjectCellContents(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetObjectCellContents(CellID + (i*GRIDWIDTH), list);
 	}
 
-	return ReturnList;
 }
 
 //===============================================================0
 // when getting content on the edges just spare the *middle* (pointy) cell
-ObjectListType* zmap::GetAllGridContentsListRowLeft(uint32 CellID)
+void	zmap::GetAllGridContentsListRowLeft(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
 
-	ObjectListType temp = *GetAllCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetAllCellContents(CellID, list);
 
 	for(int i = 1; i < ((viewRange*2)-1); i++)
 	{
-		temp = *GetAllCellContents(CellID - i);
-		ReturnList->splice(it, temp);
+		GetAllCellContents(CellID - i, list);
 	}
-
-	return ReturnList;
 
 }
 
-ObjectListType* zmap::GetPlayerGridContentsListRowLeft(uint32 CellID)
+void	zmap::GetPlayerGridContentsListRowLeft(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetPlayerCellContents(CellID);
-	ReturnList->splice(it, temp);
+	
+	GetPlayerCellContents(CellID, list);
 
 	for(int i = 1; i < ((viewRange*2)-1); i++)
 	{
-		temp = *GetPlayerCellContents(CellID - i);
-		ReturnList->splice(it, temp);
+		GetPlayerCellContents(CellID - i, list);
 	}
-
-	return ReturnList;
 
 }
 
-ObjectListType* zmap::GetObjectGridContentsListRowLeft(uint32 CellID)
+void	zmap::GetObjectGridContentsListRowLeft(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
 
-	ObjectListType temp = *GetObjectCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetObjectCellContents(CellID, list);
 
 	for(int i = 1; i < ((viewRange*2)-1); i++)
 	{
-		temp = *GetObjectCellContents(CellID - i);
-		ReturnList->splice(it, temp);
+		GetObjectCellContents(CellID - i, list);
 	}
-
-	return ReturnList;
 
 }
 
-ObjectListType* zmap::GetAllGridContentsListRowRight(uint32 CellID)
+void	zmap::GetAllGridContentsListRowRight(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
 
-	ObjectListType temp = *GetAllCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetAllCellContents(CellID, list);
 
 	for(int i = 1; i < ((viewRange*2)-1); i++)
 	{
-		temp = *GetAllCellContents(CellID + i);
-		ReturnList->splice(it, temp);
+		GetAllCellContents(CellID + i, list);
 	}
-
-	return ReturnList;
 
 }
 
-ObjectListType* zmap::GetPlayerGridContentsListRowRight(uint32 CellID)
+void	zmap::GetPlayerGridContentsListRowRight(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetPlayerCellContents(CellID);
-	ReturnList->splice(it, temp);
+	
+	GetPlayerCellContents(CellID, list);
 
 	for(int i = 1; i < ((viewRange*2)-1); i++)
 	{
-		temp = *GetPlayerCellContents(CellID + i);
-		ReturnList->splice(it, temp);
+		GetPlayerCellContents(CellID + i, list);
 	}
-
-	return ReturnList;
 
 }
 
-ObjectListType* zmap::GetObjectGridContentsListRowRight(uint32 CellID)
+void	zmap::GetObjectGridContentsListRowRight(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
 
-	ObjectListType temp = *GetObjectCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetObjectCellContents(CellID, list);
 
 	for(int i = 1; i < ((viewRange*2)-1); i++)
 	{
-		temp = *GetObjectCellContents(CellID + i);
-		ReturnList->splice(it, temp);
+		GetObjectCellContents(CellID + i, list);
 	}
 
-	return ReturnList;
 }
 
-ObjectListType* zmap::GetAllGridContentsListColumn(uint32 CellID)
+void	zmap::GetAllGridContentsListColumn(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
 
-	ObjectListType temp = *GetAllCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetAllCellContents(CellID, list);
 
 	for(int i = 1; i <= viewRange; i++)
 	{
-		//if(fmod(CellID+1,))
-		temp = *GetAllCellContents(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetAllCellContents(CellID + (i*GRIDWIDTH), list);
 		
-		temp = *GetAllCellContents(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetAllCellContents(CellID - (i*GRIDWIDTH), list);
 	}
-
-	return ReturnList;
 
 }
 
-ObjectListType* zmap::GetPlayerGridContentsListColumn(uint32 CellID)
+void	zmap::GetPlayerGridContentsListColumn(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
 
-	ObjectListType temp = *GetPlayerCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetPlayerCellContents(CellID, list);
 
 	for(int i = 1; i <= viewRange; i++)
 	{
-		//if(fmod(CellID+1,))
-		temp = *GetPlayerCellContents(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetPlayerCellContents(CellID + (i*GRIDWIDTH), list);		
 		
-		temp = *GetPlayerCellContents(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetPlayerCellContents(CellID - (i*GRIDWIDTH), list);
 	}
-
-	return ReturnList;
 
 }
 
 
-ObjectListType* zmap::GetObjectGridContentsListColumn(uint32 CellID)
+void	zmap::GetObjectGridContentsListColumn(uint32 CellID, ObjectListType* list)
 {
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
 
-	ObjectListType temp = *GetObjectCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetObjectCellContents(CellID, list);
 
 	for(int i = 1; i <= viewRange; i++)
 	{
-		//if(fmod(CellID+1,))
-		temp = *GetObjectCellContents(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+	
+		GetObjectCellContents(CellID + (i*GRIDWIDTH), list);
 		
-		temp = *GetObjectCellContents(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetObjectCellContents(CellID - (i*GRIDWIDTH), list);
 	}
-
-	return ReturnList;
-
 }
 
 
-ObjectListType* zmap::GetAllViewingRangeCellContents(uint32 CellID)
+void	zmap::GetAllViewingRangeCellContents(uint32 CellID, ObjectListType* list)
 {
-	//Pesudo
-	// 1. Combine the lists of Neiboring cells to 1
 
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetAllCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetAllGridContentsListRow(CellID, list);
 
 	for(int i = 0; i < viewRange; i++)
 	{
-		temp = *GetAllGridContentsListRow(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetAllGridContentsListRow(CellID + (i*GRIDWIDTH), list);
 		
-		temp = *GetAllGridContentsListRow(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetAllGridContentsListRow(CellID - (i*GRIDWIDTH), list);
 	}
-
-	return ReturnList;
 }
 
-ObjectListType* zmap::GetPlayerViewingRangeCellContents(uint32 CellID)
+void	zmap::GetPlayerViewingRangeCellContents(uint32 CellID, ObjectListType* list)
 {
-	//Pseudo
-	// 1. Combine the lists of Neiboring cells to 1
 
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType	temp = *GetPlayerCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetPlayerGridContentsListRow(CellID, list);
 
 	for(int i = 0; i < viewRange; i++)
 	{
-		temp = *GetPlayerGridContentsListRow(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
-		
-		temp = *GetPlayerGridContentsListRow(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetPlayerGridContentsListRow(CellID + (i*GRIDWIDTH), list);
+	
+		GetPlayerGridContentsListRow(CellID - (i*GRIDWIDTH), list);
 	}
 
-	return ReturnList;
 }
 
-ObjectListType* zmap::GetObjectViewingRangeCellContents(uint32 CellID)
+void	zmap::GetObjectViewingRangeCellContents(uint32 CellID, ObjectListType* list)
 {
-	//Pesudo
-	// 1. Combine the lists of Neiboring cells to 1
-
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetObjectCellContents(CellID);
-	ReturnList->splice(it, temp);
+	
+	GetObjectGridContentsListRow(CellID, list);
 
 	for(int i = 0; i < viewRange; i++)
 	{
-		temp = *GetObjectGridContentsListRow(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetObjectGridContentsListRow(CellID + (i*GRIDWIDTH), list);
 		
-		temp = *GetObjectGridContentsListRow(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetObjectGridContentsListRow(CellID - (i*GRIDWIDTH), list);
 	}
 
-	return ReturnList;
 }
 
 // limited to max viewing range for now
 //
-ObjectListType* zmap::GetObjectCustomRangeCellContents(uint32 CellID, uint32 range)
+void	zmap::GetObjectCustomRangeCellContents(uint32 CellID, uint32 range, ObjectListType* list)
 {
 	// query the grid with the custom range
 	// TODO: need any failsafes concerning the cells???
@@ -766,23 +587,15 @@ ObjectListType* zmap::GetObjectCustomRangeCellContents(uint32 CellID, uint32 ran
 	if(range > VIEWRANGE)
 		range = VIEWRANGE;
 
-
-	ObjectListType* ReturnList = new ObjectListType;
-	ObjectListType::iterator it = ReturnList->begin();
-
-	ObjectListType temp = *GetObjectCellContents(CellID);
-	ReturnList->splice(it, temp);
+	GetObjectGridContentsListRow(CellID, list);
 
 	for(uint32 i = 0; i < range; i++)
 	{
-		temp = *GetObjectGridContentsListRow(CellID + (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetObjectGridContentsListRow(CellID + (i*GRIDWIDTH), list);
 		
-		temp = *GetObjectGridContentsListRow(CellID - (i*GRIDWIDTH));
-		ReturnList->splice(it, temp);
+		GetObjectGridContentsListRow(CellID - (i*GRIDWIDTH), list);
 	}
 
-	return ReturnList;
 }
 
 

@@ -28,12 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_SPATIALINDEXMANAGER_H
 #define ANH_ZONESERVER_SPATIALINDEXMANAGER_H
 
-#include "ObjectFactoryCallback.h"
-#include "QTRegion.h"
+//#include "ObjectFactoryCallback.h"
+
 #include "zmap.h"
 #include "WorldManagerEnums.h"
 
-#include "ObjectContainer.h"
+#include "Object.h"
 
 #include "DatabaseManager/DatabaseCallback.h"
 
@@ -61,6 +61,7 @@ enum TangibleType;
 class TangibleObject;
 class FactoryCrate;
 class CellObject;
+class ObjectContainer;
 
 namespace Anh_Utils
 {
@@ -84,9 +85,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		static SpatialIndexManager*	Init(Database* database);
 		
 		void					Shutdown();
-		//void					Process();
-
-		//Database*				getDatabase(){ return mDatabase; }
+		
 
 		// retrieve spatial index for this zone
 		zmap*					getGrid(){ return mSpatialGrid; }
@@ -102,6 +101,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		//removes an object from the grid and sends the destroys
 		void					RemoveObject(Object *removeObject);
 		void					RemoveObject(Object *removeObject, uint32 cell);
+		void					RemovePlayerFromWorld(PlayerObject *removePlayer);
 
 		void					RemoveRegion(RegionObject *removeObject);
 		void					addRegion(RegionObject *region);
@@ -120,7 +120,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
 
 		void					createObjectinWorld(Object* object);
-		void					createCreatureinWorld(CreatureObject* creature);
+		void					createCreatureInWorld(CreatureObject* creature);
 		
 		
 		void					removePlayerFromStructure(PlayerObject* player, CellObject* cell);
@@ -131,12 +131,12 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		//iterate through all players in range and call our callback with the player as parameter
 		void					sendToPlayersInRange(const Object* const object, bool cellContent, std::function<void (PlayerObject* player)> callback);
 
+		void					sendToRegisteredPlayers(ObjectContainer* container, std::function<void (PlayerObject* player)> callback);
 		//registers player as watcher to a container
 		void					registerPlayerToContainer(ObjectContainer* container,PlayerObject* player);
 		void					unRegisterPlayerFromContainer(ObjectContainer* container,PlayerObject* player);
 		void					createObjectToRegisteredPlayers(ObjectContainer* container,Object* object);
-		//sendfactory crate updates for example
-		void					updateObjectToRegisteredPlayers(Object* object);
+	
 		void					destroyObjectToRegisteredPlayers(ObjectContainer* container,uint64 object);
 		void					updateEquipListToRegisteredPlayers(PlayerObject* player);
 
@@ -168,13 +168,10 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		
 	private:
 
-		SpatialIndexManager(Database* database);
+		SpatialIndexManager();
 
 		uint32					_GetMessageHeapLoadGridRange();
 
-		
-		// load our script hooks
-		void	_registerScriptHooks();
 
 		static SpatialIndexManager*		mSingleton;
 		static bool						mInsFlag;

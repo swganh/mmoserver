@@ -482,6 +482,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 
 bool ObjectController::_updateInRangeObjectsOutside()
 {
+	return true;
 	/*
 	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
 
@@ -729,6 +730,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 	}
 	return (mObjectSetIt == mInRangeObjects.end());
 	*/
+	return true;
 }
 
 //=========================================================================================
@@ -739,6 +741,7 @@ bool ObjectController::_updateInRangeObjectsInside()
 
 bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 {
+	return true;
 	/*
 	//TODO: when a container gets out of range
 	//we need to destroy the children, too!!!!!!!

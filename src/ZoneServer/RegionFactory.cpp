@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BadgeRegionFactory.h"
 #include "CityFactory.h"
 #include "ObjectFactoryCallback.h"
-#include "QTRegionFactory.h"
 #include "RegionObject.h"
 #include "SpawnRegionFactory.h"
 
@@ -64,7 +63,6 @@ RegionFactory::RegionFactory(Database* database) : FactoryBase(database)
 	mCityFactory			= CityFactory::Init(mDatabase);
 	mBadgeRegionFactory		= BadgeRegionFactory::Init(mDatabase);
 	mSpawnRegionFactory		= SpawnRegionFactory::Init(mDatabase);
-	mQTRegionFactory		= QTRegionFactory::Init(mDatabase);
 }
 
 //=============================================================================
@@ -84,7 +82,7 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
 		case Region_City:	mCityFactory->requestObject(ofCallback,id,subGroup,subType,client);	break;
 		case Region_Badge:	mBadgeRegionFactory->requestObject(ofCallback,id,subGroup,subType,client); break;
 		case Region_Spawn:  mSpawnRegionFactory->requestObject(ofCallback,id,subGroup,subType,client); break;
-		case Region_Zone:	mQTRegionFactory->requestObject(ofCallback,id,subGroup,subType,client); break;
+		
 	
 		default:
 			gLogger->log(LogManager::DEBUG,"RegionFactory::requestObject Unknown Group\n");
@@ -99,7 +97,7 @@ void RegionFactory::releaseAllPoolsMemory()
 	mCityFactory->releaseQueryContainerPoolMemory();
 	mBadgeRegionFactory->releaseQueryContainerPoolMemory();
 	mSpawnRegionFactory->releaseQueryContainerPoolMemory();
-	mQTRegionFactory->releaseQueryContainerPoolMemory();
+	
 }
 
 //=============================================================================

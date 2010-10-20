@@ -53,7 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
-#include "ZoneTree.h"
+#include "RegionObject.h"
 #include "HarvesterFactory.h"
 #include "HarvesterObject.h"
 #include "FactoryFactory.h"
@@ -61,7 +61,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "MissionObject.h"
 #include "ObjectFactory.h"
-#include "QuadTree.h"
+//#include "QuadTree.h"
 #include "Shuttle.h"
 #include "ForageManager.h"
 #include "FireworkManager.h"
@@ -212,9 +212,6 @@ void WorldManager::Shutdown()
 	// Npc conversation timers.
 	mNpcConversionTimers.clear();
 
-	// Player movement update timers.
-	mPlayerMovementUpdateMap.clear();
-
 	mCreatureObjectDeletionMap.clear();
 	mPlayerObjectReviveMap.clear();
 
@@ -278,9 +275,6 @@ void WorldManager::Shutdown()
 	gSpatialIndexManager->Shutdown();
 	//delete(mSpatialIndex);
 
-	// finally delete them
-	mQTRegionMap.clear();
-	mObjectMap.clear();
 	
 	
 	
@@ -309,17 +303,12 @@ void WorldManager::_loadBuildings()
 
 void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 {
-	if(QTRegion* region = dynamic_cast<QTRegion*>(object))
-	{
-		//qt regions probably should be scrapped altogether
-	}
-	else
-	{
-		addObject(object);
-	}
+	
+	addObject(object);
+	
 
 	// check if we done loading
-	if ((mState == WMState_StartUp) && (mObjectMap.size() + mQTRegionMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
+	if ((mState == WMState_StartUp) && (mObjectMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
 	{
 		_handleLoadComplete();
 	}
@@ -440,9 +429,6 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
 			// reset link dead state
 			playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
 			playerObject->setConnectionState(PlayerConnState_Destroying);
-
-			// Stop update timers.
-			removePlayerMovementUpdateTime(playerObject);
 
 			//remove the player out of his group - if any
 			GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
@@ -883,9 +869,6 @@ void WorldManager::_handleLoadComplete()
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleCraftToolTimers),3,1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleNpcConversionTimers),8,1000,NULL);
 	
-	//is this really necessary ?
-	//whenever someone creates something near us were updated on it anyway ... ?
-	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerMovementUpdateTimers),4,5000,NULL);
 	
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
@@ -1134,23 +1117,6 @@ bool WorldManager::existObject(Object* object)
 	}
 }
 
-
-//======================================================================================================================
-//
-// returns a qtregion
-//
-
-QTRegion* WorldManager::getQTRegion(uint32 id)
-{
-	QTRegionMap::iterator it = mQTRegionMap.find(id);
-
-	if(it != mQTRegionMap.end())
-	{
-		return((*it).second);
-	}
-
-	return(NULL);
-}
 
 
 //======================================================================================================================

@@ -455,7 +455,7 @@ void LairObject::spawn(void)
 	gLogger->log(LogManager::DEBUG,"Spawned lair # %"PRIu64" (%"PRIu64")", gLairSpawnCounter, gLairSpawnCounter - gLairDeathCounter);
 
 	// Update the world about my presence.
-	gSpatialIndexManager->createCreatureinWorld(this);
+	gSpatialIndexManager->createCreatureInWorld(this);
 	
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(this,this->getParentId(), -1);

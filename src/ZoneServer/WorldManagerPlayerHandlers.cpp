@@ -289,41 +289,9 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 
 void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& destination, uint64 parentId, const glm::quat& direction)
 {
-	// remove player from objects in his range.
-	removePlayerMovementUpdateTime(playerObject);
-
-	//*replaced through grid
-	//playerObject->destroyKnownObjects();
 
 	// remove from cell if we are in one / SI
-	if(playerObject->getParentId())
-	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(playerObject->getParentId())))
-		{
-			cell->removeObject(playerObject);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"WorldManager::removePlayer: couldn't find cell %"PRIu64"",playerObject->getParentId());
-		}
-	}
-	else
-	{
-		if(playerObject->getSubZoneId())
-		{
-			if(QTRegion* region = getQTRegion(playerObject->getSubZoneId()))
-			{
-				playerObject->setSubZoneId(0);
-				region->mTree->removeObject(playerObject);
-			}
-		}
-	}
-
-	
-	//why remove that ?	
-	//removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
-	//removeCreatureStomachToProcess(playerObject->getStomach()->mDrinkTaskId);
-	//removeCreatureStomachToProcess(playerObject->getStomach()->mFoodTaskId);
+	gSpatialIndexManager->RemovePlayerFromWorld(playerObject);
 	
 	//we've removed the taskId, now lets reset the Id
 	playerObject->getHam()->setTaskId(0);
@@ -340,20 +308,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	gMessageLib->sendServerTime(gWorldManager->getServerTime(),playerObject->getClient());
 
 	// add us to the cell should we be in one
-	if(parentId)
-	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId)))
-		{
-			cell->addObjectSecure(playerObject);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"WorldManager::warpPlanet: couldn't find cell %"PRIu64"",parentId);
-		}
-	}
-	
-	//places us in new grid and handles updates
-	gSpatialIndexManager->UpdateObject(playerObject);
+	gSpatialIndexManager->createCreatureInWorld(playerObject);
 
 	// initialize at new position
 	gMessageLib->sendCreatePlayer(playerObject,playerObject);
@@ -363,91 +318,8 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	playerObject->getStomach()->checkForRegen();
 }
 
-//======================================================================================================================
-//
-// Handle update of player movements. We need to have a consistent update of the world around us,
-// even we we are not moving in world.
-// this is especially important when we are limiting object creates to say 50 objects per second
-
-bool WorldManager::_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref)
-{
-	PlayerMovementUpdateMap::iterator it = mPlayerMovementUpdateMap.begin();
-
-	while (it != mPlayerMovementUpdateMap.end())
-	{
-		PlayerObject* player = dynamic_cast<PlayerObject*>(getObjectById((*it).first));
-		if (player)
-		{
-			if (player->isConnected())
-			{
-				// gLogger->log(LogManager::DEBUG,"WorldManager::_handleObjectMovementUpdateTimers: Checking player update time %"PRIu64" againts %"PRIu64"", callTime, (*it).second);
-				//  The timer has expired?
-				if (callTime >= ((*it).second))
-				{
-					// Yes, handle it.
-					// gLogger->log(LogManager::DEBUG,"Calling UPDATEPOSITION-bla-ha ()");
-
-					ObjectController* ObjCtl = player->getController();
-
-					uint64 next = ObjCtl->playerWorldUpdate(false);
-					mPlayerMovementUpdateMap.erase(it++);
-					if (next)
-					{
-						// Add next scheduled update.
-						addPlayerMovementUpdateTime(player, next);
-					}
-				}
-				else
-				{
-					++it;
-				}
-			}
-			else
-			{
-				// Remove the disconnected...
-				mPlayerMovementUpdateMap.erase(it++);
-			}
-		}
-		else
-		{
-			// Remove the disconnected...
-			mPlayerMovementUpdateMap.erase(it++);
-		}
-	}
-	return (true);
-}
 
 
-//======================================================================================================================
-//
-//	Add a timer entry for updating of players known objects.
-//
-
-void WorldManager::addPlayerMovementUpdateTime(PlayerObject* player, uint64 when)
-{
-	uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-	// gLogger->log(LogManager::DEBUG,"Adding new at %"PRIu64"", expireTime + when);
-	mPlayerMovementUpdateMap.insert(std::make_pair(player->getId(), expireTime + when));
-}
-
-//======================================================================================================================
-//
-//	Remove timer entry for player.
-//
-
-void WorldManager::removePlayerMovementUpdateTime(PlayerObject* player)
-{
-	if (player)
-	{
-		PlayerMovementUpdateMap::iterator it = mPlayerMovementUpdateMap.find(player->getId());
-		while (it != mPlayerMovementUpdateMap.end())
-		{
-			// Remove the disconnected...
-			mPlayerMovementUpdateMap.erase(it);
-			it = mPlayerMovementUpdateMap.find(player->getId());
-		}
-	}
-}
 
 //======================================================================================================================
 //

@@ -521,6 +521,7 @@ private:
 	bool				_checkPlayer(uint64 playerId) const;
 
 	void				_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf = true);
+	void				_sendToInRangeUnreliable(Message* message, PlayerObject* const object,uint16 priority,bool toSelf = true);
 	void				_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf = true);
 
 	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object,uint16 priority, uint32 crc);

@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "WorldManager.h"
 #include "PlayerObject.h"
+#include "RegionObject.h"
 #include "CharacterLoginHandler.h"
 #include "CreatureSpawnRegion.h"
 #include "HarvesterFactory.h"
@@ -79,9 +80,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 						{
 							// load objects in world
 							_loadAllObjects(0);
-
-							// load zone regions
-							mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ZoneRegions),"SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
 						}
 						// load client effects
 						mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ClientEffects),"SELECT * FROM clienteffects ORDER BY id;");
@@ -214,29 +212,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 				break;
 
 
-				// zone regions
-				case WMQuery_ZoneRegions:
-				{
-
-					DataBinding* regionBinding = mDatabase->CreateDataBinding(1);
-					regionBinding->addField(DFT_int64,0,8);
-
-					uint64 regionId;
-					uint64 count = result->getRowCount();
-
-					for(uint64 i = 0;i < count;i++)
-					{
-						result->GetNextRow(regionBinding,&regionId);
-
-						gObjectFactory->requestObject(ObjType_Region,Region_Zone,0,this,regionId,asyncContainer->mClient);
-					}
-
-					if(result->getRowCount())
-						gLogger->log(LogManager::NOTICE,"Loaded zone regions.");
-
-					mDatabase->DestroyDataBinding(regionBinding);
-				}
-				break;
+				
 
 				// planet names and according terrain file names
 				case WMQuery_PlanetNamesAndFiles:

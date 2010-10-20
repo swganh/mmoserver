@@ -1026,12 +1026,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
 
 		//take wm function at one point
-		cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
-		playerObject->addKnownObjectSafe(itemObject);
-		itemObject->addKnownObjectSafe(playerObject);
-		
-		gMessageLib->sendDestroyObject(itemObject->getId(),playerObject);
-		gMessageLib->sendCreateObject(itemObject,playerObject);
+		cell->addObjectSecure(itemObject);
+		gSpatialIndexManager->createObjectToRegisteredPlayers(cell,itemObject);
 		
 		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u", playerObject->getId(),playerObject->getParentId());
 		
@@ -1043,8 +1039,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	{
 		// Add object to OUR inventory.
 
-		itemObject->destroyKnownObjects();
-		gMessageLib->sendCreateObject(itemObject,playerObject);
+		gSpatialIndexManager->createObjectToRegisteredPlayers(inventory,itemObject);
 		
 		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
 		inventory->addObjectSecure(itemObject);
@@ -1528,16 +1523,23 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 }
 
 //=============================================================================================================================
-
+//this code doesnt make any sense ... a container* Object is the container like we see in the tutorial. It inherits tangibleObject
+//so by definition it cannot be a resourcecontainer or any other tangible despite a container!
 void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 {
 	PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	// Get the container object.
+	//I want to know what paths lead here
+	assert(false);
+
+	gSpatialIndexManager->createObjectinWorld(object);
+
+	/*
 	Container* container = dynamic_cast<Container*>(object);
 	if (container)
 	{
+		gSpatialIndexManager->createObjectToRegisteredPlayers(container,);
 		// uint32 counter = container->getObjectLoadCounter();
 
 		ObjectList*	objList = container->getObjects();
@@ -1563,7 +1565,7 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 						// or a tangible
 						else
 						{
-							gMessageLib->sendCreateTangible(tangibleObject,playerObject);
+							gMessageLib->sendCreateTano(tangibleObject,playerObject);
 						}
 					}
 				}
@@ -1572,7 +1574,7 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 		}
 		gMessageLib->sendOpenedContainer(object->getId(), player);
 	}
-
+	*/
 }
 
 //======================================================================================================================

@@ -29,14 +29,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_BADGEREGION_H
 
 #include "RegionObject.h"
+
 #include "MathLib/Rectangle.h"
 #include "Utils/typedefs.h"
 
 //=============================================================================
 
-class ZoneTree;
 class PlayerObject;
-class QTRegion;
 
 //=============================================================================
 
@@ -52,14 +51,12 @@ class BadgeRegion : public RegionObject
 		uint32			getBadgeId(){ return mBadgeId; }
 		void			setBadgeId(uint32 id){ mBadgeId = id; }
 
-		virtual void	update();
+		virtual void	onObjectEnter(Object* object);
 
 	protected:
 
 		uint32				mBadgeId;
-		ZoneTree*			mSI;
-		QTRegion*			mQTRegion;
-		Anh_Math::Rectangle mQueryRect;
+		
 };
 
 

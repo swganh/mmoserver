@@ -82,49 +82,49 @@ public:
 
 	//Get the contents of current cell of the player, looked up by CellID
 	ObjectStruct*		GetCellContents(uint32 CellID);
-	ObjectListType*		GetAllCellContents(uint32 CellID);
-	ObjectListType*		GetPlayerCellContents(uint32 CellID);
-	ObjectListType*		GetObjectCellContents(uint32 CellID);
+	void				GetAllCellContents(uint32 CellID, ObjectListType* list);
+	void				GetPlayerCellContents(uint32 CellID, ObjectListType* list);
+	void				GetObjectCellContents(uint32 CellID, ObjectListType* list);
 	
 	//=====================================================
 	//row
-	ObjectListType*		GetAllGridContentsListRow(uint32 CellID);
-	ObjectListType*		GetPlayerGridContentsListRow(uint32 CellID);
-	ObjectListType*		GetObjectGridContentsListRow(uint32 CellID);
+	void				GetAllGridContentsListRow(uint32 CellID, ObjectListType* list);
+	void				GetPlayerGridContentsListRow(uint32 CellID, ObjectListType* list);
+	void				GetObjectGridContentsListRow(uint32 CellID, ObjectListType* list);
 	
 	
 	//=====================================================
 	//(viewRange*2)-1 to accomodate for diametral movement
-	ObjectListType*		GetAllGridContentsListRowLeft(uint32 CellID);
-	ObjectListType*		GetPlayerGridContentsListRowLeft(uint32 CellID);
-	ObjectListType*		GetObjectGridContentsListRowLeft(uint32 CellID);
+	void				GetAllGridContentsListRowLeft(uint32 CellID, ObjectListType* list);
+	void				GetPlayerGridContentsListRowLeft(uint32 CellID, ObjectListType* list);
+	void				GetObjectGridContentsListRowLeft(uint32 CellID, ObjectListType* list);
 
-	ObjectListType*		GetAllGridContentsListRowRight(uint32 CellID);
-	ObjectListType*		GetPlayerGridContentsListRowRight(uint32 CellID);
-	ObjectListType*		GetObjectGridContentsListRowRight(uint32 CellID);
+	void		GetAllGridContentsListRowRight(uint32 CellID, ObjectListType* list);
+	void		GetPlayerGridContentsListRowRight(uint32 CellID, ObjectListType* list);
+	void		GetObjectGridContentsListRowRight(uint32 CellID, ObjectListType* list);
 	
-	ObjectListType*		GetAllGridContentsListColumn(uint32 CellID);
-	ObjectListType*		GetPlayerGridContentsListColumn(uint32 CellID);
-	ObjectListType*		GetObjectGridContentsListColumn(uint32 CellID);
+	void		GetAllGridContentsListColumn(uint32 CellID, ObjectListType* list);
+	void		GetPlayerGridContentsListColumn(uint32 CellID, ObjectListType* list);
+	void		GetObjectGridContentsListColumn(uint32 CellID, ObjectListType* list);
 
 	//=====================================================
 	//(viewRange*2)-1 to accomodate for diametral movement
-	ObjectListType*		GetPlayerGridContentsListColumnDown(uint32 CellID);
-	ObjectListType*		GetAllGridContentsListColumnDown(uint32 CellID);
-	ObjectListType*		GetObjectGridContentsListColumnDown(uint32 CellID);
+	void		GetPlayerGridContentsListColumnDown(uint32 CellID, ObjectListType* list);
+	void		GetAllGridContentsListColumnDown(uint32 CellID, ObjectListType* list);
+	void		GetObjectGridContentsListColumnDown(uint32 CellID, ObjectListType* list);
 
-	ObjectListType*		GetPlayerGridContentsListColumnUp(uint32 CellID);
-	ObjectListType*		GetAllGridContentsListColumnUp(uint32 CellID);
-	ObjectListType*		GetObjectGridContentsListColumnUp(uint32 CellID);
+	void		GetPlayerGridContentsListColumnUp(uint32 CellID, ObjectListType* list);
+	void		GetAllGridContentsListColumnUp(uint32 CellID, ObjectListType* list);
+	void		GetObjectGridContentsListColumnUp(uint32 CellID, ObjectListType* list);
 
 	//Get the contents of chatrange cells
-	ObjectListType*		GetChatRangeCellContents(uint32 CellID);
+	void				GetChatRangeCellContents(uint32 CellID, ObjectListType* list);
 
-	ObjectListType*		GetAllViewingRangeCellContents(uint32 CellID);
-	ObjectListType*		GetPlayerViewingRangeCellContents(uint32 CellID);
-	ObjectListType*		GetObjectViewingRangeCellContents(uint32 CellID);
+	void		GetAllViewingRangeCellContents(uint32 CellID, ObjectListType* list);
+	void		GetPlayerViewingRangeCellContents(uint32 CellID, ObjectListType* list);
+	void		GetObjectViewingRangeCellContents(uint32 CellID, ObjectListType* list);
 	
-	ObjectListType*		GetObjectCustomRangeCellContents(uint32 CellID, uint32 range);
+	void		GetObjectCustomRangeCellContents(uint32 CellID, uint32 range, ObjectListType* list);
 	
 	//void	geInRange(const Object* const object,ObjectSet* resultSet,uint32 objTypes,float range, bool cellContent);
 

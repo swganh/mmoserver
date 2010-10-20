@@ -210,7 +210,7 @@ bool SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject,Play
 	}
 	else if(FactoryCrate* crate = dynamic_cast<FactoryCrate*>(tangibleObject))
 	{
-		return gMessageLib->sendCreateFactoryCrate(crate,targetObject);
+		return sendCreateFactoryCrate(crate,targetObject);
 	}
 	else if(tangibleObject->getTangibleGroup() == TanGroup_Static)
 	{
@@ -219,7 +219,7 @@ bool SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject,Play
 
 	uint64 parentId = tangibleObject->getParentId();
 
-	gMessageLib->sendCreateTangible(tangibleObject, targetObject);
+	sendCreateTangible(tangibleObject, targetObject);
 		
 
 	//now check whether we have children!!!
@@ -398,7 +398,7 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
 	{
 		if(playerObject->getMount())
 		{
-			sendCreateObject(playerObject->getMount(),targetObject);
+			sendCreateObject(playerObject->getMount(),targetObject,false);
 			if(playerObject->checkIfMounted())
 			{
 				gMessageLib->sendContainmentMessage(playerObject->getId(), playerObject->getMount()->getId(), 0xffffffff, targetObject);

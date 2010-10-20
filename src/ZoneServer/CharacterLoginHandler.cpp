@@ -175,7 +175,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
 			
 			//create us for others
-			gSpatialIndexManager->createCreatureinWorld(playerObject);
+			gSpatialIndexManager->createCreatureInWorld(playerObject);
 
 			//gWorldManager->addObject(playerObject);
 
@@ -280,7 +280,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			if(player && !(player->getMotdReceived()) && moT.getLength())
 			{
 				player->setMotdReceived(true);
-        gMessageLib->sendSystemMessage(player,moT.getUnicode16());
+			    gMessageLib->sendSystemMessage(player,moT.getUnicode16());
 			}
 
 			// Send newbie info.
@@ -299,12 +299,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			gMessageLib->sendIgnoreListPlay9(player);
 			gMessageLib->sendSceneReadyToChat(client);	// will get any mails received when offline. The point is: Notidy about new mails AFTER the user have got the "logged in" message.
 
-			// Init and start player world position updates.
-			ObjectController* ObjCtl = player->getController();
-			(void)ObjCtl->playerWorldUpdate(true);	// Force a world object update.
 
-			// This timed event will handle updates of world objects when no external events arrives (movement events from client).
-			gWorldManager->addPlayerMovementUpdateTime(player, 1000);
 
 			//Initialise the buffs
 			gBuffManager->InitBuffs(player);
@@ -318,22 +313,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			buildString.convert(BSTRType_Unicode16);
 			gMessageLib->sendSystemMessage(player,buildString.getUnicode16());
 
-			// Temp fix for testing instances at normal planets (Corellia).
-			/*
-			if (player->isConnected())
-			{
-				if (!gWorldConfig->isTutorial())
-				{
-					// Some special message when we are testing...
-					if (gWorldConfig->isInstance())
-					{
-						gMessageLib->sendSystemMessage(player,L"Welcome to Corellia. This planet is temporarily used for testing of instancing.");
-						gMessageLib->sendSystemMessage(player,L"You should not see any other players. But if you are in a group, the member of the group should see each other and also be able to interact.");
-						gMessageLib->sendSystemMessage(player,L"Hard to group with a friend when you can't find him or her? Go back to another planet and group and then come back!");
-					}
-				}
-			}
-			*/
+			
 		}
 		else
 		{

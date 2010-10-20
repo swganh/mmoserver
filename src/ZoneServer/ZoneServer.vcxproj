@@ -269,10 +269,6 @@
     <ClCompile Include="PVHam.cpp" />
     <ClCompile Include="PVPosture.cpp" />
     <ClCompile Include="PVState.cpp" />
-    <ClCompile Include="QTRegion.cpp" />
-    <ClCompile Include="QTRegionFactory.cpp" />
-    <ClCompile Include="QuadTree.cpp" />
-    <ClCompile Include="QuadTreeNode.cpp" />
     <ClCompile Include="QuestGiver.cpp" />
     <ClCompile Include="RadialMenu.cpp" />
     <ClCompile Include="RadialMenuItem.cpp" />
@@ -345,7 +341,6 @@
     <ClCompile Include="WorldManagerPlayerHandlers.cpp" />
     <ClCompile Include="Zmap.cpp" />
     <ClCompile Include="ZoneServer.cpp" />
-    <ClCompile Include="ZoneTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ActiveConversation.h" />
@@ -495,10 +490,6 @@
     <ClInclude Include="PVHam.h" />
     <ClInclude Include="PVPosture.h" />
     <ClInclude Include="PVState.h" />
-    <ClInclude Include="QTRegion.h" />
-    <ClInclude Include="QTRegionFactory.h" />
-    <ClInclude Include="QuadTree.h" />
-    <ClInclude Include="QuadTreeNode.h" />
     <ClInclude Include="QuestGiver.h" />
     <ClInclude Include="quickHealInjuryEvent.h" />
     <ClInclude Include="QuickHealInjuryTreatmentEvent.h" />
@@ -584,7 +575,6 @@
     <ClInclude Include="Zmap.h" />
     <ClInclude Include="ZoneOpcodes.h" />
     <ClInclude Include="ZoneServer.h" />
-    <ClInclude Include="ZoneTree.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.vcxproj">

@@ -61,6 +61,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WaypointObject.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
+#include "RegionObject.h"
 #include "HarvesterFactory.h"
 #include "HarvesterObject.h"
 #include "FactoryFactory.h"
@@ -166,7 +167,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));
 
 			//create the creature in the world
-			gSpatialIndexManager->createCreatureinWorld(player);
+			gSpatialIndexManager->createCreatureInWorld(player);
 			
 			
 			// add us to the grid	
@@ -237,7 +238,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 				mShuttleList.push_back(dynamic_cast<Shuttle*>(creature));
 
 			//create the creature in the world
-			gSpatialIndexManager->createCreatureinWorld(creature);
+			gSpatialIndexManager->createCreatureInWorld(creature);
 			
 			creature->setSubZoneId(0);
 					

@@ -169,7 +169,7 @@ void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* me
 
 
 	// get the tangible objects in range
-	gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range,yes);
+	gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range,true);
 
 	//and see if a fitting crafting station is near
 	station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());

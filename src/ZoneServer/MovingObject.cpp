@@ -114,10 +114,8 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 		CellObject* cell = NULL;
 
 		// Remove us.
-		if (!this->getRegisteredWatchers()->empty())
-		{
-			gMessageLib->broadcastContainmentMessage(this,oldParentId,0);
-		}
+		gMessageLib->broadcastContainmentMessage(this,oldParentId,0);
+		
 
 		if (oldParentId != 0)
 		{
@@ -208,9 +206,9 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 	if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
 	{
 		isPlayer = true;
-		//we cannot stop entertaining here, as the entertainermanager uses this code to move us to the placed instrument
 		
-		player->getController()->playerWorldUpdate(true);
+		//we cannot stop entertaining here, as the entertainermanager uses this code to move us to the placed instrument
+	
 
 		//dismount us if we were moved inside
 		if(player->checkIfMounted() && player->getMount() && parentId)

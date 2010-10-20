@@ -40,10 +40,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ManufacturingSchematic.h"
 #include "PlayerObject.h"
 #include "PlayerStructure.h"
-#include "QuadTree.h"
+
 #include "WorldManager.h"
 #include "SpatialIndexManager.h"
-#include "ZoneTree.h"
+#include "RegionObject.h"
 #include "MessageLib/MessageLib.h"
 
 #include "LogManager/LogManager.h"
@@ -804,26 +804,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			//create the outputhoppers contents
 
-			ObjectIDList*			ol = outHopper->getObjects();
-			ObjectIDList::iterator	it = ol->begin();
 
-			while(it != ol->end())
-			{
-				TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-				if(!tO)
-				{
-					assert(false && "StructureManager::processVerification Structure_Command_AccessOutHopper WorldManager unable to find tangible object");
-				}
-
-				//we need to keep track of who is watching a container
-				if(!tO->checkContainerKnownPlayer(player))
-				{
-					gMessageLib->sendCreateTano(tO,player);
-					tO->addContainerKnownObjectSafe(player);
-					player->addContainerKnownObjectSafe(tO);
-				}
-				it++;
-			}
+			gSpatialIndexManager->registerPlayerToContainer(outHopper,player);
+			
 
 			gFactoryFactory->upDateHopper(factory,factory->getOutputHopper(),player->getClient(),factory);
 			return;

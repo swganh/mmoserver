@@ -112,7 +112,7 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		//gets the contents of containers including their subcontainers
 		uint16				getContentSize(uint16 iteration)
 		{
-			uint16 content = mData.size();
+			/*uint16 content = mData.size();
 
 			if(iteration > gWorldConfig->getPlayerContainerDepth())
 			{
@@ -124,7 +124,7 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 
 			while(it != ol->end())
 			{
-				ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById((*it)));
+				ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(*it));
 				if(!tO)
 				{
 					assert(false);
@@ -134,7 +134,8 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 
 				it++;
 			}
-			return content;
+			return content;*/
+			return 1;
 		}
 
 

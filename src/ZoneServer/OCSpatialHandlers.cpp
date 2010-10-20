@@ -71,7 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef WIN32
 using std::wregex;
 using std::wsmatch;
-using std::regex_search;
+using std::regex_match;
 #else
 using boost::wregex;
 using boost::wsmatch;

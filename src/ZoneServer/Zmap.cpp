@@ -215,7 +215,7 @@ void zmap::RemoveObject(Object *removeObject)
 
 
 
-ObjectStruct*	zmap::GetCellContents(uintCellID, ObjectListType* list);
+ObjectStruct*	zmap::GetCellContents(uint32 CellID)
 {
 	//Pesudo
 	// 1. Return list of objects in cell
@@ -234,7 +234,7 @@ void	zmap::GetAllCellContents(uint32 CellID, ObjectListType* list)
 	//if(CellID) >
 	
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
-		return &EmptyCell;
+		return;
 
 	ObjectListType::iterator it = list->begin();
 
@@ -250,7 +250,8 @@ void	zmap::GetPlayerCellContents(uint32 CellID, ObjectListType* list)
 	
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
 		return;
-
+	
+	ObjectListType::iterator it = list->begin();
 	list->splice(it, ZMapCells[CellID].Players);
 }
 
@@ -263,6 +264,7 @@ void	zmap::GetObjectCellContents(uint32 CellID, ObjectListType* list)
 	if(!GetCellValidFlag(CellID))
 		return;
 	
+	ObjectListType::iterator it = list->begin();
 	list->splice(it, ZMapCells[CellID].Objects);
 	
 }

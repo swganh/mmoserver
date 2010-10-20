@@ -526,7 +526,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             name.toLower();
             if (receiver)
             {
-				DLOG(INFO) << receiver->getName().getAnsi() << " ChatMailQuery_PlayerIgnores ["<< name.getAnsi()<<"]";
+                DLOG(INFO) << receiver->getName().getAnsi() << " ChatMailQuery_PlayerIgnores ["<< name.getAnsi()<<"]";
             }
             ignoreList.insert(std::make_pair(name.getCrc(),name.getAnsi()));
         }
@@ -887,7 +887,7 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
 
     Player* player = new Player(charId,client,planetId);
 
-	DLOG(INFO) << "Connecting account " << client->getAccountId() << " with player id " << charId;
+    DLOG(INFO) << "Connecting account " << client->getAccountId() << " with player id " << charId;
 
     mPlayerAccountMap.insert(std::make_pair(accountId,player));
     mPlayerList.push_back(player);
@@ -931,7 +931,7 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
     }
     else
     {
-		DLOG(INFO) <<"Error finding player in player account map " << client->getAccountId();
+        DLOG(INFO) <<"Error finding player in player account map " << client->getAccountId();
         return;
     }
 
@@ -969,7 +969,7 @@ void ChatManager::_processClusterClientDisconnect(Message* message,DispatchClien
         }
         else
         {
-			DLOG(INFO) << "ChatManager:: Can't find player " << player->getName().getAnsi() << "in planet channel";
+            DLOG(INFO) << "ChatManager:: Can't find player " << player->getName().getAnsi() << "in planet channel";
         }
     }
     else
@@ -1107,7 +1107,7 @@ void ChatManager::_processZoneTransfer(Message* message,DispatchClient* client)
             ChatAvatarId* avatar = channel->findUser(player->getName());
             if(!avatar)
             {
-				return;
+                return;
 
             }
             else
@@ -1178,14 +1178,14 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 
     // modpath.toLower();
 
-	DLOG(INFO) << "Attempting to create channel "<< title.getAnsi() << " at " << modpath.getAnsi();
+    DLOG(INFO) << "Attempting to create channel "<< title.getAnsi() << " at " << modpath.getAnsi();
 
     ChannelList::iterator iter = mvChannels.begin();
     while (iter != mvChannels.end())
     {
         if (Anh_Utils::cmpistr((*iter)->getName().getAnsi(), modpath.getAnsi()) == 0)
         {
-			DLOG(INFO) << "Channel " << modpath.getAnsi() << " already exist";
+            DLOG(INFO) << "Channel " << modpath.getAnsi() << " already exist";
             delete playername;
             return;
         }
@@ -1231,7 +1231,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     
 
     // TEST
-	DLOG(INFO) << "Channel " <<title.getAnsi()<<" created at " << modpath.getAnsi();
+    DLOG(INFO) << "Channel " <<title.getAnsi()<<" created at " << modpath.getAnsi();
 
     delete playername;
 }
@@ -1265,7 +1265,7 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
         return;
     }
 
-	DLOG(INFO) << "Player " << playername.getAnsi() <<" destroying channel " << channel->getName().getAnsi();
+    DLOG(INFO) << "Player " << playername.getAnsi() <<" destroying channel " << channel->getName().getAnsi();
     ChatAvatarId* avatar = channel->findUser(playername);
     if (avatar == NULL)
     {
@@ -1280,7 +1280,7 @@ void ChatManager::_processDestroyRoom(Message* message,DispatchClient* client)
     PlayerList::iterator listIt = mPlayerList.begin();
     while(listIt != mPlayerList.end())
     {
-		DLOG(INFO) << "Channel "<<channel->getName().getAnsi() << "gone for " << (*listIt)->getName().getAnsi();
+        DLOG(INFO) << "Channel "<<channel->getName().getAnsi() << "gone for " << (*listIt)->getName().getAnsi();
         gChatMessageLib->sendChatOnDestroyRoom((*listIt)->getClient(), channel, 0);
         ++listIt;
     }
@@ -1455,7 +1455,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
         if ((*iter)->getLoweredName().getCrc() == player->getKey())
         {
             gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
-			DLOG(INFO) << "Player " << player->getName().getAnsi() <<" already in room " <<  channel->getName().getAnsi();
+            DLOG(INFO) << "Player " << player->getName().getAnsi() <<" already in room " <<  channel->getName().getAnsi();
             return;
         }
         ++iter;
@@ -1636,14 +1636,14 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
     else if ((!channel->isModerator(sender)) && (!channel->isOwner(sender)))
     {
         errorCode = 16;
-		DLOG(INFO) << realSenderName.getAnsi() << " is not owner or moderated in channel " << roomname.getAnsi();
+        DLOG(INFO) << realSenderName.getAnsi() << " is not owner or moderated in channel " << roomname.getAnsi();
         // gChatMessageLib->sendChatFailedToAddMod(client, mGalaxyName, sender, playername, channel, 16, requestId);
         // return;
     }
     // If we have invalid player name, we don't need the following checks.
     else if ((errorCode == 0) && (channel->isModerator(playerName)))
     {
-		// gChatMessageLib->sendChatFailedToAddMod(client, mGalaxyName, sender, playername, channel, 1, requestId);
+        // gChatMessageLib->sendChatFailedToAddMod(client, mGalaxyName, sender, playername, channel, 1, requestId);
         errorCode = 1;
         // return;
     }
@@ -1864,7 +1864,7 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
     }
     else
     {
-		(void)channel->removeInvitedUser(playerName);
+        (void)channel->removeInvitedUser(playerName);
 
         int8 sql[128];
         mDatabase->Escape_String(sql, playerName.getAnsi(), playerName.getLength());
@@ -2291,7 +2291,17 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
     int8 sql[100];
     sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", recipient);
 
-    mDatabase->ExecuteSqlAsyncNoArguments(this, asyncContainer, sql);
+    mDatabase->executeAsyncSql(sql, [this, mail, recipient] (DatabaseResult* result) {        
+        BString	name;
+
+        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        binding->addField(DFT_bstring,0,64);
+        result->GetNextRow(binding,&name);
+
+        _PersistentMessagebySystem(mail, 0, name);
+
+        mDatabase->DestroyDataBinding(binding);
+    });
 }
 
 

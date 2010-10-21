@@ -46,7 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database, const std::string& host, uint16 port, const std::string& user, const std::string& pass, const std::string& schema) 
     : hostname_(host)
-    , port_(port)
     , username_(user)
     , password_(pass)
     , schema_(schema)
@@ -54,6 +53,7 @@ DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database, cons
     , mDatabaseImplementation(0)
     , mCurrentJob(0)
     , mDatabaseImplementationType(type)
+    , port_(port)
     , mExit(false)
 {
     // start our thread

@@ -74,23 +74,25 @@ public:
 private:
     void                        startup_();
     void                        shutdown_();
-
-    bool						mIsDone;
-    Database*                   mDatabase;
-    DatabaseImplementation*     mDatabaseImplementation;
-
-    DatabaseJob*                mCurrentJob;
-    DBType                      mDatabaseImplementationType;
     
+    boost::mutex                mWorkerThreadMutex;
+    boost::thread			    mThread;
+
     std::string                 hostname_;
-    uint16_t                    port_;
     std::string                 username_;
     std::string                 password_;
     std::string                 schema_;
 
-    boost::mutex                mWorkerThreadMutex;
-    boost::thread			    mThread;
+    Database*                   mDatabase;
+    DatabaseImplementation*     mDatabaseImplementation;
 
+    DatabaseJob*                mCurrentJob;
+    
+    DBType                      mDatabaseImplementationType;
+    
+    uint16_t                    port_;
+
+    bool						mIsDone;
     bool						mExit;
 };
 

@@ -67,33 +67,31 @@ public:
 
     void ExecuteJob(DatabaseJob* job);
 
-    void requestExit() {
-        mExit = true;
-    }
+    void requestExit();
 
 private:
     void                        startup_();
     void                        shutdown_();
     
-    boost::mutex                mWorkerThreadMutex;
-    boost::thread			    mThread;
+    boost::mutex                mutex_;
+    boost::thread			    thread_;
 
     std::string                 hostname_;
     std::string                 username_;
     std::string                 password_;
     std::string                 schema_;
 
-    Database*                   mDatabase;
-    DatabaseImplementation*     mDatabaseImplementation;
+    Database*                   database_;
+    DatabaseImplementation*     database_impl_;
 
-    DatabaseJob*                mCurrentJob;
+    DatabaseJob*                current_job_;
     
-    DBType                      mDatabaseImplementationType;
+    DBType                      db_type_;
     
     uint16_t                    port_;
 
-    bool						mIsDone;
-    bool						mExit;
+    bool						is_done_;
+    bool						exit_;
 };
 
 // Re-enable the warning.
@@ -105,8 +103,8 @@ private:
 
 inline void DatabaseWorkerThread::ExecuteJob(DatabaseJob* job)
 {
-    boost::mutex::scoped_lock lk(mWorkerThreadMutex);
-    mCurrentJob = job;
+    boost::mutex::scoped_lock lk(mutex_);
+    current_job_ = job;
 }
 
 //======================================================================================================================

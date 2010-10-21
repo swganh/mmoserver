@@ -49,57 +49,31 @@ DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database, cons
     , username_(user)
     , password_(pass)
     , schema_(schema)
-    , mDatabase(database)
-    , mDatabaseImplementation(0)
-    , mCurrentJob(0)
-    , mDatabaseImplementationType(type)
+    , database_(database)
+    , database_impl_(0)
+    , current_job_(nullptr)
+    , db_type_(type)
     , port_(port)
-    , mExit(false)
+    , exit_(false)
 {
     // start our thread
     boost::thread t(std::bind(&DatabaseWorkerThread::run, this));
-    mThread = boost::move(t);
+    thread_ = boost::move(t);
 }
 
 //======================================================================================================================
 
 DatabaseWorkerThread::~DatabaseWorkerThread(void)
 {
-    mExit = true;
+    exit_ = true;
 
-    mThread.interrupt();
-    mThread.join();
+    thread_.interrupt();
+    thread_.join();
 
     // Shutdown our DBImplementation
-    delete mDatabaseImplementation;
+    delete database_impl_;
 }
 
-//======================================================================================================================
-
-void DatabaseWorkerThread::startup_(void)
-{
-    // Create our DBImplementation object
-    switch (mDatabaseImplementationType)
-    {
-    case DBTYPE_MYSQL:
-        mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(hostname_, port_, username_, password_, schema_));
-        break;
-
-    default:
-        break;
-    }
-
-    mIsDone = false;
-}
-
-//======================================================================================================================
-
-void DatabaseWorkerThread::shutdown_(void)
-{
-    mIsDone = true;
-}
-
-//======================================================================================================================
 
 void DatabaseWorkerThread::run()
 {
@@ -107,30 +81,30 @@ void DatabaseWorkerThread::run()
     startup_();
 
     // Main loop
-    while(!mExit)
+    while(! exit_)
     {
         // Is there a job waiting?
-        if(mCurrentJob)
+        if(current_job_)
         {
-            boost::mutex::scoped_lock lk(mWorkerThreadMutex);
+            boost::mutex::scoped_lock lk(mutex_);
             // Execute our query
-            DatabaseResult* result = mDatabaseImplementation->ExecuteSql(mCurrentJob->query.c_str(),mCurrentJob->multi_job);
+            DatabaseResult* result = database_impl_->ExecuteSql(current_job_->query.c_str(), current_job_->multi_job);
 
             // Attach the result to our job and send it back.
-            mCurrentJob->result = result;
+            current_job_->result = result;
 
             // put it on the complete list
-            mDatabase->pushDatabaseJobComplete(mCurrentJob);
+            database_->pushDatabaseJobComplete(current_job_);
 
             // Put ourselves back on the idle list.
             if(!result->isMultiResult())
             {
-                mDatabase->pushIdleWorker(this);
+                database_->pushIdleWorker(this);
             }
             else
                 result->setWorkerReference(this);
 
-            mCurrentJob = 0;
+            current_job_ = nullptr;
         }
 
         // and always sleep a little.
@@ -141,11 +115,30 @@ void DatabaseWorkerThread::run()
     shutdown_();
 }
 
-//======================================================================================================================
+
+void DatabaseWorkerThread::requestExit() {
+    exit_ = true;
+}
 
 
+void DatabaseWorkerThread::startup_()
+{
+    // Create our DBImplementation object
+    switch (db_type_)
+    {
+    case DBTYPE_MYSQL:
+        database_impl_ = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(hostname_, port_, username_, password_, schema_));
+        break;
+
+    default:
+        break;
+    }
+
+    is_done_ = false;
+}
 
 
-
-
-
+void DatabaseWorkerThread::shutdown_()
+{
+    is_done_ = true;
+}

@@ -741,23 +741,6 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     }
     break;
 
-
-    case ChatQuery_QueryFirstName:
-    {
-        BString	name;
-        //Player*	mReceiver = asyncContainer->mReceiver;
-
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
-        binding->addField(DFT_bstring,0,64);
-        result->GetNextRow(binding,&name);
-
-        //_processPersistentMessageToServer(asyncContainer->mMail,asyncContainer->mClient);
-        _PersistentMessagebySystem(asyncContainer->mMail,asyncContainer->mClient,name);
-
-        mDatabase->DestroyDataBinding(binding);
-    }
-    break;
-
     case ChatQuery_Channels:
     {
         _loadChannels(result);
@@ -2282,12 +2265,6 @@ void ChatManager::_processAvatarId(Message* message,DispatchClient* client)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
 {
-    ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_QueryFirstName);
-    asyncContainer->mMail = mail;
-    asyncContainer->mMailCounter = 1;
-    asyncContainer->mReceiverId = recipient;
-    asyncContainer->mClient = NULL;
-
     int8 sql[100];
     sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", recipient);
 

@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <queue>
 
 #include <boost/any.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/pool/pool.hpp>
 
 #include "Utils/typedefs.h"
@@ -58,10 +59,13 @@ typedef Anh_Utils::concurrent_queue<DatabaseWorkerThread*>		DatabaseWorkerThread
 
 typedef std::list<boost::any> QueryParameters;
 
-//======================================================================================================================
+ // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (push)
+#pragma warning (disable : 4275 4251)
+#endif
 
-class DBMANAGER_API Database
-{
+class DBMANAGER_API Database : private boost::noncopyable {
 public:
     Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
     ~Database(void);
@@ -109,15 +113,14 @@ public:
     int									  GetCount(const int8* tablename);
     int									  GetSingleValueSync(const int8* sql);
 private:
+    // Disable the default constructor, construction always occurs through the
+    // single overloaded constructor.
+    Database();
 
     DBType                                  mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.
 
     DataBindingFactory*                     mDataBindingFactory;
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     DatabaseJobQueue                        mJobPendingQueue;
     DatabaseJobQueue                        mJobCompleteQueue;
     DatabaseWorkerThreadQueue               mWorkerIdleQueue;
@@ -129,13 +132,15 @@ private:
 
     boost::pool<boost::default_user_allocator_malloc_free>							  mJobPool;
     boost::pool<boost::default_user_allocator_malloc_free>							  mTransactionPool;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
+
 protected:
     DatabaseResult*                         ExecuteSql(const int8* sql, ...);
 };
+
+// Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (pop)
+#endif
 
 //======================================================================================================================
 

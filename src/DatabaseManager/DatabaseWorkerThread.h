@@ -28,6 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 #define ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 
+#include <cstdint>
+
+#include <string>
+
 #include "DatabaseType.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/declspec.h"
@@ -39,55 +43,61 @@ class Database;
 class DatabaseJob;
 class DatabaseImplementation;
 
+// Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (push)
+#pragma warning (disable : 4251)
+#endif
 
 //======================================================================================================================
 class DBMANAGER_API DatabaseWorkerThread
 {
 public:
-    DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-    ~DatabaseWorkerThread(void);
+    DatabaseWorkerThread(DBType type, 
+                         Database* database, 
+                         const std::string& host, 
+                         uint16 port, const 
+                         std::string& user, 
+                         const std::string& pass, 
+                         const std::string& schema);
 
-    virtual void				  run();
+    ~DatabaseWorkerThread();
 
-    void                        ExecuteJob(DatabaseJob* job);
+    void run();
 
-    void						  requestExit() {
+    void ExecuteJob(DatabaseJob* job);
+
+    void requestExit() {
         mExit = true;
     }
 
-protected:
-    int8                        mHostname[256];
-    int16                       mPort;
-    int8                        mUsername[64];
-    int8                        mPassword[64];
-    int8                        mSchema[64];
-
 private:
-    void                        _startup(void);
-    void                        _shutdown(void);
+    void                        startup_();
+    void                        shutdown_();
 
-    bool						  mIsDone;
+    bool						mIsDone;
     Database*                   mDatabase;
     DatabaseImplementation*     mDatabaseImplementation;
 
     DatabaseJob*                mCurrentJob;
     DBType                      mDatabaseImplementationType;
+    
+    std::string                 hostname_;
+    uint16_t                    port_;
+    std::string                 username_;
+    std::string                 password_;
+    std::string                 schema_;
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
-    boost::mutex              mWorkerThreadMutex;
+    boost::mutex                mWorkerThreadMutex;
     boost::thread			    mThread;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
-    bool						  mExit;
+    bool						mExit;
 };
 
-
+// Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (pop)
+#endif
 
 //======================================================================================================================
 

@@ -51,7 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdio>
 
 //======================================================================================================================
-Database::Database(DBType type, char* host, uint16 port, char* user, char* pass, char* schema) :
+Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema) :
     mDatabaseType(type),
     mDataBindingFactory(0),
     mDatabaseImplementation(0),

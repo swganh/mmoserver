@@ -45,8 +45,7 @@ typedef boost::singleton_pool<DatabaseResult,sizeof(DatabaseResult),boost::defau
 class DBMANAGER_API DatabaseImplementation
 {
 public:
-    DatabaseImplementation(char* host, uint16 port, char* user, char* pass, char* schema) {};
-    virtual							~DatabaseImplementation(void) {};
+    virtual ~DatabaseImplementation() {}
 
     virtual DatabaseResult*			ExecuteSql(const int8* sql, bool procedure = false) = 0;
 

@@ -48,12 +48,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/declspec.h"
 
 //======================================================================================================================
-DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema) :
-    DatabaseImplementation(host, port, user, pass, schema)
+DatabaseImplementationMySql::DatabaseImplementationMySql(
+    const std::string& host, 
+    uint16_t port, 
+    const std::string& user, 
+    const std::string& pass, 
+    const std::string& schema) 
 {
     // Initialize mysql and make a connection to the server.
     mConnection = mysql_init(0);
-    mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)schema, port, 0, CLIENT_MULTI_STATEMENTS);
+    mysql_real_connect(mConnection, host.c_str(), user.c_str(), pass.c_str(), schema.c_str(), port, 0, CLIENT_MULTI_STATEMENTS);
     mysql_options(mConnection, MYSQL_OPT_RECONNECT, "true");
 
     // Any errors from the connection attempt?

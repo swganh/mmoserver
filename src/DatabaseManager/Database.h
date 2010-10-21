@@ -28,9 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASE_H
 #define ANH_DATABASEMANAGER_DATABASE_H
 
+#include <cstdint>
+
 #include <functional>
 #include <list>
 #include <queue>
+#include <string>
 
 #include <boost/any.hpp>
 #include <boost/noncopyable.hpp>
@@ -67,7 +70,7 @@ typedef std::list<boost::any> QueryParameters;
 
 class DBMANAGER_API Database : private boost::noncopyable {
 public:
-    Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
+    Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     ~Database(void);
     
     void executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback);

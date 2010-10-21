@@ -44,22 +44,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database, char* host, uint16 port, char* user, char* pass, char* schema) :
-    mDatabase(database),
-    mDatabaseImplementation(0),
-    mCurrentJob(0),
-    mDatabaseImplementationType(type)
+DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database, const std::string& host, uint16 port, const std::string& user, const std::string& pass, const std::string& schema) 
+    : hostname_(host)
+    , port_(port)
+    , username_(user)
+    , password_(pass)
+    , schema_(schema)
+    , mDatabase(database)
+    , mDatabaseImplementation(0)
+    , mCurrentJob(0)
+    , mDatabaseImplementationType(type)
+    , mExit(false)
 {
-    mPort = port;
-    strcpy(mHostname, host);
-    strcpy(mUsername, user);
-    strcpy(mPassword, pass);
-    strcpy(mSchema, schema);
-
-    mExit = false;
-
     // start our thread
-    boost::thread t(std::tr1::bind(&DatabaseWorkerThread::run, this));
+    boost::thread t(std::bind(&DatabaseWorkerThread::run, this));
     mThread = boost::move(t);
 }
 
@@ -78,13 +76,13 @@ DatabaseWorkerThread::~DatabaseWorkerThread(void)
 
 //======================================================================================================================
 
-void DatabaseWorkerThread::_startup(void)
+void DatabaseWorkerThread::startup_(void)
 {
     // Create our DBImplementation object
     switch (mDatabaseImplementationType)
     {
     case DBTYPE_MYSQL:
-        mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(mHostname, mPort, mUsername, mPassword, mSchema));
+        mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(hostname_, port_, username_, password_, schema_));
         break;
 
     default:
@@ -96,7 +94,7 @@ void DatabaseWorkerThread::_startup(void)
 
 //======================================================================================================================
 
-void DatabaseWorkerThread::_shutdown(void)
+void DatabaseWorkerThread::shutdown_(void)
 {
     mIsDone = true;
 }
@@ -106,7 +104,7 @@ void DatabaseWorkerThread::_shutdown(void)
 void DatabaseWorkerThread::run()
 {
     // Call our internal _startup method
-    _startup();
+    startup_();
 
     // Main loop
     while(!mExit)
@@ -140,7 +138,7 @@ void DatabaseWorkerThread::run()
     }
 
     // internal shutdown method
-    _shutdown();
+    shutdown_();
 }
 
 //======================================================================================================================

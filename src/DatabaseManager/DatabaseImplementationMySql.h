@@ -28,6 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 #define ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 
+#include <cstdint>
+#include <string>
+
 #include "DatabaseImplementation.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/declspec.h"
@@ -45,7 +48,7 @@ typedef struct st_mysql_rows MYSQL_ROWS;
 class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation
 {
 public:
-    DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema);
+    DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     virtual							~DatabaseImplementationMySql(void);
 
     virtual DatabaseResult*			ExecuteSql(const int8* sql,bool procedure = false);

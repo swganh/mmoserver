@@ -51,6 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdio>
 
 //======================================================================================================================
+
 Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema) :
     mDatabaseType(type),
     mDataBindingFactory(0),
@@ -88,7 +89,6 @@ Database::Database(DBType type, const std::string& host, uint16_t port, const st
 }
 
 
-//======================================================================================================================
 Database::~Database(void)
 {
     DatabaseWorkerThread* worker = 0;
@@ -106,6 +106,7 @@ Database::~Database(void)
     delete(mDataBindingFactory);
 }
 
+
 void Database::executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback) {    
     // Setup our job.
     DatabaseJob* job = new(mJobPool.ordered_malloc()) DatabaseJob();
@@ -117,9 +118,6 @@ void Database::executeAsyncSql(const std::string& sql, AsyncDatabaseCallback cal
     mJobPendingQueue.push(job);
 }
 
-void Database::executeAsyncSql(const std::string& sql, const QueryParameters& parameters, AsyncDatabaseCallback calback) {
-
-}
 
 void Database::executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback) {    
     // Setup our job.

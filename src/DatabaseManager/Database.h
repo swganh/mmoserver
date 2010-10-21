@@ -73,9 +73,20 @@ public:
     Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     ~Database(void);
     
+    /*! Executes an asynchronus sql query and invokes the specified callback on
+    * completion.
+    *
+    * \param sql The sql query to run.
+    * \param callback The callback to invoke once the sql query has been executed.
+    */
     void executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback);
-    void executeAsyncSql(const std::string& sql, const QueryParameters& parameters, AsyncDatabaseCallback callback);
-    
+
+    /*! Executes an asynchronus stored procedure and invokes the specified 
+    * callback on completion.
+    *
+    * \param sql The sql query to run.
+    * \param callback The callback to invoke once the sql query has been executed.
+    */
     void executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback);
 
     void                                    Process(void);

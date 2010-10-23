@@ -25,14 +25,51 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
+
 #include "DatabaseResult.h"
 #include "DatabaseImplementation.h"
+
+#include <cppconn/resultset.h>
+#include <cppconn/statement.h>
 
 #include <mysql.h>
 #include <stdlib.h>
 #include <stdio.h>
 
+DatabaseResult::DatabaseResult(sql::Statement* statement, sql::ResultSet* result_set, bool multiResult)
+    : statement_(statement)
+    , result_set_(result_set)
+    , mWorkerReference(0)
+    , mConnectionReference(0)
+    , mResultSetReference(0)
+    , mDatabaseImplementation(0)
+    , mMultiResult(multiResult) {}
 
+DatabaseResult::~DatabaseResult() {}
+
+
+std::unique_ptr<sql::Statement>& DatabaseResult::getStatement() {
+    return statement_;
+}
+
+
+void DatabaseResult::setResultSet(std::unique_ptr<sql::ResultSet> result_set) {
+    result_set_ = std::move(result_set);
+}
+
+
+std::unique_ptr<sql::ResultSet>& DatabaseResult::getResultSet() {
+    return result_set_;
+}
+
+
+uint64_t DatabaseResult::getRowCount() { 
+    return result_set_ ? result_set_->rowsCount() : 0; 
+}
 
 //======================================================================================================================
 void DatabaseResult::GetNextRow(DataBinding* dataBinding, void* object)
@@ -48,6 +85,6 @@ void DatabaseResult::ResetRowIndex(int index)
     mDatabaseImplementation->ResetRowIndex(this,index);
 }
 
-
-
-
+#ifdef _WIN32
+#pragma warning(pop)
+#endif

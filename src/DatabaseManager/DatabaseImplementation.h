@@ -59,9 +59,7 @@ public:
     bool								releaseResultPoolMemory() {
         return(ResultPool::release_memory());
     }
-
-    virtual uint64					GetInsertId(void) = 0;
-
+    
 protected:
 };
 

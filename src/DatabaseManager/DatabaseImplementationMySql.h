@@ -28,25 +28,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 #define ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
+
 #include <cstdint>
+#include <memory>
 #include <string>
 
 #include "DatabaseImplementation.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/declspec.h"
 
-//======================================================================================================================
+namespace sql {
+    class Connection;
+    class Statement;
+}
+
+class DataBinding;
 class DatabaseResult;
 
 typedef struct st_mysql MYSQL;
 typedef struct st_mysql_res MYSQL_RES;
 typedef struct st_mysql_rows MYSQL_ROWS;
 
-
-//======================================================================================================================
-
-class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation
-{
+class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation {
 public:
     DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     virtual							~DatabaseImplementationMySql(void);
@@ -56,16 +63,23 @@ public:
 
     virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object);
     virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0);
-    virtual uint64					GetInsertId(void);
 
     virtual uint32					Escape_String(int8* target,const int8* source,uint32 length);
 
 private:
+    void processFieldBinding_(std::unique_ptr<sql::ResultSet>& result, DataBinding* binding, uint32_t field_id, void* object);
+
+    std::unique_ptr<sql::Connection> connection_;
+    std::unique_ptr<sql::Statement> statement_;
+
     MYSQL*                      mConnection;
     MYSQL_RES*                  mResultSet;
 };
 
-
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
 
 
 #endif // ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H

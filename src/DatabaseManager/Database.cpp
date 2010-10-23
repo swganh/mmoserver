@@ -337,7 +337,6 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, cons
     va_end(args);
 }
 
-//======================================================================================================================
 
 void Database::DestroyResult(DatabaseResult* result)
 {

@@ -135,21 +135,21 @@ private:
     // single overloaded constructor.
     Database();
 
-    DBType                                  mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.
+    DBType mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.
 
-    DataBindingFactory*                     mDataBindingFactory;
+    DataBindingFactory* mDataBindingFactory;
 
-    DatabaseJobQueue                        mJobPendingQueue;
-    DatabaseJobQueue                        mJobCompleteQueue;
-    DatabaseWorkerThreadQueue               mWorkerIdleQueue;
+    DatabaseJobQueue mJobPendingQueue;
+    DatabaseJobQueue mJobCompleteQueue;
+    DatabaseWorkerThreadQueue mWorkerIdleQueue;
 
-    DatabaseImplementation*                 mDatabaseImplementation;  // Use this implementation for any syncronous calls.
+    DatabaseImplementation* mDatabaseImplementation;  // Use this implementation for any syncronous calls.
 
-    uint32                                  mMinThreads;
-    uint32                                  mMaxThreads;
+    uint32 mMinThreads;
+    uint32 mMaxThreads;
 
-    boost::pool<boost::default_user_allocator_malloc_free>							  mJobPool;
-    boost::pool<boost::default_user_allocator_malloc_free>							  mTransactionPool;
+    boost::pool<boost::default_user_allocator_malloc_free> mJobPool;
+    boost::pool<boost::default_user_allocator_malloc_free> mTransactionPool;
 
 protected:
     DatabaseResult*                         ExecuteSql(const int8* sql, ...);

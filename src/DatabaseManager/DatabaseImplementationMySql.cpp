@@ -63,7 +63,7 @@ DatabaseImplementationMySql::DatabaseImplementationMySql(
     uint16_t port, 
     const std::string& user, 
     const std::string& pass, 
-    const std::string& schema) 
+    const std::string& schema)
 {
     sql::Driver* driver = sql::mysql::get_driver_instance();
     

@@ -32,25 +32,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #undef ERROR
 #endif
 
-#include <glog/logging.h>
-
-#include "DataBinding.h"
-#include "DataBindingFactory.h"
-#include "DatabaseCallback.h"
-#include "DatabaseImplementation.h"
-#include "DatabaseImplementationMySql.h"
-#include "DatabaseJob.h"
-#include "DatabaseType.h"
-#include "DatabaseWorkerThread.h"
-#include "Transaction.h"
-
-#include "Common/ConfigManager.h"
-
 #include <cstdarg>
 #include <cstdlib>
 #include <cstdio>
 
-//======================================================================================================================
+#include <glog/logging.h>
+
+#include "Common/ConfigManager.h"
+
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DataBindingFactory.h"
+#include "DatabaseManager/DatabaseCallback.h"
+#include "DatabaseManager/DatabaseImplementation.h"
+#include "DatabaseManager/DatabaseImplementationMySql.h"
+#include "DatabaseManager/DatabaseJob.h"
+#include "DatabaseManager/DatabaseType.h"
+#include "DatabaseManager/DatabaseWorkerThread.h"
+#include "DatabaseManager/Transaction.h"
+
 
 Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema) :
     mDatabaseType(type),
@@ -66,22 +65,21 @@ Database::Database(DBType type, const std::string& host, uint16_t port, const st
     // Create our DBImplementation object
     switch (mDatabaseType)
     {
-    case DBTYPE_MYSQL:
-    {
-        mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(host, port, user, pass, schema));
-    }
-    break;
-
-    default:
+        case DBTYPE_MYSQL: {
+            mDatabaseImplementation = reinterpret_cast<DatabaseImplementation*>(new DatabaseImplementationMySql(host, port, user, pass, schema));
+        }
         break;
+
+        default:
+            break;
     }
 
     // Create our worker threads and put them in the idle queue
     mMinThreads = gConfig->read<uint32>("DBMinThreads");
     mMaxThreads = gConfig->read<uint32>("DBMaxThreads");
+
     DatabaseWorkerThread* newWorker = 0;
-    for (uint32 i = 0; i < mMinThreads; i++)
-    {
+    for (uint32 i = 0; i < mMinThreads; i++) {
         newWorker = new DatabaseWorkerThread(mDatabaseType, this, host, port, user, pass, schema);
 
         pushIdleWorker(newWorker);
@@ -130,7 +128,6 @@ void Database::executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallba
     mJobPendingQueue.push(job);
 }
 
-//======================================================================================================================
 
 void Database::Process(void)
 {
@@ -173,14 +170,16 @@ void Database::Process(void)
         mJobPool.ordered_free(job);
     }
 }
-//======================================================================================================================
+
+
 int Database::GetCount(const int8* tablename)
 {
     int8    sql[100];
     sprintf(sql, "SELECT COUNT(*) FROM %s;",tablename);
     return GetSingleValueSync(sql);
 }
-//======================================================================================================================
+
+
 int Database::GetSingleValueSync(const int8* sql)
 {
     uint32 value = 0;
@@ -193,7 +192,8 @@ int Database::GetSingleValueSync(const int8* sql)
     if(bind) SAFE_DELETE(bind);
     return value;
 }
-//======================================================================================================================
+
+
 DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
 {
     // format our sql string
@@ -213,6 +213,8 @@ DatabaseResult* Database::ExecuteSynchSql(const int8* sql, ...)
     va_end(args);
     return ExecuteSql(localSql);
 }
+
+
 DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
 {
 
@@ -232,8 +234,6 @@ DatabaseResult* Database::ExecuteSql(const int8* sql, ...)
     return newResult;
 }
 
-
-//======================================================================================================================
 
 void Database::ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...)
 {
@@ -288,7 +288,7 @@ void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref,
     // Add the job to our processList;
     mJobPendingQueue.push(job);
 }
-//======================================================================================================================
+
 
 DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
 {
@@ -310,8 +310,6 @@ DatabaseResult* Database::ExecuteProcedure(const int8* sql, ...)
     return newResult;
 }
 
-
-//======================================================================================================================
 
 void Database::ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...)
 {
@@ -349,34 +347,29 @@ void Database::DestroyResult(DatabaseResult* result)
 }
 
 
-//======================================================================================================================
 DataBinding* Database::CreateDataBinding(uint16 fieldCount)
 {
     return mDataBindingFactory->CreateDataBinding(fieldCount);
 }
 
 
-//======================================================================================================================
 void  Database::DestroyDataBinding(DataBinding* binding)
 {
     mDataBindingFactory->DestroyDataBinding(binding);
 }
 
-//======================================================================================================================
 
 uint32 Database::Escape_String(int8* target,const int8* source,uint32 length)
 {
     return(mDatabaseImplementation->Escape_String(target,source,length));
 }
 
-//======================================================================================================================
 
 Transaction* Database::startTransaction(DatabaseCallback* callback, void* ref)
 {
     return(new(mTransactionPool.ordered_malloc()) Transaction(this,callback,ref));
 }
 
-//======================================================================================================================
 
 void Database::destroyTransaction(Transaction* t)
 {
@@ -384,15 +377,7 @@ void Database::destroyTransaction(Transaction* t)
 }
 
 
-//======================================================================================================================
-
 bool Database::releaseResultPoolMemory()
 {
     return(mDatabaseImplementation->releaseResultPoolMemory());
 }
-
-//======================================================================================================================
-
-
-
-

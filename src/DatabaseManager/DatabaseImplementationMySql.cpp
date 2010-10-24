@@ -204,7 +204,7 @@ void DatabaseImplementationMySql::processFieldBinding_(
 {
     // Mysql Connector/c++ starts it's field id's with 1 instead of 0 so create
     // a temporary variable that compensates for the offset.
-    uint32_t result_field_id = field_id + 1;
+    uint32_t result_field_id = binding->mDataFields[field_id].mColumn + 1;
 
     switch (binding->mDataFields[field_id].mDataType)
     {

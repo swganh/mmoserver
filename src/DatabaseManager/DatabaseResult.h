@@ -28,11 +28,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASERESULT_H
 #define ANH_DATABASEMANAGER_DATABASERESULT_H
 
-#include "Utils/typedefs.h"
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
+
+#include <cstdint>
+#include <memory>
+
 #include "DatabaseManager/declspec.h"
 
+namespace sql {
+    class ResultSet;
+    class Statement;
+}
 
-//======================================================================================================================
 class DatabaseImplementation;
 class DataBinding;
 class DatabaseWorkerThread;
@@ -42,9 +52,14 @@ class DatabaseWorkerThread;
 class DBMANAGER_API DatabaseResult
 {
 public:
-    DatabaseResult(bool multiResult = false)
-        :mWorkerReference(0), mConnectionReference(0),mResultSetReference(0),mRowCount(0),mDatabaseImplementation(0),mMultiResult(multiResult) {};
-    ~DatabaseResult(void) {};
+    DatabaseResult(sql::Statement* statement, sql::ResultSet* result_set, bool multiResult);
+    ~DatabaseResult();
+    
+    std::unique_ptr<sql::Statement>& getStatement();
+
+    void setResultSet(std::unique_ptr<sql::ResultSet> result_set);
+
+    std::unique_ptr<sql::ResultSet>& getResultSet();
 
     virtual void               GetNextRow(DataBinding* dataBinding, void* object);
     void                        ResetRowIndex(int index = 0);
@@ -70,15 +85,13 @@ public:
         mMultiResult = b;
     }
 
-    DatabaseImplementation*     getDatabaseImplementation(void)                 {
+    DatabaseImplementation*     getDatabaseImplementation()                 {
         return mDatabaseImplementation;
     }
-    void*                       getResultSetReference(void)                     {
+    void*                       getResultSetReference()                     {
         return mResultSetReference;
     }
-    uint64                      getRowCount(void)                               {
-        return mRowCount;
-    }
+    uint64_t                      getRowCount();
 
     void                        setDatabaseImplementation(DatabaseImplementation* impl)   {
         mDatabaseImplementation = impl;
@@ -86,21 +99,20 @@ public:
     void                        setResultSetReference(void* ref)                {
         mResultSetReference = ref;
     }
-    void                        setRowCount(uint64 count)                       {
-        mRowCount = count;
-    }
 
 private:
+    std::unique_ptr<sql::ResultSet> result_set_;
+    std::unique_ptr<sql::Statement> statement_;
+
     DatabaseWorkerThread*			mWorkerReference;
     void*							mConnectionReference;
     void*							mResultSetReference;
-    uint64						mRowCount;
     DatabaseImplementation*		mDatabaseImplementation;
     bool							mMultiResult;
 };
 
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 #endif //MMOSERVER_DATABASEMANAGER_DATABASERESULT_H
-
-
-

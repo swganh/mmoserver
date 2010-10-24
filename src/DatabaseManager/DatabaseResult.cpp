@@ -40,25 +40,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdlib.h>
 #include <stdio.h>
 
-DatabaseResult::DatabaseResult(sql::Statement* statement, sql::ResultSet* result_set, bool multiResult)
+DatabaseResult::DatabaseResult(const DatabaseImplementation& impl, sql::Statement* statement, sql::ResultSet* result_set, bool multiResult)
     : statement_(statement)
     , result_set_(result_set)
+    , impl_(impl)
     , mWorkerReference(0)
-    , mConnectionReference(0)
-    , mResultSetReference(0)
-    , mDatabaseImplementation(0)
     , mMultiResult(multiResult) {}
+
 
 DatabaseResult::~DatabaseResult() {}
 
 
 std::unique_ptr<sql::Statement>& DatabaseResult::getStatement() {
     return statement_;
-}
-
-
-void DatabaseResult::setResultSet(std::unique_ptr<sql::ResultSet> result_set) {
-    result_set_ = std::move(result_set);
 }
 
 
@@ -71,18 +65,15 @@ uint64_t DatabaseResult::getRowCount() {
     return result_set_ ? result_set_->rowsCount() : 0; 
 }
 
-//======================================================================================================================
-void DatabaseResult::GetNextRow(DataBinding* dataBinding, void* object)
-{
+
+void DatabaseResult::GetNextRow(DataBinding* dataBinding, void* object) {
     // Just shunt this method to the actual implementation method.  This might have thread problems right now.
-    mDatabaseImplementation->GetNextRow(this, dataBinding, object);
+    impl_.GetNextRow(this, dataBinding, object);
 }
 
 
-//======================================================================================================================
-void DatabaseResult::ResetRowIndex(int index)
-{
-    mDatabaseImplementation->ResetRowIndex(this,index);
+void DatabaseResult::ResetRowIndex(int index) {
+    impl_.ResetRowIndex(this,index);
 }
 
 #ifdef _WIN32

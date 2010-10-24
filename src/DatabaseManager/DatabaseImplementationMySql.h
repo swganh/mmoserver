@@ -37,8 +37,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 #include <string>
 
-#include "DatabaseImplementation.h"
 #include "Utils/typedefs.h"
+
+#include "DatabaseManager/DatabaseImplementation.h"
 #include "DatabaseManager/declspec.h"
 
 namespace sql {
@@ -50,31 +51,24 @@ namespace sql {
 class DataBinding;
 class DatabaseResult;
 
-typedef struct st_mysql MYSQL;
-typedef struct st_mysql_res MYSQL_RES;
-typedef struct st_mysql_rows MYSQL_ROWS;
-
 class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation {
 public:
     DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
-    virtual							~DatabaseImplementationMySql(void);
+    virtual ~DatabaseImplementationMySql();
 
-    virtual DatabaseResult*			ExecuteSql(const int8* sql,bool procedure = false);
-    virtual DatabaseWorkerThread*		DestroyResult(DatabaseResult* result);
+    virtual DatabaseResult* ExecuteSql(const int8* sql,bool procedure = false);
+    virtual DatabaseWorkerThread* DestroyResult(DatabaseResult* result);
 
-    virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object);
-    virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0);
+    virtual void GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;
+    virtual void ResetRowIndex(DatabaseResult* result, uint64 index = 0) const;
 
-    virtual uint32					Escape_String(int8* target,const int8* source,uint32 length);
+    virtual uint32 Escape_String(int8* target,const int8* source,uint32 length);
 
 private:
-    void processFieldBinding_(std::unique_ptr<sql::ResultSet>& result, DataBinding* binding, uint32_t field_id, void* object);
+    void processFieldBinding_(std::unique_ptr<sql::ResultSet>& result, DataBinding* binding, uint32_t field_id, void* object) const;
 
     std::unique_ptr<sql::Connection> connection_;
     std::unique_ptr<sql::Statement> statement_;
-
-    MYSQL*                      mConnection;
-    MYSQL_RES*                  mResultSet;
 };
 
 #ifdef _WIN32
@@ -82,10 +76,4 @@ private:
 #pragma warning(disable : 4251)
 #endif
 
-
 #endif // ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
-
-
-
-
-

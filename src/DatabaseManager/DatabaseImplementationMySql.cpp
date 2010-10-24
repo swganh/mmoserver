@@ -44,8 +44,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
-#include <mysql.h>
-
 #include <mysql_connection.h>
 #include <mysql_driver.h>
 
@@ -79,7 +77,7 @@ DatabaseImplementationMySql::DatabaseImplementationMySql(
 }
 
 
-DatabaseImplementationMySql::~DatabaseImplementationMySql(void)
+DatabaseImplementationMySql::~DatabaseImplementationMySql()
 {}
 
 
@@ -93,8 +91,7 @@ DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const int8* sql, bool pr
         sql::ResultSet* result_set = statement->getResultSet();
         result_set = result_set ? result_set : nullptr;
 
-        result = new(ResultPool::ordered_malloc()) DatabaseResult(statement, result_set, procedure);
-        result->setDatabaseImplementation(this);
+        result = new(ResultPool::ordered_malloc()) DatabaseResult(*this, statement, result_set, procedure);
     } catch(const sql::SQLException& e) {
         LOG(FATAL) << e.what();
     }
@@ -103,8 +100,7 @@ DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const int8* sql, bool pr
 }
 
 
-DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult* result)
-{
+DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult* result) {
     DatabaseWorkerThread* worker = NULL;
     
     if(result->isMultiResult()) {
@@ -124,7 +120,7 @@ DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult*
 }
 
 
-void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) {
+void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) const {
     std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
     if (! result_set) {
@@ -133,7 +129,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
 
     if (! result_set->next()) {
         if (result->isMultiResult()) {
-            if (!result->getStatement()->getMoreResults()) {
+            if (! result->getStatement()->getMoreResults()) {
                 return;
             }
 
@@ -150,21 +146,18 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
     for (uint32_t i = 0, field_count = binding->getFieldCount(); i < field_count; ++i) {
         processFieldBinding_(result_set, binding, i, object);
     }
-
-    result->setResultSet(std::move(result_set));
 }
 
 
-void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64 index)
-{
+void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64 index) const {
     if(!result) {
         LOG(ERROR) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
     std::unique_ptr<sql::ResultSet>& temp = result->getResultSet();
-    if(!temp)
-    {
+
+    if (!temp) {
         LOG(ERROR) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
@@ -173,15 +166,13 @@ void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64 i
 }
 
 
-uint32 DatabaseImplementationMySql::Escape_String(int8* target,const int8* source,uint32 length)
-{
-    if(!target)
-    {
+uint32 DatabaseImplementationMySql::Escape_String(int8* target, const int8* source, uint32 length) {
+    if (!target) {
         LOG(ERROR) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
-    if(!source)
-    {
+
+    if (!source) {
         LOG(ERROR) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
         return 0;
     }
@@ -200,14 +191,13 @@ void DatabaseImplementationMySql::processFieldBinding_(
     std::unique_ptr<sql::ResultSet>& result, 
     DataBinding* binding, 
     uint32_t field_id,
-    void* object) 
+    void* object) const
 {
     // Mysql Connector/c++ starts it's field id's with 1 instead of 0 so create
     // a temporary variable that compensates for the offset.
     uint32_t result_field_id = binding->mDataFields[field_id].mColumn + 1;
 
-    switch (binding->mDataFields[field_id].mDataType)
-    {
+    switch (binding->mDataFields[field_id].mDataType) {
         case DFT_int8: {
             *((char*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getInt(result_field_id);
             break;

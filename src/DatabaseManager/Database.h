@@ -89,43 +89,47 @@ public:
     */
     void executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback);
 
-    void                                    Process(void);
+    void Process();
     
-    DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);
-    //DatabaseResult*                         ExecuteSql(int8* sql, ...);
-    void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
-    void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
+    DatabaseResult* ExecuteSynchSql(const int8* sql, ...);
 
-    DatabaseResult*                         ExecuteProcedure(const int8* sql, ...);
-    void                                    ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+    void ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+    void ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
 
-    uint32								  Escape_String(int8* target,const int8* source,uint32 length);
+    DatabaseResult* ExecuteProcedure(const int8* sql, ...);
+    void ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
 
-    void									  DestroyResult(DatabaseResult* result);
+    uint32 Escape_String(int8* target,const int8* source,uint32 length);
 
-    DataBinding*                            CreateDataBinding(uint16 fieldCount);
-    void									  DestroyDataBinding(DataBinding* binding);
+    void DestroyResult(DatabaseResult* result);
 
-    DatabaseWorkerThread*                   popIdleWorker();
-    void									  pushIdleWorker(DatabaseWorkerThread* worker);
+    DataBinding* CreateDataBinding(uint16 fieldCount);
+    void DestroyDataBinding(DataBinding* binding);
 
-    void									  pushDatabaseJobComplete(DatabaseJob* job);
+    DatabaseWorkerThread* popIdleWorker();
+    void pushIdleWorker(DatabaseWorkerThread* worker);
 
-    Transaction*							  startTransaction(DatabaseCallback* callback, void* ref);
-    void									  destroyTransaction(Transaction* t);
+    void pushDatabaseJobComplete(DatabaseJob* job);
 
-    bool									  releaseResultPoolMemory();
-    bool									  releaseJobPoolMemory() {
+    Transaction* startTransaction(DatabaseCallback* callback, void* ref);
+    void destroyTransaction(Transaction* t);
+
+    bool releaseResultPoolMemory();
+    bool releaseJobPoolMemory() {
         return(mJobPool.release_memory());
     }
-    bool									  releaseTransactionPoolMemory() {
+
+    bool releaseTransactionPoolMemory() {
         return(mTransactionPool.release_memory());
     }
-    bool									  releaseBindingPoolMemory() {
+
+    bool releaseBindingPoolMemory() {
         return(mDataBindingFactory->releasePoolMemory());
     }
-    int									  GetCount(const int8* tablename);
-    int									  GetSingleValueSync(const int8* sql);
+
+    int GetCount(const int8* tablename);
+    int GetSingleValueSync(const int8* sql);
+
 private:
     // Disable the default constructor, construction always occurs through the
     // single overloaded constructor.

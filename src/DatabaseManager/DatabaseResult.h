@@ -49,66 +49,42 @@ class DatabaseWorkerThread;
 
 
 //======================================================================================================================
-class DBMANAGER_API DatabaseResult
-{
+class DBMANAGER_API DatabaseResult {
 public:
-    DatabaseResult(sql::Statement* statement, sql::ResultSet* result_set, bool multiResult);
+    DatabaseResult(const DatabaseImplementation& impl, 
+                   sql::Statement* statement, 
+                   sql::ResultSet* result_set, 
+                   bool multiResult);
     ~DatabaseResult();
     
     std::unique_ptr<sql::Statement>& getStatement();
-
-    void setResultSet(std::unique_ptr<sql::ResultSet> result_set);
-
     std::unique_ptr<sql::ResultSet>& getResultSet();
 
-    virtual void               GetNextRow(DataBinding* dataBinding, void* object);
-    void                        ResetRowIndex(int index = 0);
-
-    void*						  getConnectionReference(void) {
-        return mConnectionReference;
-    }
-    void						  setConnectionReference(void* ref)	{
-        mConnectionReference =  ref;
-    }
-
-    void						  setWorkerReference(DatabaseWorkerThread* worker) {
+    void GetNextRow(DataBinding* dataBinding, void* object);
+    void ResetRowIndex(int index = 0);
+    
+    void setWorkerReference(DatabaseWorkerThread* worker) {
         mWorkerReference = worker;
     }
-    DatabaseWorkerThread*		  getWorkerReference() {
+
+    DatabaseWorkerThread* getWorkerReference() {
         return mWorkerReference;
     }
 
-    bool						  isMultiResult() {
+    bool isMultiResult() {
         return mMultiResult;
     }
-    void						  setMultiResult(bool b) {
-        mMultiResult = b;
-    }
 
-    DatabaseImplementation*     getDatabaseImplementation()                 {
-        return mDatabaseImplementation;
-    }
-    void*                       getResultSetReference()                     {
-        return mResultSetReference;
-    }
-    uint64_t                      getRowCount();
-
-    void                        setDatabaseImplementation(DatabaseImplementation* impl)   {
-        mDatabaseImplementation = impl;
-    }
-    void                        setResultSetReference(void* ref)                {
-        mResultSetReference = ref;
-    }
+    uint64_t getRowCount();
 
 private:
     std::unique_ptr<sql::ResultSet> result_set_;
     std::unique_ptr<sql::Statement> statement_;
 
-    DatabaseWorkerThread*			mWorkerReference;
-    void*							mConnectionReference;
-    void*							mResultSetReference;
-    DatabaseImplementation*		mDatabaseImplementation;
-    bool							mMultiResult;
+    const DatabaseImplementation& impl_;
+
+    DatabaseWorkerThread* mWorkerReference;
+    bool mMultiResult;
 };
 
 #ifdef _WIN32

@@ -28,20 +28,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 #define ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 
-#include <cstdint>
 
+#include <cstdint>
+#include <memory>
 #include <string>
 
-#include "DatabaseType.h"
-#include "Utils/typedefs.h"
+#include "Utils/ActiveObject.h"
+
+#include "DatabaseManager/DatabaseType.h"
 #include "DatabaseManager/declspec.h"
+
 #include <boost/thread/thread.hpp>
-
-//======================================================================================================================
-
-class Database;
-class DatabaseJob;
-class DatabaseImplementation;
 
 // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
@@ -49,64 +46,35 @@ class DatabaseImplementation;
 #pragma warning (disable : 4251)
 #endif
 
-//======================================================================================================================
-class DBMANAGER_API DatabaseWorkerThread
-{
+class Database;
+class DatabaseJob;
+class DatabaseImplementation;
+
+
+class DBMANAGER_API DatabaseWorkerThread {
 public:
     DatabaseWorkerThread(DBType type, 
                          Database* database, 
                          const std::string& host, 
-                         uint16 port, const 
+                         uint16_t port, const 
                          std::string& user, 
                          const std::string& pass, 
                          const std::string& schema);
 
     ~DatabaseWorkerThread();
 
-    void run();
-
-    void ExecuteJob(DatabaseJob* job);
-
-    void requestExit();
+    void executeJob(DatabaseJob* job);
 
 private:
-    void                        startup_();
-    void                        shutdown_();
+    utils::ActiveObject active_;
     
-    boost::mutex                mutex_;
-    boost::thread			    thread_;
-
-    std::string                 hostname_;
-    std::string                 username_;
-    std::string                 password_;
-    std::string                 schema_;
-
-    Database*                   database_;
-    DatabaseImplementation*     database_impl_;
-
-    DatabaseJob*                current_job_;
-    
-    DBType                      db_type_;
-    
-    uint16_t                    port_;
-
-    bool						is_done_;
-    bool						exit_;
+    std::unique_ptr<DatabaseImplementation> database_impl_;
+    Database* database_;
 };
 
 // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (pop)
 #endif
-
-//======================================================================================================================
-
-inline void DatabaseWorkerThread::ExecuteJob(DatabaseJob* job)
-{
-    boost::mutex::scoped_lock lk(mutex_);
-    current_job_ = job;
-}
-
-//======================================================================================================================
 
 #endif // ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H

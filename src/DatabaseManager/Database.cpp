@@ -138,18 +138,17 @@ void Database::Process(void)
     if(mWorkerIdleQueue.size() && mJobPendingQueue.size())
     {
         // Pop the worker and job off thier queues.
-        worker	= mWorkerIdleQueue.pop();
-        job		= mJobPendingQueue.pop();
+        worker = mWorkerIdleQueue.pop();
+        job = mJobPendingQueue.pop();
 
         // Hand The job to the worker.
-        worker->ExecuteJob(job);
+        worker->executeJob(job);
     }
 
     // Now process any completed jobs.
     uint32 completedCount = mJobCompleteQueue.size();
 
-    for (uint32 i = 0; i < completedCount; i++)
-    {
+    for (uint32 i = 0; i < completedCount; i++) {
         // pop a job
         job = mJobCompleteQueue.pop();
 

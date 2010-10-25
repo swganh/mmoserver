@@ -74,11 +74,14 @@ DatabaseImplementationMySql::DatabaseImplementationMySql(
     connection_options["schema"] = schema;
 
     connection_.reset(driver->connect(connection_options));
+
+    connection_->getDriver()->threadInit();
 }
 
 
-DatabaseImplementationMySql::~DatabaseImplementationMySql()
-{}
+DatabaseImplementationMySql::~DatabaseImplementationMySql() {
+    connection_->getDriver()->threadEnd();
+}
 
 
 DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const int8* sql, bool procedure) {

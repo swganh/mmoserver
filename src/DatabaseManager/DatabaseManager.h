@@ -25,47 +25,45 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_DATABASEMANAGER_DATABASEMANAGER_H
-#define ANH_DATABASEMANAGER_DATABASEMANAGER_H
+#ifndef DATABASE_MANAGER_DATABASE_MANAGER_H_
+#define DATABASE_MANAGER_DATABASE_MANAGER_H_
 
-#include "DatabaseType.h"
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
+
+#include <cstdint>
 #include <list>
-#include "Utils/typedefs.h"
+#include <memory>
+
+#include "DatabaseManager/DatabaseType.h"
 #include "DatabaseManager/declspec.h"
 
-
-//======================================================================================================================
 class Database;
-enum  DBType;
 
-typedef std::list<Database*>           DatabaseList;
-
-
-//======================================================================================================================
-class DBMANAGER_API DatabaseManager
-{
+class DBMANAGER_API DatabaseManager {
 public:
-    DatabaseManager(void);
-    ~DatabaseManager(void);
+    DatabaseManager();
+    ~DatabaseManager();
 
-    void                            Process(void);
+    void Process();
 
-    Database*                       Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* dbname);
+    Database* Connect(DBType type, 
+        const std::string& host, 
+        uint16_t port, 
+        const std::string& user, 
+        const std::string& pass, 
+        const std::string& dbname);
 
 private:
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
-    DatabaseList                    mDatabaseList;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
+    typedef std::list<std::shared_ptr<Database>> DatabaseList;
+    DatabaseList database_list_;
 };
 
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
-
-#endif //OOMSERVER_DATABASEMANAGER_DATABASEMANAGER_H
-
+#endif  // DATABASE_MANAGER_DATABASE_MANAGER_H_
 

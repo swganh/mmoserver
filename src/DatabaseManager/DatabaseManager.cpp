@@ -25,52 +25,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "DatabaseManager.h"
-#include "Database.h"
+#include "DatabaseManager/DatabaseManager.h"
+
+#include <algorithm>
+
+#include "DatabaseManager/Database.h"
 
 
-//======================================================================================================================
-DatabaseManager::DatabaseManager(void)
-{
+DatabaseManager::DatabaseManager() {}
 
+
+DatabaseManager::~DatabaseManager() {}
+
+
+void DatabaseManager::Process() {
+    std::for_each(database_list_.begin(), database_list_.end(), 
+        [] (std::shared_ptr<Database> db) {
+            db->Process();
+        });
 }
 
 
-//======================================================================================================================
-DatabaseManager::~DatabaseManager(void)
+Database* DatabaseManager::Connect(DBType type, 
+                                   const std::string& host, 
+                                   uint16_t port, 
+                                   const std::string& user, 
+                                   const std::string& pass, 
+                                   const std::string& schema)
 {
-    DatabaseList::iterator iter = mDatabaseList.begin();
-
-    while(iter != mDatabaseList.end())
-    {
-        delete(*iter);
-        iter = mDatabaseList.erase(iter);
-    }
-}
-
-//======================================================================================================================
-void DatabaseManager::Process(void)
-{
-    DatabaseList::iterator iter;
-    for (iter = mDatabaseList.begin(); iter != mDatabaseList.end(); iter++)
-    {
-        (*iter)->Process();
-    }
-}
-
-
-//======================================================================================================================
-Database* DatabaseManager::Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* schema)
-{
-    Database* newDatabase = 0;
-
     // Create our new Database object and initiailzie it.
-    newDatabase = new Database(type, host, port, user, pass, schema);
+    auto database = std::make_shared<Database>(type, host, port, user, pass, schema);
 
     // Add the new DB to our process list.
-    mDatabaseList.push_back(newDatabase);
+    database_list_.push_back(database);
 
-    return newDatabase;
+    return database.get();
 }
 
 

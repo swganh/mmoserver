@@ -25,38 +25,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "Channel.h"
-#include "ChatAvatarId.h"
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
+
 #include "ChatManager.h"
-#include "ChatMessageLib.h"
-#include "ChatOpcodes.h"
-#include "GroupManager.h"
-#include "GroupObject.h"
-#include "Mail.h"
-#include "Player.h"
 
 // Fix for issues with glog redefining this constant
 #ifdef _WIN32
 #undef ERROR
 #endif
 
+#include <cstring>
+#include <ctime>
+
 #include <glog/logging.h>
+#include <cppconn/resultset.h>
+
+#include "Utils/typedefs.h"
+#include "Utils/utils.h"
+
+#include "Common/atMacroString.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
-#include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 
-#include "Utils/typedefs.h"
-#include "Utils/utils.h"
-
-#include <cstring>
-#include <ctime>
+#include "ChatServer/Channel.h"
+#include "ChatServer/ChatAvatarId.h"
+#include "ChatServer/ChatMessageLib.h"
+#include "ChatServer/ChatOpcodes.h"
+#include "ChatServer/GroupManager.h"
+#include "ChatServer/GroupObject.h"
+#include "ChatServer/Mail.h"
+#include "ChatServer/Player.h"
 
 //======================================================================================================================
 
@@ -2268,16 +2276,17 @@ void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
     int8 sql[100];
     sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", recipient);
 
-    mDatabase->executeAsyncSql(sql, [this, mail, recipient] (DatabaseResult* result) {        
-        BString	name;
+    mDatabase->executeAsyncSql(sql, [this, mail, recipient] (DatabaseResult* result) {       
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        
+        if (!result_set->next()) {
+            LOG(WARNING) << "Unable to find the firstname for character with the id [" << recipient << "]";
+            return;
+        }
 
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
-        binding->addField(DFT_bstring,0,64);
-        result->GetNextRow(binding,&name);
+        std::string name = result_set->getString(1);
 
-        _PersistentMessagebySystem(mail, 0, name);
-
-        mDatabase->DestroyDataBinding(binding);
+        _PersistentMessagebySystem(mail, 0, name.c_str());
     });
 }
 
@@ -3232,3 +3241,7 @@ void ChatManager::_processCancelScheduledShutdown(Message* message, DispatchClie
     newMessage = gMessageFactory->EndMessage();
     client->SendChannelA(newMessage, AdminAccountId, planetId, 2);
 }
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif

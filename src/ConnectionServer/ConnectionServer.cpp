@@ -100,7 +100,7 @@ mLocked(false)
 
 	mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'connection'");
 	// In case of a crash, we need to cleanup the DB a little.
-	DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET loggedin=0 WHERE loggedin=%u;", mClusterId);
+	DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
 	mDatabase->DestroyResult(result);
 
 	// Status:  0=offline, 1=loading, 2=online

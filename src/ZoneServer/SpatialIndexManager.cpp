@@ -96,6 +96,7 @@ bool SpatialIndexManager::AddObject(Object *newObject)
 	}
 
 	//now create it for everyone around
+	//and around for it
 	if(newObject->getType() == ObjType_Player)
 	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(newObject);
@@ -212,21 +213,61 @@ RegionObject* SpatialIndexManager::getRegion(uint32 id)
 	
 }
 
-void SpatialIndexManager::RemoveObject(Object *removeObject)
+//*********************************************************************
+//a simple Object can only be in the grid *or* in the cell
+//it can be equipped however by a creature / player
+void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 {
-	uint32 cell = removeObject->zmapCellID;
-	RemoveObject(removeObject, cell);
-}
 
-void SpatialIndexManager::RemovePlayerFromWorld(PlayerObject *removePlayer)
+	//were in a cell - get us out
+	if(removeObject->getParentId())
+	{
+		ObjectContainer* container = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(removeObject->getParentId()));
+		if(container)
+		{
+			if(CreatureObject* owner = dynamic_cast<CreatureObject*>(container))
+			{
+				// remove from creatures slotmap
+				owner->getEquipManager()->removeEquippedObject(removeObject);
+
+				// send out the new equiplist
+				gMessageLib->sendEquippedListUpdate_InRange(owner);				
+
+				//destroy for players in the grid
+				gSpatialIndexManager->SendDestroyEquippedObject(removeObject);
+				
+				//Bailout - the reson we use SendDestroyEquippedObject(object); instead of the (faster) destroyObjectToRegisteredPlayers
+				//is that creatures do not get registered to players as containers (yet) - that might be an idea to change
+				return;
+
+			}
+
+			destroyObjectToRegisteredPlayers(container,removeObject->getId());
+		}
+		
+		//remove the object out of the container
+		container->removeObject(removeObject);
+		
+		//no need to remove a tangible(!) from the grid if it was in a cell
+		return;
+	}
+
+	//remove it out of the grid
+	uint32 gridCell = removeObject->zmapCellID;
+	RemoveObject(removeObject, gridCell);
+}
+ 
+//*********************************************************************
+//a Player or creature is ALWAYS in the grid and possibly in a cell
+void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 {
 	//remove us from the grid
-	RemoveObject(removePlayer);
+	uint32 gridCell = removePlayer->zmapCellID;
+	RemoveObject(removePlayer, gridCell);
 
 	//remove us out of the cell
 	if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(removePlayer->getParentId())))
 	{
-		//that might be able to go entirely - already done by removeObject
 		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
 		{
 			this->unRegisterPlayerFromBuilding(building,removePlayer);
@@ -243,11 +284,30 @@ void SpatialIndexManager::RemovePlayerFromWorld(PlayerObject *removePlayer)
 
 }
 
+void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
+{
+	//remove us from the grid
+	uint32 gridCell = removeCreature->zmapCellID;
+	RemoveObject(removeCreature, gridCell);
+
+	//remove us out of the cell
+	ObjectContainer* container = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(removeCreature->getParentId()));
+	if(container)
+	{
+		destroyObjectToRegisteredPlayers(container,removeCreature->getId());
+
+		//remove the object out of the container
+		container->removeObject(removeCreature);
+	}
+
+
+}
+
 
 //===========================================================================
 // this will remove an object from the grid
 // if the object is a container with listeners, the listeners will be unregistered
-void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 cell)
+void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 {
 	
 	getGrid()->RemoveObject(removeObject);
@@ -255,7 +315,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 cell)
 	//now destroy it for everyone around as well as around for it
 	
 	ObjectListType playerList;
-	getGrid()->GetPlayerViewingRangeCellContents(cell, &playerList);
+	getGrid()->GetPlayerViewingRangeCellContents(gridCell, &playerList);//cell means gridcell here
 
 	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
 	{
@@ -353,15 +413,18 @@ void SpatialIndexManager::removeObjectFromBuilding(Object* object, BuildingObjec
 			{
 				PlayerObject* player = dynamic_cast<PlayerObject*>(*playerIt);
 				
-				//is the object a container?? do we need to despawn the content and unregister it ?
-				ObjectContainer* container = dynamic_cast<ObjectContainer*>(object);
-				if((container) && (container->checkRegisteredWatchers(player)))
+				if(player)
 				{
-					unRegisterPlayerFromContainer(container,player);	
-				}
+					//is the object a container?? do we need to despawn the content and unregister it ?
+					ObjectContainer* container = dynamic_cast<ObjectContainer*>(object);
+					if((container) && (container->checkRegisteredWatchers(player)))
+					{
+						unRegisterPlayerFromContainer(container,player);	
+					}
 
-				//destroy item for the player
-				gMessageLib->sendDestroyObject(object->getId(),player);
+					//destroy item for the player
+					gMessageLib->sendDestroyObject(object->getId(),player);
+				}
 
 				playerIt++;
 			}

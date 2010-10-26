@@ -337,7 +337,7 @@ PlayerObject::~PlayerObject()
 		}
 	}
 	
-	gSpatialIndexManager->RemoveObject(this);
+	gSpatialIndexManager->RemoveObjectFromWorld(this);
 	
 
 	clearAllUIWindows();

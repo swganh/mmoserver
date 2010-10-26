@@ -169,15 +169,14 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 
 			gMessageLib->sendWeatherUpdate(weather->mClouds,weather->mWeather,playerObject);
 
-			
-			//get that to the spatialIndexManager at some point ???
-			//create ourselves
+			//create ourselves for us
 			gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
 			
 			//create us for others
 			gSpatialIndexManager->createCreatureInWorld(playerObject);
 
-			//gWorldManager->addObject(playerObject);
+			//initialize us for the world
+			gWorldManager->addObject(playerObject);
 
 			playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);	
 			gMessageLib->sendUpdatePlayerFlags(playerObject);
@@ -368,6 +367,13 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
 			gMessageLib->sendStartScene(mZoneId,player);
 			gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
 
+			//create ourselves for us
+			gSpatialIndexManager->sendCreatePlayer(player,player);
+			
+			//create us for others
+			gSpatialIndexManager->createCreatureInWorld(player);
+
+			//initialize us in the world
 			gWorldManager->addObject(player);
 		}
 		break;

@@ -487,7 +487,7 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 		"character_attributes.posture,character_attributes.moodId,characters.jedistate,character_attributes.title,character_appearance.scale,"   //171
 		"character_movement.baseSpeed,character_movement.baseAcceleration,character_movement.baseTurnrate,character_movement.baseTerrainNegotiation,"//175 grml off by one it should be 176
 		"character_attributes.character_flags,character_biography.biography,character_attributes.states,characters.race_id,"
-		"banks.planet_id,account.csr,character_attributes.group_id,characters.bornyear,"
+		"banks.planet_id,account.account_csr,character_attributes.group_id,characters.bornyear,"
 		"character_matchmaking.match_1, character_matchmaking.match_2, character_matchmaking.match_3, character_matchmaking.match_4,"
 		"character_attributes.force_current,character_attributes.force_max,character_attributes.new_player_exemptions"
 		" FROM characters"

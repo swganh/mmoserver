@@ -233,29 +233,6 @@ void WorldManager::Shutdown()
 
 	Heightmap::deleter();
 
-	// Let's get REAL dirty here, since we have no solutions to the deletion-race of containers content.
-	// Done by Eruptor. I got tired of the unhandled problem.
-	// as we cannot keep the content out of the worldmanagers mainobjectlist - we might just store references in the container object ?
-	// the point is that we then have to delete all containers first - so register them seperately?
-	//
-#if defined(_MSC_VER)
-	if (getObjectById((uint64)(2533274790395904)))
-#else
-	if (getObjectById((uint64)(2533274790395904LLU)))
-#endif
-	{
-#if defined(_MSC_VER)
-		Container* container = dynamic_cast<Container*>(getObjectById((uint64)(2533274790395904)));
-#else
-		Container* container = dynamic_cast<Container*>(getObjectById((uint64)(2533274790395904LLU)));
-#endif
-		if (container)
-		{
-			gLogger->log(LogManager::DEBUG,"WorldManager::Shutdown(): Deleting the Tutorial container");
-			this->destroyObject(container);
-			gLogger->log(LogManager::INFORMATION,"WorldManager::Shutdown(): Delete done!");
-		}
-	}
 
 	// remove all cells and factories first so we dont get a racecondition with their content 
 	// when clearing the mainObjectMap

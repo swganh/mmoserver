@@ -74,6 +74,11 @@ ObjectContainer::~ObjectContainer()
 			continue;
 		}
 
+		if(object->getId() == 2533274790395904)
+		{
+			gLogger->log(LogManager::DEBUG,"ObjectContainer::remove Object ");
+		}
+
 		//take care of a crafting tool
 		if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
 		{
@@ -84,6 +89,7 @@ ObjectContainer::~ObjectContainer()
 			}
 		}
 
+		//just deinitialization/removal out of mainObjectMap .. NO removal out of si/cells
 		gWorldManager->destroyObject(object);
 
 		objectIt = removeObject(objectIt);
@@ -168,9 +174,10 @@ bool ObjectContainer::removeObject(Object* data)
 	{
 		if((*it) == data->getId())
 		{
-			it = mData.erase(it);
 			if((data->getType() != ObjType_Player) && (data->getType() != ObjType_Creature))
 				gSpatialIndexManager->destroyObjectToRegisteredPlayers(this,(*it));
+
+			it = mData.erase(it);
 			return true;
 		}
 		++it;
@@ -190,8 +197,6 @@ bool ObjectContainer::deleteObject(Object* data)
 	{
 		if((*it) == data->getId())
 		{
-			it = mData.erase(it);
-			gSpatialIndexManager->destroyObjectToRegisteredPlayers(this,(*it));
 			gWorldManager->destroyObject(data);
 			return true;
 		}

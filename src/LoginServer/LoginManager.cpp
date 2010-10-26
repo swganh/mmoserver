@@ -107,7 +107,7 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
 	LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
 
 	// Client has disconnected.  Update the db to show they are no longer authenticated.
-	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
+	mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET account_authenticated=0 WHERE account_id=%u;", loginClient->getAccountId());
 
 	LoginClientList::iterator iter = mLoginClientList.begin();
 
@@ -251,7 +251,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
   if (strlen(username.getAnsi()) == 0) //SessionID Login With ANH Launcher
   {
-	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key, csr FROM account WHERE banned=0 AND authenticated=0 AND loggedin=0   AND session_key='");
+	sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key, csr FROM account WHERE banned=0 AND account_authenticated=0 AND loggedin=0   AND session_key='");
 //	  sprintf(sql,"SELECT account_id, username, password, station_id, banned, active,characters_allowed, session_key FROM account WHERE banned=0 AND loggedin=0   AND session_key='");
 	sqlPointer = sql + strlen(sql);
 	sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
@@ -360,7 +360,7 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
   client->SendChannelA(message, 4,false);
 
   // Update the account record so we know they authenticated properly.
-  mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET authenticated=1 WHERE account_id=%u;", client->getAccountId());
+  mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET account_authenticated=1 WHERE account_id=%u;", client->getAccountId());
 
   // Execute our query for sending the server list.
   client->setState(LCSTATE_QueryServerList);

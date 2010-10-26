@@ -1334,7 +1334,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 			// This is not a valid state.
 			gLogger->log(LogManager::CRITICAL,"AttackableCreature::handleState Invalid state State_Unspawned.");
 			// It's a serious isse that we need to investigate.
-			assert(false && "AttackableCreature should never be in an unspawned state");
+			//assert(false && "AttackableCreature should never be in an unspawned state");
 
 			// Remove us from all timers etc...
 			// NpcManager::Instance()->removeNpc(this->getId());

@@ -291,7 +291,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 {
 
 	// remove from cell if we are in one / SI
-	gSpatialIndexManager->RemovePlayerFromWorld(playerObject);
+	gSpatialIndexManager->RemoveObjectFromWorld(playerObject);
 	
 	//we've removed the taskId, now lets reset the Id
 	playerObject->getHam()->setTaskId(0);

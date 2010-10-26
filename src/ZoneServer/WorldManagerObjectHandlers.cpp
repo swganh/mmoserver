@@ -164,17 +164,11 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			gLogger->log(LogManager::DEBUG,"New Player: %"PRIu64", Total Players on zone : %i",player->getId(),(getPlayerAccMap())->size() + 1);
 			// insert into the player map
-			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));
-
-			//create the creature in the world
-			gSpatialIndexManager->createCreatureInWorld(player);
+			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));			
 			
-			
-			// add us to the grid	
 			// not used currently - use with grid regions later ??
 			player->setSubZoneId(0);
 			
-			gMessageLib->sendCreatePlayer(player,player);
 
 			// add ham to regeneration scheduler
 			player->getHam()->updateRegenRates();	// ERU: Note sure if this is needed here.
@@ -192,8 +186,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			gSpatialIndexManager->registerPlayerToContainer(player,player);
 			gSpatialIndexManager->registerPlayerToContainer(player->getInventory(),player);
 
-			// Start player world position update. Used when player don't get any events from client (player not moving).
-			// addPlayerMovementUpdateTime(player, 1000);
+	
 		}
 		break;
 
@@ -219,6 +212,11 @@ bool WorldManager::addObject(Object* object,bool manual)
 		break;
 
 
+		case ObjType_Cell:
+		{
+		}
+		break;
+
 		case ObjType_Tangible:
 		{
 
@@ -240,7 +238,6 @@ bool WorldManager::addObject(Object* object,bool manual)
 			//create the creature in the world
 			gSpatialIndexManager->createCreatureInWorld(creature);
 			
-			creature->setSubZoneId(0);
 					
 		}
 		break;
@@ -280,11 +277,9 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 
 //======================================================================================================================
-//
-// removes an object from the world
-// destroys are send via the spatialindexmanager
-// the db is NOT touched
-
+// WorldManager::destroyObject(Object* object) removes an Object out of the main Object list
+// the db is NOT touched; just stop any subsystems and / or prepare removal
+// SpatialIndexManager::RemoveObjectFromWorld removes an object from the world (grid/cell) and sends destroys
 void WorldManager::destroyObject(Object* object)
 {
 
@@ -293,7 +288,7 @@ void WorldManager::destroyObject(Object* object)
 		//players are always in the grid
 		case ObjType_Player:
 		{
-			//destroys knownObjects in the destructor
+			
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
 
@@ -302,30 +297,12 @@ void WorldManager::destroyObject(Object* object)
 			params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),static_cast<uint32>(mPlayerAccMap.size())));
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params);
-			// gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: Player Client set to NULL");
 			
 			delete player->getClient();
 			
 			player->setClient(NULL);
 			player->setConnectionState(PlayerConnState_Destroying);
 
-			//remove out of grid and send destroys
-			gSpatialIndexManager->RemoveObject(object);
-
-			// remove us from cell / SI
-			uint64 cellId = player->getParentId();
-			if(player->getParentId())
-			{
-				CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(cellId));
-				if(cell)
-				{
-					cell->removeObject(player);
-				}
-				else
-				{
-					gLogger->log(LogManager::DEBUG,"PlayerObject::destructor: couldn't find cell %"PRIu64"",cellId);
-				}
-			}
 
 		}
 		break;
@@ -337,20 +314,6 @@ void WorldManager::destroyObject(Object* object)
 
 			// remove any timers we got running
 			removeCreatureHamToProcess(creature->getHam()->getTaskId());
-
-			// remove from cell 
-			if (object->getParentId())
-			{
-				
-				if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(object->getParentId())))
-				{
-					cell->removeObject(object);
-				}
-			
-			}
-			
-			//remove out of grid and send destroys
-			gSpatialIndexManager->RemoveObject(object);
 
 			// if its a shuttle, remove it from the shuttle list
 			if(creature->getCreoGroup() == CreoGroup_Shuttle)
@@ -374,9 +337,6 @@ void WorldManager::destroyObject(Object* object)
 		case ObjType_Structure:
 		{
 
-			//remove out of grid and send destroys
-			gSpatialIndexManager->RemoveObject(object);
-
 			//remove it out of the worldmanagers structurelist now that it is deleted
 			ObjectIDList::iterator itStruct = mStructureList.begin();
 			while(itStruct != mStructureList.end())
@@ -398,10 +358,6 @@ void WorldManager::destroyObject(Object* object)
 			if(building)
 			{
 				building->prepareDestruction();
-
-				//remove out of grid and send destroys
-				gSpatialIndexManager->RemoveObject(object);
-
 				
 				//remove it out of the worldmanagers structurelist now that it is deleted
 				ObjectIDList::iterator itStruct = mStructureList.begin();
@@ -431,59 +387,11 @@ void WorldManager::destroyObject(Object* object)
 
 		case ObjType_Tangible:
 		{
-			if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
-			{
-				uint64 parentId = tangible->getParentId();
-
-				//tangible was in the main cell
-				if(parentId == 0)
-				{
-					//remove out of grid and send destroys
-					gSpatialIndexManager->RemoveObject(object);
-				}
-				else
-				{
-					//tangible was in a building
-					if(CellObject* cell = dynamic_cast<CellObject*>(getObjectById(parentId)))
-					{
-						BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-
-						//destroy for players in the structure
-						gSpatialIndexManager->removeObjectFromBuilding(object, building);
-						
-						//remove out of cell
-						cell->removeObject(object);
-					}
-					else
-					//tangible was equipped
-					if(CreatureObject* owner = dynamic_cast<CreatureObject*>(getObjectById(parentId)))
-					{
-						// remove from creatures slotmap
-						owner->getEquipManager()->removeEquippedObject(object);
-
-						// send out the new equiplist
-						gMessageLib->sendEquippedListUpdate_InRange(owner);				
-
-						//destroy for players in the grid
-						gSpatialIndexManager->SendDestroyEquippedObject(object);
-						
-
-					}
-					else
-					//in a container - 
-					//TODO: find out who was watching
-					if(ObjectContainer* oc = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(object->getParentId())))
-					{
-						oc->deleteObject(object);
-					}
-				}
-
-			}
-			else
-			{
-				gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: error removing : %"PRIu64"",object->getId());
-			}
 			
+			if(object->getId() == 2533274790395904)
+			{
+				gLogger->log(LogManager::CRITICAL," WorldManager::destroyObject: %I64u",(object->getId()));
+			}
 		}
 		break;
 

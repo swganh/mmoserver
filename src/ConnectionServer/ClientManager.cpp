@@ -174,7 +174,7 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
 	mMessageRouter->RouteMessage(message, connClient);
 
 	// Update the account record that the account is logged out.
-	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET loggedin=0 WHERE account_id=%u;", connClient->getAccountId());
+	mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET account_loggedin=0 WHERE account_id=%u;", connClient->getAccountId());
 
 	// Client has disconnected.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
@@ -256,7 +256,7 @@ void ClientManager::_processClientIdMsg(ConnectionClient* client, Message* messa
 
   // Start our auth query
   client->setState(CCSTATE_QueryAuth);
-  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND authenticated=1 AND loggedin=0;", client->getAccountId());
+  mDatabase->ExecuteSqlAsync(this, (void*)client, "SELECT * FROM account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0;", client->getAccountId());
 }
 
 
@@ -394,7 +394,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
   if (result->getRowCount())
   {
     // Update the account record that it is now logged in and last login date.
-    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET lastlogin=NOW(), loggedin=%u WHERE account_id=%u;", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET lastlogin=NOW(), account_loggedin=%u WHERE account_id=%u;", gConfig->read<uint32>("ClusterId"), client->getAccountId());
 
     // finally add them to our accountId map.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);

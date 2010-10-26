@@ -177,6 +177,8 @@ CellObject* CellFactory::_createCell(DatabaseResult* result)
 
 	result->GetNextRow(mCellBinding,(void*)cellObject);
 
+	//cells are added to the worldmanager in the buildingFactory!!
+	
 	return cellObject;
 }
 

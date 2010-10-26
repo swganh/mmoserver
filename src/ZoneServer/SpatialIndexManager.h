@@ -99,9 +99,12 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					UpdateObject(Object *updateObject);
 
 		//removes an object from the grid and sends the destroys
-		void					RemoveObject(Object *removeObject);
-		void					RemoveObject(Object *removeObject, uint32 cell);
-		void					RemovePlayerFromWorld(PlayerObject *removePlayer);
+		void					RemoveObjectFromWorld(Object *removeObject);		
+		void					RemoveObjectFromWorld(PlayerObject *removePlayer);
+		void					RemoveObjectFromWorld(CreatureObject *removeCreature);
+		
+		//used by above routines to access the grid
+		void					RemoveObject(Object *removeObject, uint32 gridCell);
 
 		void					RemoveRegion(RegionObject *removeObject);
 		void					addRegion(RegionObject *region);

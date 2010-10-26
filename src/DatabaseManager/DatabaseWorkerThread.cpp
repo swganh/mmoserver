@@ -30,15 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseJob.h"
 
 
-DatabaseWorkerThread::DatabaseWorkerThread(DBType type, const std::string& host, uint16 port, const std::string& user, const std::string& pass, const std::string& schema) 
+DatabaseWorkerThread::DatabaseWorkerThread(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema)
     : database_impl_(nullptr)
 {
     switch (type) {
         case DBTYPE_MYSQL:
             database_impl_.reset(new DatabaseImplementationMySql(host, port, user, pass, schema));
-            break;
-
-        default:
             break;
     }
 }

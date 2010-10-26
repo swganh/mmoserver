@@ -28,8 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_UTILS_BSTRING_H
 #define ANH_UTILS_BSTRING_H
 
+#include <cstdint>
 #include <vector>
-#include "Utils/typedefs.h"
 #include "Utils/declspec.h"
 
 class BString;
@@ -53,15 +53,15 @@ class UTILS_API BString
 {
 public:
     BString();
-    BString(BStringType type, uint16 length);
+    BString(BStringType type, uint16_t length);
     ~BString();
 
-    BString(const int8* data);
-    BString(const uint16* data);
+    BString(const char* data);
+    BString(const uint16_t* data);
     BString(const wchar_t* data);
     BString(const BString& data);
 
-    uint16 initRawBSTR(int8* data, BStringType type);
+    uint16_t initRawBSTR(char* data, BStringType type);
 
     // Operator overloads
     bool operator ==(char* string);
@@ -69,28 +69,28 @@ public:
     bool operator ==(const BString& data);
     bool operator ==(BString data);
 
-    BString& operator =(const int8* data);
+    BString& operator =(const char* data);
 
-    BString& operator =(int8* data);
-    BString& operator =(const uint16* data);
+    BString& operator =(char* data);
+    BString& operator =(const uint16_t* data);
     BString& operator =(const wchar_t* data);
     BString& operator =(const BString& data);
 
-    BString& operator <<(const int8* data);
-    BString& operator <<(const uint16* data);
-    BString& operator <<(int8* data);
-    BString& operator <<(uint16* data);
+    BString& operator <<(const char* data);
+    BString& operator <<(const uint16_t* data);
+    BString& operator <<(char* data);
+    BString& operator <<(uint16_t* data);
 
     // Accessor Methods
-    int8* getAnsi();
-    const int8* getAnsi() const;
-    // uint16* getUnicode16();
+    char* getAnsi();
+    const char* getAnsi() const;
+    // uint16_t* getUnicode16();
     wchar_t* getUnicode16();
     const wchar_t* getUnicode16() const;
-    int8*   getUTF8();
+    char*   getUTF8();
 
     void convert(BStringType type);
-    void substring(BString& dest, uint16 start, uint16 end);
+    void substring(BString& dest, uint16_t start, uint16_t end);
 
     int  split(BStringVector& retVec,char delimiter);
     void toLower();
@@ -99,30 +99,30 @@ public:
     void toLowerFirst();
     bool isNumber();
 
-    void setLength(uint16 length);
+    void setLength(uint16_t length);
     void setType(BStringType type);
 
-    uint16 getLength() const;
-    uint32 getDataLength() const;
-    uint32 getCharacterWidth() const;
+    uint16_t getLength() const;
+    uint32_t getDataLength() const;
+    uint32_t getCharacterWidth() const;
 
     BStringType getType() const;
-    int8* getRawData() const;
-    uint32 getAllocated() const;
-    uint32 getCrc() const;
+    char* getRawData() const;
+    uint32_t getAllocated() const;
+    uint32_t getCrc() const;
 
-    static uint32 CRC(char* data);
+    static uint32_t CRC(char* data);
 
 private:
     void _allocate();
 
-    int8* mString;          // Pointer to the allocated buffer
+    char* mString;          // Pointer to the allocated buffer
     BStringType mType;            // What format is the current string in.
-    uint16 mAllocated;       // Length of the allocated buffer which should be a multiple of
-    uint16 mCharacterWidth;  // Size of a single character in bytes
-    uint16 mLength;          // Length of the string itself.  BStrings are NOT null terminated
+    uint16_t mAllocated;       // Length of the allocated buffer which should be a multiple of
+    uint16_t mCharacterWidth;  // Size of a single character in bytes
+    uint16_t mLength;          // Length of the string itself.  BStrings are NOT null terminated
 
-    static uint32 mCrcTable[256];
+    static uint32_t mCrcTable[256];
 };
 
 #endif //MMOSERVER_UTILS_BSTRING_H

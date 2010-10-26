@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "bstring.h"
 
 #include <cstdint>
-#include "typedefs.h"  // This must be first here to remove the dependency from the header.
 
 #include <algorithm>
 
@@ -50,12 +49,12 @@ BString::BString()
     , mLength(0)
 {
     _allocate();
-    *(uint32*)mString = 0;   // Make sure a new empty string is null terminated.
+    *(uint32_t*)mString = 0;   // Make sure a new empty string is null terminated.
 }
 
 //======================================================================================================================
 
-BString::BString(BStringType type,uint16 length)
+BString::BString(BStringType type,uint16_t length)
     : mString(0)
     , mType(type)
     , mAllocated(0)
@@ -67,7 +66,7 @@ BString::BString(BStringType type,uint16 length)
         mCharacterWidth = 2;
 
     _allocate();
-    *(uint32*)mString = 0;
+    *(uint32_t*)mString = 0;
 }
 
 //======================================================================================================================
@@ -79,7 +78,7 @@ BString::~BString()
 
 //======================================================================================================================
 
-BString::BString(const int8* data)
+BString::BString(const char* data)
     : mString(0)
     , mType(BSTRType_ANSI)
     , mAllocated(0)
@@ -91,12 +90,12 @@ BString::BString(const int8* data)
     if(data != NULL)
         *this = data;
     else
-        *(uint32*)mString = 0;
+        *(uint32_t*)mString = 0;
 }
 
 //======================================================================================================================
 
-BString::BString(const uint16* data)
+BString::BString(const uint16_t* data)
     : mString(0)
     , mType(BSTRType_Unicode16)
     , mAllocated(0)
@@ -108,7 +107,7 @@ BString::BString(const uint16* data)
     if(data != NULL)
         *this = data;
     else
-        *(uint32*)mString = 0;
+        *(uint32_t*)mString = 0;
 }
 
 //======================================================================================================================
@@ -125,7 +124,7 @@ BString::BString(const wchar_t* data)
     if(data != NULL)
         *this = data;
     else
-        *(uint32*)mString = 0;
+        *(uint32_t*)mString = 0;
 }
 
 
@@ -144,9 +143,9 @@ BString::BString(const BString& data)
 
 //======================================================================================================================
 
-uint16 BString::initRawBSTR(int8* data, BStringType type)
+uint16_t BString::initRawBSTR(char* data, BStringType type)
 {
-    uint16	totalLen = *(uint16*)data;
+    uint16_t totalLen = *(uint16_t*)data;
 
     mType = type;
 
@@ -166,7 +165,7 @@ uint16 BString::initRawBSTR(int8* data, BStringType type)
     break;
     }
 
-    uint32 charLen = (totalLen + 1) * mCharacterWidth;
+    uint32_t charLen = (totalLen + 1) * mCharacterWidth;
 
     // If we don't have enough room in our buffer, re-allocate a new one
     if(charLen > mAllocated)
@@ -174,8 +173,8 @@ uint16 BString::initRawBSTR(int8* data, BStringType type)
         if(mString)
             delete [] mString;
 
-        mAllocated = (((static_cast<uint16>(charLen) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
-        mString = new int8[mAllocated];
+        mAllocated = (((static_cast<uint16_t>(charLen) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
+        mString = new char[mAllocated];
 
         memset(mString,0,mAllocated);
     }
@@ -222,14 +221,14 @@ bool BString::operator ==(BString data)
 
 //======================================================================================================================
 
-BString& BString::operator =(const int8* data)
+BString& BString::operator =(const char* data)
 {
     // we might get a null pointer from db queries
     if(data != NULL)
     {
         mType = BSTRType_ANSI;
         mCharacterWidth = 1;
-        mLength = (uint16)strlen(data);
+        mLength = (uint16_t)strlen(data);
 
         // If we don't have enough room in our buffer, re-allocate a new one
         _allocate();
@@ -246,14 +245,14 @@ BString& BString::operator =(const int8* data)
 }
 
 //======================================================================================================================
-BString& BString::operator =(const uint16* data)
+BString& BString::operator =(const uint16_t* data)
 {
     // we might get a null pointer from db queries
     if(data != NULL)
     {
         mType = BSTRType_Unicode16;
         mCharacterWidth = 2;
-        mLength = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+        mLength = static_cast<uint16_t>(wcslen(reinterpret_cast<const wchar_t*>(data)));
 
         // If we don't have enough room in our buffer, re-allocate a new one
         _allocate();
@@ -276,7 +275,7 @@ BString& BString::operator =(const wchar_t* data)
     {
         mType = BSTRType_Unicode16;
         mCharacterWidth = 2;
-        mLength = static_cast<uint16>(wcslen(data));
+        mLength = static_cast<uint16_t>(wcslen(data));
 
         // If we don't have enough room in our buffer, re-allocate a new one
         _allocate();
@@ -294,14 +293,14 @@ BString& BString::operator =(const wchar_t* data)
 
 //======================================================================================================================
 
-BString& BString::operator =(int8* data)
+BString& BString::operator =(char* data)
 {
     // we might get a null pointer from db queries
     if(data != NULL)
     {
         mType = BSTRType_ANSI;
         mCharacterWidth = 1;
-        mLength = (uint16)strlen(data);
+        mLength = (uint16_t)strlen(data);
 
         _allocate();
 
@@ -321,13 +320,13 @@ BString& BString::operator =(int8* data)
 BString& BString::operator =(const BString& data)
 {
     mType = data.getType();
-    mCharacterWidth = static_cast<uint16>(data.getCharacterWidth());
+    mCharacterWidth = static_cast<uint16_t>(data.getCharacterWidth());
     mLength = data.getLength();
-    mAllocated = static_cast<uint16>(data.getAllocated());
+    mAllocated = static_cast<uint16_t>(data.getAllocated());
 
     if (mString)
         delete [] mString;
-    mString = new int8[mAllocated];
+    mString = new char[mAllocated];
 
     // Copy our string into the new buffer.
     memcpy(mString, data.getRawData(), mAllocated);
@@ -339,7 +338,7 @@ BString& BString::operator =(const BString& data)
 //======================================================================================================================
 
 
-BString& BString::operator <<(const uint16* data)
+BString& BString::operator <<(const uint16_t* data)
 {
     if(mType != BSTRType_Unicode16)
         return *this;
@@ -348,11 +347,11 @@ BString& BString::operator <<(const uint16* data)
     if(data != NULL)
     {
         // Get our source string length
-        uint16 dataLength  = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
-        //uint16 dataLength = (uint16)strlen(data);
+        uint16_t dataLength  = static_cast<uint16_t>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+        //uint16_t dataLength = (uint16_t)strlen(data);
 
         // Set our new length and allocate
-        uint16 oldLength = mLength;
+        uint16_t oldLength = mLength;
         mLength += dataLength;
         _allocate();
 
@@ -364,7 +363,7 @@ BString& BString::operator <<(const uint16* data)
 }
 
 
-BString& BString::operator <<(uint16* data)
+BString& BString::operator <<(uint16_t* data)
 {
     if(mType != BSTRType_Unicode16)
         return *this;
@@ -373,11 +372,11 @@ BString& BString::operator <<(uint16* data)
     if(data != NULL)
     {
         // Get our source string length
-        uint16 dataLength  = static_cast<uint16>(wcslen(reinterpret_cast<const wchar_t*>(data)));
-        //uint16 dataLength = (uint16)strlen(data);
+        uint16_t dataLength  = static_cast<uint16_t>(wcslen(reinterpret_cast<const wchar_t*>(data)));
+        //uint16_t dataLength = (uint16_t)strlen(data);
 
         // Set our new length and allocate
-        uint16 oldLength = mLength;
+        uint16_t oldLength = mLength;
         mLength += dataLength;
         _allocate();
 
@@ -388,16 +387,16 @@ BString& BString::operator <<(uint16* data)
     return *this;
 }
 
-BString& BString::operator <<(const int8* data)
+BString& BString::operator <<(const char* data)
 {
     // we might get a null pointer from db queries
     if(data != NULL)
     {
         // Get our source string length
-        uint16 dataLength = (uint16)strlen(data);
+        uint16_t dataLength = (uint16_t)strlen(data);
 
         // Set our new length and allocate
-        uint16 oldLength = mLength;
+        uint16_t oldLength = mLength;
         mLength += dataLength;
         _allocate();
 
@@ -410,16 +409,16 @@ BString& BString::operator <<(const int8* data)
 
 
 //======================================================================================================================
-BString& BString::operator <<(int8* data)
+BString& BString::operator <<(char* data)
 {
     // we might get a null pointer from db queries
     if(data != NULL)
     {
         // Get our source string length
-        uint16 dataLength = (uint16)strlen(data);
+        uint16_t dataLength = (uint16_t)strlen(data);
 
         // Set our new length and allocate
-        uint16 oldLength = mLength;
+        uint16_t oldLength = mLength;
         mLength += dataLength;
         _allocate();
 
@@ -430,7 +429,7 @@ BString& BString::operator <<(int8* data)
     return *this;
 }
 
-int8* BString::getAnsi()
+char* BString::getAnsi()
 {
     if (mType == BSTRType_ANSI) {
         return mString;
@@ -441,7 +440,7 @@ int8* BString::getAnsi()
 
 //======================================================================================================================
 
-const int8* BString::getAnsi() const
+const char* BString::getAnsi() const
 {
     if (mType == BSTRType_ANSI) {
         return mString;
@@ -452,11 +451,11 @@ const int8* BString::getAnsi() const
 
 //======================================================================================================================
 /*
-uint16* BString::getUnicode16()
+uint16_t* BString::getUnicode16()
 {
     if (mType == BSTRType_Unicode16)
     {
-        return (uint16*)mString;
+        return (uint16_t*)mString;
     } else {
         return 0;
     }
@@ -486,7 +485,7 @@ const wchar_t* BString::getUnicode16() const
 
 //======================================================================================================================
 
-int8* BString::getUTF8()
+char* BString::getUTF8()
 {
     if (mType == BSTRType_UTF8)
     {
@@ -506,8 +505,8 @@ void BString::convert(BStringType type)
         return;
 
     //  Locals
-    int8*   newBuffer = 0;
-    uint16  allocated = 0;
+    char*   newBuffer = 0;
+    uint16_t  allocated = 0;
 
     // what's the target type and how much space will we need
     switch(type)
@@ -518,7 +517,7 @@ void BString::convert(BStringType type)
         allocated = ((((mLength+1) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
 
         // Allocate a new buffer for the converted string.
-        newBuffer = new int8[allocated];
+        newBuffer = new char[allocated];
         //Initial null terminator
         memset(newBuffer,0,allocated);
 
@@ -541,7 +540,7 @@ void BString::convert(BStringType type)
         allocated = (((((mLength+1) * mCharacterWidth) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
 
         // Allocate a new buffer for the converted string.
-        newBuffer = new int8[allocated];
+        newBuffer = new char[allocated];
         //Initial null terminator
         memset(newBuffer,0,allocated);
 
@@ -561,9 +560,9 @@ void BString::convert(BStringType type)
 
         allocated = (((((mLength+1) * mCharacterWidth) / BSTRING_ALLOC_BLOCK_SIZE) + 1) * BSTRING_ALLOC_BLOCK_SIZE);
         // Allocate a new buffer for the converted string.
-        newBuffer = new int8[allocated];
+        newBuffer = new char[allocated];
         //Initial null terminator
-        *(uint32*)newBuffer = 0;
+        *(uint32_t*)newBuffer = 0;
 
         if(mType == BSTRType_ANSI)
         {
@@ -572,7 +571,7 @@ void BString::convert(BStringType type)
         }
         else if(mType == BSTRType_Unicode16)
         {
-            wcstombs((int8*)newBuffer, reinterpret_cast<wchar_t*>(mString), mLength+1);
+            wcstombs((char*)newBuffer, reinterpret_cast<wchar_t*>(mString), mLength+1);
         }
     }
     break;
@@ -602,7 +601,7 @@ void BString::toLower()
     {
         assert(false);
         //convert(BSTRType_ANSI);
-        uint16* data = (uint16*)mString;
+        uint16_t* data = (uint16_t*)mString;
 
         while(*data)
         {
@@ -612,7 +611,7 @@ void BString::toLower()
         return;
     }
 
-    int8* data = mString;
+    char* data = mString;
 
     while(*data)
     {
@@ -631,7 +630,7 @@ void BString::toUpper()
         convert(BSTRType_ANSI);
     }
 
-    int8* data = mString;
+    char* data = mString;
 
     while(*data)
     {
@@ -646,13 +645,13 @@ void BString::toUpperFirst()
 {
     if(mType == BSTRType_Unicode16)
     {
-        uint16* data = (uint16*)mString;
+        uint16_t* data = (uint16_t*)mString;
 
         *data = towupper(*data);
         return;
     }
 
-    int8* data = mString;
+    char* data = mString;
 
     *data = toupper(*data);
 
@@ -664,13 +663,13 @@ void BString::toLowerFirst()
 {
     if(mType == BSTRType_Unicode16)
     {
-        uint16* data = (uint16*)mString;
+        uint16_t* data = (uint16_t*)mString;
 
         *data = towlower(*data);
         return;
     }
 
-    int8* data = mString;
+    char* data = mString;
 
     *data = tolower(*data);
 
@@ -686,7 +685,7 @@ bool BString::isNumber()
         convert(BSTRType_ANSI);
     }
 
-    int8* data = mString;
+    char* data = mString;
 
     while(*data)
     {
@@ -711,9 +710,9 @@ int BString::split(BStringVector& retVec,char delimiter)
         convert(BSTRType_ANSI);
     }
 
-    int8* data = mString;
-    uint16 beginIndex = 0;
-    uint16 endIndex = 0;
+    char* data = mString;
+    uint16_t beginIndex = 0;
+    uint16_t endIndex = 0;
 
     while(1)
     {
@@ -745,7 +744,7 @@ int BString::split(BStringVector& retVec,char delimiter)
 
 //======================================================================================================================
 
-void BString::substring(BString& dest, uint16 start, uint16 end)
+void BString::substring(BString& dest, uint16_t start, uint16_t end)
 {
     // Validate our parameters
     if (start > mLength || end > mLength || end < start)
@@ -762,13 +761,13 @@ void BString::substring(BString& dest, uint16 start, uint16 end)
     case BSTRType_UTF8:
     case BSTRType_ANSI:
     {
-        int8* destBuffer = dest.getRawData();
+        char* destBuffer = dest.getRawData();
         strncpy(destBuffer, mString + start, end - start);
         break;
     }
     case BSTRType_Unicode16:
     {
-        uint16* destBuffer = (uint16*)dest.getRawData();
+        uint16_t* destBuffer = (uint16_t*)dest.getRawData();
         wcsncpy(reinterpret_cast<wchar_t*>(destBuffer), reinterpret_cast<wchar_t*>(mString) + start, end - start);
         break;
     }
@@ -782,8 +781,8 @@ void BString::_allocate()
     // If we don't have enough room in our buffer, re-allocate a new one
     if(mLength * mCharacterWidth >= mAllocated)
     {
-        int8* newString = 0;
-        int32 previousAllocated = mAllocated;
+        char* newString = 0;
+        int32_t previousAllocated = mAllocated;
 
         // what's the target type and how much space will we need
         switch(mType)
@@ -797,7 +796,7 @@ void BString::_allocate()
 
             if(mString)
             {
-                memcpy(newString,mString, std::min<uint32>(mLength + mCharacterWidth,previousAllocated));
+                memcpy(newString,mString, std::min<uint32_t>(mLength + mCharacterWidth,previousAllocated));
             }
         }
         break;
@@ -812,7 +811,7 @@ void BString::_allocate()
 
             if(mString)
             {
-                memcpy(newString, mString, std::min<uint32>((mLength + mCharacterWidth) * 2, previousAllocated));
+                memcpy(newString, mString, std::min<uint32_t>((mLength + mCharacterWidth) * 2, previousAllocated));
             }
         }
         break;
@@ -827,21 +826,21 @@ void BString::_allocate()
 
 //======================================================================================================================
 
-uint16 BString::getLength() const
+uint16_t BString::getLength() const
 {
     return mLength;
 }
 
 //======================================================================================================================
 
-uint32 BString::getDataLength() const
+uint32_t BString::getDataLength() const
 {
     return mLength * mCharacterWidth;
 }
 
 //======================================================================================================================
 
-uint32 BString::getCharacterWidth() const
+uint32_t BString::getCharacterWidth() const
 {
     return mCharacterWidth;
 }
@@ -855,25 +854,25 @@ BStringType BString::getType() const
 
 //======================================================================================================================
 
-int8* BString::getRawData() const
+char* BString::getRawData() const
 {
     return mString;
 }
 
 //======================================================================================================================
 
-uint32 BString::getAllocated() const
+uint32_t BString::getAllocated() const
 {
     return mAllocated;
 }
 
 //======================================================================================================================
-uint32 BString::CRC(char* data)
+uint32_t BString::CRC(char* data)
 {
-    uint32 length = (uint32)strlen(data);
+    uint32_t length = (uint32_t)strlen(data);
 
-    uint32 crc = 0xffffffff;  // starting seed
-    for (uint32 i = 0; i < length; i++)
+    uint32_t crc = 0xffffffff;  // starting seed
+    for (uint32_t i = 0; i < length; i++)
     {
         crc = mCrcTable[data[i] ^ (crc >> 24)] ^ (crc << 8);
     }
@@ -883,7 +882,7 @@ uint32 BString::CRC(char* data)
 
 
 //======================================================================================================================
-uint32 BString::mCrcTable[256] =
+uint32_t BString::mCrcTable[256] =
 {
     0x0000000,
     0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
@@ -943,7 +942,7 @@ uint32 BString::mCrcTable[256] =
 
 
 //======================================================================================================================
-void BString::setLength(uint16 length)
+void BString::setLength(uint16_t length)
 {
     mLength = length;
     _allocate();
@@ -968,10 +967,10 @@ void BString::setType(BStringType type)
 
 
 //======================================================================================================================
-uint32 BString::getCrc() const
+uint32_t BString::getCrc() const
 {
-    uint32 crc = 0xffffffff;  // starting seed
-    for (uint32 i = 0; i < mLength; i++)
+    uint32_t crc = 0xffffffff;  // starting seed
+    for (uint32_t i = 0; i < mLength; i++)
     {
         crc = mCrcTable[mString[i] ^ (crc >> 24)] ^ (crc << 8);
     }

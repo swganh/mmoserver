@@ -37,8 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 #include <string>
 
-#include "Utils/typedefs.h"
-
 #include "DatabaseManager/DatabaseImplementation.h"
 #include "DatabaseManager/declspec.h"
 
@@ -56,13 +54,13 @@ public:
     DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     virtual ~DatabaseImplementationMySql();
 
-    virtual DatabaseResult* ExecuteSql(const int8* sql,bool procedure = false);
+    virtual DatabaseResult* ExecuteSql(const char* sql, bool procedure = false);
     virtual DatabaseWorkerThread* DestroyResult(DatabaseResult* result);
 
     virtual void GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;
-    virtual void ResetRowIndex(DatabaseResult* result, uint64 index = 0) const;
+    virtual void ResetRowIndex(DatabaseResult* result, uint64_t index = 0) const;
 
-    virtual uint32 Escape_String(int8* target,const int8* source,uint32 length);
+    virtual uint32_t Escape_String(char* target, const char* source, uint32_t length);
 
 private:
     void processFieldBinding_(std::unique_ptr<sql::ResultSet>& result, DataBinding* binding, uint32_t field_id, void* object) const;

@@ -299,7 +299,7 @@ void Database::DestroyResult(DatabaseResult* result) {
 }
 
 
-DataBinding* Database::CreateDataBinding(uint16 fieldCount) {
+DataBinding* Database::CreateDataBinding(uint16_t fieldCount) {
     return binding_factory_.CreateDataBinding(fieldCount);
 }
 
@@ -309,7 +309,7 @@ void  Database::DestroyDataBinding(DataBinding* binding) {
 }
 
 
-uint32 Database::Escape_String(int8* target,const int8* source,uint32 length) {
+uint32_t Database::Escape_String(char* target, const char* source, uint32_t length) {
     return(database_impl_->Escape_String(target,source,length));
 }
 

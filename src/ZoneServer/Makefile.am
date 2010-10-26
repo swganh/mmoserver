@@ -266,6 +266,7 @@ zoneserver_LDADD = $(MYSQL_LDFLAGS) \
   -ltolua++ \
   -lspatialindex \
   -ltbb \
+  -lmysqlcppconn \
   -lnoise \
   $(top_builddir)/src/Utils/libutils.la \
   $(top_builddir)/src/Common/libcommon.la \

@@ -41,8 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdio.h>
 
 DatabaseResult::DatabaseResult(const DatabaseImplementation& impl, sql::Statement* statement, sql::ResultSet* result_set, bool multi_result)
-    : statement_(statement)
-    , result_set_(result_set)
+    : result_set_(result_set)
+	, statement_(statement)
     , impl_(impl)
     , worker_(nullptr)
     , multi_result_(multi_result) {}

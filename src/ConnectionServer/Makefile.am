@@ -15,6 +15,8 @@ connserver_LDADD = $(MYSQL_LDFLAGS) \
   $(BOOST_THREAD_LIB) \
   $(BOOST_SYSTEM_LIB) \
   -lglog \
+  -ltbb \
+  -lmysqlcppconn \
   $(top_builddir)/src/Utils/libutils.la \
   $(top_builddir)/src/Common/libcommon.la \
   $(top_builddir)/src/DatabaseManager/libdatabasemanager.la \

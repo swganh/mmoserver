@@ -230,7 +230,7 @@ void DatabaseImplementationMySql::processFieldBinding_(
         }
 
         case DFT_uint32: {
-            *((uint32*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt(result_field_id);
+            *((uint32_t*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt(result_field_id);
             break;
         }
 

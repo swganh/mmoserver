@@ -36,6 +36,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/declspec.h"
 
+// Win32 complains about stl and other libraries making use of templates during
+// linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+
 /// The utils namespace hosts a number of useful utility classes intended to
 /// be used and reused in domain specific classes.
 namespace utils {
@@ -78,23 +84,20 @@ private:
     /// Runs the ActiveObject's message loop until an end message is received.
     void Run();
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     tbb::concurrent_queue<Message> message_queue_;
+
     boost::thread thread_;
     boost::condition_variable condition_;
     boost::mutex mutex_;
-
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
-
+    
     bool done_;
 };
 
 }
+
+// Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
 
 #endif  // SRC_UTILS_ACTIVEOBJECT_H_

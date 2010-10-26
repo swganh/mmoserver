@@ -28,33 +28,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASERESULT_H
 #define ANH_DATABASEMANAGER_DATABASERESULT_H
 
+#include <cstdint>
+#include <memory>
+
+#include "DatabaseManager/declspec.h"
+
 #ifdef _WIN32
 #pragma warning(push)
 #pragma warning(disable : 4251)
 #endif
 
-#include <cstdint>
-#include <memory>
-
-#include "DatabaseManager/declspec.h"
 
 namespace sql {
     class ResultSet;
     class Statement;
 }
 
+
 class DatabaseImplementation;
 class DataBinding;
 class DatabaseWorkerThread;
 
 
-//======================================================================================================================
 class DBMANAGER_API DatabaseResult {
 public:
     DatabaseResult(const DatabaseImplementation& impl, 
                    sql::Statement* statement, 
                    sql::ResultSet* result_set, 
-                   bool multiResult);
+                   bool multi_result);
     ~DatabaseResult();
     
     std::unique_ptr<sql::Statement>& getStatement();
@@ -63,18 +64,10 @@ public:
     void GetNextRow(DataBinding* dataBinding, void* object);
     void ResetRowIndex(int index = 0);
     
-    void setWorkerReference(DatabaseWorkerThread* worker) {
-        mWorkerReference = worker;
-    }
+    void setWorkerReference(DatabaseWorkerThread* worker);
+    DatabaseWorkerThread* getWorkerReference();
 
-    DatabaseWorkerThread* getWorkerReference() {
-        return mWorkerReference;
-    }
-
-    bool isMultiResult() {
-        return mMultiResult;
-    }
-
+    bool isMultiResult();
     uint64_t getRowCount();
 
 private:
@@ -83,8 +76,8 @@ private:
 
     const DatabaseImplementation& impl_;
 
-    DatabaseWorkerThread* mWorkerReference;
-    bool mMultiResult;
+    DatabaseWorkerThread* worker_;
+    bool multi_result_;
 };
 
 #ifdef _WIN32

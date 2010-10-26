@@ -25,42 +25,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "DataBindingFactory.h"
-#include "DataBinding.h"
+#include "DatabaseManager/DataBindingFactory.h"
+#include "DatabaseManager/DataBinding.h"
+
+DataBindingFactory::DataBindingFactory() 
+    : binding_pool_(sizeof(DataBinding))
+{}
 
 
-//======================================================================================================================
+DataBindingFactory::~DataBindingFactory() {}
 
-DataBindingFactory::DataBindingFactory(void) :
-    mDataBindingPool(sizeof(DataBinding))
-{
 
+DataBinding* DataBindingFactory::CreateDataBinding(uint16_t fieldCount) {
+    return new (binding_pool_.ordered_malloc()) DataBinding(fieldCount);
 }
 
-//======================================================================================================================
 
-DataBindingFactory::~DataBindingFactory(void)
-{
-
+void DataBindingFactory::DestroyDataBinding(DataBinding* binding) {
+    binding_pool_.ordered_free(binding);
 }
-
-//======================================================================================================================
-
-DataBinding* DataBindingFactory::CreateDataBinding(uint16 fieldCount)
-{
-    return(new (mDataBindingPool.ordered_malloc()) DataBinding(fieldCount));
-}
-
-//======================================================================================================================
-
-void DataBindingFactory::DestroyDataBinding(DataBinding* binding)
-{
-    mDataBindingPool.ordered_free(binding);
-}
-
-//======================================================================================================================
-
-
-
-
-

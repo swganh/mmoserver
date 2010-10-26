@@ -31,36 +31,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 
 #include <functional>
-#include <list>
 #include <queue>
 #include <string>
 
-#include <boost/any.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/pool/pool.hpp>
 
-#include "Utils/typedefs.h"
-#include "Utils/concurrent_queue.h"
+#include <tbb/concurrent_queue.h>
 
 #include "DatabaseManager/DatabaseCallback.h"
 #include "DatabaseManager/DatabaseType.h"
 #include "DatabaseManager/DataBindingFactory.h"
 #include "DatabaseManager/declspec.h"
 
-
-//======================================================================================================================
-
+struct DatabaseJob;
 class DataBinding;
 class DatabaseWorkerThread;
 class DatabaseImplementation;
 class DatabaseResult;
-class DatabaseJob;
 class Transaction;
 
-typedef Anh_Utils::concurrent_queue<DatabaseJob*>				DatabaseJobQueue;
-typedef Anh_Utils::concurrent_queue<DatabaseWorkerThread*>		DatabaseWorkerThreadQueue;
-
-typedef std::list<boost::any> QueryParameters;
+typedef tbb::concurrent_queue<DatabaseJob*> DatabaseJobQueue;
+typedef tbb::concurrent_queue<DatabaseWorkerThread*> DatabaseWorkerThreadQueue;
 
  // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
@@ -71,7 +63,7 @@ typedef std::list<boost::any> QueryParameters;
 class DBMANAGER_API Database : private boost::noncopyable {
 public:
     Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
-    ~Database(void);
+    ~Database();
     
     /*! Executes an asynchronus sql query and invokes the specified callback on
     * completion.
@@ -91,68 +83,48 @@ public:
 
     void Process();
     
-    DatabaseResult* ExecuteSynchSql(const int8* sql, ...);
+    DatabaseResult* ExecuteSynchSql(const char* sql, ...);
 
-    void ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
-    void ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
+    void ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
+    void ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const char* sql);
 
-    DatabaseResult* ExecuteProcedure(const int8* sql, ...);
-    void ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+    DatabaseResult* ExecuteProcedure(const char* sql, ...);
+    void ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
 
-    uint32 Escape_String(int8* target,const int8* source,uint32 length);
+    uint32_t Escape_String(char* target, const char* source, uint32_t length);
 
     void DestroyResult(DatabaseResult* result);
 
-    DataBinding* CreateDataBinding(uint16 fieldCount);
+    DataBinding* CreateDataBinding(uint16_t fieldCount);
     void DestroyDataBinding(DataBinding* binding);
-
-    DatabaseWorkerThread* popIdleWorker();
-    void pushIdleWorker(DatabaseWorkerThread* worker);
-
-    void pushDatabaseJobComplete(DatabaseJob* job);
 
     Transaction* startTransaction(DatabaseCallback* callback, void* ref);
     void destroyTransaction(Transaction* t);
 
     bool releaseResultPoolMemory();
-    bool releaseJobPoolMemory() {
-        return(mJobPool.release_memory());
-    }
-
-    bool releaseTransactionPoolMemory() {
-        return(mTransactionPool.release_memory());
-    }
-
-    bool releaseBindingPoolMemory() {
-        return(mDataBindingFactory->releasePoolMemory());
-    }
-
-    int GetCount(const int8* tablename);
-    int GetSingleValueSync(const int8* sql);
+    bool releaseJobPoolMemory();
+    bool releaseTransactionPoolMemory();
+    bool releaseBindingPoolMemory();
 
 private:
     // Disable the default constructor, construction always occurs through the
     // single overloaded constructor.
     Database();
 
-    DBType mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.
+    DatabaseResult* ExecuteSql(const char* sql, ...);
+    
+    void pushDatabaseJobComplete(DatabaseJob* job);
 
-    DataBindingFactory* mDataBindingFactory;
+    DataBindingFactory binding_factory_;
 
-    DatabaseJobQueue mJobPendingQueue;
-    DatabaseJobQueue mJobCompleteQueue;
-    DatabaseWorkerThreadQueue mWorkerIdleQueue;
+    DatabaseJobQueue job_pending_queue_;
+    DatabaseJobQueue job_complete_queue_;
+    DatabaseWorkerThreadQueue idle_worker_queue_;
 
-    DatabaseImplementation* mDatabaseImplementation;  // Use this implementation for any syncronous calls.
-
-    uint32 mMinThreads;
-    uint32 mMaxThreads;
-
-    boost::pool<boost::default_user_allocator_malloc_free> mJobPool;
-    boost::pool<boost::default_user_allocator_malloc_free> mTransactionPool;
-
-protected:
-    DatabaseResult*                         ExecuteSql(const int8* sql, ...);
+    std::unique_ptr<DatabaseImplementation> database_impl_;  // Use this implementation for any syncronous calls.
+    
+    boost::pool<boost::default_user_allocator_malloc_free> job_pool_;
+    boost::pool<boost::default_user_allocator_malloc_free> transaction_pool_;
 };
 
 // Re-enable the warning.
@@ -160,37 +132,4 @@ protected:
 #pragma warning (pop)
 #endif
 
-//======================================================================================================================
-
-inline DatabaseWorkerThread* Database::popIdleWorker(void)
-{
-    DatabaseWorkerThread* worker = 0;
-
-    worker = mWorkerIdleQueue.pop();
-
-    return worker;
-}
-
-//======================================================================================================================
-
-inline void Database::pushIdleWorker(DatabaseWorkerThread* worker)
-{
-    mWorkerIdleQueue.push(worker);
-}
-
-//======================================================================================================================
-
-inline void Database::pushDatabaseJobComplete(DatabaseJob* job)
-{
-    mJobCompleteQueue.push(job);
-}
-
-//======================================================================================================================
-
 #endif // ANH_DATABASEMANAGER_DATABASE_H
-
-
-
-
-
-

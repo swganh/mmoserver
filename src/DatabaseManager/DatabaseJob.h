@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class DatabaseResult;
 class DataBinding;
 
-class DatabaseJob {
+struct DatabaseJob {
 public:
     DatabaseJob() 
         : old_callback(NULL)

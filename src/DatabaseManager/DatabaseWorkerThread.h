@@ -30,46 +30,67 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
+
+#include <boost/noncopyable.hpp>
 
 #include "Utils/ActiveObject.h"
 
 #include "DatabaseManager/DatabaseType.h"
 #include "DatabaseManager/declspec.h"
 
-#include <boost/thread/thread.hpp>
-
 // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (push)
-#pragma warning (disable : 4251)
+#pragma warning (disable : 4251 4275)
 #endif
 
-class Database;
-class DatabaseJob;
+struct DatabaseJob;
 class DatabaseImplementation;
 
 
-class DBMANAGER_API DatabaseWorkerThread {
+/*! \brief An encapsulation of a thread dedicated to executing an sql query 
+* asynchronusly. 
+*/
+class DBMANAGER_API DatabaseWorkerThread : private boost::noncopyable {
 public:
+    typedef std::function<void (DatabaseWorkerThread*, DatabaseJob*)> Callback;
+
+public:
+    /*! Overloaded constructor takes in the managing Database instance and 
+    * connection details for starting a new connection.
+    * 
+    * \param type The type of database to connect to.
+    * \param host The hostname to connect to the database on.
+    * \param post The port to connect to the database on.
+    * \param user The username to connect to the database with.
+    * \param pass The password to connect to the database with.
+    * \param schema The schema to connect to to perform queries on.
+    */
     DatabaseWorkerThread(DBType type, 
-                         Database* database, 
                          const std::string& host, 
-                         uint16_t port, const 
-                         std::string& user, 
+                         uint16_t port, 
+                         const std::string& user, 
                          const std::string& pass, 
                          const std::string& schema);
 
-    ~DatabaseWorkerThread();
-
-    void executeJob(DatabaseJob* job);
+    /*! Executes a DatabaseJob asynchronusly on the worker's private thread.
+    *
+    * \param job The database job to execute.
+    * \param callback The callback to invoke once execution of the job 
+    *   has completed.
+    */
+    void executeJob(DatabaseJob* job, Callback callback);
 
 private:
+    // Disable default construction.
+    DatabaseWorkerThread();
+
     utils::ActiveObject active_;
     
     std::unique_ptr<DatabaseImplementation> database_impl_;
-    Database* database_;
 };
 
 // Re-enable the warning.

@@ -24,28 +24,14 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#include "DatabaseWorkerThread.h"
-
-#include "Database.h"
-#include "DatabaseImplementation.h"
-#include "DatabaseImplementationMySql.h"
-#include "DatabaseJob.h"
-#include "DatabaseType.h"
-
-#include <boost/thread/thread.hpp>
-
-#if defined(__GNUC__)
-// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
-// spec, which requires the header without the tr1/ prefix.
-#include <tr1/functional>
-#else
-#include <functional>
-#endif
+#include "DatabaseManager/DatabaseWorkerThread.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseImplementationMySql.h"
+#include "DatabaseManager/DatabaseJob.h"
 
 
-DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database, const std::string& host, uint16 port, const std::string& user, const std::string& pass, const std::string& schema) 
-    : database_(database)
-    , database_impl_(nullptr)
+DatabaseWorkerThread::DatabaseWorkerThread(DBType type, const std::string& host, uint16 port, const std::string& user, const std::string& pass, const std::string& schema) 
+    : database_impl_(nullptr)
 {
     switch (type) {
         case DBTYPE_MYSQL:
@@ -58,19 +44,9 @@ DatabaseWorkerThread::DatabaseWorkerThread(DBType type, Database* database, cons
 }
 
 
-DatabaseWorkerThread::~DatabaseWorkerThread() {}
-
-
-void DatabaseWorkerThread::executeJob(DatabaseJob* job) { 
+void DatabaseWorkerThread::executeJob(DatabaseJob* job, Callback callback) { 
     active_.Send([=] {
         job->result = database_impl_->ExecuteSql(job->query.c_str(), job->multi_job);
-
-        database_->pushDatabaseJobComplete(job);
-
-        if (! job->result->isMultiResult()) {
-            database_->pushIdleWorker(this);
-        } else {
-            job->result->setWorkerReference(this);
-        }
+        callback(this, job);
     }); 
 }

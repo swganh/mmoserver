@@ -28,9 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_Trade_H
 #define ANH_ZONESERVER_Trade_H
 
-#include "DatabaseManager/Transaction.h"
+#include <cstdint>
 #include <map>
 #include <vector>
+
+#include "DatabaseManager/Transaction.h"
 
 class Item;
 class PlayerObject;
@@ -38,7 +40,7 @@ class Skill;
 class TangibleObject;
 
 //=============================================================================
-typedef std::map<uint32,Skill*>					mySkillList;
+typedef std::map<uint32_t, Skill*> mySkillList;
 
 class SkillTeachContainer
 {
@@ -46,9 +48,9 @@ public:
     SkillTeachContainer();
     ~SkillTeachContainer();
 
-    void            addSkill(uint32 nr, uint32 id);
+    void            addSkill(uint32_t nr, uint32_t id);
     mySkillList*    getList();
-    Skill*          getEntry(uint32 nr);
+    Skill*          getEntry(uint32_t nr);
 
 private:
     mySkillList mTradeSkills;
@@ -100,8 +102,8 @@ public:
 
     void				cancelTradeSession();
     void				endTradeSession();
-    void				updateCash(uint32 amount);
-    void				updateBank(uint32 amount);
+    void				updateCash(uint32_t amount);
+    void				updateBank(uint32_t amount);
     bool				getTradeFinishedStatus() {
         return mTradingFin;
     }
@@ -114,13 +116,13 @@ public:
     void				setAcceptStatus(bool acceptStatus) {
         mAcceptTrade = acceptStatus;
     }
-    void				setTradeCredits(uint32 credits) {
+    void				setTradeCredits(uint32_t credits) {
         mMoney = credits;   //sets the amount of credits we want to give
     }
-    uint32				getTradeCredits() {
+    uint32_t				getTradeCredits() {
         return mMoney;
     }
-    bool				ItemTradeCheck(uint64 ItemId);
+    bool				ItemTradeCheck(uint64_t ItemId);
     bool				checkEquipped(Item* addedItem);
     void				ItemTradeAdd(TangibleObject* addedItem,PlayerObject* newOwner,PlayerObject* oldOwner);
     void				TradeListDelete();
@@ -130,7 +132,7 @@ public:
     void				deleteTradeInvitation(PlayerObject* player);
     void				tradeInvitationAdded(PlayerObject* player);
     bool				verifyInvitation(PlayerObject* player);
-    bool				_handleCancelTradeInvitation(uint64 callTime, void* nix);
+    bool				_handleCancelTradeInvitation(uint64_t callTime, void* nix);
     PlayerObject*		getPlayerObject() {
         return mPlayerObject;
     }
@@ -150,7 +152,7 @@ private:
     PlayerObject*		mteacher;
     ItemTradeList		mItemTradeList;
     TradeContainer*		mTradeList;
-    uint32				mMoney;
+    uint32_t			mMoney;
 };
 
 //=============================================================================

@@ -40,12 +40,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <stdlib.h>
 #include <stdio.h>
 
-DatabaseResult::DatabaseResult(const DatabaseImplementation& impl, sql::Statement* statement, sql::ResultSet* result_set, bool multiResult)
+DatabaseResult::DatabaseResult(const DatabaseImplementation& impl, sql::Statement* statement, sql::ResultSet* result_set, bool multi_result)
     : statement_(statement)
     , result_set_(result_set)
     , impl_(impl)
-    , mWorkerReference(0)
-    , mMultiResult(multiResult) {}
+    , worker_(nullptr)
+    , multi_result_(multi_result) {}
 
 
 DatabaseResult::~DatabaseResult() {}
@@ -61,11 +61,6 @@ std::unique_ptr<sql::ResultSet>& DatabaseResult::getResultSet() {
 }
 
 
-uint64_t DatabaseResult::getRowCount() { 
-    return result_set_ ? result_set_->rowsCount() : 0; 
-}
-
-
 void DatabaseResult::GetNextRow(DataBinding* dataBinding, void* object) {
     // Just shunt this method to the actual implementation method.  This might have thread problems right now.
     impl_.GetNextRow(this, dataBinding, object);
@@ -74,6 +69,26 @@ void DatabaseResult::GetNextRow(DataBinding* dataBinding, void* object) {
 
 void DatabaseResult::ResetRowIndex(int index) {
     impl_.ResetRowIndex(this,index);
+}
+
+
+void DatabaseResult::setWorkerReference(DatabaseWorkerThread* worker) {
+    worker_ = worker;
+}
+
+
+DatabaseWorkerThread* DatabaseResult::getWorkerReference() {
+    return worker_;
+}
+
+
+bool DatabaseResult::isMultiResult() {
+    return multi_result_;
+}
+
+
+uint64_t DatabaseResult::getRowCount() { 
+    return result_set_ ? result_set_->rowsCount() : 0; 
 }
 
 #ifdef _WIN32

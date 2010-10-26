@@ -28,9 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEIMPLEMENTATION_H
 #define ANH_DATABASEMANAGER_DATABASEIMPLEMENTATION_H
 
-#include "DatabaseResult.h"
-#include "Utils/typedefs.h"
+#include <cstdint>
+
 #include <boost/pool/singleton_pool.hpp>
+
+#include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/declspec.h"
 
 
@@ -38,22 +40,23 @@ class DataBinding;
 class DatabaseWorkerThread;
 
 
-typedef boost::singleton_pool<DatabaseResult,sizeof(DatabaseResult),boost::default_user_allocator_malloc_free> ResultPool;
+typedef boost::singleton_pool<DatabaseResult, 
+    sizeof(DatabaseResult),
+    boost::default_user_allocator_malloc_free> ResultPool;
 
 
-class DBMANAGER_API DatabaseImplementation
-{
+class DBMANAGER_API DatabaseImplementation {
 public:
     virtual ~DatabaseImplementation() {}
 
-    virtual DatabaseResult* ExecuteSql(const int8* sql, bool procedure = false) = 0;
+    virtual DatabaseResult* ExecuteSql(const char* sql, bool procedure = false) = 0;
 
     virtual DatabaseWorkerThread* DestroyResult(DatabaseResult* result) = 0;
 
     virtual void GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) const = 0;
-    virtual void ResetRowIndex(DatabaseResult* result, uint64 index = 0) const = 0;
+    virtual void ResetRowIndex(DatabaseResult* result, uint64_t index = 0) const = 0;
 
-    virtual uint32 Escape_String(int8* target, const int8* source, uint32 length) = 0;
+    virtual uint32_t Escape_String(char* target, const char* source, uint32_t length) = 0;
 
     bool releaseResultPoolMemory() {
         return(ResultPool::release_memory());

@@ -26,11 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "DatabaseManager/DatabaseImplementationMySql.h"
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-
-#include <boost/lexical_cast.hpp>
 
 // Fix for issues with glog redefining this constant
 #ifdef ERROR
@@ -84,7 +83,7 @@ DatabaseImplementationMySql::~DatabaseImplementationMySql() {
 }
 
 
-DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const int8* sql, bool procedure) {
+DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const char* sql, bool procedure) {
     DatabaseResult* result = nullptr;
 
     try {
@@ -106,6 +105,8 @@ DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const int8* sql, bool pr
 DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult* result) {
     DatabaseWorkerThread* worker = NULL;
     
+    // For a multi-result statement to be destroyed properly all results must
+    // be processed, failure to do so results in out-of-sync errors.
     if(result->isMultiResult()) {
         std::unique_ptr<sql::ResultSet> res;
         while (result->getStatement()->getMoreResults()) {
@@ -130,6 +131,8 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
         return;
     }
 
+    // Advance to the next row, if this fails check to see if this is a 
+    // multi-result statement. If so attempt to retrieve more results.
     if (! result_set->next()) {
         if (result->isMultiResult()) {
             if (! result->getStatement()->getMoreResults()) {
@@ -152,24 +155,24 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
 }
 
 
-void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64 index) const {
+void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64_t index) const {
     if(!result) {
         LOG(ERROR) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
-    std::unique_ptr<sql::ResultSet>& temp = result->getResultSet();
+    std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
-    if (!temp) {
+    if (!result_set) {
         LOG(ERROR) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
     }
 
-    temp->absolute(index);
+    result_set->absolute(index);
 }
 
 
-uint32 DatabaseImplementationMySql::Escape_String(int8* target, const int8* source, uint32 length) {
+uint32_t DatabaseImplementationMySql::Escape_String(char* target, const char* source, uint32_t length) {
     if (!target) {
         LOG(ERROR) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
         return 0;
@@ -198,56 +201,56 @@ void DatabaseImplementationMySql::processFieldBinding_(
 {
     // Mysql Connector/c++ starts it's field id's with 1 instead of 0 so create
     // a temporary variable that compensates for the offset.
-    uint32_t result_field_id = binding->mDataFields[field_id].mColumn + 1;
+    uint32_t result_field_id = binding->getField(field_id).column + 1;
 
-    switch (binding->mDataFields[field_id].mDataType) {
+    switch (binding->getField(field_id).type) {
         case DFT_int8: {
-            *((char*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getInt(result_field_id);
+            *((char*)&((char*)object)[binding->getField(field_id).offset]) = result->getInt(result_field_id);
             break;
         }
 
         case DFT_uint8: {
-            *((unsigned char*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getUInt(result_field_id);
+            *((unsigned char*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt(result_field_id);
             break;
         }
 
         case DFT_int16: {
-            *((short*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getInt(result_field_id);
+            *((short*)&((char*)object)[binding->getField(field_id).offset]) = result->getInt(result_field_id);
             break;
         }
 
         case DFT_uint16: {
-            *((unsigned short*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getUInt(result_field_id);
+            *((unsigned short*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt(result_field_id);
             break;
         }
 
         case DFT_int32: {
-            *((int*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getInt(result_field_id);
+            *((int*)&((char*)object)[binding->getField(field_id).offset]) = result->getInt(result_field_id);
             break;
         }
 
         case DFT_uint32: {
-            *((uint32*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getUInt(result_field_id);
+            *((uint32*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt(result_field_id);
             break;
         }
 
         case DFT_int64: {
-            *((long long*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getInt64(result_field_id);
+            *((long long*)&((char*)object)[binding->getField(field_id).offset]) = result->getInt64(result_field_id);
             break;
         }
 
         case DFT_uint64: {
-            *((unsigned long long*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getUInt64(result_field_id);
+            *((unsigned long long*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt64(result_field_id);
             break;
         }
 
         case DFT_float: {
-            *((float*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getDouble(result_field_id);
+            *((float*)&((char*)object)[binding->getField(field_id).offset]) = result->getDouble(result_field_id);
             break;
         }
 
         case DFT_double: {
-            *((double*)&((char*)object)[binding->mDataFields[field_id].mDataOffset]) = result->getDouble(result_field_id);;
+            *((double*)&((char*)object)[binding->getField(field_id).offset]) = result->getDouble(result_field_id);;
             break;
         }
 
@@ -257,15 +260,15 @@ void DatabaseImplementationMySql::processFieldBinding_(
 
         case DFT_string: {
             std::string tmp = result->getString(result_field_id);
-            strncpy(&((char*)object)[binding->mDataFields[field_id].mDataOffset], tmp.c_str(), tmp.length());
-            ((char*)object)[binding->mDataFields[field_id].mDataOffset + tmp.length()] = 0;
+            strncpy(&((char*)object)[binding->getField(field_id).offset], tmp.c_str(), tmp.length());
+            ((char*)object)[binding->getField(field_id).offset + tmp.length()] = 0;
         
             break;
         }
 
         case DFT_bstring: {
             // get our string object
-            BString* bindingString = reinterpret_cast<BString*>(((char*)object) + binding->mDataFields[field_id].mDataOffset);
+            BString* bindingString = reinterpret_cast<BString*>(((char*)object) + binding->getField(field_id).offset);
             // Now assign the string to the object
             std::string tmp = result->getString(result_field_id);
             *bindingString = tmp.c_str();
@@ -274,7 +277,7 @@ void DatabaseImplementationMySql::processFieldBinding_(
                                   
         case DFT_raw: {
             std::string tmp = result->getString(result_field_id);
-            strncpy(&((char*)object)[binding->mDataFields[field_id].mDataOffset], tmp.c_str(), tmp.length());
+            strncpy(&((char*)object)[binding->getField(field_id).offset], tmp.c_str(), tmp.length());
             break;
         }
 

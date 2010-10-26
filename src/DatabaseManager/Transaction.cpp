@@ -25,59 +25,50 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "Transaction.h"
-
-#include "Database.h"
-#include "DatabaseCallback.h"
-#include "DatabaseImplementation.h"
-#include "DatabaseImplementationMySql.h"
+#include "DatabaseManager/Transaction.h"
 
 #include <cstdarg>
+#include <cstdint>
 
-//======================================================================================================================
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseCallback.h"
+#include "DatabaseManager/DatabaseImplementation.h"
+#include "DatabaseManager/DatabaseImplementationMySql.h"
 
-Transaction::Transaction(Database* database,DatabaseCallback* callback,void* ref) :
-    mDatabase(database),mCallback(callback),mReference(ref)
+
+Transaction::Transaction(Database* database, DatabaseCallback* callback, void* ref)
+    : mDatabase(database)
+    , mCallback(callback)
+    , mReference(ref)
 {
     mQueries.flush();
     mQueries << "CALL sp_MultiTransaction(\"";
 }
 
-//======================================================================================================================
 
-Transaction::~Transaction()
-{
+Transaction::~Transaction() {
     mQueries.flush();
 }
 
-//======================================================================================================================
 
-void Transaction::addQuery(int8* query,...)
-{
+void Transaction::addQuery(const char* query, ...) {
     va_list	args;
     va_start(args,query);
-    int8	localSql[2048],escapedSql[2500];
-    int32	len = vsnprintf(localSql,sizeof(localSql),query,args);
+    char localSql[2048], escapedSql[2500];
+    int32_t	len = vsnprintf(localSql, sizeof(localSql), query, args);
 
-	//LOG(ERROR) << "sql :: " << localSql; // SQL Debug Log
     // need to escape
-    mDatabase->Escape_String(escapedSql,localSql,len);
+    mDatabase->Escape_String(escapedSql, localSql, len);
 
     mQueries << escapedSql << "$$";
 
     va_end(args);
 }
 
-//======================================================================================================================
 
-void Transaction::execute()
-{
+void Transaction::execute() {
     mQueries << "\")";
 
-    mDatabase->ExecuteProcedureAsync(mCallback,mReference,(int8*)(mQueries.str().c_str()));
+    mDatabase->ExecuteProcedureAsync(mCallback, mReference, mQueries.str().c_str());
     mDatabase->destroyTransaction(this);
 }
-
-//======================================================================================================================
-
-

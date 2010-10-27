@@ -31,46 +31,80 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 #include <memory>
 
+#include <boost/noncopyable.hpp>
+
 #include "DatabaseManager/declspec.h"
 
 #ifdef _WIN32
 #pragma warning(push)
-#pragma warning(disable : 4251)
+#pragma warning(disable : 4251 4275)
 #endif
-
 
 namespace sql {
     class ResultSet;
     class Statement;
 }
 
-
+class Database;
 class DatabaseImplementation;
 class DataBinding;
 class DatabaseWorkerThread;
 
-
-class DBMANAGER_API DatabaseResult {
+/*! A container class for database results. 
+*/
+class DBMANAGER_API DatabaseResult : private boost::noncopyable {
 public:
+    /*! Sets up the the database result after a query has been run.
+    *
+    * \param impl The database implementation/connection that executed the query.
+    * \param statement The sql query/statement that was just executed.
+    * \param result_set The result set provided by the underlying database abstraction library
+    * \param multi_result Indicates whether the query was a multi-result query.
+    */
     DatabaseResult(const DatabaseImplementation& impl, 
                    sql::Statement* statement, 
                    sql::ResultSet* result_set, 
                    bool multi_result);
     ~DatabaseResult();
     
+    /*! Returns the statement was executed.
+    */
     std::unique_ptr<sql::Statement>& getStatement();
+
+    /*! Returns the result set from the underlying database abstraction library.
+    */
     std::unique_ptr<sql::ResultSet>& getResultSet();
 
+    /*! Retrieves the next row and binds it to the specified object.
+    *
+    * \param data_binding The binding rules to be used when processing the row.
+    * \param object The object to bind the next row too.
+    */
     void getNextRow(DataBinding* dataBinding, void* object);
+
+    /*! Resets the row index to the specified value (defaults to 0).
+    *
+    * \param index The index to reset the result set too.
+    */
     void resetRowIndex(int index = 0);
     
-    void setWorkerReference(DatabaseWorkerThread* worker);
-    DatabaseWorkerThread* getWorkerReference();
-
+    /*! Returns whether or not this is the result of a multi-result statement (
+    * such as using a CALL query to invoke a stored procedure).
+    */
     bool isMultiResult();
+
+    /*! Returns the number of rows returned by the query.
+    */
     uint64_t getRowCount();
 
 private:
+    friend Database;
+
+    DatabaseResult();
+
+    void setWorkerReference(DatabaseWorkerThread* worker);
+    DatabaseWorkerThread* getWorkerReference();
+
     std::unique_ptr<sql::ResultSet> result_set_;
     std::unique_ptr<sql::Statement> statement_;
 

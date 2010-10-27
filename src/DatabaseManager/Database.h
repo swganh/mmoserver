@@ -45,6 +45,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBindingFactory.h"
 #include "DatabaseManager/declspec.h"
 
+ // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (push)
+#pragma warning (disable : 4275 4251)
+#endif
+
 struct DatabaseJob;
 class DataBinding;
 class DatabaseWorkerThread;
@@ -55,14 +61,19 @@ class Transaction;
 typedef tbb::concurrent_queue<DatabaseJob*> DatabaseJobQueue;
 typedef tbb::concurrent_queue<DatabaseWorkerThread*> DatabaseWorkerThreadQueue;
 
- // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (push)
-#pragma warning (disable : 4275 4251)
-#endif
-
+/*! An encapsulation of a connection to a database.
+*/
 class DBMANAGER_API Database : private boost::noncopyable {
 public:
+    /*! Connects to a specified database.
+    *
+    * \param type The type of database to connect to (such as MySQL).
+    * \param host The database host to connect to.
+    * \param port The port of the database host to connect to.
+    * \param user The username for accessing the requested schema.
+    * \param pass The password for accessing the requested schema.
+    * \param schema The database to connect to.
+    */
     Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     ~Database();
     
@@ -82,29 +93,105 @@ public:
     */
     void executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback);
 
+    /*! Processes async queries.
+    */
     void process();
     
+    /*! Executes an sql query with an unspecified number of parameters.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
     DatabaseResult* executeSynchSql(const char* sql, ...);
 
+    /*! Executes an sql query asynchronusly with an unspecified number of parameters.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
     void executeSqlAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
+    
+    /*! Executes an sql query asynchronusly.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
     void executeSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const char* sql);
 
+    /*! Executes an sql procedure with an unspecified number of parameters.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
     DatabaseResult* executeProcedure(const char* sql, ...);
+
+    /*! Executes an sql procedure asynchronusly with an unspecified number of parameters.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
     void executeProcedureAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
 
+    /*! Escapes a string to prepare for storage in a database.
+    *
+    * \param target The container to hold the escaped string.
+    * \param source The original string that needs escaping.
+    * \param length The length of the original string.
+    * 
+    * \return Returns the length of the escaped string.
+    */
     uint32_t escapeString(char* target, const char* source, uint32_t length);
 
+    /*! Destroys the requested database result.
+    *
+    * \param result The database result to destroy.
+    */
     void destroyResult(DatabaseResult* result);
 
+    /*! Creates a databinding for retrieving sql data.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
     DataBinding* createDataBinding(uint16_t fieldCount);
+
+    /*! Destroys a databinding for retrieving sql data.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
     void destroyDataBinding(DataBinding* binding);
 
+    /*! Begins a transaction intended to execute multiple statements.
+    *
+    * \param callback The database callback to invoke at the end of the query.
+    * \param ref State data needed for the callback to process the results of the transaction.
+    *
+    * \return A transaction object to execute multiple queries with.
+    */
     Transaction* startTransaction(DatabaseCallback* callback, void* ref);
+
+    /*! Destroys the requested database transaction.
+    *
+    * \param t The database transaction to destroy.
+    */
     void destroyTransaction(Transaction* t);
 
+    /*! Releases the memory allocated for result sets.
+    *
+    * \return Returns true if the pool was released, false if not.
+    */
     bool releaseResultPoolMemory();
+
+    /*! Releases the memory allocated for asynchronus query jobs.
+    *
+    * \return Returns true if the pool was released, false if not.
+    */
     bool releaseJobPoolMemory();
+
+    /*! Releases the memory allocated for transactions.
+    *
+    * \return Returns true if the pool was released, false if not.
+    */
     bool releaseTransactionPoolMemory();
+
+    /*! Releases the memory allocated for row bindings.
+    *
+    * \return Returns true if the pool was released, false if not.
+    */
     bool releaseBindingPoolMemory();
 
 private:

@@ -102,9 +102,7 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const char* sql, bool pr
 }
 
 
-DatabaseWorkerThread* DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
-    DatabaseWorkerThread* worker = NULL;
-    
+void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
     // For a multi-result statement to be destroyed properly all results must
     // be processed, failure to do so results in out-of-sync errors.
     if(result->isMultiResult()) {
@@ -114,13 +112,9 @@ DatabaseWorkerThread* DatabaseImplementationMySql::destroyResult(DatabaseResult*
 
             while(res->next()) {}
         }
-
-        worker = result->getWorkerReference();
     }
 
     ResultPool::ordered_free(result);
-
-    return(worker);
 }
 
 

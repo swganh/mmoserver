@@ -28,27 +28,40 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef DATABASE_MANAGER_DATABASE_MANAGER_H_
 #define DATABASE_MANAGER_DATABASE_MANAGER_H_
 
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
-
 #include <cstdint>
 #include <list>
 #include <memory>
 
+#include <boost/noncopyable.hpp>
+
 #include "DatabaseManager/DatabaseType.h"
 #include "DatabaseManager/declspec.h"
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251 4275)
+#endif
+
 class Database;
 
-class DBMANAGER_API DatabaseManager {
+/*! Manages multiple database connections.
+*/
+class DBMANAGER_API DatabaseManager : private boost::noncopyable {
 public:
-    DatabaseManager();
-    ~DatabaseManager();
-
+    /*! Processes all current database connections.
+    */
     void process();
 
+    /*! Connects to a specified database.
+    *
+    * \param host The database host to connect to.
+    * \param port The port of the database host to connect to.
+    * \param user The username for accessing the requested schema.
+    * \param pass The password for accessing the requested schema.
+    * \param schema The database to connect to.
+    *
+    * \return The instance of the database created after successful connection.
+    */
     Database* connect(DBType type, 
         const std::string& host, 
         uint16_t port, 

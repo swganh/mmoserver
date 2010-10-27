@@ -43,7 +43,6 @@ class DatabaseCallback;
 class DatabaseResult;
 class Database;
 
-
 class DBMANAGER_API Transaction {
 public:
 

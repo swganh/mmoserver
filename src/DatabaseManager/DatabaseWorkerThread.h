@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 #define ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 
-
 #include <cstdint>
 #include <functional>
 #include <memory>

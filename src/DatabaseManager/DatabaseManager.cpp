@@ -32,12 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 
 
-DatabaseManager::DatabaseManager() {}
-
-
-DatabaseManager::~DatabaseManager() {}
-
-
 void DatabaseManager::process() {
     std::for_each(database_list_.begin(), database_list_.end(), 
         [] (std::shared_ptr<Database> db) {
@@ -61,6 +55,3 @@ Database* DatabaseManager::connect(DBType type,
 
     return database.get();
 }
-
-
-

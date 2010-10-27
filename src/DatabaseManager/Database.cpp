@@ -291,7 +291,9 @@ void Database::executeProcedureAsync(DatabaseCallback* callback,
 
 
 void Database::destroyResult(DatabaseResult* result) {
-    DatabaseWorkerThread* worker = database_impl_->destroyResult(result);
+    DatabaseWorkerThread* worker = result->getWorkerReference();
+    
+    database_impl_->destroyResult(result);
 
     if(worker) {        
         idle_worker_queue_.push(worker);

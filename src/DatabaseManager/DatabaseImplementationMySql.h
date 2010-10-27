@@ -30,12 +30,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef _WIN32
 #pragma warning(push)
-#pragma warning(disable : 4251)
+#pragma warning(disable : 4251 4275)
 #endif
 
 #include <cstdint>
 #include <memory>
 #include <string>
+
+#include <boost/noncopyable.hpp>
 
 #include "DatabaseManager/DatabaseImplementation.h"
 #include "DatabaseManager/declspec.h"
@@ -49,13 +51,13 @@ namespace sql {
 class DataBinding;
 class DatabaseResult;
 
-class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation {
+class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation , private boost::noncopyable {
 public:
     DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     virtual ~DatabaseImplementationMySql();
 
     virtual DatabaseResult* executeSql(const char* sql, bool procedure = false);
-    virtual DatabaseWorkerThread* destroyResult(DatabaseResult* result);
+    virtual void destroyResult(DatabaseResult* result);
 
     virtual void getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;
     virtual void resetRowIndex(DatabaseResult* result, uint64_t index = 0) const;

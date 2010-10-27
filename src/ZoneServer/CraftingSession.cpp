@@ -143,7 +143,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
     case CraftSessionQuery_SkillmodExp:
     {
         uint32			modId;
-        DataBinding*	binding = mDatabase->CreateDataBinding(1);
+        DataBinding*	binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint32 count = static_cast<uint32>(result->getRowCount());
@@ -157,7 +157,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             // alternatively a separate db entry needs to be made
             for(uint32 i = 0; i<count; i++)
             {
-                result->GetNextRow(binding,&modId);
+                result->getNextRow(binding,&modId);
                 mExpSkillModId = modId;
                 int32 resultInt = mOwner->getSkillModValue(mExpSkillModId);
                 if ((resultInt > 0)&& (resultInt > (int32) mOwnerExpSkillMod))
@@ -171,14 +171,14 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         }
 
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         CraftSessionQueryContainer* container = new CraftSessionQueryContainer(CraftSessionQuery_SkillmodAss,0);
         uint32 groupId = mDraftSchematic->getWeightsBatchId();
 
         int8 sql[550];
         sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%asse%%'");
-        mDatabase->ExecuteSqlAsyncNoArguments(this,container,sql);
+        mDatabase->executeSqlAsyncNoArguments(this,container,sql);
         
         //mDatabase->ExecuteSqlAsync(this,container,sql);
 
@@ -189,7 +189,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
     case CraftSessionQuery_SkillmodAss:
     {
         uint32			resultId;
-        DataBinding*	binding = mDatabase->CreateDataBinding(1);
+        DataBinding*	binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint32 count = static_cast<uint32>(result->getRowCount());
@@ -204,7 +204,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             // alternatively a separate db entry needs to be made
             for(uint32 i = 0; i<count; i++)
             {
-                result->GetNextRow(binding,&resultId);
+                result->getNextRow(binding,&resultId);
                 mAssSkillModId = resultId;
                 int32 resultInt = mOwner->getSkillModValue(mAssSkillModId);
                 if ((resultInt > 0)&& (resultInt > (int32) mOwnerAssSkillMod))
@@ -216,7 +216,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         }
 
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         //lets get the customization data from db
         CraftSessionQueryContainer* container = new CraftSessionQueryContainer(CraftSessionQuery_CustomizationData,0);
@@ -224,7 +224,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
         int8 sql[550];
         sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM draft_schematic_customization dsc WHERE dsc.batchId = %u",groupId);
-        mDatabase->ExecuteSqlAsync(this,container,sql);
+        mDatabase->executeSqlAsync(this,container,sql);
 
 
     }
@@ -232,7 +232,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
     case CraftSessionQuery_CustomizationData:
     {
-        DataBinding*	binding = mDatabase->CreateDataBinding(4);
+        DataBinding*	binding = mDatabase->createDataBinding(4);
         binding->addField(DFT_bstring,offsetof(CustomizationOption,attribute),32,0);
         binding->addField(DFT_uint16,offsetof(CustomizationOption,cutomizationIndex),2,1);
         binding->addField(DFT_uint32,offsetof(CustomizationOption,paletteSize),4,2);
@@ -243,13 +243,13 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         for(uint32 i = 0; i<count; i++)
         {
             CustomizationOption* cO = new(CustomizationOption);
-            result->GetNextRow(binding,cO);
+            result->getNextRow(binding,cO);
 
             cO->paletteSize =  (uint32)(cO->paletteSize /200)* getCustomization();
 
             mManufacturingSchematic->mCustomizationList.push_back(cO);
         }
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         // lets move on to stage 2, send the updates
 
@@ -268,10 +268,10 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
     case CraftSessionQuery_Prototype:
     {
         uint32			resultId;
-        DataBinding*	binding = mDatabase->CreateDataBinding(1);
+        DataBinding*	binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
-        result->GetNextRow(binding,&resultId);
+        result->getNextRow(binding,&resultId);
 
         // all went well
         if(!resultId)
@@ -313,7 +313,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,qContainer->mCounter,mOwner);
 
             // end the session
-            mDatabase->DestroyDataBinding(binding);
+            mDatabase->destroyDataBinding(binding);
             delete(qContainer);
 
             gCraftingSessionFactory->destroySession(this);
@@ -321,7 +321,7 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             return;
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -404,7 +404,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
         sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%exper%%'");
 
         //% just upsets the standard query
-        mDatabase->ExecuteSqlAsyncNoArguments(this,container,sql);
+        mDatabase->executeSqlAsyncNoArguments(this,container,sql);
         
         
         return;
@@ -934,7 +934,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
         // update the custom name and parent
         sprintf(sql,"UPDATE items SET parent_id=%"PRIu64", customName='",mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
         sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->Escape_String(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
+        sqlPointer += mDatabase->escapeString(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
         sprintf(restStr,"' WHERE id=%"PRIu64" ",mItem->getId());
         strcat(sql,restStr);
 
@@ -1252,7 +1252,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder();
     list->clear();
 
-    mDatabase->ExecuteSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId());
+    mDatabase->executeSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId());
 
 
     //save the datapad as the Owner Id in the db
@@ -1269,7 +1269,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     //Now enter the relevant information into the Manufactureschematic table
     std::string serial = mItem->getAttribute<std::string>("serial_number");
 
-    mDatabase->ExecuteSqlAsync(0, 0, "INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
+    mDatabase->executeSqlAsync(0, 0, "INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
 
 
     //save the customization - thats part of the item!!!!

@@ -70,21 +70,21 @@ LoginServer::LoginServer(void) :
     mDatabaseManager = new DatabaseManager();
 
     // Connect to our database and pass it off to our modules.
-    mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
+    mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
                                           (char*)(gConfig->read<std::string>("DBServer")).c_str(),
                                           gConfig->read<int>("DBPort"),
                                           (char*)(gConfig->read<std::string>("DBUser")).c_str(),
                                           (char*)(gConfig->read<std::string>("DBPass")).c_str(),
                                           (char*)(gConfig->read<std::string>("DBName")).c_str());
 
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL - Update Server Start ID
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 1); // SQL - Update Server Status
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL - Update Server Start ID
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 1); // SQL - Update Server Status
     
     // In case of a crash, we need to cleanup the DB a little.
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET account_authenticated = 0 WHERE account_authenticated = 1;"));
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE account SET account_authenticated = 0 WHERE account_authenticated = 1;"));
     
     //and session_key now as well
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET account_session_key = '';"));
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE account SET account_session_key = '';"));
   
     // Instant the messageFactory. It will also run the Startup ().
     (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.
@@ -96,7 +96,7 @@ LoginServer::LoginServer(void) :
     mService->AddNetworkCallback(mLoginManager);
 
     // We're done initializing.
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, '%s', %u);", 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, '%s', %u);", 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
 
     LOG(WARNING) << "Login Server startup complete";
     //gLogger->printLogo();
@@ -110,7 +110,7 @@ LoginServer::LoginServer(void) :
 //======================================================================================================================
 LoginServer::~LoginServer(void)
 {
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 2); // SQL - Update server status
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 2); // SQL - Update server status
     
     LOG(WARNING) << "LoginServer shutting down...";
 
@@ -130,7 +130,7 @@ LoginServer::~LoginServer(void)
 void LoginServer::Process(void)
 {
     mNetworkManager->Process();
-    mDatabaseManager->Process();
+    mDatabaseManager->process();
     mLoginManager->Process();
     gMessageFactory->Process();
 }

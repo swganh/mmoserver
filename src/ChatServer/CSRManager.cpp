@@ -70,7 +70,7 @@ CSRManager::CSRManager(Database* database, MessageDispatch* dispatch, ChatManage
     _loadDatabindings();
 
     CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Categories);
-    mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CSRCategoriesGet();");
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRCategoriesGet();");
  
 }
 
@@ -124,7 +124,7 @@ CSRManager::~CSRManager()
 void CSRManager::_loadDatabindings()
 {
     //Spety likes it when things line up!
-    mTicketBinding = mDatabase->CreateDataBinding(12);
+    mTicketBinding = mDatabase->createDataBinding(12);
     mTicketBinding->addField(DFT_uint32,	offsetof(Ticket, mId),				4,		0);
     mTicketBinding->addField(DFT_bstring,	offsetof(Ticket, mPlayer),			33,		1);
     mTicketBinding->addField(DFT_uint32,	offsetof(Ticket, mCategoryId),		4,		2);
@@ -138,25 +138,25 @@ void CSRManager::_loadDatabindings()
     mTicketBinding->addField(DFT_uint8,		offsetof(Ticket, mClosed),			1,		10);
     mTicketBinding->addField(DFT_uint64,	offsetof(Ticket, mLastModified),	8,		11);
 
-    mCommentBinding = mDatabase->CreateDataBinding(4);
+    mCommentBinding = mDatabase->createDataBinding(4);
     mCommentBinding->addField(DFT_uint32,	offsetof(Comment, mId),			4,		0);
     mCommentBinding->addField(DFT_uint32,	offsetof(Comment, mTicketId),	4,		1);
     mCommentBinding->addField(DFT_bstring,	offsetof(Comment, mText),		8192,	2);
     mCommentBinding->addField(DFT_bstring,	offsetof(Comment, mAuthor),		33,		3);
 
-    mCategoryBinding = mDatabase->CreateDataBinding(2);
+    mCategoryBinding = mDatabase->createDataBinding(2);
     mCategoryBinding->addField(DFT_uint32,	offsetof(Category, mId),	4,	0);
     mCategoryBinding->addField(DFT_bstring, offsetof(Category, mName),	46, 1);
 
-    mSubCategoryBinding = mDatabase->CreateDataBinding(2);
+    mSubCategoryBinding = mDatabase->createDataBinding(2);
     mSubCategoryBinding->addField(DFT_uint32,	offsetof(SubCategory, mId),		4,	0);
     mSubCategoryBinding->addField(DFT_bstring,	offsetof(SubCategory, mName),	46, 1);
 
-    mArticleSearchBinding = mDatabase->CreateDataBinding(2);
+    mArticleSearchBinding = mDatabase->createDataBinding(2);
     mArticleSearchBinding->addField(DFT_uint32,		offsetof(Article, mId),		4,	0);
     mArticleSearchBinding->addField(DFT_bstring,	offsetof(Article, mTitle),	46, 1);
 
-    mFullArticleBinding = mDatabase->CreateDataBinding(3);
+    mFullArticleBinding = mDatabase->createDataBinding(3);
     mFullArticleBinding->addField(DFT_uint32,	offsetof(Article, mId),		4,		0);
     mFullArticleBinding->addField(DFT_bstring,	offsetof(Article, mTitle),	46,		1);
     mFullArticleBinding->addField(DFT_bstring,	offsetof(Article, mBody),	8192,	2);
@@ -198,12 +198,12 @@ void CSRManager::_unregisterCallbacks()
 
 void CSRManager::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mTicketBinding);
-    mDatabase->DestroyDataBinding(mCommentBinding);
-    mDatabase->DestroyDataBinding(mCategoryBinding);
-    mDatabase->DestroyDataBinding(mSubCategoryBinding);
-    mDatabase->DestroyDataBinding(mArticleSearchBinding);
-    mDatabase->DestroyDataBinding(mFullArticleBinding);
+    mDatabase->destroyDataBinding(mTicketBinding);
+    mDatabase->destroyDataBinding(mCommentBinding);
+    mDatabase->destroyDataBinding(mCategoryBinding);
+    mDatabase->destroyDataBinding(mSubCategoryBinding);
+    mDatabase->destroyDataBinding(mArticleSearchBinding);
+    mDatabase->destroyDataBinding(mFullArticleBinding);
 }
 
 //======================================================================================================================
@@ -228,11 +228,11 @@ void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient*
     comment.convert(BSTRType_ANSI);
 
     int8 cleanComment[4000], cleanPoster[4000];
-    mDatabase->Escape_String(cleanComment,comment.getAnsi(),comment.getLength());
-    mDatabase->Escape_String(cleanPoster,poster.getAnsi(), poster.getLength());
-    mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_CSRTicketCommentAdd(%u, '%s', '%s');", ticketid, cleanComment, cleanPoster);
+    mDatabase->escapeString(cleanComment,comment.getAnsi(),comment.getLength());
+    mDatabase->escapeString(cleanPoster,poster.getAnsi(), poster.getLength());
+    mDatabase->executeProcedureAsync(NULL, NULL, "CALL sp_CSRTicketCommentAdd(%u, '%s', '%s');", ticketid, cleanComment, cleanPoster);
     
-    mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_CSRTicketActivityUpdate(%u);", ticketid);
+    mDatabase->executeProcedureAsync(NULL, NULL, "CALL sp_CSRTicketActivityUpdate(%u);", ticketid);
     
 
     gMessageFactory->StartMessage();
@@ -246,7 +246,7 @@ void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient*
 void CSRManager::_processCancelTicketMessage( Message* message, DispatchClient* client )
 {
     uint32 ticketid = message->getUint32();
-    mDatabase->ExecuteProcedureAsync(NULL, NULL, "CALL sp_CSRTicketCancel(%u);", ticketid);
+    mDatabase->executeProcedureAsync(NULL, NULL, "CALL sp_CSRTicketCancel(%u);", ticketid);
     
 
     gMessageFactory->StartMessage();
@@ -287,13 +287,13 @@ void CSRManager::_processCreateTicketMessage( Message* message, DispatchClient* 
     asyncContainer->mClient = client;
 
     int8 cleanPlayer[4000], cleanComment[4000], cleanInfo[4000], cleanHarrasser[4000], cleanLanguage[4000];
-    mDatabase->Escape_String(cleanPlayer, playername.getAnsi(), playername.getLength());
-    mDatabase->Escape_String(cleanInfo, info.getAnsi(), info.getLength());
-    mDatabase->Escape_String(cleanComment, comment.getAnsi(), comment.getLength());
-    mDatabase->Escape_String(cleanHarrasser, harrassinguser.getAnsi(), harrassinguser.getLength());
-    mDatabase->Escape_String(cleanLanguage, language.getAnsi(), language.getLength());
+    mDatabase->escapeString(cleanPlayer, playername.getAnsi(), playername.getLength());
+    mDatabase->escapeString(cleanInfo, info.getAnsi(), info.getLength());
+    mDatabase->escapeString(cleanComment, comment.getAnsi(), comment.getLength());
+    mDatabase->escapeString(cleanHarrasser, harrassinguser.getAnsi(), harrassinguser.getLength());
+    mDatabase->escapeString(cleanLanguage, language.getAnsi(), language.getLength());
 
-    mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketAdd('%s', %u, %u, '%s', '%s', '%s', '%s', %d);", cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketAdd('%s', %u, %u, '%s', '%s', '%s', '%s', %d);", cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport);
     
 }
 
@@ -307,7 +307,7 @@ void CSRManager::_processGetArticleMessage(Message *message, DispatchClient* cli
 
     CSRAsyncContainer* asynccontainer = new CSRAsyncContainer(CSRQuery_FullArticle);
     asynccontainer->mClient = client;
-    mDatabase->ExecuteProcedureAsync(this, asynccontainer, "CALL sp_CSRKnowledgeBaseArticleGet(%s);", id.getAnsi());
+    mDatabase->executeProcedureAsync(this, asynccontainer, "CALL sp_CSRKnowledgeBaseArticleGet(%s);", id.getAnsi());
     
 }
 
@@ -319,7 +319,7 @@ void CSRManager::_processGetCommentsMessage(Message *message, DispatchClient* cl
 
     CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_CommentsByTicket);
     asyncContainer->mClient = client;
-    mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketCommentGet(%u);", ticketid);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketCommentGet(%u);", ticketid);
     
 }
 
@@ -329,7 +329,7 @@ void CSRManager::_processGetTicketsMessage(Message *message, DispatchClient* cli
 {
     CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Tickets);
     asyncContainer->mClient = client;
-    mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketGet (%"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketGet (%"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
     
 }
 
@@ -339,7 +339,7 @@ void CSRManager::_processNewTicketActivityMessage(Message *message, DispatchClie
 {
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_TicketActivity);
     asyncContainer->mClient = client;
-    mDatabase->ExecuteProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketActivityGet (%"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketActivityGet (%"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
     
 }
 
@@ -368,7 +368,7 @@ void CSRManager::_processSearchKnowledgeBaseMessage(Message *message, DispatchCl
     while (iter != splitstring.end())
     {
         int8 cleanSearchString[4000];
-        mDatabase->Escape_String(cleanSearchString, (*iter).getAnsi(), (*iter).getLength());
+        mDatabase->escapeString(cleanSearchString, (*iter).getAnsi(), (*iter).getLength());
         sql << cleanSearchString;
         sql << "%";
         ++iter;
@@ -376,7 +376,7 @@ void CSRManager::_processSearchKnowledgeBaseMessage(Message *message, DispatchCl
 
     CSRAsyncContainer* asynccontainer = new CSRAsyncContainer(CSRQuery_SearchKB);
     asynccontainer->mClient = client;
-    mDatabase->ExecuteProcedureAsync(this, asynccontainer, "CALL sp_CSRKnowledgeBaseArticleFind ('%s');", sql.getAnsi());
+    mDatabase->executeProcedureAsync(this, asynccontainer, "CALL sp_CSRKnowledgeBaseArticleFind ('%s');", sql.getAnsi());
     
 }
 
@@ -395,7 +395,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if (count == 1) //There should only be one result
         {
             Ticket* ticket = new Ticket();
-            result->GetNextRow(mTicketBinding, ticket);
+            result->getNextRow(mTicketBinding, ticket);
             ticket->mComment.convert(BSTRType_Unicode16);
 
             gChatMessageLib->sendGetTicketsResponseMessage(asyncContainer->mClient, ticket);
@@ -411,7 +411,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         for (uint i = 0; i < count; i++)
         {
             Comment* comment = new Comment();
-            result->GetNextRow(mCommentBinding, comment);
+            result->getNextRow(mCommentBinding, comment);
             comment->mText.convert(BSTRType_Unicode16);
 
             list->push_back(comment);
@@ -437,10 +437,10 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     case CSRQuery_NewTicket:
     {
         uint32 id;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32, 0, 4, 0);
 
-        result->GetNextRow(binding, &id);
+        result->getNextRow(binding, &id);
 
         gMessageFactory->StartMessage();
         gMessageFactory->addUint32(opCreateTicketResponseMessage);
@@ -460,13 +460,13 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         {
             Category* category = new Category();
 
-            result->GetNextRow(mCategoryBinding, category);
+            result->getNextRow(mCategoryBinding, category);
             category->mName.convert(BSTRType_Unicode16);
             mCategoryList.push_back(category);
 
             CSRAsyncContainer* asContainer = new CSRAsyncContainer(CSRQuery_SubCategories);
             asContainer->mCategory = category;
-            mDatabase->ExecuteProcedureAsync(this, asContainer, "CALL sp_CSRSubCategoriesGet (%u);", category->mId);
+            mDatabase->executeProcedureAsync(this, asContainer, "CALL sp_CSRSubCategoriesGet (%u);", category->mId);
             
         }
     }
@@ -480,7 +480,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         {
             SubCategory* subcategory = new SubCategory();
 
-            result->GetNextRow(mSubCategoryBinding, subcategory);
+            result->getNextRow(mSubCategoryBinding, subcategory);
             subcategory->mName.convert(BSTRType_Unicode16);
             asyncContainer->mCategory->GetSubCategories()->push_back(subcategory);
         }
@@ -495,7 +495,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         for (uint i = 0; i < count; i++)
         {
             Article* article = new Article();
-            result->GetNextRow(mArticleSearchBinding, article);
+            result->getNextRow(mArticleSearchBinding, article);
             article->mTitle.convert(BSTRType_Unicode16);
             list->push_back(article);
         }
@@ -510,7 +510,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if (count == 1)
         {
             Article* article = new Article();
-            result->GetNextRow(mFullArticleBinding, article);
+            result->getNextRow(mFullArticleBinding, article);
             article->mBody.convert(BSTRType_Unicode16);
             gChatMessageLib->sendGetArticleResponseMessage(asyncContainer->mClient, article);
         }

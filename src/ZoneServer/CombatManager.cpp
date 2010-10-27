@@ -55,7 +55,7 @@ CombatManager::CombatManager(Database* database) :
 {
     //gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");
     // load default attack animations
-    mDatabase->ExecuteSqlAsync(this, 0, "SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
+    mDatabase->executeSqlAsync(this, 0, "SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
     
 }
 
@@ -98,7 +98,7 @@ CombatManager::~CombatManager()
 void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     CMWeaponGroup*	weaponGroup;
-    DataBinding*	binding = mDatabase->CreateDataBinding(3);
+    DataBinding*	binding = mDatabase->createDataBinding(3);
 
     binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mId),4,0);
     binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mDefaultAttackAnimationCrc),4,1);
@@ -111,12 +111,12 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     {
         weaponGroup = new CMWeaponGroup();
 
-        result->GetNextRow(binding,weaponGroup);
+        result->getNextRow(binding,weaponGroup);
 
         mWeaponGroups.push_back(weaponGroup);
     }
 
-    mDatabase->DestroyDataBinding(binding);
+    mDatabase->destroyDataBinding(binding);
     //gLogger->log(LogManager::NOTICE,"Finished Loading weapon groups.");
 }
 

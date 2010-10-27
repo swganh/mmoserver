@@ -388,7 +388,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         asyncContainer->player		= playerObject;
         asyncContainer->callBack	= CLHCallBack_Transfer_Ticket;
 
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRIu64"", ticket->getId());
+        mDatabase->executeSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRIu64"", ticket->getId());
         
 
     }
@@ -413,7 +413,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
         gWorldManager->savePlayerSync(playerObject->getAccountId(),false);
 
         // Now update the DB with the new location/planetId
-        mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%"PRIu64"';",x,z,planetId,playerObject->getId()));
+        mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%"PRIu64"';",x,z,planetId,playerObject->getId()));
         
 
         gMessageLib->sendClusterZoneTransferCharacter(playerObject,planetId);

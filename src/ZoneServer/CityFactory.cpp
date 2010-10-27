@@ -102,7 +102,7 @@ void CityFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CityFQuery_MainData,client),
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CityFQuery_MainData,client),
                                "SELECT cities.id,cities.city_name,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
                                "planet_regions.width,planet_regions.height"
                                " FROM cities"
@@ -120,7 +120,7 @@ City* CityFactory::_createCity(DatabaseResult* result)
 
     City*	city = new City();
 
-    result->GetNextRow(mCityBinding,(void*)city);
+    result->getNextRow(mCityBinding,(void*)city);
 
     city->setLoadState(LoadState_Loaded);
 
@@ -131,7 +131,7 @@ City* CityFactory::_createCity(DatabaseResult* result)
 
 void CityFactory::_setupDatabindings()
 {
-    mCityBinding = mDatabase->CreateDataBinding(8);
+    mCityBinding = mDatabase->createDataBinding(8);
     mCityBinding->addField(DFT_uint64,offsetof(City,mId),8,0);
     mCityBinding->addField(DFT_bstring,offsetof(City,mCityName),64,1);
     mCityBinding->addField(DFT_bstring,offsetof(City,mRegionName),64,2);
@@ -146,7 +146,7 @@ void CityFactory::_setupDatabindings()
 
 void CityFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mCityBinding);
+    mDatabase->destroyDataBinding(mCityBinding);
 }
 
 //=============================================================================

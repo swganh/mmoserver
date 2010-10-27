@@ -95,7 +95,7 @@ void PersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* r
             QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,PersistentNpcQuery_Attributes,asyncContainer->mClient);
             asContainer->mObject = npc;
 
-            mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,persistent_npc_attributes.value,attributes.internal"
+            mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,persistent_npc_attributes.value,attributes.internal"
                                        " FROM persistent_npc_attributes"
                                        " INNER JOIN attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
                                        " WHERE persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY persistent_npc_attributes.order",npc->getId());
@@ -123,7 +123,7 @@ void PersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* r
 
 void PersistentNpcFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,PersistentNpcQuery_MainData,client),
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,PersistentNpcQuery_MainData,client),
                                "SELECT persistent_npcs.id,persistent_npcs.parentId,persistent_npcs.firstName,persistent_npcs.lastName,persistent_npcs.posture,persistent_npcs.state,persistent_npcs.cl,"
                                "persistent_npcs.oX,persistent_npcs.oY,persistent_npcs.oZ,persistent_npcs.oW,persistent_npcs.x,persistent_npcs.y,persistent_npcs.z,"
                                "persistent_npcs.type,persistent_npcs.stf_variable_id,persistent_npcs.stf_file_id,faction.name,"
@@ -145,8 +145,8 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(DatabaseResult* result)
     NPCObject*		npc	;
     NpcIdentifier	npcIdentifier;
 
-    result->GetNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
-    result->ResetRowIndex();
+    result->getNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
+    result->resetRowIndex();
 
     switch(npcIdentifier.mFamilyId)
     {
@@ -171,7 +171,7 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(DatabaseResult* result)
     Inventory*		npcInventory	= new Inventory();
     npcInventory->setParent(npc);
 
-    result->GetNextRow(mPersistentNpcBinding,(void*)npc);
+    result->getNextRow(mPersistentNpcBinding,(void*)npc);
 
     npc->mHam.mHealth.setCurrentHitPoints(500);
     npc->mHam.mAction.setCurrentHitPoints(500);
@@ -202,7 +202,7 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(DatabaseResult* result)
 
 void PersistentNpcFactory::_setupDatabindings()
 {
-    mPersistentNpcBinding = mDatabase->CreateDataBinding(20);
+    mPersistentNpcBinding = mDatabase->createDataBinding(20);
     mPersistentNpcBinding->addField(DFT_uint64,offsetof(NPCObject,mId),8,0);
     mPersistentNpcBinding->addField(DFT_uint64,offsetof(NPCObject,mParentId),8,1);
     mPersistentNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mFirstName),64,2);
@@ -224,7 +224,7 @@ void PersistentNpcFactory::_setupDatabindings()
     mPersistentNpcBinding->addField(DFT_uint8,offsetof(NPCObject,mMoodId),1,18);
     mPersistentNpcBinding->addField(DFT_float,offsetof(NPCObject,mScale),4,20);
 
-    mNpcIdentifierBinding = mDatabase->CreateDataBinding(1);
+    mNpcIdentifierBinding = mDatabase->createDataBinding(1);
     mNpcIdentifierBinding->addField(DFT_uint32,offsetof(NpcIdentifier,mFamilyId),4,19);
     //mNpcIdentifierBinding->addField(DFT_uint32,offsetof(NPCIdentifier,mTypeId),4,3);
 }
@@ -233,8 +233,8 @@ void PersistentNpcFactory::_setupDatabindings()
 
 void PersistentNpcFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mPersistentNpcBinding);
-    mDatabase->DestroyDataBinding(mNpcIdentifierBinding);
+    mDatabase->destroyDataBinding(mPersistentNpcBinding);
+    mDatabase->destroyDataBinding(mNpcIdentifierBinding);
 }
 
 //=============================================================================

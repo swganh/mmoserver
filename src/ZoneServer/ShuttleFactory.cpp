@@ -107,7 +107,7 @@ void ShuttleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
 {
     //mDatabase->ExecuteProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, SHFQuery_MainData, client), "CALL sp_ShuttleDetailGet(%"PRIu64");", id);
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,SHFQuery_MainData,client),
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,SHFQuery_MainData,client),
                                "SELECT shuttles.id,shuttles.parentId,shuttles.firstName,shuttles.lastName,"
                                "shuttles.oX,shuttles.oY,shuttles.oZ,shuttles.oW,shuttles.x,shuttles.y,shuttles.z,"
                                "shuttle_types.object_string,shuttle_types.name,shuttle_types.file,shuttles.awayTime,shuttles.inPortTime,shuttles.collectorId "
@@ -129,7 +129,7 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
     Inventory*	shuttleInventory	= new Inventory();
     shuttleInventory->setParent(shuttle);
 
-    result->GetNextRow(mShuttleBinding,(void*)shuttle);
+    result->getNextRow(mShuttleBinding,(void*)shuttle);
 
     shuttle->mHam.mBattleFatigue = 0;
     shuttle->mHam.mHealth.setCurrentHitPoints(500);
@@ -205,7 +205,7 @@ Shuttle* ShuttleFactory::_createShuttle(DatabaseResult* result)
 
 void ShuttleFactory::_setupDatabindings()
 {
-    mShuttleBinding = mDatabase->CreateDataBinding(17);
+    mShuttleBinding = mDatabase->createDataBinding(17);
     mShuttleBinding->addField(DFT_uint64,offsetof(Shuttle,mId),8,0);
     mShuttleBinding->addField(DFT_uint64,offsetof(Shuttle,mParentId),8,1);
     mShuttleBinding->addField(DFT_bstring,offsetof(Shuttle,mFirstName),64,2);
@@ -229,7 +229,7 @@ void ShuttleFactory::_setupDatabindings()
 
 void ShuttleFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mShuttleBinding);
+    mDatabase->destroyDataBinding(mShuttleBinding);
 }
 
 //=============================================================================

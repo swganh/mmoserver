@@ -49,14 +49,14 @@ class DBMANAGER_API DatabaseImplementation {
 public:
     virtual ~DatabaseImplementation() {}
 
-    virtual DatabaseResult* ExecuteSql(const char* sql, bool procedure = false) = 0;
+    virtual DatabaseResult* executeSql(const char* sql, bool procedure = false) = 0;
 
-    virtual DatabaseWorkerThread* DestroyResult(DatabaseResult* result) = 0;
+    virtual DatabaseWorkerThread* destroyResult(DatabaseResult* result) = 0;
 
-    virtual void GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) const = 0;
-    virtual void ResetRowIndex(DatabaseResult* result, uint64_t index = 0) const = 0;
+    virtual void getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const = 0;
+    virtual void resetRowIndex(DatabaseResult* result, uint64_t index = 0) const = 0;
 
-    virtual uint32_t Escape_String(char* target, const char* source, uint32_t length) = 0;
+    virtual uint32_t escapeString(char* target, const char* source, uint32_t length) = 0;
 
     bool releaseResultPoolMemory() {
         return(ResultPool::release_memory());

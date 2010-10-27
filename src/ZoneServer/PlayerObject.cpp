@@ -899,7 +899,7 @@ void PlayerObject::addBadge(uint32 badgeId)
         gMessageLib->sendPlayMusicMessage(badge->getSoundId(),this);
         gMessageLib->SendSystemMessage(::common::OutOfBand("badge_n", "prose_grant", "", "", "", "", "badge_n", badge->getName().getAnsi()), this);
 
-        (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
+        (gWorldManager->getDatabase())->executeSqlAsync(0,0,"INSERT INTO character_badges VALUES (%"PRIu64",%u)",mId,badgeId);
 
         _verifyBadges();
 
@@ -1804,7 +1804,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
                     {
                         // Remove insurance.
                         tangibleObject->setInternalAttribute("insured","0");
-                        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=0 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
+                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=0 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
                         
 
                         tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() & ~((uint32)4));
@@ -2062,7 +2062,7 @@ void PlayerObject::setParentIdIncDB(uint64 parentId)
 {
     mParentId = parentId;
 
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
     
 }
 

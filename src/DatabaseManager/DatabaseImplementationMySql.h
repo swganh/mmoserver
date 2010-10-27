@@ -54,13 +54,13 @@ public:
     DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     virtual ~DatabaseImplementationMySql();
 
-    virtual DatabaseResult* ExecuteSql(const char* sql, bool procedure = false);
-    virtual DatabaseWorkerThread* DestroyResult(DatabaseResult* result);
+    virtual DatabaseResult* executeSql(const char* sql, bool procedure = false);
+    virtual DatabaseWorkerThread* destroyResult(DatabaseResult* result);
 
-    virtual void GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;
-    virtual void ResetRowIndex(DatabaseResult* result, uint64_t index = 0) const;
+    virtual void getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;
+    virtual void resetRowIndex(DatabaseResult* result, uint64_t index = 0) const;
 
-    virtual uint32_t Escape_String(char* target, const char* source, uint32_t length);
+    virtual uint32_t escapeString(char* target, const char* source, uint32_t length);
 
 private:
     void processFieldBinding_(std::unique_ptr<sql::ResultSet>& result, DataBinding* binding, uint32_t field_id, void* object) const;

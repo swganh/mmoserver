@@ -58,7 +58,7 @@ void Transaction::addQuery(const char* query, ...) {
     int32_t	len = vsnprintf(localSql, sizeof(localSql), query, args);
 
     // need to escape
-    mDatabase->Escape_String(escapedSql, localSql, len);
+    mDatabase->escapeString(escapedSql, localSql, len);
 
     mQueries << escapedSql << "$$";
 
@@ -69,6 +69,6 @@ void Transaction::addQuery(const char* query, ...) {
 void Transaction::execute() {
     mQueries << "\")";
 
-    mDatabase->ExecuteProcedureAsync(mCallback, mReference, mQueries.str().c_str());
+    mDatabase->executeProcedureAsync(mCallback, mReference, mQueries.str().c_str());
     mDatabase->destroyTransaction(this);
 }

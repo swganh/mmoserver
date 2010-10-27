@@ -147,25 +147,25 @@ void MessageRouter::_loadMessageProcessMap(void)
 
     // We need to populate our message map.
     // setup our databinding parameters.
-    DataBinding* binding = mDatabase->CreateDataBinding(2);
+    DataBinding* binding = mDatabase->createDataBinding(2);
     binding->addField(DFT_uint32, offsetof(MessageRoute, mMessageId), 4);
     binding->addField(DFT_uint32, offsetof(MessageRoute, mProcessId), 4);
 
     // Execute our statement
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT messageId, processId FROM config_message_routes;");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT messageId, processId FROM config_message_routes;");
     
     uint32 count = static_cast<uint32>(result->getRowCount());
 
     // Retrieve our routes and add them to the map.
     for(uint32 i = 0; i < count; i++)
     {
-        result->GetNextRow(binding, &route);
+        result->getNextRow(binding, &route);
         mMessageRouteMap.insert(std::make_pair(route.mMessageId, route.mProcessId));
     }
 
     // Delete our DB objects.
-    mDatabase->DestroyDataBinding(binding);
-    mDatabase->DestroyResult(result);
+    mDatabase->destroyDataBinding(binding);
+    mDatabase->destroyResult(result);
 }
 
 //======================================================================================================================

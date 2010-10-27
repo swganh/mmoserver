@@ -193,7 +193,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
     {
         NpcLairEntityEx lair;
 
-        DataBinding* lairSpawnBinding = mDatabase->CreateDataBinding(9);
+        DataBinding* lairSpawnBinding = mDatabase->createDataBinding(9);
         lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntityEx,mCreatureSpwanRegion),8,0);
         lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntityEx,mTemplateId),8,1);
         lairSpawnBinding->addField(DFT_uint32,offsetof(NpcLairEntityEx,mCreatureGroup),4,2);
@@ -204,7 +204,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         lairSpawnBinding->addField(DFT_float,offsetof(NpcLairEntityEx,mSpawnDirW),4,7);
         lairSpawnBinding->addField(DFT_uint32,offsetof(NpcLairEntityEx,mFamily),4,8);
 
-        DataBinding* lairSpawnNpcBinding = mDatabase->CreateDataBinding(4);
+        DataBinding* lairSpawnNpcBinding = mDatabase->createDataBinding(4);
         lairSpawnNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mModel),255,9);
         lairSpawnNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mSpecies),255,10);
         lairSpawnNpcBinding->addField(DFT_bstring,offsetof(NPCObject,mSpeciesGroup),255,11);
@@ -214,7 +214,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         	break;
         }
 
-        result->GetNextRow(lairSpawnBinding,&lair);
+        result->getNextRow(lairSpawnBinding,&lair);
 
         // Let's create the lair.
 
@@ -252,11 +252,11 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         // lair.mCreatureSpwanRegion
         npc->setSpawnArea(spawnArea);
 
-        result->ResetRowIndex();
-        result->GetNextRow(lairSpawnNpcBinding,(void*)npc );
+        result->resetRowIndex();
+        result->getNextRow(lairSpawnNpcBinding,(void*)npc );
 
-        mDatabase->DestroyDataBinding(lairSpawnBinding);
-        mDatabase->DestroyDataBinding(lairSpawnNpcBinding);
+        mDatabase->destroyDataBinding(lairSpawnBinding);
+        mDatabase->destroyDataBinding(lairSpawnNpcBinding);
 
         Inventory*	npcInventory = new Inventory();
         npcInventory->setParent(npc);
@@ -288,7 +288,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         // Do not transfer object refs, use the handle, i.e. asyncContainer->mId
         // asContainer->mObject = npc;
 
-        mDatabase->ExecuteSqlAsync(this, asContainer, "SELECT creature_groups.creature_id FROM creature_groups WHERE creature_groups.creature_group_id=%u;", lair.mCreatureGroup);
+        mDatabase->executeSqlAsync(this, asContainer, "SELECT creature_groups.creature_id FROM creature_groups WHERE creature_groups.creature_group_id=%u;", lair.mCreatureGroup);
         
 
     }
@@ -301,7 +301,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         assert(npc && "NonPersistentNpcFactory::handleDatabaseJobComplete NonPersistentNpcQuery_LairCreatureTemplates WorldManager unable to find object id");
 
         uint64	creatureTemplateId;
-        DataBinding* creatureTemplateBinding = mDatabase->CreateDataBinding(1);
+        DataBinding* creatureTemplateBinding = mDatabase->createDataBinding(1);
         creatureTemplateBinding->addField(DFT_uint64,0,8,0);
 
         uint64 count = result->getRowCount();
@@ -311,7 +311,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 
         for (uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(creatureTemplateBinding, &creatureTemplateId);
+            result->getNextRow(creatureTemplateBinding, &creatureTemplateId);
             npc->setCreatureTemplate((uint32)i, creatureTemplateId);
 
             spawnRate += spawnRateInc;
@@ -321,11 +321,11 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         {
             npc->setCreatureSpawnRate(static_cast<uint32>(count) - 1, 99);
         }
-        mDatabase->DestroyDataBinding(creatureTemplateBinding);
+        mDatabase->destroyDataBinding(creatureTemplateBinding);
 
         QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,lair_attributes.value,attributes.internal FROM lair_attributes INNER JOIN attributes ON (lair_attributes.attribute_id = attributes.id) WHERE lair_attributes.lair_id = %"PRIu64" ORDER BY lair_attributes.order", asyncContainer->mTemplateId);
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,lair_attributes.value,attributes.internal FROM lair_attributes INNER JOIN attributes ON (lair_attributes.attribute_id = attributes.id) WHERE lair_attributes.lair_id = %"PRIu64" ORDER BY lair_attributes.order", asyncContainer->mTemplateId);
         
     }
     break;
@@ -354,7 +354,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         {
             QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
 
-            mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,non_persistent_npc_attributes.value,attributes.internal"
+            mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,non_persistent_npc_attributes.value,attributes.internal"
                                        " FROM non_persistent_npc_attributes"
                                        " INNER JOIN attributes ON (non_persistent_npc_attributes.attribute_id = attributes.id)"
                                        " WHERE non_persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY non_persistent_npc_attributes.order", asyncContainer->mTemplateId);
@@ -390,8 +390,8 @@ NPCObject* NonPersistentNpcFactory::_createNonPersistentNpc(DatabaseResult* resu
 
     NpcIdentifier	npcIdentifier;
 
-    result->GetNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
-    result->ResetRowIndex();
+    result->getNextRow(mNpcIdentifierBinding,(void*)&npcIdentifier);
+    result->resetRowIndex();
 
     return this->createNonPersistentNpc(result, templateId, npcNewId, npcIdentifier.mFamilyId, controllingObject);
 }
@@ -469,7 +469,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
     npcInventory->setCapacity(50);//we want to be able to fill something in our inventory
     npcInventory->setParent(npc);
 
-    result->GetNextRow(mNonPersistentNpcBinding,(void*)npc);
+    result->getNextRow(mNonPersistentNpcBinding,(void*)npc);
 
     // The template for this creature, in case of a respawn.
     npc->mNpcTemplateId = templateId;
@@ -613,7 +613,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 
 void NonPersistentNpcFactory::_setupDatabindings()
 {
-    mNonPersistentNpcBinding = mDatabase->CreateDataBinding(11);
+    mNonPersistentNpcBinding = mDatabase->createDataBinding(11);
     mNonPersistentNpcBinding->addField(DFT_uint64,offsetof(NPCObject,mSpeciesId),8,0);
     mNonPersistentNpcBinding->addField(DFT_uint64,offsetof(NPCObject,mLootGroupId),8,1);
     mNonPersistentNpcBinding->addField(DFT_uint8,offsetof(NPCObject,mPosture),1,2);
@@ -626,7 +626,7 @@ void NonPersistentNpcFactory::_setupDatabindings()
     mNonPersistentNpcBinding->addField(DFT_uint8,offsetof(NPCObject,mMoodId),1,9);
     mNonPersistentNpcBinding->addField(DFT_float,offsetof(NPCObject,mScale),4,10);
 
-    mNpcIdentifierBinding = mDatabase->CreateDataBinding(1);
+    mNpcIdentifierBinding = mDatabase->createDataBinding(1);
     mNpcIdentifierBinding->addField(DFT_uint32,offsetof(NpcIdentifier,mFamilyId),4,11);
 }
 
@@ -634,8 +634,8 @@ void NonPersistentNpcFactory::_setupDatabindings()
 
 void NonPersistentNpcFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mNonPersistentNpcBinding);
-    mDatabase->DestroyDataBinding(mNpcIdentifierBinding);
+    mDatabase->destroyDataBinding(mNonPersistentNpcBinding);
+    mDatabase->destroyDataBinding(mNpcIdentifierBinding);
 }
 
 //=============================================================================
@@ -645,7 +645,7 @@ void NonPersistentNpcFactory::_destroyDatabindings()
 //=============================================================================
 void NonPersistentNpcFactory::requestLairObject(ObjectFactoryCallback* ofCallback, uint64 lairsId, uint64 npcNewId)
 {
-    mDatabase->ExecuteSqlAsync(this,new QueryNonPersistentNpcFactory(ofCallback, NonPersistentNpcQuery_LairTemplate, lairsId, npcNewId),
+    mDatabase->executeSqlAsync(this,new QueryNonPersistentNpcFactory(ofCallback, NonPersistentNpcQuery_LairTemplate, lairsId, npcNewId),
                                "SELECT lairs.creature_spawn_region, lairs.lair_template, lairs.creature_group, lairs.count, lairs.spawn_x, lairs.spawn_z, "
                                "lairs.spawn_dir_Y, lairs.spawn_dir_W, "
                                "lairs.family, lair_templates.lair_object_string, lair_templates.stf_name, lair_templates.stf_file, "
@@ -668,7 +668,7 @@ void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback
         uint64 parentLairId)
 {
 
-    mDatabase->ExecuteSqlAsync(this,new QueryNonPersistentNpcFactory(ofCallback, NonPersistentNpcQuery_NpcTemplate, creatureTemplateId, npcNewId, spawnCellId, spawnPosition, spawnDirection, respawnDelay, parentLairId),
+    mDatabase->executeSqlAsync(this,new QueryNonPersistentNpcFactory(ofCallback, NonPersistentNpcQuery_NpcTemplate, creatureTemplateId, npcNewId, spawnCellId, spawnPosition, spawnDirection, respawnDelay, parentLairId),
                                "SELECT non_persistent_npcs.species_id, non_persistent_npcs.loot_group_id, "
                                "non_persistent_npcs.posture, non_persistent_npcs.state, non_persistent_npcs.level, "
                                "non_persistent_npcs.type, non_persistent_npcs.stf_variable_id, non_persistent_npcs.stf_file_id, "

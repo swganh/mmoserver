@@ -117,7 +117,7 @@ ZoneServer::ZoneServer(int8* zoneName)
     mNetworkManager = new NetworkManager();
 
     // Connect to the DB and start listening for the RouterServer.
-    mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
+    mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
                                           (int8*)(gConfig->read<std::string>("DBServer")).c_str(),
                                           gConfig->read<int>("DBPort"),
                                           (int8*)(gConfig->read<std::string>("DBUser")).c_str(),
@@ -125,14 +125,14 @@ ZoneServer::ZoneServer(int8* zoneName)
                                           (int8*)(gConfig->read<std::string>("DBName")).c_str());
 
     // increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", zoneName);
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", zoneName);
     
 
     mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
     // Grab our zoneId out of the DB for this zonename.
     uint32 zoneId = 0;
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName);
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName);
     
 
     if (!result->getRowCount())
@@ -144,13 +144,13 @@ ZoneServer::ZoneServer(int8* zoneName)
 
     //  Yea, I'm getting annoyed with the DataBinding for such simple tasks.  Will implement a simple interface soon.
 
-    DataBinding* binding = mDatabase->CreateDataBinding(1);
+    DataBinding* binding = mDatabase->createDataBinding(1);
     binding->addField(DFT_uint32, 0, 4);
 
-    result->GetNextRow(binding, &zoneId);
+    result->getNextRow(binding, &zoneId);
 
-    mDatabase->DestroyDataBinding(binding);
-    mDatabase->DestroyResult(result);
+    mDatabase->destroyDataBinding(binding);
+    mDatabase->destroyResult(result);
 
     // We need to register our IP and port in the DB so the connection server can connect to us.
     // Status:  0=offline, 1=loading, 2=online
@@ -288,7 +288,7 @@ void ZoneServer::Process(void)
     mRouterService->Process();
 
     //  Process our core services
-    mDatabaseManager->Process();
+    mDatabaseManager->process();
     mNetworkManager->Process();
 
     // Heartbeat once in awhile
@@ -303,7 +303,7 @@ void ZoneServer::Process(void)
 void ZoneServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-    mDatabase->ExecuteProcedure("CALL sp_ServerStatusUpdate('%s', %u, '%s', %u)", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
+    mDatabase->executeProcedure("CALL sp_ServerStatusUpdate('%s', %u, '%s', %u)", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
     
 }
 
@@ -316,7 +316,7 @@ void ZoneServer::_connectToConnectionServer(void)
 
     // Query the DB to find out who this is.
     // setup our databinding parameters.
-    DataBinding* binding = mDatabase->CreateDataBinding(5);
+    DataBinding* binding = mDatabase->createDataBinding(5);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mType), 4);
     binding->addField(DFT_bstring, offsetof(ProcessAddress, mAddress), 16);
     binding->addField(DFT_uint16, offsetof(ProcessAddress, mPort), 2);
@@ -324,7 +324,7 @@ void ZoneServer::_connectToConnectionServer(void)
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
 
     // Execute our statement
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
     
     uint32 count = static_cast<uint32>(result->getRowCount());
 
@@ -332,12 +332,12 @@ void ZoneServer::_connectToConnectionServer(void)
     if (count == 1)
     {
         // Retrieve our routes and add them to the map.
-        result->GetNextRow(binding, &processAddress);
+        result->getNextRow(binding, &processAddress);
     }
 
     // Delete our DB objects.
-    mDatabase->DestroyDataBinding(binding);
-    mDatabase->DestroyResult(result);
+    mDatabase->destroyDataBinding(binding);
+    mDatabase->destroyResult(result);
 
     // Now connect to the ConnectionServer
     DispatchClient* client = new DispatchClient();

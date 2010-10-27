@@ -61,14 +61,14 @@ std::unique_ptr<sql::ResultSet>& DatabaseResult::getResultSet() {
 }
 
 
-void DatabaseResult::GetNextRow(DataBinding* dataBinding, void* object) {
+void DatabaseResult::getNextRow(DataBinding* dataBinding, void* object) {
     // Just shunt this method to the actual implementation method.  This might have thread problems right now.
-    impl_.GetNextRow(this, dataBinding, object);
+    impl_.getNextRow(this, dataBinding, object);
 }
 
 
-void DatabaseResult::ResetRowIndex(int index) {
-    impl_.ResetRowIndex(this,index);
+void DatabaseResult::resetRowIndex(int index) {
+    impl_.resetRowIndex(this,index);
 }
 
 

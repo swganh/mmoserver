@@ -61,8 +61,8 @@ public:
     std::unique_ptr<sql::Statement>& getStatement();
     std::unique_ptr<sql::ResultSet>& getResultSet();
 
-    void GetNextRow(DataBinding* dataBinding, void* object);
-    void ResetRowIndex(int index = 0);
+    void getNextRow(DataBinding* dataBinding, void* object);
+    void resetRowIndex(int index = 0);
     
     void setWorkerReference(DatabaseWorkerThread* worker);
     DatabaseWorkerThread* getWorkerReference();

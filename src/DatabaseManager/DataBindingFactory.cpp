@@ -36,11 +36,11 @@ DataBindingFactory::DataBindingFactory()
 DataBindingFactory::~DataBindingFactory() {}
 
 
-DataBinding* DataBindingFactory::CreateDataBinding(uint16_t fieldCount) {
+DataBinding* DataBindingFactory::createDataBinding(uint16_t fieldCount) {
     return new (binding_pool_.ordered_malloc()) DataBinding(fieldCount);
 }
 
 
-void DataBindingFactory::DestroyDataBinding(DataBinding* binding) {
+void DataBindingFactory::destroyDataBinding(DataBinding* binding) {
     binding_pool_.ordered_free(binding);
 }

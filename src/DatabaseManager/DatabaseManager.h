@@ -47,9 +47,9 @@ public:
     DatabaseManager();
     ~DatabaseManager();
 
-    void Process();
+    void process();
 
-    Database* Connect(DBType type, 
+    Database* connect(DBType type, 
         const std::string& host, 
         uint16_t port, 
         const std::string& user, 

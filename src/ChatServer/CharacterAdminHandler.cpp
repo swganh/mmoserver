@@ -108,7 +108,7 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
 
     CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_RequestName,client);
     asyncContainer->mObjBaseType = objectType.getAnsi();
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_CharacterNameCreate(\'%s\')",objectType.getAnsi());
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_CharacterNameCreate(\'%s\')",objectType.getAnsi());
 }
 
 
@@ -343,7 +343,7 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
     
 
     CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
-    mDatabase->ExecuteProcedureAsync(this, asyncContainer, sql);
+    mDatabase->executeProcedureAsync(this, asyncContainer, sql);
 }
 
 //======================================================================================================================
@@ -355,11 +355,11 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
     {
     case CAQuery_CreateCharacter:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint64,0,8);
 
         uint64 queryResult;
-        result->GetNextRow(binding,&queryResult);
+        result->getNextRow(binding,&queryResult);
 
         if(queryResult >= 0x0000000200000000ULL)
         {
@@ -370,7 +370,7 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
             _sendCreateCharacterFailed(static_cast<uint32>(queryResult),asyncContainer->mClient);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -382,9 +382,9 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
         ui = "ui";
         state = "name_approved";
 
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_bstring,0,64);
-        result->GetNextRow(binding,&randomName);
+        result->getNextRow(binding,&randomName);
         randomName.convert(BSTRType_Unicode16);
 
         gMessageFactory->StartMessage();
@@ -398,7 +398,7 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 
         asyncContainer->mClient->SendChannelA(newMessage, asyncContainer->mClient->getAccountId(), CR_Client, 4);
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 

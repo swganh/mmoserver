@@ -49,8 +49,8 @@ public:
     DataBindingFactory();
     ~DataBindingFactory();
 
-    DataBinding* CreateDataBinding(uint16_t fieldCount);
-    void DestroyDataBinding(DataBinding* binding);
+    DataBinding* createDataBinding(uint16_t fieldCount);
+    void destroyDataBinding(DataBinding* binding);
 
     bool releasePoolMemory() {
         return(binding_pool_.release_memory());

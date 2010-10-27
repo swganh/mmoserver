@@ -120,7 +120,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         Type1_QueryContainer queryContainer;
 
-        DataBinding*	binding = mDatabase->CreateDataBinding(1);
+        DataBinding*	binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
 
         uint64 count;
@@ -137,17 +137,17 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             if(!tangible)
             {
             	LOG(WARNING) << "Oject is not tangible";
-                mDatabase->DestroyDataBinding(binding);
+                mDatabase->destroyDataBinding(binding);
                 return;
             }
-            result->GetNextRow(binding,&queryContainer);
+            result->getNextRow(binding,&queryContainer);
             tangible->upDateFactoryVolume(queryContainer.mString); //virtual function present in tangible, resourceContainer and factoryCrate
 
         }
         InLoadingContainer* ilc = _getObject(asyncContainer->mHopper);
 
         if(!ilc) { //Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627075436-83ca0076fa8abc2a4347e45ee3ede3eb
-            mDatabase->DestroyDataBinding(binding);
+            mDatabase->destroyDataBinding(binding);
             LOG(WARNING) << "No InLoadingContainer found for hopper [" << asyncContainer->mId << "]";
             return;
         }
@@ -162,7 +162,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             mILCPool.free(ilc);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
     }
     break;
@@ -173,7 +173,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         //we now asynchronically read the hopper and its content and update them when necessary
         Type1_QueryContainer queryContainer;
 
-        DataBinding*	binding = mDatabase->CreateDataBinding(2);
+        DataBinding*	binding = mDatabase->createDataBinding(2);
         binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
         binding->addField(DFT_uint64,offsetof(Type1_QueryContainer,mId),8,1);
 
@@ -183,7 +183,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(!count)
         {
             asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject,asyncContainer->mClient,asyncContainer->mHopper);
-            mDatabase->DestroyDataBinding(binding);
+            mDatabase->destroyDataBinding(binding);
             return;
         }
 
@@ -192,7 +192,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&queryContainer);
+            result->getNextRow(binding,&queryContainer);
 
             //read in the ID - find the item in the world or load it newly
             if(strcmp(queryContainer.mString.getAnsi(),"item") == 0)
@@ -211,7 +211,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mObject = asyncContainer->mObject;
                     asynContainer->mHopper = asyncContainer->mHopper;
 
-                    mDatabase->ExecuteSqlAsync(this,asynContainer, "SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId);
+                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId);
                     
                 }
             }
@@ -231,11 +231,11 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mObject = asyncContainer->mObject;
                     asynContainer->mHopper = asyncContainer->mHopper;
 
-                    mDatabase->ExecuteSqlAsync(this,asynContainer, "SELECT amount FROM resource_containers WHERE id= %"PRIu64"", queryContainer.mId);
+                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT amount FROM resource_containers WHERE id= %"PRIu64"", queryContainer.mId);
                 }
             }
         }
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -252,7 +252,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(mAttributeBinding,(void*)&attribute);
+            result->getNextRow(mAttributeBinding,(void*)&attribute);
             factory->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
         }
 
@@ -260,7 +260,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,FFQuery_Hopper,asyncContainer->mClient);
         asContainer->mObject = factory;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer, "(SELECT \'input\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2773) UNION (SELECT \'output\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2774)", factory->getId(), factory->getId());
+        mDatabase->executeSqlAsync(this,asContainer, "(SELECT \'input\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2773) UNION (SELECT \'output\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2774)", factory->getId(), factory->getId());
     }
     break;
 
@@ -271,7 +271,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         Type1_QueryContainer queryContainer;
 
-        DataBinding*	binding = mDatabase->CreateDataBinding(2);
+        DataBinding*	binding = mDatabase->createDataBinding(2);
         binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
         binding->addField(DFT_uint64,offsetof(Type1_QueryContainer,mId),8,1);
 
@@ -286,7 +286,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for(uint32 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&queryContainer);
+            result->getNextRow(binding,&queryContainer);
 
             if(strcmp(queryContainer.mString.getAnsi(),"input") == 0)
             {
@@ -301,7 +301,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
     }
     break;
@@ -319,7 +319,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asynContainer->mId		= factory->getId();
 
 
-        mDatabase->ExecuteSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
+        mDatabase->executeSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
                                    " FROM structure_attributes sa"
                                    " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
                                    " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",factory->getId());
@@ -346,7 +346,7 @@ void FactoryFactory::_createFactory(DatabaseResult* result, FactoryObject* facto
        	return;
     }
 
-    result->GetNextRow(mFactoryBinding,factory);
+    result->getNextRow(mFactoryBinding,factory);
 
     factory->setLoadState(LoadState_Loaded);
     factory->setType(ObjType_Structure);
@@ -368,7 +368,7 @@ void FactoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
             "WHERE (s.id = %"PRIu64")",id);
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,FFQuery_MainData,client,id);
 
-    mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
+    mDatabase->executeSqlAsync(this,asynContainer,sql);
 }
 
 //the factories hopper is accessed - update the hoppers contents
@@ -378,14 +378,14 @@ void FactoryFactory::upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hoppe
     asynContainer->mObject = factory;
     asynContainer->mHopper = hopperId;
 
-    mDatabase->ExecuteSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId);
+    mDatabase->executeSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId);
     
 }
 //=============================================================================
 
 void FactoryFactory::_setupDatabindings()
 {
-    mFactoryBinding = mDatabase->CreateDataBinding(22);
+    mFactoryBinding = mDatabase->createDataBinding(22);
     mFactoryBinding->addField(DFT_uint64,offsetof(FactoryObject,mId),8,0);
     mFactoryBinding->addField(DFT_uint64,offsetof(FactoryObject,mOwner),8,1);
     mFactoryBinding->addField(DFT_float,offsetof(FactoryObject,mDirection.x),4,2);
@@ -418,7 +418,7 @@ void FactoryFactory::_setupDatabindings()
 
 void FactoryFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mFactoryBinding);
+    mDatabase->destroyDataBinding(mFactoryBinding);
 
 }
 

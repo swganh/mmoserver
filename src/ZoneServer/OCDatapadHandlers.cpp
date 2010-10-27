@@ -133,7 +133,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
     if(waypoint)
     {
         waypoint->toggleActive();
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE waypoints set active=%u WHERE waypoint_id=%"PRIu64"",(uint8)waypoint->getActive(),targetId);
+        mDatabase->executeSqlAsync(0,0,"UPDATE waypoints set active=%u WHERE waypoint_id=%"PRIu64"",(uint8)waypoint->getActive(),targetId);
     }
     else
     {
@@ -227,11 +227,11 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
     sprintf(sql,"UPDATE waypoints SET name='");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,name.getAnsi(),name.getLength());
     sprintf(restStr,"' WHERE waypoint_id=%"PRIu64"",targetId);
     strcat(sql,restStr);
 
-    mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+    mDatabase->executeSqlAsync(NULL,NULL,sql);
     
 
     gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateChange,player);

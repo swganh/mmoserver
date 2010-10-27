@@ -370,11 +370,11 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
         if(rc)
         {
-            mDatabase->ExecuteSqlAsync(0, 0, "UPDATE resource_containers SET parent_id ='%"PRIu64"', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
+            mDatabase->executeSqlAsync(0, 0, "UPDATE resource_containers SET parent_id ='%"PRIu64"', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
         }
         else
         {
-            mDatabase->ExecuteSqlAsync(0, 0, "UPDATE items SET parent_id ='%"PRIu64"', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
+            mDatabase->executeSqlAsync(0, 0, "UPDATE items SET parent_id ='%"PRIu64"', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",itemObject->getParentId(), itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
         }
         cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());
 
@@ -997,11 +997,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
         ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
         if(rc)
         {
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%"PRIu64"', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
+            mDatabase->executeSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%"PRIu64"', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
         }
         else
         {
-            mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%"PRIu64"', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
+            mDatabase->executeSqlAsync(0,0,"UPDATE items SET parent_id ='%"PRIu64"', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
         }
         //take wm function at one point
         cell->addObjectSecure(itemObject,playerObject->getKnownPlayers());

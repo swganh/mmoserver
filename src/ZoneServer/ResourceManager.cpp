@@ -68,7 +68,7 @@ ResourceManager::ResourceManager(Database* database,uint32 zoneId) :
     _setupDatabindings();
 
     // load resource types
-    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_ResourceTypes),
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_ResourceTypes),
                                "SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM resource_template ORDER BY id");
  
 }
@@ -128,7 +128,7 @@ ResourceManager::~ResourceManager()
 
 void ResourceManager::_setupDatabindings()
 {
-    mResourceTypebinding = mDatabase->CreateDataBinding(8);
+    mResourceTypebinding = mDatabase->createDataBinding(8);
     mResourceTypebinding->addField(DFT_uint32,offsetof(ResourceType,mId),4,0);
     mResourceTypebinding->addField(DFT_uint16,offsetof(ResourceType,mCatId),2,1);
     mResourceTypebinding->addField(DFT_bstring,offsetof(ResourceType,mTypeName),64,2);
@@ -138,13 +138,13 @@ void ResourceManager::_setupDatabindings()
     mResourceTypebinding->addField(DFT_uint32,offsetof(ResourceType,mCategoryBazaar),4,6);
     mResourceTypebinding->addField(DFT_bstring,offsetof(ResourceType,mResourceType),255,7);
 
-    mResourceCategorybinding = mDatabase->CreateDataBinding(4);
+    mResourceCategorybinding = mDatabase->createDataBinding(4);
     mResourceCategorybinding->addField(DFT_uint32,offsetof(ResourceCategory,mId),4,0);
     mResourceCategorybinding->addField(DFT_bstring,offsetof(ResourceCategory,mName),255,1);
     mResourceCategorybinding->addField(DFT_bstring,offsetof(ResourceCategory,mDescriptor),255,2);
     mResourceCategorybinding->addField(DFT_uint32,offsetof(ResourceCategory,mParentId),4,3);
 
-    mResourceBinding = mDatabase->CreateDataBinding(14);
+    mResourceBinding = mDatabase->createDataBinding(14);
     mResourceBinding->addField(DFT_uint64,offsetof(Resource,mId),8,0);
     mResourceBinding->addField(DFT_bstring,offsetof(Resource,mName),255,1);
     mResourceBinding->addField(DFT_uint32,offsetof(Resource,mTypeId),4,2);
@@ -160,7 +160,7 @@ void ResourceManager::_setupDatabindings()
     mResourceBinding->addField(DFT_uint16,offsetof(Resource,mAttributes[ResAttr_UT]),2,12);
     mResourceBinding->addField(DFT_uint16,offsetof(Resource,mAttributes[ResAttr_PE]),2,13);
 
-    mCurrentResourceBinding = mDatabase->CreateDataBinding(25);
+    mCurrentResourceBinding = mDatabase->createDataBinding(25);
     mCurrentResourceBinding->addField(DFT_uint64,offsetof(CurrentResource,mId),8,0);
     mCurrentResourceBinding->addField(DFT_bstring,offsetof(CurrentResource,mName),255,1);
     mCurrentResourceBinding->addField(DFT_uint32,offsetof(CurrentResource,mTypeId),4,2);
@@ -193,10 +193,10 @@ void ResourceManager::_setupDatabindings()
 
 void ResourceManager::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mResourceTypebinding);
-    mDatabase->DestroyDataBinding(mResourceCategorybinding);
-    mDatabase->DestroyDataBinding(mResourceBinding);
-    mDatabase->DestroyDataBinding(mCurrentResourceBinding);
+    mDatabase->destroyDataBinding(mResourceTypebinding);
+    mDatabase->destroyDataBinding(mResourceCategorybinding);
+    mDatabase->destroyDataBinding(mResourceBinding);
+    mDatabase->destroyDataBinding(mCurrentResourceBinding);
 }
 
 //======================================================================================================================
@@ -217,12 +217,12 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         {
             resType = new ResourceType();
 
-            result->GetNextRow(mResourceTypebinding,resType);
+            result->getNextRow(mResourceTypebinding,resType);
             mResourceTypeMap.insert(std::make_pair(resType->mId,resType));
         }
 
         // query categories
-        mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_Categories),"SELECT * FROM resource_categories ORDER BY id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_Categories),"SELECT * FROM resource_categories ORDER BY id");
     }
     break;
 
@@ -236,7 +236,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         {
             category = new ResourceCategory();
 
-            result->GetNextRow(mResourceCategorybinding,category);
+            result->getNextRow(mResourceCategorybinding,category);
             (getResourceCategoryById(category->mParentId))->insertCategory(category);
             mResourceCategoryMap.insert(std::make_pair(category->mId,category));
         }
@@ -255,7 +255,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         if(mDebug)
             return;
 
-        mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_CurrentResources),
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_CurrentResources),
                                    "SELECT resources.id,resources.name,resources.type_id,"
                                    "resources.er,resources.cr,resources.cd,resources.dr,resources.fl,resources.hr,"
                                    "resources.ma,resources.oq,resources.sr,resources.ut,resources.pe,"
@@ -285,7 +285,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         {
             resource = new Resource();
 
-            result->GetNextRow(mResourceBinding,resource);
+            result->getNextRow(mResourceBinding,resource);
 
             if(getResourceById(resource->mId) == NULL)
             {
@@ -312,7 +312,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         {
             resource = new CurrentResource();
 
-            result->GetNextRow(mCurrentResourceBinding,resource);
+            result->getNextRow(mCurrentResourceBinding,resource);
             resource->mType = getResourceTypeById(resource->mTypeId);
             resource->mCurrent = 1;
             resource->buildDistributionMap();
@@ -323,7 +323,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         LOG_IF(INFO, count) << "Generated " << count << " resource maps";
 
         // query old and current resources not from this planet
-        mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");
     }
     break;
     case RMQuery_DepleteResources:
@@ -333,10 +333,10 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         // if it is 1, we need to execute sql async to set the active resource to 0
         // this means the resource is depleted. (can we do this via a stored proc?)
         uint32 returnId = 0;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
-        result->GetNextRow(binding,&returnId);
-        mDatabase->DestroyDataBinding(binding);
+        result->getNextRow(binding,&returnId);
+        mDatabase->destroyDataBinding(binding);
         if (returnId == 1)
         {
             // remove from map
@@ -409,7 +409,7 @@ bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
     if (it != mResourceIdMap.end() && resource->getCurrent() != 0)
     {
         asyncContainer->mCurrentResource = resource;
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u where resource_id = %"PRIu64"",amt ,resource->getId());
+        mDatabase->executeSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u where resource_id = %"PRIu64"",amt ,resource->getId());
         
     }
     else

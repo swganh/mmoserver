@@ -402,7 +402,7 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
                 " WHERE"
                 " (character_id = %"PRIu64");",player->getId());
 
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+        mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
     }
 }

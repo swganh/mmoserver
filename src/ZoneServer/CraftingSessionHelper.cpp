@@ -594,7 +594,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
         {
             resContainer->setAmount(newContainerAmount);
             gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
-            mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newContainerAmount,resContainer->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newContainerAmount,resContainer->getId());
             
         }
 
@@ -905,7 +905,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
 
-                        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
+                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
                         
                     }
                     // target container full, put in what fits, create a new one
@@ -916,7 +916,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
                         resCont->setAmount(maxAmount);
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
-                        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
+                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
                         
 
                         gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),(*resIt).first,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,selectedNewAmount);
@@ -1276,11 +1276,11 @@ void CraftingSession::collectResources()
         //update db
         //enter it slotdependent as we dont want to clot our attributes table with resources
         //173  is cat_manf_schem_resource
-        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
         
 
         //now enter it in the relevant manschem table so we can use it in factories
-        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second);
         
 
         checkResIt  ++;
@@ -1377,11 +1377,11 @@ void CraftingSession::collectComponents()
         //update db
         //enter it slotdependent as we dont want to clot our attributes table with resources
         //173  is cat_manf_schem_resource
-        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
         
 
         //now enter it in the relevant manschem table so we can use it in factories
-        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial.getAnsi(),(*checkResIt).second);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial.getAnsi(),(*checkResIt).second);
         
 
         checkResIt  ++;
@@ -1417,7 +1417,7 @@ void CraftingSession::updateResourceContainer(uint64 containerID, uint32 newAmou
 
         resContainer->setAmount(newAmount);
         gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
-        mDatabase->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resContainer->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resContainer->getId());
        
     }
 

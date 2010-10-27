@@ -103,7 +103,7 @@ void BadgeRegionFactory::handleDatabaseJobComplete(void* ref, DatabaseResult* re
 void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
 {
     // Get our badge based on the regionID
-    mDatabase->ExecuteProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, BadgeFQuery_MainData, client), "CALL sp_BadgeGetByRegion(%"PRIu64");", id);
+    mDatabase->executeProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, BadgeFQuery_MainData, client), "CALL sp_BadgeGetByRegion(%"PRIu64");", id);
     
 }
 
@@ -117,7 +117,7 @@ BadgeRegion* BadgeRegionFactory::_createBadgeRegion(DatabaseResult* result)
 
     BadgeRegion*	badgeRegion = new BadgeRegion();
 
-    result->GetNextRow(mBadgeRegionBinding, badgeRegion);
+    result->getNextRow(mBadgeRegionBinding, badgeRegion);
 
     badgeRegion->setLoadState(LoadState_Loaded);
 
@@ -128,7 +128,7 @@ BadgeRegion* BadgeRegionFactory::_createBadgeRegion(DatabaseResult* result)
 
 void BadgeRegionFactory::_setupDatabindings()
 {
-    mBadgeRegionBinding = mDatabase->CreateDataBinding(9);
+    mBadgeRegionBinding = mDatabase->createDataBinding(9);
     mBadgeRegionBinding->addField(DFT_uint64,offsetof(BadgeRegion, mId), 8, 0);
     mBadgeRegionBinding->addField(DFT_uint32,offsetof(BadgeRegion, mBadgeId), 4, 1);
     mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion, mRegionName), 64, 2);
@@ -144,7 +144,7 @@ void BadgeRegionFactory::_setupDatabindings()
 
 void BadgeRegionFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mBadgeRegionBinding);
+    mDatabase->destroyDataBinding(mBadgeRegionBinding);
 }
 
 //=============================================================================

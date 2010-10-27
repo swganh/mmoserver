@@ -102,7 +102,7 @@ void SpawnRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
 void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,SpawnFQuery_MainData,client),
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,SpawnFQuery_MainData,client),
                                "SELECT spawn_regions.id,spawn_regions.spawn_type,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
                                "planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
                                " FROM spawn_regions"
@@ -121,7 +121,7 @@ SpawnRegion* SpawnRegionFactory::_createSpawnRegion(DatabaseResult* result)
 
     SpawnRegion*	spawnRegion = new SpawnRegion();
 
-    result->GetNextRow(mSpawnRegionBinding,spawnRegion);
+    result->getNextRow(mSpawnRegionBinding,spawnRegion);
 
     if(spawnRegion->isMission())
     {
@@ -137,7 +137,7 @@ SpawnRegion* SpawnRegionFactory::_createSpawnRegion(DatabaseResult* result)
 
 void SpawnRegionFactory::_setupDatabindings()
 {
-    mSpawnRegionBinding = mDatabase->CreateDataBinding(10);
+    mSpawnRegionBinding = mDatabase->createDataBinding(10);
     mSpawnRegionBinding->addField(DFT_uint64,offsetof(SpawnRegion,mId),8,0);
     mSpawnRegionBinding->addField(DFT_uint32,offsetof(SpawnRegion,mSpawnType),4,1);
     mSpawnRegionBinding->addField(DFT_bstring,offsetof(SpawnRegion,mRegionName),64,2);
@@ -154,7 +154,7 @@ void SpawnRegionFactory::_setupDatabindings()
 
 void SpawnRegionFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mSpawnRegionBinding);
+    mDatabase->destroyDataBinding(mSpawnRegionBinding);
 }
 
 //=============================================================================

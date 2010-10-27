@@ -113,7 +113,7 @@ void NonPersistantObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseRes
             QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,ItemFactoryQuery_Attributes,asyncContainer->mClient);
             asContainer->mObject = item;
 
-            mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
+            mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
                                        " FROM item_family_attribute_defaults"
                                        " INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
                                        " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType());
@@ -170,7 +170,7 @@ void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallbac
 
     int8 sql[256];
     sprintf(sql,"SELECT item_types.object_string,item_types.stf_name,item_types.stf_file,item_types.stf_detail_name, item_types.stf_detail_file FROM item_types WHERE item_types.id = '%u'",typeId);
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) NonPersistantQueryContainerBase(ofCallback,NonPersistantItemFactoryQuery_MainData,client,newItem),sql);
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) NonPersistantQueryContainerBase(ofCallback,NonPersistantItemFactoryQuery_MainData,client,newItem),sql);
     
 
     //asyncContainer->mOfCallback->handleObjectReady(item,asyncContainer->mClient);
@@ -287,7 +287,7 @@ void NonPersistantObjectFactory::_createItem(DatabaseResult* result,Item* item)
     	return;
     }
 
-    result->GetNextRow(mItemBinding,item);
+    result->getNextRow(mItemBinding,item);
 
     item->setLoadState(LoadState_Attributes);
 }
@@ -296,7 +296,7 @@ void NonPersistantObjectFactory::_createItem(DatabaseResult* result,Item* item)
 void NonPersistantObjectFactory::_setupDatabindings()
 {
 
-    mItemBinding = mDatabase->CreateDataBinding(4);
+    mItemBinding = mDatabase->createDataBinding(4);
 
     mItemBinding->addField(DFT_bstring,offsetof(Item,mModel),256,0);
     mItemBinding->addField(DFT_bstring,offsetof(Item,mName),64,1);
@@ -307,7 +307,7 @@ void NonPersistantObjectFactory::_setupDatabindings()
 
 void NonPersistantObjectFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mItemBinding);
+    mDatabase->destroyDataBinding(mItemBinding);
 
 }
 

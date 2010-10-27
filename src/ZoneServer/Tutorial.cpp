@@ -142,7 +142,7 @@ Tutorial::Tutorial(PlayerObject* player) :
     asContainer->mQueryType = TutorialQuery_MainData;
     asContainer->mId = player->getId();
 
-    (gWorldManager->getDatabase())->ExecuteSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM character_tutorial WHERE character_id = %"PRIu64"",player->getId());
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM character_tutorial WHERE character_id = %"PRIu64"",player->getId());
     
 }
 
@@ -150,7 +150,7 @@ Tutorial::~Tutorial()
 {
 
     // Save-update the state.
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
     
 
     // clear scripts
@@ -169,7 +169,7 @@ void Tutorial::warpToStartingLocation(BString startingLocation)
     asContainer->mQueryType = TutorialQuery_PlanetLocation;
     asContainer->mId = mPlayerObject->getId();
 
-    (gWorldManager->getDatabase())->ExecuteSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM starting_location WHERE location LIKE '%s'", startingLocation.getAnsi());
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM starting_location WHERE location LIKE '%s'", startingLocation.getAnsi());
     
 }
 
@@ -181,7 +181,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     {
     case TutorialQuery_MainData:
     {
-        DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(3);
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(3);
         binding->addField(DFT_uint32,offsetof(Tutorial,mState),4,0);
         binding->addField(DFT_int32,offsetof(Tutorial,mSubState),4,1);
         binding->addField(DFT_bstring,offsetof(Tutorial,mStartingProfession),64,2);
@@ -190,7 +190,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if (count == 1)
         {
-            result->GetNextRow(binding,this);
+            result->getNextRow(binding,this);
         }
         else if (count == 0)
         {
@@ -199,10 +199,10 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             mState = 1;
 
             // Save the state.
-            (gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_tutorial VALUES (%"PRIu64",%u,%u)",asyncContainer->mId,mState, mSubState);
+            (gWorldManager->getDatabase())->executeSqlAsync(0,0,"INSERT INTO character_tutorial VALUES (%"PRIu64",%u,%u)",asyncContainer->mId,mState, mSubState);
     
         }
-        gWorldManager->getDatabase()->DestroyDataBinding(binding);
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
 
         // Here we go...
         this->startScript();
@@ -214,7 +214,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->mId));
         if (player)
         {
-            DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(4);
+            DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(4);
             TutorialStartingLocation startingLocation;
 
             binding->addField(DFT_uint32, offsetof(TutorialStartingLocation, destinationPlanet), 4, 0);
@@ -222,7 +222,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             binding->addField(DFT_float, offsetof(TutorialStartingLocation, destY), 4, 2);
             binding->addField(DFT_float, offsetof(TutorialStartingLocation, destZ), 4, 3);
 
-            result->GetNextRow(binding, &startingLocation);
+            result->getNextRow(binding, &startingLocation);
 
             startingLocation.destX += (gRandom->getRand()%5 - 2);
             startingLocation.destZ += (gRandom->getRand()%5 - 2);
@@ -564,7 +564,7 @@ void Tutorial::setState(uint32 state)
     mState = state;
 
     // Save-update the state.
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
     
 
 }
@@ -604,7 +604,7 @@ void Tutorial::setSubState(uint32 subState)
     mSubState = subState;
 
     // Save-update the state.
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
     
 
 }

@@ -114,7 +114,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 
     // load planet names and terrain files so we can start heightmap loading
-    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
+    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
 
 
     // create schedulers
@@ -155,7 +155,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     _registerScriptHooks();
 
     // initiate loading of objects
-    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
     
 
 #if defined(_MSC_VER)
@@ -312,7 +312,7 @@ WorldManager::~WorldManager()
 void WorldManager::_loadBuildings()
 {
     WMAsyncContainer* asynContainer = new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_All_Buildings);
-    mDatabase->ExecuteSqlAsync(this,asynContainer,"SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
+    mDatabase->executeSqlAsync(this,asynContainer,"SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
 }
 
 
@@ -372,15 +372,15 @@ uint64 WorldManager::GetCurrentGlobalTick()
 void WorldManager::LoadCurrentGlobalTick()
 {
     uint64 Tick;
-    DatabaseResult* temp = mDatabase->ExecuteSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
+    DatabaseResult* temp = mDatabase->executeSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
    
 
-    DataBinding*	tickbinding = mDatabase->CreateDataBinding(1);
+    DataBinding*	tickbinding = mDatabase->createDataBinding(1);
     tickbinding->addField(DFT_uint64,0,8,0);
 
-    temp->GetNextRow(tickbinding,&Tick);
-    mDatabase->DestroyDataBinding(tickbinding);
-    mDatabase->DestroyResult(temp);
+    temp->getNextRow(tickbinding,&Tick);
+    mDatabase->destroyDataBinding(tickbinding);
+    mDatabase->destroyResult(temp);
 
 
     LOG(INFO) << "Current global tick count [" << Tick << "]";
@@ -654,10 +654,10 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
                 it = mBusyCraftTools.erase(it);
                 tool->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-                mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId());
+                mDatabase->executeSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId());
 
                 tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
-                gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
            
 
                 continue;
@@ -667,7 +667,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
             tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
             //gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
-            gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+            gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
             
         }
 

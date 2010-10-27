@@ -99,7 +99,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,CFQuery_ObjectCount,asyncContainer->mClient);
         asContainer->mObject = container;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId());
         
     }
     break;
@@ -109,10 +109,10 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
         Container* container  = dynamic_cast<Container*>(asyncContainer->mObject);
 
         uint32 objectCount;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
 
         binding->addField(DFT_uint32,0,4);
-        result->GetNextRow(binding,&objectCount);
+        result->getNextRow(binding,&objectCount);
 
         container->setObjectLoadCounter(objectCount);
 
@@ -126,7 +126,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
             QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,CFQuery_Objects,asyncContainer->mClient);
             asContainer->mObject = container;
 
-            mDatabase->ExecuteSqlAsync(this,asContainer,
+            mDatabase->executeSqlAsync(this,asContainer,
                                        "(SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
                                        " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64"))"
                                        " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
@@ -141,7 +141,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
             asyncContainer->mOfCallback->handleObjectReady(container,asyncContainer->mClient);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -151,7 +151,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 
         Type1_QueryContainer queryContainer;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(2);
+        DataBinding* binding = mDatabase->createDataBinding(2);
         binding->addField(DFT_bstring,offsetof(Type1_QueryContainer,mString),64,0);
         binding->addField(DFT_uint64,offsetof(Type1_QueryContainer,mId),8,1);
 
@@ -161,7 +161,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 
         for(uint32 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&queryContainer);
+            result->getNextRow(binding,&queryContainer);
 
             if(strcmp(queryContainer.mString.getAnsi(),"containers") == 0)
                 gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Container,0,asyncContainer->mClient);
@@ -171,7 +171,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
                 gTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer,0,asyncContainer->mClient);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -189,7 +189,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
     if (!gWorldManager->getObjectById(id))
     {
         // The container does not exist.
-        mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CFQuery_MainData,client),
+        mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CFQuery_MainData,client),
                                    "SELECT containers.id,containers.parent_id,containers.oX,containers.oY,containers.oZ,containers.oW,containers.x,"
                                    "containers.y,containers.z,containers.container_type,container_types.object_string,container_types.name,container_types.file,container_types.details_file"
                                    " FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
@@ -218,7 +218,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
                 QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CFQuery_ObjectCount,client);
                 asContainer->mObject = container;
 
-                mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId());
+                mDatabase->executeSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId());
                 
             }
         }
@@ -234,7 +234,7 @@ Container* ContainerObjectFactory::_createContainer(DatabaseResult* result)
 
     Container*	container = new Container();
 
-    result->GetNextRow(mContainerBinding,(void*)container);
+    result->getNextRow(mContainerBinding,(void*)container);
 
     // container->setLoadState(LoadState_Loaded);
 
@@ -245,7 +245,7 @@ Container* ContainerObjectFactory::_createContainer(DatabaseResult* result)
 
 void ContainerObjectFactory::_setupDatabindings()
 {
-    mContainerBinding = mDatabase->CreateDataBinding(14);
+    mContainerBinding = mDatabase->createDataBinding(14);
     mContainerBinding->addField(DFT_uint64,offsetof(Container,mId),8,0);
     mContainerBinding->addField(DFT_uint64,offsetof(Container,mParentId),8,1);
     mContainerBinding->addField(DFT_float,offsetof(Container,mDirection.x),4,2);
@@ -266,7 +266,7 @@ void ContainerObjectFactory::_setupDatabindings()
 
 void ContainerObjectFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mContainerBinding);
+    mDatabase->destroyDataBinding(mContainerBinding);
 }
 
 //=============================================================================

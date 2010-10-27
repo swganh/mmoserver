@@ -43,7 +43,7 @@ DatabaseWorkerThread::DatabaseWorkerThread(DBType type, const std::string& host,
 
 void DatabaseWorkerThread::executeJob(DatabaseJob* job, Callback callback) { 
     active_.Send([=] {
-        job->result = database_impl_->ExecuteSql(job->query.c_str(), job->multi_job);
+        job->result = database_impl_->executeSql(job->query.c_str(), job->multi_job);
         callback(this, job);
     }); 
 }

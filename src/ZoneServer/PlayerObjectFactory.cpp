@@ -115,7 +115,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Skills,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT skill_id FROM character_skills WHERE character_id=%"PRIu64"",playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT skill_id FROM character_skills WHERE character_id=%"PRIu64"",playerObject->getId());
         
     }
     break;
@@ -125,18 +125,18 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = dynamic_cast<PlayerObject	*>(asyncContainer->mObject);
         uint32 skillId;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint64 count = result->getRowCount();
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&skillId);
+            result->getNextRow(binding,&skillId);
             playerObject->mSkills.push_back(gSkillManager->getSkillById(skillId));
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         playerObject->prepareSkillMods();
         playerObject->prepareSkillCommands();
@@ -148,7 +148,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Badges,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT badge_id FROM character_badges WHERE character_id=%"PRIu64"",playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT badge_id FROM character_badges WHERE character_id=%"PRIu64"",playerObject->getId());
         
     }
     break;
@@ -158,23 +158,23 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
         uint32 badgeId;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint64 count = result->getRowCount();
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&badgeId);
+            result->getNextRow(binding,&badgeId);
             playerObject->mBadgeList.push_back(badgeId);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Factions,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT faction_id,value FROM character_faction WHERE character_id=%"PRIu64" ORDER BY faction_id",playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT faction_id,value FROM character_faction WHERE character_id=%"PRIu64" ORDER BY faction_id",playerObject->getId());
         
     }
     break;
@@ -184,7 +184,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
         XpContainer		factionCont;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(2);
+        DataBinding* binding = mDatabase->createDataBinding(2);
         binding->addField(DFT_uint32,offsetof(XpContainer,mId),4,0);
         binding->addField(DFT_int32,offsetof(XpContainer,mValue),4,1);
 
@@ -192,17 +192,17 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&factionCont);
+            result->getNextRow(binding,&factionCont);
             playerObject->mFactionList.push_back(std::make_pair(factionCont.mId,factionCont.mValue));
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         // query friendslist
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Friends,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
                                    "INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
                                    "WHERE (chat_friendlist.character_id = %"PRIu64")",playerObject->getId());
       
@@ -214,19 +214,19 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
         BString name;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_bstring,0,64);
 
         uint64 count = result->getRowCount();
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&name);
+            result->getNextRow(binding,&name);
             name.toLower();
             playerObject->mFriendsList.insert(std::make_pair(name.getCrc(),name.getAnsi()));
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         // check online friends
 
@@ -234,7 +234,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Ignores,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
                                    "INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
                                    "WHERE (chat_ignorelist.character_id = %"PRIu64")",playerObject->getId());
         
@@ -246,42 +246,42 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
         BString name;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_bstring,0,64);
 
         uint64 count = result->getRowCount();
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&name);
+            result->getNextRow(binding,&name);
             name.toLower();
             playerObject->mIgnoreList.insert(std::make_pair(name.getCrc(),name.getAnsi()));
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_XP,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT xp_id,value FROM character_xp WHERE character_id=%"PRIu64"",playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT xp_id,value FROM character_xp WHERE character_id=%"PRIu64"",playerObject->getId());
         
 
         QueryContainerBase* outcastContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_DenyService,asyncContainer->mClient);
         outcastContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,outcastContainer,"SELECT outcast_id FROM entertainer_deny_service WHERE entertainer_id=%"PRIu64"",playerObject->getId());
+        mDatabase->executeSqlAsync(this,outcastContainer,"SELECT outcast_id FROM entertainer_deny_service WHERE entertainer_id=%"PRIu64"",playerObject->getId());
         
 
         QueryContainerBase* cloneDestIdContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_PreDefCloningFacility,asyncContainer->mClient);
         cloneDestIdContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM character_clone WHERE character_id=%"PRIu64"",playerObject->getId());
+        mDatabase->executeSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM character_clone WHERE character_id=%"PRIu64"",playerObject->getId());
         
 
         QueryContainerBase* LotsContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Lots,asyncContainer->mClient);
         LotsContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,LotsContainer,"SELECT sf_getLotCount(%"PRIu64")",playerObject->getId());
+        mDatabase->executeSqlAsync(this,LotsContainer,"SELECT sf_getLotCount(%"PRIu64")",playerObject->getId());
         
     }
     break;
@@ -291,25 +291,25 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
         uint64 id;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint64,0,8);
 
         uint64 count = result->getRowCount();
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&id);
+            result->getNextRow(binding,&id);
             playerObject->mDenyAudienceList.push_back(id);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
 
         // query Holoemotes
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_HoloEmotes,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %"PRIu64"",playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %"PRIu64"",playerObject->getId());
         
     }
     break;
@@ -319,7 +319,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
 
 
-        DataBinding* binding = mDatabase->CreateDataBinding(2);
+        DataBinding* binding = mDatabase->createDataBinding(2);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHoloEmote),4,0);
         binding->addField(DFT_int32,offsetof(PlayerObject,mHoloCharge),4,1);
 
@@ -327,10 +327,10 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
         if(count ==1)
         {
-            result->GetNextRow(binding,playerObject);
+            result->getNextRow(binding,playerObject);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -341,7 +341,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
         XpContainer		xpCont;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(2);
+        DataBinding* binding = mDatabase->createDataBinding(2);
         binding->addField(DFT_uint32,offsetof(XpContainer,mId),4,0);
         binding->addField(DFT_int32,offsetof(XpContainer,mValue),4,1);
 
@@ -349,7 +349,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&xpCont);
+            result->getNextRow(binding,&xpCont);
             playerObject->mXpList.push_back(std::make_pair(xpCont.mId,xpCont.mValue));
         }
         // Initiate all XP caps and optionally any missing skills.
@@ -358,7 +358,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
         playerObject->mXpUpdateCounter = static_cast<uint32>(count);
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
 
         // store us for later lookup - loadcounter is 2 for inventory and datapad
@@ -383,7 +383,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         InLoadingContainer*	mIlc = _getObject(playerObject->getId());
 
         uint64 id;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint64,0,8);
 
         uint64 count = result->getRowCount();
@@ -391,11 +391,11 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&id);
+            result->getNextRow(binding,&id);
             gTangibleFactory->requestObject(this,id,TanGroup_Item,0,asyncContainer->mClient);
 
         }
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         // get the datapad here to avoid a race condition
         // request datapad
@@ -408,7 +408,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
     {
         PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
 
-        DataBinding* binding = mDatabase->CreateDataBinding(5);
+        DataBinding* binding = mDatabase->createDataBinding(5);
         binding->addField(DFT_uint64,offsetof(PlayerObject,mPreDesignatedCloningFacilityId),8,0);
         binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.x),4,1);
         binding->addField(DFT_float,offsetof(PlayerObject,mBindCoords.y),4,2);
@@ -419,14 +419,14 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
 
         if (count == 1)
         {
-            result->GetNextRow(binding,playerObject);
+            result->getNextRow(binding,playerObject);
         }
         else
         {
             playerObject->mPreDesignatedCloningFacilityId = 0;
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -435,7 +435,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
 
         uint32 lotCount;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint64 count = result->getRowCount();
@@ -443,17 +443,17 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         {
             LOG(WARNING) << "sf_getLotCount did not return a value";
             //now we have a problem ...
-            mDatabase->DestroyDataBinding(binding);
+            mDatabase->destroyDataBinding(binding);
             break;
         }
 
-        result->GetNextRow(binding,&lotCount);
+        result->getNextRow(binding,&lotCount);
         uint32 maxLots = gWorldConfig->getConfiguration<uint32>("Player_Max_Lots",(uint32)10);
 
         maxLots -= static_cast<uint8>(lotCount);
         playerObject->setLots((uint8)maxLots);
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -527,7 +527,7 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
             " INNER JOIN character_matchmaking ON (characters.id = character_matchmaking.character_id)"
             " WHERE (characters.id = %"PRIu64");", id + BANK_OFFSET, id);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
  
 }
 
@@ -556,11 +556,11 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     }*/
 
     // get our results
-    result->GetNextRow(mPlayerBinding,(void*)playerObject);
-    result->ResetRowIndex();
-    result->GetNextRow(mHairBinding,(void*)playerHair);
-    result->ResetRowIndex();
-    result->GetNextRow(mBankBinding,(void*)playerBank);
+    result->getNextRow(mPlayerBinding,(void*)playerObject);
+    result->resetRowIndex();
+    result->getNextRow(mHairBinding,(void*)playerHair);
+    result->resetRowIndex();
+    result->getNextRow(mBankBinding,(void*)playerBank);
 
     //male or female ?
     BStringVector				dataElements;
@@ -720,7 +720,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 void PlayerObjectFactory::_setupDatabindings()
 {
     //player binding
-    mPlayerBinding = mDatabase->CreateDataBinding(185);
+    mPlayerBinding = mDatabase->createDataBinding(185);
     mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mId),8,0);
     mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mParentId),8,1);
     mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
@@ -803,13 +803,13 @@ void PlayerObjectFactory::_setupDatabindings()
     mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);				   //185
 
     //hair binding
-    mHairBinding = mDatabase->CreateDataBinding(3);
+    mHairBinding = mDatabase->createDataBinding(3);
     mHairBinding->addField(DFT_bstring,offsetof(TangibleObject,mModel),128,13);
     mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[1]),2,14);
     mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[2]),2,15);
 
     //bank binding
-    mBankBinding = mDatabase->CreateDataBinding(2);
+    mBankBinding = mDatabase->createDataBinding(2);
     mBankBinding->addField(DFT_uint32,offsetof(Bank,mCredits),4,164);
     mBankBinding->addField(DFT_uint8,offsetof(Bank,mPlanet),1,179);
 }
@@ -818,9 +818,9 @@ void PlayerObjectFactory::_setupDatabindings()
 
 void PlayerObjectFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mPlayerBinding);
-    mDatabase->DestroyDataBinding(mHairBinding);
-    mDatabase->DestroyDataBinding(mBankBinding);
+    mDatabase->destroyDataBinding(mPlayerBinding);
+    mDatabase->destroyDataBinding(mHairBinding);
+    mDatabase->destroyDataBinding(mBankBinding);
 }
 
 //=============================================================================
@@ -855,7 +855,7 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(0,POFQuery_EquippedItems,client);
         asContainer->mObject = playerObject;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id  FROM items WHERE parent_id=%"PRIu64"",playerObject->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT id  FROM items WHERE parent_id=%"PRIu64"",playerObject->getId());
         
 
     }

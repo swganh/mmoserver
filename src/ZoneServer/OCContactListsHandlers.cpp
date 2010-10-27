@@ -119,10 +119,10 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
     sprintf(sql,"SELECT sf_addFriend(%"PRIu64",'",player->getId());
     sprintf(end,"')");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,friendName.getAnsi(),friendName.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,friendName.getAnsi(),friendName.getLength());
     strcat(sql,end);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
 }
 
@@ -169,10 +169,10 @@ void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,Obje
     sprintf(sql,"SELECT sf_removeFriend(%"PRIu64",'",player->getId());
     sprintf(end,"')");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,friendName.getAnsi(),friendName.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,friendName.getAnsi(),friendName.getLength());
     strcat(sql,end);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
 
 }
@@ -247,10 +247,10 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
     sprintf(sql,"SELECT sf_addIgnore(%"PRIu64",'",player->getId());
     sprintf(end,"')");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
     strcat(sql,end);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
 
 }
@@ -298,10 +298,10 @@ void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,Obje
     sprintf(sql,"SELECT sf_removeIgnore(%"PRIu64",'",player->getId());
     sprintf(end,"')");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
     strcat(sql,end);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
 }
 

@@ -581,7 +581,7 @@ void WorldManager::destroyObject(Object* object)
                     if(SpawnPoint* sp = nearestBuilding->getRandomSpawnPoint())
                     {
                         // update the database with the new values
-                        gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
+                        gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
                                 ,sp->mDirection.x,sp->mDirection.y,sp->mDirection.z,sp->mDirection.w
                                 ,sp->mPosition.x,sp->mPosition.y,sp->mPosition.z
                                 ,player->getId());
@@ -1001,7 +1001,7 @@ void WorldManager::_loadAllObjects(uint64 parentId)
             parentId,mZoneId,parentId,mZoneId,parentId,mZoneId,parentId,mZoneId,parentId
             ,mZoneId,parentId,mZoneId,parentId,mZoneId);
 
-    mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
+    mDatabase->executeSqlAsync(this,asynContainer,sql);
     
 
     //gConfig->read<float>("FillFactor"

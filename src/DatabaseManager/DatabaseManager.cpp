@@ -38,15 +38,15 @@ DatabaseManager::DatabaseManager() {}
 DatabaseManager::~DatabaseManager() {}
 
 
-void DatabaseManager::Process() {
+void DatabaseManager::process() {
     std::for_each(database_list_.begin(), database_list_.end(), 
         [] (std::shared_ptr<Database> db) {
-            db->Process();
+            db->process();
         });
 }
 
 
-Database* DatabaseManager::Connect(DBType type, 
+Database* DatabaseManager::connect(DBType type, 
                                    const std::string& host, 
                                    uint16_t port, 
                                    const std::string& user, 

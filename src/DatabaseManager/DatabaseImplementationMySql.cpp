@@ -83,7 +83,7 @@ DatabaseImplementationMySql::~DatabaseImplementationMySql() {
 }
 
 
-DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const char* sql, bool procedure) {
+DatabaseResult* DatabaseImplementationMySql::executeSql(const char* sql, bool procedure) {
     DatabaseResult* result = nullptr;
 
     try {
@@ -102,7 +102,7 @@ DatabaseResult* DatabaseImplementationMySql::ExecuteSql(const char* sql, bool pr
 }
 
 
-DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult* result) {
+DatabaseWorkerThread* DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
     DatabaseWorkerThread* worker = NULL;
     
     // For a multi-result statement to be destroyed properly all results must
@@ -124,7 +124,7 @@ DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult*
 }
 
 
-void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding* binding, void* object) const {
+void DatabaseImplementationMySql::getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const {
     std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
     if (! result_set) {
@@ -155,7 +155,7 @@ void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding
 }
 
 
-void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64_t index) const {
+void DatabaseImplementationMySql::resetRowIndex(DatabaseResult* result, uint64_t index) const {
     if(!result) {
         LOG(ERROR) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
         return;
@@ -172,7 +172,7 @@ void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64_t
 }
 
 
-uint32_t DatabaseImplementationMySql::Escape_String(char* target, const char* source, uint32_t length) {
+uint32_t DatabaseImplementationMySql::escapeString(char* target, const char* source, uint32_t length) {
     if (!target) {
         LOG(ERROR) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
         return 0;

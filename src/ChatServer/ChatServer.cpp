@@ -74,14 +74,14 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
     mNetworkManager = new NetworkManager();
 
     // Connect to the DB and start listening for the RouterServer.
-    mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
+    mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
                                           (char*)(gConfig->read<std::string>("DBServer")).c_str(),
                                           gConfig->read<int>("DBPort"),
                                           (char*)(gConfig->read<std::string>("DBUser")).c_str(),
                                           (char*)(gConfig->read<std::string>("DBPass")).c_str(),
                                           (char*)(gConfig->read<std::string>("DBName")).c_str());
 
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);");
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);");
 
     mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
@@ -166,7 +166,7 @@ void ChatServer::Process()
     gMessageFactory->Process();
 
     //  Process our core services
-    mDatabaseManager->Process();
+    mDatabaseManager->process();
     mNetworkManager->Process();
     mCharacterAdminHandler->Process();
     mPlanetMapHandler->Process();
@@ -188,7 +188,7 @@ void ChatServer::Process()
 void ChatServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', %u, '%s', %u);", status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL - Update server status
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', %u, '%s', %u);", status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL - Update server status
  
 }
 
@@ -201,7 +201,7 @@ void ChatServer::_connectToConnectionServer()
 
     // Query the DB to find out who this is.
     // setup our databinding parameters.
-    DataBinding* binding = mDatabase->CreateDataBinding(5);
+    DataBinding* binding = mDatabase->createDataBinding(5);
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mType), 4);
     binding->addField(DFT_bstring, offsetof(ProcessAddress, mAddress), 16);
     binding->addField(DFT_uint16, offsetof(ProcessAddress, mPort), 2);
@@ -209,7 +209,7 @@ void ChatServer::_connectToConnectionServer()
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
 
     // Setup our statement
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
     
     uint64 count = result->getRowCount();
 
@@ -217,12 +217,12 @@ void ChatServer::_connectToConnectionServer()
     if (count == 1)
     {
         // Retrieve our routes and add them to the map.
-        result->GetNextRow(binding, &processAddress);
+        result->getNextRow(binding, &processAddress);
     }
 
     // Delete our DB objects.
-    mDatabase->DestroyDataBinding(binding);
-    mDatabase->DestroyResult(result);
+    mDatabase->destroyDataBinding(binding);
+    mDatabase->destroyResult(result);
 
     // Now connect to the ConnectionServer
     mClient = new DispatchClient();

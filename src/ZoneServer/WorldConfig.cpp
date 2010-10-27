@@ -50,7 +50,7 @@ WorldConfig::WorldConfig(uint32 zoneId,Database* database, BString zoneName) :
     mLoadComplete = false;
 
     //load globals
-    mDatabase->ExecuteSqlAsync(this,NULL,"SELECT csa.attribute,cs.value"
+    mDatabase->executeSqlAsync(this,NULL,"SELECT csa.attribute,cs.value"
                                " FROM config_server cs"
                                " INNER JOIN config_server_attributes csa ON (csa.id = cs.config_attributes_id)"
                                " WHERE cs.server_name like 'all' ");
@@ -176,7 +176,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         mLoadComplete = true;
         int8 sql[255];
         sprintf(sql,"SELECT csa.attribute,cs.value FROM config_server cs INNER JOIN config_server_attributes csa ON (csa.id = cs.config_attributes_id) WHERE cs.server_name like '%s'",mZoneName.getAnsi());
-        mDatabase->ExecuteSqlAsync(this,NULL,sql);
+        mDatabase->executeSqlAsync(this,NULL,sql);
         
     }
 
@@ -203,7 +203,7 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 
     DataBinding*					mConfigurationBinding;
 
-    mConfigurationBinding = mDatabase->CreateDataBinding(2);
+    mConfigurationBinding = mDatabase->createDataBinding(2);
     mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mKey),64,0);
     mConfigurationBinding->addField(DFT_bstring,offsetof(Configuration_QueryContainer,mValue),128,1);
 
@@ -211,7 +211,7 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
 
     for(uint64 i = 0; i < count; i++)
     {
-        result->GetNextRow(mConfigurationBinding,(void*)&attribute);
+        result->getNextRow(mConfigurationBinding,(void*)&attribute);
         //gLogger->logCont(LogManager::DEBUG,"Adding Attribute %s: %s ",attribute.mKey.getAnsi(),attribute.mValue.getAnsi());
 
 

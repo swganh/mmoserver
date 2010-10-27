@@ -43,7 +43,7 @@ FactoryBase::FactoryBase(Database* database)
     , mQueryContainerPool(sizeof(QueryContainerBase))
     , mDatabase(database)
 {
-    mAttributeBinding = mDatabase->CreateDataBinding(3);
+    mAttributeBinding = mDatabase->createDataBinding(3);
     mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mKey),64,0);
     mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mValue),128,1);
     mAttributeBinding->addField(DFT_uint8,offsetof(Attribute_QueryContainer,mInternal),1,2);
@@ -53,7 +53,7 @@ FactoryBase::FactoryBase(Database* database)
 
 FactoryBase::~FactoryBase()
 {
-    mDatabase->DestroyDataBinding(mAttributeBinding);
+    mDatabase->destroyDataBinding(mAttributeBinding);
 }
 
 
@@ -95,7 +95,7 @@ void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
 
     for(uint64 i = 0; i < count; i++)
     {
-        result->GetNextRow(mAttributeBinding,(void*)&attribute);
+        result->getNextRow(mAttributeBinding,(void*)&attribute);
         if(attribute.mKey.getCrc() == BString("cat_manf_schem_ing_resource").getCrc())
         {
             attribute.mValue.split(dataElements,' ');

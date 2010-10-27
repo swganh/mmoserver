@@ -63,7 +63,7 @@ ObjectControllerCommandMap::ObjectControllerCommandMap(Database* database) :
     RegisterCppHooks_();
 
     // load the property map
-    mDatabase->ExecuteSqlAsync(this,NULL,"SELECT commandname,characterability,deny_in_states,healthcost,actioncost,mindcost,"
+    mDatabase->executeSqlAsync(this,NULL,"SELECT commandname,characterability,deny_in_states,healthcost,actioncost,mindcost,"
                                "animationCrc,addtocombatqueue,defaulttime,scripthook,requiredweapongroup,"
                                "cbt_spam,trail1,trail2,commandgroup,allowInPosture,"
                                "health_hit_chance,action_hit_chance,mind_hit_chance,"
@@ -111,7 +111,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 {
     ObjectControllerCmdProperties* commandProperties;
 
-    DataBinding* binding = mDatabase->CreateDataBinding(29);
+    DataBinding* binding = mDatabase->createDataBinding(29);
     binding->addField(DFT_bstring,offsetof(ObjectControllerCmdProperties,mCommandStr),64,0);
     binding->addField(DFT_bstring,offsetof(ObjectControllerCmdProperties,mAbilityStr),64,1);
     binding->addField(DFT_uint64,offsetof(ObjectControllerCmdProperties,mStates),8,2);
@@ -148,7 +148,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
     {
         commandProperties = new ObjectControllerCmdProperties();
 
-        result->GetNextRow(binding,commandProperties);
+        result->getNextRow(binding,commandProperties);
 
         commandProperties->mCommandStr.toLower();
         commandProperties->mCmdCrc	= commandProperties->mCommandStr.getCrc();
@@ -172,7 +172,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
         mCmdPropertyMap.insert(std::make_pair(commandProperties->mCmdCrc,commandProperties));
     }
 
-    mDatabase->DestroyDataBinding(binding);
+    mDatabase->destroyDataBinding(binding);
 
     LOG_IF(INFO, !mCmdPropertyMap.empty()) << "Mapped " << mCmdPropertyMap.size() << " commands";
 }

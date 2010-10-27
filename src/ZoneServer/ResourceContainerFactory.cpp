@@ -99,7 +99,7 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
             QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,RCFQuery_Attributes,asyncContainer->mClient);
             asContainer->mObject = container;
 
-            mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,object_attributes.value,attributes.internal"
+            mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,object_attributes.value,attributes.internal"
                                        " FROM object_attributes"
                                        " INNER JOIN attributes ON (object_attributes.attribute_id = attributes.id)"
                                        " WHERE object_attributes.object_id = %"PRIu64" ORDER BY object_attributes.order",container->getId());
@@ -127,7 +127,7 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 void ResourceContainerFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM resource_containers WHERE id=%"PRIu64"",id);
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM resource_containers WHERE id=%"PRIu64"",id);
     
 }
 
@@ -141,7 +141,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseRe
 
     ResourceContainer*	resourceContainer = new ResourceContainer();
 
-    result->GetNextRow(mResourceContainerBinding,(void*)resourceContainer);
+    result->getNextRow(mResourceContainerBinding,(void*)resourceContainer);
 
     Resource* resource = gResourceManager->getResourceById(resourceContainer->mResourceId);
 
@@ -164,7 +164,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseRe
 
 void ResourceContainerFactory::_setupDatabindings()
 {
-    mResourceContainerBinding = mDatabase->CreateDataBinding(11);
+    mResourceContainerBinding = mDatabase->createDataBinding(11);
     mResourceContainerBinding->addField(DFT_uint64,offsetof(ResourceContainer,mId),8,0);
     mResourceContainerBinding->addField(DFT_uint64,offsetof(ResourceContainer,mParentId),8,1);
     mResourceContainerBinding->addField(DFT_uint64,offsetof(ResourceContainer,mResourceId),8,2);
@@ -182,7 +182,7 @@ void ResourceContainerFactory::_setupDatabindings()
 
 void ResourceContainerFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mResourceContainerBinding);
+    mDatabase->destroyDataBinding(mResourceContainerBinding);
 }
 
 //=============================================================================

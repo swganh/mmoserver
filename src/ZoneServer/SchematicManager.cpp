@@ -59,12 +59,12 @@ SchematicManager::SchematicManager(Database* database)
 {
     // load skillschematicgroups
     //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Groups.");
-    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicGroups),"SELECT * FROM schematic_groups ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicGroups),"SELECT * FROM schematic_groups ORDER BY id");
     
 
     // load experimentation groups
     //gLogger->log(LogManager::DEBUG,"Finished Loading Experimentation Groups.");
-    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_ExperimentationGroups),"SELECT * FROM draft_experiment_groups ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_ExperimentationGroups),"SELECT * FROM draft_experiment_groups ORDER BY id");
     
 }
 
@@ -110,7 +110,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
     case ScMQuery_ExperimentationGroups:
     {
         BString expGroup;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_bstring,0,64,1);
 
         uint64 count = result->getRowCount();
@@ -118,11 +118,11 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&expGroup);
+            result->getNextRow(binding,&expGroup);
             mvExpGroups.push_back(expGroup.getAnsi());
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading Experimentation Groups.");
     }
     break;
@@ -130,7 +130,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
     case ScMQuery_SchematicGroups:
     {
         SchematicGroup* scGroup;
-        DataBinding* binding = mDatabase->CreateDataBinding(2);
+        DataBinding* binding = mDatabase->createDataBinding(2);
         binding->addField(DFT_uint32,offsetof(SchematicGroup,mId),4,0);
         binding->addField(DFT_bstring,offsetof(SchematicGroup,mName),64,1);
 
@@ -141,16 +141,16 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             scGroup = new SchematicGroup();
 
-            result->GetNextRow(binding,scGroup);
+            result->getNextRow(binding,scGroup);
             mSchematicGroupList.push_back(scGroup);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         ScMAsyncContainer* asContainer;
 
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematics");
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_GroupSchematics);
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT object_string,weightsbatch_id,complexity,datasize,subCategory,craftEnabled,group_id FROM draft_schematics");
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT object_string,weightsbatch_id,complexity,datasize,subCategory,craftEnabled,group_id FROM draft_schematics");
         
 
         //gLogger->log(LogManager::DEBUG,"Finished Loading Schematic Groups.");
@@ -161,7 +161,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
     {
         DraftSchematic*	schematic = NULL;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(7);
+        DataBinding* binding = mDatabase->createDataBinding(7);
         binding->addField(DFT_bstring,offsetof(DraftSchematic,mModel),128,0);
         binding->addField(DFT_uint32,offsetof(DraftSchematic,mWeightsBatchId),4,1);
         binding->addField(DFT_uint32,offsetof(DraftSchematic,mComplexity),4,2);
@@ -177,7 +177,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             schematic = new DraftSchematic();
 
-            result->GetNextRow(binding,schematic);
+            result->getNextRow(binding,schematic);
 
             // gotta get shared_ into the name
             BStringVector splits;
@@ -223,7 +223,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 " INNER JOIN draft_schematics_slots ON (draft_slots.id = draft_schematics_slots.draft_slot_id)"
                 " INNER JOIN schem_crc ON (draft_schematics_slots.schematic_id = schem_crc.crc)"
                 " INNER JOIN draft_schematics ON (schem_crc.object_string = draft_schematics.object_string)");
-        mDatabase->ExecuteSqlAsync(this,asContainer,sql);
+        mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
 
@@ -234,7 +234,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 " FROM draft_weights"
                 " INNER JOIN draft_assembly_batches ON (draft_weights.assembly_batch_id = draft_assembly_batches.id)"
                 " ORDER BY draft_weights.id");
-        mDatabase->ExecuteSqlAsync(this,asContainer,sql);
+        mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Experimentation Batches.");
@@ -246,7 +246,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 " INNER JOIN draft_schematics ON(draft_weights.id = draft_schematics.weightsbatch_id) "
                 " ORDER BY draft_experiment_batches.list_id ");
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,sql);
+        mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Crafting Batches.");
@@ -257,7 +257,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 " INNER JOIN draft_craft_batches ON (draft_weights.craft_batch_id = draft_craft_batches.id) "
                 " INNER JOIN draft_schematics ON(draft_weights.id = draft_schematics.weightsbatch_id) "
                 " ORDER BY draft_craft_batches.list_id ");
-        mDatabase->ExecuteSqlAsync(this,asContainer,sql);
+        mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
         if(!--mGroupLoadCount)
@@ -267,7 +267,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading Schematics");
     }
     break;
@@ -277,7 +277,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;//asyncContainer->mSchematic;
         DraftSlot*		slot;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(7);
+        DataBinding* binding = mDatabase->createDataBinding(7);
         binding->addField(DFT_bstring,offsetof(DraftSlot,mFile),64,0);
         binding->addField(DFT_bstring,offsetof(DraftSlot,mName),64,1);
         binding->addField(DFT_bstring,offsetof(DraftSlot,mResourceName),128,2);
@@ -291,7 +291,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         for(uint64 i = 0; i < count; i++)
         {
             slot = new DraftSlot();
-            result->GetNextRow(binding,slot);
+            result->getNextRow(binding,slot);
 
             if((schematic == NULL) || (schematic->getWeightsBatchId() != slot->getSchemWeightBatch()))
             {
@@ -306,7 +306,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             slot->mResourceName.convert(BSTRType_Unicode16);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Draft Slots out of %u.",num,count);
     }
     break;
@@ -316,7 +316,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;//asyncContainer->mSchematic;
         WeightsBatch*	batch;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(3);
+        DataBinding* binding = mDatabase->createDataBinding(3);
         binding->addField(DFT_uint32,offsetof(WeightsBatch,mId),4,0);
         binding->addField(DFT_uint32,offsetof(WeightsBatch,mListId),4,1);
         binding->addField(DFT_uint32,offsetof(WeightsBatch,mSchemWeightBatch),4,2);
@@ -327,7 +327,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             batch = new WeightsBatch();
 
-            result->GetNextRow(binding,batch);
+            result->getNextRow(binding,batch);
             if((schematic == NULL) || (schematic->getId() != batch->getSchemWeightBatch()))
             {
                 schematic = getSchematicByWeightID(batch->getSchemWeightBatch());
@@ -345,12 +345,12 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         //asContainer->mSchematic = schematic;
         //asContainer->mBatchId = batch->getListId();
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Assembly Weights.");
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT datatype,distribution,draft_weights.id,draft_assembly_batches.list_id"
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT datatype,distribution,draft_weights.id,draft_assembly_batches.list_id"
                                    " FROM draft_assembly_lists"
                                    " INNER JOIN draft_assembly_batches ON(draft_assembly_batches.list_id = draft_assembly_lists.id)"
                                    " INNER JOIN draft_weights ON(draft_weights.assembly_batch_id = draft_assembly_batches.id)"
                                    " ORDER BY draft_weights.id");
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Assembly Batches out of %u.",num,count);
     }
     break;
@@ -360,7 +360,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;//asyncContainer->mSchematic;
         WeightsBatch*	batch;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(3);
+        DataBinding* binding = mDatabase->createDataBinding(3);
         binding->addField(DFT_uint32,offsetof(WeightsBatch,mId),4,0);
         binding->addField(DFT_uint32,offsetof(WeightsBatch,mListId),4,1);
         binding->addField(DFT_uint32,offsetof(WeightsBatch,mSchemWeightBatch),4,2);
@@ -371,7 +371,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             batch = new WeightsBatch();
 
-            result->GetNextRow(binding,batch);
+            result->getNextRow(binding,batch);
             if((schematic == NULL) || (schematic->getId() != batch->getSchemWeightBatch()))
             {
                 schematic = getSchematicByWeightID(batch->getSchemWeightBatch());
@@ -387,13 +387,13 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         // query list items
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Experimentation Weights.");
         ScMAsyncContainer* asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicExperimentWeights);
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT datatype,distribution,draft_weights.id,draft_experiment_batches.list_id "
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT datatype,distribution,draft_weights.id,draft_experiment_batches.list_id "
                                    " FROM draft_experiment_lists "
                                    " INNER JOIN draft_experiment_batches ON(draft_experiment_batches.list_id = draft_experiment_lists.id)"
                                    " INNER JOIN draft_weights ON (draft_weights.experiment_batch_id = draft_experiment_batches.id)"
                                    " ORDER BY draft_weights.id");
        
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Experimentation Batches out of %u.",num,count);
     }
     break;
@@ -403,7 +403,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;//asyncContainer->mSchematic;
         CraftBatch*		batch;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(4);
+        DataBinding* binding = mDatabase->createDataBinding(4);
         binding->addField(DFT_uint32,offsetof(CraftBatch,mId),4,0);
         binding->addField(DFT_uint32,offsetof(CraftBatch,mListId),4,1);
         binding->addField(DFT_uint32,offsetof(CraftBatch,mExpGroup),4,2);
@@ -415,7 +415,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             batch = new CraftBatch();
 
-            result->GetNextRow(binding,batch);
+            result->getNextRow(binding,batch);
             if((schematic == NULL) || (schematic->getId() != batch->getSchemWeightBatch()))
             {
                 schematic = getSchematicByWeightID(batch->getSchemWeightBatch());
@@ -430,7 +430,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         // query weight distribution
         ScMAsyncContainer* asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftWeights);
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Craft Weights.");
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT type,distribution,draft_weights.id,draft_craft_batches.list_id "
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT type,distribution,draft_weights.id,draft_craft_batches.list_id "
                                    " FROM draft_craft_attribute_weights"
                                    " INNER JOIN draft_craft_batches ON(draft_craft_attribute_weights.id = draft_craft_batches.list_id)"
                                    " INNER JOIN draft_weights ON(draft_weights.craft_batch_id = draft_craft_batches.id)"
@@ -442,7 +442,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         // query attribute links and ranges
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftAttributeLinks);
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Craft Attribute Links.");
-        mDatabase->ExecuteSqlAsync(this,asContainer,
+        mDatabase->executeSqlAsync(this,asContainer,
                                    "SELECT attributes.name,dcial.item_attribute,dcial.attribute_min,dcial.attribute_max,dcial.attribute_type,draft_craft_batches.id,dcial.list_id "
                                    " FROM draft_craft_item_attribute_link as dcial"
                                    " INNER JOIN attributes ON (dcial.item_attribute = attributes.id)"
@@ -453,13 +453,13 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         // query attribute weighting for component crafting
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftAttributeWeights);
         //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Craft Attribute Weights.");
-        mDatabase->ExecuteSqlAsync(this,asContainer,
+        mDatabase->executeSqlAsync(this,asContainer,
                                    "SELECT dsam.Attribute, dsam.AffectedAttribute, dsam.Manipulation, a.name, b.name,draft_schematics.weightsbatch_id "
                                    " FROM draft_schematic_attribute_manipulation as dsam"
                                    " INNER JOIN attributes as a ON (dsam.attribute = a.id)"
                                    " INNER JOIN attributes as b ON (dsam.affectedattribute = b.id)"
                                    " INNER JOIN draft_schematics ON(dsam.Draft_Schematic = draft_schematics.weightsbatch_id)");
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
        
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Crafting Batches out of %u.",num,count);
     }
@@ -472,7 +472,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;//asyncContainer->mSchematic;
         CraftAttributeWeight*	craftAttributeWeight;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(6);
+        DataBinding* binding = mDatabase->createDataBinding(6);
 
         binding->addField(DFT_uint32,offsetof(CraftAttributeWeight,mAttributeId),4,0);
         binding->addField(DFT_uint32,offsetof(CraftAttributeWeight,mAffectedAttributeId),4,1);
@@ -487,7 +487,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             craftAttributeWeight = new CraftAttributeWeight();
 
-            result->GetNextRow(binding,craftAttributeWeight);
+            result->getNextRow(binding,craftAttributeWeight);
             if((schematic == NULL) || (schematic->getId() != craftAttributeWeight->getSchemWeightBatch()))
             {
                 schematic = getSchematicByWeightID(craftAttributeWeight->getSchemWeightBatch());
@@ -500,7 +500,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             }
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Craft Attribute Weights out of %u",num,count);
     }
     break;
@@ -511,7 +511,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;//asyncContainer->mSchematic;
         CraftAttribute*	craftAttribute;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(7);
+        DataBinding* binding = mDatabase->createDataBinding(7);
         binding->addField(DFT_bstring,offsetof(CraftAttribute,mAttributeKey),255,0);
         binding->addField(DFT_uint32,offsetof(CraftAttribute,mAttributeId),4,1);
         binding->addField(DFT_float,offsetof(CraftAttribute,mMin),4,2);
@@ -526,7 +526,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             craftAttribute = new CraftAttribute();
 
-            result->GetNextRow(binding,craftAttribute);
+            result->getNextRow(binding,craftAttribute);
             if((schematic == NULL) || (schematic->getId() != craftAttribute->getSchemWeightBatch()))
             {
                 schematic = getSchematicByWeightID(craftAttribute->getSchemWeightBatch());
@@ -542,7 +542,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             }
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Craft Attribute Links out of %u",num,count);
     }
     break;
@@ -552,7 +552,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;//asyncContainer->mSchematic;
         CraftWeight*	weight;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(4);
+        DataBinding* binding = mDatabase->createDataBinding(4);
         binding->addField(DFT_uint8,offsetof(CraftWeight,mDataType),1,0);
         binding->addField(DFT_float,offsetof(CraftWeight,mDistribution),4,1);
         binding->addField(DFT_uint32,offsetof(CraftWeight,mSchemWeightBatch),4,2);
@@ -564,7 +564,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             weight = new CraftWeight();
 
-            result->GetNextRow(binding,weight);
+            result->getNextRow(binding,weight);
             if((schematic == NULL) || (schematic->getId() != weight->getSchemWeightBatch()))
             {
                 schematic = getSchematicByWeightID(weight->getSchemWeightBatch());
@@ -580,7 +580,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             }
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Craft Weights out of %u.",num,count);
     }
     break;
@@ -590,7 +590,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;
         DraftWeight*	weight;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(4);
+        DataBinding* binding = mDatabase->createDataBinding(4);
         binding->addField(DFT_uint8,offsetof(DraftWeight,mDataType),1,0);
         binding->addField(DFT_uint8,offsetof(DraftWeight,mDistribution),1,1);
         binding->addField(DFT_uint32,offsetof(DraftWeight,mSchemWeightBatch),4,2);
@@ -602,7 +602,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             weight = new DraftWeight();
 
-            result->GetNextRow(binding,weight);
+            result->getNextRow(binding,weight);
             weight->prepareData();
             if((schematic == NULL) || (schematic->getId() != weight->getSchemWeightBatch()))
             {
@@ -619,7 +619,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             }
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Assembly Weights out of %u",num,count);
     }
     break;
@@ -629,7 +629,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         DraftSchematic*	schematic = NULL;
         DraftWeight*	weight;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(4);
+        DataBinding* binding = mDatabase->createDataBinding(4);
         binding->addField(DFT_uint8,offsetof(DraftWeight,mDataType),1,0);
         binding->addField(DFT_uint8,offsetof(DraftWeight,mDistribution),1,1);
         binding->addField(DFT_uint32,offsetof(DraftWeight,mSchemWeightBatch),4,2);
@@ -641,7 +641,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         {
             weight = new DraftWeight();
 
-            result->GetNextRow(binding,weight);
+            result->getNextRow(binding,weight);
             weight->prepareData();
             if((schematic == NULL) || (schematic->getWeightsBatchId() != weight->getSchemWeightBatch()))
             {
@@ -657,7 +657,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 }
             }
         }
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading %u Schematic Experimentation Weights out of %u",num,count);
     }
     break;

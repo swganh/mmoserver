@@ -99,7 +99,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         uint32			cellCount;
         uint64			cellId;
 
-        DataBinding*	cellBinding = mDatabase->CreateDataBinding(1);
+        DataBinding*	cellBinding = mDatabase->createDataBinding(1);
         cellBinding->addField(DFT_int64,0,8);
 
         // store us for later lookup
@@ -111,7 +111,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         uint64 maxid = 0xffffffffffffffff;
         for(uint32 j = 0; j < cellCount; j++)
         {
-            result->GetNextRow(cellBinding,&cellId);
+            result->getNextRow(cellBinding,&cellId);
 
             mCellFactory->requestStructureCell(this,cellId,0,0,asyncContainer->mClient);
             if(cellId < maxid)
@@ -120,7 +120,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         house->setMinCellId(maxid);
 
 
-        mDatabase->DestroyDataBinding(cellBinding);
+        mDatabase->destroyDataBinding(cellBinding);
 
         //read in admin list - do houses only have an admin list ???
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HOFQuery_AdminData,asyncContainer->mClient);
@@ -128,7 +128,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         int8 sql[1024];
         sprintf(sql,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",house->getId());
-        mDatabase->ExecuteSqlAsync(this,asContainer,sql);
+        mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
     }
@@ -147,18 +147,18 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         adminStruct adminData;
 
-        DataBinding*	adminBinding = mDatabase->CreateDataBinding(1);
+        DataBinding*	adminBinding = mDatabase->createDataBinding(1);
         adminBinding->addField(DFT_uint64,offsetof(adminStruct,playerID),8,0);
 
         uint64 count = result->getRowCount();
 
         for(uint32 j = 0; j < count; j++)
         {
-            result->GetNextRow(adminBinding,&adminData);
+            result->getNextRow(adminBinding,&adminData);
             house->addHousingAdminEntry(adminData.playerID);
         }
 
-        mDatabase->DestroyDataBinding(adminBinding);
+        mDatabase->destroyDataBinding(adminBinding);
 
     }
     break;
@@ -176,14 +176,14 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(mAttributeBinding,(void*)&attribute);
+            result->getNextRow(mAttributeBinding,(void*)&attribute);
             house->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
         }
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HOFQuery_CellData,asyncContainer->mClient);
         asContainer->mObject = house;
 
-        mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT id FROM structure_cells WHERE parent_id = %"PRIu64" ORDER BY structure_cells.id;",house->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM structure_cells WHERE parent_id = %"PRIu64" ORDER BY structure_cells.id;",house->getId());
         
 
 
@@ -204,7 +204,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asynContainer->mId		= house->getId();
 
 
-        mDatabase->ExecuteSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
+        mDatabase->executeSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
                                    " FROM structure_attributes sa"
                                    " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
                                    " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",house->getId());
@@ -231,7 +231,7 @@ void HouseFactory::_createHouse(DatabaseResult* result, HouseObject* house)
        	return;
     }
 
-    result->GetNextRow(mHouseBinding,house);
+    result->getNextRow(mHouseBinding,house);
 
     house->setLoadState(LoadState_Loaded);
     house->setType(ObjType_Building);
@@ -255,7 +255,7 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
 
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HOFQuery_MainData,client,id);
 
-    mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
+    mDatabase->executeSqlAsync(this,asynContainer,sql);
     
 }
 
@@ -263,7 +263,7 @@ void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uin
 
 void HouseFactory::_setupDatabindings()
 {
-    mHouseBinding = mDatabase->CreateDataBinding(20);
+    mHouseBinding = mDatabase->createDataBinding(20);
     mHouseBinding->addField(DFT_uint64,offsetof(HouseObject,mId),8,0);
     mHouseBinding->addField(DFT_uint64,offsetof(HouseObject,mOwner),8,1);
     mHouseBinding->addField(DFT_float,offsetof(HouseObject,mDirection.x),4,2);
@@ -293,7 +293,7 @@ void HouseFactory::_setupDatabindings()
 
 void HouseFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mHouseBinding);
+    mDatabase->destroyDataBinding(mHouseBinding);
 
 }
 

@@ -56,7 +56,7 @@ ConversationManager::ConversationManager(Database* database) :
     mActiveConversationPool(sizeof(ActiveConversation)),
     mDBAsyncPool(sizeof(CVAsyncContainer))
 {
-    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM conversations ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM conversations ORDER BY id");
     
 }
 
@@ -96,7 +96,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
         CVAsyncContainer*	asCont;
         uint32				insertId;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,offsetof(Conversation,mId),4,0);
 
         uint64 count = result->getRowCount();
@@ -104,7 +104,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
         for(uint32 i = 0; i < count; i++)
         {
             conv = new Conversation();
-            result->GetNextRow(binding,conv);
+            result->getNextRow(binding,conv);
 
             insertId = conv->getId();
             mConversations.insert(insertId,conv);
@@ -112,13 +112,13 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
             asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Pages);
             asCont->mConversation = conv;
 
-            mDatabase->ExecuteSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId);
+            mDatabase->executeSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId);
             
         }
 
         LOG_IF(INFO, count) << "Loaded " << count << " conversations";
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -128,14 +128,14 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
         CVAsyncContainer*	asCont;
         uint32				batchId;
 
-        DataBinding*		pageBinding = mDatabase->CreateDataBinding(5);
+        DataBinding*		pageBinding = mDatabase->createDataBinding(5);
         pageBinding->addField(DFT_uint32,offsetof(ConversationPage,mId),4,1);
         pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mCustomText),512,2);
         pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mStfFile),255,3);
         pageBinding->addField(DFT_bstring,offsetof(ConversationPage,mStfVariable),255,4);
         pageBinding->addField(DFT_uint32,offsetof(ConversationPage,mAnimation),4,6);
 
-        DataBinding*	batchBinding = mDatabase->CreateDataBinding(1);
+        DataBinding*	batchBinding = mDatabase->createDataBinding(1);
         batchBinding->addField(DFT_uint32,0,4,5);
 
         uint32 count = static_cast<uint32>(result->getRowCount());
@@ -143,13 +143,13 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
         for(uint64 i = 0; i< count; i++)
         {
             page = new ConversationPage();
-            result->GetNextRow(pageBinding,page);
+            result->getNextRow(pageBinding,page);
 
             page->mCustomText.convert(BSTRType_Unicode16);
 
-            result->ResetRowIndex(static_cast<int>(i));
+            result->resetRowIndex(static_cast<int>(i));
 
-            result->GetNextRow(batchBinding,&batchId);
+            result->getNextRow(batchBinding,&batchId);
 
             asyncContainer->mConversation->mPages.push_back(page);
 
@@ -158,7 +158,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
             asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Page_OptionBatch);
             asCont->mConversationPage = page;
 
-            mDatabase->ExecuteSqlAsync(this,asCont,"SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
+            mDatabase->executeSqlAsync(this,asCont,"SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
                                        "conversation_options.stf_variable,conversation_options.event,conversation_options.pageLink "
                                        "FROM "
                                        "conversation_option_batches "
@@ -168,15 +168,15 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
            
         }
 
-        mDatabase->DestroyDataBinding(pageBinding);
-        mDatabase->DestroyDataBinding(batchBinding);
+        mDatabase->destroyDataBinding(pageBinding);
+        mDatabase->destroyDataBinding(batchBinding);
     }
     break;
 
     case ConvQuery_Page_OptionBatch:
     {
         ConversationOption*	option;
-        DataBinding*		binding = mDatabase->CreateDataBinding(6);
+        DataBinding*		binding = mDatabase->createDataBinding(6);
 
         binding->addField(DFT_uint32,offsetof(ConversationOption,mId),4,0);
         binding->addField(DFT_bstring,offsetof(ConversationOption,mCustomText),512,1);
@@ -191,7 +191,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
         {
             option = new ConversationOption();
 
-            result->GetNextRow(binding,option);
+            result->getNextRow(binding,option);
 
             option->mCustomText.convert(BSTRType_Unicode16);
 
@@ -199,7 +199,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
         }
 
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 

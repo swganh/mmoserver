@@ -117,7 +117,7 @@ void Database::executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallba
 }
 
 
-void Database::Process() {
+void Database::process() {
     DatabaseWorkerThread* worker = nullptr;
     DatabaseJob* job = nullptr;
 
@@ -166,14 +166,14 @@ void Database::Process() {
             }
 
             // Free the result and the job
-            DestroyResult(job->result);
+            destroyResult(job->result);
             job_pool_.ordered_free(job);
         }
     }
 }
 
 
-DatabaseResult* Database::ExecuteSynchSql(const char* sql, ...) {
+DatabaseResult* Database::executeSynchSql(const char* sql, ...) {
     // format our sql string
     va_list args;
     va_start(args, sql);
@@ -183,11 +183,11 @@ DatabaseResult* Database::ExecuteSynchSql(const char* sql, ...) {
 
     DLOG(INFO) << "SYNCHRONOUS SQL: " << localSql;
        
-    return ExecuteSql(localSql);
+    return executeSql(localSql);
 }
 
 
-DatabaseResult* Database::ExecuteSql(const char* sql, ...) {
+DatabaseResult* Database::executeSql(const char* sql, ...) {
     // format our sql string
     va_list args;
     va_start(args, sql);
@@ -197,11 +197,11 @@ DatabaseResult* Database::ExecuteSql(const char* sql, ...) {
     va_end(args);
 
     // Run our query and return our result set.
-    return database_impl_->ExecuteSql(localSql);;
+    return database_impl_->executeSql(localSql);;
 }
 
 
-void Database::ExecuteSqlAsync(DatabaseCallback* callback, 
+void Database::executeSqlAsync(DatabaseCallback* callback, 
                                void* ref, const char* sql, ...)
 {
     // format our sql string
@@ -232,7 +232,7 @@ void Database::ExecuteSqlAsync(DatabaseCallback* callback,
 //this gets interpreted as a formatting sign by vsnprintf() and subsequently is removed
 //which invalidates our binary data!!!!!!!!!!!
 //sch
-void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, 
+void Database::executeSqlAsyncNoArguments(DatabaseCallback* callback, 
                                           void* ref, const char* sql) 
 {
     char localSql[20192];
@@ -252,7 +252,7 @@ void Database::ExecuteSqlAsyncNoArguments(DatabaseCallback* callback,
 }
 
 
-DatabaseResult* Database::ExecuteProcedure(const char* sql, ...) {
+DatabaseResult* Database::executeProcedure(const char* sql, ...) {
     // format our sql string
     va_list args;
     va_start(args, sql);
@@ -261,11 +261,11 @@ DatabaseResult* Database::ExecuteProcedure(const char* sql, ...) {
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
 
-    return database_impl_->ExecuteSql(localSql,true);
+    return database_impl_->executeSql(localSql,true);
 }
 
 
-void Database::ExecuteProcedureAsync(DatabaseCallback* callback, 
+void Database::executeProcedureAsync(DatabaseCallback* callback, 
                                      void* ref, const char* sql, ...)
 {
     // format our sql string
@@ -290,8 +290,8 @@ void Database::ExecuteProcedureAsync(DatabaseCallback* callback,
 }
 
 
-void Database::DestroyResult(DatabaseResult* result) {
-    DatabaseWorkerThread* worker = database_impl_->DestroyResult(result);
+void Database::destroyResult(DatabaseResult* result) {
+    DatabaseWorkerThread* worker = database_impl_->destroyResult(result);
 
     if(worker) {        
         idle_worker_queue_.push(worker);
@@ -299,18 +299,18 @@ void Database::DestroyResult(DatabaseResult* result) {
 }
 
 
-DataBinding* Database::CreateDataBinding(uint16_t fieldCount) {
-    return binding_factory_.CreateDataBinding(fieldCount);
+DataBinding* Database::createDataBinding(uint16_t fieldCount) {
+    return binding_factory_.createDataBinding(fieldCount);
 }
 
 
-void  Database::DestroyDataBinding(DataBinding* binding) {
-    binding_factory_.DestroyDataBinding(binding);
+void  Database::destroyDataBinding(DataBinding* binding) {
+    binding_factory_.destroyDataBinding(binding);
 }
 
 
-uint32_t Database::Escape_String(char* target, const char* source, uint32_t length) {
-    return(database_impl_->Escape_String(target,source,length));
+uint32_t Database::escapeString(char* target, const char* source, uint32_t length) {
+    return(database_impl_->escapeString(target,source,length));
 }
 
 

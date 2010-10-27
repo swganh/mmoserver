@@ -81,7 +81,7 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
     mMessageDispatch->RegisterMessageCallback(opTutorialServerStatusReply, std::bind(&TravelMapHandler::_processTutorialTravelList, this, std::placeholders::_1, std::placeholders::_2));
 
     // load our points in world
-    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInWorld),
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInWorld),
                                "SELECT DISTINCT(terminals.dataStr),terminals.x,terminals.y,terminals.z,terminals.dataInt1,"
                                "terminals.dataInt2,terminals.planet_id,"
                                "spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
@@ -93,7 +93,7 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
    
 
     // load travel points in cells
-    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInCells),
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInCells),
                                "SELECT DISTINCT(terminals.dataStr),terminals.planet_id,terminals.dataInt1,terminals.dataInt2,"
                                "buildings.x,buildings.y,buildings.z,spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
                                " FROM terminals"
@@ -106,7 +106,7 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
                                " GROUP BY terminals.dataStr");
    
     // load planet routes and base prices
-    mDatabase->ExecuteSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PlanetRoutes),"SELECT * FROM travel_planet_routes");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PlanetRoutes),"SELECT * FROM travel_planet_routes");
    
 }
 
@@ -158,7 +158,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
     {
     case TMQuery_PointsInWorld:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(10);
+        DataBinding* binding = mDatabase->createDataBinding(10);
         binding->addField(DFT_string,offsetof(TravelPoint,descriptor),64,0);
         binding->addField(DFT_float,offsetof(TravelPoint,x),4,1);
         binding->addField(DFT_float,offsetof(TravelPoint,y),4,2);
@@ -175,7 +175,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         for(uint64 i = 0; i < count; i++)
         {
             TravelPoint* travelPoint = new TravelPoint();
-            result->GetNextRow(binding,travelPoint);
+            result->getNextRow(binding,travelPoint);
 
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
@@ -185,13 +185,13 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         mPointCount += static_cast<uint32>(count);
         mWorldPointsLoaded = true;
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
     case TMQuery_PointsInCells:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(10);
+        DataBinding* binding = mDatabase->createDataBinding(10);
         binding->addField(DFT_string,offsetof(TravelPoint,descriptor),64,0);
         binding->addField(DFT_uint16,offsetof(TravelPoint,planetId),2,1);
         binding->addField(DFT_uint8,offsetof(TravelPoint,portType),1,2);
@@ -208,7 +208,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         for(uint64 i = 0; i < count; i++)
         {
             TravelPoint* travelPoint = new TravelPoint();
-            result->GetNextRow(binding,travelPoint);
+            result->getNextRow(binding,travelPoint);
 
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
@@ -218,7 +218,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         mPointCount += static_cast<uint32>(count);
         mCellPointsLoaded = true;
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 
@@ -227,7 +227,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         TravelRoute route;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(3);
+        DataBinding* binding = mDatabase->createDataBinding(3);
         binding->addField(DFT_uint16,offsetof(TravelRoute,srcId),2,0);
         binding->addField(DFT_uint16,offsetof(TravelRoute,destId),2,1);
         binding->addField(DFT_int32,offsetof(TravelRoute,price),4,2);
@@ -236,7 +236,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(binding,&route);
+            result->getNextRow(binding,&route);
             mTravelRoutes[route.srcId].push_back(std::make_pair(route.destId,route.price));
         }
 
@@ -245,7 +245,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         mRouteCount = static_cast<uint32>(count);
         mRoutesLoaded = true;
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 

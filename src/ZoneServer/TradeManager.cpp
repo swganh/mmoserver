@@ -88,14 +88,14 @@ TradeManager::TradeManager(Database* database, MessageDispatch* dispatch)
 
     // load our bazaar terminals
     TradeManagerAsyncContainer* load_bazaar_container = new TradeManagerAsyncContainer(TRMQuery_LoadBazaar, 0);
-    mDatabase->ExecuteSqlAsync(this, load_bazaar_container, "SELECT * FROM commerce_bazaar");
+    mDatabase->executeSqlAsync(this, load_bazaar_container, "SELECT * FROM commerce_bazaar");
    
     //AuctionHandler = new AuctionClass;
 
 
     //load the item table for the character builder terminal
     TradeManagerAsyncContainer* frog_query_container = new TradeManagerAsyncContainer(TRMQuery_ItemTableFrogQuery, 0);
-    mDatabase->ExecuteSqlAsync(this, frog_query_container, "SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id");
+    mDatabase->executeSqlAsync(this, frog_query_container, "SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id");
 }
 
 
@@ -156,9 +156,9 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     case TRMQuery_MoneyTransaction:
     {
         uint32 error;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
-        result->GetNextRow(binding,&error);
+        result->getNextRow(binding,&error);
 
 
         if((!asynContainer->player1)||(!asynContainer->player2))
@@ -204,9 +204,9 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     case TRMQuery_BazaarMoneyTransaction:
     {
         uint32 error;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
-        result->GetNextRow(binding,&error);
+        result->getNextRow(binding,&error);
         if (error == 0)
         {
             // no errors : lets move the money
@@ -293,9 +293,9 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         //takes the bazaar fees
 
         uint32 error;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
-        result->GetNextRow(binding,&error);
+        result->getNextRow(binding,&error);
         uint64 itemId = asynContainer->tangible->getId();
 
         if (error)
@@ -339,7 +339,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     case TRMQuery_ItemTableFrogQuery:
     {
 
-        DataBinding* binding = mDatabase->CreateDataBinding(6);
+        DataBinding* binding = mDatabase->createDataBinding(6);
         binding->addField(DFT_uint64,offsetof(ItemFrogItemClass,id),8,0);
         binding->addField(DFT_uint32,offsetof(ItemFrogItemClass,type),4,1);
         binding->addField(DFT_uint32,offsetof(ItemFrogItemClass,family),4,2);
@@ -353,7 +353,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         for(uint64 i=0; i <count; i++)
         {
             ItemFrogItemClass*	item = new(ItemFrogItemClass);
-            result->GetNextRow(binding,item);
+            result->getNextRow(binding,item);
 
             ItemFrogTypeClass* type = mItemFrogClass.LookUpFamily(item->family);
             if(!type)
@@ -606,7 +606,7 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
         Description.setLength(1024);
 
     int8 theDescription[1028];
-    mDatabase->Escape_String(theDescription,Description.getAnsi(),Description.getLength());
+    mDatabase->escapeString(theDescription,Description.getAnsi(),Description.getLength());
 
 
     TangibleObject*		requestedObject		= dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ItemID));
@@ -654,7 +654,7 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     }
 
     int8 theName[128];
-    mDatabase->Escape_String(theName,name.getAnsi(),name.getLength());
+    mDatabase->escapeString(theName,name.getAnsi(),name.getLength());
 
     itemType	= requestedObject->getTangibleGroup();
     tang		= requestedObject->getBazaarTang();
@@ -736,7 +736,7 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
 
     int8 sql[200];
     sprintf(sql,"Select * FROM commerce_auction WHERE owner_id = '%"PRIu64"'", playerObject->getId());
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
 
 }

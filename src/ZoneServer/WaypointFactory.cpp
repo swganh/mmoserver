@@ -98,7 +98,7 @@ void WaypointFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 void WaypointFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,WaypointFQuery_MainData,client),
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,WaypointFQuery_MainData,client),
                                "SELECT waypoints.waypoint_id,waypoints.owner_id,waypoints.x,waypoints.y,waypoints.z,"
                                "waypoints.name,planet.name,waypoints.active,waypoints.type"
                                " FROM waypoints INNER JOIN planet ON (waypoints.planet_id = planet.planet_id)"
@@ -112,7 +112,7 @@ WaypointObject* WaypointFactory::_createWaypoint(DatabaseResult* result)
 {
     WaypointObject*	waypoint = new WaypointObject();
 
-    result->GetNextRow(mWaypointBinding,(void*)waypoint);
+    result->getNextRow(mWaypointBinding,(void*)waypoint);
 
     waypoint->mName.convert(BSTRType_Unicode16);
     waypoint->setPlanetCRC(waypoint->getModelString().getCrc());
@@ -124,7 +124,7 @@ WaypointObject* WaypointFactory::_createWaypoint(DatabaseResult* result)
 
 void WaypointFactory::_setupDatabindings()
 {
-    mWaypointBinding = mDatabase->CreateDataBinding(9);
+    mWaypointBinding = mDatabase->createDataBinding(9);
     mWaypointBinding->addField(DFT_uint64,offsetof(WaypointObject,mId),8,0);
     mWaypointBinding->addField(DFT_uint64,offsetof(WaypointObject,mParentId),8,1);
     mWaypointBinding->addField(DFT_float,offsetof(WaypointObject,mCoords.x),4,2);
@@ -140,7 +140,7 @@ void WaypointFactory::_setupDatabindings()
 
 void WaypointFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mWaypointBinding);
+    mDatabase->destroyDataBinding(mWaypointBinding);
 }
 
 //=============================================================================

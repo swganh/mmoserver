@@ -115,11 +115,11 @@ MissionManager::MissionManager(Database* database, uint32 zone) :
     
     MissionManagerAsyncContainer* asyncContainer;
     asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Types, 0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT id, type, content, name FROM swganh.mission_types");
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT id, type, content, name FROM swganh.mission_types");
  
 
     asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names, 0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT name FROM swganh.mission_names WHERE planet = %u", zone);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT name FROM swganh.mission_names WHERE planet = %u", zone);
  
 
 }
@@ -160,7 +160,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     {
         // m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')", zone);
 
-        DataBinding* binding = mDatabase->CreateDataBinding(3);
+        DataBinding* binding = mDatabase->createDataBinding(3);
         binding->addField(DFT_uint32,offsetof(Mission_Names,type),4,0);
         binding->addField(DFT_bstring,offsetof(Mission_Names,mission_name),64,1);
         binding->addField(DFT_bstring,offsetof(Mission_Names,name),64,2);
@@ -174,7 +174,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         for(uint64 i = 0; i < count; i++)
         {
             names = new(Mission_Names);
-            result->GetNextRow(binding,names);
+            result->getNextRow(binding,names);
 
             if(names->name.getLength() > 2)
             {
@@ -202,7 +202,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
     case MissionQuery_Load_Names:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_bstring,offsetof(Mission_Names,name),64,0);
 
 
@@ -213,7 +213,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         for(uint64 i = 0; i < count; i++)
         {
             names = new(Mission_Names);
-            result->GetNextRow(binding,names);
+            result->getNextRow(binding,names);
             names->id = static_cast<uint32>(i);
             mNameMap.insert(std::make_pair(static_cast<uint32>(i),names));
         }
@@ -229,7 +229,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     {
         //these is the list of the stf files together with the amount of entries they have
 
-        DataBinding* binding = mDatabase->CreateDataBinding(4);
+        DataBinding* binding = mDatabase->createDataBinding(4);
         binding->addField(DFT_uint32,offsetof(Mission_Types,id),4,0);
         binding->addField(DFT_bstring,offsetof(Mission_Types,stf),128,1);
         binding->addField(DFT_uint32,offsetof(Mission_Types,content),4,2);
@@ -242,15 +242,15 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         for(uint64 i = 0; i < count; i++)
         {
             mission = new(Mission_Types);
-            result->GetNextRow(binding,mission);
+            result->getNextRow(binding,mission);
             mMissionMap.insert(std::make_pair(static_cast<uint32>(mission->id),mission));
         }
 
         MissionManagerAsyncContainer*  asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Terminal_Type, 0);
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT mtmt.id, mtmt.terminal, mtmt.mission_type,mt.content, mt.name FROM swganh.mission_terminal_mission_types mtmt INNER JOIN swganh.mission_types mt ON (mt.id = mtmt.mission_type)");
+        mDatabase->executeSqlAsync(this,asyncContainer,"SELECT mtmt.id, mtmt.terminal, mtmt.mission_type,mt.content, mt.name FROM swganh.mission_terminal_mission_types mtmt INNER JOIN swganh.mission_types mt ON (mt.id = mtmt.mission_type)");
 
         asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names_File, 0);
-        mDatabase->ExecuteSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
+        mDatabase->executeSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
 
         if(result->getRowCount())
             DLOG(WARNING) << "Loaded mission types.";
@@ -261,7 +261,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     case MissionQuery_Load_Terminal_Type:
     {
         //this links the stffiles for missions to the respective missionterminals
-        DataBinding* binding = mDatabase->CreateDataBinding(5);
+        DataBinding* binding = mDatabase->createDataBinding(5);
         binding->addField(DFT_uint32,offsetof(Terminal_Mission_Link,id),4,0);
         binding->addField(DFT_uint64,offsetof(Terminal_Mission_Link,terminal),8,1);
         binding->addField(DFT_uint32,offsetof(Terminal_Mission_Link,mission_type),4,2);
@@ -275,7 +275,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         for(uint64 i = 0; i < count; i++)
         {
             terminalMissionLink = new(Terminal_Mission_Link);
-            result->GetNextRow(binding,terminalMissionLink);
+            result->getNextRow(binding,terminalMissionLink);
 
             MissionMap::iterator it = mMissionMap.find(terminalMissionLink->mission_type);
 

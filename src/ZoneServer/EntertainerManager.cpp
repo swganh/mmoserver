@@ -81,17 +81,17 @@ EntertainerManager::EntertainerManager(Database* database,MessageDispatch* dispa
 
     // load our performance Data
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadPerformances, 0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT performanceName,	instrumentAudioId, InstrumenType ,danceVisualId,	actionPointPerLoop,	loopDuration,	florushXpMod,	healMindWound,	healShockWound,	MusicVisualId FROM swganh.entertainer_performances");
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT performanceName,	instrumentAudioId, InstrumenType ,danceVisualId,	actionPointPerLoop,	loopDuration,	florushXpMod,	healMindWound,	healShockWound,	MusicVisualId FROM swganh.entertainer_performances");
   
 
     // load our attribute data for ID
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadIDAttributes, 0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT CustomizationCRC, SpeciesCRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, XP, Hair, divider FROM swganh.id_attributes");
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT CustomizationCRC, SpeciesCRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, XP, Hair, divider FROM swganh.id_attributes");
   
 
     // load our holoemote Data
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadHoloEmotes, 0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT crc, effect_id, name FROM swganh.holoemote");
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT crc, effect_id, name FROM swganh.holoemote");
   
 }
 
@@ -240,7 +240,7 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
     {
         EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_DenyServiceListNames,0);
         asyncContainer->performer = entertainer;
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+        mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
 
         //gUIManager->createNewOutcastSelectBox(entertainer,"handleselectoutcast","select whom to delete from your deny service list","",availableOutCasts,entertainer,SUI_LB_OK);
@@ -294,7 +294,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
         
 
         EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+        mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
         return;
     }
@@ -316,7 +316,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
     sprintf(sql,"INSERT INTO entertainer_deny_service VALUES(%"PRIu64",%"PRIu64")",entertainer->getId(),outCastId);
 
     EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
 
 }
@@ -347,7 +347,7 @@ bool	EntertainerManager::checkDenyServiceList(PlayerObject* audience, PlayerObje
 void EntertainerManager::verifyOutcastName(PlayerObject* entertainer,BString outCastName)
 {
     int8 sql[256], name[50];
-    mDatabase->Escape_String(name,outCastName.getAnsi(),outCastName.getLength());
+    mDatabase->escapeString(name,outCastName.getAnsi(),outCastName.getLength());
 
     //we'll need the id only
     sprintf(sql,"SELECT id FROM swganh.characters c WHERE c.firstname = '%s'",name);
@@ -357,7 +357,7 @@ void EntertainerManager::verifyOutcastName(PlayerObject* entertainer,BString out
     asyncContainer->performer = entertainer;
     asyncContainer->outCastName = outCastName;
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
 
 }
@@ -477,9 +477,9 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
     case EMQuery_IDFinances:
     {
         uint32 error;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
-        result->GetNextRow(binding,&error);
+        result->getNextRow(binding,&error);
         if (error == 0)
         {
             //proceed as normal our transaction has been a success
@@ -503,7 +503,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
     {
         HoloStruct* holo;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(3);
+        DataBinding* binding = mDatabase->createDataBinding(3);
         binding->addField(DFT_uint32,offsetof(HoloStruct,pCRC),4,0);
         binding->addField(DFT_uint32,offsetof(HoloStruct,pId),4,1);
         binding->addField(DFT_string,offsetof(HoloStruct,pEmoteName),32,2);
@@ -514,7 +514,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         for(uint64 i = 0; i < count; i++)
         {
             holo = new(HoloStruct);
-            result->GetNextRow(binding,holo);
+            result->getNextRow(binding,holo);
             mHoloList.push_back(holo);
             BString emote("holoemote_");
             emote << holo->pEmoteName;
@@ -534,7 +534,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         int8 sql[1024];
         StatTargets theTargets;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(9);
+        DataBinding* binding = mDatabase->createDataBinding(9);
         binding->addField(DFT_uint32,offsetof(StatTargets,TargetHealth),4,0);
         binding->addField(DFT_uint32,offsetof(StatTargets,TargetStrength),4,1);
         binding->addField(DFT_uint32,offsetof(StatTargets,TargetConstitution),4,2);
@@ -555,7 +555,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         {
 
             //stats set update ham plus check
-            result->GetNextRow(binding,&theTargets);
+            result->getNextRow(binding,&theTargets);
             Ham* pHam = asynContainer->customer->getHam();
             uint32 currentAmount = pHam->getTotalHamCount();
 
@@ -609,11 +609,11 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
                 asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
                 sprintf(sql,"UPDATE swganh.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
-                mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+                mDatabase->executeSqlAsync(this,asyncContainer,sql);
                
                 asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
                 sprintf(sql,"UPDATE swganh.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
-                mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+                mDatabase->executeSqlAsync(this,asyncContainer,sql);
                
                 gSkillManager->addExperience(XpType_imagedesigner,2000,asynContainer->performer);
             }
@@ -626,7 +626,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
 
     }
@@ -635,9 +635,9 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
     case EMQuery_IDMoneyTransaction:
     {
         uint32 error;
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
-        result->GetNextRow(binding,&error);
+        result->getNextRow(binding,&error);
         if (error == 0)
         {
             if(asynContainer->customer != NULL && asynContainer->customer->getConnectionState() == PlayerConnState_Connected)
@@ -660,7 +660,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         BStringVector availableOutCasts;
 
         DataBinding* binding;
-        binding = mDatabase->CreateDataBinding(1);
+        binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_bstring,0,36);
         uint64 count;
         count = result->getRowCount();
@@ -668,7 +668,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         {
             for(uint64 i = 0; i < count; i++)
             {
-                result->GetNextRow(binding,&outCast);
+                result->getNextRow(binding,&outCast);
                 availableOutCasts.push_back(outCast);
             }
 
@@ -682,16 +682,16 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         outCastId = 0;
 
         DataBinding* binding;
-        binding = mDatabase->CreateDataBinding(1);
+        binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint64,0,8);
         uint64 count;
         count = result->getRowCount();
         if (count == 1)
         {
-            result->GetNextRow(binding,&outCastId);
+            result->getNextRow(binding,&outCastId);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         PlayerObject* entertainer = asynContainer->performer;
         //is it valid?
@@ -717,7 +717,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
     {
 
         DataBinding* binding;
-        binding = mDatabase->CreateDataBinding(9);
+        binding = mDatabase->createDataBinding(9);
         binding->addField(DFT_uint32,offsetof(IDStruct,CustomizationCRC),4,0);
         binding->addField(DFT_uint32,offsetof(IDStruct,SpeciesCRC),4,1);
         binding->addField(DFT_uint32,offsetof(IDStruct,Atr1ID),4,2);
@@ -733,7 +733,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         for(uint64 i = 0; i < count; i++)
         {
             IDStruct* idData = new(IDStruct);
-            result->GetNextRow(binding,idData);
+            result->getNextRow(binding,idData);
             mIDList.push_back(idData);
         }
 
@@ -745,7 +745,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
     case EMQuery_LoadPerformances:
     {
         DataBinding* binding;
-        binding = mDatabase->CreateDataBinding(10);
+        binding = mDatabase->createDataBinding(10);
         binding->addField(DFT_string,offsetof(PerformanceStruct,performanceName),32,0);
         binding->addField(DFT_uint32,offsetof(PerformanceStruct,instrumentAudioId),4,1);
         binding->addField(DFT_uint32,offsetof(PerformanceStruct,requiredInstrument),4,2);
@@ -763,7 +763,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         for(uint64 i = 0; i < count; i++)
         {
             PerformanceStruct* mPerformanceData = new(PerformanceStruct);
-            result->GetNextRow(binding,mPerformanceData);
+            result->getNextRow(binding,mPerformanceData);
             mPerformanceList.push_back(mPerformanceData);
 
         }

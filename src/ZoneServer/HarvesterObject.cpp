@@ -324,7 +324,7 @@ void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player
 
                     gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
-                    gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
+                    gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
                     
                 }
             }
@@ -362,7 +362,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
         HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
 
-        DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(1);
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint64 count;
@@ -375,7 +375,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             return;
         }
 
-        result->GetNextRow(binding,&error);
+        result->getNextRow(binding,&error);
         if(error > 0)
         {
             //mmh there was something fishy ... no changes db side
@@ -391,7 +391,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         asyncContainer->mPlayerId		= asynContainer->mPlayerId;
         asyncContainer->command			= asynContainer->command;
 
-        gWorldManager->getDatabase()->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ", harvester->getId());
+        gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ", harvester->getId());
         
 
     }
@@ -402,7 +402,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
         HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
 
-        DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(1);
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint64 count;
@@ -415,7 +415,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             return;
         }
 
-        result->GetNextRow(binding,&error);
+        result->getNextRow(binding,&error);
         if(result > 0)
         {
             //mmh there was something fishy ... no changes db side
@@ -428,7 +428,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         asyncContainer->mPlayerId		= asynContainer->mPlayerId;
         asyncContainer->command			= asyncContainer->command;
 
-        gWorldManager->getDatabase()->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         
     }
     break;
@@ -440,7 +440,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 
-        DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(2);
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(2);
         binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
         binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
 
@@ -451,7 +451,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         HarvesterHopperItem hopperTemp;
         for(uint64 i=0; i <count; i++)
         {
-            result->GetNextRow(binding,&hopperTemp);
+            result->getNextRow(binding,&hopperTemp);
             hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
         }
 
@@ -460,7 +460,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
         gMessageLib->sendResourceEmptyHopperResponse(harvester,player,0, asynContainer->command.b2, asynContainer->command.b2);
 
-        gWorldManager->getDatabase()->DestroyDataBinding(binding);
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
 
     }
     break;
@@ -472,7 +472,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 
-        DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(2);
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(2);
         binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
         binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
 
@@ -483,7 +483,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         HarvesterHopperItem hopperTemp;
         for(uint64 i=0; i <count; i++)
         {
-            result->GetNextRow(binding,&hopperTemp);
+            result->getNextRow(binding,&hopperTemp);
             hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
         }
 
@@ -491,7 +491,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         gMessageLib->sendHarvesterResourceData(harvester,player);
         gMessageLib->sendBaselinesHINO_7(harvester,player);
 
-        gWorldManager->getDatabase()->DestroyDataBinding(binding);
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
 
     }
     break;
@@ -504,7 +504,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 
-        DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(2);
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(2);
         binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
         binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
 
@@ -515,14 +515,14 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         HarvesterHopperItem hopperTemp;
         for(uint64 i=0; i <count; i++)
         {
-            result->GetNextRow(binding,&hopperTemp);
+            result->getNextRow(binding,&hopperTemp);
             hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
         }
 
         //now send the update to the client
         gMessageLib->SendHarvesterHopperUpdate(harvester,player);
 
-        gWorldManager->getDatabase()->DestroyDataBinding(binding);
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
     }
     break;
 
@@ -544,7 +544,7 @@ void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         int8 sql[250];
         sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",this->getId());
 
-        gWorldManager->getDatabase()->ExecuteSqlAsync(this,asyncContainer,sql);
+        gWorldManager->getDatabase()->executeSqlAsync(this,asyncContainer,sql);
         
 
     }

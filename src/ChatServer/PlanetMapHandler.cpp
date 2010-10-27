@@ -53,7 +53,7 @@ PlanetMapHandler::PlanetMapHandler(Database* database, MessageDispatch* dispatch
 
 
     // We're going to build our databinding here.
-    mDataBinding = mDatabase->CreateDataBinding(7);
+    mDataBinding = mDatabase->createDataBinding(7);
     mDataBinding->addField(DFT_int64, offsetof(MapLocation, mId), 8);
     mDataBinding->addField(DFT_string, offsetof(MapLocation, mName), 64);
     mDataBinding->addField(DFT_float, offsetof(MapLocation, mX), 4);
@@ -69,7 +69,7 @@ PlanetMapHandler::PlanetMapHandler(Database* database, MessageDispatch* dispatch
 PlanetMapHandler::~PlanetMapHandler()
 {
     // Destroy our DataBinding object
-    mDatabase->DestroyDataBinding(mDataBinding);
+    mDatabase->destroyDataBinding(mDataBinding);
 
     // Unregister our message callbacks
     mMessageDispatch->UnregisterMessageCallback(opGetMapLocationsMessage);
@@ -117,7 +117,7 @@ void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
     for (uint32 i = 0; i < locationsCount; i++)
     {
-        result->GetNextRow(mDataBinding, (void*)&location);
+        result->getNextRow(mDataBinding, (void*)&location);
 
         gMessageFactory->addUint64(location.mId);
 
@@ -161,7 +161,7 @@ void PlanetMapHandler::_processMapLocationsRequest(Message* message, DispatchCli
     message->getStringAnsi(container->mPlanetName);
 
     // Send our job in.
-    mDatabase->ExecuteProcedureAsync(this, (void*)container, "CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi());
+    mDatabase->executeProcedureAsync(this, (void*)container, "CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi());
     
 }
 

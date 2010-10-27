@@ -82,22 +82,22 @@ public:
     */
     void executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback);
 
-    void Process();
+    void process();
     
-    DatabaseResult* ExecuteSynchSql(const char* sql, ...);
+    DatabaseResult* executeSynchSql(const char* sql, ...);
 
-    void ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
-    void ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const char* sql);
+    void executeSqlAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
+    void executeSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const char* sql);
 
-    DatabaseResult* ExecuteProcedure(const char* sql, ...);
-    void ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
+    DatabaseResult* executeProcedure(const char* sql, ...);
+    void executeProcedureAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
 
-    uint32_t Escape_String(char* target, const char* source, uint32_t length);
+    uint32_t escapeString(char* target, const char* source, uint32_t length);
 
-    void DestroyResult(DatabaseResult* result);
+    void destroyResult(DatabaseResult* result);
 
-    DataBinding* CreateDataBinding(uint16_t fieldCount);
-    void DestroyDataBinding(DataBinding* binding);
+    DataBinding* createDataBinding(uint16_t fieldCount);
+    void destroyDataBinding(DataBinding* binding);
 
     Transaction* startTransaction(DatabaseCallback* callback, void* ref);
     void destroyTransaction(Transaction* t);
@@ -112,7 +112,7 @@ private:
     // single overloaded constructor.
     Database();
 
-    DatabaseResult* ExecuteSql(const char* sql, ...);
+    DatabaseResult* executeSql(const char* sql, ...);
     
     void pushDatabaseJobComplete(DatabaseJob* job);
 

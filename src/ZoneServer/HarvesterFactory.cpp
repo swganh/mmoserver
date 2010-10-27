@@ -96,7 +96,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         if(count)
         {
-            DataBinding* binding = mDatabase->CreateDataBinding(2);
+            DataBinding* binding = mDatabase->createDataBinding(2);
             binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
             binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
 
@@ -106,7 +106,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             HarvesterHopperItem hopperTemp;
             for(uint64 i=0; i <count; i++)
             {
-                result->GetNextRow(binding,&hopperTemp);
+                result->getNextRow(binding,&hopperTemp);
                 hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
             }
 
@@ -116,7 +116,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         asynContainer->mId		= harvester->getId();
         asynContainer->mObject	= harvester;
 
-        mDatabase->ExecuteSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
+        mDatabase->executeSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
                                    " FROM structure_attributes sa"
                                    " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
                                    " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",harvester->getId());
@@ -136,7 +136,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         for(uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(mAttributeBinding,(void*)&attribute);
+            result->getNextRow(mAttributeBinding,(void*)&attribute);
             harvester->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
         }
 
@@ -164,7 +164,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         int8 sql[250];
         sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-        mDatabase->ExecuteSqlAsync(this,asynContainer,sql);
+        mDatabase->executeSqlAsync(this,asynContainer,sql);
      
 
     }
@@ -188,7 +188,7 @@ void HarvesterFactory::_createHarvester(DatabaseResult* result, HarvesterObject*
        	return;
     }
 
-    result->GetNextRow(mHarvesterBinding,harvester);
+    result->getNextRow(mHarvesterBinding,harvester);
 
     harvester->setLoadState(LoadState_Loaded);
     harvester->setType(ObjType_Structure);
@@ -207,7 +207,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
             "WHERE (s.id = %"PRIu64")",id);
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);
 
-    mDatabase->ExecuteSqlAsync(this,asynContainer,sql2);
+    mDatabase->executeSqlAsync(this,asynContainer,sql2);
     
 }
 
@@ -216,7 +216,7 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
 void HarvesterFactory::_setupDatabindings()
 {
-    mHarvesterBinding = mDatabase->CreateDataBinding(24);
+    mHarvesterBinding = mDatabase->createDataBinding(24);
     mHarvesterBinding->addField(DFT_uint64,offsetof(HarvesterObject,mId),8,0);
     mHarvesterBinding->addField(DFT_uint64,offsetof(HarvesterObject,mOwner),8,1);
     mHarvesterBinding->addField(DFT_float,offsetof(HarvesterObject,mDirection.x),4,2);
@@ -250,7 +250,7 @@ void HarvesterFactory::_setupDatabindings()
 
 void HarvesterFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mHarvesterBinding);
+    mDatabase->destroyDataBinding(mHarvesterBinding);
 
 }
 

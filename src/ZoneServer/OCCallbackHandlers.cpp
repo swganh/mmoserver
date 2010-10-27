@@ -58,7 +58,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         StatTargets theTargets;
 
-        DataBinding* binding = mDatabase->CreateDataBinding(9);
+        DataBinding* binding = mDatabase->createDataBinding(9);
         binding->addField(DFT_uint32,offsetof(StatTargets,TargetHealth),4,0);
         binding->addField(DFT_uint32,offsetof(StatTargets,TargetStrength),4,1);
         binding->addField(DFT_uint32,offsetof(StatTargets,TargetConstitution),4,2);
@@ -88,7 +88,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         }
         else
         {
-            result->GetNextRow(binding,&theTargets);
+            result->getNextRow(binding,&theTargets);
             ourHam->setTargetStatValue(HamBar_Health,theTargets.TargetHealth);
             ourHam->setTargetStatValue(HamBar_Strength,theTargets.TargetStrength);
             ourHam->setTargetStatValue(HamBar_Constitution,theTargets.TargetConstitution);
@@ -102,22 +102,22 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             ourHam->setTargetStatValue(HamBar_Willpower,theTargets.TargetWillpower);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         gMessageLib->sendStatMigrationStartMessage(asyncContainer->playerObject);
     }
     break;
 
     case OCQuery_FindFriend:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint64,0,8);
 
         uint64	ret		= 0;
         uint64	count	= result->getRowCount();
 
-        result->GetNextRow(binding,&ret);
+        result->getNextRow(binding,&ret);
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
         if(count == 0)
             ret = 0;
 
@@ -128,15 +128,15 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
     case OCQuery_AddFriend:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint32	ret		= 0;
         //uint64	count	= result->getRowCount();
 
-        result->GetNextRow(binding,&ret);
+        result->getNextRow(binding,&ret);
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         _handleAddFriendDBReply(ret,asyncContainer->mString);
     }
@@ -144,15 +144,15 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
     case OCQuery_RemoveFriend:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint32	ret		= 0;
         //uint64	count	= result->getRowCount();
 
-        result->GetNextRow(binding,&ret);
+        result->getNextRow(binding,&ret);
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         _handleRemoveFriendDBReply(ret,asyncContainer->mString);
     }
@@ -160,15 +160,15 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
     case OCQuery_AddIgnore:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint32	ret		= 0;
         //uint64	count	= result->getRowCount();
 
-        result->GetNextRow(binding,&ret);
+        result->getNextRow(binding,&ret);
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         _handleAddIgnoreDBReply(ret,asyncContainer->mString);
     }
@@ -176,15 +176,15 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
     case OCQuery_RemoveIgnore:
     {
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint32	ret		= 0;
         //uint64	count	= result->getRowCount();
 
-        result->GetNextRow(binding,&ret);
+        result->getNextRow(binding,&ret);
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         _handleRemoveIgnoreDBReply(ret,asyncContainer->mString);
     }
@@ -199,7 +199,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         	break;
         }
 
-        DataBinding* binding = mDatabase->CreateDataBinding(9);
+        DataBinding* binding = mDatabase->createDataBinding(9);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mWounds),4,0);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mWounds),4,1);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mWounds),4,2);
@@ -210,7 +210,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mWounds),4,7);
         binding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,8);
 
-        result->GetNextRow(binding,asyncContainer->playerObject);
+        result->getNextRow(binding,asyncContainer->playerObject);
 
         // Update HAM
         // asyncContainer->playerObject->getHam()->calcAllModifiedHitPoints();
@@ -223,7 +223,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             asyncContainer->playerObject->clone(sp->mCellId,sp->mDirection,sp->mPosition,true);
         }
 
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
     }
     break;
 

@@ -162,7 +162,7 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
     {
     case WMLogOut_LogOut:
     case WMLogOut_Char_Load:
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+        mDatabase->executeSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
                                    ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
                                    ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
                                    ,mZoneId,playerObject->getJediState(),playerObject->getId());
@@ -179,7 +179,7 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
             if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
             {
                 // position save will be called by the buff callback if there is any buff
-                mDatabase->ExecuteSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+                mDatabase->executeSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
                                            ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
                                            ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
                                            ,mZoneId,playerObject->getJediState(),playerObject->getId());
@@ -200,13 +200,13 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
     PlayerObject* playerObject = getPlayerByAccId(accId);
     Ham* ham = playerObject->getHam();
 
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",playerObject->getParentId()
                              ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
                              ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
                              ,mZoneId,playerObject->getId()));
    
 
-    mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
                              ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
                              ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
                              ",character_flags=%u,states=%"PRIu64",language=%u, group_id=%"PRIu64" WHERE character_id=%"PRIu64"",

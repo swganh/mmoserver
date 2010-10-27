@@ -109,7 +109,7 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
                     QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,TFQuery_ElevatorData,asyncContainer->mClient);
                     asContainer->mObject = elTerminal;
 
-                    mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction", elTerminal->getId());
+                    mDatabase->executeSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction", elTerminal->getId());
                     
                 }
                 break;
@@ -136,10 +136,10 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
         // we order by direction in select, though up is first
         if(terminal->mTanType == TanType_ElevatorUpTerminal || terminal->mTanType == TanType_ElevatorTerminal)
-            result->GetNextRow(mElevetorDataUpBinding, (void*)terminal);
+            result->getNextRow(mElevetorDataUpBinding, (void*)terminal);
 
         if(terminal->mTanType == TanType_ElevatorDownTerminal || terminal->mTanType == TanType_ElevatorTerminal)
-            result->GetNextRow(mElevetorDataDownBinding, (void*)terminal);
+            result->getNextRow(mElevetorDataDownBinding, (void*)terminal);
 
         terminal->setLoadState(LoadState_Loaded);
 
@@ -158,7 +158,7 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 void TerminalFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,TFQuery_MainData,client),
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,TFQuery_MainData,client),
                                "SELECT terminals.id, terminals.parent_id, terminals.oX, terminals.oY, terminals.oZ,terminals.oW,terminals.x,"
                                "terminals.y,terminals.z,terminals.terminal_type,terminal_types.object_string,terminal_types.name,terminal_types.file,"
                                "terminals.dataStr,terminals.dataInt1,terminals.customName"
@@ -178,13 +178,13 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
     Terminal*		terminal(0);
     TangibleType	tanType;
 
-    DataBinding* typeBinding = mDatabase->CreateDataBinding(1);
+    DataBinding* typeBinding = mDatabase->createDataBinding(1);
     typeBinding->addField(DFT_uint32, 0, 4, 9);
 
-    result->GetNextRow(typeBinding, &tanType);
-    result->ResetRowIndex();
+    result->getNextRow(typeBinding, &tanType);
+    result->resetRowIndex();
 
-    mDatabase->DestroyDataBinding(typeBinding);
+    mDatabase->destroyDataBinding(typeBinding);
 
     switch(tanType)
     {
@@ -228,7 +228,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminal = new Terminal();
         terminal->setTangibleType(tanType);
 
-        DataBinding* terminalBinding = mDatabase->CreateDataBinding(14);
+        DataBinding* terminalBinding = mDatabase->createDataBinding(14);
         terminalBinding->addField(DFT_uint64,offsetof(Terminal,mId),8,0);
         terminalBinding->addField(DFT_uint64,offsetof(Terminal,mParentId),8,1);
         terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.x),4,2);
@@ -244,9 +244,9 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminalBinding->addField(DFT_bstring,offsetof(Terminal,mNameFile),64,12);
         terminalBinding->addField(DFT_bstring,offsetof(Terminal,mCustomName),256,15);
 
-        result->GetNextRow(terminalBinding,(void*)terminal);
+        result->getNextRow(terminalBinding,(void*)terminal);
 
-        mDatabase->DestroyDataBinding(terminalBinding);
+        mDatabase->destroyDataBinding(terminalBinding);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -257,7 +257,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminal = new PlayerStructureTerminal();
         terminal->setTangibleType(tanType);
 
-        DataBinding* terminalBinding = mDatabase->CreateDataBinding(14);
+        DataBinding* terminalBinding = mDatabase->createDataBinding(14);
         terminalBinding->addField(DFT_uint64,offsetof(Terminal,mId),8,0);
         terminalBinding->addField(DFT_uint64,offsetof(Terminal,mParentId),8,1);
         terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.x),4,2);
@@ -273,9 +273,9 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminalBinding->addField(DFT_bstring,offsetof(Terminal,mNameFile),64,12);
         terminalBinding->addField(DFT_bstring,offsetof(Terminal,mCustomName),256,15);
 
-        result->GetNextRow(terminalBinding,(void*)terminal);
+        result->getNextRow(terminalBinding,(void*)terminal);
 
-        mDatabase->DestroyDataBinding(terminalBinding);
+        mDatabase->destroyDataBinding(terminalBinding);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -285,7 +285,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
     {
         terminal = new BankTerminal();
         terminal->setTangibleType(tanType);
-        result->GetNextRow(mBankMainDataBinding,(void*)terminal);
+        result->getNextRow(mBankMainDataBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
 
     }
@@ -295,7 +295,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
     {
         terminal = new CharacterBuilderTerminal();
         terminal->setTangibleType(tanType);
-        result->GetNextRow(mCharacterBuilderMainDataBinding,(void*)terminal);
+        result->getNextRow(mCharacterBuilderMainDataBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
     }
     break;
@@ -304,7 +304,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
     {
         terminal = new BazaarTerminal();
         terminal->setTangibleType(tanType);
-        result->GetNextRow(mBazaarMainDataBinding,(void*)terminal);
+        result->getNextRow(mBazaarMainDataBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
     }
     break;
@@ -313,7 +313,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
     {
         terminal = new CloningTerminal();
         terminal->setTangibleType(tanType);
-        result->GetNextRow(mCloningMainDataBinding,(void*)terminal);
+        result->getNextRow(mCloningMainDataBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
     }
     break;
@@ -322,7 +322,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
     {
         terminal = new InsuranceTerminal();
         terminal->setTangibleType(tanType);
-        result->GetNextRow(mInsuranceMainDataBinding,(void*)terminal);
+        result->getNextRow(mInsuranceMainDataBinding,(void*)terminal);
         terminal->setLoadState(LoadState_Loaded);
     }
     break;
@@ -340,7 +340,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminal = new MissionTerminal();
         terminal->setTangibleType(tanType);
 
-        result->GetNextRow(mMissionMainDataBinding,(void*)terminal);
+        result->getNextRow(mMissionMainDataBinding,(void*)terminal);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -351,7 +351,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminal = new TravelTerminal();
         terminal->setTangibleType(tanType);
 
-        result->GetNextRow(mTravelMainDataBinding,(void*)terminal);
+        result->getNextRow(mTravelMainDataBinding,(void*)terminal);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -364,7 +364,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminal = new ElevatorTerminal();
         terminal->setTangibleType(tanType);
 
-        result->GetNextRow(mElevatorMainDataBinding,(void*)terminal);
+        result->getNextRow(mElevatorMainDataBinding,(void*)terminal);
 
         //((ElevatorTerminal*)(terminal))->prepareRadialMenu();
         terminal->setLoadState(LoadState_Tangible_Data);
@@ -378,7 +378,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminal = new Terminal();
         terminal->setTangibleType(tanType);
 
-        DataBinding* terminalBinding = mDatabase->CreateDataBinding(14);
+        DataBinding* terminalBinding = mDatabase->createDataBinding(14);
         terminalBinding->addField(DFT_uint64,offsetof(Terminal,mId),8,0);
         terminalBinding->addField(DFT_uint64,offsetof(Terminal,mParentId),8,1);
         terminalBinding->addField(DFT_float,offsetof(Terminal,mDirection.x),4,2);
@@ -394,9 +394,9 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
         terminalBinding->addField(DFT_bstring,offsetof(Terminal,mNameFile),64,12);
         terminalBinding->addField(DFT_bstring,offsetof(Terminal,mCustomName),256,15);
 
-        result->GetNextRow(terminalBinding,(void*)terminal);
+        result->getNextRow(terminalBinding,(void*)terminal);
 
-        mDatabase->DestroyDataBinding(terminalBinding);
+        mDatabase->destroyDataBinding(terminalBinding);
 
         terminal->setLoadState(LoadState_Loaded);
     }
@@ -413,7 +413,7 @@ Terminal* TerminalFactory::_createTerminal(DatabaseResult* result)
 void TerminalFactory::_setupDatabindings()
 {
     // mission terminal
-    mMissionMainDataBinding = mDatabase->CreateDataBinding(13);
+    mMissionMainDataBinding = mDatabase->createDataBinding(13);
     mMissionMainDataBinding->addField(DFT_uint64,offsetof(MissionTerminal,mId),8,0);
     mMissionMainDataBinding->addField(DFT_uint64,offsetof(MissionTerminal,mParentId),8,1);
     mMissionMainDataBinding->addField(DFT_bstring,offsetof(MissionTerminal,mModel),256,10);
@@ -429,7 +429,7 @@ void TerminalFactory::_setupDatabindings()
     mMissionMainDataBinding->addField(DFT_float,offsetof(MissionTerminal,mPosition.z),4,8);
 
     // bazaar terminal
-    mBazaarMainDataBinding = mDatabase->CreateDataBinding(13);
+    mBazaarMainDataBinding = mDatabase->createDataBinding(13);
     mBazaarMainDataBinding->addField(DFT_uint64,offsetof(BazaarTerminal,mId),8,0);
     mBazaarMainDataBinding->addField(DFT_uint64,offsetof(BazaarTerminal,mParentId),8,1);
     mBazaarMainDataBinding->addField(DFT_bstring,offsetof(BazaarTerminal,mModel),256,10);
@@ -445,7 +445,7 @@ void TerminalFactory::_setupDatabindings()
     mBazaarMainDataBinding->addField(DFT_float,offsetof(BazaarTerminal,mPosition.z),4,8);
 
     // cloning terminal
-    mCloningMainDataBinding = mDatabase->CreateDataBinding(13);
+    mCloningMainDataBinding = mDatabase->createDataBinding(13);
     mCloningMainDataBinding->addField(DFT_uint64,offsetof(CloningTerminal,mId),8,0);
     mCloningMainDataBinding->addField(DFT_uint64,offsetof(CloningTerminal,mParentId),8,1);
     mCloningMainDataBinding->addField(DFT_bstring,offsetof(CloningTerminal,mModel),256,10);
@@ -461,7 +461,7 @@ void TerminalFactory::_setupDatabindings()
     mCloningMainDataBinding->addField(DFT_float,offsetof(CloningTerminal,mPosition.z),4,8);
 
     // insurance terminal
-    mInsuranceMainDataBinding = mDatabase->CreateDataBinding(13);
+    mInsuranceMainDataBinding = mDatabase->createDataBinding(13);
     mInsuranceMainDataBinding->addField(DFT_uint64,offsetof(InsuranceTerminal,mId),8,0);
     mInsuranceMainDataBinding->addField(DFT_uint64,offsetof(InsuranceTerminal,mParentId),8,1);
     mInsuranceMainDataBinding->addField(DFT_bstring,offsetof(InsuranceTerminal,mModel),256,10);
@@ -477,7 +477,7 @@ void TerminalFactory::_setupDatabindings()
     mInsuranceMainDataBinding->addField(DFT_float,offsetof(InsuranceTerminal,mPosition.z),4,8);
 
     // character builder terminal
-    mCharacterBuilderMainDataBinding = mDatabase->CreateDataBinding(13);
+    mCharacterBuilderMainDataBinding = mDatabase->createDataBinding(13);
     mCharacterBuilderMainDataBinding->addField(DFT_uint64,offsetof(CharacterBuilderTerminal,mId),8,0);
     mCharacterBuilderMainDataBinding->addField(DFT_uint64,offsetof(CharacterBuilderTerminal,mParentId),8,1);
     mCharacterBuilderMainDataBinding->addField(DFT_bstring,offsetof(CharacterBuilderTerminal,mModel),256,10);
@@ -493,7 +493,7 @@ void TerminalFactory::_setupDatabindings()
     mCharacterBuilderMainDataBinding->addField(DFT_float,offsetof(CharacterBuilderTerminal,mPosition.z),4,8);
 
     // travel terminal
-    mTravelMainDataBinding = mDatabase->CreateDataBinding(15);
+    mTravelMainDataBinding = mDatabase->createDataBinding(15);
     mTravelMainDataBinding->addField(DFT_uint64,offsetof(TravelTerminal,mId),8,0);
     mTravelMainDataBinding->addField(DFT_uint64,offsetof(TravelTerminal,mParentId),8,1);
     mTravelMainDataBinding->addField(DFT_bstring,offsetof(TravelTerminal,mModel),256,10);
@@ -512,7 +512,7 @@ void TerminalFactory::_setupDatabindings()
 
 
     // bank terminal
-    mBankMainDataBinding = mDatabase->CreateDataBinding(13);
+    mBankMainDataBinding = mDatabase->createDataBinding(13);
     mBankMainDataBinding->addField(DFT_uint64,offsetof(BankTerminal,mId),8,0);
     mBankMainDataBinding->addField(DFT_uint64,offsetof(BankTerminal,mParentId),8,1);
     mBankMainDataBinding->addField(DFT_bstring,offsetof(BankTerminal,mModel),256,10);
@@ -528,7 +528,7 @@ void TerminalFactory::_setupDatabindings()
     mBankMainDataBinding->addField(DFT_float,offsetof(BankTerminal,mPosition.z),4,8);
 
     // elevator terminal main data
-    mElevatorMainDataBinding = mDatabase->CreateDataBinding(13);
+    mElevatorMainDataBinding = mDatabase->createDataBinding(13);
     mElevatorMainDataBinding->addField(DFT_uint64,offsetof(ElevatorTerminal,mId),8,0);
     mElevatorMainDataBinding->addField(DFT_uint64,offsetof(ElevatorTerminal,mParentId),8,1);
     mElevatorMainDataBinding->addField(DFT_bstring,offsetof(ElevatorTerminal,mModel),256,10);
@@ -544,7 +544,7 @@ void TerminalFactory::_setupDatabindings()
     mElevatorMainDataBinding->addField(DFT_float,offsetof(ElevatorTerminal,mPosition.z),4,8);
 
     // elevator terminal upper destination
-    mElevetorDataUpBinding = mDatabase->CreateDataBinding(9);
+    mElevetorDataUpBinding = mDatabase->createDataBinding(9);
     mElevetorDataUpBinding->addField(DFT_uint64,offsetof(ElevatorTerminal,mDstCellUp),8,1);
     mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.x),4,2);
     mElevetorDataUpBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirUp.y),4,3);
@@ -556,7 +556,7 @@ void TerminalFactory::_setupDatabindings()
     mElevetorDataUpBinding->addField(DFT_uint32,offsetof(ElevatorTerminal,mEffectUp),4,9);
 
     // elevator terminal lower destination
-    mElevetorDataDownBinding = mDatabase->CreateDataBinding(9);
+    mElevetorDataDownBinding = mDatabase->createDataBinding(9);
     mElevetorDataDownBinding->addField(DFT_uint64,offsetof(ElevatorTerminal,mDstCellDown),8,1);
     mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.x),4,2);
     mElevetorDataDownBinding->addField(DFT_float,offsetof(ElevatorTerminal,mDstDirDown.y),4,3);
@@ -572,16 +572,16 @@ void TerminalFactory::_setupDatabindings()
 
 void TerminalFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mBazaarMainDataBinding);
-    mDatabase->DestroyDataBinding(mCloningMainDataBinding);
-    mDatabase->DestroyDataBinding(mInsuranceMainDataBinding);
-    mDatabase->DestroyDataBinding(mMissionMainDataBinding);
-    mDatabase->DestroyDataBinding(mTravelMainDataBinding);
-    mDatabase->DestroyDataBinding(mBankMainDataBinding);
-    mDatabase->DestroyDataBinding(mCharacterBuilderMainDataBinding);
-    mDatabase->DestroyDataBinding(mElevatorMainDataBinding);
-    mDatabase->DestroyDataBinding(mElevetorDataUpBinding);
-    mDatabase->DestroyDataBinding(mElevetorDataDownBinding);
+    mDatabase->destroyDataBinding(mBazaarMainDataBinding);
+    mDatabase->destroyDataBinding(mCloningMainDataBinding);
+    mDatabase->destroyDataBinding(mInsuranceMainDataBinding);
+    mDatabase->destroyDataBinding(mMissionMainDataBinding);
+    mDatabase->destroyDataBinding(mTravelMainDataBinding);
+    mDatabase->destroyDataBinding(mBankMainDataBinding);
+    mDatabase->destroyDataBinding(mCharacterBuilderMainDataBinding);
+    mDatabase->destroyDataBinding(mElevatorMainDataBinding);
+    mDatabase->destroyDataBinding(mElevetorDataUpBinding);
+    mDatabase->destroyDataBinding(mElevetorDataDownBinding);
 }
 
 //=============================================================================

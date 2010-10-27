@@ -83,7 +83,7 @@ void LoginManager::Process(void)
     if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery) > 5000)
     {
         mLastStatusQuery = Anh_Utils::Clock::getSingleton()->getLocalTime();
-        mDatabase->ExecuteProcedureAsync(this, (void*)1, "CALL swganh.sp_ReturnGalaxyStatus;");
+        mDatabase->executeProcedureAsync(this, (void*)1, "CALL swganh.sp_ReturnGalaxyStatus;");
     }
 
     // Heartbeat once in awhile
@@ -114,7 +114,7 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
     LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
 
     // Client has disconnected.  Update the db to show they are no longer authenticated.
-    mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id=%u;", loginClient->getAccountId());
+    mDatabase->executeProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id=%u;", loginClient->getAccountId());
 
     LoginClientList::iterator iter = mLoginClientList.begin();
 
@@ -203,7 +203,7 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
         // Execute our query
         client->setState(LCSTATE_QueryCharacterList);
-        mDatabase->ExecuteProcedureAsync(this, ref, "CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId());
+        mDatabase->executeProcedureAsync(this, ref, "CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId());
        
         break;
     }
@@ -216,18 +216,18 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
     case LCSTATE_DeleteCharacter:
     {
         // TODO: check returncodes, when using sf
-        DataBinding* binding = mDatabase->CreateDataBinding(1);
+        DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint32,0,4);
 
         uint32 queryResult;
-        result->GetNextRow(binding,&queryResult);
+        result->getNextRow(binding,&queryResult);
 
         uint32 deleteFailed = 1;
         if (queryResult == 1)
         {
             deleteFailed = 0;
         }
-        mDatabase->DestroyDataBinding(binding);
+        mDatabase->destroyDataBinding(binding);
 
         _sendDeleteCharacterReply(deleteFailed,client);
 
@@ -283,7 +283,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
         // sprintf(sql,"SELECT account_id, account_username, account_password, account_station_id, account_banned, account_active,account_characters_allowed,"
         //"account_session_key, account_csr FROM account WHERE account_banned=0 AND account_authenticated=0 AND account_loggedin=0 AND account_session_key=' AND session_key='");
         sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
+        sqlPointer += mDatabase->escapeString(sqlPointer,password.getAnsi(),password.getLength());
         *sqlPointer++ = '\'';
         *sqlPointer++ = '\0';
     }
@@ -295,10 +295,10 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
         sprintf(sql,"CALL swganh.sp_ReturnUserAccount('");
 
         sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->Escape_String(sqlPointer,username.getAnsi(),username.getLength());
+        sqlPointer += mDatabase->escapeString(sqlPointer,username.getAnsi(),username.getLength());
         strcat(sql,"' , '");
         sqlPointer = sql + strlen(sql);
-        sqlPointer += mDatabase->Escape_String(sqlPointer,password.getAnsi(),password.getLength());
+        sqlPointer += mDatabase->escapeString(sqlPointer,password.getAnsi(),password.getLength());
         *sqlPointer++ = '\'';
         *sqlPointer++ = ')';
         *sqlPointer++ = '\0';
@@ -306,7 +306,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
 // Setup an async query for checking authentication.
     client->setState(LCSTATE_QueryAuth);
-    mDatabase->ExecuteProcedureAsync(this,client,sql);
+    mDatabase->executeProcedureAsync(this,client,sql);
     
 }
 
@@ -317,7 +317,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     
     // This DataBinding code I'm not sure where to put atm.  I've thought about a base class for any objects that want
     // DataBinding, but I don't want to go overboard on abstraction.  Any suggestions would be appreciated.  :)
-    DataBinding* binding = mDatabase->CreateDataBinding(8);
+    DataBinding* binding = mDatabase->createDataBinding(8);
     binding->addField(DFT_int64, offsetof(AccountData, mId), 8);
     binding->addField(DFT_string, offsetof(AccountData, mUsername), 32);
     binding->addField(DFT_string, offsetof(AccountData, mPassword), 32);
@@ -329,7 +329,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
         
     if (result->getRowCount())
     {
-        result->GetNextRow(binding, (void*)&data);
+        result->getNextRow(binding, (void*)&data);
         client->setAccountId(data.mId);
         client->setCharsAllowed(data.mCharsAllowed);
         client->setCsr(data.mCsr);
@@ -361,7 +361,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
     }
 
     // Destroy our database object
-    mDatabase->DestroyDataBinding(binding);
+    mDatabase->destroyDataBinding(binding);
 }
 
 //======================================================================================================================
@@ -390,11 +390,11 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
     client->SendChannelA(message, 4,false);
 
     // Update the account record so we know they authenticated properly.
-    mDatabase->ExecuteSqlAsync(0, 0, "UPDATE account SET account_authenticated = 1 WHERE account_id = %u;", client->getAccountId());
+    mDatabase->executeSqlAsync(0, 0, "UPDATE account SET account_authenticated = 1 WHERE account_id = %u;", client->getAccountId());
 
     // Execute our query for sending the server list.
     client->setState(LCSTATE_QueryServerList);
-    mDatabase->ExecuteProcedureAsync(this, (void*)client, "CALL swganh.sp_ReturnServerList;");
+    mDatabase->executeProcedureAsync(this, (void*)client, "CALL swganh.sp_ReturnServerList;");
     
 }
 
@@ -407,7 +407,7 @@ void LoginManager::_sendServerList(LoginClient* client, DatabaseResult* result)
     memset(&data, 0, sizeof(ServerData));
 
     // This DataBinding code I'm not sure where to put atm.
-    DataBinding* binding = mDatabase->CreateDataBinding(7);
+    DataBinding* binding = mDatabase->createDataBinding(7);
     binding->addField(DFT_uint32, offsetof(ServerData, mId), 4);
     binding->addField(DFT_bstring, offsetof(ServerData, mName), 50);
     binding->addField(DFT_bstring, offsetof(ServerData, mAddress), 100);
@@ -424,7 +424,7 @@ void LoginManager::_sendServerList(LoginClient* client, DatabaseResult* result)
     gMessageFactory->addUint32(serverCount);                      // Number of servers in the list.
     for (uint32 i = 0; i < serverCount; i++)
     {
-        result->GetNextRow(binding, (void*)&data);
+        result->getNextRow(binding, (void*)&data);
         gMessageFactory->addUint32(data.mId);                       // Server Id.
         gMessageFactory->addString(data.mName);                     // Server name
         gMessageFactory->addUint32(0xffff8f80);
@@ -439,7 +439,7 @@ void LoginManager::_sendServerList(LoginClient* client, DatabaseResult* result)
     _sendServerStatus(client);
 
     // Destroy our database object stuff thigns
-    mDatabase->DestroyDataBinding(binding);
+    mDatabase->destroyDataBinding(binding);
 }
 
 //======================================================================================================================
@@ -450,7 +450,7 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
 
     // This DataBinding code I'm not sure where to put atm.  I've thought about a base class for any objects that want
     // DataBinding, but I don't want to go overboard on abstraction.  Any suggestions would be appreciated.  :)
-    DataBinding* binding = mDatabase->CreateDataBinding(5);
+    DataBinding* binding = mDatabase->createDataBinding(5);
     binding->addField(DFT_uint64, offsetof(CharacterInfo, mCharacterId), 8);
     binding->addField(DFT_bstring, offsetof(CharacterInfo, mFirstName), 64);
     binding->addField(DFT_bstring, offsetof(CharacterInfo, mLastName), 64);
@@ -465,7 +465,7 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
     gMessageFactory->addUint32(charCount);                            // Character count
     for (uint32 i = 0; i < charCount; i++)
     {
-        result->GetNextRow(binding, &data);
+        result->getNextRow(binding, &data);
 
         // Append first and last names
         BString fullName, baseModel;
@@ -492,7 +492,7 @@ void LoginManager::_sendCharacterList(LoginClient* client, DatabaseResult* resul
     client->SendChannelA(message, 2, false);
 
     // Destroy our data binding
-    mDatabase->DestroyDataBinding(binding);
+    mDatabase->destroyDataBinding(binding);
 }
 
 //======================================================================================================================
@@ -502,7 +502,7 @@ void LoginManager::_processDeleteCharacter(Message* message,LoginClient* client)
     uint64 characterId = message->getUint64();
 
     client->setState(LCSTATE_DeleteCharacter);
-    mDatabase->ExecuteSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%"PRIu64"\')", characterId);
+    mDatabase->executeSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%"PRIu64"\')", characterId);
     
 }
 
@@ -519,7 +519,7 @@ void LoginManager::_sendDeleteCharacterReply(uint32 result,LoginClient* client)
     // Set the account authenticated to 0 (the server will attempt to relogin for any further processing).
     // Set the state to the end state to prevent character deletion infinite loop.
     client->setState(LCSTATE_End);
-    mDatabase->ExecuteProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id = %u;", client->getAccountId());
+    mDatabase->executeProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id = %u;", client->getAccountId());
  
 }
 
@@ -566,7 +566,7 @@ void LoginManager::_updateServerStatus(DatabaseResult* result)
     memset(&data, 0, sizeof(ServerData));
 
     // This DataBinding code I'm not sure where to put atm.
-    DataBinding* binding = mDatabase->CreateDataBinding(8);
+    DataBinding* binding = mDatabase->createDataBinding(8);
     binding->addField(DFT_uint32, offsetof(ServerData, mId), 4);
     binding->addField(DFT_bstring, offsetof(ServerData, mName), 50);
     binding->addField(DFT_bstring, offsetof(ServerData, mAddress), 100);
@@ -580,7 +580,7 @@ void LoginManager::_updateServerStatus(DatabaseResult* result)
 
     for (uint32 i = 0; i < serverCount; i++)
     {
-        result->GetNextRow(binding, &data);
+        result->getNextRow(binding, &data);
 
         ServerDataList::iterator iter = mServerDataList.begin();
 
@@ -610,7 +610,7 @@ void LoginManager::_updateServerStatus(DatabaseResult* result)
     }
 
     // Destroy our database object stuff thigns
-    mDatabase->DestroyDataBinding(binding);
+    mDatabase->destroyDataBinding(binding);
 
     if (mSendServerList)
     {
@@ -656,7 +656,7 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
     client->setState(LCSTATE_RetrieveAccountId);
 
     //and execute
-    mDatabase->ExecuteProcedureAsync(this, client, sql);
+    mDatabase->executeProcedureAsync(this, client, sql);
     
 }
 
@@ -664,13 +664,13 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
 void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* result)
 {
     AccountData data;
-    DataBinding* binding = mDatabase->CreateDataBinding(1);
+    DataBinding* binding = mDatabase->createDataBinding(1);
     binding->addField(DFT_int64, offsetof(AccountData, mId), 8);
 
     if (result->getRowCount())
     {
         //we have the account id
-        result->GetNextRow(binding, (void*)&data);
+        result->getNextRow(binding, (void*)&data);
         client->setAccountId(data.mId);
 
         //log it
@@ -681,7 +681,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
         sprintf(sql,"CALL swganh.sp_AccountSessionKeyGenerate(%"PRIu64");", data.mId);
 
         client->setState(LCSTATE_RetrieveSessionKey);
-        mDatabase->ExecuteProcedureAsync(this, client, sql);
+        mDatabase->executeProcedureAsync(this, client, sql);
     
     }
     else
@@ -707,17 +707,17 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
     }
 
     // Destroy our database object
-    mDatabase->DestroyDataBinding(binding);
+    mDatabase->destroyDataBinding(binding);
 }
 
 //======================================================================================================================
 void LoginManager::_sendLauncherSessionKey(LoginClient* client, DatabaseResult* result)
 {
     SessionKeyData data;
-    DataBinding* binding = mDatabase->CreateDataBinding(1);
+    DataBinding* binding = mDatabase->createDataBinding(1);
     binding->addField(DFT_bstring, offsetof(SessionKeyData, mSessionKey),32);
 
-    result->GetNextRow(binding, (void*)&data);
+    result->getNextRow(binding, (void*)&data);
 
     //start the message
     gMessageFactory->StartMessage();

@@ -203,7 +203,7 @@ void NpcManager::loadLairs(void)
     //load lair and creature spawn, and optionally heightmaps cache.
     // NpcFamily_NaturalLairs
 
-    mDatabase->ExecuteSqlAsync(this,new NpcAsyncContainer(NpcQuery_Lairs), "SELECT lairs.id, lairs.lair_template, lairs.count FROM lairs INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs);
+    mDatabase->executeSqlAsync(this,new NpcAsyncContainer(NpcQuery_Lairs), "SELECT lairs.id, lairs.lair_template, lairs.count FROM lairs INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs);
    
 }
 
@@ -221,7 +221,7 @@ void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
         NpcLairEntity lair;
 
         // Here we will get the lair type.
-        DataBinding* lairSpawnBinding = mDatabase->CreateDataBinding(3);
+        DataBinding* lairSpawnBinding = mDatabase->createDataBinding(3);
         lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntity,mLairsId),8,0);
         lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntity,mLairTemplateId),8,1);
         lairSpawnBinding->addField(DFT_uint32,offsetof(NpcLairEntity,mNumberOfLairs),4,2);
@@ -230,7 +230,7 @@ void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
         for (uint64 i = 0; i < count; i++)
         {
-            result->GetNextRow(lairSpawnBinding,&lair);
+            result->getNextRow(lairSpawnBinding,&lair);
 
             for (uint64 lairs = 0; lairs < lair.mNumberOfLairs; lairs++)
             {
@@ -243,7 +243,7 @@ void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
                 }
             }
         }
-        mDatabase->DestroyDataBinding(lairSpawnBinding);
+        mDatabase->destroyDataBinding(lairSpawnBinding);
     }
     break;
 

@@ -102,7 +102,7 @@ void QTRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 void QTRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,QTRFQuery_MainData,client),
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,QTRFQuery_MainData,client),
                                "SELECT zone_regions.id,zone_regions.qtdepth,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
                                "planet_regions.width,planet_regions.height"
                                " FROM zone_regions"
@@ -117,7 +117,7 @@ QTRegion* QTRegionFactory::_createRegion(DatabaseResult* result)
 {
     QTRegion*	region = new QTRegion();
 
-    result->GetNextRow(mRegionBinding,(void*)region);
+    result->getNextRow(mRegionBinding,(void*)region);
 
     region->initTree();
     region->setLoadState(LoadState_Loaded);
@@ -129,7 +129,7 @@ QTRegion* QTRegionFactory::_createRegion(DatabaseResult* result)
 
 void QTRegionFactory::_setupDatabindings()
 {
-    mRegionBinding = mDatabase->CreateDataBinding(8);
+    mRegionBinding = mDatabase->createDataBinding(8);
     mRegionBinding->addField(DFT_uint32,offsetof(QTRegion,mId),4,0);
     mRegionBinding->addField(DFT_uint8,offsetof(QTRegion,mQTDepth),1,1);
     mRegionBinding->addField(DFT_bstring,offsetof(QTRegion,mRegionName),64,2);
@@ -144,7 +144,7 @@ void QTRegionFactory::_setupDatabindings()
 
 void QTRegionFactory::_destroyDatabindings()
 {
-    mDatabase->DestroyDataBinding(mRegionBinding);
+    mDatabase->destroyDataBinding(mRegionBinding);
 }
 
 //=============================================================================

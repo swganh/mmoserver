@@ -360,7 +360,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
             //update hair customization db side seperately
             int8 sql[300];
             sprintf(sql,"UPDATE character_appearance set %s = %u where character_id = '%"PRIu64"'",iDContainer->Atr1Name, value,customer->getId());
-            mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
             
 
             //update object clientside
@@ -560,7 +560,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
             {
                 // update the db
                 sprintf(sql,"UPDATE character_appearance set hair = '' where character_id = '%"PRIu64"'",customer->getId());
-                mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+                mDatabase->executeSqlAsync(NULL,NULL,sql);
                 
             }
         }
@@ -591,7 +591,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 
         // update the db
         sprintf(sql,"UPDATE character_appearance set hair = '%s' where character_id = '%"PRIu64"'",newHairString.getAnsi(),customer->getId());
-        mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
         
 
         // now update the modelstring in the creo6 equipped list and the corresponding tano
@@ -789,7 +789,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     {
         sprintf(sql,"%s where character_id = '%"PRIu64"'",mySQL,customer->getId());
         asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+        mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
     }
 
@@ -817,7 +817,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
         asyncContainer->performer = designer;
 
         sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %"PRIu64"", customer->getId());
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
+        mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
     }
     else
@@ -891,7 +891,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote
     asyncContainer->customer = customer;
 
     sprintf(sql,"call swganh.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)", customer->getId(),myEmote->pCRC,20);
-    mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
+    mDatabase->executeProcedureAsync(this,asyncContainer,sql);
 
 
     //send message box holoemote bought

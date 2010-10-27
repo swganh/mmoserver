@@ -134,14 +134,14 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
     // Execute our statement
     int8 sql[500];
     sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
-    DatabaseResult* result = mDatabase->ExecuteSynchSql(sql);
+    DatabaseResult* result = mDatabase->executeSynchSql(sql);
     
 
     // If we found them
     if(result->getRowCount() == 1)
     {
         // Retrieve our routes and add them to the map.
-        result->GetNextRow(mServerBinding,&serverAddress);
+        result->getNextRow(mServerBinding,&serverAddress);
 
         // put this fresh data in our list.
         newClient = new ConnectionClient();
@@ -168,7 +168,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
             ++mTotalConnectedServers;
             if(mTotalConnectedServers == mTotalActiveServers)
             {
-                mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Set status to online
+                mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Set status to online
                
             }
         }
@@ -179,7 +179,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
     }
 
     // Delete our DB objects.
-    mDatabase->DestroyResult(result);
+    mDatabase->destroyResult(result);
 
     return(newClient);
 }
@@ -210,7 +210,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
     if(mServerAddressMap[connClient->getServerId()].mActive)
     {
         --mTotalConnectedServers;
-        mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
+        mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
         
     }
 
@@ -282,7 +282,7 @@ void ServerManager::_loadProcessAddressMap(void)
     ServerAddress   serverAddress;
 
     // retrieve our list of process addresses.
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;");
     
 
     mTotalActiveServers = static_cast<uint32>(result->getRowCount());
@@ -290,13 +290,13 @@ void ServerManager::_loadProcessAddressMap(void)
     for(uint32 i = 0; i < mTotalActiveServers; i++)
     {
         // Retrieve our server data
-        result->GetNextRow(mServerBinding,&serverAddress);
+        result->getNextRow(mServerBinding,&serverAddress);
         memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
         mServerAddressMap[serverAddress.mId].mConnectionClient = NULL;
     }
 
     // Delete our DB objects.
-    mDatabase->DestroyResult(result);
+    mDatabase->destroyResult(result);
 }
 
 //======================================================================================================================
@@ -442,7 +442,7 @@ void ServerManager::_processClusterZoneTransferRequestByPosition(ConnectionClien
 
 void ServerManager::_setupDataBindings()
 {
-    mServerBinding = mDatabase->CreateDataBinding(5);
+    mServerBinding = mDatabase->createDataBinding(5);
     mServerBinding->addField(DFT_uint32, offsetof(ServerAddress,mId),4);
     mServerBinding->addField(DFT_string, offsetof(ServerAddress,mAddress),16);
     mServerBinding->addField(DFT_uint16, offsetof(ServerAddress,mPort),2);
@@ -457,7 +457,7 @@ void ServerManager::_setupDataBindings()
 
 void ServerManager::_destroyDataBindings()
 {
-    mDatabase->DestroyDataBinding(mServerBinding);
+    mDatabase->destroyDataBinding(mServerBinding);
 }
 
 //======================================================================================================================

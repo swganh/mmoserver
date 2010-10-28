@@ -73,8 +73,9 @@ MovingObject::~MovingObject()
 void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPosition)
 {
 
-	gSpatialIndexManager->UpdateObject(this);
 	this->mPosition = newPosition;
+	gSpatialIndexManager->UpdateObject(this);
+	
 	
 	//we have been inside - move us outside
 	if (this->getParentId() != 0)

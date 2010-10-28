@@ -66,9 +66,9 @@ typedef std::list<uint64>				ObjectIDList;
 typedef std::set<Object*>				ObjectSet;
 typedef std::set<uint64>				ObjectIDSet;
 typedef std::set<PlayerObject*>			PlayerObjectSet;
-typedef std::set<uint64>			PlayerObjectIDSet;
+typedef std::set<uint64>				PlayerObjectIDSet;
 typedef std::list<uint32>				AttributeOrderList;
-
+typedef std::set<uint32>				Uint32Set;
 //=============================================================================
 
 /*
@@ -95,8 +95,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		uint64						getParentId() const { return mParentId; }
 		void						setParentId(uint64 parentId){ mParentId = parentId; }
-		void						setParentId(uint64 parentId,uint32 contaiment, PlayerObject* target, bool db = false);
-		void						setParentId(uint64 parentId,uint32 contaiment, PlayerObjectSet*	knownPlayers, bool db);
+		
 		//=============================================================================
 		//just sets a new ParentID and sends Containment to TargetObject
 		virtual void				setParentIdIncDB(uint64 parentId){mParentId = parentId;
@@ -165,9 +164,12 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		bool						hasInternalAttribute(string key);
 		void						removeInternalAttribute(string key);
 
-		// subzone this is used by spawnregions - get it out there and put this in movingObject
+		// subzone this is used by the client to identify subzones
 		uint32						getSubZoneId() const { return mSubZoneId; }
 		void						setSubZoneId(uint32 id){ mSubZoneId = id; }
+
+		uint32						getGridBucket() const { return zmapCellID; }
+		void						setGridBucket(uint32 id){ zmapCellID = id; }
 
 		//===========================================================================
 		// equip management
@@ -277,10 +279,9 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 
 		bool					movementMessageToggle(){mMovementMessageToggle = !mMovementMessageToggle; return mMovementMessageToggle;}
 
-		uint32					zmapCellID;
 
 		//Set of Subcells we're in.
-		std::set<uint32>		zmapSubCells;
+		Uint32Set					zmapSubCells;
 
 	protected:
 
@@ -310,6 +311,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		uint32					mSubZoneId;
 		uint32					mTypeOptions;
 		uint32					mDataTransformCounter;
+		uint32					zmapCellID;
 	private:
 		glm::vec3		        mLastUpdatePosition;	// Position where SI was updated.
 

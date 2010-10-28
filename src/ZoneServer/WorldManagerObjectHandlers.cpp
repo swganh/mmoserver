@@ -181,8 +181,10 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params);
 
-			//we need to listen to ourselves when the equiplist/inventory is updated
-			//please note the pecularities as items on the equiplist are not part of the objectcontainer
+			//******************************************************************
+			//just do this once when the player is created the first time!!!
+			//the spatialIndexhandler will be called whenever we teleport or change planet!
+			//these functions will be moved to a containerhandler at some point
 			gSpatialIndexManager->registerPlayerToContainer(player,player);
 			gSpatialIndexManager->registerPlayerToContainer(player->getInventory(),player);
 
@@ -196,7 +198,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			mStructureList.push_back(object->getId());
 			
 			//create the building in the world
-			gSpatialIndexManager->createObjectinWorld(object);
+			gSpatialIndexManager->createInWorld(object);
 
 		}
 		break;
@@ -207,7 +209,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 			
 			//create the building in the world
-			gSpatialIndexManager->createObjectinWorld(object);
+			gSpatialIndexManager->createInWorld(object);
 		}
 		break;
 
@@ -221,7 +223,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		{
 
 			//create the tangible in the world
-			gSpatialIndexManager->createObjectinWorld(object);
+			gSpatialIndexManager->createInWorld(object);
 			
 		}
 		break;
@@ -236,7 +238,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 				mShuttleList.push_back(dynamic_cast<Shuttle*>(creature));
 
 			//create the creature in the world
-			gSpatialIndexManager->createCreatureInWorld(creature);
+			gSpatialIndexManager->createInWorld(creature);
 			
 					
 		}

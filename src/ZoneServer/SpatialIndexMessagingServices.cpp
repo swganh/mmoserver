@@ -219,7 +219,7 @@ bool SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject,Play
 
 	uint64 parentId = tangibleObject->getParentId();
 
-	sendCreateTangible(tangibleObject, targetObject);
+	gMessageLib->sendCreateTano(tangibleObject, targetObject);
 		
 
 	//now check whether we have children!!!

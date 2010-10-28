@@ -448,7 +448,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                             gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
 							
 							//remove from container - destroy for watching players
-							gSpatialIndexManager->destroyObjectToRegisteredPlayers(inventory,(*invObjectIt));
+							gSpatialIndexManager->destroyObjectToRegisteredPlayers(inventory,(*invObjectIt), true);
 				
 						}
 						lootedItems++;

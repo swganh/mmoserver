@@ -177,7 +177,8 @@ bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uin
 //======================================================================================================================
 //
 // broadcasts a message to all players in range of the given object
-//
+// this is slow - better use registered Players
+
 void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf)
 {
 	
@@ -198,61 +199,56 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 
 	bool failed = false;
 
-	for(std::list<Object*>::iterator playerIt = inRangePlayers.begin(); playerIt != inRangePlayers.end(); playerIt++)
-	{
 	
-		//save us some cycles if traffic is low
+	//save us some cycles if traffic is low
 
-		if(mMessageFactory->HeapWarningLevel() <= 4)
+	if(mMessageFactory->HeapWarningLevel() <= 4)
+	{
+		for(std::list<Object*>::iterator playerIt = inRangePlayers.begin(); playerIt != inRangePlayers.end(); playerIt++)
 		{
-			while(playerIt != inRangePlayers.end())
- 			{
-				PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
-				if(_checkPlayer(player))
-				{
- 					// clone our message
- 					mMessageFactory->StartMessage();
- 					mMessageFactory->addData(message->getData(),message->getSize());
+ 			PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
+			if(player && _checkPlayer(player))
+			{
+ 				// clone our message
+ 				mMessageFactory->StartMessage();
+ 				mMessageFactory->addData(message->getData(),message->getSize());
  
- 					(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));		
- 				}
+ 				(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));		
+ 			}
+			else
+			{
+				//an invalid player at this point is like armageddon and Ultymas birthday combined at one time
+				assert(false && "Invalid Player in sendtoInrange");
+				failed = true;
+ 			}
+				
+				
+ 		}
+ 
+		if( failed)
+			gLogger->log(LogManager::NOTICE,"MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
+	}
+	else
+	{
+		for(std::list<Object*>::iterator playerIt = inRangePlayers.begin(); playerIt != inRangePlayers.end(); playerIt++)
+		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
+			if(_checkPlayer(player))
+			{
+				bool yn = _checkDistance(player->mPosition,object,mMessageFactory->HeapWarningLevel());
+				if(yn)
+				{
+					// clone our message
+					mMessageFactory->StartMessage();
+					mMessageFactory->addData(message->getData(),message->getSize());
+	
+					(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
+				}
 				else
 				{
-					//an invalid player at this point is like armageddon and Ultymas birthday combined at one time
-					assert(false && "Invalid Player in sendtoInrange");
 					failed = true;
- 				}
-	
-				++playerIt;
- 			}
- 
-			if( failed)
-				gLogger->log(LogManager::NOTICE,"MessageLib Heap Protection engaged Heap Warning Level %u Heap size %f",mMessageFactory->HeapWarningLevel(),mMessageFactory->getHeapsize());
-		}
-		else
-		{
-			while(playerIt != inRangePlayers.end())
-			{
-				PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
-				if(_checkPlayer(player))
-				{
-					bool yn = _checkDistance(player->mPosition,object,mMessageFactory->HeapWarningLevel());
-					if(yn)
-					{
-						// clone our message
-						mMessageFactory->StartMessage();
-						mMessageFactory->addData(message->getData(),message->getSize());
-	
-						(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
-					}
-					else
-					{
-						failed = true;
-					}
 				}
-				++playerIt;
-			}
-	
+			}	
 		}
 	}
 

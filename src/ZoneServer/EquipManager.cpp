@@ -262,13 +262,6 @@ bool EquipManager::EquipItem(Object* object)
 	//equipped objects are always contained by the Player
 	//unequipped ones by the inventory!
 
-	uint64			parentId	= owner->getId();
-
-	//update containment and db
-	object->setParentId(parentId,4,owner,true);
-
-	gSpatialIndexManager->createObjectToRegisteredPlayers(owner,object);
-
 	//Update the Equipped List
 	gMessageLib->sendEquippedListUpdate_InRange(owner);
 
@@ -311,16 +304,9 @@ bool EquipManager::unEquipItem(Object* object)
 	Inventory*		inventory		=	dynamic_cast<Inventory*>(getEquippedObject(CreatureEquipSlot_Inventory));
 	uint64			parentId		=	inventory->getId();
 
-	//the object is now in the inventory
-	//update the containment for owner and db
-	object->setParentId(inventory->getId(), 0xffffffff, owner, true);
 	
-	//destroy for everyone in range
-	gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
+	//gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
 	gMessageLib->sendEquippedListUpdate_InRange(owner);
-
-	//and add to inventories regular (unequipped) list
-	//this->addObjectSecure(object); the transferhandler will put it wherever necessary
 
 	removeEquippedObject(object);
 

@@ -122,8 +122,10 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
 		void					CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
 
-		void					createObjectinWorld(Object* object);
-		void					createCreatureInWorld(CreatureObject* creature);
+		//place Objects in the spatialIndex / cells 
+		void					createInWorld(Object* object);
+		void					createInWorld(PlayerObject* player);
+		void					createInWorld(CreatureObject* creature);
 		
 		
 		void					removePlayerFromStructure(PlayerObject* player, CellObject* cell);
@@ -140,7 +142,8 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					unRegisterPlayerFromContainer(ObjectContainer* container,PlayerObject* player);
 		void					createObjectToRegisteredPlayers(ObjectContainer* container,Object* object);
 	
-		void					destroyObjectToRegisteredPlayers(ObjectContainer* container,uint64 object);
+		void					destroyObjectToRegisteredPlayers(ObjectContainer* container,uint64 object, bool destroyForSelf = false);
+		void					updateObjectPlayerRegistrations(ObjectContainer* newContainer, ObjectContainer* oldContainer, ObjectContainer* object, uint32 containment);
 		void					updateEquipListToRegisteredPlayers(PlayerObject* player);
 
 		// removes an item from a structure

@@ -132,7 +132,11 @@ const Object* Object::getRootParent() const
 
     // Otherwise get the parent for this object and call getRootParent on it.
     Object* parent = gWorldManager->getObjectById(getParentId());
-    assert(parent && "Unable to find root parent in WorldManager");
+    
+	if(!parent)
+	{
+		return this;
+	}
 
     return parent->getRootParent();
 }
@@ -551,38 +555,3 @@ bool Object::isOwnedBy(PlayerObject* player)
 	return ((mPrivateOwner == player->getId()) || (mPrivateOwner == player->getGroupId()));
 }
 
-//=============================================================================
-//assign the ResourceContainer a new parentid and send a containment when a target is given
-//
-
-void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObject* target, bool db)
-{
-	mParentId = parentId; 
-	if(db)
-	{
-		this->setParentIdIncDB(parentId);		
-	}
-
-	if(target)
-		gMessageLib->sendContainmentMessage(this->getId(),this->getParentId(),contaiment,target);
-
-}
-
-void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObjectSet*	knownPlayers, bool db)
-{
-	mParentId = parentId; 
-	if(db)
-	{
-		this->setParentIdIncDB(parentId);		
-	}
-
-	uint64 id = this->getId();
-	
-	//need to query the grid here!!!
-
-	gSpatialIndexManager->sendToPlayersInRange(this,false,[id,parentId,contaiment] (PlayerObject* player)
-	{
-		gMessageLib->sendContainmentMessage(id,parentId,contaiment,player);
-	}	);
-
-}

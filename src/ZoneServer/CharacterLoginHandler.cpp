@@ -173,7 +173,7 @@ void CharacterLoginHandler::handleDispatchMessage(uint32 opcode, Message* messag
 			gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
 			
 			//create us for others
-			gSpatialIndexManager->createCreatureInWorld(playerObject);
+			gSpatialIndexManager->createInWorld(playerObject);
 
 			//initialize us for the world
 			gWorldManager->addObject(playerObject);
@@ -371,7 +371,7 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
 			gSpatialIndexManager->sendCreatePlayer(player,player);
 			
 			//create us for others
-			gSpatialIndexManager->createCreatureInWorld(player);
+			gSpatialIndexManager->createInWorld(player);
 
 			//initialize us in the world
 			gWorldManager->addObject(player);

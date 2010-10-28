@@ -101,10 +101,8 @@ ObjectContainer::~ObjectContainer()
 //players from items though
 bool ObjectContainer::addObjectSecure(Object* data) 
 { 
+	
 	mData.push_back(data->getId()); 
-	//make sure were not a player!!
-	if((data->getType() != ObjType_Creature) && (data->getType() != ObjType_Player))
-		gSpatialIndexManager->createObjectToRegisteredPlayers(this,data);
 
 	if(mCapacity)
 	{
@@ -126,22 +124,13 @@ bool ObjectContainer::addObject(Object* data)
 { 
 	if(mCapacity)
 	{
-	
 		mData.push_back(data->getId()); 
-		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		if((data->getType() != ObjType_Creature) && (data->getType() != ObjType_Player))
-			gSpatialIndexManager->createObjectToRegisteredPlayers(this,data);
 		return true;
 	}
 	else
 	{
-		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));					
-		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity left for container %I64u!!!!", this->getId());
-		
-		
-		return false;
-
-		
+		gLogger->log(LogManager::DEBUG,"ObjectContainer::addObject No Capacity left for container %I64u!!!!", this->getId());			
+		return false;	
 	}
 }
 
@@ -174,9 +163,6 @@ bool ObjectContainer::removeObject(Object* data)
 	{
 		if((*it) == data->getId())
 		{
-			if((data->getType() != ObjType_Player) && (data->getType() != ObjType_Creature))
-				gSpatialIndexManager->destroyObjectToRegisteredPlayers(this,(*it));
-
 			it = mData.erase(it);
 			return true;
 		}
@@ -244,22 +230,13 @@ return it;
 
 void ObjectContainer::handleObjectReady(Object* object,DispatchClient* client)
 {
-
-	TangibleObject* tO = dynamic_cast<TangibleObject*>(object);
-	if(!tO)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectContainer::handleObjectReady :No tangible ????");
-		return;
-	}
 	
 	//==========================
 	// reminder: objects are owned by the global map, our item (container) only keeps references
 	gWorldManager->addObject(object,true);
 
-	CraftingTool* tool = dynamic_cast<CraftingTool*>(object);
-
-	//==========================
-	//update the world - all of the containers watchers get updated
+	//add it to the spatialIndex, too
+	gSpatialIndexManager->createInWorld(object);
 
 	this->addObject(object);
 	
@@ -409,7 +386,8 @@ bool ObjectContainer::checkContainerKnownObjects(Object* object) const
 
 //=============================================================================
 
-bool ObjectContainer::addContainerKnownObjectSafe(Object* object)
+
+bool ObjectContainer::registerWatcher(Object* object)
 {
 	if(!checkContainerKnownObjects(object))
 	{
@@ -422,17 +400,13 @@ bool ObjectContainer::addContainerKnownObjectSafe(Object* object)
 }
 
 //=============================================================================
-// known objects are those that are in the SI NEAR to our object and have been created
-// all known objects that are NOT found in the next SI update will be destroyed as out of range
+// the knownObjects are the containers we are watching 
+// the knownPlayers are the players watching us
+// we*can* watch ourselves!! (when equipping/unequipping stuff for example)
 
 void ObjectContainer::addContainerKnownObject(Object* object)
 {
-	if(this->getId() == object->getId())
-	{
-		//we cannot (should not) add ourselves to our owm KnownObjectsList!!!!!
-		//assert(false);
-		return;
-	}
+	
 	if(checkContainerKnownObjects(object))
 	{
 		gLogger->log(LogManager::DEBUG,"ObjectContainer::addKnownObject %I64u couldnt be added to %I64u - already in it", object->getId(), this->getId());
@@ -483,7 +457,7 @@ void ObjectContainer::destroyContainerKnownObjects()
 	while(objIt != mKnownObjects.end())
 	{
 		ObjectContainer* container = dynamic_cast<ObjectContainer*>((*objIt));
-		container->removeContainerKnownObject(this);
+		container->unRegisterWatcher(this);
 		mKnownObjects.erase(objIt++);
 	}
 
@@ -492,9 +466,7 @@ void ObjectContainer::destroyContainerKnownObjects()
 	{			 
 		PlayerObject* targetPlayer = (*playerIt);
 
-		gMessageLib->sendDestroyObject(mId,targetPlayer);
-
-		targetPlayer->removeContainerKnownObject(this);
+		targetPlayer->unRegisterWatcher(this);
 		mKnownPlayers.erase(playerIt++);
 
 		
@@ -503,7 +475,7 @@ void ObjectContainer::destroyContainerKnownObjects()
 
 //=============================================================================
 
-bool ObjectContainer::removeContainerKnownObject(Object* object)
+bool ObjectContainer::unRegisterWatcher(Object* object)
 {
 	PlayerObject* player = dynamic_cast<PlayerObject*>(this);
 	if(player)

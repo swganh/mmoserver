@@ -1271,7 +1271,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
 
 		string				regionName;
 
-		for(std::set<uint32>::iterator regionIt = player->zmapSubCells.begin(); regionIt != player->zmapSubCells.end(); regionIt++)
+		for(Uint32Set::iterator regionIt = player->zmapSubCells.begin(); regionIt != player->zmapSubCells.end(); regionIt++)
 		{		
 			RegionObject* region = gSpatialIndexManager->getRegion(*regionIt);
 

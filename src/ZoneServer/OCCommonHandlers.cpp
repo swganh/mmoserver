@@ -219,237 +219,7 @@ void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,Ob
 
 void ObjectController::_handleTransferItem(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-
-	//*********************************************
-	//1) establish whether we are watching the container *before* transfer
-	//2) establish whether we need to watch the container *after* transfer
-
-
-	CellObject*		cell;
-
-	PlayerObject*	playerObject	=	dynamic_cast<PlayerObject*>(mObject);
-	Object*			itemObject		=	gWorldManager->getObjectById(targetId);
-	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-
-	string			dataStr;
-	uint64			targetContainerId;
-	uint32			linkType;
-	float			x,y,z;
-
-
-	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItem: called item %I64u",itemObject->getId());
-
-	message->getStringUnicode16(dataStr);
-
-	if(swscanf(dataStr.getUnicode16(),L" %"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::handleTransferItem: Error in parameters");
-		return;
-	}
-
-
-
-
-	if (!itemObject)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No Object to transfer :(");
-		//no Object :(
-		return;
-	}
-
-	TangibleObject* tangible = dynamic_cast<TangibleObject*>(itemObject);
-	if(!tangible)
-	{
-		//no tagible - get out of here
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No tangible to transfer :(");
-		return;
-	}
-
-	// We may want to transfer other things than items...basically tangibleObjects!
-	// resourcecontainers / factory crates
-	
-	// first check whether its an instrument with persistant copy   - thats a special case!
-	Item* item = dynamic_cast<Item*>(itemObject);
-	if (item)
-	{
-		//check if its only temporarily placed
-		if(item->getItemFamily() == ItemFamily_Instrument)
-		{
-			if(item->getPersistantCopy())
-			{
-				// gMessageLib->sendSystemMessage(playerObject,L"you cannot pick this up");
-				// You bet, I can! Remove the temp instrument from the world.
-
-				// Do I have access to this instrument?
-				if (item->getOwner() == playerObject->getId())
-				{
-					playerObject->getController()->destroyObject(targetId);
-
-				}
-				return;
-			}
-		}
-	}
-	
-
-	// A FYI: When we drop items, we use player pos.
-    itemObject->mPosition = glm::vec3(x,y,z);
-
-	if (!targetContainerId)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is 0 :(");
-		//return;
-
-	}
-	
-	//ok how to tackle this ... :
-	//basically I want to use ObjectContainer as standard access point for item handling!
-
-
-	//lets begin by getting the target Object
-	//when the target Object approves the transfer we may proceed
-
-	if(!checkTargetContainer(targetContainerId,itemObject))
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is not valid :(");
-		return;
-	}
-
-	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer has approved :)");
-	
-	// get ourselves the target container 
-	// please note THIS IS ONLY SUCCESFUL FOR TANGIBLE OBJECT BASED CONTAINERS -> no cells
-	TangibleObject* parentContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
-	if(!parentContainer)
-		parentContainer = inventory;
-
-	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
-		return;
-
-	}
-	
-	// Remove the object from whatever contains it.
-	if(!removeFromContainer(targetContainerId, targetId))
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: remove item %I64u FromContainer %I64u failed :( this ",itemObject->getId(),targetContainerId);
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: This rightly happens when looting corpses as the item gets then regularly created");
-		//this we might need to revise somehow we do not always want to loot standard db items, do we ?
-
-		return;
-	}
-					
-	//now go and move it to wherever it belongs
-	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
-	if (cell)
-	{
-		// drop in a cell
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"", targetContainerId);
-
-		//special case temp instrument
-		if (item&&item->getItemFamily() == ItemFamily_Instrument)
-		{
-			if (playerObject->getPlacedInstrumentId())
-			{
-				// We do have a placed instrument.
-				uint32 instrumentType = item->getItemType();
-				if ((instrumentType == ItemType_Nalargon) || (instrumentType == ItemType_omni_box) || (instrumentType == ItemType_nalargon_max_reebo))
-				{
-					// We are about to drop the real thing, remove any copied instrument.
-					// item->setOwner(playerObject->getId();
-					playerObject->getController()->destroyObject(playerObject->getPlacedInstrumentId());
-		
-				}
-			}
-		}
-
-	
-		
-		itemObject->mPosition = playerObject->mPosition;
-		itemObject->mDirection = playerObject->mDirection;
-
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ",cell->getId());
-		
-		//do the db update manually because of the position - unless we get an automated position save in
-		itemObject->setParentId(targetContainerId,linkType,playerObject,false); 
-		itemObject->updateWorldPosition();
-		
-		//destroy the Object for the Owner - it gets newly created by addObjectSecure
-		//which is a requirement by the client
-		gMessageLib->sendDestroyObject(itemObject->getId(),playerObject);
-
-		//the object is added to the cell and registered watchers are being updated
-		
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u",playerObject->getId(),playerObject->getParentId());
-		
-	}	
-
-
-	
-	if (inventory && (inventory->getId() == targetContainerId))	// Valid player inventory.
-	{
-		//==========================================
-		// Add object to OUR inventory.
-		
-		// add us as watcher in case we do not already watch the container
-		
-		ObjectContainer* container = dynamic_cast<ObjectContainer*>(itemObject);
-		
-		if(!container->checkRegisteredWatchers(playerObject))
-		{
-			gSpatialIndexManager->registerPlayerToContainer(container,playerObject);
-			
-			//container->addContainerKnownObjectSafe(playerObject);
-		}
-
-		//update the containment for the client
-		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
-		
-		//as long as we are registered watchers of our inventory the item will now be created for us wil
-		inventory->addObjectSecure(itemObject);
-		
-		return;
-		
-	}
-	
-	
-	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetContainerId));
-	if(player)
-	{
-		//equip / unequip handles the db side, too
-		if(!player->getEquipManager()->EquipItem(item))
-		{
-			//readd it to the old parent
-			if(parentContainer)
-				parentContainer->addObjectSecure(item);
-		}
-		return;
-	}
-
-	//thats the tutorial container - leave them as separate class ?
-	Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(targetContainerId));
-	if (container && tangible)
-	{
-		
-		// Add it to the container.
-		// We dont have any access validations yet.
-		container->addObjectSecure(itemObject);	  //just add its already created
-		
-		//set the new parent, send the contaiment and update the db
-		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
-		return;
-	}
-
-	//some other container ... hopper backpack chest etc
-	TangibleObject* receivingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
-	if(receivingContainer)
-	{
-		receivingContainer->addObjectSecure(itemObject);
-		itemObject->setParentId(receivingContainer->getId(),linkType,playerObject,true);
-	}
-	
-	
+	_handleTransferItemMisc(targetId, message, cmdProperties);
 }
 
 //=============================================================================
@@ -650,7 +420,10 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 				if(!tangibleContainer)   //mainly as the container might not exist if its placed in the house directly
 					return true;
 
-				fit = true;
+				if(tangibleContainer->checkCapacity(objectSize,playerObject))
+					return true;
+				else
+					return false;
 			}
 			else
 			{
@@ -758,8 +531,6 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			return false;
 		}
 		
-		//at a later time we need to establish whether it needs to be destroyed always or just the containment changed
-		gSpatialIndexManager->destroyObjectToRegisteredPlayers(inventory,tangible->getId());
 		return true;
 
 	}
@@ -793,9 +564,6 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		(creatureInventory->getId() == itemObject->getParentId()))
 	{
 		gLogger->log(LogManager::DEBUG,"Transfer item from creature inventory to player inventory (looting)");
-		// gMessageLib->sendContainmentMessage(targetId,itemObject->getParentId(),-1,playerObject);
-
-		gSpatialIndexManager->destroyObjectToRegisteredPlayers(creatureInventory,targetId);
 		
 		if(!creatureInventory->removeObject(itemObject))
 		{
@@ -849,18 +617,16 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		}
 
 		// Remove object from cell.
-		gSpatialIndexManager->destroyObjectToRegisteredPlayers(cell,tangible->getId());
 		cell->removeObject(itemObject);
 
 	}
 
 	//some other container ... hopper backpack chest etc
 	TangibleObject* containingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
-	if(containingContainer&&containingContainer->removeObject(itemObject))
-	{
-		gSpatialIndexManager->destroyObjectToRegisteredPlayers(containingContainer,tangible->getId());
-		return true;
 	
+	if(containingContainer && containingContainer->removeObject(itemObject))
+	{
+		return true;
 	}
 	
 	return false;
@@ -913,6 +679,10 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		return;
 	}
 
+	//get our containers
+	ObjectContainer* newContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(targetContainerId));
+	ObjectContainer* oldContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(tangible->getParentId()));
+	
 	// We may want to transfer other things than items...basically tangibleObjects!
 	// resourcecontainers / factory crates
 	
@@ -962,10 +732,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		return;
 	}
 
-	TangibleObject* parentContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
-	if(!parentContainer)
-		parentContainer = inventory;
-
 	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
 	{
 		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
@@ -985,13 +751,16 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	//delete(itemObject->getRadialMenu());
 	itemObject->ResetRadialMenu();
 
+	//Now update the registered watchers!!
+	gSpatialIndexManager->updateObjectPlayerRegistrations(newContainer, oldContainer, tangible, linkType);
 
 	//now go and move it to wherever it belongs
-	cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(targetContainerId));
+	cell = dynamic_cast<CellObject*>(newContainer);
 	if (cell)
 	{
 		// drop in a cell
 		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"",  targetContainerId);
+		
 
 		//special case temp instrument
 		if (item&&item->getItemFamily() == ItemFamily_Instrument)
@@ -1009,15 +778,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 				}
 			}
 		}
-
 	
-		
 		itemObject->mPosition = playerObject->mPosition;
-
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Cell added item to cell %I64u ", cell->getId());
 		
 		//do the db update manually because of the position - unless we get an automated position save in
-		itemObject->setParentId(targetContainerId,linkType,playerObject,false); 
+		itemObject->setParentId(targetContainerId); 
 		
 		ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
 		if(rc)
@@ -1027,29 +792,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 		//take wm function at one point
 		cell->addObjectSecure(itemObject);
-		gSpatialIndexManager->createObjectToRegisteredPlayers(cell,itemObject);
-		
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Player : %I64u contained in %I64u", playerObject->getId(),playerObject->getParentId());
 		
 	}	
-
-
-	
-	if (inventory && (inventory->getId() == targetContainerId))	// Valid player inventory.
-	{
-		// Add object to OUR inventory.
-
-		gSpatialIndexManager->createObjectToRegisteredPlayers(inventory,itemObject);
-		
-		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
-		inventory->addObjectSecure(itemObject);
-		
-		return;
-		
-	}
 	
 	
-	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetContainerId));
+	PlayerObject* player = dynamic_cast<PlayerObject*>(newContainer);
 	if(player)
 	{
 		//equip / unequip handles the db side, too
@@ -1058,30 +805,23 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 			gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"",  item->getId());
 			//panik!!!!!!
 		}
+		
+		itemObject->setParentIdIncDB(newContainer->getId());
 		return;
 	}
 
-	//thats the tutorial container - leave them as separate class ?
-	Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(targetContainerId));
-	if (container && tangible)
-	{
-		
-		// Add it to the container.
-		// We dont have any access validations yet.
-		container->addObject(itemObject);	  //just add its already created
-		
-		//set the new parent, send the contaiment and update the db
-		itemObject->setParentId(targetContainerId,linkType,playerObject,true);
-		return;
-	}
+	//*****************************************************************
+	//All special cases have been handled - now its just our generic ObjectContainer Type
+	
 
-	//some other container ... hopper backpack chest etc
-	TangibleObject* receivingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(targetContainerId));
-	if(receivingContainer)
+	//some other container ... hopper backpack chest inventory etc
+	if(newContainer)
 	{
-		receivingContainer->addObjectSecure(itemObject);
-		itemObject->setParentId(receivingContainer->getId(),linkType,playerObject,true);
+		newContainer->addObjectSecure(itemObject);
+		itemObject->setParentIdIncDB(newContainer->getId());
+		return;
 	}	
+
 }
 
 
@@ -1114,7 +854,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 	TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (gWorldManager->getNearestTerminal(playerObject,TanType_TravelTerminal));
 	// iterate through the results
 	
-    if((!terminal)|| (glm::distance(terminal->mPosition, playerObject->mPosition) > purchaseRange))
+	if((!terminal)|| (glm::distance(terminal->getWorldPosition(), playerObject->getWorldPosition()) > purchaseRange))
 	{
 		gMessageLib->sendSystemMessage(playerObject,L"","travel","too_far");
 		return;
@@ -1533,7 +1273,7 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 	//I want to know what paths lead here
 	assert(false);
 
-	gSpatialIndexManager->createObjectinWorld(object);
+	gSpatialIndexManager->createInWorld(object);
 
 	/*
 	Container* container = dynamic_cast<Container*>(object);

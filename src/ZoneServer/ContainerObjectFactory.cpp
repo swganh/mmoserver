@@ -108,7 +108,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 			binding->addField(DFT_uint32,0,4);
 			result->GetNextRow(binding,&objectCount);
 
-			container->setObjectLoadCounter(objectCount);
+			//container->setObjectLoadCounter(objectCount);
 
 			if (objectCount != 0)
 			{

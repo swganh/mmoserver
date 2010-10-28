@@ -308,7 +308,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	gMessageLib->sendServerTime(gWorldManager->getServerTime(),playerObject->getClient());
 
 	// add us to the cell should we be in one
-	gSpatialIndexManager->createCreatureInWorld(playerObject);
+	gSpatialIndexManager->createInWorld(playerObject);
 
 	// initialize at new position
 	gMessageLib->sendCreatePlayer(playerObject,playerObject);

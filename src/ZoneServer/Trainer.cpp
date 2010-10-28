@@ -1315,7 +1315,7 @@ void Trainer::spawn(void)
 	// Update the world about my presence.
 	//we are here in the worldmanager already ?? if not do
 	//gWorldManager->addObject(this);
-	gSpatialIndexManager->createCreatureInWorld(this);
+	gSpatialIndexManager->createInWorld(this);
 
 
 	// Add us to the world.

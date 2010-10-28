@@ -101,10 +101,11 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		void						destroyContainerKnownObjects();
 		bool						checkRegisteredWatchers(PlayerObject* player);
 //		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
-		bool						addContainerKnownObjectSafe(Object* object);
-
+		
+		bool						registerWatcher(Object* object);
+		bool						unRegisterWatcher(Object* object);
 		virtual void				addContainerKnownObject(Object* object);
-		bool						removeContainerKnownObject(Object* object);
+		
 		bool						checkContainerKnownObjects(Object* object) const;
 
 	

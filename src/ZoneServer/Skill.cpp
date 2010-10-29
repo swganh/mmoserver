@@ -32,11 +32,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 Skill::Skill()
 {
-	mCommands.reserve(50);
-	mSkillMods.reserve(25);
-	mSchematics.reserve(5);
-	mSkillXpTypesList.reserve(5);
-	mSkillsRequired.reserve(4);
+    mCommands.reserve(50);
+    mSkillMods.reserve(25);
+    mSchematics.reserve(5);
+    mSkillXpTypesList.reserve(5);
+    mSkillsRequired.reserve(4);
 }
 
 //======================================================================

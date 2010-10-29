@@ -34,23 +34,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace Anh_Math
 {
-	class Shape
-	{
-		public:
+class Shape
+{
+public:
 
-			Shape() : mPosition(0.0f,0.0f,0.0f){}
-            Shape(const glm::vec3& position){ mPosition = position; }
-			Shape(float x,float y,float z) : mPosition(x,y,z){}
-			virtual ~Shape(){}
+    Shape() : mPosition(0.0f,0.0f,0.0f) {}
+    Shape(const glm::vec3& position) {
+        mPosition = position;
+    }
+    Shape(float x,float y,float z) : mPosition(x,y,z) {}
+    virtual ~Shape() {}
 
-			const glm::vec3&		getPosition(){ return mPosition; }
-			void			setPosition(const glm::vec3& position){ mPosition = position; }
-			void			setPosition(float x,float y,float z){ mPosition.x = x;mPosition.y = y;mPosition.z = z; }
+    const glm::vec3&		getPosition() {
+        return mPosition;
+    }
+    void			setPosition(const glm::vec3& position) {
+        mPosition = position;
+    }
+    void			setPosition(float x,float y,float z) {
+        mPosition.x = x;
+        mPosition.y = y;
+        mPosition.z = z;
+    }
 
-		protected:
+protected:
 
-			glm::vec3	mPosition;
-	};
+    glm::vec3	mPosition;
+};
 }
 
 //=============================================================================

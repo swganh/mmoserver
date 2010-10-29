@@ -39,26 +39,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class Camp :	public PlayerStructure
 {
 
-	public:
+public:
 
-		Camp();
-		~Camp();
+    Camp();
+    ~Camp();
 
-		CampFamily		getCampFamily(){ return mCampFamily; }
-		void			setCampFamily(CampFamily bf){ mCampFamily = bf; }
+    CampFamily		getCampFamily() {
+        return mCampFamily;
+    }
+    void			setCampFamily(CampFamily bf) {
+        mCampFamily = bf;
+    }
 
-		float			getHealingModifier(){return(mHealingModifier);}
-		void			setHealingModifier(float modifier){mHealingModifier = modifier;}
+    float			getHealingModifier() {
+        return(mHealingModifier);
+    }
+    void			setHealingModifier(float modifier) {
+        mHealingModifier = modifier;
+    }
 
 
-	private:
+private:
 
-		float			mWidth;
-		float			mHeight;
-		uint32			mTotalLoadCount;
-		float			mHealingModifier;
+    float			mWidth;
+    float			mHeight;
+    uint32			mTotalLoadCount;
+    float			mHealingModifier;
 
-		CampFamily		mCampFamily;
+    CampFamily		mCampFamily;
 };
 
 //=============================================================================

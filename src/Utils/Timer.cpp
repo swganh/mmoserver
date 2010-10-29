@@ -31,10 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //==============================================================================================================================
 
 Timer::Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container)
-: mContainer(container)
-, mCallback(callback)
-, mId(id)
-, mInterval(interval)
+    : mContainer(container)
+    , mCallback(callback)
+    , mId(id)
+    , mInterval(interval)
 {
     if(mInterval < 100)
         mInterval = 100;

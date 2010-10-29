@@ -25,116 +25,107 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "ZoneTree.h"
 #include "BuildingObject.h"
+#include "ZoneTree.h"
 
 #include "ObjectContainer.h"
 #include "CellObject.h"
 #include "WorldManager.h"
-
 
 using namespace SpatialIndex;
 
 //=============================================================================
 
 ZoneTree::ZoneTree(void) :
-mStorageManager(NULL),
-mStorageBuffer(NULL),
-mTree(NULL),
-mIndexIdentifier(0)
+    mStorageManager(NULL),
+    mStorageBuffer(NULL),
+    mTree(NULL),
+    mIndexIdentifier(0)
 {
-	// We do have a global clock object, don't use seperate clock and times for every process.
-	// mClock = new Anh_Utils::Clock();
+    // We do have a global clock object, don't use seperate clock and times for every process.
+    // mClock = new Anh_Utils::Clock();
 }
 
 //=============================================================================
 
 ZoneTree::~ZoneTree(void)
 {
-	// delete(mClock);
+    // delete(mClock);
 }
 
 //=============================================================================
 
 void ZoneTree::Init(double fillFactor,uint32 indexCap,uint32 leafCap,uint32 dimensions,double horizon)
 {
-	gLogger->log(LogManager::NOTICE,"SpatialIndex initializing...");		
-	gLogger->logCont(LogManager::INFORMATION, "FillFactor:%.2f,",fillFactor);
-	gLogger->logCont(LogManager::INFORMATION, "IndexCap:%u,",indexCap);
-	gLogger->logCont(LogManager::INFORMATION, "LeafCap:%u,",leafCap);
-	gLogger->logCont(LogManager::INFORMATION, "Dimensions:%u,",dimensions);
-	gLogger->logCont(LogManager::INFORMATION, "Horizon:%.2f",horizon);
-	
-	try
-	{
-		mStorageManager = StorageManager::createNewMemoryStorageManager();
-		mStorageBuffer = StorageManager::createNewRandomEvictionsBuffer(*mStorageManager,200,false);
+    LOG(INFO) << "SpatialIndex initializing...";
+    //gLogger->logCont(LogManager::INFORMATION, "FillFactor:%.2f,",fillFactor);
+    //gLogger->logCont(LogManager::INFORMATION, "IndexCap:%u,",indexCap);
+    //gLogger->logCont(LogManager::INFORMATION, "LeafCap:%u,",leafCap);
+    //gLogger->logCont(LogManager::INFORMATION, "Dimensions:%u,",dimensions);
+    //gLogger->logCont(LogManager::INFORMATION, "Horizon:%.2f",horizon);
 
-		mTree = RTree::createNewRTree(*mStorageBuffer,fillFactor,indexCap,leafCap,dimensions,SpatialIndex::RTree::RV_RSTAR,mIndexIdentifier);
+    try
+    {
+        mStorageManager = StorageManager::createNewMemoryStorageManager();
+        mStorageBuffer = StorageManager::createNewRandomEvictionsBuffer(*mStorageManager,200,false);
 
-		mResourceUsage.start();
-	}
-	catch(Tools::Exception& e)
-	{
-		gLogger->log(LogManager::EMERGENCY,"*** ERROR: " + e.what() + " ***\n");
-	}
-	catch(...)
-	{
-		gLogger->log(LogManager::EMERGENCY,"*** ERROR: Unknown Exception ***\n");
-	}
+        mTree = RTree::createNewRTree(*mStorageBuffer,fillFactor,indexCap,leafCap,dimensions,SpatialIndex::RTree::RV_RSTAR,mIndexIdentifier);
+
+        //mResourceUsage.start();
+    }
+    catch(Tools::Exception& e)
+    {
+        LOG(FATAL) <<"*** ERROR: " << e.what() << " ***";
+    }
+    catch(...)
+    {
+        LOG(FATAL) << "*** ERROR: Unknown Exception ***";
+    }
 }
 
 //=============================================================================
 
 void ZoneTree::InsertPoint(int64 objId,double x,double z)
 {
-	double coords[2];
-	coords[0] = x;
-	coords[1] = z;
+    double coords[2];
+    coords[0] = x;
+    coords[1] = z;
 
-	Point p = Point(coords,2);
+    Point p = Point(coords,2);
 
-	mTree->insertData(0,0,p,objId);
-
-	/*std::ostringstream ss;
-	ss << "SI(InsertPoint): " << objId << " at " << p;
-	gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
+    mTree->insertData(0,0,p,objId);
 }
 
 //=============================================================================
 
 void ZoneTree::InsertRegion(int64 objId,double x,double z,double width,double height)
 {
-	double low[2];
-	double high[2];
-	low[0] = x - width;
-	low[1] = z - height;
-	high[0] = x + width;
-	high[1] = z + height;
+    double low[2];
+    double high[2];
+    low[0] = x - width;
+    low[1] = z - height;
+    high[0] = x + width;
+    high[1] = z + height;
 
-	Region r = Region(low,high,2);
+    Region r = Region(low,high,2);
 
-	mTree->insertData(0,0,r,objId);
-
-	/*std::ostringstream ss;
-	ss << "SI(InsertRegion): " << objId << " at " << r;
-	gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
+    mTree->insertData(0,0,r,objId);
 }
 
 //=============================================================================
 
 void ZoneTree::insertQTRegion(int64 objId,double x,double z,double width,double height)
 {
-	double low[2];
-	double high[2];
-	low[0] = x;
-	low[1] = z;
-	high[0] = x + width;
-	high[1] = z + height;
+    double low[2];
+    double high[2];
+    low[0] = x;
+    low[1] = z;
+    high[0] = x + width;
+    high[1] = z + height;
 
-	Region r = Region(low,high,2);
+    Region r = Region(low,high,2);
 
-	mTree->insertData(0,0,r,objId);
+    mTree->insertData(0,0,r,objId);
 }
 
 //=============================================================================
@@ -147,485 +138,463 @@ void ZoneTree::insertQTRegion(int64 objId,double x,double z,double width,double 
 
 QTRegion* ZoneTree::getQTRegion(double x,double z)
 {
-	ObjectIdList	resultIdList;
-	MyVisitor		vis(&resultIdList);
-	double			dP[2];
+    ObjectIdList	resultIdList;
+    MyVisitor		vis(&resultIdList);
+    double			dP[2];
 
-	dP[0] = x;
-	dP[1] = z;
+    dP[0] = x;
+    dP[1] = z;
 
-	Region r = Region(dP,dP,2);
-	Tools::Geometry::Point p(dP,2);
-	
-	//mTree->containsWhatQuery(r,vis);
-	//mTree->intersectsWithQuery(r,vis);
-	mTree->pointLocationQuery(p,vis);
+    Region r = Region(dP,dP,2);
+    Point p(dP,2);
 
-	// find the region
-	ObjectIdList::iterator it = resultIdList.begin();
-	while(it != resultIdList.end())
-	{
-		if(QTRegion* region = gWorldManager->getQTRegion(static_cast<uint32>(*it)))
-		{
-			return(region);
-		}
+    //mTree->containsWhatQuery(r,vis);
+    //mTree->intersectsWithQuery(r,vis);
+    mTree->pointLocationQuery(p,vis);
 
-		++it;
-	}
+    // find the region
+    ObjectIdList::iterator it = resultIdList.begin();
+    while(it != resultIdList.end())
+    {
+        if(QTRegion* region = gWorldManager->getQTRegion(static_cast<uint32>(*it)))
+        {
+            return(region);
+        }
 
-	// We need a region for the Tutorial...
-	// gLogger->log(LogManager::DEBUG,"SI could not find qtregion at %f %f",x,z);
+        ++it;
+    }
 
-	return(NULL);
+    // We need a region for the Tutorial...
+
+    return(NULL);
 }
 
 
 void ZoneTree::getObjectsInRangeIntersection(Object* object,ObjectSet* resultSet,uint32 objTypes,float range)
 {
-	ObjectIdList	resultIdList;
-	Object*			tmpObject;
-	ObjectType		tmpType;
-	uint64			objectId = object->getId();
+    ObjectIdList	resultIdList;
+    Object*			tmpObject;
+    ObjectType		tmpType;
+    uint64			objectId = object->getId();
 
-	resultIdList.reserve(100);
+    resultIdList.reserve(100);
 
-	double plow[2],phigh[2];
+    double plow[2],phigh[2];
 
-	// we in world space, outside -> inside , outside -> outside checking
-	if(!object->getParentId())
-	{
-		plow[0] = object->mPosition.x - range;
-		plow[1] = object->mPosition.z - range;
-		phigh[0] = object->mPosition.x + range;
-		phigh[1] = object->mPosition.z + range;
+    // we in world space, outside -> inside , outside -> outside checking
+    if(!object->getParentId())
+    {
+        plow[0] = object->mPosition.x - range;
+        plow[1] = object->mPosition.z - range;
+        phigh[0] = object->mPosition.x + range;
+        phigh[1] = object->mPosition.z + range;
 
-		Region r = Region(plow,phigh,2);
-		MyVisitor vis(&resultIdList);
+        Region r = Region(plow,phigh,2);
+        MyVisitor vis(&resultIdList);
 
-		mTree->intersectsWithQuery(r,vis);
+        mTree->intersectsWithQuery(r,vis);
 
-		// filter needed objects
-		ObjectIdList::iterator it = resultIdList.begin();
-		while(it != resultIdList.end())
-		{
-			// check if its us and the object still exists
-			if((static_cast<uint64>(*it) != objectId)
-					&& ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
-			{
-				// if we are in same parent
-				if(!tmpObject->getParentId())
-				{
-					tmpType = tmpObject->getType();
-					// add it
-					if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-					{
-						resultSet->insert(tmpObject);
-					}
-					// if its a building, add objects of our types it contains
-					if(tmpType == ObjType_Building)
-					{
-						// gLogger->log(LogManager::DEBUG,"Found a building");
+        // filter needed objects
+        ObjectIdList::iterator it = resultIdList.begin();
+        while(it != resultIdList.end())
+        {
+            // check if its us and the object still exists
+            if((static_cast<uint64>(*it) != objectId)
+                    && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
+            {
+                // if we are in same parent
+                if(!tmpObject->getParentId())
+                {
+                    tmpType = tmpObject->getType();
+                    // add it
+                    if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                    {
+                        resultSet->insert(tmpObject);
+                    }
+                    // if its a building, add objects of our types it contains
+                    if(tmpType == ObjType_Building)
+                    {
 
-						ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
-						ObjectList::iterator cellChildsIt = cellChilds.begin();
+                        ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
+                        ObjectList::iterator cellChildsIt = cellChilds.begin();
 
-						while(cellChildsIt != cellChilds.end())
-						{
-							Object* cellChild = (*cellChildsIt);
+                        while(cellChildsIt != cellChilds.end())
+                        {
+                            Object* cellChild = (*cellChildsIt);
 
-							tmpType = cellChild->getType();
+                            tmpType = cellChild->getType();
 
-							if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-							{
-								// TODO: We could add a range check to every object...
-								resultSet->insert(cellChild);
-							}
+                            if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                            {
+                                // TODO: We could add a range check to every object...
+                                resultSet->insert(cellChild);
+                            }
 
-							++cellChildsIt;
-						}
-					}
-				}
-			}
+                            ++cellChildsIt;
+                        }
+                    }
+                }
+            }
 
-			++it;
-		}
-	}
-	// we inside a building, inside -> outside, inside -> inside checking
-	// need to query based on buildings world position
-	else if(object->getParentId() != 0)
-	{
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
-		BuildingObject* buildingObject;
+            ++it;
+        }
+    }
+    // we inside a building, inside -> outside, inside -> inside checking
+    // need to query based on buildings world position
+    else if(object->getParentId() != 0)
+    {
+        CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+        BuildingObject* buildingObject;
 
-		if(cell)
-		{
-			buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-		}
-		else
-		{
-			gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
-			return;
-		}
+        if(cell)
+        {
+            buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+        }
+        else
+        {
+            LOG(WARNING) << "SI could not find cell " << object->getParentId();
+            return;
+        }
 
-		if(!buildingObject)
-		{
-			gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
-			return;
-		}
+        if(!buildingObject)
+        {
+            LOG(WARNING) << "SI could not find building " << cell->getParentId();
+            return;
+        }
 
-		float queryWidth,queryHeight;
-		float buildingWidth		= buildingObject->getWidth();
-		float buildingHeight	= buildingObject->getHeight();
+        float queryWidth,queryHeight;
+        float buildingWidth		= buildingObject->getWidth();
+        float buildingHeight	= buildingObject->getHeight();
 
-		// adjusting inside -> outside viewing range
-		// we always want to see a bit outside
+        // adjusting inside -> outside viewing range
+        // we always want to see a bit outside
 
-		// Comment by ERU
-		// "Max(range,buildingWidth + 32);"
-		// or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
-		// If the above comment was not the intention, please review original code. It was kinda stranage and unclear...
-		if (range > (buildingWidth + 32))
-		{
-			queryWidth = range;
-		}
-		else
-		{
-			queryWidth = buildingWidth + 32;
-		}
+        // Comment by ERU
+        // "Max(range,buildingWidth + 32);"
+        // or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
+        // If the above comment was not the intention, please review original code. It was kinda stranage and unclear...
+        if (range > (buildingWidth + 32))
+        {
+            queryWidth = range;
+        }
+        else
+        {
+            queryWidth = buildingWidth + 32;
+        }
 
-		if (range > (buildingHeight + 32))
-		{
-			queryHeight = range;
-		}
-		else
-		{
-			queryHeight = buildingHeight + 32;
-		}
+        if (range > (buildingHeight + 32))
+        {
+            queryHeight = range;
+        }
+        else
+        {
+            queryHeight = buildingHeight + 32;
+        }
 
-		plow[0] = buildingObject->mPosition.x - queryWidth;
-		plow[1] = buildingObject->mPosition.z - queryHeight;
-		phigh[0] = buildingObject->mPosition.x + queryWidth;
-		phigh[1] = buildingObject->mPosition.z + queryHeight;
+        plow[0] = buildingObject->mPosition.x - queryWidth;
+        plow[1] = buildingObject->mPosition.z - queryHeight;
+        phigh[0] = buildingObject->mPosition.x + queryWidth;
+        phigh[1] = buildingObject->mPosition.z + queryHeight;
 
-		Region r = Region(plow,phigh,2);
-		MyVisitor vis(&resultIdList);
+        Region r = Region(plow,phigh,2);
+        MyVisitor vis(&resultIdList);
 
-		mTree->intersectsWithQuery(r,vis);
+        mTree->intersectsWithQuery(r,vis);
 
-		ObjectIdList::iterator it = resultIdList.begin();
-		while(it != resultIdList.end())
-		{
-			// check if its us and the object still exists
-			if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
-			{
-				tmpType = tmpObject->getType();
+        ObjectIdList::iterator it = resultIdList.begin();
+        while(it != resultIdList.end())
+        {
+            // check if its us and the object still exists
+            if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
+            {
+                tmpType = tmpObject->getType();
 
-				// add it
-				if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-				{
-					resultSet->insert(tmpObject);
-				}
-				// if its a building, add objects of our types it contains
-				if(tmpType == ObjType_Building)
-				{
-					ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
-					ObjectList::iterator cellChildsIt = cellChilds.begin();
+                // add it
+                if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                {
+                    resultSet->insert(tmpObject);
+                }
+                // if its a building, add objects of our types it contains
+                if(tmpType == ObjType_Building)
+                {
+                    ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
+                    ObjectList::iterator cellChildsIt = cellChilds.begin();
 
-					while(cellChildsIt != cellChilds.end())
-					{
-						Object* cellChild = (*cellChildsIt);
+                    while(cellChildsIt != cellChilds.end())
+                    {
+                        Object* cellChild = (*cellChildsIt);
 
-						tmpType = cellChild->getType();
+                        tmpType = cellChild->getType();
 
-						if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
-						{
-							// TODO: We could add a range check to every object...
-							resultSet->insert(cellChild);
-						}
+                        if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
+                        {
+                            // TODO: We could add a range check to every object...
+                            resultSet->insert(cellChild);
+                        }
 
-						++cellChildsIt;
-					}
-				}
-			}
-			++it;
-		}
-	}
+                        ++cellChildsIt;
+                    }
+                }
+            }
+            ++it;
+        }
+    }
 }
 
 
 void ZoneTree::getObjectsInRange(const Object* const object,ObjectSet* resultSet,uint32 objTypes,float range, bool cellContent)
 {
-	ObjectIdList	resultIdList;
-	Object*			tmpObject;
-	ObjectType		tmpType;
-	uint64			objectId = object->getId();
+    ObjectIdList	resultIdList;
+    Object*			tmpObject;
+    ObjectType		tmpType;
+    uint64			objectId = object->getId();
 
-	resultIdList.reserve(100);
+    resultIdList.reserve(100);
 
-	double plow[2],phigh[2];
+    double plow[2],phigh[2];
 
-	// we in world space, outside -> inside , outside -> outside checking
-	if(!object->getParentId())
-	{
-		plow[0] = object->mPosition.x - range;
-		plow[1] = object->mPosition.z - range;
-		phigh[0] = object->mPosition.x + range;
-		phigh[1] = object->mPosition.z + range;
+    // we in world space, outside -> inside , outside -> outside checking
+    if(!object->getParentId())
+    {
+        plow[0] = object->mPosition.x - range;
+        plow[1] = object->mPosition.z - range;
+        phigh[0] = object->mPosition.x + range;
+        phigh[1] = object->mPosition.z + range;
 
-		Region r = Region(plow,phigh,2);
-		MyVisitor vis(&resultIdList);
+        Region r = Region(plow,phigh,2);
+        MyVisitor vis(&resultIdList);
 
-		//please note that the containsWhatQuery regularly fails to find objects were standing next to - 
-		//mTree->containsWhatQuery(r,vis);
+        //please note that the containsWhatQuery regularly fails to find objects were standing next to -
+        //mTree->containsWhatQuery(r,vis);
 
-		mTree->intersectsWithQuery(r,vis);
-		// filter needed objects
-		ObjectIdList::iterator it = resultIdList.begin();
-		while(it != resultIdList.end())
-		{
-			// check if its us and the object still exists
-			if((static_cast<uint64>(*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
-			{
-				// if we are in same parent	   (world)
-				if(!tmpObject->getParentId())
-				{
-					tmpType = tmpObject->getType();
-					// add it
-					if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-					{
-						resultSet->insert(tmpObject);
-					}
-					// if its a building, add objects of our types it contains
-				
-					//should we query cellchildren here or rather just create them with their cell regardless
-					if((tmpType == ObjType_Building)&&cellContent)
-					{
-						// gLogger->log(LogManager::DEBUG,"Found a building");
+        mTree->intersectsWithQuery(r,vis);
+        // filter needed objects
+        ObjectIdList::iterator it = resultIdList.begin();
+        while(it != resultIdList.end())
+        {
+            // check if its us and the object still exists
+            if((static_cast<uint64>(*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
+            {
+                // if we are in same parent	   (world)
+                if(!tmpObject->getParentId())
+                {
+                    tmpType = tmpObject->getType();
+                    // add it
+                    if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                    {
+                        resultSet->insert(tmpObject);
+                    }
+                    // if its a building, add objects of our types it contains
 
-						ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
-						ObjectList::iterator cellChildsIt = cellChilds.begin();
+                    //should we query cellchildren here or rather just create them with their cell regardless
+                    if((tmpType == ObjType_Building)&&cellContent)
+                    {
 
-						while(cellChildsIt != cellChilds.end())
-						{
-							Object* cellChild = (*cellChildsIt);
+                        ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
+                        ObjectList::iterator cellChildsIt = cellChilds.begin();
 
-							tmpType = cellChild->getType();
+                        while(cellChildsIt != cellChilds.end())
+                        {
+                            Object* cellChild = (*cellChildsIt);
 
-							if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-							{
-								// TODO: We could add a range check to every object...
-								resultSet->insert(cellChild);
-							}
+                            tmpType = cellChild->getType();
 
-							++cellChildsIt;
-						}
-					}
-				}
-			}
+                            if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                            {
+                                // TODO: We could add a range check to every object...
+                                resultSet->insert(cellChild);
+                            }
 
-			++it;
-		}
-	}
-	// we inside a building, inside -> outside, inside -> inside checking
-	// need to query based on buildings world position
-	else if(object->getParentId() != 0)
-	{
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
-		BuildingObject* buildingObject;
+                            ++cellChildsIt;
+                        }
+                    }
+                }
+            }
 
-		if(!cell)
-		{
-			gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
-			return;
-		}
+            ++it;
+        }
+    }
+    // we inside a building, inside -> outside, inside -> inside checking
+    // need to query based on buildings world position
+    else if(object->getParentId() != 0)
+    {
+        CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+        BuildingObject* buildingObject;
 
-	
-		buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-		if(!buildingObject)
-		{
-			gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
-			return;
-		}
-		float buildingWidth		= buildingObject->getWidth();
-		float buildingHeight	= buildingObject->getHeight();
-		
+        if(!cell)
+        {
+            LOG(WARNING) << "SI could not find cell " << object->getParentId();
+            return;
+        }
 
-		float queryWidth,queryHeight;
-		
 
-		// adjusting inside -> outside viewing range
-		// we always want to see a bit outside
+        buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+        if(!buildingObject)
+        {
+            LOG(WARNING) << "SI could not find building " << cell->getParentId();
+            return;
+        }
+        float buildingWidth		= buildingObject->getWidth();
+        float buildingHeight	= buildingObject->getHeight();
 
-		// Comment by ERU
-		// "Max(range,buildingWidth + 32);"
-		// or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
-		// If the above comment was not the intention, please review original code. It was kinda stranage and unclear...
-		if (range > (buildingWidth + 32))
-		{
-			queryWidth = range;
-		}
-		else
-		{
-			queryWidth = buildingWidth + 32;
-		}
 
-		if (range > (buildingHeight + 32))
-		{
-			queryHeight = range;
-		}
-		else
-		{
-			queryHeight = buildingHeight + 32;
-		}
+        float queryWidth,queryHeight;
 
-		plow[0] = buildingObject->mPosition.x - queryWidth;
-		plow[1] = buildingObject->mPosition.z - queryHeight;
-		phigh[0] = buildingObject->mPosition.x + queryWidth;
-		phigh[1] = buildingObject->mPosition.z + queryHeight;
 
-		Region r = Region(plow,phigh,2);
-		MyVisitor vis(&resultIdList);
+        // adjusting inside -> outside viewing range
+        // we always want to see a bit outside
 
-		mTree->intersectsWithQuery(r,vis);
+        // Comment by ERU
+        // "Max(range,buildingWidth + 32);"
+        // or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
+        // If the above comment was not the intention, please review original code. It was kinda stranage and unclear...
+        if (range > (buildingWidth + 32))
+        {
+            queryWidth = range;
+        }
+        else
+        {
+            queryWidth = buildingWidth + 32;
+        }
 
-		//containswhat query regularly misses objects we stand next to - do *not* use it
-		//this might have been because the width and height of buildings was set by default to 128 (ie our viewing range)
-		//mTree->containsWhatQuery(r,vis);
+        if (range > (buildingHeight + 32))
+        {
+            queryHeight = range;
+        }
+        else
+        {
+            queryHeight = buildingHeight + 32;
+        }
 
-		ObjectIdList::iterator it = resultIdList.begin();
-		while(it != resultIdList.end())
-		{
-			// check if its us and the object still exists
-			if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
-			{
-				tmpType = tmpObject->getType();
+        plow[0] = buildingObject->mPosition.x - queryWidth;
+        plow[1] = buildingObject->mPosition.z - queryHeight;
+        phigh[0] = buildingObject->mPosition.x + queryWidth;
+        phigh[1] = buildingObject->mPosition.z + queryHeight;
 
-				// add it
-				if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-				{
-					resultSet->insert(tmpObject);
-					//gLogger->log(LogManager::DEBUG,"inserted %"PRIu64"",tmpObject->getId());
-				}
-		
-				// if its a building, add objects of queried types it contains				
-				if(tmpType == ObjType_Building)
-				{
+        Region r = Region(plow,phigh,2);
+        MyVisitor vis(&resultIdList);
 
-					ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
-					ObjectList::iterator cellChildsIt = cellChilds.begin();
+        mTree->intersectsWithQuery(r,vis);
 
-					while(cellChildsIt != cellChilds.end())
-					{
-						Object* cellChild = (*cellChildsIt);
+        //containswhat query regularly misses objects we stand next to - do *not* use it
+        //this might have been because the width and height of buildings was set by default to 128 (ie our viewing range)
+        //mTree->containsWhatQuery(r,vis);
 
-						tmpType = cellChild->getType();
+        ObjectIdList::iterator it = resultIdList.begin();
+        while(it != resultIdList.end())
+        {
+            // check if its us and the object still exists
+            if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
+            {
+                tmpType = tmpObject->getType();
 
-						if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
-						{
-							// TODO: We could add a range check to every object...
-							resultSet->insert(cellChild);
-							//gLogger->log(LogManager::DEBUG,"inserted cellchild %"PRIu64"",cellChild->getId());
-						}
-						
-						++cellChildsIt;
-					}
-				}
-			}
-			++it;
-		}
+                // add it
+                if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                {
+                    resultSet->insert(tmpObject);
+                    //gLogger->log(LogManager::DEBUG,"inserted %"PRIu64"",tmpObject->getId());
+                }
 
-	}
+                // if its a building, add objects of queried types it contains
+                if(tmpType == ObjType_Building)
+                {
+
+                    ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
+                    ObjectList::iterator cellChildsIt = cellChilds.begin();
+
+                    while(cellChildsIt != cellChilds.end())
+                    {
+                        Object* cellChild = (*cellChildsIt);
+
+                        tmpType = cellChild->getType();
+
+                        if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
+                        {
+                            // TODO: We could add a range check to every object...
+                            resultSet->insert(cellChild);
+                            //gLogger->log(LogManager::DEBUG,"inserted cellchild %"PRIu64"",cellChild->getId());
+                        }
+
+                        ++cellChildsIt;
+                    }
+                }
+            }
+            ++it;
+        }
+
+    }
 }
 
 //=============================================================================
 
 void ZoneTree::RemovePoint(int64 objId,double x,double z)
 {
-	double coords[2];
-	coords[0] = x;
-	coords[1] = z;
+    double coords[2];
+    coords[0] = x;
+    coords[1] = z;
 
-	Point p = Point(coords,2);
+    Point p = Point(coords,2);
 
-	if(mTree->deleteData(p,objId) == false)
-	{
-		std::ostringstream ss;
-		ss << "ZoneTree::RemovePoint *** ERROR: Cannot delete id: " << objId << std::endl;
-		gLogger->log(LogManager::DEBUG,ss.str());
-	}
-	else
-	{
-		/*std::ostringstream ss;
-		ss << "SI(RemovePoint): " << objId << " at " << p;
-		gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
-	}
+    if(mTree->deleteData(p,objId) == false)
+    {
+        std::ostringstream ss;
+        ss << "ZoneTree::RemovePoint *** ERROR: Cannot delete id: " << objId << std::endl;
+        DLOG(INFO) << ss.str();
+    }
+    else
+    {
+    }
 }
 
 //=============================================================================
 
 void ZoneTree::RemoveRegion(int64 objId,double xLow,double zLow,double xHigh,double zHigh)
 {
-	double low[2];
-	double high[2];
-	low[0] = xLow;
-	low[1] = zLow;
-	high[0] = xHigh;
-	high[1] = zHigh;
+    double low[2];
+    double high[2];
+    low[0] = xLow;
+    low[1] = zLow;
+    high[0] = xHigh;
+    high[1] = zHigh;
 
-	Region r = Region(low,high,2);
+    Region r = Region(low,high,2);
 
-	if(mTree->deleteData(r,objId) == false)
-	{
-		std::ostringstream ss;
-		ss << " ZoneTree::RemoveRegion *** ERROR: Cannot delete id: " << objId << std::endl;
-		gLogger->log(LogManager::DEBUG,ss.str());
-	}
-	else
-	{
-		/*std::ostringstream ss;
-		ss << "SI(RemoveRegion): " << objId << " at " << r;
-		gLogger->log(LogManager::DEBUG,ss.str(),MSG_LOW);*/
-	}
+    if(mTree->deleteData(r,objId) == false)
+    {
+        std::ostringstream ss;
+        ss << " ZoneTree::RemoveRegion *** ERROR: Cannot delete id: " << objId << std::endl;
+        LOG(WARNING) << ss.str();
+    }
+    else
+    {
+    }
 }
 
 //=============================================================================
 
 void ZoneTree::DumpStats()
 {
-	std::ostringstream ss;
-	ss << "Dumping TreeStats..." << std::endl;
-	ss << *mTree;
-	ss << "Buffer Hits: " << mStorageBuffer->getHits() << std::endl;
-	ss << "IndexIdentifier: " << mIndexIdentifier << std::endl;
-	gLogger->log(LogManager::DEBUG,ss.str());
+    std::ostringstream ss;
+    ss << "Dumping TreeStats..." << std::endl;
+    ss << *mTree;
+    ss << "Buffer Hits: " << mStorageBuffer->getHits() << std::endl;
+    ss << "IndexIdentifier: " << mIndexIdentifier << std::endl;
+    LOG(WARNING) << ss.str();
 }
 
 //=============================================================================
 
 void ZoneTree::ShutDown()
 {
-	gLogger->log(LogManager::DEBUG,"SpatialIndex Shutdown\n");
+    LOG(WARNING) << "SpatialIndex Shutdown";
 
-	try
-	{
-		mResourceUsage.stop();
-	}
-	catch(Tools::Exception& e)
-	{
-		gLogger->log(LogManager::WARNING,"*** ERROR: " + e.what() + " ***\n");
-	}
-	catch(...)
-	{
-		gLogger->log(LogManager::WARNING,"*** ERROR: Unknown Exception ***\n");
-	}
+    delete(mTree);
+    delete(mStorageBuffer);
+    delete(mStorageManager);
 
-	delete(mTree);
-	delete(mStorageBuffer);
-	delete(mStorageManager);
+    mIndexIdentifier = 0;
 
-	mIndexIdentifier = 0;
-
-	gLogger->log(LogManager::WARNING,"SpatialIndex Shutdown complete\n");
+    LOG(WARNING) << "SpatialIndex Shutdown complete";
 }
 //=============================================================================
 
@@ -633,185 +602,169 @@ void ZoneTree::ShutDown()
 
 void ZoneTree::getObjectsInRangeEx(Object* object,ObjectSet* resultSet,uint32 objTypes,float range)
 {
-	ObjectIdList	resultIdList;
-	Object*			tmpObject;
-	ObjectType		tmpType;
-	uint64			objectId = object->getId();
+    ObjectIdList	resultIdList;
+    Object*			tmpObject;
+    ObjectType		tmpType;
+    uint64			objectId = object->getId();
 
-	resultIdList.reserve(100);
+    resultIdList.reserve(100);
 
-	double plow[2],phigh[2];
+    double plow[2],phigh[2];
 
-	// we in world space, outside -> inside , outside -> outside checking
-	if(!object->getParentId())
-	{
-		plow[0] = object->mPosition.x - range;
-		plow[1] = object->mPosition.z - range;
-		phigh[0] = object->mPosition.x + range;
-		phigh[1] = object->mPosition.z + range;
+    // we in world space, outside -> inside , outside -> outside checking
+    if(!object->getParentId())
+    {
+        plow[0] = object->mPosition.x - range;
+        plow[1] = object->mPosition.z - range;
+        phigh[0] = object->mPosition.x + range;
+        phigh[1] = object->mPosition.z + range;
 
-		Region r = Region(plow,phigh,2);
-		MyVisitor vis(&resultIdList);
+        Region r = Region(plow,phigh,2);
+        MyVisitor vis(&resultIdList);
 
-		mTree->intersectsWithQuery(r,vis);
-		// mTree->containsWhatQuery(r,vis);
+        mTree->intersectsWithQuery(r,vis);
+        // mTree->containsWhatQuery(r,vis);
 
-		// filter needed objects
-		ObjectIdList::iterator it = resultIdList.begin();
-		while(it != resultIdList.end())
-		{
-			// check if its us and the object still exists
-			if((static_cast<uint64>(*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
-			{
-				// if we are in same parent
-				if(!tmpObject->getParentId())
-				{
-					tmpType = tmpObject->getType();
-					// add it
-					if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-					{
-						resultSet->insert(tmpObject);
-					}
-					// if its a building, add objects of our types it contains
-					if(tmpType == ObjType_Building)
-					{
-						// gLogger->log(LogManager::DEBUG,"Found a building");
+        // filter needed objects
+        ObjectIdList::iterator it = resultIdList.begin();
+        while(it != resultIdList.end())
+        {
+            // check if its us and the object still exists
+            if((static_cast<uint64>(*it) != objectId) && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
+            {
+                // if we are in same parent
+                if(!tmpObject->getParentId())
+                {
+                    tmpType = tmpObject->getType();
+                    // add it
+                    if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                    {
+                        resultSet->insert(tmpObject);
+                    }
+                    // if its a building, add objects of our types it contains
+                    if(tmpType == ObjType_Building)
+                    {
+                        // gLogger->log(LogManager::DEBUG,"Found a building");
 
-						ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
-						ObjectList::iterator cellChildsIt = cellChilds.begin();
+                        ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
+                        ObjectList::iterator cellChildsIt = cellChilds.begin();
 
-						while(cellChildsIt != cellChilds.end())
-						{
-							Object* cellChild = (*cellChildsIt);
+                        while(cellChildsIt != cellChilds.end())
+                        {
+                            Object* cellChild = (*cellChildsIt);
 
-							tmpType = cellChild->getType();
+                            tmpType = cellChild->getType();
 
-							if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-							{
-								// TODO: We could add a range check to every object...
-								// gLogger->log(LogManager::DEBUG,"Found object PRId32",cellChild->getId());
-								resultSet->insert(cellChild);
-							}
+                            if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                            {
+                                // TODO: We could add a range check to every object...
+                                // gLogger->log(LogManager::DEBUG,"Found object PRId32",cellChild->getId());
+                                resultSet->insert(cellChild);
+                            }
 
-							++cellChildsIt;
-						}
-					}
-				}
-			}
+                            ++cellChildsIt;
+                        }
+                    }
+                }
+            }
 
-			++it;
-		}
-	}
-	// we inside a building, inside -> outside, inside -> inside checking
-	// need to query based on buildings world position
-	else if(object->getParentId() != 0)
-	{
-		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
-		BuildingObject* buildingObject;
+            ++it;
+        }
+    }
+    // we inside a building, inside -> outside, inside -> inside checking
+    // need to query based on buildings world position
+    else if(object->getParentId() != 0)
+    {
+        CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
+        BuildingObject* buildingObject;
 
-		if(cell)
-		{
-			buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-		}
-		else
-		{
-			gLogger->log(LogManager::WARNING,"SI could not find cell %"PRIu64"",object->getParentId());
-			return;
-		}
+        if(cell)
+        {
+            buildingObject = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+        }
+        else
+        {
+            LOG(WARNING) << "SI could not find cell " << object->getParentId();
+            return;
+        }
 
-		if(!buildingObject)
-		{
-			gLogger->log(LogManager::WARNING,"SI could not find building %"PRIu64"",cell->getParentId());
-			return;
-		}
+        if(!buildingObject)
+        {
+            LOG(WARNING) << "SI could not find building " << cell->getParentId();
+            return;
+        }
 
-		float queryWidth,queryHeight;
-		float buildingWidth		= buildingObject->getWidth();
-		float buildingHeight	= buildingObject->getHeight();
+        float queryWidth,queryHeight;
+        float buildingWidth		= buildingObject->getWidth();
+        float buildingHeight	= buildingObject->getHeight();
 
-		// adjusting inside -> outside viewing range
-		// we always want to see a bit outside
+        // adjusting inside -> outside viewing range
+        // we always want to see a bit outside
 
-		// ERU: No, no, no...NO!
-		// The solution is: "Max(range,buildingWidth + 32);"
-		// or in words: 'The "query range" is at least 32m outside building, or longer if range permits that.'
-		/*
-		if(buildingWidth - range <= 0)
-			queryWidth = buildingWidth - (buildingWidth - range);
-			// ERU: ehh saying queryWidth = range; in a more complicated way :)
-		else
-			queryWidth = buildingWidth + 32;
+        if (range > (buildingWidth + 32))
+        {
+            queryWidth = range;
+        }
+        else
+        {
+            queryWidth = buildingWidth + 32;
+        }
 
-		if(buildingHeight - range <= 0)
-			queryHeight = buildingHeight - (buildingHeight - range);
-		else
-			queryHeight = buildingHeight + 32;
-		*/
+        if (range > (buildingHeight + 32))
+        {
+            queryHeight = range;
+        }
+        else
+        {
+            queryHeight = buildingHeight + 32;
+        }
 
-		if (range > (buildingWidth + 32))
-		{
-			queryWidth = range;
-		}
-		else
-		{
-			queryWidth = buildingWidth + 32;
-		}
+        plow[0] = buildingObject->mPosition.x - queryWidth;
+        plow[1] = buildingObject->mPosition.z - queryHeight;
+        phigh[0] = buildingObject->mPosition.x + queryWidth;
+        phigh[1] = buildingObject->mPosition.z + queryHeight;
 
-		if (range > (buildingHeight + 32))
-		{
-			queryHeight = range;
-		}
-		else
-		{
-			queryHeight = buildingHeight + 32;
-		}
+        Region r = Region(plow,phigh,2);
+        MyVisitor vis(&resultIdList);
 
-		plow[0] = buildingObject->mPosition.x - queryWidth;
-		plow[1] = buildingObject->mPosition.z - queryHeight;
-		phigh[0] = buildingObject->mPosition.x + queryWidth;
-		phigh[1] = buildingObject->mPosition.z + queryHeight;
+        mTree->intersectsWithQuery(r,vis);
 
-		Region r = Region(plow,phigh,2);
-		MyVisitor vis(&resultIdList);
+        ObjectIdList::iterator it = resultIdList.begin();
+        while(it != resultIdList.end())
+        {
+            // check if its us and the object still exists
+            if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
+            {
+                tmpType = tmpObject->getType();
 
-		mTree->intersectsWithQuery(r,vis);
+                // add it
+                if((tmpType & objTypes) == static_cast<uint32>(tmpType))
+                {
+                    resultSet->insert(tmpObject);
+                }
+                // if its a building, add objects of our types it contains
+                if(tmpType == ObjType_Building)
+                {
+                    ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
+                    ObjectList::iterator cellChildsIt = cellChilds.begin();
 
-		ObjectIdList::iterator it = resultIdList.begin();
-		while(it != resultIdList.end())
-		{
-			// check if its us and the object still exists
-			if(static_cast<uint64>(*it) != objectId && ((tmpObject = gWorldManager->getObjectById((*it))) != NULL))
-			{
-				tmpType = tmpObject->getType();
+                    while(cellChildsIt != cellChilds.end())
+                    {
+                        Object* cellChild = (*cellChildsIt);
 
-				// add it
-				if((tmpType & objTypes) == static_cast<uint32>(tmpType))
-				{
-					resultSet->insert(tmpObject);
-				}
-				// if its a building, add objects of our types it contains
-				if(tmpType == ObjType_Building)
-				{
-					ObjectList cellChilds = (dynamic_cast<BuildingObject*>(tmpObject))->getAllCellChilds();
-					ObjectList::iterator cellChildsIt = cellChilds.begin();
+                        tmpType = cellChild->getType();
 
-					while(cellChildsIt != cellChilds.end())
-					{
-						Object* cellChild = (*cellChildsIt);
+                        if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
+                        {
+                            // TODO: We could add a range check to every object...
+                            resultSet->insert(cellChild);
+                        }
 
-						tmpType = cellChild->getType();
-
-						if(((tmpType & objTypes) == static_cast<uint32>(tmpType)) && cellChild->getId() != object->getId())
-						{
-							// TODO: We could add a range check to every object...
-							resultSet->insert(cellChild);
-						}
-
-						++cellChildsIt;
-					}
-				}
-			}
-			++it;
-		}
-	}
+                        ++cellChildsIt;
+                    }
+                }
+            }
+            ++it;
+        }
+    }
 }

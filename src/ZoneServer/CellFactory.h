@@ -44,39 +44,41 @@ class DispatchClient;
 
 enum CellFQuery
 {
-	CellFQuery_MainData	= 1,
-	CellFQuery_Objects	= 2
+    CellFQuery_MainData	= 1,
+    CellFQuery_Objects	= 2
 };
 
 //=============================================================================
 
 class CellFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static CellFactory*	getSingletonPtr() { return mSingleton; }
-		static CellFactory*	Init(Database* database);
+    static CellFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static CellFactory*	Init(Database* database);
 
-		~CellFactory();
+    ~CellFactory();
 
-		virtual void	handleObjectReady(Object* object,DispatchClient* client);
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void			requestStructureCell(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void	handleObjectReady(Object* object,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			requestStructureCell(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-	private:
+private:
 
-		CellFactory(Database* database);
+    CellFactory(Database* database);
 
-		void			_setupDatabindings();
-		void			_destroyDatabindings();
+    void			_setupDatabindings();
+    void			_destroyDatabindings();
 
-		CellObject*		_createCell(DatabaseResult* result);
+    CellObject*		_createCell(DatabaseResult* result);
 
-		static CellFactory*		mSingleton;
-		static bool				mInsFlag;
+    static CellFactory*		mSingleton;
+    static bool				mInsFlag;
 
-		DataBinding*			mCellBinding;
+    DataBinding*			mCellBinding;
 };
 
 //=============================================================================

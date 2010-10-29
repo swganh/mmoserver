@@ -48,115 +48,117 @@ class Message;
 
 class NET_API MessageFactory
 {
-	public:
+public:
 
-		MessageFactory(uint32 heapSize,uint32 serviceId = 0);
-		~MessageFactory();
+    MessageFactory(uint32 heapSize,uint32 serviceId = 0);
+    ~MessageFactory();
 
-		void                    Process(void);
+    void                    Process(void);
 
-		//provides us with information on the current heap useage
-		uint32					HeapWarningLevel(void);
+    //provides us with information on the current heap useage
+    uint32					HeapWarningLevel(void);
 
-		void                    StartMessage(void);
-		Message*                EndMessage(void);
-		
-		void                    DestroyMessage(Message* message);
+    void                    StartMessage(void);
+    Message*                EndMessage(void);
 
-		static MessageFactory*	getSingleton(void);
-		static void             destroySingleton(void);
+    void                    DestroyMessage(Message* message);
 
-		// Data packing methods.
-		void                    addInt8(int8 data);
-		void                    addUint8(uint8 data);
-		void                    addInt16(int16 data);
-		void                    addUint16(uint16 data);
-		void                    addInt32(int32 data);
-		void                    addUint32(uint32 data);
-		void                    addInt64(int64 data);
-		void                    addUint64(uint64 data);
-		void                    addFloat(float data);
-		void                    addDouble(double data);
-		void                    addString(const BString& data);
-		void					addString(const std::string& string);
-		void					addString(const std::wstring& string);
-		void					addString(const char* cstring);
-		void					addString(const wchar_t* ustring);
-		void					addString(const unsigned short* ustring);
-		void                    addData(const int8* data, uint16 len);
-		void                    addData(const uint8_t* data, uint16 len);
+    static MessageFactory*	getSingleton(void);
+    static void             destroySingleton(void);
 
-		float					getHeapsize(){return mCurrentUsed;}
-	private:
+    // Data packing methods.
+    void                    addInt8(int8 data);
+    void                    addUint8(uint8 data);
+    void                    addInt16(int16 data);
+    void                    addUint16(uint16 data);
+    void                    addInt32(int32 data);
+    void                    addUint32(uint32 data);
+    void                    addInt64(int64 data);
+    void                    addUint64(uint64 data);
+    void                    addFloat(float data);
+    void                    addDouble(double data);
+    void                    addString(const BString& data);
+    void					addString(const std::string& string);
+    void					addString(const std::wstring& string);
+    void					addString(const char* cstring);
+    void					addString(const wchar_t* ustring);
+    void					addString(const unsigned short* ustring);
+    void                    addData(const int8* data, uint16 len);
+    void                    addData(const uint8_t* data, uint16 len);
 
-		void                    _processGarbageCollection(void);
-		void                    _adjustHeapStartBounds(uint32 size);
-		//make sure our messageclass size is put inside heap bounds
-		void					_adjustMessageStart(uint32 size);
-		void                    _adjustHeapEndBounds(uint32 size);
-		uint32                  _getHeapSize(void);
+    float					getHeapsize() {
+        return mCurrentUsed;
+    }
+private:
 
-		Message*                mCurrentMessage;
-		int8*                   mCurrentMessageEnd;
-		int8*                   mCurrentMessageStart;
+    void                    _processGarbageCollection(void);
+    void                    _adjustHeapStartBounds(uint32 size);
+    //make sure our messageclass size is put inside heap bounds
+    void					_adjustMessageStart(uint32 size);
+    void                    _adjustHeapEndBounds(uint32 size);
+    uint32                  _getHeapSize(void);
 
-		int8*                   mHeapStart;
-		int8*                   mHeapEnd;
-		int8*                   mHeapRollover;
-		int8*                   mMessageHeap;
-		uint64									mLastTime; //last message about stuck messages
-		uint32                  mHeapTotalSize; //total heapsize used AND unused
+    Message*                mCurrentMessage;
+    int8*                   mCurrentMessageEnd;
+    int8*                   mCurrentMessageStart;
+
+    int8*                   mHeapStart;
+    int8*                   mHeapEnd;
+    int8*                   mHeapRollover;
+    int8*                   mMessageHeap;
+    uint64									mLastTime; //last message about stuck messages
+    uint32                  mHeapTotalSize; //total heapsize used AND unused
 
 
-		// Statistics
-		uint32                  mMessagesCreated;
-		uint32                  mMessagesDestroyed;
-		uint32					mServiceId;
-		float					mHeapWarnLevel;
-		float                   mMaxHeapUsedPercent;
+    // Statistics
+    uint32                  mMessagesCreated;
+    uint32                  mMessagesDestroyed;
+    uint32					mServiceId;
+    float					mHeapWarnLevel;
+    float                   mMaxHeapUsedPercent;
 
-		float					mLastHeapLevel;
-		uint64					mLastHeapLevelTime;
-		float					mCurrentUsed;
+    float					mLastHeapLevel;
+    uint64					mLastHeapLevelTime;
+    float					mCurrentUsed;
 
-		static MessageFactory*	mSingleton;
-		// Anh_Utils::Clock*		mClock;
+    static MessageFactory*	mSingleton;
+    // Anh_Utils::Clock*		mClock;
 };
 
 //======================================================================================================================
 
 inline MessageFactory* MessageFactory::getSingleton(void)
 {
-	if(!mSingleton)
-	{
-		mSingleton = new MessageFactory(gConfig->read<uint32>("GlobalMessageHeap")*1024);
-	}
+    if(!mSingleton)
+    {
+        mSingleton = new MessageFactory(gConfig->read<uint32>("GlobalMessageHeap")*1024);
+    }
 
-	return mSingleton;
+    return mSingleton;
 }
 
 //======================================================================================================================
 
 inline void MessageFactory::destroySingleton(void)
 {
-	if (mSingleton)
-	{
-		delete mSingleton;
-		mSingleton = 0;
-	}
+    if (mSingleton)
+    {
+        delete mSingleton;
+        mSingleton = 0;
+    }
 }
 
 //======================================================================================================================
 
 inline uint32 MessageFactory::_getHeapSize(void)
 {
-	if (mHeapStart >= mHeapEnd)
-	{
-		return (uint32)(mHeapStart - mHeapEnd);
-	}
+    if (mHeapStart >= mHeapEnd)
+    {
+        return (uint32)(mHeapStart - mHeapEnd);
+    }
 
-	return (uint32)mHeapTotalSize-(mHeapEnd - mHeapStart);
-	//return (uint32)(mMessageHeap + mHeapTotalSize - mHeapEnd + mHeapStart - mMessageHeap);
+    return (uint32)mHeapTotalSize-(mHeapEnd - mHeapStart);
+    //return (uint32)(mMessageHeap + mHeapTotalSize - mHeapEnd + mHeapStart - mMessageHeap);
 }
 
 //======================================================================================================================

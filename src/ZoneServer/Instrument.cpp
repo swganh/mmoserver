@@ -1,4 +1,4 @@
-              /*
+/*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -57,88 +57,88 @@ void Instrument::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     {
         switch(messageType)
         {
-            case radId_itemUse:
+        case radId_itemUse:
+        {
+            if (player->getPlacedInstrumentId() == this->getId())
             {
-                if (player->getPlacedInstrumentId() == this->getId())
+                float range = gWorldConfig->getConfiguration<float>("Zone_Player_ItemUse",(float)6.0);
+                if (!gWorldManager->objectsInRange(player->getId(), this->getId(), range))
                 {
-                    float range = gWorldConfig->getConfiguration<float>("Zone_Player_ItemUse",(float)6.0);
-                    if (!gWorldManager->objectsInRange(player->getId(), this->getId(), range))
-                    {
-                        // We where out of range. (using 6.0 m as default range,this value not verified).
-                        // TODO: Find the proper error-message, the one below is a "made up".
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "out_of_range"), player);
-                        return;
-                    }
+                    // We where out of range. (using 6.0 m as default range,this value not verified).
+                    // TODO: Find the proper error-message, the one below is a "made up".
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "out_of_range"), player);
+                    return;
+                }
 
-                    if ((player->getId() == this->getOwner()) && this->getPlaced())
+                if ((player->getId() == this->getOwner()) && this->getPlaced())
+                {
+                    if ((player->getPerformingState() == PlayerPerformance_Music))
                     {
-                        if ((player->getPerformingState() == PlayerPerformance_Music))
-                        {
-                            gEntertainerManager->stopEntertaining(player);
-                        }
-                        else
-                        {
-                            // Start to play the copy.
-                            gEntertainerManager->usePlacedInstrument(player,this);
-                        }
+                        gEntertainerManager->stopEntertaining(player);
                     }
                     else
                     {
-                        // Create a new copy of the instrument.
-                        // gEntertainerManager->useInstrument(player,this);
+                        // Start to play the copy.
+                        gEntertainerManager->usePlacedInstrument(player,this);
                     }
                 }
                 else
                 {
-                    // We are handling the original instrument.
-                    Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-                    if (inventory)
+                    // Create a new copy of the instrument.
+                    // gEntertainerManager->useInstrument(player,this);
+                }
+            }
+            else
+            {
+                // We are handling the original instrument.
+                Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+                if (inventory)
+                {
+                    if (inventory->getId() == this->getParentId())
                     {
-                        if (inventory->getId() == this->getParentId())
+                        if (player->getPlacedInstrumentId() == 0)
                         {
-                            if (player->getPlacedInstrumentId() == 0)
+                            // Create a new copy of the instrument.
+                            gEntertainerManager->useInstrument(player,this);
+                        }
+                        else
+                        {
+                            gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "wrong_state"), player);
+                        }
+                    }
+                    else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
+                    {
+                        // Is this my instrument?
+                        if (this->getOwner() == player->getId())
+                        {
+                            if (!gWorldManager->objectsInRange(player->getId(), this->getId(), 6.0))
                             {
-                                // Create a new copy of the instrument.
-                                gEntertainerManager->useInstrument(player,this);
+                                // We where out of range. (using 6.0 m as default range,this value not verified).
+                                // TODO: Find the proper error-message, the one below is a "made up".
+                                gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "out_of_range"), player);
+                                return;
+                            }
+
+                            if ((player->getPerformingState() == PlayerPerformance_Music))
+                            {
+                                gEntertainerManager->stopEntertaining(player);
                             }
                             else
                             {
-                                gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "wrong_state"), player);
-                            }
-                        }
-                        else if (dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-                        {
-                            // Is this my instrument?
-                            if (this->getOwner() == player->getId())
-                            {
-                                if (!gWorldManager->objectsInRange(player->getId(), this->getId(), 6.0))
-                                {
-                                    // We where out of range. (using 6.0 m as default range,this value not verified).
-                                    // TODO: Find the proper error-message, the one below is a "made up".
-                                    gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "out_of_range"), player);
-                                    return;
-                                }
-
-                                if ((player->getPerformingState() == PlayerPerformance_Music))
-                                {
-                                    gEntertainerManager->stopEntertaining(player);
-                                }
-                                else
-                                {
-                                    // Start to play the original.
-                                    gEntertainerManager->usePlacedInstrument(player,this);
-                                }
+                                // Start to play the original.
+                                gEntertainerManager->usePlacedInstrument(player,this);
                             }
                         }
                     }
                 }
             }
-            break;
+        }
+        break;
 
-            default:
-            {
-            }
-            break;
+        default:
+        {
+        }
+        break;
         }
     }
 }

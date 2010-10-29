@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 #include "Utils/utils.h"
@@ -88,48 +87,48 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
     switch(elementCount)
     {
         // warp on current planet
-        case 2:
-        {
-            // make sure we in bounds
-            if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
-                break;
+    case 2:
+    {
+        // make sure we in bounds
+        if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
+            break;
 
+        gWorldManager->warpPlanet(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
+    }
+    return;
+
+    // warp to other or current planet
+    case 3:
+    {
+        // make sure we in bounds
+        if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
+            break;
+
+        planetId = gWorldManager->getPlanetIdByName(planet);
+
+        if(planetId == -1)
+            break;
+
+        // warp on this planet
+        if(static_cast<uint32>(planetId) == gWorldManager->getZoneId())
+        {
             gWorldManager->warpPlanet(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
         }
-        return;
-
-        // warp to other or current planet
-        case 3:
+        // zone transfer request
+        else
         {
-            // make sure we in bounds
-            if(x < -8192 || x > 8192 || z < -8192 || z > 8192)
-                break;
+            gMessageLib->SendSystemMessage(L"Requesting zone transfer...", player);
 
-            planetId = gWorldManager->getPlanetIdByName(planet);
-
-            if(planetId == -1)
-                break;
-
-            // warp on this planet
-            if(static_cast<uint32>(planetId) == gWorldManager->getZoneId())
-            {
-                gWorldManager->warpPlanet(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
-            }
-            // zone transfer request
-            else
-            {
-                gMessageLib->SendSystemMessage(L"Requesting zone transfer...", player);
-
-                gMessageLib->sendClusterZoneTransferRequestByPosition(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
-            }
+            gMessageLib->sendClusterZoneTransferRequestByPosition(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
         }
-        return;
+    }
+    return;
 
-        default:
-        {
-            gMessageLib->SendSystemMessage(L"[SYNTAX] /admin_warp_self <x> <z> <planet>", player);
-        }
-        return;
+    default:
+    {
+        gMessageLib->SendSystemMessage(L"[SYNTAX] /admin_warp_self <x> <z> <planet>", player);
+    }
+    return;
     }
 
     gMessageLib->SendSystemMessage(L"Error parsing parameters.", player);
@@ -154,11 +153,11 @@ typedef struct _AdminCommands
 
 #define noOfAdminCommands 5
 static AdminCommands adminCommands[noOfAdminCommands] = {
-        {"broadcast", 10}, // &ObjectController::handleBroadcast,
-        {"broadcastPlanet", 10}, // &ObjectController::handleBroadcastPlanet,
-        {"broadcastGalaxy", 10}, // &ObjectController::handleBroadcastGalaxy,
-        {"shutdownGalaxy", 9}, // &ObjectController::handleShutdownGalaxy,
-        {"cancelShutdownGalaxy", 15}, // &ObjectController::handleCancelShutdownGalaxy
+    {"broadcast", 10}, // &ObjectController::handleBroadcast,
+    {"broadcastPlanet", 10}, // &ObjectController::handleBroadcastPlanet,
+    {"broadcastGalaxy", 10}, // &ObjectController::handleBroadcastGalaxy,
+    {"shutdownGalaxy", 9}, // &ObjectController::handleShutdownGalaxy,
+    {"cancelShutdownGalaxy", 15}, // &ObjectController::handleCancelShutdownGalaxy
 };
 
 void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
@@ -174,12 +173,12 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
         // gMessageLib->sendSystemMessage(player, dataStr, true);
 
         dataStr.convert(BSTRType_ANSI);
-        gLogger->log(LogManager::DEBUG,"Admin (%s): %s", player->getFirstName().getAnsi(), dataStr.getAnsi());
+        DLOG(INFO) << "Admin "<< player->getFirstName().getAnsi() <<":" << dataStr.getAnsi();
     }
     else
     {
         dataStr.convert(BSTRType_ANSI);
-        gLogger->log(LogManager::DEBUG,"Admin (anon): %s", dataStr.getAnsi());
+        DLOG(INFO) << "Admin (anon): " <<  dataStr.getAnsi();
     }
 
     int8 rawData[128];
@@ -757,24 +756,22 @@ void ObjectController::sendAdminFeedback(BString reply) const
     {
         if (reply.getLength())
         {
-            gLogger->log(LogManager::NOTICE,"Admin (%s): %s", player->getFirstName().getAnsi(), reply.getAnsi());
             reply.convert(BSTRType_Unicode16);
             gMessageLib->SendSystemMessage(reply.getUnicode16(), player, true);
         }
         else
         {
-            gLogger->log(LogManager::NOTICE,"Admin (%s):", player->getFirstName().getAnsi());
+            DLOG(INFO) << "Admin :" << player->getFirstName().getAnsi();
         }
     }
     else
     {
         if (reply.getDataLength())
         {
-            gLogger->log(LogManager::NOTICE,"Admin (anon): %s", reply.getAnsi());
+            DLOG(INFO) << "Admin (anon): " << reply.getAnsi();
         }
         else
         {
-            gLogger->log(LogManager::NOTICE,"Admin (anon):");
         }
     }
 }

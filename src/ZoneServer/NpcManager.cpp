@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "StateManager.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -53,12 +53,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class NpcLairEntity
 {
-	public:
-		NpcLairEntity(){}
+public:
+    NpcLairEntity() {}
 
-		uint64	mLairsId;
-		uint64	mLairTemplateId;
-		uint32	mNumberOfLairs;
+    uint64	mLairsId;
+    uint64	mLairTemplateId;
+    uint32	mNumberOfLairs;
 };
 
 
@@ -71,11 +71,11 @@ NpcManager* NpcManager::mInstance  = NULL;
 
 NpcManager* NpcManager::Instance(void)
 {
-	if (!mInstance)
-	{
-		mInstance = new NpcManager(WorldManager::getSingletonPtr()->getDatabase());
-	}
-	return mInstance;
+    if (!mInstance)
+    {
+        mInstance = new NpcManager(WorldManager::getSingletonPtr()->getDatabase());
+    }
+    return mInstance;
 }
 
 
@@ -90,8 +90,8 @@ NpcManager::NpcManager()
 
 NpcManager::NpcManager(Database* database) :mDatabase(database)
 {
-	// _setupDatabindings();
-	this->loadLairs();
+    // _setupDatabindings();
+    this->loadLairs();
 }
 
 
@@ -99,8 +99,8 @@ NpcManager::NpcManager(Database* database) :mDatabase(database)
 
 NpcManager::~NpcManager()
 {
-	// _destroyDatabindings();
-	mInstance = NULL;
+    // _destroyDatabindings();
+    mInstance = NULL;
 }
 
 //=============================================================================
@@ -140,58 +140,57 @@ void NpcManager::addCreature(uint64 creatureId, const SpawnData *spawn)
 
 uint64 NpcManager::handleNpc(NPCObject* npc, uint64 timeOverdue)
 {
-	uint64 waitTime;
-	uint64 newWaitTime;
+    uint64 waitTime;
+    uint64 newWaitTime;
 
-	// Handle events.
-	NPCObject::Npc_AI_State oldState = npc->getAiState();
-	npc->handleEvents();
+    // Handle events.
+    NPCObject::Npc_AI_State oldState = npc->getAiState();
+    npc->handleEvents();
 
-	newWaitTime = npc->handleState(timeOverdue);
-	waitTime = newWaitTime;
+    newWaitTime = npc->handleState(timeOverdue);
+    waitTime = newWaitTime;
 
-	NPCObject::Npc_AI_State newState = npc->getAiState();
-	if (newState != oldState)
-	{
-		waitTime = 0;
-		if (newState == AttackableCreature::NpcIsDormant)
-		{
-			gWorldManager->addDormantNpc(npc->getId(), newWaitTime);
-		}
-		else if (newState == AttackableCreature::NpcIsReady)
-		{
-			gWorldManager->addReadyNpc(npc->getId(), newWaitTime);
-		}
-		else if (newState == AttackableCreature::NpcIsActive)
-		{
-			gWorldManager->addActiveNpc(npc->getId(), newWaitTime);
-		}
-		else
-		{
-			gLogger->log(LogManager::CRITICAL,"NpcManager::handleNpc() Invalid AI state.\n");
-			assert(false && "NpcManager::handleNpc invalid AI state");
-		}
-	}
-	return waitTime;
+    NPCObject::Npc_AI_State newState = npc->getAiState();
+    if (newState != oldState)
+    {
+        waitTime = 0;
+        if (newState == AttackableCreature::NpcIsDormant)
+        {
+            gWorldManager->addDormantNpc(npc->getId(), newWaitTime);
+        }
+        else if (newState == AttackableCreature::NpcIsReady)
+        {
+            gWorldManager->addReadyNpc(npc->getId(), newWaitTime);
+        }
+        else if (newState == AttackableCreature::NpcIsActive)
+        {
+            gWorldManager->addActiveNpc(npc->getId(), newWaitTime);
+        }
+        else
+        {
+            assert(false && "NpcManager::handleNpc invalid AI state");
+        }
+    }
+    return waitTime;
 }
 
 
 void NpcManager::handleExpiredCreature(uint64 creatureId)
 {
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(creatureId));
-	if (creature)
-	{
-		creature->killEvent();
-	}
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(creatureId));
+    if (creature)
+    {
+        creature->killEvent();
+    }
 }
 
 void NpcManager::handleObjectReady(Object* object)
 {
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(object);
-	if (creature)
-	{
-		creature->respawn();
-	}
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(object);
+    if (creature)
+    {
+        creature->respawn();
+    }
 }
 
 
@@ -202,58 +201,58 @@ void NpcManager::handleObjectReady(Object* object)
 //=============================================================================================================================
 void NpcManager::loadLairs(void)
 {
-	//load lair and creature spawn, and optionally heightmaps cache.
-	// NpcFamily_NaturalLairs
+    //load lair and creature spawn, and optionally heightmaps cache.
+    // NpcFamily_NaturalLairs
 
-	mDatabase->ExecuteSqlAsync(this,new NpcAsyncContainer(NpcQuery_Lairs), "SELECT lairs.id, lairs.lair_template, lairs.count FROM lairs INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs);
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT lairs.id, lairs.lair_template, lairs.count FROM lairs INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,new NpcAsyncContainer(NpcQuery_Lairs), "SELECT lairs.id, lairs.lair_template, lairs.count FROM lairs INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id) WHERE spawns.spawn_planet=%u AND lairs.family=%u ORDER BY lairs.id;",gWorldManager->getZoneId(), NpcFamily_NaturalLairs);
+   
 }
 
 void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
-	NpcAsyncContainer* asyncContainer = reinterpret_cast<NpcAsyncContainer*>(ref);
-	switch(asyncContainer->mQuery)
-	{
-		case NpcQuery_Lairs:
-		{
-			// warning... this assumes that someone has called the Init()-function before we execute the line below.
-			// For now, it's done at ZoneServer::Startup().
-			NonPersistentNpcFactory* nonPersistentNpcFactory = NonPersistentNpcFactory::Instance();
+    NpcAsyncContainer* asyncContainer = reinterpret_cast<NpcAsyncContainer*>(ref);
+    switch(asyncContainer->mQuery)
+    {
+    case NpcQuery_Lairs:
+    {
+        // warning... this assumes that someone has called the Init()-function before we execute the line below.
+        // For now, it's done at ZoneServer::Startup().
+        NonPersistentNpcFactory* nonPersistentNpcFactory = NonPersistentNpcFactory::Instance();
 
-			NpcLairEntity lair;
+        NpcLairEntity lair;
 
-			// Here we will get the lair type.
-			DataBinding* lairSpawnBinding = mDatabase->CreateDataBinding(3);
-			lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntity,mLairsId),8,0);
-			lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntity,mLairTemplateId),8,1);
-			lairSpawnBinding->addField(DFT_uint32,offsetof(NpcLairEntity,mNumberOfLairs),4,2);
+        // Here we will get the lair type.
+        DataBinding* lairSpawnBinding = mDatabase->createDataBinding(3);
+        lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntity,mLairsId),8,0);
+        lairSpawnBinding->addField(DFT_uint64,offsetof(NpcLairEntity,mLairTemplateId),8,1);
+        lairSpawnBinding->addField(DFT_uint32,offsetof(NpcLairEntity,mNumberOfLairs),4,2);
 
-			uint64 count = result->getRowCount();
+        uint64 count = result->getRowCount();
 
-			for (uint64 i = 0;i < count;i++)
-			{
-				result->GetNextRow(lairSpawnBinding,&lair);
+        for (uint64 i = 0; i < count; i++)
+        {
+            result->getNextRow(lairSpawnBinding,&lair);
 
-				for (uint64 lairs = 0; lairs < lair.mNumberOfLairs; lairs++)
-				{
-					// We need two id's in sequence, since nps'c have an inventory.
-					uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
+            for (uint64 lairs = 0; lairs < lair.mNumberOfLairs; lairs++)
+            {
+                // We need two id's in sequence, since nps'c have an inventory.
+                uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
 
-					if (npcNewId != 0)
-					{
-						nonPersistentNpcFactory->requestLairObject(this, lair.mLairsId, npcNewId);
-					}
-				}
-			}
-			mDatabase->DestroyDataBinding(lairSpawnBinding);
-		}
-		break;
+                if (npcNewId != 0)
+                {
+                    nonPersistentNpcFactory->requestLairObject(this, lair.mLairsId, npcNewId);
+                }
+            }
+        }
+        mDatabase->destroyDataBinding(lairSpawnBinding);
+    }
+    break;
 
-		default:
-		{
-		}
-		break;
-	}
+    default:
+    {
+    }
+    break;
+    }
 
 }
 
@@ -277,17 +276,14 @@ void NpcManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
 bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 {
-
 	if (!attacker || !defenderId)
 	{
-		gLogger->log(LogManager::DEBUG,"NpcManager::_verifyCombatState() Invalid attacker or defender");
 		return false;
 	}
 
 	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
 	if (!defender)
 	{
-		gLogger->log(LogManager::DEBUG,"NpcManager::_verifyCombatState() Invalid attacker");
 		return false;
 	}
 
@@ -545,25 +541,25 @@ bool NpcManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 
 bool NpcManager::handleAttack(CreatureObject *attacker, uint64 targetId) // , ObjectControllerCmdProperties *cmdProperties)
 {
-	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+    CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 
-	if (_verifyCombatState(attacker, targetId))
-	{
-		// get the current weapon
-		Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
+    if (_verifyCombatState(attacker, targetId))
+    {
+        // get the current weapon
+        Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
 
-		if (!weapon)
-		{
-			return(false);
-		}
+        if (!weapon)
+        {
+            return(false);
+        }
 
-		// do the attack
-		/*uint8 attackResult = */_executeAttack(attacker, defender, weapon);
+        // do the attack
+        /*uint8 attackResult = */_executeAttack(attacker, defender, weapon);
 
-		return(true);
-	}
+        return(true);
+    }
 
-	return(false);
+    return(false);
 }
 
 //======================================================================================================================
@@ -571,287 +567,309 @@ bool NpcManager::handleAttack(CreatureObject *attacker, uint64 targetId) // , Ob
 // uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
 uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon)
 {
-	uint8	randomHitPool			= 100;
-	//uint8	randomPoolHitChance		= 100;
-	//uint8	stateApplied			= 0;
-	int32	multipliedDamage		= 0;
-	BString	combatSpam				= "melee";
+    uint8	randomHitPool			= 100;
+    //uint8	randomPoolHitChance		= 100;
+    //uint8	stateApplied			= 0;
+    int32	multipliedDamage		= 0;
+    BString	combatSpam				= "melee";
 
-	// first see if we actually hit our target
-	// uint8 attackResult = _hitCheck(attacker,defender,cmdProperties,weapon);
-	uint8 attackResult = _hitCheck(attacker,defender,weapon);
+    // first see if we actually hit our target
+    // uint8 attackResult = _hitCheck(attacker,defender,cmdProperties,weapon);
+    uint8 attackResult = _hitCheck(attacker,defender,weapon);
 
-	// only proceed, if so
-	if (!attackResult)
-	{
-		// TODO: retrieve from weapon
-		AttackableCreature* attackerNpc = dynamic_cast<AttackableCreature*>(attacker);
-		if (!attackerNpc)
-		{
-			return 0;
-		}
+    // only proceed, if so
+    if (!attackResult)
+    {
+        // TODO: retrieve from weapon
+        AttackableCreature* attackerNpc = dynamic_cast<AttackableCreature*>(attacker);
+        if (!attackerNpc)
+        {
+            return 0;
+        }
 
-		int32 baseMinDamage	= attackerNpc->getMinDamage();
-		int32 baseMaxDamage	= attackerNpc->getMaxDamage();
+        int32 baseMinDamage	= attackerNpc->getMinDamage();
+        int32 baseMaxDamage	= attackerNpc->getMaxDamage();
 
-		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
+        int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
 
-		// apply damage multiplier
-		/*
-		if(cmdProperties->mDamageMultiplier)
-		{
-			multipliedDamage = baseDamage * cmdProperties->mDamageMultiplier;
-		}
-		else
-		{
-			multipliedDamage = baseDamage;
-		}
-		*/
-		multipliedDamage = baseDamage;
+        // apply damage multiplier
+        /*
+        if(cmdProperties->mDamageMultiplier)
+        {
+        	multipliedDamage = baseDamage * cmdProperties->mDamageMultiplier;
+        }
+        else
+        {
+        	multipliedDamage = baseDamage;
+        }
+        */
+        multipliedDamage = baseDamage;
 
-		// mitigation
-		// multipliedDamage = _mitigateDamage(attacker,defender,cmdProperties,multipliedDamage,weapon);
+        // mitigation
+        // multipliedDamage = _mitigateDamage(attacker,defender,cmdProperties,multipliedDamage,weapon);
 
-		// state effects
-		// stateApplied = _tryStateEffects(attacker,defender,cmdProperties,weapon);
+        // state effects
+        // stateApplied = _tryStateEffects(attacker,defender,cmdProperties,weapon);
 
-		// ham damage
-		// if no target pool set, pick a random one
-		// if (!cmdProperties->mHealthHitChance && !cmdProperties->mActionHitChance && !cmdProperties->mMindHitChance)
-		{
-			switch(gRandom->getRand()%3)
-			{
-				case 0: randomHitPool = HamBar_Health;	break;
-				case 1: randomHitPool = HamBar_Action;	break;
-				case 2: randomHitPool = HamBar_Mind;	break;
+        // ham damage
+        // if no target pool set, pick a random one
+        // if (!cmdProperties->mHealthHitChance && !cmdProperties->mActionHitChance && !cmdProperties->mMindHitChance)
+        {
+            switch(gRandom->getRand()%3)
+            {
+            case 0:
+                randomHitPool = HamBar_Health;
+                break;
+            case 1:
+                randomHitPool = HamBar_Action;
+                break;
+            case 2:
+                randomHitPool = HamBar_Mind;
+                break;
 
-				default: randomHitPool = 0;				break;
-			}
-		}
+            default:
+                randomHitPool = 0;
+                break;
+            }
+        }
 
-		if (defender->getCreoGroup() != CreoGroup_AttackableObject)
-		{
-			// random pool attack
-			if(randomHitPool != 100)
-			{
-				defender->getHam()->updatePropertyValue(randomHitPool,HamProperty_CurrentHitpoints,multipliedDamage,true);
-			}
-			// direct pool attack
-			/*
-			else
-			{
-				// health hit
-				if(cmdProperties->mHealthHitChance)
-				{
-					defender->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,multipliedDamage,true);
-				}
-				// action hit
-				else if(cmdProperties->mActionHitChance)
-				{
-					defender->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,multipliedDamage,true);
-				}
-				// mind hit
-				else if(cmdProperties->mMindHitChance)
-				{
-					defender->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,multipliedDamage,true);
-				}
-			}
-			*/
-		}
-		else
-		{
-			defender->getHam()->updateSingleHam(multipliedDamage, true);
-		}
-		/*
-		if (defender->isIncapacitated())
-		{
-			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-			if (playerAttacker && playerAttacker->isConnected())
-			{
-				if (defender->getType() == ObjType_Player)
-				{
-					int8 str[128];
-					if (defender->getLastName().getLength())
-					{
-						sprintf(str,"%s %s", defender->getFirstName().getAnsi(), defender->getLastName().getAnsi());
-					}
-					else
-					{
-						sprintf(str,"%s", defender->getFirstName().getAnsi());
-					}
-					BString playerName(str);
-					playerName.convert(BSTRType_Unicode16);
+        if (defender->getCreoGroup() != CreoGroup_AttackableObject)
+        {
+            // random pool attack
+            if(randomHitPool != 100)
+            {
+                defender->getHam()->updatePropertyValue(randomHitPool,HamProperty_CurrentHitpoints,multipliedDamage,true);
+            }
+            // direct pool attack
+            /*
+            else
+            {
+            	// health hit
+            	if(cmdProperties->mHealthHitChance)
+            	{
+            		defender->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,multipliedDamage,true);
+            	}
+            	// action hit
+            	else if(cmdProperties->mActionHitChance)
+            	{
+            		defender->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,multipliedDamage,true);
+            	}
+            	// mind hit
+            	else if(cmdProperties->mMindHitChance)
+            	{
+            		defender->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,multipliedDamage,true);
+            	}
+            }
+            */
+        }
+        else
+        {
+            defender->getHam()->updateSingleHam(multipliedDamage, true);
+        }
+        /*
+        if (defender->isIncapacitated())
+        {
+        	PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
+        	if (playerAttacker && playerAttacker->isConnected())
+        	{
+        		if (defender->getType() == ObjType_Player)
+        		{
+        			int8 str[128];
+        			if (defender->getLastName().getLength())
+        			{
+        				sprintf(str,"%s %s", defender->getFirstName().getAnsi(), defender->getLastName().getAnsi());
+        			}
+        			else
+        			{
+        				sprintf(str,"%s", defender->getFirstName().getAnsi());
+        			}
+        			BString playerName(str);
+        			playerName.convert(BSTRType_Unicode16);
 
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, "", "", playerName);
-				}
-				else
-				{
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, defender->getSpeciesGroup(), defender->getSpeciesString());
-				}
-			}
-		}
+        			gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, "", "", playerName);
+        		}
+        		else
+        		{
+        			gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, defender->getSpeciesGroup(), defender->getSpeciesString());
+        		}
+        	}
+        }
 
-		if (defender->isDead())
-		{
-			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-			if (playerAttacker && playerAttacker->isConnected())
-			{
-				if (defender->getType() == ObjType_Player)
-				{
-					int8 str[128];
-					if (defender->getLastName().getLength())
-					{
-						sprintf(str,"%s %s", defender->getFirstName().getAnsi(), defender->getLastName().getAnsi());
-					}
-					else
-					{
-						sprintf(str,"%s", defender->getFirstName().getAnsi());
-					}
-					BString playerName(str);
-					playerName.convert(BSTRType_Unicode16);
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, "", "", playerName);
-				}
-				else
-				{
-					gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, defender->getSpeciesGroup(), defender->getSpeciesString());
-				}
-			}
-		}
-		*/
-	}
+        if (defender->isDead())
+        {
+        	PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
+        	if (playerAttacker && playerAttacker->isConnected())
+        	{
+        		if (defender->getType() == ObjType_Player)
+        		{
+        			int8 str[128];
+        			if (defender->getLastName().getLength())
+        			{
+        				sprintf(str,"%s %s", defender->getFirstName().getAnsi(), defender->getLastName().getAnsi());
+        			}
+        			else
+        			{
+        				sprintf(str,"%s", defender->getFirstName().getAnsi());
+        			}
+        			BString playerName(str);
+        			playerName.convert(BSTRType_Unicode16);
+        			gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, "", "", playerName);
+        		}
+        		else
+        		{
+        			gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, defender->getSpeciesGroup(), defender->getSpeciesString());
+        		}
+        	}
+        }
+        */
+    }
 
-	// fly text and animations
-	// default attack(s)
-	// Assume we only use the default attack for now.
-	// if (cmdProperties->mCmdCrc == 0xa8fef90a)
-	{
-		// This is just a temp fix, we need to solve how to differ creatures from human npc's.
-		uint32 animCrc;
-		if (gWorldConfig->isTutorial())
-		{
-			animCrc = gCombatManager->getDefaultAttackAnimation(weapon->getGroup());
-		}
-		else
-		{
-			// creature_attack_light
-			animCrc = 0x8BF5B8B6;
-		}
-		// creature_attack_light 0xB6B8F58B (reversed from WIKI 0x8BF5B8B6)
-		// creature_attack_medium 0x48CBE352 ( 0x52E3CB48 )
-		// creature_attack_special_1_medium 0x24AEEF7A
-		// creature_attack_special_1_light 0x13E6B2DE
-		// creature_attack_special_2_medium 0x7ACB0D96
-		// creature_attack_special_2_light 0x205E4B0F
-		// creature_attack_ranged_light 0x8D49FC90
-		// creature_attack_ranged_medium 0x59E0483C
+    // fly text and animations
+    // default attack(s)
+    // Assume we only use the default attack for now.
+    // if (cmdProperties->mCmdCrc == 0xa8fef90a)
+    {
+        // This is just a temp fix, we need to solve how to differ creatures from human npc's.
+        uint32 animCrc;
+        if (gWorldConfig->isTutorial())
+        {
+            animCrc = gCombatManager->getDefaultAttackAnimation(weapon->getGroup());
+        }
+        else
+        {
+            // creature_attack_light
+            animCrc = 0x8BF5B8B6;
+        }
+        // creature_attack_light 0xB6B8F58B (reversed from WIKI 0x8BF5B8B6)
+        // creature_attack_medium 0x48CBE352 ( 0x52E3CB48 )
+        // creature_attack_special_1_medium 0x24AEEF7A
+        // creature_attack_special_1_light 0x13E6B2DE
+        // creature_attack_special_2_medium 0x7ACB0D96
+        // creature_attack_special_2_light 0x205E4B0F
+        // creature_attack_ranged_light 0x8D49FC90
+        // creature_attack_ranged_medium 0x59E0483C
 
 
-		switch(attackResult)
-		{
-			// hit
-			case 0:case 2:case 3:case 4:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,animCrc,0,0,1);
-			}
-			break;
+        switch(attackResult)
+        {
+            // hit
+        case 0:
+        case 2:
+        case 3:
+        case 4:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,animCrc,0,0,1);
+        }
+        break;
 
-			// miss
-			case 1:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,animCrc);
-			}
-			break;
-		}
-	}
-	// special attack
-	/*
-	else
-	{
-		switch(attackResult)
-		{
-			// hit
-			case 0:case 2:case 3:case 4:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2,1);
-			}
-			break;
+        // miss
+        case 1:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,animCrc);
+        }
+        break;
+        }
+    }
+    // special attack
+    /*
+    else
+    {
+    	switch(attackResult)
+    	{
+    		// hit
+    		case 0:case 2:case 3:case 4:
+    		{
+    			gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2,1);
+    		}
+    		break;
 
-			//miss
-			case 1:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2);
-			}
-			break;
-		}
-	}
-	*/
+    		//miss
+    		case 1:
+    		{
+    			gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2);
+    		}
+    		break;
+    	}
+    }
+    */
 
-	switch(attackResult)
-	{
-		case 0:
-		{
-			// Defender got hit.
-		}
-		break;
+    switch(attackResult)
+    {
+    case 0:
+    {
+        // Defender got hit.
+    }
+    break;
 
-		case 1:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","miss",255,255,255);
-		}
-		break;
+    case 1:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","miss",255,255,255);
+    }
+    break;
 
-		case 2:
-		// We cant block yet, can we?
-		{
-			// gMessageLib->sendFlyText(defender,"combat_effects","block",0,255,0);
-		}
-		// break;
+    case 2:
+        // We cant block yet, can we?
+    {
+        // gMessageLib->sendFlyText(defender,"combat_effects","block",0,255,0);
+    }
+    // break;
 
-		case 3:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","dodge",0,255,0);
-			gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);	// Dodge
-		}
-		break;
+    case 3:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","dodge",0,255,0);
+        gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);	// Dodge
+    }
+    break;
 
-		case 4:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","counterattack",0,255,0);	// I can's see this effect working?
-		}
-		break;
-	}
+    case 4:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","counterattack",0,255,0);	// I can's see this effect working?
+    }
+    break;
+    }
 
-	// send combat spam
-	// default attack
-	// if(cmdProperties->mCmdCrc == 0xa8fef90a)
-	{
-		// combatSpam = gCombatManager->getDefaultSpam(weapon->getGroup());
-		combatSpam = "creature";
-	}
-	// special attack
-	/*
-	else
-	{
-		if(cmdProperties->mCbtSpam.getLength())
-		{
-			combatSpam = cmdProperties->mCbtSpam.getAnsi();
-		}
-	}
-	*/
+    // send combat spam
+    // default attack
+    // if(cmdProperties->mCmdCrc == 0xa8fef90a)
+    {
+        // combatSpam = gCombatManager->getDefaultSpam(weapon->getGroup());
+        combatSpam = "creature";
+    }
+    // special attack
+    /*
+    else
+    {
+    	if(cmdProperties->mCbtSpam.getLength())
+    	{
+    		combatSpam = cmdProperties->mCbtSpam.getAnsi();
+    	}
+    }
+    */
 
-	switch(attackResult)
-	{
-		case 0:	combatSpam << "_hit";		break;
-		case 1:	combatSpam << "_miss";		break;
-		case 2:	combatSpam << "_block";		break;
-		case 3:	combatSpam << "_evade";		break;
-		case 4: combatSpam << "_counter";	break;
+    switch(attackResult)
+    {
+    case 0:
+        combatSpam << "_hit";
+        break;
+    case 1:
+        combatSpam << "_miss";
+        break;
+    case 2:
+        combatSpam << "_block";
+        break;
+    case 3:
+        combatSpam << "_evade";
+        break;
+    case 4:
+        combatSpam << "_counter";
+        break;
 
-		default:break;
-	}
-	gMessageLib->sendCombatSpam(attacker,defender,-multipliedDamage,"cbt_spam",combatSpam);
+    default:
+        break;
+    }
+    gMessageLib->sendCombatSpam(attacker,defender,-multipliedDamage,"cbt_spam",combatSpam);
 
-	return(0);
+    return(0);
 }
 
 
@@ -864,34 +882,34 @@ uint8 NpcManager::_executeAttack(CreatureObject* attacker,CreatureObject* defend
 // uint8 NpcManager::_hitCheck(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
 uint8 NpcManager::_hitCheck(CreatureObject* attacker,CreatureObject* defender,Weapon* weapon)
 {
-	// TODO
-	// If the defender is a static object, like lair or debis, it can't counterattack, block or evade.
-	uint8 hit = 0;
-	if (defender->getCreoGroup() == CreoGroup_AttackableObject)
-	{
-		// Note that a return of 0 is a hit, return of 1 is a miss.
-		hit = gRandom->getRand()%4;	// 75% chance for a hit, 25% chance for a miss. That sounds fair when hittin a static object,
-		if (hit > 1)
-		{
-			// This is a "hit".
-			hit = 0;
-		}
-	}
-	else
-	{
-		// It's a "normal" npc or player
+    // TODO
+    // If the defender is a static object, like lair or debis, it can't counterattack, block or evade.
+    uint8 hit = 0;
+    if (defender->getCreoGroup() == CreoGroup_AttackableObject)
+    {
+        // Note that a return of 0 is a hit, return of 1 is a miss.
+        hit = gRandom->getRand()%4;	// 75% chance for a hit, 25% chance for a miss. That sounds fair when hittin a static object,
+        if (hit > 1)
+        {
+            // This is a "hit".
+            hit = 0;
+        }
+    }
+    else
+    {
+        // It's a "normal" npc or player
 
-		// return(gRandom->getRand()%5);
-		// Adjusting the hit chance, when testing.
-		// hit = gRandom->getRand()%9;	// 66% chance for a hit, 33% chance for the rest (miss, block, counterattck and evade)
-		hit = gRandom->getRand()%12;	// 75% chance for a hit, 25% chance for the rest (miss, block, counterattck and evade)
-		if (hit > 4)
-		{
-			// This is a "hit".
-			hit = 0;
-		}
-	}
-	return(hit);
+        // return(gRandom->getRand()%5);
+        // Adjusting the hit chance, when testing.
+        // hit = gRandom->getRand()%9;	// 66% chance for a hit, 33% chance for the rest (miss, block, counterattck and evade)
+        hit = gRandom->getRand()%12;	// 75% chance for a hit, 25% chance for the rest (miss, block, counterattck and evade)
+        if (hit > 4)
+        {
+            // This is a "hit".
+            hit = 0;
+        }
+    }
+    return(hit);
 }
 
 

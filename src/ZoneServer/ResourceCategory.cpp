@@ -45,28 +45,28 @@ ResourceCategory::~ResourceCategory()
 
 void ResourceCategory::getResources(ResourceList& resourceList,bool currentOnly)
 {
-	ResourceList::iterator resourceIt = mSiblings.begin();
-	while(resourceIt != mSiblings.end())
-	{
-		if(currentOnly)
-		{
-			if(((*resourceIt)->getCurrent()) != 0)
-				resourceList.push_back(*resourceIt);
-		}
-		else
-			resourceList.push_back(*resourceIt);
+    ResourceList::iterator resourceIt = mSiblings.begin();
+    while(resourceIt != mSiblings.end())
+    {
+        if(currentOnly)
+        {
+            if(((*resourceIt)->getCurrent()) != 0)
+                resourceList.push_back(*resourceIt);
+        }
+        else
+            resourceList.push_back(*resourceIt);
 
-		++resourceIt;
-	}
+        ++resourceIt;
+    }
 
-	ResourceCategoryList::iterator rescatIt = mChildren.begin();
-	while(rescatIt != mChildren.end())
-	{
-		ResourceCategory* tmpCat = (*rescatIt);
-		tmpCat->getResources(resourceList,currentOnly);
+    ResourceCategoryList::iterator rescatIt = mChildren.begin();
+    while(rescatIt != mChildren.end())
+    {
+        ResourceCategory* tmpCat = (*rescatIt);
+        tmpCat->getResources(resourceList,currentOnly);
 
-		++rescatIt;
-	}
+        ++rescatIt;
+    }
 }
 
 //=============================================================================

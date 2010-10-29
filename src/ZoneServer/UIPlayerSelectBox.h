@@ -40,18 +40,20 @@ typedef std::list<PlayerObject*>				PlayerList;
 
 class UIPlayerSelectBox : public UIListBox
 {
-	public:
+public:
 
-		UIPlayerSelectBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, PlayerList playerList, PlayerObject* playerObject,uint8 lbType)
-			: UIListBox(callback,id,SUI_Window_SelectGroupLootMaster_Listbox,eventStr,caption,prompt,dataItems,playerObject,lbType), mPlayers(playerList) {}
+    UIPlayerSelectBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, PlayerList playerList, PlayerObject* playerObject,uint8 lbType)
+        : UIListBox(callback,id,SUI_Window_SelectGroupLootMaster_Listbox,eventStr,caption,prompt,dataItems,playerObject,lbType), mPlayers(playerList) {}
 
-		virtual			~UIPlayerSelectBox(){}
+    virtual			~UIPlayerSelectBox() {}
 
-		PlayerList		getPlayers(){ return mPlayers; }
+    PlayerList		getPlayers() {
+        return mPlayers;
+    }
 
-	private:
+private:
 
-		PlayerList		mPlayers;
+    PlayerList		mPlayers;
 };
 
 

@@ -38,40 +38,42 @@ class FireworkEvent;
 class FireworkManager
 {
 public:
-	static FireworkManager*	getSingletonPtr() { return mSingleton; }
-	
-	static FireworkManager*	Instance()
-	{
-		if (!mSingleton)
-		{
-			mSingleton = new FireworkManager();
-		}
-		return mSingleton;
-	}
+    static FireworkManager*	getSingletonPtr() {
+        return mSingleton;
+    }
 
-	static inline void deleteManager(void)    
-	{ 
-		if (mSingleton)
-		{
-			delete mSingleton;
-			mSingleton = 0;
-		}
-	}
+    static FireworkManager*	Instance()
+    {
+        if (!mSingleton)
+        {
+            mSingleton = new FireworkManager();
+        }
+        return mSingleton;
+    }
 
-	void Process();
+    static inline void deleteManager(void)
+    {
+        if (mSingleton)
+        {
+            delete mSingleton;
+            mSingleton = 0;
+        }
+    }
 
-	//bool createFirework(uint32 typeId, PlayerObject* player, bool isShow=false);
-	TangibleObject* createFirework(uint32 typeId, PlayerObject* player, const glm::vec3& position);
+    void Process();
+
+    //bool createFirework(uint32 typeId, PlayerObject* player, bool isShow=false);
+    TangibleObject* createFirework(uint32 typeId, PlayerObject* player, const glm::vec3& position);
 
 
 protected:
-	~FireworkManager(void);
+    ~FireworkManager(void);
 
 private:
-	static FireworkManager*	mSingleton;
-	
-	std::list<FireworkEvent*> fireworkEvents;
+    static FireworkManager*	mSingleton;
 
-	FireworkManager(){}
-	
+    std::list<FireworkEvent*> fireworkEvents;
+
+    FireworkManager() {}
+
 };

@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
 
-EVQueueSize::EVQueueSize(ObjectController* controller) 
-: EnqueueValidator(controller)
+EVQueueSize::EVQueueSize(ObjectController* controller)
+    : EnqueueValidator(controller)
 {}
 
 EVQueueSize::~EVQueueSize()

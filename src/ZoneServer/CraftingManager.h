@@ -42,49 +42,51 @@ class PlayerObject;
 class CraftingManager
 {
 public:
-	static CraftingManager*	getSingletonPtr() { return mSingleton; }
-	static CraftingManager*	Init(Database* database)
-	{
-		if(mInsFlag == false)
-		{
-			mSingleton = new CraftingManager(database);
-			mInsFlag = true;
-			return mSingleton;
-		}
-		else
-			return mSingleton;
-	}
-	
-	CraftingManager(Database* database);
-	~CraftingManager(void);
+    static CraftingManager*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static CraftingManager*	Init(Database* database)
+    {
+        if(mInsFlag == false)
+        {
+            mSingleton = new CraftingManager(database);
+            mInsFlag = true;
+            return mSingleton;
+        }
+        else
+            return mSingleton;
+    }
 
-	//
-	// request draftslots batch
-	//
-	bool				HandleRequestDraftslotsBatch(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	bool				HandleRequestResourceWeightsBatch(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	bool				HandleSynchronizedUIListen(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	bool				HandleRequestCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	bool				HandleSelectDraftSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	bool				HandleCancelCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	void				handleCraftFillSlot(Object* object, Message* message);
-	void				handleCraftEmptySlot(Object* object,Message* message);
-	void				handleCraftExperiment(Object* object,Message* message);
-	void				handleCraftCustomization(Object* object,Message* message);
-	bool				HandleNextCraftingStage(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	bool				HandleCreatePrototype(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	bool				HandleCreateManufactureSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
-	
+    CraftingManager(Database* database);
+    ~CraftingManager(void);
+
+    //
+    // request draftslots batch
+    //
+    bool				HandleRequestDraftslotsBatch(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    bool				HandleRequestResourceWeightsBatch(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    bool				HandleSynchronizedUIListen(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    bool				HandleRequestCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    bool				HandleSelectDraftSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    bool				HandleCancelCraftingSession(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    void				handleCraftFillSlot(Object* object, Message* message);
+    void				handleCraftEmptySlot(Object* object,Message* message);
+    void				handleCraftExperiment(Object* object,Message* message);
+    void				handleCraftCustomization(Object* object,Message* message);
+    bool				HandleNextCraftingStage(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    bool				HandleCreatePrototype(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
+    bool				HandleCreateManufactureSchematic(Object* object,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
 
 
- private:
-	CraftingTool*			getCraftingStationTool(PlayerObject* player, CraftingStation* station);
 
-	static CraftingManager*	mSingleton;
-	static bool				mInsFlag;
-		
-	ZoneTree*				mSI;
-	Database*				mDatabase;
+private:
+    CraftingTool*			getCraftingStationTool(PlayerObject* player, CraftingStation* station);
+
+    static CraftingManager*	mSingleton;
+    static bool				mInsFlag;
+
+    ZoneTree*				mSI;
+    Database*				mDatabase;
 };
 
 #endif

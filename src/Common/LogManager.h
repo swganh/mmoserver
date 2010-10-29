@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstdint>
 #include <iosfwd>
+#include <memory>
 #include <queue>
 #include <string>
 
@@ -47,8 +48,8 @@ class LOG_ENTRY;
 class Database;
 
 namespace boost {
-    class mutex;
-    class thread;
+class mutex;
+class thread;
 }
 
 #define gLogger LogManager::getSingleton()
@@ -56,8 +57,8 @@ namespace boost {
 class COMMON_API LogManager
 {
 public:
-    
-    enum LOG_PRIORITY 
+
+    enum LOG_PRIORITY
     {
         EMERGENCY		= 1,
         ALERT			= 2,
@@ -66,12 +67,17 @@ public:
         WARNING			= 5,
         NOTICE			= 6,
         INFORMATION		= 7,
-        DEBUG			= 8
+        DEBUG			= 8,
+		SQL				= 9
     };
 
-    static LogManager*	getSingleton() { return mSingleton;}
-    static void			Init(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename) { mSingleton = new LogManager(console_priority, file_priority, filename);}
-    
+    static LogManager*	getSingleton() {
+        return mSingleton;
+    }
+    static void			Init(LOG_PRIORITY console_priority, LOG_PRIORITY file_priority, std::string filename) {
+        mSingleton = new LogManager(console_priority, file_priority, filename);
+    }
+
     void log(LOG_PRIORITY priority, std::string format, ...);
     void logCont(LOG_PRIORITY priority, std::string format, ...);
 
@@ -88,7 +94,7 @@ private:
 
     void _printLogo();
     void _LoggerThread();
-    
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)

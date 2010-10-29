@@ -44,26 +44,26 @@ typedef std::map<std::string, ScriptList*>	ScriptListMap;
 
 class ScriptEventListener
 {
-	public:
+public:
 
-		ScriptEventListener();
-		~ScriptEventListener();
+    ScriptEventListener();
+    ~ScriptEventListener();
 
-		void		registerFunction(const int8* functionName);
-		void		unregisterFunction(const int8* functionName);
+    void		registerFunction(const int8* functionName);
+    void		unregisterFunction(const int8* functionName);
 
-		void		registerScript(Script* script,const int8* functionName);
-		void		unregisterScript(Script* script);
+    void		registerScript(Script* script,const int8* functionName);
+    void		unregisterScript(Script* script);
 
-		void		handleScriptEvent(const int8* functionName,BString params);
+    void		handleScriptEvent(const int8* functionName,BString params);
 
-		ScriptList*	getScriptList(const int8* functionName);
+    ScriptList*	getScriptList(const int8* functionName);
 
-	private:
+private:
 
-		void		_removeScriptList(const int8* functionName);
+    void		_removeScriptList(const int8* functionName);
 
-		ScriptListMap	mScriptListMap;
+    ScriptListMap	mScriptListMap;
 };
 
 //======================================================================================================================

@@ -45,7 +45,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -67,22 +74,22 @@ using ::swg_protocol::object_controller::PreCommandEvent;
 // Constructor
 //
 ObjectController::ObjectController()
-: mCmdMsgPool(sizeof(ObjControllerCommandMessage))
-, mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer))
-, mEventPool(sizeof(ObjControllerEvent))
-, mDatabase(gWorldManager->getDatabase())
-, mObject(NULL)
-, mCommandQueueProcessTimeLimit(5)
-, mEventQueueProcessTimeLimit(2)
-, mNextCommandExecution(0)
-, mTaskId(0)
-, mUnderrunTime(0)
-, mMovementInactivityTrigger(5)
-, mFullUpdateTrigger(0)
-, mDestroyOutOfRangeObjects(false)
-, mInUseCommandQueue(false)
-, mRemoveCommandQueue(false)
-, mUpdatingObjects(false)
+    : mCmdMsgPool(sizeof(ObjControllerCommandMessage))
+    , mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer))
+    , mEventPool(sizeof(ObjControllerEvent))
+    , mDatabase(gWorldManager->getDatabase())
+    , mObject(NULL)
+    , mCommandQueueProcessTimeLimit(5)
+    , mEventQueueProcessTimeLimit(2)
+    , mNextCommandExecution(0)
+    , mTaskId(0)
+    , mUnderrunTime(0)
+    , mMovementInactivityTrigger(5)
+    , mFullUpdateTrigger(0)
+    , mDestroyOutOfRangeObjects(false)
+    , mInUseCommandQueue(false)
+    , mRemoveCommandQueue(false)
+    , mUpdatingObjects(false)
 {
     mSI		= gWorldManager->getSI();
     // We do have a global clock object, don't use seperate clock and times for every process.
@@ -95,22 +102,22 @@ ObjectController::ObjectController()
 //
 
 ObjectController::ObjectController(Object* object)
-: mCmdMsgPool(sizeof(ObjControllerCommandMessage))
-, mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer))
-, mEventPool(sizeof(ObjControllerEvent))
-, mDatabase(gWorldManager->getDatabase())
-, mObject(object)
-, mCommandQueueProcessTimeLimit(5)
-, mEventQueueProcessTimeLimit(2)
-, mNextCommandExecution(0)
-, mTaskId(0)
-, mUnderrunTime(0)
-, mMovementInactivityTrigger(5)
-, mFullUpdateTrigger(0)
-, mDestroyOutOfRangeObjects(false)
-, mInUseCommandQueue(false)
-, mRemoveCommandQueue(false)
-, mUpdatingObjects(false)
+    : mCmdMsgPool(sizeof(ObjControllerCommandMessage))
+    , mDBAsyncContainerPool(sizeof(ObjControllerAsyncContainer))
+    , mEventPool(sizeof(ObjControllerEvent))
+    , mDatabase(gWorldManager->getDatabase())
+    , mObject(object)
+    , mCommandQueueProcessTimeLimit(5)
+    , mEventQueueProcessTimeLimit(2)
+    , mNextCommandExecution(0)
+    , mTaskId(0)
+    , mUnderrunTime(0)
+    , mMovementInactivityTrigger(5)
+    , mFullUpdateTrigger(0)
+    , mDestroyOutOfRangeObjects(false)
+    , mInUseCommandQueue(false)
+    , mRemoveCommandQueue(false)
+    , mUpdatingObjects(false)
 {
     mSI		= gWorldManager->getSI();
 }
@@ -274,7 +281,6 @@ bool ObjectController::_processCommandQueue()
     PlayerObject* player  = dynamic_cast<PlayerObject*>(mObject);
     if (!player)
     {
-        gLogger->log(LogManager::CRITICAL,"ObjectController::_processCommandQueue() Invalid object");
         assert(false && "ObjectController::_processCommandQueue mObject is not a PlayerObject");
         return false;
     }
@@ -326,7 +332,6 @@ bool ObjectController::_processCommandQueue()
             uint64		targetId	= cmdMsg->getTargetId();
             uint32		reply1		= 0;
             uint32		reply2		= 0;
-            bool		consumeHam	= true;
 
             ObjectControllerCmdProperties*	cmdProperties = cmdMsg->getCmdProperties();
 
@@ -353,12 +358,6 @@ bool ObjectController::_processCommandQueue()
                     }
                 }
 
-                bool internalCommand = false;
-                if (!message)
-                {
-                    internalCommand = true;
-                }
-
                 // keep a pointer to the start
                 uint16	paramsIndex = 0;
                 if (message)
@@ -371,109 +370,102 @@ bool ObjectController::_processCommandQueue()
                 // call the proper handler
                 switch(cmdProperties->mCmdGroup)
                 {
-                    case ObjControllerCmdGroup_Common:
-                    {
-                        // Check the new style of handlers first.
-                        CommandMap::const_iterator it = gObjectControllerCommands->getCommandMap().find(command);
-            
-                        // Find the target object (if one is given) and pass it in.
-                        Object* target = NULL;
-                        
-                        if (targetId) {
-                          target = gWorldManager->getObjectById(targetId);
+                case ObjControllerCmdGroup_Common:
+                {
+                    // Check the new style of handlers first.
+                    CommandMap::const_iterator it = gObjectControllerCommands->getCommandMap().find(command);
+
+                    // Find the target object (if one is given) and pass it in.
+                    Object* target = NULL;
+
+                    if (targetId) {
+                        target = gWorldManager->getObjectById(targetId);
+                    }
+
+                    // If a new style handler is found process it.
+                    if (message && it != gObjectControllerCommands->getCommandMap().end()) {
+                        // Create a pre-command processing event.
+                        auto pre_event = std::make_shared<PreCommandEvent>(mObject->getId());
+                        pre_event->target_id(targetId);
+                        pre_event->command_crc(cmdProperties->mCmdCrc);
+
+                        // Trigger a pre-command processing event and get the result. This allows
+                        // any listeners to veto the processing of the command (such as validators).
+                        // Only process the command if it passed validation.
+                        if (gEventDispatcher.Deliver(pre_event).get()) {
+                            ((*it).second)(mObject, target, message, cmdProperties);
+
+                            auto post_event = std::make_shared<PostCommandEvent>(mObject->getId());
+                            gEventDispatcher.Deliver(post_event);
                         }
+                    } else {
+                        // Otherwise, process the old style handler.
+                        OriginalCommandMap::iterator it = gObjControllerCmdMap.find(command);
 
-                        // If a new style handler is found process it.
-                        if (message && it != gObjectControllerCommands->getCommandMap().end()) {
-                            // Create a pre-command processing event.
-                            auto pre_event = std::make_shared<PreCommandEvent>(mObject->getId());
-                            pre_event->target_id(targetId);
-                            pre_event->command_crc(cmdProperties->mCmdCrc);
-                            
-                            // Trigger a pre-command processing event and get the result. This allows
-                            // any listeners to veto the processing of the command (such as validators).
-                            // Only process the command if it passed validation.
-                            if (gEventDispatcher.Deliver(pre_event).get()) {
-                                bool command_processed = ((*it).second)(mObject, target, message, cmdProperties);
-                                
-                                auto post_event = std::make_shared<PostCommandEvent>(mObject->getId());                            
-                                gEventDispatcher.Deliver(post_event);
-                            }
-                        } else {
-                            // Otherwise, process the old style handler.
-                            OriginalCommandMap::iterator it = gObjControllerCmdMap.find(command);
-
-                            if (message && it != gObjControllerCmdMap.end()) {
-                                ((*it).second)(this, targetId, message, cmdProperties);
+                        if (message && it != gObjControllerCmdMap.end()) {
+                            ((*it).second)(this, targetId, message, cmdProperties);
                             //(this->*((*it).second))(targetId,message,cmdProperties);
-                                consumeHam = mHandlerCompleted;
-                            } else {
-                                gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0x%x for %"PRIu64"",command,mObject->getId());
-                                //gLogger->hexDump(message->getData(),message->getSize());
-                                consumeHam = false;
-                            }
+                        } else {
+                            DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<command<<" for "<<mObject->getId();
+                            //gLogger->hexDump(message->getData(),message->getSize());
                         }
                     }
-                    break;
+                }
+                break;
+                case ObjControllerCmdGroup_Attack:
+                {
+                    // If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
+                    gStateManager.setCurrentActionState(player, CreatureState_Combat);
+                    // TODO: add auto attack to enter combat state.
+                    player->enableAutoAttack();
 
-                    case ObjControllerCmdGroup_Attack:
+                    // CreatureObject* creature = NULL;
+                    if (targetId != 0)
                     {
-                        // If player activated combat or me returning fire, the peace is ended, and auto-attack allowed.
-                        gStateManager.setCurrentActionState(player, CreatureState_Combat);
-                        // TODO: add auto attack to enter combat state.
-                        player->enableAutoAttack();
-
-                        // CreatureObject* creature = NULL;
-                        if (targetId != 0)
+                        cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
+                        if (!cmdExecutedOk)
                         {
-                            cmdExecutedOk = gCombatManager->handleAttack(player, targetId, cmdProperties);
-                            if (!cmdExecutedOk)
-                            {
-                                // We have lost our target.
-                                player->setCombatTargetId(0);
-                                player->disableAutoAttack();
-
-                                consumeHam = mHandlerCompleted;
-                            }
-                            else
-                            {
-                                // All is well in la-la-land
-                                // Keep track of the target we are attacking, it's not always your "look-at" target.
-                                if (targetId != player->getCombatTargetId() && (targetId != 0))
-                                {
-                                    // We have a new target
-                                    // new target still valid?
-                                    if (player->setAsActiveDefenderAndUpdateList(targetId))
-                                    {
-                                        player->setCombatTargetId(targetId);
-                                    }
-                                    else
-                                    {
-                                        player->disableAutoAttack();
-                                        player->setCombatTargetId(0);
-                                    }
-                                }
-                                else
-                                {
-                                    player->setCombatTargetId(targetId);
-                                }
-                            }
+                            // We have lost our target.
+                            player->setCombatTargetId(0);
+                            player->disableAutoAttack();
                         }
                         else
                         {
-                            cmdExecutedOk = false;
-                            player->setCombatTargetId(0);
+                            // All is well in la-la-land
+                            // Keep track of the target we are attacking, it's not always your "look-at" target.
+                            if (targetId != player->getCombatTargetId() && (targetId != 0))
+                            {
+                                // We have a new target
+                                // new target still valid?
+                                if (player->setAsActiveDefenderAndUpdateList(targetId))
+                                {
+                                    player->setCombatTargetId(targetId);
+                                }
+                                else
+                                {
+                                    player->disableAutoAttack();
+                                    player->setCombatTargetId(0);
+                                }
+                            }
+                            else
+                            {
+                                player->setCombatTargetId(targetId);
+                            }
                         }
                     }
-                    break;
-
-                    default:
+                    else
                     {
-                        gLogger->log(LogManager::DEBUG,"ObjectController::processCommandQueue: Default Unhandled CmdGroup %u for %"PRIu64"",cmdProperties->mCmdGroup,mObject->getId());
-
-                        consumeHam = false;
+                        cmdExecutedOk = false;
+                        player->setCombatTargetId(0);
                     }
-                    break;
+                }
+                break;
+
+                default:
+                {
+					DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<cmdProperties->mCmdGroup <<" for "<<mObject->getId();
+                }
+                break;
                 }
 
                 // Do not mess with cooldowns for non combat commands...
@@ -592,7 +584,10 @@ bool ObjectController::_processEventQueue()
 //
 void ObjectController::enqueueCommandMessage(Message* message)
 {
-    uint32	clientTicks		= message->getUint32();
+	// this is required with how we are grabbing the packets
+	// basically think of this as just grabbing the first uint32
+	// value and throwing it away to get to the get stuff...
+	message->getUint32();
     uint32	sequence		= message->getUint32();
     uint32	opcode			= message->getUint32();
     uint64	targetId		= message->getUint64();
@@ -711,7 +706,6 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
         CreatureObject* creature = dynamic_cast<CreatureObject*>(mObject);
         if (!creature)
         {
-            gLogger->log(LogManager::CRITICAL,"ObjectController::enqueueAutoAttack() Invalid object");
             assert(false && "ObjectController::enqueueAutoAttack mObject is not a CreatureObject");
         }
 
@@ -763,7 +757,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
             if (player)
             {
                 player->disableAutoAttack();
-                gLogger->log(LogManager::DEBUG,"ObjectController::enqueueAutoAttack() Error adding command.");
+                DLOG(INFO) << "ObjectController::enqueueAutoAttack() Error adding command.";
             }
         }
     }
@@ -822,7 +816,7 @@ void ObjectController::removeMsgFromCommandQueueBySequence(uint32 sequence)
     // sanity check
     if (!sequence)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!");
+        DLOG(INFO) << "ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!";
         return;
     }
 
@@ -872,7 +866,7 @@ bool ObjectController::_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uin
             // we still failed the check but we're not sending anything back
             // send this generic message
             if((reply1 == 0 && reply2 == 0))
-              gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
             return(false);
         }
 
@@ -904,7 +898,7 @@ bool ObjectController::_validateProcessCommand(uint32 &reply1,uint32 &reply2,uin
             // we still failed the check but we're not sending anything back
             // send this generic message
             if(! (reply1 && reply2) )
-              gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
             return(false);
         }
 
@@ -927,22 +921,23 @@ void ObjectController::initEnqueueValidators()
 
     switch(mObject->getType())
     {
-        case ObjType_Player:
-        {
-            //mEnqueueValidators.push_back(new EVSurveySample(this));
-        }
-        case ObjType_NPC:
-        case ObjType_Creature:
-        {
-            mEnqueueValidators.push_back(new EVPosture(this));
-            mEnqueueValidators.push_back(new EVAbility(this));
-            mEnqueueValidators.push_back(new EVState(this));
-            mEnqueueValidators.push_back(new EVWeapon(this));
-            //mEnqueueValidators.push_back(new EVTarget(this));
-        }
-        break;
+    case ObjType_Player:
+    {
+        //mEnqueueValidators.push_back(new EVSurveySample(this));
+    }
+    case ObjType_NPC:
+    case ObjType_Creature:
+    {
+        mEnqueueValidators.push_back(new EVPosture(this));
+        mEnqueueValidators.push_back(new EVAbility(this));
+        mEnqueueValidators.push_back(new EVState(this));
+        mEnqueueValidators.push_back(new EVWeapon(this));
+        //mEnqueueValidators.push_back(new EVTarget(this));
+    }
+    break;
 
-        default: break;
+    default:
+        break;
     }
 }
 
@@ -956,17 +951,18 @@ void ObjectController::initProcessValidators()
 {
     switch(mObject->getType())
     {
-        case ObjType_Player:
-        case ObjType_NPC:
-        case ObjType_Creature:
-        {
-            mProcessValidators.push_back(new PVPosture(this));
-            mProcessValidators.push_back(new PVHam(this));
-            mProcessValidators.push_back(new PVState(this));
-        }
-        break;
+    case ObjType_Player:
+    case ObjType_NPC:
+    case ObjType_Creature:
+    {
+        mProcessValidators.push_back(new PVPosture(this));
+        mProcessValidators.push_back(new PVHam(this));
+        mProcessValidators.push_back(new PVState(this));
+    }
+    break;
 
-        default: break;
+    default:
+        break;
     }
 }
 

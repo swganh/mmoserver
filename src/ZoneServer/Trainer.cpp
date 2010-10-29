@@ -51,12 +51,12 @@ using ::common::OutOfBand;
 
 Trainer::Trainer() : NPCObject(), mPlayerGotRequirementsForMasterSkill(false)
 {
-	mNpcFamily	= NpcFamily_Trainer;
+    mNpcFamily	= NpcFamily_Trainer;
 
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
+    mRadialMenu = RadialMenuPtr(new RadialMenu());
 
-	mRadialMenu->addItem(1,0,radId_converseStart,radAction_Default); 
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+    mRadialMenu->addItem(1,0,radId_converseStart,radAction_Default);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 
 //=============================================================================
@@ -69,170 +69,170 @@ Trainer::~Trainer()
 
 void Trainer::filterConversationOptions(ConversationPage* page,std::vector<ConversationOption*>* filteredOptions,PlayerObject* player)
 {
-	bool requirementsMet;
+    bool requirementsMet;
 
-	std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
+    std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
 
-	// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: page->mId = %u",page->mId);
-	switch(page->mId)
-	{
-		// currently learnable skills
-		case 2:
-		{
-			// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Currently learnable skills (case 2)");
-			while(optionIt != page->mOptions.end())
-			{
-				Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
-				requirementsMet = false;
+    // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: page->mId = %u",page->mId);
+    switch(page->mId)
+    {
+        // currently learnable skills
+    case 2:
+    {
+        // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Currently learnable skills (case 2)");
+        while(optionIt != page->mOptions.end())
+        {
+            Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
+            requirementsMet = false;
 
-				// its no skill option
-				if (!skill)
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Its no skill option");
-					requirementsMet = true;
-				}
+            // its no skill option
+            if (!skill)
+            {
+                // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Its no skill option");
+                requirementsMet = true;
+            }
 
-				// see if we have it already and check xp
-				// Note: We do not handle lack of SP as an error now... that's done later in this chain of training events.
-				else if(player->checkSkill(skill->mId))
-				{
-					// We already have this skill.
-					requirementsMet = false;
-				}
-				else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
-				{
-					// We do not have enough of XP for training this skill.
-					// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Missing XP");
-					requirementsMet = false;
-				}
-				else
-				{
-					// If we end up here, we have at least some skill to train.
-					// gotAllSkills = false;
+            // see if we have it already and check xp
+            // Note: We do not handle lack of SP as an error now... that's done later in this chain of training events.
+            else if(player->checkSkill(skill->mId))
+            {
+                // We already have this skill.
+                requirementsMet = false;
+            }
+            else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
+            {
+                // We do not have enough of XP for training this skill.
+                // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Missing XP");
+                requirementsMet = false;
+            }
+            else
+            {
+                // If we end up here, we have at least some skill to train.
+                // gotAllSkills = false;
 
-					// no skill requirements
-					if (!skill->mSkillsRequired.size())
-					{
-						// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Novice");
-						// avaliableSkills++;		// We got a "Novice" skill.
-						requirementsMet = true;
-					}
-					// see if we got the required skills
-					else
-					{
-						SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
-						requirementsMet = true;
-						
-						// avaliableSkills++;
-						while(reqSkillIt != skill->mSkillsRequired.end())
-						{
-							// we don't have the requirements
-							if(!player->checkSkill(*reqSkillIt))
-							{
-								requirementsMet = false;
-								// avaliableSkills--;
-								break;
-							}
-							++reqSkillIt;
-						}
-					}
-				}
+                // no skill requirements
+                if (!skill->mSkillsRequired.size())
+                {
+                    // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Novice");
+                    // avaliableSkills++;		// We got a "Novice" skill.
+                    requirementsMet = true;
+                }
+                // see if we got the required skills
+                else
+                {
+                    SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+                    requirementsMet = true;
 
-				// add it to the send list
-				if (requirementsMet)
-				{
-					filteredOptions->push_back(*optionIt);
-					// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed something");
-				}
-				++optionIt;
-			}
-		}
-		break;
+                    // avaliableSkills++;
+                    while(reqSkillIt != skill->mSkillsRequired.end())
+                    {
+                        // we don't have the requirements
+                        if(!player->checkSkill(*reqSkillIt))
+                        {
+                            requirementsMet = false;
+                            // avaliableSkills--;
+                            break;
+                        }
+                        ++reqSkillIt;
+                    }
+                }
+            }
 
-		// It will cost %DI credits to train in %TO. Would you like to continue? 
-		case 3:
-		{
-			// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: It will cost %DI credits to train in %TO. Would you like to continue?");
-			while(optionIt != page->mOptions.end())
-			{
-				// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed something");
-				filteredOptions->push_back(*optionIt);
-				++optionIt;
-			}
-		}
-		break;
-		
-		// What skills will I be able to learn next?
-		case 4:
-		{
-			// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: What skills will I be able to learn next?");
- 			while(optionIt != page->mOptions.end())
-			{
-				Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
-				requirementsMet = false;
+            // add it to the send list
+            if (requirementsMet)
+            {
+                filteredOptions->push_back(*optionIt);
+                // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed something");
+            }
+            ++optionIt;
+        }
+    }
+    break;
 
-				// its no skill option
-				if (!skill)
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Its no skill option");
-					requirementsMet = true;
-				}
+    // It will cost %DI credits to train in %TO. Would you like to continue?
+    case 3:
+    {
+        // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: It will cost %DI credits to train in %TO. Would you like to continue?");
+        while(optionIt != page->mOptions.end())
+        {
+            // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed something");
+            filteredOptions->push_back(*optionIt);
+            ++optionIt;
+        }
+    }
+    break;
 
-				// see if we have it already
-				else if (player->checkSkill(skill->mId))
-				{
-					requirementsMet = false;
-				}
-				else
-				{
-					// no skill requirements
-					if (!skill->mSkillsRequired.size())
-					{
-						requirementsMet = true;
-					}
-					// see if we got the required skills
-					else
-					{
-						SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
-						requirementsMet = true;
+    // What skills will I be able to learn next?
+    case 4:
+    {
+        // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: What skills will I be able to learn next?");
+        while(optionIt != page->mOptions.end())
+        {
+            Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
+            requirementsMet = false;
 
-						while(reqSkillIt != skill->mSkillsRequired.end())
-						{
-							// we don't have the requirements
-							if(!player->checkSkill(*reqSkillIt))
-							{
-								requirementsMet = false;
-								break;
-							}
-							++reqSkillIt;
-						}
-					}
-				}
+            // its no skill option
+            if (!skill)
+            {
+                // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: Its no skill option");
+                requirementsMet = true;
+            }
 
-				// add it to the send list
-				if(requirementsMet)
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed next skill");
-					filteredOptions->push_back(*optionIt);
-				}
-				++optionIt;
-			}
-		}
-		break;
+            // see if we have it already
+            else if (player->checkSkill(skill->mId))
+            {
+                requirementsMet = false;
+            }
+            else
+            {
+                // no skill requirements
+                if (!skill->mSkillsRequired.size())
+                {
+                    requirementsMet = true;
+                }
+                // see if we got the required skills
+                else
+                {
+                    SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+                    requirementsMet = true;
 
-		// by default don't filter
-		default:
-		{
-			// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: default");
-			while(optionIt != page->mOptions.end())
-			{
-				// gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed something");
-				filteredOptions->push_back(*optionIt);
-				++optionIt;
-			}
-		}
-		break;
-	}
+                    while(reqSkillIt != skill->mSkillsRequired.end())
+                    {
+                        // we don't have the requirements
+                        if(!player->checkSkill(*reqSkillIt))
+                        {
+                            requirementsMet = false;
+                            break;
+                        }
+                        ++reqSkillIt;
+                    }
+                }
+            }
+
+            // add it to the send list
+            if(requirementsMet)
+            {
+                // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed next skill");
+                filteredOptions->push_back(*optionIt);
+            }
+            ++optionIt;
+        }
+    }
+    break;
+
+    // by default don't filter
+    default:
+    {
+        // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: default");
+        while(optionIt != page->mOptions.end())
+        {
+            // gLogger->log(LogManager::DEBUG,"Trainer::filterConversationOptions: pushed something");
+            filteredOptions->push_back(*optionIt);
+            ++optionIt;
+        }
+    }
+    break;
+    }
 }
 
 //=============================================================================
@@ -240,550 +240,522 @@ void Trainer::filterConversationOptions(ConversationPage* page,std::vector<Conve
 // Return pageLink for next conversation.
 uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage* page,ConversationOption* option,PlayerObject* player)
 {
-	// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: page->mId = %u",page->mId);
-		
-	std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
-	uint32 pageLink = page->mId;
+    // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: page->mId = %u",page->mId);
 
-	switch(page->mId)
-	{
-		// Select currently learnable skills
-		case 2:
-		{
-			mPlayerGotRequirementsForMasterSkill = false;
-			bool noviceSkill = false;
-			bool gotAllSkills = true;	// As long as we have not detected any missing skills.
-			bool gotRequirementsForSomeSkill = false;
-			uint32 skillsToLearn = 0;
+    std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
+    uint32 pageLink = page->mId;
 
-			uint32 numberOfSkills = 0;
-			uint32 knownSkills = 0;
+    switch(page->mId)
+    {
+        // Select currently learnable skills
+    case 2:
+    {
+        mPlayerGotRequirementsForMasterSkill = false;
+        bool noviceSkill = false;
+        bool gotAllSkills = true;	// As long as we have not detected any missing skills.
+        bool gotRequirementsForSomeSkill = false;
+        uint32 skillsToLearn = 0;
 
-			// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Currently learnable skills (case 2)");
-			while (optionIt != page->mOptions.end())
-			{
-				Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
-				numberOfSkills++;
+        uint32 numberOfSkills = 0;
+        uint32 knownSkills = 0;
 
-				// its no skill option
-				if (!skill)
-				{
-					numberOfSkills--;
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Its no skill option");
-				}
+        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Currently learnable skills (case 2)");
+        while (optionIt != page->mOptions.end())
+        {
+            Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
+            numberOfSkills++;
 
-				// see if we have it already and check xp
-				// Note: We do not handle lack of SP as an error now... that's done later in this chain of events.
-				else if (player->checkSkill(skill->mId))
-				{
-					// We already have this skill.
-					knownSkills++;
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We already have this skill");
-				}
-				else if (!skill->mSkillsRequired.size())
-				{
-					// No skill requirements, we got a "Novice" skill from a basic profession.
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Novice");
-					skillsToLearn++;
-					gotAllSkills = false;	// Do not have all skills if we end up here.
-					noviceSkill = true;
-				}
-				else
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Do not have all skills if we end up here");
-					gotAllSkills = false;	// Do not have all skills if we end up here.
+            // its no skill option
+            if (!skill)
+            {
+                numberOfSkills--;
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Its no skill option");
+            }
 
-					// see if we got the required skills
-					SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
-					bool requirementsMet = true;
-					skillsToLearn++;
+            // see if we have it already and check xp
+            // Note: We do not handle lack of SP as an error now... that's done later in this chain of events.
+            else if (player->checkSkill(skill->mId))
+            {
+                // We already have this skill.
+                knownSkills++;
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We already have this skill");
+            }
+            else if (!skill->mSkillsRequired.size())
+            {
+                // No skill requirements, we got a "Novice" skill from a basic profession.
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Novice");
+                skillsToLearn++;
+                gotAllSkills = false;	// Do not have all skills if we end up here.
+                noviceSkill = true;
+            }
+            else
+            {
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Do not have all skills if we end up here");
+                gotAllSkills = false;	// Do not have all skills if we end up here.
 
-					while (reqSkillIt != skill->mSkillsRequired.end())
-					{
-						if (!player->checkSkill(*reqSkillIt))
-						{
-							// we don't have the requirements
-							// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We don't have the requirements");
-							requirementsMet = false;
-							break;
-						}
-						++reqSkillIt;
-					}
-					
-					if (requirementsMet)
-					{
-						// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We DO have the requirements, check if we have the xp for next level");
-						gotRequirementsForSomeSkill = true;
+                // see if we got the required skills
+                SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+                bool requirementsMet = true;
+                skillsToLearn++;
 
-						// We DO have the requirements, check if we have the xp for next level.
-						if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
-						{
-							// We do not have enough of XP for training this skill.
-							// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Missing XP");
-							skillsToLearn--;
-						}
-					}
-					else
-					{
-						skillsToLearn--;
-					}
-				}
-				++optionIt;
-			}
+                while (reqSkillIt != skill->mSkillsRequired.end())
+                {
+                    if (!player->checkSkill(*reqSkillIt))
+                    {
+                        // we don't have the requirements
+                        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We don't have the requirements");
+                        requirementsMet = false;
+                        break;
+                    }
+                    ++reqSkillIt;
+                }
 
-			// Now we must return status of this session.
-			if (skillsToLearn == 0)
-			{
-				// Either we have them all, i.e. we are a Master, or we lack xp for training OR we lack the required skills to train it.
-				if (gotAllSkills)
-				{
-					// We are a Master!
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We are a Master!");
-					pageLink = 9;
-				}
-				else if (gotRequirementsForSomeSkill)
-				{
-					// We lack xp for training.
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We lack xp for training");
-					pageLink = 8;
-				}
-				else
-				{
-					// This is not a valid state any more.
-					// We do not have requirements for any skill, sounds like we are attempting an elite trainers novice skill.
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Sounds like we are attempting an elite trainers novice skill");
-					pageLink = 12;
-				}
-			}
-			else
-			{
-				if (noviceSkill) // avaliableSkills should be 1
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We train to Novice.");
-					// Not implemented yet. Special handling for the Space Station Tutorial Only. 
-				}
-				else
-				{
+                if (requirementsMet)
+                {
+                    // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We DO have the requirements, check if we have the xp for next level");
+                    gotRequirementsForSomeSkill = true;
 
-					if ((knownSkills + 1) ==  numberOfSkills)
-					{
-						// We have all skills except the last one, we are going for a Master skill...
-						mPlayerGotRequirementsForMasterSkill = true;
-					}
+                    // We DO have the requirements, check if we have the xp for next level.
+                    if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
+                    {
+                        // We do not have enough of XP for training this skill.
+                        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Missing XP");
+                        skillsToLearn--;
+                    }
+                }
+                else
+                {
+                    skillsToLearn--;
+                }
+            }
+            ++optionIt;
+        }
 
-					// Let's select a skill to train. This is the default path.
-					// retLinkPage = 0;	// Use caller default linkPage.
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Default, we have some skills to train.");
-				}
-			}
-		}
-		break;
+        // Now we must return status of this session.
+        if (skillsToLearn == 0)
+        {
+            // Either we have them all, i.e. we are a Master, or we lack xp for training OR we lack the required skills to train it.
+            if (gotAllSkills)
+            {
+                // We are a Master!
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We are a Master!");
+                pageLink = 9;
+            }
+            else if (gotRequirementsForSomeSkill)
+            {
+                // We lack xp for training.
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We lack xp for training");
+                pageLink = 8;
+            }
+            else
+            {
+                // This is not a valid state any more.
+                // We do not have requirements for any skill, sounds like we are attempting an elite trainers novice skill.
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Sounds like we are attempting an elite trainers novice skill");
+                pageLink = 12;
+            }
+        }
+        else
+        {
+            if (noviceSkill) // avaliableSkills should be 1
+            {
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We train to Novice.");
+                // Not implemented yet. Special handling for the Space Station Tutorial Only.
+            }
+            else
+            {
 
+                if ((knownSkills + 1) ==  numberOfSkills)
+                {
+                    // We have all skills except the last one, we are going for a Master skill...
+                    mPlayerGotRequirementsForMasterSkill = true;
+                }
 
-		// Skill is selected.
-		case 3:
-		{
-			// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Skill selected");
-			bool failed = true;	
-			Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
-
-			// its no skill option
-			if (!skill)
-			{
-				// This is a system error.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: It's no skill option\n");
-			}
-			// no skill requirements, Novice Skills have no requirements.
-			/* 
-			else if (!skill->mSkillsRequired.size())
-			{
-				// This is a system error.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: No skill requirements");
-				break;
-			}
-			*/ 
-			else if(player->checkSkill(skill->mId))
-			{
-				// This is a system failure.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player already have the skill\n");
-			}
-			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
-			{
-				// This is a system failure.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",player->getXpAmount(skill->mXpType), skill->mXpCost);
-			}
-			// see if we got the required skills
-			else
-			{
-				SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
-				failed = false;
-				while(reqSkillIt != skill->mSkillsRequired.end())
-				{
-					// we don't have the requirements
-					if (!player->checkSkill(*reqSkillIt))
-					{
-						// This is a system failure.
-						gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player does not have all requirements\n");
-						failed = true;
-						break;
-					}
-					++reqSkillIt;
-				}
-			}
-			if (failed)
-			{
-				// This is a system failure.
-                gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
-				pageLink = 0;
-				break;
-			}
-
-			// Here we start the non-fatal error processing.
-			// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Start the non-fatal error processing");
-			if (player->getSkillPointsLeft() < skill->mSkillPointsRequired)
-			{
-				// Player lack skillpoints for training this skill.
-				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Player need %u skillpoints, but only have %u",skill->mSkillPointsRequired, player->getSkillPointsLeft());
-				pageLink = 10;	// pageLink for this condition.
-				break;
-			}
-
-			if (gWorldConfig->isTutorial())
-			{
-				// We do not charge any cost for training in the Tutorial.
-				pageLink = 15;
-			}
-			else if ((dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits() < av->getDI())
-				 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits() < av->getDI())
-				)
-			{
-				// Player lack credits in both inventory and bank.
-
-				pageLink = 11;	// pageLink for this situation.
-				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Player needs %u credits, but only have %u as cash", av->getDI(),
-				// 				dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
-				// System message: You lack the %DI credits required for training in %TO. 
-                gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_nsf", "", "", "", "", av->getTOStfFile().getAnsi(), av->getTOStfVariable().getAnsi(), av->getDI()), player);
-
-				break;
-			}
-			else
-			{
-				// Let's start credit transaction for this skill...
-				// Do that in next state...
-			}
-		}		
-		break;
-
-		// View info about skills
-		case 4:
-		{
-			bool requirementsMet;
-			bool noviceSkill = false;
-			bool gotAllSkills = true;	// As long as we have not detected any missing skills.
-
-			// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: View info about skills");
-			while(optionIt != page->mOptions.end())
-			{
-				Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
-				requirementsMet = false;
-
-				// its no skill option
-				if (!skill)
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Its no skill option");
-					requirementsMet = true;
-				}
-
-				// see if we have it already
-				else if(player->checkSkill(skill->mId))
-				{
-					// We already have this skill.
-					requirementsMet = false;
-				}
-				else
-				{
-					// If we end up here, we have at least some skill to train.
-					gotAllSkills = false;
-
-					// no skill requirements
-					if (!skill->mSkillsRequired.size())
-					{
-						// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Novice");
-						noviceSkill = true;
-						requirementsMet = true;
-					}
-					// see if we got the required skills
-					else
-					{
-						SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
-						requirementsMet = true;
-						
-						while(reqSkillIt != skill->mSkillsRequired.end())
-						{
-							// we don't have the requirements
-							if(!player->checkSkill(*reqSkillIt))
-							{
-								requirementsMet = false;
-								break;
-							}
-							++reqSkillIt;
-						}
-					}
-				}
-				++optionIt;
-			}
-
-			// Now we must return status of this session.
-			// We have them all, i.e. we are a Master.
-			if (gotAllSkills)
-			{
-				// We are a Master!
-				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We are a Master!");
-				pageLink = 9;
-			}
-			else
-			{
-				if (noviceSkill) // avaliableSkills should be 1
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We train to Novice.");
-					// Not implemented yet. Special handling for the Space Station Tutorial Only. 
-				}
-				else
-				{
-					// Let's select a skill to train. This is the default path.
-					// retLinkPage = 0;	// Use caller default linkPage.
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Default, we have some skills to train.");
-				}
-			}
-		}
-		break;
+                // Let's select a skill to train. This is the default path.
+                // retLinkPage = 0;	// Use caller default linkPage.
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Default, we have some skills to train.");
+            }
+        }
+    }
+    break;
 
 
-		// Train the skill
-		case 5:
-		{
-			bool failed = true;
+    // Skill is selected.
+    case 3:
+    {
+        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Skill selected");
+        bool failed = true;
+        Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
 
-			// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Learn request");
-			Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
+        // its no skill option
+        if (!skill)
+        {
+            // This is a system error.
+            DLOG(INFO) << "Trainer::conversationEvent: ERROR: It's no skill option";
+        }
+        // no skill requirements, Novice Skills have no requirements.
+        /*
+        else if (!skill->mSkillsRequired.size())
+        {
+        	// This is a system error.
+        	gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: No skill requirements");
+        	break;
+        }
+        */
+        else if(player->checkSkill(skill->mId))
+        {
+            // This is a system failure.
+            DLOG(INFO) << "Trainer::conversationEvent: ERROR: Player already have the skill";
+        }
+        else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
+        {
+            // This is a system failure.
+            DLOG(INFO) << "Trainer::conversationEvent: ERROR: Player need "<<player->getXpAmount(skill->mXpType)<<" XP, but only have "<< skill->mXpCost;
+        }
+        // see if we got the required skills
+        else
+        {
+            SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+            failed = false;
+            while(reqSkillIt != skill->mSkillsRequired.end())
+            {
+                // we don't have the requirements
+                if (!player->checkSkill(*reqSkillIt))
+                {
+                    // This is a system failure.
+                    failed = true;
+                    break;
+                }
+                ++reqSkillIt;
+            }
+        }
+        if (failed)
+        {
+            // This is a system failure.
+            gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
+            pageLink = 0;
+            break;
+        }
 
-			// its no skill option
-			if (!skill)
-			{
-				// This is a system error.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: It's no skill option\n");
-			}
-			else if(player->checkSkill(skill->mId))
-			{
-				// This is a system failure.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player already have the skill\n");
-			}
-			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
-			{
-				// This is a system failure.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",player->getXpAmount(skill->mXpType), skill->mXpCost);
-			}
-			// see if we got the required skills
-			else
-			{
-				failed = false;
-				SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+        // Here we start the non-fatal error processing.
+        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Start the non-fatal error processing");
+        if (player->getSkillPointsLeft() < skill->mSkillPointsRequired)
+        {
+            // Player lack skillpoints for training this skill.
+            // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Player need %u skillpoints, but only have %u",skill->mSkillPointsRequired, player->getSkillPointsLeft());
+            pageLink = 10;	// pageLink for this condition.
+            break;
+        }
 
-				while(reqSkillIt != skill->mSkillsRequired.end())
-				{
-					// We don't have the requirements
-					if (!player->checkSkill(*reqSkillIt))
-					{
-						// This is a system failure.
-						gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player does not have all requirements\n");
-						failed = true;
-						break;
-					}
-					++reqSkillIt;
-				}
-			}
-			if (!failed)
-			{
-				// Let's train this skill...
-				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Processing %DI credit payment for %TO training.");
-                gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_pay", "", "", "", "", av->getTOStfFile().getAnsi(), av->getTOStfVariable().getAnsi(), av->getDI()), player);
+        if (gWorldConfig->isTutorial())
+        {
+            // We do not charge any cost for training in the Tutorial.
+            pageLink = 15;
+        }
+        else if ((dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits() < av->getDI())
+                 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits() < av->getDI())
+                )
+        {
+            // Player lack credits in both inventory and bank.
 
-				// if (strstr(skill->mName.getAnsi(),"master"))
-				if (mPlayerGotRequirementsForMasterSkill)
-				{
-					// We are going to train to Master...
-					// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We are going to train to Master...");
-					// postProcessfilter(av, page, player, 13);
-					postProcessfilter(av, player, 13);
-					pageLink = 0;	// Terminate conversation
-				}
+            pageLink = 11;	// pageLink for this situation.
+            // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Player needs %u credits, but only have %u as cash", av->getDI(),
+            // 				dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+            // System message: You lack the %DI credits required for training in %TO.
+            gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_nsf", "", "", "", "", av->getTOStfFile().getAnsi(), av->getTOStfVariable().getAnsi(), av->getDI()), player);
 
-				if (!(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->updateCredits(-skill->mMoneyRequired)))
-				{
-					if (!(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-skill->mMoneyRequired)))
-					{	
-						// This is a system error.
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_nsf"), player);
-						gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Error verifying credits\n");
-						pageLink = 0;
-					}
-				}
-			}
-			else
-			{
-				// This is a system error.
-                gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
-				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Error verifying credits");
-				pageLink = 0;
-			}
-		}		
-		break;
+            break;
+        }
+        else
+        {
+            // Let's start credit transaction for this skill...
+            // Do that in next state...
+        }
+    }
+    break;
+
+    // View info about skills
+    case 4:
+    {
+        bool noviceSkill = false;
+        bool gotAllSkills = true;	// As long as we have not detected any missing skills.
+
+        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: View info about skills");
+        while(optionIt != page->mOptions.end())
+        {
+            Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
+
+            // its no skill option
+            if (skill && ! player->checkSkill(skill->mId))
+            {
+                // If we end up here, we have at least some skill to train.
+                gotAllSkills = false;
+
+                // no skill requirements
+                if (!skill->mSkillsRequired.size())
+                {
+                    // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Novice");
+                    noviceSkill = true;
+                }
+                // see if we got the required skills
+                else
+                {
+                    SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+
+                    while(reqSkillIt != skill->mSkillsRequired.end())
+                    {
+                        // we don't have the requirements
+                        if(!player->checkSkill(*reqSkillIt))
+                        {
+                            break;
+                        }
+                        ++reqSkillIt;
+                    }
+                }
+            }
+            ++optionIt;
+        }
+
+        // Now we must return status of this session.
+        // We have them all, i.e. we are a Master.
+        if (gotAllSkills)
+        {
+            // We are a Master!
+            // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We are a Master!");
+            pageLink = 9;
+        }
+        else
+        {
+            if (noviceSkill) // avaliableSkills should be 1
+            {
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We train to Novice.");
+                // Not implemented yet. Special handling for the Space Station Tutorial Only.
+            }
+            else
+            {
+                // Let's select a skill to train. This is the default path.
+                // retLinkPage = 0;	// Use caller default linkPage.
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Default, we have some skills to train.");
+            }
+        }
+    }
+    break;
 
 
-		// Train the skill in the Tutorial
-		// NOTE: This case is never called, not even from Tutorial.
-		case 15:
-		{
-			bool failed = true;
+    // Train the skill
+    case 5:
+    {
+        bool failed = true;
 
-			// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Learn request");
-			Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
+        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Learn request");
+        Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
 
-			// its no skill option
-			if (!skill)
-			{
-				// This is a system error.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: It's no skill option\n");
-			}
-			// no skill requirements, Novice Skills have no requirements.
-			else if(player->checkSkill(skill->mId))
-			{
-				// This is a system failure.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player already have the skill\n");
-			}
-			else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
-			{
-				// This is a system failure.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player need %u XP, but only have %u",player->getXpAmount(skill->mXpType), skill->mXpCost);
-			}
-			// see if we got the required skills
-			else
-			{
-				failed = false;
-				SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+        // its no skill option
+        if (!skill)
+        {
+            // This is a system error.
+        }
+        else if(player->checkSkill(skill->mId))
+        {
+            // This is a system failure.
+        }
+        else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
+        {
+            // This is a system failure.
+        }
+        // see if we got the required skills
+        else
+        {
+            failed = false;
+            SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
 
-				while(reqSkillIt != skill->mSkillsRequired.end())
-				{
-					// We don't have the requirements
-					if (!player->checkSkill(*reqSkillIt))
-					{
-						// This is a system failure.
-						gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: ERROR: Player does not have all requirements\n");
-						failed = true;
-						break;
-					}
-					++reqSkillIt;
-				}
-			}
-			if (!failed)
-			{
-				// We do not charge any cost for training in the Tutorial.
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: No charge for training in Tutorial.\n");
-			}
-			else
-			{
-				// This is a system error.
-                gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
-				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Error verifying credits");
-				pageLink = 0;
-			}
-		}		
-		break;
+            while(reqSkillIt != skill->mSkillsRequired.end())
+            {
+                // We don't have the requirements
+                if (!player->checkSkill(*reqSkillIt))
+                {
+                    // This is a system failure.
+                    failed = true;
+                    break;
+                }
+                ++reqSkillIt;
+            }
+        }
+        if (!failed)
+        {
+            // Let's train this skill...
+            // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Processing %DI credit payment for %TO training.");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_pay", "", "", "", "", av->getTOStfFile().getAnsi(), av->getTOStfVariable().getAnsi(), av->getDI()), player);
 
-		case 7:
-		{
-			// Selected more info about this skill.
-			Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
-			if (skill)
-			{
+            // if (strstr(skill->mName.getAnsi(),"master"))
+            if (mPlayerGotRequirementsForMasterSkill)
+            {
+                // We are going to train to Master...
+                // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: We are going to train to Master...");
+                // postProcessfilter(av, page, player, 13);
+                postProcessfilter(av, player, 13);
+                pageLink = 0;	// Terminate conversation
+            }
 
-				int8 str[800];
+            if (!(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->updateCredits(-skill->mMoneyRequired)))
+            {
+                if (!(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->updateCredits(-skill->mMoneyRequired)))
+                {
+                    // This is a system error.
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("skill_teacher", "prose_nsf"), player);
+                    pageLink = 0;
+                }
+            }
+        }
+        else
+        {
+            // This is a system error.
+            gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
+            // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Error verifying credits");
+            pageLink = 0;
+        }
+    }
+    break;
 
-				BStringVector populatedListBox;
-				int8 strCaption[128];
-				sprintf(strCaption,"@%s:%s","skl_n", skill->mName.getAnsi());
 
-				sprintf(str,"MONETARY COST");
-				populatedListBox.push_back(str);
+    // Train the skill in the Tutorial
+    // NOTE: This case is never called, not even from Tutorial.
+    case 15:
+    {
+        bool failed = true;
 
-				if (gWorldConfig->isTutorial() && (!skill->mSkillsRequired.size()))
-				{
-					sprintf(str,"%u credits", 0);
-				}
-				else
-				{
-					sprintf(str,"%u credits", skill->mMoneyRequired);
-				}
-				populatedListBox.push_back(str);
+        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Learn request");
+        Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
 
-				sprintf(str,"SKILL POINT COST");
-				populatedListBox.push_back(str);
+        // its no skill option
+        if (!skill)
+        {
+            // This is a system error.
+        }
+        // no skill requirements, Novice Skills have no requirements.
+        else if(player->checkSkill(skill->mId))
+        {
+            // This is a system failure.
+        }
+        else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
+        {
+            // This is a system failure.
+        }
+        // see if we got the required skills
+        else
+        {
+            failed = false;
+            SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
 
-				sprintf(str,"%u points", skill->mSkillPointsRequired);
-				populatedListBox.push_back(str);
+            while(reqSkillIt != skill->mSkillsRequired.end())
+            {
+                // We don't have the requirements
+                if (!player->checkSkill(*reqSkillIt))
+                {
+                    // This is a system failure.
+                    failed = true;
+                    break;
+                }
+                ++reqSkillIt;
+            }
+        }
+        if (!failed)
+        {
+            // We do not charge any cost for training in the Tutorial.
+        }
+        else
+        {
+            // This is a system error.
+            gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "learning_failed"), player);
+            // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Error verifying credits");
+            pageLink = 0;
+        }
+    }
+    break;
 
-				sprintf(str,"REQUIRED SKILLS");
-				populatedListBox.push_back(str);
+    case 7:
+    {
+        // Selected more info about this skill.
+        Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
+        if (skill)
+        {
 
-				SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
-				while (reqSkillIt != skill->mSkillsRequired.end())
-				{
-					// Add all skills required.
-					// if (!player->checkSkill(*reqSkillIt))
-					{
-						// We don't have this required skill
-						sprintf(str,"@%s:%s","skl_n", gSkillManager->getSkillById(*reqSkillIt)->mName.getAnsi());
-						populatedListBox.push_back(str);
-					}
-					++reqSkillIt;
-				}
+            int8 str[800];
 
-				sprintf(str,"XP COST");
-				populatedListBox.push_back(str);
-				
-				// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Skill type = %u named %s", skill->mXpType, gSkillManager->getXPTypeById(skill->mXpType).getAnsi());
+            BStringVector populatedListBox;
+            int8 strCaption[128];
+            sprintf(strCaption,"@%s:%s","skl_n", skill->mName.getAnsi());
 
-				if (skill->mXpCost > 0)
-				{
-					sprintf(str,"%s = %u", gSkillManager->getXPTypeExById(skill->mXpType).getAnsi(), skill->mXpCost);
-				}
-				else
-				{
-					sprintf(str,"%s", gSkillManager->getXPTypeExById(skill->mXpType).getAnsi());
-				}
-				populatedListBox.push_back(str);
+            sprintf(str,"MONETARY COST");
+            populatedListBox.push_back(str);
 
-				sprintf(str,"You do not have this skill.\n\nDescription:\n%s", gSkillManager->getSkillInfoById(skill->mId).getAnsi());
-				
-				gUIManager->createNewListBox(NULL,"",strCaption,str,populatedListBox,player);
-				// gUIManager->createNewListBox(NULL,"",strCaption,"@ui_attrib_mod:description \n\n@ui_attrib_mod:description \n@skl_d:combat_1hsword_ability_01",populatedListBox,player);
-				// gUIManager->createNewListBox(NULL,"",strCaption,"@ui_attrib_mod:description \n@skl_d:combat_1hsword_ability_01 Testing",populatedListBox,player);
-				// pageLink = 4;	// Back to where we come from... 
-			}
-			else
-			{
-				gLogger->log(LogManager::DEBUG,"Trainer: No skill avaliable\n");
-			}
-		}
-		break;
+            if (gWorldConfig->isTutorial() && (!skill->mSkillsRequired.size()))
+            {
+                sprintf(str,"%u credits", 0);
+            }
+            else
+            {
+                sprintf(str,"%u credits", skill->mMoneyRequired);
+            }
+            populatedListBox.push_back(str);
 
-		default:
-		{
-			// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Default Nothing");
-		}
-	}
-	return pageLink;
+            sprintf(str,"SKILL POINT COST");
+            populatedListBox.push_back(str);
+
+            sprintf(str,"%u points", skill->mSkillPointsRequired);
+            populatedListBox.push_back(str);
+
+            sprintf(str,"REQUIRED SKILLS");
+            populatedListBox.push_back(str);
+
+            SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+            while (reqSkillIt != skill->mSkillsRequired.end())
+            {
+                // Add all skills required.
+                // if (!player->checkSkill(*reqSkillIt))
+                {
+                    // We don't have this required skill
+                    sprintf(str,"@%s:%s","skl_n", gSkillManager->getSkillById(*reqSkillIt)->mName.getAnsi());
+                    populatedListBox.push_back(str);
+                }
+                ++reqSkillIt;
+            }
+
+            sprintf(str,"XP COST");
+            populatedListBox.push_back(str);
+
+            // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Skill type = %u named %s", skill->mXpType, gSkillManager->getXPTypeById(skill->mXpType).getAnsi());
+
+            if (skill->mXpCost > 0)
+            {
+                sprintf(str,"%s = %u", gSkillManager->getXPTypeExById(skill->mXpType).getAnsi(), skill->mXpCost);
+            }
+            else
+            {
+                sprintf(str,"%s", gSkillManager->getXPTypeExById(skill->mXpType).getAnsi());
+            }
+            populatedListBox.push_back(str);
+
+            sprintf(str,"You do not have this skill.\n\nDescription:\n%s", gSkillManager->getSkillInfoById(skill->mId).getAnsi());
+
+            gUIManager->createNewListBox(NULL,"",strCaption,str,populatedListBox,player);
+            // gUIManager->createNewListBox(NULL,"",strCaption,"@ui_attrib_mod:description \n\n@ui_attrib_mod:description \n@skl_d:combat_1hsword_ability_01",populatedListBox,player);
+            // gUIManager->createNewListBox(NULL,"",strCaption,"@ui_attrib_mod:description \n@skl_d:combat_1hsword_ability_01 Testing",populatedListBox,player);
+            // pageLink = 4;	// Back to where we come from...
+        }
+        else
+        {
+            DLOG(INFO) << "Trainer: No skill avaliable";
+        }
+    }
+    break;
+
+    default:
+    {
+        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Default Nothing");
+    }
+    }
+    return pageLink;
 }
 
 //=============================================================================
@@ -791,97 +763,86 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 // Post process conversation.
 void Trainer::postProcessfilterConversation(ActiveConversation* av, ConversationPage* page, PlayerObject* player)
 {
-	// gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilterConversation: page->mId = %u",page->mId);
-	postProcessfilter(av, player, page->mId);
+    // gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilterConversation: page->mId = %u",page->mId);
+    postProcessfilter(av, player, page->mId);
 }
 
 //=============================================================================
 
 void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, uint32 pageId)
 {
-	// gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: pageId = %u", pageId);
-		
-	switch (pageId)
-	{
-		// We train our new skill.
-		case 5:
-			// Fall through...
-		case 13:
-		{
-			// gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: We train our new skill.");
+    // gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: pageId = %u", pageId);
+
+    switch (pageId)
+    {
+        // We train our new skill.
+    case 5:
+        // Fall through...
+    case 13:
+    {
+        // gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: We train our new skill.");
 
 
-			// Let the player pay for the training.
-			// gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: Player now have %u credits left in cash", 
-								// dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
+        // Let the player pay for the training.
+        // gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: Player now have %u credits left in cash",
+        // dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 
-            // Build up a ProsePackage to send to the player.
-            ::common::ProsePackage prose("base_player", "prose_pay_acct_success");
+        // Build up a ProsePackage to send to the player.
+        ::common::ProsePackage prose("base_player", "prose_pay_acct_success");
 
-			// System message: You successfully make a payment of %DI credits to %TO.
-			// gLogger->log(LogManager::DEBUG,"Trainer::postProcessfilter: You successfully make a payment of %DI credits to %TO");
-			if (av->getNpc()->getFirstName().getLength())
-			{
-				// The NPC have a name.
-				/*
-				char *formatString = {" %s (%s)"};
+        // System message: You successfully make a payment of %DI credits to %TO.
+        
+        if (av->getNpc()->getFirstName().getLength())
+        {
 
-				uint32 length = av->getNpc()->getFirstName().getDataLength() + av->getNpc()->getTitle().getDataLength() + strlen(formatString);
-				char *buffer = new char(length);
+            prose.to_custom_string = av->getNpc()->getFirstName().getUnicode16();
+        }
+        else
+        {
+            prose.to_stf_file = "mob/creature_names";
+            prose.to_stf_label = av->getNpc()->getTitle().getAnsi();
+        }
 
-				sprintf(buffer,formatString, av->getNpc()->getFirstName().getAnsi(), av->getNpc()->getTitle().getAnsi());
-				BString npcDesription(buffer);
+        prose.di_integer = av->getDI();
 
-				gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Name-string = %s",  npcDesription.getAnsi());
-				*/
-                prose.to_custom_string = av->getNpc()->getFirstName().getUnicode16();
-			}
-			else
-			{
-                prose.to_stf_file = "mob/creature_names";
-                prose.to_stf_label = av->getNpc()->getTitle().getAnsi();
-			}
-            
-            prose.di_integer = av->getDI();
+        gMessageLib->SendSystemMessage(::common::OutOfBand(prose), player);
+    }
+    // Fall through...
 
-            gMessageLib->SendSystemMessage(::common::OutOfBand(prose), player);
-		}
-		// Fall through...
+    case 15:
+    {
 
-		case 15:
-		{
-
-			Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
+        Skill* skill = gSkillManager->getSkillByName(av->getTOStfVariable());
 
 
-			// Train the skill	
-			gSkillManager->learnSkill(skill->mId,player,true);
+        // Train the skill
+        gSkillManager->learnSkill(skill->mId,player,true);
 
-			gMessageLib->sendPlayMusicMessage(1956,player);
+        gMessageLib->sendPlayMusicMessage(1956,player);
 
-			if (pageId == 13)
-			{
-                OutOfBand prose("skill_teacher", "surpass_trainer", 0, player->getId(), 0);
-				
-				if (!gWorldConfig->isInstance())
-				{
-					gMessageLib->SendSpatialChat(this, prose);
-				}
-				else
-				{
-					gMessageLib->SendSpatialChat(this, prose, player);
-				}
-			}
-			// TODO: Update with our new abilities.
-		}	
-		break;
+        if (pageId == 13)
+        {
+            OutOfBand prose("skill_teacher", "surpass_trainer", 0, player->getId(), 0);
 
-		default:
-		{
-			// Do nothing.
-		}
-		break;
-	}
+            if (!gWorldConfig->isInstance())
+            {
+                gMessageLib->SendSpatialChat(this, prose);
+            }
+            else
+            {
+                gMessageLib->SendSpatialChat(this, prose, player);
+            }
+        }
+        // TODO: Update with our new abilities.
+    }
+    break;
+
+    default:
+    {
+        // Do nothing.
+    }
+    break;
+    }
 }
 
 
@@ -893,382 +854,380 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
 bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* conversation,PlayerObject* player)
 {
-	bool continueConversation = true;
-	ConversationPage *page = conversation->getPage(2);	// Page 2 is where WE have the interesting skill-options to check.
-	
-	// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: page->mId = %u",page->mId);
+    bool continueConversation = true;
+    ConversationPage *page = conversation->getPage(2);	// Page 2 is where WE have the interesting skill-options to check.
 
-	setLastConversationTarget(player->getId());
+    // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: page->mId = %u",page->mId);
 
-	std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
+    setLastConversationTarget(player->getId());
 
-	switch(page->mId)
-	{
-		// Lets see if we have the requriments met by this trainer.
-		case 2:
-		{
-			bool noviceSkill = false;
-			bool gotAllSkills = true;	// As long as we have not detected any missing skills.
-			uint32 skillsToLearn = 0;
-			BStringVector skillsRequired;
+    std::vector<ConversationOption*>::iterator optionIt = page->mOptions.begin();
 
-			bool gotRequirementsForSomeSkill = false;
+    switch(page->mId)
+    {
+        // Lets see if we have the requriments met by this trainer.
+    case 2:
+    {
+        bool noviceSkill = false;
+        bool gotAllSkills = true;	// As long as we have not detected any missing skills.
+        uint32 skillsToLearn = 0;
+        BStringVector skillsRequired;
 
-			while (optionIt != page->mOptions.end())
-			{
-				Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
-				// requirementsMet = false;
+        bool gotRequirementsForSomeSkill = false;
 
-				// its no skill option
-				if (!skill)
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: Its no skill option");
-				}
+        while (optionIt != page->mOptions.end())
+        {
+            Skill* skill = gSkillManager->getSkillByName((*optionIt)->mStfVariable);
+            // requirementsMet = false;
 
-				// see if we have it already and check xp
-				// Note: We do not handle lack of SP as an error now... that's done later in this chain of events.
-				else if (player->checkSkill(skill->mId))
-				{
-					// We already have this skill.
-					// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We already have this skill");
-				}
-				else if (!skill->mSkillsRequired.size())
-				{
-					// No skill requirements, we got a "Novice" skill from a basic profession.
-					// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: Novice");
-					skillsToLearn++;
-					gotAllSkills = false;	// Do not have all skills if we end up here.
-					noviceSkill = true;
-				}
-				else
-				{
-					// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: Do not have all skills if we end up here");
-					gotAllSkills = false;	// Do not have all skills if we end up here.
+            // its no skill option
+            if (!skill)
+            {
+                // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: Its no skill option");
+            }
 
-					// see if we got the required skills
-					SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
-					bool requirementsMet = true;
-					skillsToLearn++;
+            // see if we have it already and check xp
+            // Note: We do not handle lack of SP as an error now... that's done later in this chain of events.
+            else if (player->checkSkill(skill->mId))
+            {
+                // We already have this skill.
+                // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We already have this skill");
+            }
+            else if (!skill->mSkillsRequired.size())
+            {
+                // No skill requirements, we got a "Novice" skill from a basic profession.
+                // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: Novice");
+                skillsToLearn++;
+                gotAllSkills = false;	// Do not have all skills if we end up here.
+                noviceSkill = true;
+            }
+            else
+            {
+                // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: Do not have all skills if we end up here");
+                gotAllSkills = false;	// Do not have all skills if we end up here.
 
-					int8 str[128];
-					
-					while (reqSkillIt != skill->mSkillsRequired.end())
-					{
-						if (!player->checkSkill(*reqSkillIt))
-						{
-							// we don't have the requirements
-							// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We don't have the requirements");
-							requirementsMet = false;
-							
-							// We should only add requirements for Novice skills (and then only for Elite Professions).
-							if (strstr(gSkillManager->getSkillById(skill->mId)->mName.getAnsi(),"novice"))
-							{
-								// add it to our list
-								sprintf(str,"@%s:%s","skl_n", gSkillManager->getSkillById(*reqSkillIt)->mName.getAnsi());
-								// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Skills missing = %u %s", *reqSkillIt, gSkillManager->getSkillById(*reqSkillIt)->mName.getAnsi());
-								skillsRequired.push_back(str);
-							}
-							else
-							{
-								break;
-							}
-						}
-						++reqSkillIt;
-					}
-					
-					if (requirementsMet)
-					{
-						// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We DO have the requirements, check if we have the xp for next level");
-						gotRequirementsForSomeSkill = true;
+                // see if we got the required skills
+                SkillsRequiredList::iterator reqSkillIt = skill->mSkillsRequired.begin();
+                bool requirementsMet = true;
+                skillsToLearn++;
 
-						// We DO have the requirements, check if we have the xp for next level.
-						if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
-						{
-							// We do not have enough of XP for training this skill.
-							// gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Missing XP");
-							skillsToLearn--;
-						}
-					}
-					else
-					{
-						skillsToLearn--;
-					}
-				}
-				++optionIt;
-			}
+                int8 str[128];
 
-			// Now we must return status of this session.
-			if (skillsToLearn == 0)
-			{
-				// Either we have them all, i.e. we are a Master, or we lack xp for training OR we lack the required skills to train it.
-				if (gotAllSkills)
-				{
-					// We are a Master!
-					// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We are a Master!");
-					if (!gWorldConfig->isInstance())
-					{
-						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(16)); // giveup
-					}
-					else
-					{
-						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(16), player); // giveup
-					}
-					
-                    OutOfBand prose("skill_teacher", "topped_out");
+                while (reqSkillIt != skill->mSkillsRequired.end())
+                {
+                    if (!player->checkSkill(*reqSkillIt))
+                    {
+                        // we don't have the requirements
+                        // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We don't have the requirements");
+                        requirementsMet = false;
 
-					if (!gWorldConfig->isInstance())
-					{
-						gMessageLib->SendSpatialChat(this, prose);
-					}
-					else
-					{
-						gMessageLib->SendSpatialChat(this, prose, player);
-					}
+                        // We should only add requirements for Novice skills (and then only for Elite Professions).
+                        if (strstr(gSkillManager->getSkillById(skill->mId)->mName.getAnsi(),"novice"))
+                        {
+                            // add it to our list
+                            sprintf(str,"@%s:%s","skl_n", gSkillManager->getSkillById(*reqSkillIt)->mName.getAnsi());
+                            // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Skills missing = %u %s", *reqSkillIt, gSkillManager->getSkillById(*reqSkillIt)->mName.getAnsi());
+                            skillsRequired.push_back(str);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    ++reqSkillIt;
+                }
 
-					continueConversation = false;
-				}
-				else if (gotRequirementsForSomeSkill)
-				{
-					// We lack xp for training.
-					// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We lack xp for training");
-				}
-				else
-				{
-					// We do not have requirements for any skill, sounds like we are attempting an elite trainers novice skill.
-					// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: sounds like we are attempting an elite trainers novice skill");
+                if (requirementsMet)
+                {
+                    // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We DO have the requirements, check if we have the xp for next level");
+                    gotRequirementsForSomeSkill = true;
 
-					// createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_MessageBox,uint8 mbType = SUI_MB_OK);
-					
-					// gUIManager->createNewMessageBox(NULL,"no_qualify_title","@skill_teacher:no_qualify_title","@skill_teacher:no_qualify_prompt",player,SUI_Window_MessageBox, SUI_MB_OK);
-					// BStringVector skillsRequired;
+                    // We DO have the requirements, check if we have the xp for next level.
+                    if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
+                    {
+                        // We do not have enough of XP for training this skill.
+                        // gLogger->log(LogManager::DEBUG,"Trainer::conversationEvent: Missing XP");
+                        skillsToLearn--;
+                    }
+                }
+                else
+                {
+                    skillsToLearn--;
+                }
+            }
+            ++optionIt;
+        }
 
-					// add it to our list
-					// int8 str[128];
-					// sprintf(str,"@%s:%s","cmd_n",gSkillManager->getSkillCmdById(*dancerIt).getAnsi());
-					// sprintf(str,"@skl_n:crafting_artisan_engineering_04");
-					// skillsRequired.push_back(str);
+        // Now we must return status of this session.
+        if (skillsToLearn == 0)
+        {
+            // Either we have them all, i.e. we are a Master, or we lack xp for training OR we lack the required skills to train it.
+            if (gotAllSkills)
+            {
+                // We are a Master!
+                // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We are a Master!");
+                if (!gWorldConfig->isInstance())
+                {
+                    gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(16)); // giveup
+                }
+                else
+                {
+                    gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(16), player); // giveup
+                }
 
-					if (!gWorldConfig->isInstance())
-					{
-						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(27)); // poke
-					}
-					else
-					{
-						gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(27), player); // poke
-					}
+                OutOfBand prose("skill_teacher", "topped_out");
 
-                    OutOfBand prose("skill_teacher", "no_qualify");
+                if (!gWorldConfig->isInstance())
+                {
+                    gMessageLib->SendSpatialChat(this, prose);
+                }
+                else
+                {
+                    gMessageLib->SendSpatialChat(this, prose, player);
+                }
 
-					if (!gWorldConfig->isInstance())
-					{
-						gMessageLib->SendSpatialChat(this, prose);
-					}
-					else
-					{
-						gMessageLib->SendSpatialChat(this, prose, player);
-					}
+                continueConversation = false;
+            }
+            else if (gotRequirementsForSomeSkill)
+            {
+                // We lack xp for training.
+                // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We lack xp for training");
+            }
+            else
+            {
+                // We do not have requirements for any skill, sounds like we are attempting an elite trainers novice skill.
+                // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: sounds like we are attempting an elite trainers novice skill");
 
-					
+                // createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_MessageBox,uint8 mbType = SUI_MB_OK);
 
-					gUIManager->createNewListBox(NULL,"","@skill_teacher:no_qualify_title","@skill_teacher:no_qualify_prompt",skillsRequired,player);
-					continueConversation = false;
-				}
-			}
-			else
-			{
-				if (noviceSkill) // avaliableSkills should be 1
-				{
-					if (gWorldConfig->isTutorial())
-					{
-						// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We train to Novice.");
-						// Not implemented yet. Special handling for the Space Station Tutorial Only. 
-					}
-				}
-				else
-				{
-					// Let's select a skill to train. This is the default path.
-					// retLinkPage = 0;	// Use caller default linkPage.
-					// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We have some skills to train.");
-				}
-			}
-		}
-		break;
-		
-		default:
-		{
-			// gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: Default, bad page input");
-		}
-		break;
-	}
-	return continueConversation;
+                // gUIManager->createNewMessageBox(NULL,"no_qualify_title","@skill_teacher:no_qualify_title","@skill_teacher:no_qualify_prompt",player,SUI_Window_MessageBox, SUI_MB_OK);
+                // BStringVector skillsRequired;
+
+                // add it to our list
+                // int8 str[128];
+                // sprintf(str,"@%s:%s","cmd_n",gSkillManager->getSkillCmdById(*dancerIt).getAnsi());
+                // sprintf(str,"@skl_n:crafting_artisan_engineering_04");
+                // skillsRequired.push_back(str);
+
+                if (!gWorldConfig->isInstance())
+                {
+                    gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(27)); // poke
+                }
+                else
+                {
+                    gMessageLib->sendCreatureAnimation(av->getNpc(),gWorldManager->getNpcConverseAnimation(27), player); // poke
+                }
+
+                OutOfBand prose("skill_teacher", "no_qualify");
+
+                if (!gWorldConfig->isInstance())
+                {
+                    gMessageLib->SendSpatialChat(this, prose);
+                }
+                else
+                {
+                    gMessageLib->SendSpatialChat(this, prose, player);
+                }
+
+
+
+                gUIManager->createNewListBox(NULL,"","@skill_teacher:no_qualify_title","@skill_teacher:no_qualify_prompt",skillsRequired,player);
+                continueConversation = false;
+            }
+        }
+        else
+        {
+            if (noviceSkill) // avaliableSkills should be 1
+            {
+                if (gWorldConfig->isTutorial())
+                {
+                    // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We train to Novice.");
+                    // Not implemented yet. Special handling for the Space Station Tutorial Only.
+                }
+            }
+            else
+            {
+                // Let's select a skill to train. This is the default path.
+                // retLinkPage = 0;	// Use caller default linkPage.
+                // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: We have some skills to train.");
+            }
+        }
+    }
+    break;
+
+    default:
+    {
+        // gLogger->log(LogManager::DEBUG,"Trainer::preProcessfilterConversation: Default, bad page input");
+    }
+    break;
+    }
+    return continueConversation;
 }
 
 void Trainer::prepareConversation(PlayerObject* player)
 {
-	// Let's turn to the player asking for my attention.
-	faceObject(player);	
+    // Let's turn to the player asking for my attention.
+    faceObject(player);
 
-	// Send out the updated transform to those in range.
-	// @TODO This should not be a part of the Object's responsibility
-	//  since in theory simulation objects shouldn't know about the methods
-	//  used to transport data. Consider abstracting this into a layer similar
-	//  to the one proposed for deltas.
-	this->setInMoveCount(this->getInMoveCount() + 1);
+    // Send out the updated transform to those in range.
+    // @TODO This should not be a part of the Object's responsibility
+    //  since in theory simulation objects shouldn't know about the methods
+    //  used to transport data. Consider abstracting this into a layer similar
+    //  to the one proposed for deltas.
+    this->setInMoveCount(this->getInMoveCount() + 1);
 
-	if (!gWorldConfig->isInstance())
-	{
-		if (this->getParentId())
-		{
-			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent053(this);
-			gMessageLib->sendUpdateTransformMessageWithParent(this);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform053(this);
-			gMessageLib->sendUpdateTransformMessage(this);
-		}
-	}
-	else
-	{
-		if (this->getParentId())
-		{
-			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(this, player);
-			gMessageLib->sendUpdateTransformMessageWithParent(this, player);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform(this, player);
-			gMessageLib->sendUpdateTransformMessage(this, player);
-		}
-	}
+    if (!gWorldConfig->isInstance())
+    {
+        if (this->getParentId())
+        {
+            // We are inside a cell.
+            gMessageLib->sendDataTransformWithParent053(this);
+            gMessageLib->sendUpdateTransformMessageWithParent(this);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform053(this);
+            gMessageLib->sendUpdateTransformMessage(this);
+        }
+    }
+    else
+    {
+        if (this->getParentId())
+        {
+            // We are inside a cell.
+            gMessageLib->sendDataTransformWithParent(this, player);
+            gMessageLib->sendUpdateTransformMessageWithParent(this, player);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform(this, player);
+            gMessageLib->sendUpdateTransformMessage(this, player);
+        }
+    }
 
-	setLastConversationTarget(player->getId());
+    setLastConversationTarget(player->getId());
 
-	// Start the conversation timeout in case we disconnect.
-	gWorldManager->addNpcConversation(300000, this);	// Trainer will restore it's facing after 5 min.
+    // Start the conversation timeout in case we disconnect.
+    gWorldManager->addNpcConversation(300000, this);	// Trainer will restore it's facing after 5 min.
 }
 
 void Trainer::stopConversation(PlayerObject* player)
 {
-	if (player)
-	{
-		if (gWorldConfig->isInstance())
-		{
-			// Inform Tutorial about stop of npc conversations.
-			player->getTutorial()->npcConversationHasEnded(this->getId());
-		}
+    if (player)
+    {
+        if (gWorldConfig->isInstance())
+        {
+            // Inform Tutorial about stop of npc conversations.
+            player->getTutorial()->npcConversationHasEnded(this->getId());
+        }
 
-		if (player->getId() == getLastConversationTarget())
-		{
-			gWorldManager->addNpcConversation(15000, this);	// Trainer will restore it's facing 15 seconds after finished conversation.
-		}
-		else if (gWorldConfig->isInstance())
-		{
-			if (player->getGroupId())
-			{
-				if (PlayerObject* lastPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(getLastConversationTarget())))
-				{
-					if (lastPlayer->getGroupId() != player->getGroupId())
-					{
-						// Last target was not in my group (so it's another instance).
-						gWorldManager->addNpcConversation(15000, this);	// Trainer will restore it's facing 15 seconds after finished conversation.
-					}
-				}
-			}
-			else
-			{
-				// We are alone in the instance.
-				gWorldManager->addNpcConversation(15000, this);	// Trainer will restore it's facing 15 seconds after finished conversation.
-			}
-		}
-	}
+        if (player->getId() == getLastConversationTarget())
+        {
+            gWorldManager->addNpcConversation(15000, this);	// Trainer will restore it's facing 15 seconds after finished conversation.
+        }
+        else if (gWorldConfig->isInstance())
+        {
+            if (player->getGroupId())
+            {
+                if (PlayerObject* lastPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(getLastConversationTarget())))
+                {
+                    if (lastPlayer->getGroupId() != player->getGroupId())
+                    {
+                        // Last target was not in my group (so it's another instance).
+                        gWorldManager->addNpcConversation(15000, this);	// Trainer will restore it's facing 15 seconds after finished conversation.
+                    }
+                }
+            }
+            else
+            {
+                // We are alone in the instance.
+                gWorldManager->addNpcConversation(15000, this);	// Trainer will restore it's facing 15 seconds after finished conversation.
+            }
+        }
+    }
 }
 
 void Trainer::restorePosition(PlayerObject* player)
 {
-	// gLogger->log(LogManager::DEBUG,"trainer::restore position");
-	restoreDefaultDirection();
+    // gLogger->log(LogManager::DEBUG,"trainer::restore position");
+    restoreDefaultDirection();
 
-	// send out position updates to known players
-	this->setInMoveCount(this->getInMoveCount() + 1);
+    // send out position updates to known players
+    this->setInMoveCount(this->getInMoveCount() + 1);
 
-	if (!gWorldConfig->isInstance())
-	{
-		if (this->getParentId())
-		{
-			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent053(this);
-			gMessageLib->sendUpdateTransformMessageWithParent(this);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform053(this);
-			gMessageLib->sendUpdateTransformMessage(this);
-		}
-	}
-	else
-	{
-		// Le't see if player still around.
-		if (player->isConnected())
-		{
-			if (this->getParentId())
-			{
-				// We are inside a cell.
-				gMessageLib->sendDataTransformWithParent(this, player);
-				gMessageLib->sendUpdateTransformMessageWithParent(this, player);
-			}
-			else
-			{
-				gMessageLib->sendDataTransform(this, player);
-				gMessageLib->sendUpdateTransformMessage(this, player);
-			}
-		}
-	}
+    if (!gWorldConfig->isInstance())
+    {
+        if (this->getParentId())
+        {
+            // We are inside a cell.
+            gMessageLib->sendDataTransformWithParent053(this);
+            gMessageLib->sendUpdateTransformMessageWithParent(this);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform053(this);
+            gMessageLib->sendUpdateTransformMessage(this);
+        }
+    }
+    else
+    {
+        // Le't see if player still around.
+        if (player->isConnected())
+        {
+            if (this->getParentId())
+            {
+                // We are inside a cell.
+                gMessageLib->sendDataTransformWithParent(this, player);
+                gMessageLib->sendUpdateTransformMessageWithParent(this, player);
+            }
+            else
+            {
+                gMessageLib->sendDataTransform(this, player);
+                gMessageLib->sendUpdateTransformMessage(this, player);
+            }
+        }
+    }
 }
 
 
 void Trainer::respawn(void)
 {
-	gLogger->log(LogManager::DEBUG,"Trainer::respawn: Added new trainer for spawn, with id = %"PRIu64"",  this->getId());
+    // The cell we will spawn in.
+    this->setParentId(getCellIdForSpawn());
 
-	// The cell we will spawn in.
-	this->setParentId(getCellIdForSpawn());
-
-	// Default spawn position.
+    // Default spawn position.
     glm::vec3 position(getSpawnPosition());
 
-	// Respawn delay. If the creature have an unique delay, use that. Else use the one provided by the parent object.
-	this->setRespawnDelay(0);
-	if (this->hasInternalAttribute("creature_respawn_delay"))
-	{
-		uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");					
-		// gLogger->log(LogManager::DEBUG,"creature_respawn_delay = %"PRIu64"",  respawnDelay);
-		// mRespawnDelay = respawnDelay;
-		this->setRespawnDelay(respawnDelay);
-	}
+    // Respawn delay. If the creature have an unique delay, use that. Else use the one provided by the parent object.
+    this->setRespawnDelay(0);
+    if (this->hasInternalAttribute("creature_respawn_delay"))
+    {
+        uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");
+        // gLogger->log(LogManager::DEBUG,"creature_respawn_delay = %"PRIu64"",  respawnDelay);
+        // mRespawnDelay = respawnDelay;
+        this->setRespawnDelay(respawnDelay);
+    }
 
-	// Let us get the spawn point.
-	// Use the supplied direction?
-	this->mDirection = getSpawnDirection();
+    // Let us get the spawn point.
+    // Use the supplied direction?
+    this->mDirection = getSpawnDirection();
 
-	if (this->getParentId() == 0)
-	{
-		// Heightmap only works outside.
-		position.y = this->getHeightAt2DPosition(position.x, position.z, true);
-	}
-	
-	// gLogger->log(LogManager::DEBUG,"Setting up spawn of creature at %.0f %.0f %.0f",  position.x, position.y, position.z);
-	this->mPosition = this->getSpawnPosition();		// Default spawn position.
+    if (this->getParentId() == 0)
+    {
+        // Heightmap only works outside.
+        position.y = this->getHeightAt2DPosition(position.x, position.z, true);
+    }
 
-	// mSpawned = false;
-	
-	this->mHam.calcAllModifiedHitPoints();
+    // gLogger->log(LogManager::DEBUG,"Setting up spawn of creature at %.0f %.0f %.0f",  position.x, position.y, position.z);
+    this->mPosition = this->getSpawnPosition();		// Default spawn position.
+
+    // mSpawned = false;
+
+    this->mHam.calcAllModifiedHitPoints();
 
 
-	// All init is done, just the spawn in the world is left.
-	this->spawn();
+    // All init is done, just the spawn in the world is left.
+    this->spawn();
 }
 
 //=============================================================================
@@ -1278,84 +1237,79 @@ void Trainer::respawn(void)
 
 void Trainer::spawn(void)
 {
-	// gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Spawning creature %"PRIu64"",  this->getId());
-	// gLogger->log(LogManager::DEBUG,"Spawned static objects # %"PRIu64" (%"PRIu64")",  gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
+    // gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Spawning creature %"PRIu64"",  this->getId());
+    // gLogger->log(LogManager::DEBUG,"Spawned static objects # %"PRIu64" (%"PRIu64")",  gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
 
-	// Update the world about my presence.
-	
-	if (this->getParentId())
-	{
-		// insert into cell
-		this->setSubZoneId(0);
+    // Update the world about my presence.
 
-		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-		{
-			cell->addObjectSecure(this);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"Trainer::spawn: couldn't find cell %"PRIu64, this->getParentId());
-			
-			// It's a serious isse that we need to investigate.
-			assert(cell && "Trainer::spawn WorldManager unable to find CellObject");
-		}
-	}
-	else
-	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-		{
-			this->setSubZoneId((uint32)region->getId());
-			region->mTree->addObject(this);
-		}
-	}
+    if (this->getParentId())
+    {
+        // insert into cell
+        this->setSubZoneId(0);
 
-	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
+        if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
+        {
+            cell->addObjectSecure(this);
+        }
+        else
+        {
+            // It's a serious isse that we need to investigate.
+            assert(cell && "Trainer::spawn WorldManager unable to find CellObject");
+        }
+    }
+    else
+    {
+        if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
+        {
+            this->setSubZoneId((uint32)region->getId());
+            region->mTree->addObject(this);
+        }
+    }
 
-	// send out position updates to known players
-	this->setInMoveCount(this->getInMoveCount() + 1);
+    // Add us to the world.
+    gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
 
-	if (gWorldConfig->isTutorial())
-	{
-		// We need to get the player object that is the owner of this npc.
-		if (this->getPrivateOwner() != 0)
-		{
-			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
-			if (playerObject)
-			{
-				gLogger->log(LogManager::DEBUG,"Trainer::spawn: Spawned a private skill trainer.");
-				if (this->getParentId())
-				{
-					// We are inside a cell.
-					gMessageLib->sendDataTransformWithParent(this, playerObject);
-					gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
-				}
-				else
-				{
-					gMessageLib->sendDataTransform(this, playerObject);
-					gMessageLib->sendUpdateTransformMessage(this, playerObject);
-				}
-			}
-			else
-			{
-				gLogger->log(LogManager::CRITICAL,"Trainer::spawn: Failed to spawn a private skill trainer.");
-				assert(false && "Trainer::spawn WorldManager unable to find PlayerObject");
-			}
-		}
-	}
-	else
-	{
-		gLogger->log(LogManager::DEBUG,"Trainer::spawn: Spawned a trainer.");
-		if (this->getParentId())
-		{
-			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent053(this);
-			gMessageLib->sendUpdateTransformMessageWithParent(this);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform053(this);
-			gMessageLib->sendUpdateTransformMessage(this);
-		}
-	}
+    // send out position updates to known players
+    this->setInMoveCount(this->getInMoveCount() + 1);
+
+    if (gWorldConfig->isTutorial())
+    {
+        // We need to get the player object that is the owner of this npc.
+        if (this->getPrivateOwner() != 0)
+        {
+            PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
+            if (playerObject)
+            {
+                if (this->getParentId())
+                {
+                    // We are inside a cell.
+                    gMessageLib->sendDataTransformWithParent(this, playerObject);
+                    gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
+                }
+                else
+                {
+                    gMessageLib->sendDataTransform(this, playerObject);
+                    gMessageLib->sendUpdateTransformMessage(this, playerObject);
+                }
+            }
+            else
+            {
+                assert(false && "Trainer::spawn WorldManager unable to find PlayerObject");
+            }
+        }
+    }
+    else
+    {
+        if (this->getParentId())
+        {
+            // We are inside a cell.
+            gMessageLib->sendDataTransformWithParent053(this);
+            gMessageLib->sendUpdateTransformMessageWithParent(this);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform053(this);
+            gMessageLib->sendUpdateTransformMessage(this);
+        }
+    }
 }

@@ -46,9 +46,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 HarvesterObject::HarvesterObject() : PlayerStructure()
 {
-	mType = ObjType_Structure;
-	mCurrentExtractionRate = 0.0;
-	
+    mType = ObjType_Structure;
+    mCurrentExtractionRate = 0.0;
+
 }
 
 //=============================================================================
@@ -65,17 +65,17 @@ HarvesterObject::~HarvesterObject()
 bool HarvesterObject::checkResourceList(uint64 id)
 {
 
-	HResourceList::iterator it = mResourceList.begin();
-	while (it != mResourceList.end())
-	{
-		if((*it).first == id)
-		{
-			return true;
-		}
-		it++;
-	}
-	return false;
-	
+    HResourceList::iterator it = mResourceList.begin();
+    while (it != mResourceList.end())
+    {
+        if((*it).first == id)
+        {
+            return true;
+        }
+        it++;
+    }
+    return false;
+
 }
 
 
@@ -85,12 +85,12 @@ bool HarvesterObject::checkResourceList(uint64 id)
 float HarvesterObject::getSpecExtraction()
 {
 
-	if(!this->hasAttribute("examine_extractionrate"))
-	{
-		this->addAttribute("examine_extractionrate","3.0");
-	}
+    if(!this->hasAttribute("examine_extractionrate"))
+    {
+        this->addAttribute("examine_extractionrate","3.0");
+    }
 
-	return this->getAttribute<float>("examine_extractionrate");
+    return this->getAttribute<float>("examine_extractionrate");
 
 }
 
@@ -100,12 +100,12 @@ float HarvesterObject::getSpecExtraction()
 float HarvesterObject::getHopperSize()
 {
 
-	if(!this->hasAttribute("examine_hoppersize"))
-	{
-		this->addAttribute("examine_hoppersize","3000.0");
-	}
+    if(!this->hasAttribute("examine_hoppersize"))
+    {
+        this->addAttribute("examine_hoppersize","3000.0");
+    }
 
-	return this->getAttribute<float>("examine_hoppersize");
+    return this->getAttribute<float>("examine_hoppersize");
 
 }
 
@@ -114,16 +114,16 @@ float HarvesterObject::getHopperSize()
 
 float HarvesterObject::getCurrentHopperSize()
 {
-	float resourceAmount = 0.0;
-	//count all the resource data
-	HResourceList::iterator it = mResourceList.begin();
-	while (it != mResourceList.end())
-	{
-		resourceAmount += (*it).second;
-		it++;
+    float resourceAmount = 0.0;
+    //count all the resource data
+    HResourceList::iterator it = mResourceList.begin();
+    while (it != mResourceList.end())
+    {
+        resourceAmount += (*it).second;
+        it++;
 
-	}
-	return   (resourceAmount);
+    }
+    return   (resourceAmount);
 
 }
 
@@ -132,153 +132,151 @@ float HarvesterObject::getCurrentHopperSize()
 
 void HarvesterObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
-	if(!player)
-	{	
-		gLogger->log(LogManager::DEBUG,"HarvesterObject::handleObjectMenuSelect::could not find player");
-		return;
-	}
-	
-	switch(messageType)
-	{
-		case radId_StructureStatus:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_ViewStatus;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
+    if(!player)
+    {
+        return;
+    }
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    switch(messageType)
+    {
+    case radId_StructureStatus:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_ViewStatus;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		}
-		break;
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-		case radId_depositPower:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_DepositPower;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    case radId_depositPower:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_DepositPower;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		}
-		break;
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-		case radId_payMaintenance:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PayMaintenance;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-			
-		}
-		break;
+    case radId_payMaintenance:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PayMaintenance;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		case radId_serverTerminalManagementDestroy: 
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_Destroy;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-			
-		}
-		break;
-		case radId_serverTerminalPermissionsAdmin:
-		{			
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionAdmin;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    case radId_serverTerminalManagementDestroy:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_Destroy;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		}
-		break;
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-		case radId_serverTerminalPermissionsHopper:
-		{			
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionHopper;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    }
+    break;
+    case radId_serverTerminalPermissionsAdmin:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PermissionAdmin;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-		}
-		break;
+    }
+    break;
 
-		case radId_setName:
-		{
+    case radId_serverTerminalPermissionsHopper:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PermissionHopper;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_RenameStructure;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-			
-		}
-		break;
+    case radId_setName:
+    {
 
-		case radId_operateHarvester:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_OperateHarvester;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_RenameStructure;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
-		  
-		}
-		break;
-		
-	}
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+
+    }
+    break;
+
+    case radId_operateHarvester:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_OperateHarvester;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
+
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+
+    }
+    break;
+
+    }
 }
 
 //=============================================================================
 // prepares the custom radial for our harvester
 void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
-	if(!player)
-	{	
-		gLogger->log(LogManager::DEBUG,"HarvesterObject::prepareCustomRadialMenu::could not find player");
-		return;
-	}
-	
-	RadialMenu* radial	= new RadialMenu();
-	
-	//radId_serverHouseManage
-	radial->addItem(1,0,radId_examine,radAction_Default,"");
-	radial->addItem(2,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
-	radial->addItem(3,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
-	
-	radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");//destroy
-	radial->addItem(5,2,radId_StructureStatus,radAction_ObjCallback,"Status");//destroy
-	radial->addItem(6,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");//destroy
-	radial->addItem(7,2,radId_setName,radAction_ObjCallback,"Set Name");//destroy
-	radial->addItem(8,2,radId_operateHarvester,radAction_ObjCallback,"Operate Harvester");//destroy
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
+    if(!player)
+    {
+        return;
+    }
 
-	
-	//generators dont need power
-	uint32 type = this->getHarvesterFamily();
-	if((type != 41)&&(type != 42)&&(type != 43))
-		radial->addItem(9,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");//destroy
-	
-	
-	radial->addItem(10,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
-	radial->addItem(11,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
-	
+    RadialMenu* radial	= new RadialMenu();
+
+    //radId_serverHouseManage
+    radial->addItem(1,0,radId_examine,radAction_Default,"");
+    radial->addItem(2,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
+    radial->addItem(3,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
+
+    radial->addItem(4,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");//destroy
+    radial->addItem(5,2,radId_StructureStatus,radAction_ObjCallback,"Status");//destroy
+    radial->addItem(6,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");//destroy
+    radial->addItem(7,2,radId_setName,radAction_ObjCallback,"Set Name");//destroy
+    radial->addItem(8,2,radId_operateHarvester,radAction_ObjCallback,"Operate Harvester");//destroy
 
 
-	RadialMenuPtr radialPtr(radial);
-	mRadialMenu = radialPtr;
+    //generators dont need power
+    uint32 type = this->getHarvesterFamily();
+    if((type != 41)&&(type != 42)&&(type != 43))
+        radial->addItem(9,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");//destroy
+
+
+    radial->addItem(10,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");//destroy
+    radial->addItem(11,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");//destroy
+
+
+
+    RadialMenuPtr radialPtr(radial);
+    mRadialMenu = radialPtr;
 }
 
 
@@ -286,281 +284,279 @@ void HarvesterObject::prepareCustomRadialMenu(CreatureObject* creatureObject, ui
 // creates resource containers ín our inventory
 void HarvesterObject::createResourceContainer(uint64 resID, PlayerObject* player, uint32 amount)
 {
-	//now create the resource container
+    //now create the resource container
 
-	ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
-	ObjectIDList::iterator	listIt		= invObjects->begin();
+    ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
+    ObjectIDList::iterator	listIt		= invObjects->begin();
 
-	uint32 rAmount = amount;
+    uint32 rAmount = amount;
 
-	bool	foundSameType	= false;
+    while(listIt != invObjects->end())
+    {
+        // we are looking for resource containers
+        ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
+        if(resCont)
+        {
+            uint32 targetAmount	= resCont->getAmount();
+            uint32 maxAmount	= resCont->getMaxAmount();
+            uint32 newAmount;
 
-	while(listIt != invObjects->end())
-	{
-		// we are looking for resource containers
-		ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById((*listIt)));
-		if(resCont)
-		{
-			uint32 targetAmount	= resCont->getAmount();
-			uint32 maxAmount	= resCont->getMaxAmount();
-			uint32 newAmount;
+            if((resCont->getResourceId() == resID))
+            {
+                //find out how much we can add to the container
+                uint32 addAmount = maxAmount - targetAmount;
 
-			if((resCont->getResourceId() == resID))
-			{
-			   //find out how much we can add to the container
-				uint32 addAmount = maxAmount - targetAmount;
+                if(addAmount >rAmount)
+                {
+                    addAmount = rAmount;
+                    rAmount = 0;
+                }
+                else
+                    rAmount -= addAmount;
 
-				if(addAmount >rAmount)
-				{
-					addAmount = rAmount;
-					rAmount = 0;
-				}
-				else
-					rAmount -= addAmount;
+                if(addAmount)
+                {
+                    // find out how big our container is now
+                    newAmount = targetAmount + addAmount;
 
-				if(addAmount)
-				{
-					// find out how big our container is now
-					newAmount = targetAmount + addAmount;
+                    // update target container
+                    resCont->setAmount(newAmount);
 
-					// update target container
-					resCont->setAmount(newAmount);
+                    gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
-					gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
+                    gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
+                    
+                }
+            }
+        }
 
-					gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId());
-					gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%I64u",newAmount,resCont->getId()); // SQL Debug Log
-				}
-			}
-		}
+        ++listIt;
+    }
 
-		++listIt;
-	}
+    // or need to create a new one
 
-	// or need to create a new one
-	
-	while(rAmount)
-	{
-		uint32 a = 100000;
-	
-		if( a > rAmount)
-			a = rAmount;
+    while(rAmount)
+    {
+        uint32 a = 100000;
 
-		gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),resID,player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,a);
-		rAmount -= a;
-	
-	}
-	
+        if( a > rAmount)
+            a = rAmount;
+
+        gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),resID,player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,a);
+        rAmount -= a;
+
+    }
+
 
 }
 
 void HarvesterObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
+    StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
 
-	switch(asynContainer->mQueryType)
-	{
+    switch(asynContainer->mQueryType)
+    {
 
-		case Structure_ResourceRetrieve:
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+    case Structure_ResourceRetrieve:
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
 
-			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0,4);
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(1);
+        binding->addField(DFT_uint32,0,4);
 
-			uint64 count;
-			uint32 error;
-			count = result->getRowCount();
+        uint64 count;
+        uint32 error;
+        count = result->getRowCount();
 
-			if(!count)
-			{
-				assert(false && "HarvesterObject::handleDatabaseJobComplete Structure_ResourceRetrieve did not find any resources");
-				return;
-			}
+        if(!count)
+        {
+            assert(false && "HarvesterObject::handleDatabaseJobComplete Structure_ResourceRetrieve did not find any resources");
+            return;
+        }
 
-			result->GetNextRow(binding,&error);
-			if(error > 0)
-			{
-				//mmh there was something fishy ... no changes db side
-				gMessageLib->sendResourceEmptyHopperResponse(harvester,player,error, asynContainer->command.b1, asynContainer->command.b2);
-				return;
-			}
-			
-			createResourceContainer(asynContainer->command.ResourceId, player, asynContainer->command.Amount);
-		
-			
-			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceDiscardUpdateHopper,player->getClient());
-			asyncContainer->mStructureId	= asynContainer->mStructureId;
-			asyncContainer->mPlayerId		= asynContainer->mPlayerId;	
-			asyncContainer->command			= asynContainer->command;
+        result->getNextRow(binding,&error);
+        if(error > 0)
+        {
+            //mmh there was something fishy ... no changes db side
+            gMessageLib->sendResourceEmptyHopperResponse(harvester,player,error, asynContainer->command.b1, asynContainer->command.b2);
+            return;
+        }
 
-			gWorldManager->getDatabase()->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ", harvester->getId());
-			gLogger->log(LogManager::DEBUG, "SQL :: SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ", harvester->getId()); // SQL Debug Log
-
-		}
-		break;
-
-		case Structure_ResourceDiscard:
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0,4);
-
-			uint64 count;
-			uint32 error;
-			count = result->getRowCount();
-
-			if(!count)
-			{
-				assert(false && "HarvesterObject::handleDatabaseJobComplete Structure_ResourceDiscard did not find resource");
-				return;
-			}
-
-			result->GetNextRow(binding,&error);
-			if(result > 0)
-			{
-				//mmh there was something fishy ... no changes db side
-				gMessageLib->sendResourceEmptyHopperResponse(harvester,player,error, asynContainer->command.b1, asynContainer->command.b2);
-				return;
-			}
-
-			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceDiscardUpdateHopper,player->getClient());
-			asyncContainer->mStructureId	= asynContainer->mStructureId;
-			asyncContainer->mPlayerId		= asynContainer->mPlayerId;	
-			asyncContainer->command			= asyncContainer->command;
-			
-			gWorldManager->getDatabase()->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-			gLogger->log(LogManager::DEBUG, "SQL :: SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId()); // SQL Debug Log
-		}
-		break;
-
-		case Structure_ResourceDiscardUpdateHopper:
-		{
-			uint64 count = result->getRowCount();
-
-			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-
-			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(2);
-			binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
-			binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
-			
-			HResourceList*	hRList = harvester->getResourceList();
-			
-			hRList->clear();
-
-			HarvesterHopperItem hopperTemp;
-			for(uint64 i=0;i <count;i++)
-			{
-				result->GetNextRow(binding,&hopperTemp);
-				hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
-			}
-
-			//now send the update to the client
-			gMessageLib->SendHarvesterHopperUpdate(harvester,player);
-
-			gMessageLib->sendResourceEmptyHopperResponse(harvester,player,0, asynContainer->command.b2, asynContainer->command.b2);
-			
-			gWorldManager->getDatabase()->DestroyDataBinding(binding);												   	
-
-		}
-		break;
-		
-		case Structure_GetResourceData:
-		{
-			uint64 count = result->getRowCount();
-
-			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-
-			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(2);
-			binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
-			binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
-			
-			HResourceList*	hRList = harvester->getResourceList();
-			
-			hRList->clear();
-
-			HarvesterHopperItem hopperTemp;
-			for(uint64 i=0;i <count;i++)
-			{
-				result->GetNextRow(binding,&hopperTemp);
-				hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
-			}
-
-			//now send the update to the client
-			gMessageLib->sendHarvesterResourceData(harvester,player);
-			gMessageLib->sendBaselinesHINO_7(harvester,player);
-			
-			gWorldManager->getDatabase()->DestroyDataBinding(binding);												   	
-
-		}
-		break;
-
-		//read in the current resource hoppers contents
-		case Structure_HopperUpdate:
-		{
-			uint64 count = result->getRowCount();
-
-			HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-
-			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(2);
-			binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
-			binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
-			
-			HResourceList*	hRList = harvester->getResourceList();
-			
-			hRList->clear();
-
-			HarvesterHopperItem hopperTemp;
-			for(uint64 i=0;i <count;i++)
-			{
-				result->GetNextRow(binding,&hopperTemp);
-				hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
-			}
-
-			//now send the update to the client
-			gMessageLib->SendHarvesterHopperUpdate(harvester,player);
-			
-			gWorldManager->getDatabase()->DestroyDataBinding(binding);												   	
-		}
-		break;
-
-		case Structure_HopperDiscard:
-		{
-			//PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
-
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-			if(!player)
-			{
-				return;
-			}
-	
-			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_HopperUpdate,player->getClient());
-
-			asyncContainer->mStructureId	= this->getId();
-			asyncContainer->mPlayerId		= player->getId();
-			
-			int8 sql[250];
-			sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",this->getId());
-			
-			gWorldManager->getDatabase()->ExecuteSqlAsync(this,asyncContainer,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-
-		
-		}
-		break;
+        createResourceContainer(asynContainer->command.ResourceId, player, asynContainer->command.Amount);
 
 
-		default:break;
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceDiscardUpdateHopper,player->getClient());
+        asyncContainer->mStructureId	= asynContainer->mStructureId;
+        asyncContainer->mPlayerId		= asynContainer->mPlayerId;
+        asyncContainer->command			= asynContainer->command;
 
-	}
+        gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ", harvester->getId());
+        
 
-	SAFE_DELETE(asynContainer);
+    }
+    break;
+
+    case Structure_ResourceDiscard:
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(1);
+        binding->addField(DFT_uint32,0,4);
+
+        uint64 count;
+        uint32 error;
+        count = result->getRowCount();
+
+        if(!count)
+        {
+            assert(false && "HarvesterObject::handleDatabaseJobComplete Structure_ResourceDiscard did not find resource");
+            return;
+        }
+
+        result->getNextRow(binding,&error);
+        if(result > 0)
+        {
+            //mmh there was something fishy ... no changes db side
+            gMessageLib->sendResourceEmptyHopperResponse(harvester,player,error, asynContainer->command.b1, asynContainer->command.b2);
+            return;
+        }
+
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_ResourceDiscardUpdateHopper,player->getClient());
+        asyncContainer->mStructureId	= asynContainer->mStructureId;
+        asyncContainer->mPlayerId		= asynContainer->mPlayerId;
+        asyncContainer->command			= asyncContainer->command;
+
+        gWorldManager->getDatabase()->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        
+    }
+    break;
+
+    case Structure_ResourceDiscardUpdateHopper:
+    {
+        uint64 count = result->getRowCount();
+
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(2);
+        binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
+        binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
+
+        HResourceList*	hRList = harvester->getResourceList();
+
+        hRList->clear();
+
+        HarvesterHopperItem hopperTemp;
+        for(uint64 i=0; i <count; i++)
+        {
+            result->getNextRow(binding,&hopperTemp);
+            hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
+        }
+
+        //now send the update to the client
+        gMessageLib->SendHarvesterHopperUpdate(harvester,player);
+
+        gMessageLib->sendResourceEmptyHopperResponse(harvester,player,0, asynContainer->command.b2, asynContainer->command.b2);
+
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
+
+    }
+    break;
+
+    case Structure_GetResourceData:
+    {
+        uint64 count = result->getRowCount();
+
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(2);
+        binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
+        binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
+
+        HResourceList*	hRList = harvester->getResourceList();
+
+        hRList->clear();
+
+        HarvesterHopperItem hopperTemp;
+        for(uint64 i=0; i <count; i++)
+        {
+            result->getNextRow(binding,&hopperTemp);
+            hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
+        }
+
+        //now send the update to the client
+        gMessageLib->sendHarvesterResourceData(harvester,player);
+        gMessageLib->sendBaselinesHINO_7(harvester,player);
+
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
+
+    }
+    break;
+
+    //read in the current resource hoppers contents
+    case Structure_HopperUpdate:
+    {
+        uint64 count = result->getRowCount();
+
+        HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(2);
+        binding->addField(DFT_uint64,offsetof(HarvesterHopperItem,ResourceID),8,0);
+        binding->addField(DFT_float,offsetof(HarvesterHopperItem,Quantity),4,1);
+
+        HResourceList*	hRList = harvester->getResourceList();
+
+        hRList->clear();
+
+        HarvesterHopperItem hopperTemp;
+        for(uint64 i=0; i <count; i++)
+        {
+            result->getNextRow(binding,&hopperTemp);
+            hRList->push_back(std::make_pair(hopperTemp.ResourceID,hopperTemp.Quantity));
+        }
+
+        //now send the update to the client
+        gMessageLib->SendHarvesterHopperUpdate(harvester,player);
+
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
+    }
+    break;
+
+    case Structure_HopperDiscard:
+    {
+        //PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
+
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+        if(!player)
+        {
+            return;
+        }
+
+        StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_HopperUpdate,player->getClient());
+
+        asyncContainer->mStructureId	= this->getId();
+        asyncContainer->mPlayerId		= player->getId();
+
+        int8 sql[250];
+        sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",this->getId());
+
+        gWorldManager->getDatabase()->executeSqlAsync(this,asyncContainer,sql);
+        
+
+    }
+    break;
+
+
+    default:
+        break;
+
+    }
+
+    SAFE_DELETE(asynContainer);
 }
 
 

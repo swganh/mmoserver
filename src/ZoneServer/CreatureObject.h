@@ -387,7 +387,6 @@ class CreatureObject : public MovingObject
         void				IncBuffAsyncCount(){mBuffAsyncCount++; }
         void				DecBuffAsyncCount(){mBuffAsyncCount--; }
         //CreatureObject::STATES  states;
-
 };
 
 //=============================================================================

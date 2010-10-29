@@ -33,101 +33,101 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //================================================================================
 
 UIWindow::UIWindow(UICallback* callback,uint32 id,uint8 windowType,const BString windowTypeStr,const int8* eventStr, void* container)
-: UIElement(id,SUI_Element_Window)
-, mWindowTypeStr(windowTypeStr)
-, mUICallback(callback)
-, mWindowType(windowType)
+    : UIElement(id,SUI_Element_Window)
+    , mWindowTypeStr(windowTypeStr)
+    , mUICallback(callback)
+    , mWindowType(windowType)
 {
-	mEventStr = eventStr;
-	mChildElements.reserve(5);
-	mContainer = container;
+    mEventStr = eventStr;
+    mChildElements.reserve(5);
+    mContainer = container;
 }
 
 //================================================================================
 
 UIWindow::~UIWindow()
 {
-	Children::iterator it = mChildElements.begin();
+    Children::iterator it = mChildElements.begin();
 
-	while(it != mChildElements.end())
-	{
-		delete(*it);
-		mChildElements.erase(it);
-		it = mChildElements.begin();
-	}
+    while(it != mChildElements.end())
+    {
+        delete(*it);
+        mChildElements.erase(it);
+        it = mChildElements.begin();
+    }
 }
 
 //================================================================================
 
 UIElement* UIWindow::getChildById(uint32 id)
 {
-	Children::iterator it = mChildElements.begin();
+    Children::iterator it = mChildElements.begin();
 
-	while(it != mChildElements.end())
-	{
-		if((*it)->getId() == id)
-			return(*it);
+    while(it != mChildElements.end())
+    {
+        if((*it)->getId() == id)
+            return(*it);
 
-		++it;
-	}
+        ++it;
+    }
 
-	return(NULL);
+    return nullptr;
 }
 
 //================================================================================
 
 bool UIWindow::removeChild(UIElement* element)
 {
-	Children::iterator it = mChildElements.begin();
+    Children::iterator it = mChildElements.begin();
 
-	while(it != mChildElements.end())
-	{
-		if((*it) == element)
-		{
-			mChildElements.erase(it);
-			return(true);
-		}
+    while(it != mChildElements.end())
+    {
+        if((*it) == element)
+        {
+            mChildElements.erase(it);
+            return(true);
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	return(false);
+    return(false);
 }
 
 //================================================================================
 
 bool UIWindow::removeChild(uint32 id)
 {
-	Children::iterator it = mChildElements.begin();
+    Children::iterator it = mChildElements.begin();
 
-	while(it != mChildElements.end())
-	{
-		if((*it)->getId() == id)
-		{
-			mChildElements.erase(it);
-			return(true);
-		}
+    while(it != mChildElements.end())
+    {
+        if((*it)->getId() == id)
+        {
+            mChildElements.erase(it);
+            return(true);
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	return(false);
+    return(false);
 }
 
 //================================================================================
 
 uint32 UIWindow::getChildrenPropertyCount()
 {
-	uint32 count = 0;
-	Children::iterator childrenIt = mChildElements.begin();
+    uint32 count = 0;
+    Children::iterator childrenIt = mChildElements.begin();
 
-	while(childrenIt != mChildElements.end())
-	{
-		count += (*childrenIt)->getPropertyCount();
-		++childrenIt;
-	}
+    while(childrenIt != mChildElements.end())
+    {
+        count += (*childrenIt)->getPropertyCount();
+        ++childrenIt;
+    }
 
-	return(count);
+    return(count);
 }
 
 //================================================================================

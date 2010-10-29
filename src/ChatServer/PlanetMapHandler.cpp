@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlanetMapHandler.h"
 #include "ChatOpcodes.h"
 
-#include "Common/LogManager.h"
+
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -46,21 +46,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 PlanetMapHandler::PlanetMapHandler(Database* database, MessageDispatch* dispatch)
 {
-	mDatabase = database;
-	mMessageDispatch = dispatch;
+    mDatabase = database;
+    mMessageDispatch = dispatch;
 
-	mMessageDispatch->RegisterMessageCallback(opGetMapLocationsMessage,std::bind(&PlanetMapHandler::_processMapLocationsRequest, this, std::placeholders::_1, std::placeholders::_2));
+    mMessageDispatch->RegisterMessageCallback(opGetMapLocationsMessage,std::bind(&PlanetMapHandler::_processMapLocationsRequest, this, std::placeholders::_1, std::placeholders::_2));
 
 
-  // We're going to build our databinding here.
-  mDataBinding = mDatabase->CreateDataBinding(7);
-  mDataBinding->addField(DFT_int64, offsetof(MapLocation, mId), 8);
-  mDataBinding->addField(DFT_string, offsetof(MapLocation, mName), 64);
-  mDataBinding->addField(DFT_float, offsetof(MapLocation, mX), 4);
-  mDataBinding->addField(DFT_float, offsetof(MapLocation, mZ), 4);
-  mDataBinding->addField(DFT_uint8, offsetof(MapLocation, mCategory), 1);
-  mDataBinding->addField(DFT_uint8, offsetof(MapLocation, mSubCategory), 1);
-  mDataBinding->addField(DFT_uint8, offsetof(MapLocation, mListIcon), 1);
+    // We're going to build our databinding here.
+    mDataBinding = mDatabase->createDataBinding(7);
+    mDataBinding->addField(DFT_int64, offsetof(MapLocation, mId), 8);
+    mDataBinding->addField(DFT_string, offsetof(MapLocation, mName), 64);
+    mDataBinding->addField(DFT_float, offsetof(MapLocation, mX), 4);
+    mDataBinding->addField(DFT_float, offsetof(MapLocation, mZ), 4);
+    mDataBinding->addField(DFT_uint8, offsetof(MapLocation, mCategory), 1);
+    mDataBinding->addField(DFT_uint8, offsetof(MapLocation, mSubCategory), 1);
+    mDataBinding->addField(DFT_uint8, offsetof(MapLocation, mListIcon), 1);
 }
 
 
@@ -68,11 +68,11 @@ PlanetMapHandler::PlanetMapHandler(Database* database, MessageDispatch* dispatch
 
 PlanetMapHandler::~PlanetMapHandler()
 {
-  // Destroy our DataBinding object
-  mDatabase->DestroyDataBinding(mDataBinding);
+    // Destroy our DataBinding object
+    mDatabase->destroyDataBinding(mDataBinding);
 
-  // Unregister our message callbacks
-	mMessageDispatch->UnregisterMessageCallback(opGetMapLocationsMessage);
+    // Unregister our message callbacks
+    mMessageDispatch->UnregisterMessageCallback(opGetMapLocationsMessage);
 }
 
 //======================================================================================================================
@@ -85,84 +85,84 @@ void PlanetMapHandler::Process()
 //======================================================================================================================
 void PlanetMapHandler::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 {
-	Message*	newMessage;
-	uint64    locationsCount;
+    Message*	newMessage;
+    uint64    locationsCount;
 
-	MapLocation location;
+    MapLocation location;
 
-	// Get our container back
-	PlanetMapHandlerAsyncContainer* container = reinterpret_cast<PlanetMapHandlerAsyncContainer*>(ref);
-	DispatchClient* client = reinterpret_cast<DispatchClient*>(container->mClient);
+    // Get our container back
+    PlanetMapHandlerAsyncContainer* container = reinterpret_cast<PlanetMapHandlerAsyncContainer*>(ref);
+    DispatchClient* client = reinterpret_cast<DispatchClient*>(container->mClient);
 
-	if(!client)
-	{
-		delete container;
-		return;
-	}
+    if(!client)
+    {
+        delete container;
+        return;
+    }
 
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opHeartBeat);
-	newMessage = gMessageFactory->EndMessage();
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opHeartBeat);
+    newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
+    client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
-	locationsCount = result->getRowCount();
+    locationsCount = result->getRowCount();
 
-	// build our reply
-	gMessageFactory->StartMessage();
-	gMessageFactory->addUint32(opGetMapLocationsResponseMessage);
-	gMessageFactory->addString(container->mPlanetName);
+    // build our reply
+    gMessageFactory->StartMessage();
+    gMessageFactory->addUint32(opGetMapLocationsResponseMessage);
+    gMessageFactory->addString(container->mPlanetName);
 
-	gMessageFactory->addUint32((uint32)locationsCount);
+    gMessageFactory->addUint32((uint32)locationsCount);
 
-	for (uint32 i = 0; i < locationsCount; i++)
-	{
-		result->GetNextRow(mDataBinding, (void*)&location);
+    for (uint32 i = 0; i < locationsCount; i++)
+    {
+        result->getNextRow(mDataBinding, (void*)&location);
 
-		gMessageFactory->addUint64(location.mId);
+        gMessageFactory->addUint64(location.mId);
 
-		BString tempString;
-		tempString = location.mName;
-		tempString.convert(BSTRType_Unicode16);
-		gMessageFactory->addString(tempString);
+        BString tempString;
+        tempString = location.mName;
+        tempString.convert(BSTRType_Unicode16);
+        gMessageFactory->addString(tempString);
 
-		gMessageFactory->addFloat(location.mX);
-		gMessageFactory->addFloat(location.mZ);
-		gMessageFactory->addUint8(location.mCategory);
-		gMessageFactory->addUint8(location.mSubCategory);
-		gMessageFactory->addUint8(location.mListIcon);
-	}
+        gMessageFactory->addFloat(location.mX);
+        gMessageFactory->addFloat(location.mZ);
+        gMessageFactory->addUint8(location.mCategory);
+        gMessageFactory->addUint8(location.mSubCategory);
+        gMessageFactory->addUint8(location.mListIcon);
+    }
 
-	gMessageFactory->addUint64(0);  // next location id , must be 0 for last item
+    gMessageFactory->addUint64(0);  // next location id , must be 0 for last item
 
-	// listing footer
-	gMessageFactory->addUint64(0); // unknown
-	gMessageFactory->addUint32(0); // unknown
-	gMessageFactory->addUint8(0);  // unknown
+    // listing footer
+    gMessageFactory->addUint64(0); // unknown
+    gMessageFactory->addUint32(0); // unknown
+    gMessageFactory->addUint8(0);  // unknown
 
-	newMessage = gMessageFactory->EndMessage();
+    newMessage = gMessageFactory->EndMessage();
 
-	client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 8);
+    client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 8);
 
-  // Destroy our DB objects
-  delete (container);
+    // Destroy our DB objects
+    delete (container);
 }
 
 
 //======================================================================================================================
 void PlanetMapHandler::_processMapLocationsRequest(Message* message, DispatchClient* client)
 {
-  PlanetMapHandlerAsyncContainer* container = new PlanetMapHandlerAsyncContainer();
+    PlanetMapHandlerAsyncContainer* container = new PlanetMapHandlerAsyncContainer();
 
-  // Set our client object
-  container->mClient = client;
+    // Set our client object
+    container->mClient = client;
 
-  // get the requested planet
-  message->getStringAnsi(container->mPlanetName);
+    // get the requested planet
+    message->getStringAnsi(container->mPlanetName);
 
-  // Send our job in.
-  mDatabase->ExecuteProcedureAsync(this, (void*)container, "CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi());
-  gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi()); // SQL Debug Log
+    // Send our job in.
+    mDatabase->executeProcedureAsync(this, (void*)container, "CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi());
+    
 }
 
 //======================================================================================================================

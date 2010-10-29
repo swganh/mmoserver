@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 WeightsBatch::WeightsBatch()
 {
-	mWeights.reserve(8);
+    mWeights.reserve(8);
 }
 
 //=============================================================================

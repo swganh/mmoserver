@@ -55,19 +55,20 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\boost.atomic;$(SolutionDir)deps\glm;$(SolutionDir)deps\gmock\include;$(SolutionDir)deps\gtest\include;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\glog\src\windows;$(SolutionDir)deps\gtest\include;$(SolutionDir)deps\tbb\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\gmock\msvc\Debug;$(SolutionDir)deps\gtest\msvc\gtest\Debug;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;gmock.lib;gtest.lib;libmysql.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\glog\$(Configuration);$(SolutionDir)deps\tbb\lib\ia32\vc10;$(SolutionDir)deps\gmock\msvc\Debug;$(SolutionDir)deps\gtest\msvc\gtest\Debug;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;libglog_static.lib;gtest.lib;libmysql.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>
       </AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>cd "$(SolutionDir)bin\$(ConfigurationName)"
+PATH=$(SolutionDir)deps\glog\$(ConfigurationName);$(SolutionDir)deps\tbb\bin\ia32\vc10;%PATH%
 "$(OutDir)$(TargetName)$(TargetExt)" --gtest_break_on_failure --gtest_output=xml:$(SolutionDir)build-aux\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -81,7 +82,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;_WIN32_WINNT=0x0501;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\boost.atomic;$(SolutionDir)deps\glm;$(SolutionDir)deps\gmock\include;$(SolutionDir)deps\gtest\include;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\glog\src\windows;$(SolutionDir)deps\gtest\include;$(SolutionDir)deps\tbb\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
@@ -90,8 +91,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\gmock\msvc\Release;$(SolutionDir)deps\gtest\msvc\gtest\Release;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;gmock.lib;gtest.lib;libmysql.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\glog\$(Configuration);$(SolutionDir)deps\tbb\lib\ia32\vc10;$(SolutionDir)deps\gmock\msvc\Release;$(SolutionDir)deps\gtest\msvc\gtest\Release;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;libglog_static.lib;gtest.lib;libmysql.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>
       </AdditionalOptions>
     </Link>
@@ -101,13 +102,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Common\MockObjects\MockEvent.cpp" />
-    <ClCompile Include="Common\TestByteBuffer.cpp" />
-    <ClCompile Include="Common\TestCrc.cpp" />
-    <ClCompile Include="Common\TestEvent.cpp" />
-    <ClCompile Include="Common\TestEventDispatcher.cpp" />
-    <ClCompile Include="Common\TestHashString.cpp" />
-    <ClCompile Include="Common\TestOutOfBand.cpp" />
+    <ClCompile Include="..\src\Common\byte_buffer_unittest.cc" />
+    <ClCompile Include="..\src\Common\crc_unittest.cc" />
+    <ClCompile Include="..\src\Common\event_dispatcher_unittest.cc" />
+    <ClCompile Include="..\src\Common\event_unittest.cc" />
+    <ClCompile Include="..\src\Common\hash_string_unittest.cc" />
+    <ClCompile Include="..\src\Common\out_of_band_unittest.cc" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utils\TestActiveObject.cpp" />
     <ClCompile Include="Utils\TestCmpistr.cpp" />
@@ -118,30 +118,11 @@
     <ProjectReference Include="..\src\Common\Common.vcxproj">
       <Project>{432dcbe9-1f49-49ff-9753-be806192a917}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\src\DatabaseManager\DatabaseManager.vcxproj">
-      <Project>{c4e4bd1a-64fe-46b4-a38b-9fe62e57697d}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\src\MessageLib\MessageLib.vcxproj">
-      <Project>{0c19070e-efc9-403c-ad41-79dd6f3b0e52}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\src\NetworkManager\NetworkManager.vcxproj">
-      <Project>{daa23959-260d-4ee1-bb7f-443100ff7d4e}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\src\ScriptEngine\ScriptEngine.vcxproj">
-      <Project>{1e105ba1-3ec9-411a-9cfe-ab279f6fc3a7}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\src\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\src\ZoneServer\ZoneServer.vcxproj">
-      <Project>{fc533e81-c227-43d3-b68e-4a23241dd997}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Common\MockObjects\MockEvent.h" />
-    <ClInclude Include="Common\MockObjects\MockListener.h" />
-    <ClInclude Include="Common\MockObjects\MockListenerAlt.h" />
-    <ClInclude Include="MockStateManager.h" />
     <ClInclude Include="Utils\MockObjects\MockActiveObjectImpl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

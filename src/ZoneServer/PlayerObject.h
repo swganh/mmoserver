@@ -562,4 +562,3 @@ class PlayerObject : public CreatureObject
 #endif
 
 
-

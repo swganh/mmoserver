@@ -31,13 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 
 #ifndef GROUP_MANAGER_CALLBACKCONTAINER_H
-	class GroupManagerCallbackContainer;
+class GroupManagerCallbackContainer;
 #endif
 
 class GroupManagerCallback
 {
 public:
-	virtual void handleGroupManagerCallback(uint64 playerId, GroupManagerCallbackContainer* container) = 0;
+    virtual void handleGroupManagerCallback(uint64 playerId, GroupManagerCallbackContainer* container) = 0;
 };
 
 #endif

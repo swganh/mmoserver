@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -83,7 +82,6 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
     {
         if(elementCount < 4)
         {
-            gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: Error in parameters(count %u)",elementCount);
             return;
         }
         else
@@ -94,7 +92,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
     }
     else
     {
-        for(uint i = 4;i < elementCount;i++)
+        for(uint i = 4; i < elementCount; i++)
         {
             nameStr	<< dataElements[i].getAnsi();
 
@@ -113,7 +111,6 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
     if(planetId == -1)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handleCreateWaypointAtPosition: could not find planet id for %s",planetStr.getAnsi());
         return;
     }
 
@@ -136,11 +133,11 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
     if(waypoint)
     {
         waypoint->toggleActive();
-        mDatabase->ExecuteSqlAsync(0,0,"UPDATE waypoints set active=%u WHERE waypoint_id=%"PRIu64"",(uint8)waypoint->getActive(),targetId);
+        mDatabase->executeSqlAsync(0,0,"UPDATE waypoints set active=%u WHERE waypoint_id=%"PRIu64"",(uint8)waypoint->getActive(),targetId);
     }
     else
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handleSetWaypointStatus: could not find waypoint %"PRIu64"",targetId);
+        DLOG(INFO) << "ObjController::handleSetWaypointStatus: could not find waypoint " << targetId;
     }
 }
 
@@ -155,7 +152,7 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
     Datapad* datapad			= player->getDataPad();
     BString			waypoint_data;
     glm::vec3       waypoint_position;
-                    
+
     // Before anything else verify the datapad can hold another waypoint.
     if(! datapad->getCapacity()) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "too_many_waypoints"), player);
@@ -187,8 +184,8 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
 
         // Validate the position values.
         if (waypoint_position.x < -8192 || waypoint_position.x > 8192 ||
-            waypoint_position.y < -500 || waypoint_position.y > 500 ||
-            waypoint_position.z < -8192 || waypoint_position.z > 8192) {
+                waypoint_position.y < -500 || waypoint_position.y > 500 ||
+                waypoint_position.z < -8192 || waypoint_position.z > 8192) {
             gMessageLib->SendSystemMessage( L"[SYNTAX] Invalid range for /waypoint. x = -8192/8192 y = -500/500 z = -8192/8192", player);
             return;
         }
@@ -196,7 +193,7 @@ void ObjectController::_handleWaypoint(uint64 targetId, Message* message, Object
         // If no parameters were passed to the /waypoint command use the current world position.
         waypoint_position = player->getWorldPosition();
     }
-                    
+
     datapad->requestNewWaypoint("Waypoint", waypoint_position, static_cast<uint16>(gWorldManager->getZoneId()), Waypoint_blue);
 }
 
@@ -215,7 +212,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
     if(waypoint == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handlesetwaypointname: could not find waypoint %"PRIu64"",targetId);
+        DLOG(INFO) << "ObjController::handlesetwaypointname: could not find waypoint "<< targetId;
         return;
     }
 
@@ -230,12 +227,12 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
     sprintf(sql,"UPDATE waypoints SET name='");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,name.getAnsi(),name.getLength());
     sprintf(restStr,"' WHERE waypoint_id=%"PRIu64"",targetId);
     strcat(sql,restStr);
 
-    mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeSqlAsync(NULL,NULL,sql);
+    
 
     gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateChange,player);
 }

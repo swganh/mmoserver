@@ -36,7 +36,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -391,7 +396,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
         return(false);
 
     Ham*			creatureHam		= creatureObject->getHam();
-    
+
     // Test ERU
     // If no mood is set, use neutral for avatar / npc, then they will look less angry as default.
     // This will NOT affect the chat-mood
@@ -401,7 +406,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
     {
         moodId = 74;
     }
-    
+
     BString			moodStr			= gWorldManager->getMood(moodId);
 
     ObjectList*		equippedObjects = creatureObject->getEquipManager()->getEquippedObjects();
@@ -409,7 +414,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
 
     ObjectList::iterator eqIt = equippedObjects->begin();
 
-    
+
     mMessageFactory->StartMessage();
 
     mMessageFactory->addUint16(22);
@@ -665,7 +670,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
     {
         // Reset all
         // Not suported yet
-        gLogger->log(LogManager::DEBUG,"MessageLib::sendDefenderUpdate Invalid option = %u",updateType);
+        DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
         return;
     }
 
@@ -892,7 +897,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 
     if(!found)
     {
-        gLogger->log(LogManager::DEBUG,"MessageLib::sendEquippedItemUpdate_InRange : Item not found : %I64u",itemId);
+        DLOG(INFO) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
         return false;
     }
 
@@ -1917,7 +1922,7 @@ bool MessageLib::sendSkillModUpdateCreo4(PlayerObject* playerObject)
 void MessageLib::sendStationaryFlagUpdate(PlayerObject* playerObject)
 {
     mMessageFactory->StartMessage();
-    
+
     mMessageFactory->addUint32(opDeltasMessage);
     mMessageFactory->addUint64(playerObject->getId());
     mMessageFactory->addUint32(opCREO);
@@ -1925,7 +1930,7 @@ void MessageLib::sendStationaryFlagUpdate(PlayerObject* playerObject)
     mMessageFactory->addUint32(5);
     mMessageFactory->addUint16(1);
     mMessageFactory->addUint16(17);
-    
+
     if(playerObject->isStationary())
         mMessageFactory->addUint8(1);
     else

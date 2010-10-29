@@ -36,30 +36,42 @@ class PlayerObject;
 
 class Bank : public TangibleObject
 {
-	friend class ObjectFactory;
-	friend class PlayerObjectFactory;
+    friend class ObjectFactory;
+    friend class PlayerObjectFactory;
 
-	public:
+public:
 
-		Bank();
-		~Bank();
+    Bank();
+    ~Bank();
 
-		void		setParent(PlayerObject* player){ mParent = player; }
-		ObjectList*	getObjects(){ return &mObjects; }
+    void		setParent(PlayerObject* player) {
+        mParent = player;
+    }
+    ObjectList*	getObjects() {
+        return &mObjects;
+    }
 
-		int32		getCredits(){ return mCredits; }
-		void		setCredits(int32 credits){ mCredits = credits; }
-		bool		updateCredits(int32 amount);
+    int32		getCredits() {
+        return mCredits;
+    }
+    void		setCredits(int32 credits) {
+        mCredits = credits;
+    }
+    bool		updateCredits(int32 amount);
 
-		int8		getPlanet(){ return mPlanet; }
-		void		setPlanet(int8 planet){ mPlanet = planet; }
-	
-	private:
+    int8		getPlanet() {
+        return mPlanet;
+    }
+    void		setPlanet(int8 planet) {
+        mPlanet = planet;
+    }
 
-		PlayerObject*	mParent;
-		ObjectList		mObjects;
-		int32			mCredits;
-		int8			mPlanet;
+private:
+
+    PlayerObject*	mParent;
+    ObjectList		mObjects;
+    int32			mCredits;
+    int8			mPlanet;
 };
 
 //=============================================================================

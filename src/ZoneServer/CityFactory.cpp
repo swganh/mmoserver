@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CityFactory.h"
 #include "City.h"
 #include "ObjectFactoryCallback.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -44,112 +43,110 @@ CityFactory*	CityFactory::mSingleton  = NULL;
 
 CityFactory*	CityFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new CityFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new CityFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 
 CityFactory::CityFactory(Database* database) : FactoryBase(database)
 {
-	_setupDatabindings();
+    _setupDatabindings();
 }
 
 //=============================================================================
 
 CityFactory::~CityFactory()
 {
-	_destroyDatabindings();
+    _destroyDatabindings();
 
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
 
 void CityFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
+    QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
 
-	switch(asyncContainer->mQueryType)
-	{
-		case CityFQuery_MainData:
-		{
-			City* city = _createCity(result);
+    switch(asyncContainer->mQueryType)
+    {
+    case CityFQuery_MainData:
+    {
+        City* city = _createCity(result);
 
-			if(city->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-				asyncContainer->mOfCallback->handleObjectReady(city,asyncContainer->mClient);
-			else
-			{
+        if(city->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
+            asyncContainer->mOfCallback->handleObjectReady(city,asyncContainer->mClient);
+        else
+        {
 
-			}
-		}
-		break;
+        }
+    }
+    break;
 
-		default:break;
-	}
+    default:
+        break;
+    }
 
-	mQueryContainerPool.free(asyncContainer);
+    mQueryContainerPool.free(asyncContainer);
 }
 
 //=============================================================================
 
 void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CityFQuery_MainData,client),
-							"SELECT cities.id,cities.city_name,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-							"planet_regions.width,planet_regions.height"
-							" FROM cities"
-							" INNER JOIN planet_regions ON (cities.city_region = planet_regions.region_id)"
-							" WHERE (cities.id = %"PRIu64")",id);
-	gLogger->log(LogManager::DEBUG, "SELECT cities.id,cities.city_name,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-									"planet_regions.width,planet_regions.height"
-									" FROM cities"
-									" INNER JOIN planet_regions ON (cities.city_region = planet_regions.region_id)"
-									" WHERE (cities.id = %"PRIu64")",id); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CityFQuery_MainData,client),
+                               "SELECT cities.id,cities.city_name,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+                               "planet_regions.width,planet_regions.height"
+                               " FROM cities"
+                               " INNER JOIN planet_regions ON (cities.city_region = planet_regions.region_id)"
+                               " WHERE (cities.id = %"PRIu64")",id);
 }
 
 //=============================================================================
 
 City* CityFactory::_createCity(DatabaseResult* result)
 {
-	City*	city = new City();
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-	uint64 count = result->getRowCount();
+    City*	city = new City();
 
-	result->GetNextRow(mCityBinding,(void*)city);
+    result->getNextRow(mCityBinding,(void*)city);
 
-	city->setLoadState(LoadState_Loaded);
+    city->setLoadState(LoadState_Loaded);
 
-	return city;
+    return city;
 }
 
 //=============================================================================
 
 void CityFactory::_setupDatabindings()
 {
-	mCityBinding = mDatabase->CreateDataBinding(8);
-	mCityBinding->addField(DFT_uint64,offsetof(City,mId),8,0);
-	mCityBinding->addField(DFT_bstring,offsetof(City,mCityName),64,1);
-	mCityBinding->addField(DFT_bstring,offsetof(City,mRegionName),64,2);
-	mCityBinding->addField(DFT_bstring,offsetof(City,mNameFile),64,3);
-	mCityBinding->addField(DFT_float,offsetof(City,mPosition.x),4,4);
-	mCityBinding->addField(DFT_float,offsetof(City,mPosition.z),4,5);
-	mCityBinding->addField(DFT_float,offsetof(City,mWidth),4,6);
-	mCityBinding->addField(DFT_float,offsetof(City,mHeight),4,7);
+    mCityBinding = mDatabase->createDataBinding(8);
+    mCityBinding->addField(DFT_uint64,offsetof(City,mId),8,0);
+    mCityBinding->addField(DFT_bstring,offsetof(City,mCityName),64,1);
+    mCityBinding->addField(DFT_bstring,offsetof(City,mRegionName),64,2);
+    mCityBinding->addField(DFT_bstring,offsetof(City,mNameFile),64,3);
+    mCityBinding->addField(DFT_float,offsetof(City,mPosition.x),4,4);
+    mCityBinding->addField(DFT_float,offsetof(City,mPosition.z),4,5);
+    mCityBinding->addField(DFT_float,offsetof(City,mWidth),4,6);
+    mCityBinding->addField(DFT_float,offsetof(City,mHeight),4,7);
 }
 
 //=============================================================================
 
 void CityFactory::_destroyDatabindings()
 {
-	mDatabase->DestroyDataBinding(mCityBinding);
+    mDatabase->destroyDataBinding(mCityBinding);
 }
 
 //=============================================================================

@@ -47,7 +47,9 @@ public:
 
     virtual	void	Run();
 
-    uint32			getId(){ return mId; }
+    uint32			getId() {
+        return mId;
+    }
 
 private:
     // Win32 complains about stl during linkage, disable the warning.

@@ -5,5 +5,3 @@ noinst_LTLIBRARIES = libmath.la
 libmath_la_SOURCES = \
 	Quaternion.cpp \
   Vector3.cpp
-
-libmath_la_CPPFLAGS = -Wall -pedantic-errors -Wfatal-errors -fshort-wchar

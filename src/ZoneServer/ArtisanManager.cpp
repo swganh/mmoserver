@@ -307,9 +307,7 @@ void ArtisanManager::HeightmapArtisanHandler(HeightmapAsyncContainer* ref)
 //
 bool ArtisanManager::handleSurvey(Object* player,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    //PlayerObject*		playerObject = (PlayerObject*)mObject;
-
-    //gLogger->hexDump(message->getData(),message->getSize());
+    
     return true;
 }
 
@@ -321,9 +319,6 @@ bool ArtisanManager::handleSurvey(Object* player,Object* target,Message* message
 //
 bool ArtisanManager::handleSample(Object* player,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    //PlayerObject*		playerObject = (PlayerObject*)mObject;
-
-    //gLogger->hexDump(message->getData(),message->getSize());
     return true;
 }
 
@@ -670,8 +665,7 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
-                        gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
-                        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId()); // SQL Debug Log
+                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
                     }
                     // target container full, put in what fits, create a new one
                     else if(newAmount > maxAmount)
@@ -681,9 +675,7 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
                         resCont->setAmount(maxAmount);
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
-                       gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
-                        gLogger->log(LogManager::DEBUG, "SQL :: UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId()); // SQL Debug Log
-
+                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
                         gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,selectedNewAmount);
                     }
 
@@ -971,7 +963,6 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
             }
             else
             {
-                gLogger->log(LogManager::DEBUG,"sampling wayp node box action != 1 (stay here?)");
                 player->getSampleData()->mPendingSample = false;
                 player->getSampleData()->mSampleNodeFlag = false;
                 player->getSampleData()->Position.x = 0;

@@ -48,38 +48,42 @@ typedef std::map<uint32,uint32>   MessageRouteMap;
 
 class MessageRoute
 {
-	public:
+public:
 
-		uint32	mMessageId;
-		uint32	mProcessId;
+    uint32	mMessageId;
+    uint32	mProcessId;
 };
 
 //======================================================================================================================
 
 class MessageRouter
 {
-	public:
+public:
 
-		MessageRouter(Database* database, ConnectionDispatch* dispatch);
-		~MessageRouter(void);
+    MessageRouter(Database* database, ConnectionDispatch* dispatch);
+    ~MessageRouter(void);
 
-		void	Process(void);
+    void	Process(void);
 
-		void	RouteMessage(Message* message, ConnectionClient* client);
+    void	RouteMessage(Message* message, ConnectionClient* client);
 
-		void	setClientManager(ClientManager* manager){ mClientManager = manager; }
-		void	setServerManager(ServerManager* manager){ mServerManager = manager; }
+    void	setClientManager(ClientManager* manager) {
+        mClientManager = manager;
+    }
+    void	setServerManager(ServerManager* manager) {
+        mServerManager = manager;
+    }
 
-	private:
+private:
 
-		void	_loadMessageProcessMap(void);
+    void	_loadMessageProcessMap(void);
 
-		ConnectionDispatch*	mConnectionDispatch;
-		ClientManager*		mClientManager;
-		ServerManager*		mServerManager;
-		Database*			mDatabase;
+    ConnectionDispatch*	mConnectionDispatch;
+    ClientManager*		mClientManager;
+    ServerManager*		mServerManager;
+    Database*			mDatabase;
 
-		MessageRouteMap		mMessageRouteMap;
+    MessageRouteMap		mMessageRouteMap;
 };
 
 //======================================================================================================================

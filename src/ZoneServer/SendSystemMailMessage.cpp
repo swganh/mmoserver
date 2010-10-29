@@ -28,14 +28,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/DispatchClient.h"
 #include "MessageLib/MessageLib.h"
 
-SendSystemMailMessage::SendSystemMailMessage(){};
-SendSystemMailMessage::~SendSystemMailMessage(){};
+SendSystemMailMessage::SendSystemMailMessage() {}
+SendSystemMailMessage::~SendSystemMailMessage() {}
 //this is basically just a fascade, I had some typdef problems connecting directly to it from some classes.
 
 void SendSystemMailMessage::SendNewbieMailMessage(PlayerObject* player, BString subject, BString bodyDir, BString bodyStr)
 {
-	if(player, subject.getLength() > 0, bodyDir.getLength() > 0, bodyStr.getLength() > 0)
-	{
-		gMessageLib->sendNewbieMail(player, subject, bodyDir, bodyStr);
-	}
+    if(player && subject.getLength() > 0 && bodyDir.getLength() > 0 && bodyStr.getLength() > 0)
+    {
+        gMessageLib->sendNewbieMail(player, subject, bodyDir, bodyStr);
+    }
 }

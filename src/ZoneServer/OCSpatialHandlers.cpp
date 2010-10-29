@@ -25,6 +25,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "BankTerminal.h"
+
+#include <string>
+#include <algorithm>
+#include <iterator>
+#include <sstream>
+#include <iostream>
+
+#ifdef WIN32
+#include <regex>
+#else
+#include <boost/regex.hpp>
+#endif
+
+#include <glog/logging.h>
+
 #include "CraftingTool.h"
 #include "CurrentResource.h"
 #include "Item.h"
@@ -40,7 +55,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -49,6 +64,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/lexical_cast.hpp>
 
+#ifdef WIN32
+#undef ERROR
+#endif
+
+#ifdef WIN32
+using std::wregex;
+using std::wsmatch;
+using std::regex_match;
+#else
+using boost::wregex;
+using boost::wsmatch;
+using boost::regex_match;
+#endif
+
 //=============================================================================
 //
 // chat
@@ -56,75 +85,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::_handleSpatialChatInternal(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     // FIXME: for now assume only players send chat
-    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-    BString			chatData;
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
+    // Get the u16string and convert it to wstring for processing.
+    std::u16string chat_data = message->getStringUnicode16();
+    std::wstring tmp(chat_data.begin(), chat_data.end());
 
-    message->getStringUnicode16(chatData);
-    chatData.convert(BSTRType_ANSI);
+    // This regular expression searches for 5 numbers separated by spaces
+    // followed by a string text message.
+    const wregex p(L"(\\d+) (\\d+) (\\d+) (\\d+) (\\d+) (.*)");
+    wsmatch m;
 
-    int8* data = chatData.getRawData();
-    uint16 len = chatData.getLength();
-
-    char chatElement[5][32];
-
-    uint8 element		= 0;
-    uint8 elementIndex	= 0;
-    uint16 byteCount	= 0;
-
-    while(element < 5)
-    {
-        if(*data == ' ')
-        {
-            chatElement[element][elementIndex] = 0;
-            byteCount++;
-            element++;
-            data++;
-            elementIndex = 0;
-            continue;
-        }
-
-        chatElement[element][elementIndex] = *data;
-        elementIndex++;
-        byteCount++;
-        data++;
+    if (! regex_match(tmp, m, p)) {
+        LOG(ERROR) << "Invalid spatial chat message format";
+        return; // We suffered an unrecoverable error, bail out now.
     }
-
-    BString chatMessage(data);
-
-    // need to truncate or we may get in trouble
-    if(len - byteCount > 256)
-    {
-        chatMessage.setLength(256);
-        chatMessage.getRawData()[256] = 0;
-    }
-    else
-    {
-        chatMessage.setLength(len - byteCount);
-        chatMessage.getRawData()[len - byteCount] = 0;
-    }
-
-    chatMessage.convert(BSTRType_Unicode16);
-
-    // Convert the chat elements to logical types before passing them on.
-    uint64_t chat_target_id;
-    try	{
-        chat_target_id	= boost::lexical_cast<uint64>(chatElement[0]);
-    } catch(boost::bad_lexical_cast &) {
-        chat_target_id	= 0;
-    }
-        
-    SocialChatType chat_type_id = static_cast<SocialChatType>(atoi(chatElement[1]));
-    MoodType mood_id = static_cast<MoodType>(atoi(chatElement[2]));
-
-    if (!gWorldConfig->isInstance())
-    {
-        gMessageLib->SendSpatialChat(playerObject, chatMessage.getUnicode16(), NULL, chat_target_id, 0x32, chat_type_id, mood_id);
-    }
-    else
-    {
-        gMessageLib->SendSpatialChat(playerObject, chatMessage.getUnicode16(), playerObject, chat_target_id, 0x32, chat_type_id, mood_id);
-    }
+   
+    gMessageLib->SendSpatialChat(player, 
+        m[6].str().substr(0, 256), // This is the text message
+        (gWorldConfig->isInstance()) ? player : nullptr, // If it's an instance we send the player object
+        std::stoull(m[1].str()), // Convert this item to a uint64_t character id
+        0x32, // Always show spatial chat in the text box.
+        static_cast<SocialChatType>(std::stoi(m[2].str())), 
+        static_cast<MoodType>(std::stoi(m[3].str())));
 }
 
 //=============================================================================
@@ -192,8 +175,7 @@ void ObjectController::_handleSetMoodInternal(uint64 targetId,Message* message,O
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope);
     sprintf(sql,"UPDATE swganh.character_attributes SET moodId = %u where character_id = %"PRIu64"",mood,playerObject->getId());
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
 }
 

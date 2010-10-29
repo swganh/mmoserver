@@ -26,255 +26,259 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "DatabaseManager/DatabaseImplementationMySql.h"
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 
-#include <boost/lexical_cast.hpp>
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
 
-#include <mysql.h>
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
+
+#include <glog/logging.h>
+
+#include <mysql_connection.h>
+#include <mysql_driver.h>
+
+#include <cppconn/exception.h>
+#include <cppconn/statement.h>
+#include <cppconn/resultset.h>
 
 #include "Utils/bstring.h"
-#include "Common/LogManager.h"
 
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/declspec.h"
 
-//======================================================================================================================
-DatabaseImplementationMySql::DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema) :
-    DatabaseImplementation(host, port, user, pass, schema)
+
+DatabaseImplementationMySql::DatabaseImplementationMySql(
+    const std::string& host, 
+    uint16_t port, 
+    const std::string& user, 
+    const std::string& pass, 
+    const std::string& schema)
 {
-  MYSQL*        connect = 0;
+    sql::Driver* driver = sql::mysql::get_driver_instance();
+    
+    sql::ConnectOptionsMap connection_options;
+    connection_options["hostName"] = host;
+    connection_options["userName"] = user;
+    connection_options["password"] = pass;
+    connection_options["schema"] = schema;
 
-  // Initialize mysql and make a connection to the server.
-  mConnection = mysql_init(0);
-  connect = mysql_real_connect(mConnection, (const char*)host, (const char*)user, (const char*)pass, (const char*)schema, port, 0, CLIENT_MULTI_STATEMENTS);
-  mysql_options(mConnection, MYSQL_OPT_RECONNECT, "true");
+    connection_.reset(driver->connect(connection_options));
 
-  // Any errors from the connection attempt?
-  if(mysql_errno(mConnection) != 0)
-  {
-    gLogger->log(LogManager::EMERGENCY, "DatabaseError: %s", mysql_error(mConnection));
-  }
-
- // int i = 0;
-}
-
-//======================================================================================================================
-DatabaseImplementationMySql::~DatabaseImplementationMySql(void)
-{
-  // Close the connection and destroy our connection object.
-  mysql_close(mConnection);
-  mysql_thread_end();
-}
-
-//======================================================================================================================
-DatabaseResult* DatabaseImplementationMySql::ExecuteSql(int8* sql,bool procedure)
-{
-    DatabaseResult* newResult = new(ResultPool::ordered_malloc()) DatabaseResult(procedure);
-
-  newResult->setDatabaseImplementation(this);
-
-  // Execute the statement
-  uint32 len = (uint32)strlen(sql);
-  mysql_real_query(mConnection, sql, len);
-
-  if(mysql_errno(mConnection) != 0)
-  {
-    gLogger->log(LogManager::EMERGENCY, "DatabaseError: %s", mysql_error(mConnection));
-
-
-  }
-
-  mResultSet = mysql_store_result(mConnection);
-
-  newResult->setConnectionReference((void*)mConnection);
-  newResult->setResultSetReference((void*)mResultSet);
-
-  if (mResultSet)
-  {
-    newResult->setRowCount(mResultSet->row_count);
-  }
-
-  return newResult;
+    connection_->getDriver()->threadInit();
 }
 
 
-//======================================================================================================================
+DatabaseImplementationMySql::~DatabaseImplementationMySql() {
+    connection_->getDriver()->threadEnd();
+}
 
-DatabaseWorkerThread* DatabaseImplementationMySql::DestroyResult(DatabaseResult* result)
-{
-    DatabaseWorkerThread* worker = NULL;
 
-    if((MYSQL_RES*)result->getResultSetReference() == mResultSet)
-        mResultSet = NULL;
+DatabaseResult* DatabaseImplementationMySql::executeSql(const char* sql, bool procedure) {
+    DatabaseResult* result = nullptr;
 
-    mysql_free_result((MYSQL_RES*)result->getResultSetReference());
+    try {
+        sql::Statement* statement = connection_->createStatement();    
+        statement->execute(sql);
+        
+        sql::ResultSet* result_set = statement->getResultSet();
+        result_set = result_set ? result_set : nullptr;
 
-    if(result->isMultiResult())
-    {
-        while(mysql_next_result((MYSQL*)result->getConnectionReference()) == 0)
-        {
-            mysql_free_result(mysql_store_result((MYSQL*)result->getConnectionReference()));
+        result = new(ResultPool::ordered_malloc()) DatabaseResult(*this, statement, result_set, procedure);
+    } catch(const sql::SQLException& e) {
+        LOG(FATAL) << e.what();
+    }
+
+    return result;
+}
+
+
+void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
+    // For a multi-result statement to be destroyed properly all results must
+    // be processed, failure to do so results in out-of-sync errors.
+    if(result->isMultiResult()) {
+        std::unique_ptr<sql::ResultSet> res;
+        while (result->getStatement()->getMoreResults()) {
+            res.reset(result->getStatement()->getResultSet());
+
+            while(res->next()) {}
         }
-
-        worker = result->getWorkerReference();
     }
 
     ResultPool::ordered_free(result);
-
-    return(worker);
 }
 
 
-//======================================================================================================================
-void DatabaseImplementationMySql::GetNextRow(DatabaseResult* result, DataBinding* binding, void* object)
-{
-  unsigned int  i; //, numRows = 0;
-  MYSQL_ROW     row;
-  MYSQL_RES*    mySqlResult = (MYSQL_RES*)result->getResultSetReference();
+void DatabaseImplementationMySql::getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const {
+    std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
-  // If any rows were returned
-  if (mySqlResult)
-  {
-    row = mysql_fetch_row(mySqlResult);
-    if (row)
-    {
-      for (i = 0; i < binding->getFieldCount(); i++)
-      {
-        unsigned int* lengths = (unsigned int*)mysql_fetch_lengths(mySqlResult);
-        switch (binding->mDataFields[i].mDataType)
-        {
-        case DFT_int8:
-          {
-            *((char*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = atoi(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_uint8:
-          {
-            *((unsigned char*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = atoi(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_int16:
-          {
-            *((short*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = atoi(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_uint16:
-          {
-              if(row[binding->mDataFields[i].mColumn])
-                *((unsigned short*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = atoi(row[binding->mDataFields[i].mColumn]);
-              else
-                  *((unsigned short*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = 0;
+    if (! result_set) {
+        return;
+    }
 
-            break;
-          }
-        case DFT_int32:
-          {
-            *((int*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = atoi(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_uint32:
-          {
-              *((uint32*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<uint32>(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_int64:
-          {
-            *((long long*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<int64>(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_uint64:
-          {
-            *((unsigned long long*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<uint64>(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_float:
-          {
-              *((float*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = boost::lexical_cast<float>(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_double:
-          {
-            *((double*)&((char*)object)[binding->mDataFields[i].mDataOffset]) = atof(row[binding->mDataFields[i].mColumn]);
-            break;
-          }
-        case DFT_datetime:
-          {
-            break;
-          }
-        case DFT_string:
-          {
-            strncpy(&((char*)object)[binding->mDataFields[i].mDataOffset], row[binding->mDataFields[i].mColumn], lengths[binding->mDataFields[i].mColumn]);
-            ((char*)object)[binding->mDataFields[i].mDataOffset + lengths[binding->mDataFields[i].mColumn]] = 0;  // NULL terminate the string
-            break;
-          }
-        case DFT_bstring:
-          {
-            // get our string object
-            BString* bindingString = reinterpret_cast<BString*>(((char*)object) + binding->mDataFields[i].mDataOffset);
-            // Now assign the string to the object
-            *bindingString = row[binding->mDataFields[i].mColumn];
-            break;
-          }
+    // Advance to the next row, if this fails check to see if this is a 
+    // multi-result statement. If so attempt to retrieve more results.
+    if (! result_set->next()) {
+        if (result->isMultiResult()) {
+            if (! result->getStatement()->getMoreResults()) {
+                return;
+            }
 
-        case DFT_raw:
-        {
-            memcpy(&((char*)object)[binding->mDataFields[i].mDataOffset],row[binding->mDataFields[i].mColumn],lengths[binding->mDataFields[i].mColumn]);
+            result_set.reset(result->getStatement()->getResultSet());
+
+            if (! result_set->next()) {
+                return;
+            }
+        } else {
+            return;
         }
-        break;
+    }
+    
+    for (uint32_t i = 0, field_count = binding->getFieldCount(); i < field_count; ++i) {
+        processFieldBinding_(result_set, binding, i, object);
+    }
+}
 
-        default:
-          {
+
+void DatabaseImplementationMySql::resetRowIndex(DatabaseResult* result, uint64_t index) const {
+    if(!result) {
+        LOG(ERROR) << "Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.";
+        return;
+    }
+
+    std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+    if (!result_set) {
+        LOG(ERROR) <<"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.";
+        return;
+    }
+
+    result_set->absolute(index);
+}
+
+
+uint32_t DatabaseImplementationMySql::escapeString(char* target, const char* source, uint32_t length) {
+    if (!target) {
+        LOG(ERROR) << "Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.";
+        return 0;
+    }
+
+    if (!source) {
+        LOG(ERROR) << "Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.";
+        return 0;
+    }
+
+    sql::mysql::MySQL_Connection* mysql_conn = dynamic_cast<sql::mysql::MySQL_Connection*>(connection_.get()); 
+    std::string tmp = mysql_conn->escapeString(source);
+        
+    strncpy(target, tmp.c_str(), tmp.length());
+    target[tmp.length()] = 0;
+
+    return tmp.length();
+}
+
+
+void DatabaseImplementationMySql::processFieldBinding_(
+    std::unique_ptr<sql::ResultSet>& result, 
+    DataBinding* binding, 
+    uint32_t field_id,
+    void* object) const
+{
+    // Mysql Connector/c++ starts it's field id's with 1 instead of 0 so create
+    // a temporary variable that compensates for the offset.
+    uint32_t result_field_id = binding->getField(field_id).column + 1;
+
+    switch (binding->getField(field_id).type) {
+        case DFT_int8: {
+            *((char*)&((char*)object)[binding->getField(field_id).offset]) = result->getInt(result_field_id);
             break;
-          }
-        } //switch (binding->mDataFields[i].mDataType)
-      }
-    } //if (row)
-  }
+        }
+
+        case DFT_uint8: {
+            *((unsigned char*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt(result_field_id);
+            break;
+        }
+
+        case DFT_int16: {
+            *((short*)&((char*)object)[binding->getField(field_id).offset]) = result->getInt(result_field_id);
+            break;
+        }
+
+        case DFT_uint16: {
+            *((unsigned short*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt(result_field_id);
+            break;
+        }
+
+        case DFT_int32: {
+            *((int*)&((char*)object)[binding->getField(field_id).offset]) = result->getInt(result_field_id);
+            break;
+        }
+
+        case DFT_uint32: {
+            *((uint32_t*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt(result_field_id);
+            break;
+        }
+
+        case DFT_int64: {
+            *((long long*)&((char*)object)[binding->getField(field_id).offset]) = result->getInt64(result_field_id);
+            break;
+        }
+
+        case DFT_uint64: {
+            *((unsigned long long*)&((char*)object)[binding->getField(field_id).offset]) = result->getUInt64(result_field_id);
+            break;
+        }
+
+        case DFT_float: {
+            *((float*)&((char*)object)[binding->getField(field_id).offset]) = result->getDouble(result_field_id);
+            break;
+        }
+
+        case DFT_double: {
+            *((double*)&((char*)object)[binding->getField(field_id).offset]) = result->getDouble(result_field_id);;
+            break;
+        }
+
+        case DFT_datetime: {
+            break;
+        }
+
+        case DFT_string: {
+            std::string tmp = result->getString(result_field_id);
+            strncpy(&((char*)object)[binding->getField(field_id).offset], tmp.c_str(), tmp.length());
+            ((char*)object)[binding->getField(field_id).offset + tmp.length()] = 0;
+        
+            break;
+        }
+
+        case DFT_bstring: {
+            // get our string object
+            BString* bindingString = reinterpret_cast<BString*>(((char*)object) + binding->getField(field_id).offset);
+            // Now assign the string to the object
+            std::string tmp = result->getString(result_field_id);
+            *bindingString = tmp.c_str();
+            break;
+        }
+                                  
+        case DFT_raw: {
+            std::string tmp = result->getString(result_field_id);
+            strncpy(&((char*)object)[binding->getField(field_id).offset], tmp.c_str(), tmp.length());
+            break;
+        }
+
+        default: { break; }
+    }    
 }
 
-
-//======================================================================================================================
-void DatabaseImplementationMySql::ResetRowIndex(DatabaseResult* result, uint64 index)
-{
-    if(!result){
-        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'DatabaseResult* result' at DatabaseImplementationMySql::ResetRowIndex.");
-        return;
-    }
-    MYSQL_RES* temp = (MYSQL_RES*)result->getResultSetReference();
-    if(!temp)
-    {
-        gLogger->log(LogManager::CRITICAL,"Bad Ptr '(MYSQL_RES*)result->getResultSetReference()' at DatabaseImplementationMySql::ResetRowIndex.");
-        return;
-    }
-  mysql_data_seek(temp, index);
-}
-
-
-//======================================================================================================================
-uint64 DatabaseImplementationMySql::GetInsertId(void)
-{
-  return mysql_insert_id(mConnection);
-}
-
-//======================================================================================================================
-
-uint32 DatabaseImplementationMySql::Escape_String(int8* target,const int8* source,uint32 length)
-{
-    if(!target) 
-    {
-        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'int8* target' at DatabaseImplementationMySql::Escape_String.");
-        return 0;
-    }
-    if(!source) 
-    {
-        gLogger->log(LogManager::CRITICAL,"Bad Ptr 'const int8* source' at DatabaseImplementationMySql::Escape_String.");
-        return 0;
-    }
-    return(mysql_real_escape_string(mConnection,target,source,length));
-}
-
-//======================================================================================================================
-
+#ifdef _WIN32
+#pragma warning(pop)
+#endif

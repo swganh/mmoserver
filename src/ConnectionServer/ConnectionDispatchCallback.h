@@ -40,9 +40,9 @@ class ConnectionClient;
 
 class ConnectionDispatchCallback
 {
-	public:
+public:
 
-	  virtual void	handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client) = 0;
+    virtual void	handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client) = 0;
 };
 
 //======================================================================================================================

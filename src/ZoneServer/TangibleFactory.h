@@ -48,30 +48,32 @@ class TicketCollectorFactory;
 
 class TangibleFactory : public FactoryBase
 {
-	public:
+public:
 
-		static TangibleFactory*	getSingletonPtr() { return mSingleton; }
-		static TangibleFactory*	Init(Database* database);
+    static TangibleFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static TangibleFactory*	Init(Database* database);
 
-		~TangibleFactory();
+    ~TangibleFactory();
 
-		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result){}
-		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result) {}
+    void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-		void					releaseAllPoolsMemory();
+    void					releaseAllPoolsMemory();
 
-	private:
+private:
 
-		TangibleFactory(Database* database);
+    TangibleFactory(Database* database);
 
-		static TangibleFactory*		mSingleton;
-		static bool				mInsFlag;
+    static TangibleFactory*		mSingleton;
+    static bool				mInsFlag;
 
-		ContainerObjectFactory*		mContainerFactory;
-		TerminalFactory*			mTerminalFactory;
-		TicketCollectorFactory*		mTicketCollectorFactory;
-		ItemFactory*				mItemFactory;
-		ResourceContainerFactory*	mResourceContainerFactory;
+    ContainerObjectFactory*		mContainerFactory;
+    TerminalFactory*			mTerminalFactory;
+    TicketCollectorFactory*		mTicketCollectorFactory;
+    ItemFactory*				mItemFactory;
+    ResourceContainerFactory*	mResourceContainerFactory;
 };
 
 //=============================================================================

@@ -29,9 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 RadialMenuItem::RadialMenuItem(uint8 index,uint8 parentItem,RadialIdentifier identifier,uint8 action,const int8* description)
-:mIndex(index),mParentItem(parentItem),mIdentifier(identifier),mAction(action)
+    :mIndex(index),mParentItem(parentItem),mIdentifier(identifier),mAction(action)
 {
-	mExtendedDescription = description;
+    mExtendedDescription = description;
 }
 
 //=============================================================================

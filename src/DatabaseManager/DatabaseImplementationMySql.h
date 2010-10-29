@@ -28,46 +28,52 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 #define ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 
-#include "DatabaseImplementation.h"
-#include "Utils/typedefs.h"
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251 4275)
+#endif
+
+#include <cstdint>
+#include <memory>
+#include <string>
+
+#include <boost/noncopyable.hpp>
+
+#include "DatabaseManager/DatabaseImplementation.h"
 #include "DatabaseManager/declspec.h"
 
-//======================================================================================================================
+namespace sql {
+    class Connection;
+    class ResultSet;
+    class Statement;
+}
+
+class DataBinding;
 class DatabaseResult;
 
-typedef struct st_mysql MYSQL;
-typedef struct st_mysql_res MYSQL_RES;
-typedef struct st_mysql_rows MYSQL_ROWS;
-
-
-//======================================================================================================================
-
-class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation
-{
+class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation , private boost::noncopyable {
 public:
-                                     DatabaseImplementationMySql(char* host, uint16 port, char* user, char* pass, char* schema);
-  virtual							~DatabaseImplementationMySql(void);
-  
-  virtual DatabaseResult*			ExecuteSql(int8* sql,bool procedure = false);
-  virtual DatabaseWorkerThread*		DestroyResult(DatabaseResult* result);
+    DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
+    virtual ~DatabaseImplementationMySql();
 
-  virtual void						GetNextRow(DatabaseResult* result, DataBinding* binding, void* object);
-  virtual void						ResetRowIndex(DatabaseResult* result, uint64 index = 0);
-  virtual uint64					GetInsertId(void);
+    virtual DatabaseResult* executeSql(const char* sql, bool procedure = false);
+    virtual void destroyResult(DatabaseResult* result);
 
-  virtual uint32					Escape_String(int8* target,const int8* source,uint32 length);
+    virtual void getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;
+    virtual void resetRowIndex(DatabaseResult* result, uint64_t index = 0) const;
+
+    virtual uint32_t escapeString(char* target, const char* source, uint32_t length);
 
 private:
-  MYSQL*                      mConnection;
-  MYSQL_RES*                  mResultSet;
+    void processFieldBinding_(std::unique_ptr<sql::ResultSet>& result, DataBinding* binding, uint32_t field_id, void* object) const;
+
+    std::unique_ptr<sql::Connection> connection_;
+    std::unique_ptr<sql::Statement> statement_;
 };
 
-
-
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
 
 #endif // ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
-
-
-
-
-

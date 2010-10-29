@@ -29,25 +29,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 
 IntangibleObject::IntangibleObject() : Object(),
-mComplexity(1.0f),
-mVolume(1)
+    mComplexity(1.0f),
+    mVolume(1)
 {
-	mType				= ObjType_Intangible;
-	mItnoGroup			= ItnoGroup_None;
-	mName				= "";
-	mNameFile			= "";
-	mCustomName			= L"";
-	mDetailFile			= "";		
-	mDetail				= "";
-	mPhysicalModel		= "";
+    mType				= ObjType_Intangible;
+    mItnoGroup			= ItnoGroup_None;
+    mName				= "";
+    mNameFile			= "";
+    mCustomName			= L"";
+    mDetailFile			= "";
+    mDetail				= "";
+    mPhysicalModel		= "";
 }
 //=============================================================================
 
 IntangibleObject::~IntangibleObject()
 {
-	// do we have a swoop spawned ???
-	// if so we need to remove it  - done by ~player() 
-	// the intangible is just the control device in the datapad! it is not in the world itself
+    // do we have a swoop spawned ???
+    // if so we need to remove it  - done by ~player()
+    // the intangible is just the control device in the datapad! it is not in the world itself
 
 
 }

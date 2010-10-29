@@ -35,17 +35,17 @@ class Buff;
 
 class BuffEvent
 {
-	public:
-		explicit BuffEvent(Buff* buff);
-		~BuffEvent(void);
+public:
+    explicit BuffEvent(Buff* buff);
+    ~BuffEvent(void);
 
-		Buff*		getBuff() const;
-		bool		Tick(uint64 CurrentTime, void* ref);
+    Buff*		getBuff() const;
+    bool		Tick(uint64 CurrentTime, void* ref);
 
-	private:
-        BuffEvent();
+private:
+    BuffEvent();
 
-		Buff** mBuff;
+    Buff** mBuff;
 };
 
 #endif // ANH_BUFFEVENT_H

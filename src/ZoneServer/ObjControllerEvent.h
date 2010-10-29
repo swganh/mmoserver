@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace Anh_Utils
 {
-    class Event;
+class Event;
 }
 
 //======================================================================================================================
@@ -63,7 +63,7 @@ public:
     bool operator () (const ObjControllerEvent* left, const ObjControllerEvent* right)
     {
         return(left->getExecutionTime() > right->getExecutionTime());
-    } 
+    }
 };
 
 //===============================================================================================================

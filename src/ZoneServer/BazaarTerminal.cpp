@@ -26,19 +26,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "BazaarTerminal.h"
 #include "PlayerObject.h"
-#include "Common/LogManager.h"
-
-
 
 //=============================================================================
 
 BazaarTerminal::BazaarTerminal() : Terminal()
 {
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
-	
-	// any object with callbacks needs to handle those (received with menuselect messages) !
-	mRadialMenu->addItem(1,0,radId_terminalAuctionUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+    mRadialMenu = RadialMenuPtr(new RadialMenu());
+
+    // any object with callbacks needs to handle those (received with menuselect messages) !
+    mRadialMenu->addItem(1,0,radId_terminalAuctionUse,radAction_ObjCallback);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 
 
@@ -46,14 +43,15 @@ BazaarTerminal::BazaarTerminal() : Terminal()
 
 void BazaarTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	if(messageType == radId_itemUse)
-	{
-		
-	}
-	else
-		gLogger->log(LogManager::NOTICE,"BazaarTerminal: Unhandled MenuSelect: %u",messageType);
-}
+    if(messageType == radId_itemUse)
+    {
 
+    }
+    else
+	{
+
+	}
+}
 
 //=============================================================================
 

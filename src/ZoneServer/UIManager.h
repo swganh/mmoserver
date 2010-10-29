@@ -45,7 +45,7 @@ typedef	std::vector<uint64>				ResourceIdList;
 
 struct LBContainer
 {
-	BString port;
+    BString port;
 };
 
 //======================================================================================================================
@@ -67,54 +67,56 @@ class FactoryObject;
 
 //======================================================================================================================
 
-class UIManager 
+class UIManager
 {
-	public:
+public:
 
-		~UIManager();
-		static UIManager*	Init(Database* database,MessageDispatch* dispatch);
-		static UIManager*	getSingletonPtr() { return mSingleton; }
+    ~UIManager();
+    static UIManager*	Init(Database* database,MessageDispatch* dispatch);
+    static UIManager*	getSingletonPtr() {
+        return mSingleton;
+    }
 
-		UIWindow*			getUIWindow(uint32 id);
-		void				destroyUIWindow(uint32 id,bool sendForceClose = false);
+    UIWindow*			getUIWindow(uint32 id);
+    void				destroyUIWindow(uint32 id,bool sendForceClose = false);
 
-		void				sendForceCloseWindow(UIWindow* window);
+    void				sendForceCloseWindow(UIWindow* window);
 
-		// generic
-		void				createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_MessageBox,uint8 mbType = SUI_MB_OK, void* container = NULL);
-		void				createNewListBox(UICallback* callback,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_ListBox,uint8 lbType = SUI_LB_OK,uint64 object = 0, float distance = 0, void* container = NULL);
-		void				createNewInputBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements,PlayerObject* playerObject,uint8 ibType,ui_window_types windowType = SUI_Window_InputBox,uint16 maxInputLength = 127);
-		void				createNewTransferBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject, uint8 windowType = SUI_Window_Transfer_Box);
+    // generic
+    void				createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_MessageBox,uint8 mbType = SUI_MB_OK, void* container = NULL);
+    void				createNewListBox(UICallback* callback,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType = SUI_Window_ListBox,uint8 lbType = SUI_LB_OK,uint64 object = 0, float distance = 0, void* container = NULL);
+    void				createNewInputBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements,PlayerObject* playerObject,uint8 ibType,ui_window_types windowType = SUI_Window_InputBox,uint16 maxInputLength = 127);
+    void				createNewTransferBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject, uint8 windowType = SUI_Window_Transfer_Box);
 
-		// custom list boxes
-		void				createNewSkillSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType,PlayerObject* pupil);
-		void				createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, std::list<PlayerObject*> playerList, PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);
-		void				createNewTicketSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,BString port,Shuttle* shuttle,uint8 lbType = SUI_LB_OK);
-		void				createNewResourceSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,ResourceIdList resourceIdList,PlayerObject* playerObject,uint8 windowType,uint8 lbType = SUI_LB_OK);
-		void				createNewCloneSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,std::vector<BuildingObject*> buildingList,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);
-		void				createNewDiagnoseListBox(UICallback* callback,PlayerObject* Medic,PlayerObject* Patient);
-		
-		
-		
-		// custom message boxes
-		void				createNewSkillTeachMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill);
+    // custom list boxes
+    void				createNewSkillSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType,PlayerObject* pupil);
+    void				createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, std::list<PlayerObject*> playerList, PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);
+    void				createNewTicketSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,BString port,Shuttle* shuttle,uint8 lbType = SUI_LB_OK);
+    void				createNewResourceSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,ResourceIdList resourceIdList,PlayerObject* playerObject,uint8 windowType,uint8 lbType = SUI_LB_OK);
+    void				createNewCloneSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,std::vector<BuildingObject*> buildingList,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK);
+    void				createNewDiagnoseListBox(UICallback* callback,PlayerObject* Medic,PlayerObject* Patient);
 
-	private:
 
-		UIManager(Database* database,MessageDispatch* dispatch);
 
-		void				_processEventNotification(Message* message,DispatchClient* client);
-		void				_registerCallbacks();
-		void				_unregisterCallbacks();
-		uint32				_getFreeId();
+    // custom message boxes
+    void				createNewSkillTeachMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill);
 
-		static bool			mInsFlag;
-		static UIManager*	mSingleton;
+private:
 
-		Database*			mDatabase;
-		MessageDispatch*    mMessageDispatch;
+    UIManager(Database* database,MessageDispatch* dispatch);
 
-		UIWindowMap			mUIWindows;
+    void				_processEventNotification(Message* message,DispatchClient* client);
+    void				_registerCallbacks();
+    void				_unregisterCallbacks();
+    uint32				_getFreeId();
+
+    static bool			mInsFlag;
+    static UIManager*	mSingleton;
+
+    Database*			mDatabase;
+    MessageDispatch*    mMessageDispatch;
+
+    UIWindowMap			mUIWindows;
 };
 
 //======================================================================================================================

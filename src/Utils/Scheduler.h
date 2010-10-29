@@ -40,29 +40,29 @@ typedef fastdelegate::FastDelegate2<uint64,void*,bool> FDCallback;
 
 namespace Anh_Utils
 {
-	//======================================================================================================================
+//======================================================================================================================
 
-	class Task
-	{
-		public:
+class Task
+{
+public:
 
-			Task(uint64 id,uint8 priority,uint64 lastCallTime,uint64 interval,FDCallback callback,void* async)
-				: mId(id),mPriority(priority),mLastCallTime(lastCallTime),mInterval(interval),mCallback(callback),mAsync(async){}
-			
-			~Task(){}
+    Task(uint64 id,uint8 priority,uint64 lastCallTime,uint64 interval,FDCallback callback,void* async)
+        : mId(id),mPriority(priority),mLastCallTime(lastCallTime),mInterval(interval),mCallback(callback),mAsync(async) {}
 
-			bool operator< (const Task& right) const
-			{
-				return(mPriority < right.mPriority);
-			} 
+    ~Task() {}
 
-			uint64		mId;
-			uint8		mPriority;
-			uint64		mLastCallTime;
-			uint64		mInterval;
-			FDCallback	mCallback;
-			void*		mAsync;
-	};
+    bool operator< (const Task& right) const
+    {
+        return(mPriority < right.mPriority);
+    }
+
+    uint64		mId;
+    uint8		mPriority;
+    uint64		mLastCallTime;
+    uint64		mInterval;
+    FDCallback	mCallback;
+    void*		mAsync;
+};
 
 //======================================================================================================================
 
@@ -70,37 +70,39 @@ typedef priority_vector<Task> TaskContainer;
 
 //======================================================================================================================
 
-	class UTILS_API Scheduler
-	{
-		public:
+class UTILS_API Scheduler
+{
+public:
 
-			Scheduler(uint64 processTimeLimit = 100, uint64 throttleLimit = 0);
-			~Scheduler();
+    Scheduler(uint64 processTimeLimit = 100, uint64 throttleLimit = 0);
+    ~Scheduler();
 
-			uint64	addTask(FDCallback callback,uint8 priority,uint64 interval,void* async);
-			void	removeTask(uint64 id);
-			bool	checkTask(uint64 id);
-			void	reset(){ mNextTask = 0; }
-			void	process();
-			bool	runTask();
-		
-		protected:
-            
+    uint64	addTask(FDCallback callback,uint8 priority,uint64 interval,void* async);
+    void	removeTask(uint64 id);
+    bool	checkTask(uint64 id);
+    void	reset() {
+        mNextTask = 0;
+    }
+    void	process();
+    bool	runTask();
+
+protected:
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
-			TaskContainer		mTasks;	
+    TaskContainer		mTasks;
     // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (default : 4251)
 #endif
 
-			uint32				mNextTask;
-			uint64				mNextTaskId;
-			// Anh_Utils::Clock*	mClock;
-			uint64				mProcessTimeLimit, mThrottleLimit, mLastProcessTime;
-	};
+    uint32				mNextTask;
+    uint64				mNextTaskId;
+    // Anh_Utils::Clock*	mClock;
+    uint64				mProcessTimeLimit, mThrottleLimit, mLastProcessTime;
+};
 }
 
 #endif

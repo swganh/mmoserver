@@ -26,7 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "HamProperty.h"
-#include "Common/LogManager.h"
+
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 //===============================================================
 
@@ -38,14 +44,14 @@ HamProperty::~HamProperty()
 
 void HamProperty::Init(int32 currentHitPoints,int32 baseHitPoints,int32 modifier,int32 encumbrance,int32 wounds)
 {
-	
-	mCurrentHitPoints = currentHitPoints;
-	mMaxHitPoints = baseHitPoints;
-	mBaseHitPoints = baseHitPoints;
-	mModifier = modifier;
-	mEncumbrance = encumbrance;
-	mWounds = wounds;
-	calcModifiedHitPoints();
+
+    mCurrentHitPoints = currentHitPoints;
+    mMaxHitPoints = baseHitPoints;
+    mBaseHitPoints = baseHitPoints;
+    mModifier = modifier;
+    mEncumbrance = encumbrance;
+    mWounds = wounds;
+    calcModifiedHitPoints();
 }
 
 //===============================================================
@@ -67,7 +73,7 @@ bool HamProperty::calcModifiedWounds()
 	}
 
 	return(mWounds!= oW);
-	
+
 }
 */
 
@@ -77,23 +83,23 @@ bool HamProperty::calcModifiedWounds()
 
 void HamProperty::calcModifiedHitPoints()
 {
-	//a ham buff modifies the mMaxHitPoints in the Buff Object
+    //a ham buff modifies the mMaxHitPoints in the Buff Object
 
-	//go through all buffs and calculate the values freshly!!!!!
-	/*
-	..
-	*/
+    //go through all buffs and calculate the values freshly!!!!!
+    /*
+    ..
+    */
 
-	
-	mModifiedHitPoints = mMaxHitPoints - mEncumbrance - mWounds;
-	
+
+    mModifiedHitPoints = mMaxHitPoints - mEncumbrance - mWounds;
+
 }
 
 //===============================================================
 
 int32 HamProperty::getValue(uint8 valueIndex)
 {
-	return *mValues[valueIndex];
+    return *mValues[valueIndex];
 }
 
 
@@ -101,30 +107,30 @@ int32 HamProperty::getValue(uint8 valueIndex)
 
 void HamProperty::setValue(uint8 valueIndex, int32 propertyValue)
 {
-	*mValues[valueIndex] = propertyValue;
+    *mValues[valueIndex] = propertyValue;
 }
 
 //===============================================================
 
 void HamProperty::updateValue(uint8 valueIndex, int32 propertyDelta)
 {
-	*mValues[valueIndex] += propertyDelta;
+    *mValues[valueIndex] += propertyDelta;
 }
 
 
 //===============================================================
 //make sure the update is viable - modify it otherwise
 //checks the bounds
-  /*
+/*
 uint8 HamProperty::checkUpdateCurrentHitpoints(int32 hp,bool damage)
 {
-	//check for lower bounds
-	
-	int32 mHp = mBaseHitPoints;
-	if()
+//check for lower bounds
+
+int32 mHp = mBaseHitPoints;
+if()
 
 }
-	*/
+*/
 //===============================================================
 //adds the regeneration to the hambar
 //and checks the bounds
@@ -134,42 +140,42 @@ uint8 HamProperty::checkUpdateCurrentHitpoints(int32 hp,bool damage)
 
 uint8 HamProperty::updateCurrentHitpoints(int32 hp,bool damage)
 {
-	// check for useless update
-	// only process when delta != 0
-	if(hp == 0 
-	||(hp > 0 && mCurrentHitPoints >= mModifiedHitPoints) //dont give us more Hitpoints than possible
-	||(!damage && hp < 0 && mCurrentHitPoints <= 1))      //only incap us from damage! - never a debuff
-	{
-		return(0);
-	}
-	
-	int32 oldHp = mCurrentHitPoints;
+    // check for useless update
+    // only process when delta != 0
+    if(hp == 0
+            ||(hp > 0 && mCurrentHitPoints >= mModifiedHitPoints) //dont give us more Hitpoints than possible
+            ||(!damage && hp < 0 && mCurrentHitPoints <= 1))      //only incap us from damage! - never a debuff
+    {
+        return(0);
+    }
 
-	mCurrentHitPoints += hp;
+    int32 oldHp = mCurrentHitPoints;
 
-	if(mCurrentHitPoints >= mModifiedHitPoints)
-	{
-		mCurrentHitPoints = mModifiedHitPoints;
-	}
-	else if(mCurrentHitPoints < 0)
-	{
-		mCurrentHitPoints = 0;
+    mCurrentHitPoints += hp;
 
-		// in case of damage we incap
-		if(damage)
-		{
-			return(2);
-		}
-	}
+    if(mCurrentHitPoints >= mModifiedHitPoints)
+    {
+        mCurrentHitPoints = mModifiedHitPoints;
+    }
+    else if(mCurrentHitPoints < 0)
+    {
+        mCurrentHitPoints = 0;
 
-	// if changed, update
-	if(mCurrentHitPoints != oldHp)
-	{
-		return(1);
-	}
+        // in case of damage we incap
+        if(damage)
+        {
+            return(2);
+        }
+    }
 
-	// no update
-	return(0);
+    // if changed, update
+    if(mCurrentHitPoints != oldHp)
+    {
+        return(1);
+    }
+
+    // no update
+    return(0);
 }
 
 //===============================================================
@@ -178,38 +184,38 @@ uint8 HamProperty::updateCurrentHitpoints(int32 hp,bool damage)
 int32 HamProperty::updateModifiedHitpoints(int32 hp)
 {
 
-	//make sure we dont get negative hitpoints
-	// mCurrentHitPoints vs mMaxHitPoints ???
-	if((mCurrentHitPoints + hp) < 1)
-		hp = -(mCurrentHitPoints) +1;
-					 
-	//hp is the delta
-	mModifier += hp;
-	mMaxHitPoints += hp;
-	calcModifiedHitPoints();
-	mCurrentHitPoints += hp;
-	
-	return hp;
+    //make sure we dont get negative hitpoints
+    // mCurrentHitPoints vs mMaxHitPoints ???
+    if((mCurrentHitPoints + hp) < 1)
+        hp = -(mCurrentHitPoints) +1;
+
+    //hp is the delta
+    mModifier += hp;
+    mMaxHitPoints += hp;
+    calcModifiedHitPoints();
+    mCurrentHitPoints += hp;
+
+    return hp;
 }
 //===============================================================
 
 int32 HamProperty::updateBaseHitpoints(int32 hp)
 {
-	//hp is the delta
-	mBaseHitPoints += hp;
-	mMaxHitPoints += hp;
-	
-	calcModifiedHitPoints();
-	
-	// no migration applicable to players with wounds
-	// make room for ham if necessary
-	if(mWounds + mCurrentHitPoints != mBaseHitPoints)
-	{
-		mCurrentHitPoints = mBaseHitPoints-mWounds;
-		return(hp);
-	}
+    //hp is the delta
+    mBaseHitPoints += hp;
+    mMaxHitPoints += hp;
 
-	return(0);
+    calcModifiedHitPoints();
+
+    // no migration applicable to players with wounds
+    // make room for ham if necessary
+    if(mWounds + mCurrentHitPoints != mBaseHitPoints)
+    {
+        mCurrentHitPoints = mBaseHitPoints-mWounds;
+        return(hp);
+    }
+
+    return(0);
 }
 
 //===============================================================
@@ -217,39 +223,39 @@ int32 HamProperty::updateBaseHitpoints(int32 hp)
 //
 int32 HamProperty::updateWounds(int32 wounds)
 {
-	// Wounds should *never* force us to have negative hitpoints
-	// so always check against current hitpoints - not the theoretic max
+    // Wounds should *never* force us to have negative hitpoints
+    // so always check against current hitpoints - not the theoretic max
 
-	bool pos =(wounds >0);
-	// returns true if a packet update is needed
-	// (in case mWounds + mCurrentHitPoints >= mMaxHitPoints )
-	// Note: it will never be the case for wound healing.
+    bool pos =(wounds >0);
+    // returns true if a packet update is needed
+    // (in case mWounds + mCurrentHitPoints >= mMaxHitPoints )
+    // Note: it will never be the case for wound healing.
 
-	if((wounds) >= mCurrentHitPoints -1) // cant have 100% wounds
-	{
-		wounds = (mCurrentHitPoints -1);
-		
-		if(pos&&(wounds < 0))
-			wounds = 0;
-	}
-	
-	if((mWounds+wounds) < 0)
-	{
-		wounds = (0-mWounds);
-		//mWounds = 0;
-	}
+    if((wounds) >= mCurrentHitPoints -1) // cant have 100% wounds
+    {
+        wounds = (mCurrentHitPoints -1);
 
-	mWounds += wounds;
+        if(pos&&(wounds < 0))
+            wounds = 0;
+    }
 
-	calcModifiedHitPoints();
+    if((mWounds+wounds) < 0)
+    {
+        wounds = (0-mWounds);
+        //mWounds = 0;
+    }
 
-	// make room for ham if necessary
-	if(mWounds + mCurrentHitPoints >= mMaxHitPoints)
-	{
-		mCurrentHitPoints = mModifiedHitPoints;
-	}
-	
-	return(wounds);
+    mWounds += wounds;
+
+    calcModifiedHitPoints();
+
+    // make room for ham if necessary
+    if(mWounds + mCurrentHitPoints >= mMaxHitPoints)
+    {
+        mCurrentHitPoints = mModifiedHitPoints;
+    }
+
+    return(wounds);
 }
 
 //===============================================================
@@ -257,11 +263,11 @@ int32 HamProperty::updateWounds(int32 wounds)
 //
 void HamProperty::log()
 {
-	gLogger->log(LogManager::DEBUG,"mCurrentHitPoints: %i",mCurrentHitPoints);
-	gLogger->log(LogManager::DEBUG,"mModifiedHitPoints: %i",mModifiedHitPoints);
-	gLogger->log(LogManager::DEBUG,"mMaxHitPoints: %i",mMaxHitPoints);
-	gLogger->log(LogManager::DEBUG,"mEncumbrance: %i",mEncumbrance);
-	gLogger->log(LogManager::DEBUG,"mWounds: %i",mWounds);
+    DLOG(INFO) << "mCurrentHitPoints: " << mCurrentHitPoints;
+    DLOG(INFO) << "mModifiedHitPoints: " << mModifiedHitPoints;
+    DLOG(INFO) << "mMaxHitPoints: "<< mMaxHitPoints;
+    DLOG(INFO) << "mEncumbrance: " << mEncumbrance;
+    DLOG(INFO) << "mWounds: " << mWounds;
 }
 
 //===============================================================

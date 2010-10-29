@@ -48,7 +48,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/Message.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 
 //======================================================================================================================
 //
@@ -62,8 +61,6 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     uint32 unknown,error;
     uint64 receiverId,unknown64;
-    const uint32 error0 = 0;
-    const uint32 error2 = 2;
     message->getUint32(unknown);
     message->getUint32(error);
     message->getUint64(unknown64);//sender (target) id
@@ -75,28 +72,28 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     switch(error)
     {
-        case error2:
-        {
-            // snd invitation returns error as 2 and the id of the invited as 0 :(
-            invitedPlayer = dynamic_cast<PlayerObject*>(invitingPlayer->getTarget());
-            error = 0;
-        }
-        break;
+    case 2:
+    {
+        // snd invitation returns error as 2 and the id of the invited as 0 :(
+        invitedPlayer = dynamic_cast<PlayerObject*>(invitingPlayer->getTarget());
+        error = 0;
+    }
+    break;
 
-        case error0:
-        {
-            //first invitation set the setInvite to the Inviter
-            //invitedPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(receiverId));
-        }
-        break;
+    case 0:
+    {
+        //first invitation set the setInvite to the Inviter
+        //invitedPlayer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(receiverId));
+    }
+    break;
 
-        default:
-        {
-            // Always use a default if message damaged....
-            gLogger->log(LogManager::DEBUG,"ObjController:: Error in trade invitation");
-            // Since receiver is default NULL, we can use the error message below
-            // return;
-        }
+    default:
+    {
+        // Always use a default if message damaged....
+        DLOG(INFO) << "ObjController:: Error in trade invitation";
+        // Since receiver is default NULL, we can use the error message below
+        // return;
+    }
     }
 
     if(!invitedPlayer)
@@ -129,8 +126,6 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
 
     if (error == 0)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController:: %s invited %s to trade",invitingPlayer->getFirstName().getAnsi(),invitedPlayer->getFirstName().getAnsi());
-
         if (invitedPlayer->getTradeStatus() == false )
         {
             // If sender is invited by receiver already, then accept even if receiver have sender in the Ignore-list.
@@ -156,10 +151,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
         }
 
     }
-    else
-    {
-        gLogger->log(LogManager::DEBUG,"ObjController:: Error in trade invitation");
-    }
+    
 }
 
 //======================================================================================================================
@@ -271,7 +263,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
         gMessageLib->SendSystemMessage(L"You may only /tip or /tip bank to other players.", player);
         return;
     }
-    
+
     gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_invalid_param", L"", L"", str.getUnicode16()), player);
     return;
 

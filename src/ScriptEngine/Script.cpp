@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Script.h"
 #include "ScriptEngine.h"
-#include "Common/LogManager.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -36,28 +35,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern "C"
 {
-	#include "lua.h"
-	#include "lualib.h"
-	#include "lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 }
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 
 //======================================================================================================================
 
 Script::Script(ScriptEngine* scriptEngine) :
-		mEngine(scriptEngine),
-		mState(SS_Not_Loaded),
-		mWaitTimeStamp(0),
-		mTime(0),
-		mWaitFrame(0)
+    mEngine(scriptEngine),
+    mState(SS_Not_Loaded),
+    mWaitTimeStamp(0),
+    mTime(0),
+    mWaitFrame(0)
 {
-	mThreadState = lua_newthread(mEngine->getMasterState());
+    mThreadState = lua_newthread(mEngine->getMasterState());
 
-	lua_pushlightuserdata(mEngine->getMasterState(),mThreadState);
-	lua_pushlightuserdata(mEngine->getMasterState(),this);
-	lua_settable(mEngine->getMasterState(),LUA_GLOBALSINDEX);
+    lua_pushlightuserdata(mEngine->getMasterState(),mThreadState);
+    lua_pushlightuserdata(mEngine->getMasterState(),this);
+    lua_settable(mEngine->getMasterState(),LUA_GLOBALSINDEX);
 
-	strcpy(mLastError,"None");
+    strcpy(mLastError,"None");
 }
 
 //======================================================================================================================
@@ -71,235 +76,240 @@ Script::~Script()
 
 void Script::run()
 {
-	assert(mEngine->getMasterState() && "Invalid engine master state");
-	assert(mThreadState && "Invalid thread state");
+    assert(mEngine->getMasterState() && "Invalid engine master state");
+    assert(mThreadState && "Invalid thread state");
 
-	if(luaL_loadfile(mThreadState,mFile) == 0)
-	{
-		_resumeScript(0);
-	}
-	else
-	{
-		_formatError();
-		gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::Syntax Error: %s",mLastError);
-	}
+    if(luaL_loadfile(mThreadState,mFile) == 0)
+    {
+        _resumeScript(0);
+    }
+    else
+    {
+        _formatError();
+    }
 }
 
 //======================================================================================================================
 
 void Script::runFile(const int8 *fileName)
 {
-	assert(mEngine->getMasterState() && "Invalid engine master state");
-	assert(mThreadState && "Invalid thread state");
+    assert(mEngine->getMasterState() && "Invalid engine master state");
+    assert(mThreadState && "Invalid thread state");
 
-	if(luaL_loadfile(mThreadState,fileName) == 0)
-	{
-		_resumeScript(0);
-	}
-	else
-	{
-		_formatError();
-		gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::Syntax Error: %s",mLastError);
-	}
+    if(luaL_loadfile(mThreadState,fileName) == 0)
+    {
+        _resumeScript(0);
+    }
+    else
+    {
+        _formatError();
+    }
 }
 
 //======================================================================================================================
 
 uint32 Script::runString(const int8 *cmdString)
 {
-	assert(mEngine->getMasterState() && "Invalid engine master state");
-	assert(mThreadState && "Invalid thread state");
+    assert(mEngine->getMasterState() && "Invalid engine master state");
+    assert(mThreadState && "Invalid thread state");
 
-	if(luaL_loadbuffer(mThreadState,cmdString,strlen(cmdString),"Console") == 0)
-	{
-		if(lua_pcall(mThreadState,lua_gettop(mThreadState) - 1,0,0) != 0)
-		{
-			_formatError();
-			return(1);
-		}
-	}
-	else
-	{
-		_formatError();
-		return(1);
-	}
+    if(luaL_loadbuffer(mThreadState,cmdString,strlen(cmdString),"Console") == 0)
+    {
+        if(lua_pcall(mThreadState,lua_gettop(mThreadState) - 1,0,0) != 0)
+        {
+            _formatError();
+            return(1);
+        }
+    }
+    else
+    {
+        _formatError();
+        return(1);
+    }
 
-	return(0);
+    return(0);
 }
 
 //======================================================================================================================
 
 void Script::process(uint32 elTime)
 {
-	mTime += elTime;
+    mTime += elTime;
 
-	switch(mState)
-	{
-		case SS_Wait_Time:
-		{
-			if(mTime >= mWaitTimeStamp)
-				_resumeScript(0);
-		}
-		break;
+    switch(mState)
+    {
+    case SS_Wait_Time:
+    {
+        if(mTime >= mWaitTimeStamp)
+            _resumeScript(0);
+    }
+    break;
 
-		case SS_Wait_Frame:
-		{
-			mWaitFrame--;
+    case SS_Wait_Frame:
+    {
+        mWaitFrame--;
 
-			if(mWaitFrame <= 0)
-				_resumeScript(0);
-		}
-		break;
+        if(mWaitFrame <= 0)
+            _resumeScript(0);
+    }
+    break;
 
-		case SS_Not_Loaded:
-		default:
-		break;
-	}
+    case SS_Not_Loaded:
+    default:
+        break;
+    }
 }
 
 //======================================================================================================================
 
 void Script::abortWait()
 {
-	_resumeScript(1);
+    _resumeScript(1);
 }
 
 //======================================================================================================================
 
 void Script::_resumeScript(uint32 param)
 {
-	mState = SS_Running;
+    mState = SS_Running;
 
-	lua_pushnumber(mThreadState,param);
+    lua_pushnumber(mThreadState,param);
 
-	int ret = lua_resume(mThreadState,1);
+    int ret = lua_resume(mThreadState,1);
 
-	switch(ret)
-	{
-		case 0:	mState = SS_Not_Loaded;	break;
-		case LUA_YIELD:	break;
+    switch(ret)
+    {
+    case 0:
+        mState = SS_Not_Loaded;
+        break;
+    case LUA_YIELD:
+        break;
 
-		default:
-		{
-			_formatError();
-			gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::_resumeScript Runtime Error: %s",mLastError);
-		}
-		break;
-	}
+    default:
+    {
+        _formatError();
+    }
+    break;
+    }
 }
 
 //======================================================================================================================
 
 void Script::_formatError()
 {
-	const int8* msg = lua_tostring(mThreadState,-1);
+    const int8* msg = lua_tostring(mThreadState,-1);
 
-	if(!msg)
-		msg = "No message";
+    if(!msg)
+        msg = "No message";
 
-	lua_pop(mThreadState,1);
+    lua_pop(mThreadState,1);
 
-	strcpy(mLastError,msg);
+    strcpy(mLastError,msg);
+	LOG(ERROR) << "ScriptingEngine::callFunction wrong result type: " << mLastError;
 }
 
 //======================================================================================================================
 
 void Script::callFunction(const char *func,const char *sig,...)
 {
-	va_list vl;
-	int narg,nres;
+    va_list vl;
+    int narg,nres;
 
-	va_start(vl,sig);
-	lua_getglobal(mThreadState,func);
+    va_start(vl,sig);
+    lua_getglobal(mThreadState,func);
 
-	if(lua_isfunction(mThreadState,-1))
-	{
-		narg = 0;
+    if(lua_isfunction(mThreadState,-1))
+    {
+        narg = 0;
 
-		while(*sig)
-		{
-			switch (*sig++)
-			{
+        while(*sig)
+        {
+            switch (*sig++)
+            {
 
-				case 'd':	lua_pushnumber(mThreadState,va_arg(vl,double));	break;
-				case 'i':	lua_pushnumber(mThreadState,va_arg(vl,int));	break;
-				case 's':  	lua_pushstring(mThreadState,va_arg(vl,char *));	break;
+            case 'd':
+                lua_pushnumber(mThreadState,va_arg(vl,double));
+                break;
+            case 'i':
+                lua_pushnumber(mThreadState,va_arg(vl,int));
+                break;
+            case 's':
+                lua_pushstring(mThreadState,va_arg(vl,char *));
+                break;
 
-				case '>':	goto endwhile;	break;
+            case '>':
+                goto endwhile;
+                break;
 
-				default:	break;
-			}
+            default:
+                break;
+            }
 
-			narg++;
+            narg++;
 
-			luaL_checkstack(mThreadState,1,"too many arguments");
-		}
+            luaL_checkstack(mThreadState,1,"too many arguments");
+        }
 
-		endwhile:
+endwhile:
 
-		nres = strlen(sig);
+        nres = strlen(sig);
 
-		if(lua_pcall(mThreadState,narg,nres,0) != 0)
-		{
-			_formatError();
-			gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction Runtime Error: %s",mLastError);
-		}
+        if(lua_pcall(mThreadState,narg,nres,0) != 0)
+        {
+            _formatError();
+        }
 
-		nres = -nres;
+        nres = -nres;
 
-		while(*sig)
-		{
-			switch (*sig++)
-			{
-				case 'd':
-				{
-					if(!lua_isnumber(mThreadState,nres))
-					{
-						_formatError();
-						gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction wrong result type: %s",mLastError);
-					}
+        while(*sig)
+        {
+            switch (*sig++)
+            {
+            case 'd':
+            {
+                if(!lua_isnumber(mThreadState,nres))
+                {
+                    _formatError();
+                }
 
-					*va_arg(vl,double *) = lua_tonumber(mThreadState,nres);
-				}
-				break;
+                *va_arg(vl,double *) = lua_tonumber(mThreadState,nres);
+            }
+            break;
 
-				case 'i':
-				{
-					if(!lua_isnumber(mThreadState,nres))
-					{
-						_formatError();
-						gLogger->log(LogManager::EMERGENCY, "ScriptingEngine::callFunction wrong result type: %s",mLastError);
-					}
+            case 'i':
+            {
+                if(!lua_isnumber(mThreadState,nres))
+                {
+                    _formatError();
+                }
 
-					*va_arg(vl,int*) = (int)lua_tonumber(mThreadState,nres);
-				}
-				break;
+                *va_arg(vl,int*) = (int)lua_tonumber(mThreadState,nres);
+            }
+            break;
 
-				case 's':
-				{
-					if(!lua_isstring(mThreadState,nres))
-					{
-						_formatError();
-						gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction wrong result type: %s",mLastError);
-					}
+            case 's':
+            {
+                if(!lua_isstring(mThreadState,nres))
+                {
+                    _formatError();
+                }
 
-					*va_arg(vl,const char **) = lua_tostring(mThreadState,nres);
-				}
-				break;
+                *va_arg(vl,const char **) = lua_tostring(mThreadState,nres);
+            }
+            break;
 
-				default:
-				{
-					_formatError();
-					gLogger->log(LogManager::EMERGENCY,"ScriptingEngine::callFunction invalid option: %s",mLastError);
-				}
-				break;
-			}
+            default:
+            {
+                _formatError();
+            }
+            break;
+            }
 
-			nres++;
-		}
-	}
+            nres++;
+        }
+    }
 
-	va_end(vl);
+    va_end(vl);
 }
 
 //======================================================================================================================

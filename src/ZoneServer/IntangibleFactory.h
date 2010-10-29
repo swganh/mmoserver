@@ -50,30 +50,32 @@ class ObjectFactoryCallback;
 
 class IntangibleFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static	IntangibleFactory*	getSingletonPtr() { return mSingleton; }
-		static	IntangibleFactory*	Init(Database* database);
+    static	IntangibleFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static	IntangibleFactory*	Init(Database* database);
 
-		~IntangibleFactory();
+    ~IntangibleFactory();
 
-		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-		void					releaseAllPoolsMemory();
-
-
-	private:
-		IntangibleFactory(Database* database);
-
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+    void					releaseAllPoolsMemory();
 
 
-		static IntangibleFactory*	mSingleton;
-		static bool					mInsFlag;
+private:
+    IntangibleFactory(Database* database);
 
-		VehicleControllerFactory*				mVehicleControllerFactory;
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
+
+
+    static IntangibleFactory*	mSingleton;
+    static bool					mInsFlag;
+
+    VehicleControllerFactory*				mVehicleControllerFactory;
 
 };
 

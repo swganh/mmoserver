@@ -46,48 +46,50 @@ class WaypointFactory;
 
 enum DPFQuery
 {
-	DPFQuery_MainDatapadData		= 1,
-	DPFQuery_Objects				= 2,
-	DPFQuery_Data					= 3,
-	DPFQuery_ManufactureSchematic	= 4,
-	DPFQuery_ObjectCount			= 5,
-	DPFQuery_ItemId					= 6,
-	DPFQuery_Item					= 7,
-	DPFQuery_MSParent				= 8,
+    DPFQuery_MainDatapadData		= 1,
+    DPFQuery_Objects				= 2,
+    DPFQuery_Data					= 3,
+    DPFQuery_ManufactureSchematic	= 4,
+    DPFQuery_ObjectCount			= 5,
+    DPFQuery_ItemId					= 6,
+    DPFQuery_Item					= 7,
+    DPFQuery_MSParent				= 8
 };
 
 //=============================================================================
 
 class DatapadFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static DatapadFactory*	getSingletonPtr() { return mSingleton; }
-		static DatapadFactory*	Init(Database* database);
+    static DatapadFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static DatapadFactory*	Init(Database* database);
 
-		~DatapadFactory();
+    ~DatapadFactory();
 
-		virtual void	handleObjectReady(Object* object,DispatchClient* client);
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void			requestManufacturingSchematic(ObjectFactoryCallback* ofCallback, uint64 id);
+    virtual void	handleObjectReady(Object* object,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			requestManufacturingSchematic(ObjectFactoryCallback* ofCallback, uint64 id);
 
-	private:
+private:
 
-		DatapadFactory(Database* database);
+    DatapadFactory(Database* database);
 
-		void					_setupDatabindings();
-		void					_destroyDatabindings();
+    void					_setupDatabindings();
+    void					_destroyDatabindings();
 
-		Datapad*				_createDatapad(DatabaseResult* result);
+    Datapad*				_createDatapad(DatabaseResult* result);
 
-		static DatapadFactory*	mSingleton;
-		static bool				mInsFlag;
+    static DatapadFactory*	mSingleton;
+    static bool				mInsFlag;
 
-		WaypointFactory*		mWaypointFactory;
+    WaypointFactory*		mWaypointFactory;
 
-		DataBinding*			mDatapadBinding;
-		InLoadingContainer*		mIlc;
+    DataBinding*			mDatapadBinding;
+    InLoadingContainer*		mIlc;
 };
 
 //=============================================================================

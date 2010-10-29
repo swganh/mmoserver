@@ -29,14 +29,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Tutorial.h"
 #include "WorldConfig.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 
+#ifdef WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 //=============================================================================
 
 TravelTerminal::TravelTerminal() : Terminal()
 {
-	
+
 }
 
 //=============================================================================
@@ -105,8 +109,9 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 	}
 	else
 	{
-		gLogger->log(LogManager::DEBUG,"TravelTerminal: Unhandled MenuSelect: %u",messageType);
+		DLOG(INFO) << "TravelTerminal: Unhandled MenuSelect: " << messageType;
 	}
+
 }
 
 //=============================================================================
@@ -114,10 +119,10 @@ void TravelTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 void TravelTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
-	
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
-	
+    mRadialMenu = RadialMenuPtr(new RadialMenu());
+
+    mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+
 }
 

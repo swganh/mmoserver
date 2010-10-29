@@ -36,31 +36,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UIButton : public UIElement
 {
-	public:
+public:
 
-		UIButton(){}
-		UIButton(uint32 id,BString name,bool enabled = true,BString text = "", bool three = false);
-		virtual ~UIButton();
+    UIButton() {}
+    UIButton(uint32 id,BString name,bool enabled = true,BString text = "", bool three = false);
+    virtual ~UIButton();
 
-		BString			getName(){ return mName; }
-		void			setName(BString name){ mName = name; }
+    BString			getName() {
+        return mName;
+    }
+    void			setName(BString name) {
+        mName = name;
+    }
 
-		BString			getText(){ return mText; }
-		void			setText(BString text){ mText = text; }
-		
-		bool			getEnabled(){ return mEnabled; }
-		void			setEnabled(bool e){ mEnabled = e; }
+    BString			getText() {
+        return mText;
+    }
+    void			setText(BString text) {
+        mText = text;
+    }
 
-		virtual uint32	getPropertyCount();
+    bool			getEnabled() {
+        return mEnabled;
+    }
+    void			setEnabled(bool e) {
+        mEnabled = e;
+    }
 
-		virtual void	addMessageData();
+    virtual uint32	getPropertyCount();
 
-	private:
+    virtual void	addMessageData();
 
-		BString	mName;
-		BString	mText;
-		bool	mEnabled;
-		bool	m3B;
+private:
+
+    BString	mName;
+    BString	mText;
+    bool	mEnabled;
+    bool	m3B;
 };
 
 #endif

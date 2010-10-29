@@ -58,58 +58,62 @@ typedef std::map<uint64,ActiveConversation*>	ActiveConversations;
 
 enum ConversationQuery
 {
-	ConvQuery_Conversations		= 1,
-	ConvQuery_Pages				= 2,
-	ConvQuery_Page_OptionBatch	= 3
+    ConvQuery_Conversations		= 1,
+    ConvQuery_Pages				= 2,
+    ConvQuery_Page_OptionBatch	= 3
 };
 
 //=========================================================================================
 
 class CVAsyncContainer
 {
-	public:
+public:
 
-		CVAsyncContainer(ConversationQuery query){ mQuery = query; }
-		~CVAsyncContainer(){}
+    CVAsyncContainer(ConversationQuery query) {
+        mQuery = query;
+    }
+    ~CVAsyncContainer() {}
 
-		ConversationQuery	mQuery;
-		Conversation*		mConversation;
-		ConversationPage*	mConversationPage;
-		ConversationOption*	mConversationOption;
+    ConversationQuery	mQuery;
+    Conversation*		mConversation;
+    ConversationPage*	mConversationPage;
+    ConversationOption*	mConversationOption;
 };
 
 //=========================================================================================
 
 class ConversationManager : public DatabaseCallback
 {
-	public:
+public:
 
-		static ConversationManager*		Init(Database* database);
-		static ConversationManager*		getSingletonPtr() { return mSingleton; }
+    static ConversationManager*		Init(Database* database);
+    static ConversationManager*		getSingletonPtr() {
+        return mSingleton;
+    }
 
-		~ConversationManager();
+    ~ConversationManager();
 
-		virtual void					handleDatabaseJobComplete(void* ref, DatabaseResult* result);
+    virtual void					handleDatabaseJobComplete(void* ref, DatabaseResult* result);
 
-		void							startConversation(NPCObject* npc,PlayerObject* player);
-		void							stopConversation(PlayerObject* player,bool sendStop = false);
-		void							updateConversation(uint32 selectId,PlayerObject* player);
+    void							startConversation(NPCObject* npc,PlayerObject* player);
+    void							stopConversation(PlayerObject* player,bool sendStop = false);
+    void							updateConversation(uint32 selectId,PlayerObject* player);
 
-		Conversation*					getConversation(uint32 id);
-		ActiveConversation*				getActiveConversation(uint64 id);
+    Conversation*					getConversation(uint32 id);
+    ActiveConversation*				getActiveConversation(uint64 id);
 
-	private:
+private:
 
-		ConversationManager(Database* database);
+    ConversationManager(Database* database);
 
-		static bool					mInsFlag;
-		static ConversationManager*		mSingleton;
-		Database*						mDatabase;
+    static bool					mInsFlag;
+    static ConversationManager*		mSingleton;
+    Database*						mDatabase;
 
-		Conversations					mConversations;
-		ActiveConversations				mActiveConversations;
-		boost::pool<>					mActiveConversationPool;
-		boost::pool<>					mDBAsyncPool;
+    Conversations					mConversations;
+    ActiveConversations				mActiveConversations;
+    boost::pool<>					mActiveConversationPool;
+    boost::pool<>					mDBAsyncPool;
 };
 
 //=========================================================================================

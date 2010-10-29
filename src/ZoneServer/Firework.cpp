@@ -35,14 +35,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "UIManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 
 //=============================================================================
 
 Firework::Firework() : Item()
 {
-    
+
 }
 
 //=============================================================================
@@ -69,57 +68,63 @@ void Firework::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 ite
 void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
     if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject))
-    {	
+    {
         switch(messageType)
         {
             // When player hits launch on fireworks
-            case radId_itemUse: 
+        case radId_itemUse:
+        {
+            //make sure it is a firework
+            if(this->getItemType() >= ItemType_Firework_Type_5 || this->getItemType() <= ItemType_Firework_Type_2)
             {
-                //make sure it is a firework
-                if(this->getItemType() >= ItemType_Firework_Type_5 || this->getItemType() <= ItemType_Firework_Type_2)
+                //Player must be standing or Kneeling to launch
+                if(playerObject->states.checkPosture(CreaturePosture_Upright) || playerObject->states.checkPosture(CreaturePosture_Crouched))
                 {
-                    //Player must be standing or Kneeling to launch
-                    if((playerObject->states.getPosture()!=CreaturePosture_Upright && playerObject->states.getPosture()!=CreaturePosture_Crouched) || playerObject->states.getAction() & CreatureState_RidingMount)
+                    gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
+                    return;
+                }
+                else if(playerObject->getParentId())
+                {
+                    gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
+                    return;
+                }
+                else if(playerObject->getParentId())
+                {
+                    gMessageLib->SendSystemMessage(L"You can not do this while indoors.", playerObject);
+                    return;
+                }
+                //Create the Firework in the world
+                TangibleObject* fireWorkInworld = gFireworkManager->createFirework(this->getItemType(),playerObject,playerObject->mPosition);
+
+                int charges = (int)this->getAttribute<float>("charges");
+                charges--;
+
+                if(fireWorkInworld)
+                {
+                    if (charges)
                     {
-                        gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
+                        this->setAttribute("charges",boost::lexical_cast<std::string>(charges));
+                        gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",charges,this->getId(), AttrType_Charges);
+                        
+                        //now update the uses display
+                        gMessageLib->sendUpdateUses(this,playerObject);
                         return;
                     }
-                    else if(playerObject->getParentId())
+                    else
                     {
-                        gMessageLib->SendSystemMessage(L"You can not do this while indoors.", playerObject);
-                        return;
+                        playerObject->getController()->destroyObject(this->getId());
                     }
-                    //Create the Firework in the world
-                    TangibleObject* fireWorkInworld = gFireworkManager->createFirework(this->getItemType(),playerObject,playerObject->mPosition);
+                }
 
-                    int charges = (int)this->getAttribute<float>("charges");
-                    charges--;
+                //now add timer somewhere to make them start
 
-                    if(fireWorkInworld)
-                    {
-                        if (charges)
-                        {
-                            this->setAttribute("charges",boost::lexical_cast<std::string>(charges));
-                            gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",charges,this->getId(), AttrType_Charges);
-                            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",charges,this->getId(), AttrType_Charges); // SQL Debug Log
-                            //now update the uses display
-                            gMessageLib->sendUpdateUses(this,playerObject);
-                            return;						
-                        }
-                        else
-                        {
-                            playerObject->getController()->destroyObject(this->getId());	
-                        }
-                    }
-
-                    //now add timer somewhere to make them start
-
-                    //then delete the
-                }				
+                //then delete the
             }
-            break;
+        }
+        break;
 
-            default: break;
+        default:
+            break;
         }
     }
 }
@@ -171,12 +176,12 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     }
     /*
     if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject))
-    {	
+    {
         switch(messageType)
         {
             // When player hits launch on fireworks
-            case radId_itemUse: 
-            {				
+            case radId_itemUse:
+            {
                 if(this->getItemType() == ItemType_Firework_Show)
                 {
                     //If we are inside show an error and return;
@@ -201,9 +206,9 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     int fireworkNumber=0;
                     int totalDelay=0;
                     while (containerObjectIt != fireworkShowList.end())
-                    {	
+                    {
                         _fireworkShowEvent event = (*containerObjectIt);
-                        this->getController()->addEvent(new FireworkEvent(event.typeId,playerObject,playerObject->mPosition), event.delay*100);	
+                        this->getController()->addEvent(new FireworkEvent(event.typeId,playerObject,playerObject->mPosition), event.delay*100);
 
                         playerObject->getController()->destroyObject(event.itemId);
                         totalDelay+=event.delay*100;
@@ -217,7 +222,7 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     //this->getController()->addEvent(new FireworkEvent(1756,playerObject,playerObject->mPosition), 6000);
                     //this->getController()->addEvent(new FireworkEvent(1756,playerObject,playerObject->mPosition), 8000);
                 }
-            
+
             }
             break;
 
@@ -226,12 +231,12 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 BStringVector		mFireworkList;
                 mFireworkList.clear();
                 int8 text[64];
-                
+
 
                 ObjectList* fireworks = _getInventoryFireworks(playerObject);
                 ObjectList::iterator containerObjectIt = fireworks->begin();
                 while (containerObjectIt != fireworks->end())
-                {	
+                {
                     Object* object = (*containerObjectIt);
                     if (Item* item = dynamic_cast<Item*>(object))
                     {
@@ -254,7 +259,7 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 FireworkShowList::iterator containerObjectIt = fireworkShowList.begin();
                 int fireworkNumber=0;
                 while (containerObjectIt != fireworkShowList.end())
-                {	
+                {
                     _fireworkShowEvent event = (*containerObjectIt);
 
                     float delay = event.delay;
@@ -281,7 +286,7 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 FireworkShowList::iterator containerObjectIt = fireworkShowList.begin();
                 int fireworkNumber=0;
                 while (containerObjectIt != fireworkShowList.end())
-                {	
+                {
                     _fireworkShowEvent event = (*containerObjectIt);
 
                     float delay = event.delay;
@@ -294,7 +299,7 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 }
                 gUIManager->createNewListBox(this,"handleFireworkModify","@firework:modify_index_title","@firework:modify_index_prompt", mFireworkList,playerObject,SUI_Window_FireworkShow_Modify,SUI_LB_OKCANCEL);
 
-                    
+
             }
             break;
 
@@ -312,70 +317,6 @@ void FireworkShow::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 void FireworkShow::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-    /*if (action==1)
-    {
-        return;
-    }
-    switch(window->getWindowType())
-    {
-        case SUI_Window_FireworkShow_Add:
-        {
-            if((int)_getInventoryFireworks(window->getOwner())->size() > (int)element && element>=0)
-            {
-
-                Item* item = dynamic_cast<Item*>(_getInventoryFireworks(window->getOwner())->at(element));
-
-                _fireworkShowEvent event;
-                event.delay = 10;
-                event.typeId = item->getItemType();
-                event.itemId = item->getId();
-
-                fireworkShowList.push_back(event);
-
-                //window->getOwner()->getController()->destroyObject(item->getId());	
-                gMessageLib->sendDestroyObject(item->getId(),window->getOwner());
-
-                if(item->getParentId() == dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId())
-                {
-                    dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(item);
-                }
-
-/*
-                Item* item = dynamic_cast<Item*>(_getInventoryFireworks(window->getOwner())->at(element));
-                dynamic_cast<Firework*>(item)->setDelay(1000);
-                objList->push_back(item);	*/	/*		
-
-            }
-        }
-        break;
-        case SUI_Window_FireworkShow_Remove:
-        {
-            if(fireworkShowList.size() > 0 )	//Do Not erase from an empty list
-            {
-                gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),fireworkShowList.at(element).itemId,TanGroup_Item);
-                fireworkShowList.erase(fireworkShowList.begin()+element);
-                //gObjectFactory->createIteminInventory(dynamic_cast<Inventory*>(window->getOwner()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),fireworkShowList.at(element).itemId,TanGroup_Item);
-            }
-
-        }
-        break;
-
-        case SUI_Window_FireworkShow_Modify:
-        {
-
-            this->fireworkShowListModify=element; //Bit of a filthy hack, but couldn't find an alternative due to ui callback system
-
-            gUIManager->createNewTransferBox(this,"handleModifyEventTime","@firework:modify_delay_title"
-                    ,"@firework:modify_delay_prompt", "Available", "Delay"
-                    ,0
-                    ,100
-                    ,window->getOwner());	
-
-        }
-        break;	
-        default:break;
-    }
-    */
 }
 
 void FireworkShow::handleUIEvent(BString strAvailable, BString strDelay, UIWindow* window)
@@ -387,7 +328,6 @@ void FireworkShow::handleUIEvent(BString strAvailable, BString strDelay, UIWindo
     //uint32 delay = atoi(strDelay.getAnsi());
     strDelay.convert(BSTRType_ANSI);
     int32 delay = atoi(strDelay.getAnsi());
-    gLogger->log(LogManager::DEBUG,"strDealay atoi = %i",delay);
     fireworkShowList.at(this->fireworkShowListModify).delay = delay;
 
 }
@@ -405,7 +345,7 @@ ObjectList* FireworkShow::_getInventoryFireworks(PlayerObject* playerObject)
     ObjectIDList::iterator	containerObjectIt	= objList->begin();
 
     while (containerObjectIt != objList->end())
-    {		
+    {
         Object* object = gWorldManager->getObjectById((*containerObjectIt));
         if (Item* item = dynamic_cast<Item*>(object))
         {
@@ -425,22 +365,22 @@ BString FireworkShow::_getType(uint32 type)
 {
     switch(type)
     {
-    case ItemType_Firework_Type_1: 
+    case ItemType_Firework_Type_1:
         return BString("Starburst - Light");
     case ItemType_Firework_Type_2:
-        return BString("Concussion Rings");	
-    case ItemType_Firework_Type_3: 
+        return BString("Concussion Rings");
+    case ItemType_Firework_Type_3:
         return BString("Chandelier");
-    case ItemType_Firework_Type_4: 
+    case ItemType_Firework_Type_4:
         return BString("Spiral Tears");
-    case ItemType_Firework_Type_5: 
+    case ItemType_Firework_Type_5:
         return BString("Starburst - Heavy");
-    case ItemType_Firework_Type_10:  
+    case ItemType_Firework_Type_10:
         return BString("Type 10 Effect");
-    case ItemType_Firework_Type_11: 
-        return BString("Type 10 Effect"); 
-    case ItemType_Firework_Type_18: 
-        return BString("Type 10 Effect"); 
+    case ItemType_Firework_Type_11:
+        return BString("Type 10 Effect");
+    case ItemType_Firework_Type_18:
+        return BString("Type 10 Effect");
     default:
         return BString("UNKNOWN");
     }

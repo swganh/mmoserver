@@ -52,25 +52,27 @@ typedef boost::singleton_pool<Session,sizeof(Session),boost::default_user_alloca
 
 class NET_API SessionFactory
 {
-	public:
-									SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice);
-									~SessionFactory(void);
+public:
+    SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice);
+    ~SessionFactory(void);
 
-	  void                          Process(void);
+    void                          Process(void);
 
-	  Session*                      CreateSession(void);
-	  void                          DestroySession(Session* packet);
+    Session*                      CreateSession(void);
+    void                          DestroySession(Session* packet);
 
-	  Service*                      getService() { return mService; }
+    Service*                      getService() {
+        return mService;
+    }
 
-	private:
+private:
 
-	  bool							mServerService; //marks the service as server / client important to determine packetsize
-	  Service*                      mService;
-	  SocketWriteThread*            mSocketWriteThread;
-	  PacketFactory*                mPacketFactory;
-	  MessageFactory*               mMessageFactory;
-	  uint32                        mSessionIdNext;
+    bool                          mServerService; //marks the service as server / client important to determine packetsize
+    Service*                      mService;
+    SocketWriteThread*            mSocketWriteThread;
+    PacketFactory*                mPacketFactory;
+    MessageFactory*               mMessageFactory;
+    uint32                        mSessionIdNext;
 };
 
 

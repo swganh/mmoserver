@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -52,43 +52,43 @@ CombatManager*	CombatManager::mSingleton	= NULL;
 //=========================================================================================
 
 CombatManager::CombatManager(Database* database) :
-mDatabase(database)
+    mDatabase(database)
 {
-	//gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");	
-	// load default attack animations
-	mDatabase->ExecuteSqlAsync(this, 0, "SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id"); // SQL Debug Log
+    //gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");
+    // load default attack animations
+    mDatabase->executeSqlAsync(this, 0, "SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
+    
 }
 
 //=========================================================================================
 
 CombatManager* CombatManager::Init(Database* database)
 {
-	if(mInsFlag == false)
-	{
-		mSingleton = new CombatManager(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(mInsFlag == false)
+    {
+        mSingleton = new CombatManager(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //======================================================================================================================
 
 CombatManager::~CombatManager()
 {
-	WeaponGroups::iterator it = mWeaponGroups.begin();
+    WeaponGroups::iterator it = mWeaponGroups.begin();
 
-	while(it != mWeaponGroups.end())
-	{
-		delete(*it);
+    while(it != mWeaponGroups.end())
+    {
+        delete(*it);
 
-		it = mWeaponGroups.erase(it);
-	}
+        it = mWeaponGroups.erase(it);
+    }
 
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //======================================================================================================================
@@ -98,27 +98,27 @@ CombatManager::~CombatManager()
 
 void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	CMWeaponGroup*	weaponGroup;
-	DataBinding*	binding = mDatabase->CreateDataBinding(3);
+    CMWeaponGroup*	weaponGroup;
+    DataBinding*	binding = mDatabase->createDataBinding(3);
 
-	binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mId),4,0);
-	binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mDefaultAttackAnimationCrc),4,1);
-	binding->addField(DFT_bstring,offsetof(CMWeaponGroup,mDefaultCombatSpam),64,2);
+    binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mId),4,0);
+    binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mDefaultAttackAnimationCrc),4,1);
+    binding->addField(DFT_bstring,offsetof(CMWeaponGroup,mDefaultCombatSpam),64,2);
 
-	uint64 count = result->getRowCount();
-	mWeaponGroups.reserve((uint32)count);
-	
-	for(uint64 i = 0;i < count;i++)
-	{
-		weaponGroup = new CMWeaponGroup();
+    uint64 count = result->getRowCount();
+    mWeaponGroups.reserve((uint32)count);
 
-		result->GetNextRow(binding,weaponGroup);
+    for(uint64 i = 0; i < count; i++)
+    {
+        weaponGroup = new CMWeaponGroup();
 
-		mWeaponGroups.push_back(weaponGroup);
-	}
-	
-	mDatabase->DestroyDataBinding(binding);
-	//gLogger->log(LogManager::NOTICE,"Finished Loading weapon groups.");	
+        result->getNextRow(binding,weaponGroup);
+
+        mWeaponGroups.push_back(weaponGroup);
+    }
+
+    mDatabase->destroyDataBinding(binding);
+    //gLogger->log(LogManager::NOTICE,"Finished Loading weapon groups.");
 }
 
 //=============================================================================================================================
@@ -128,20 +128,20 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 uint32 CombatManager::getDefaultAttackAnimation(uint32 weaponGroup)
 {
-	WeaponGroups::iterator it = mWeaponGroups.begin();
+    WeaponGroups::iterator it = mWeaponGroups.begin();
 
-	while(it != mWeaponGroups.end())
-	{
-		if((*it)->mId == weaponGroup)
-		{
-			return((*it)->mDefaultAttackAnimationCrc);
-		}
+    while(it != mWeaponGroups.end())
+    {
+        if((*it)->mId == weaponGroup)
+        {
+            return((*it)->mDefaultAttackAnimationCrc);
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	// default unarmed attack to be safe
-	return(1136984016);
+    // default unarmed attack to be safe
+    return(1136984016);
 }
 
 //=============================================================================================================================
@@ -151,20 +151,20 @@ uint32 CombatManager::getDefaultAttackAnimation(uint32 weaponGroup)
 
 BString CombatManager::getDefaultSpam(uint32 weaponGroup)
 {
-	WeaponGroups::iterator it = mWeaponGroups.begin();
+    WeaponGroups::iterator it = mWeaponGroups.begin();
 
-	while(it != mWeaponGroups.end())
-	{
-		if((*it)->mId == weaponGroup)
-		{
-			return((*it)->mDefaultCombatSpam.getAnsi());
-		}
+    while(it != mWeaponGroups.end())
+    {
+        if((*it)->mId == weaponGroup)
+        {
+            return((*it)->mDefaultCombatSpam.getAnsi());
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	// default unarmed spam to be safe
-	return("melee");
+    // default unarmed spam to be safe
+    return("melee");
 }
 
 //=============================================================================================================================
@@ -331,70 +331,70 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 
 bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, ObjectControllerCmdProperties *cmdProperties)
 {
-	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+    CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 
-	// get the current weapon
-	Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
-	if (!weapon)
-	{
-		return(false);
-	}
+    // get the current weapon
+    Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
+    if (!weapon)
+    {
+        return(false);
+    }
 
-	if (!defender)
-	{
-		return(false);
-	}
+    if (!defender)
+    {
+        return(false);
+    }
 
-	// NOTE: Some weapon data just for tesing and to give the npc a fair chance...
-	uint32 weaponGroup = weapon->getGroup();
-	float weaponRange = 6.0;
+    // NOTE: Some weapon data just for tesing and to give the npc a fair chance...
+    uint32 weaponGroup = weapon->getGroup();
+    float weaponRange = 6.0;
 
-	//if (weaponGroup <= WeaponGroup_Polearm)
-	//{
-	//	weaponRange = 6.0;
-	//}
-	// else
-	if (weaponGroup == WeaponGroup_Rifle)
-	{
-		weaponRange = 64.0;
-	}
-	else if (weaponGroup == WeaponGroup_Pistol)
-	{
-		weaponRange = 35.0;
-	}
-	else if (weaponGroup == WeaponGroup_Carbine)
-	{
-		weaponRange = 50.0;
-	}
-	//else
-	//{
-	//	weaponRange = 6.0;
-	//}
+    //if (weaponGroup <= WeaponGroup_Polearm)
+    //{
+    //	weaponRange = 6.0;
+    //}
+    // else
+    if (weaponGroup == WeaponGroup_Rifle)
+    {
+        weaponRange = 64.0;
+    }
+    else if (weaponGroup == WeaponGroup_Pistol)
+    {
+        weaponRange = 35.0;
+    }
+    else if (weaponGroup == WeaponGroup_Carbine)
+    {
+        weaponRange = 50.0;
+    }
+    //else
+    //{
+    //	weaponRange = 6.0;
+    //}
 
-	// if we are out of range, skip this attack.
+    // if we are out of range, skip this attack.
     if (glm::distance(attacker->mPosition, defender->mPosition) > weaponRange)
-	{
-		// Target out of range.
-		PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-		if (playerAttacker && playerAttacker->isConnected())
-		{
+    {
+        // Target out of range.
+        PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
+        if (playerAttacker && playerAttacker->isConnected())
+        {
             gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "target_out_of_range"), playerAttacker);
-		}
-		// It's like you shoot but missed, maintain cooldown.
-		// return true;
-		return false;
-	}
+        }
+        // It's like you shoot but missed, maintain cooldown.
+        // return true;
+        return false;
+    }
 
-	if(_verifyCombatState(attacker,defender->getId()))
-	{
+    if(_verifyCombatState(attacker,defender->getId()))
+    {
 
-		// Execute the attack
-		/*uint8 attackResult = */_executeAttack(attacker,defender,cmdProperties,weapon);
+        // Execute the attack
+        /*uint8 attackResult = */_executeAttack(attacker,defender,cmdProperties,weapon);
 
-		return(true);
-	}
+        return(true);
+    }
 
-	return(false);
+    return(false);
 }
 
 //======================================================================================================================
@@ -438,7 +438,6 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 
 		if(baseMaxDamage <= baseMinDamage)
 		{
-			gLogger->log(LogManager::DEBUG,"CombatManager::db min max data is NOT sane");
 			baseMaxDamage = baseMinDamage +1;
 		}
 
@@ -523,128 +522,145 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			if (playerAttacker && playerAttacker->isConnected())
 			{
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_target_incap", 0, defender->getId(), 0), playerAttacker);
-			}
-		}
-		if (defender->isDead())
-		{
-			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-			if (playerAttacker && playerAttacker->isConnected())
-			{
+            }
+        }
+        if (defender->isDead())
+        {
+            PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
+            if (playerAttacker && playerAttacker->isConnected())
+            {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "killer_target_dead"), playerAttacker, true);
-			}
-		}
-	}
+            }
+        }
+    }
 
 
-	// fly text and animations
-	// default attack(s)
-	if(cmdProperties->mCmdCrc == 0xa8fef90a)
-	{
-		uint32 animCrc = getDefaultAttackAnimation(weapon->getGroup());
+    // fly text and animations
+    // default attack(s)
+    if(cmdProperties->mCmdCrc == 0xa8fef90a)
+    {
+        uint32 animCrc = getDefaultAttackAnimation(weapon->getGroup());
 
-		switch(attackResult)
-		{
-			// hit
-			case 0:case 2:case 3:case 4:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,animCrc,0,0,1);
-			}
-			break;
+        switch(attackResult)
+        {
+            // hit
+        case 0:
+        case 2:
+        case 3:
+        case 4:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,animCrc,0,0,1);
+        }
+        break;
 
-			// miss
-			case 1:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,animCrc);
-			}
-			break;
-		}
-	}
-	// special attack
-	else
-	{
-		switch(attackResult)
-		{
-			// hit
-			case 0:case 2:case 3:case 4:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2,1);
-			}
-			break;
+        // miss
+        case 1:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,animCrc);
+        }
+        break;
+        }
+    }
+    // special attack
+    else
+    {
+        switch(attackResult)
+        {
+            // hit
+        case 0:
+        case 2:
+        case 3:
+        case 4:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2,1);
+        }
+        break;
 
-			//miss
-			case 1:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2);
-			}
-			break;
-		}
-	}
+        //miss
+        case 1:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2);
+        }
+        break;
+        }
+    }
 
-	switch(attackResult)
-	{
-		case 0:
-		{
-			// Defender got hit.
-		}
-		break;
+    switch(attackResult)
+    {
+    case 0:
+    {
+        // Defender got hit.
+    }
+    break;
 
-		case 1:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","miss",255,255,255);
-		}
-		break;
+    case 1:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","miss",255,255,255);
+    }
+    break;
 
-		case 2:
-		// We cant block yet, can we?
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","block",0,255,0);
-			gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);
-		}
-		break;
+    case 2:
+        // We cant block yet, can we?
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","block",0,255,0);
+        gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);
+    }
+    break;
 
-		case 3:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","dodge",0,255,0);
-			gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);	// Dodge
-		}
-		break;
+    case 3:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","dodge",0,255,0);
+        gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);	// Dodge
+    }
+    break;
 
-		case 4:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","counterattack",0,255,0);	// I can's see this effect working?
-		}
-		break;
-	}
+    case 4:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","counterattack",0,255,0);	// I can's see this effect working?
+    }
+    break;
+    }
 
-	// send combat spam
-	// default attack
-	if(cmdProperties->mCmdCrc == 0xa8fef90a)
-	{
-		combatSpam = getDefaultSpam(weapon->getGroup());
-	}
-	// special attack
-	else
-	{
-		if(cmdProperties->mCbtSpam.getLength())
-		{
-			combatSpam = cmdProperties->mCbtSpam.getAnsi();
-		}
-	}
+    // send combat spam
+    // default attack
+    if(cmdProperties->mCmdCrc == 0xa8fef90a)
+    {
+        combatSpam = getDefaultSpam(weapon->getGroup());
+    }
+    // special attack
+    else
+    {
+        if(cmdProperties->mCbtSpam.getLength())
+        {
+            combatSpam = cmdProperties->mCbtSpam.getAnsi();
+        }
+    }
 
- 	switch(attackResult)
-	{
-		case 0:	combatSpam << "_hit";		break;
-		case 1:	combatSpam << "_miss";		break;
-		case 2:	combatSpam << "_block";		break;
-		case 3:	combatSpam << "_evade";		break;
-		case 4: combatSpam << "_counter";	break;
+    switch(attackResult)
+    {
+    case 0:
+        combatSpam << "_hit";
+        break;
+    case 1:
+        combatSpam << "_miss";
+        break;
+    case 2:
+        combatSpam << "_block";
+        break;
+    case 3:
+        combatSpam << "_evade";
+        break;
+    case 4:
+        combatSpam << "_counter";
+        break;
 
-		default:break;
-	}
-	gMessageLib->sendCombatSpam(attacker,defender,-multipliedDamage,"cbt_spam",combatSpam);
+    default:
+        break;
+    }
+    gMessageLib->sendCombatSpam(attacker,defender,-multipliedDamage,"cbt_spam",combatSpam);
 
 
-	return(0);
+    return(0);
 }
 
 //======================================================================================================================
@@ -654,42 +670,42 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 
 uint8 CombatManager::_hitCheck(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
 {
-	// TODO
-	// If the defender is a static object, like lair or debis, it can't counterattack, block or evade.
-	uint8 hit = 0;
-	if (defender->getCreoGroup() == CreoGroup_AttackableObject)
-	{
-		// Note that a return of 0 is a hit, return of 1 is a miss.
-		hit = gRandom->getRand()%4;	// 75% chance for a hit, 25% chance for a miss. That sounds fair when hittin a static object,
-		if (hit > 1)
-		{
-			// This is a "hit".
-			hit = 0;
-		}
-	}
-	else
-	{
-		// It's a "normal" npc or player
+    // TODO
+    // If the defender is a static object, like lair or debis, it can't counterattack, block or evade.
+    uint8 hit = 0;
+    if (defender->getCreoGroup() == CreoGroup_AttackableObject)
+    {
+        // Note that a return of 0 is a hit, return of 1 is a miss.
+        hit = gRandom->getRand()%4;	// 75% chance for a hit, 25% chance for a miss. That sounds fair when hittin a static object,
+        if (hit > 1)
+        {
+            // This is a "hit".
+            hit = 0;
+        }
+    }
+    else
+    {
+        // It's a "normal" npc or player
 
-		// return(gRandom->getRand()%5);
-		// Adjusting the hit chance, when testing.
-		// hit = gRandom->getRand()%9;	// 66% chance for a hit, 33% chance for the rest (miss, block, counterattck and evade)
-		hit = gRandom->getRand()%12;	// 75% chance for a hit, 25% chance for the rest (miss, block, counterattck and evade)
-		if (hit > 4)
-		{
-			// This is a "hit".
-			hit = 0;
-		}
-	}
-	return(hit);
+        // return(gRandom->getRand()%5);
+        // Adjusting the hit chance, when testing.
+        // hit = gRandom->getRand()%9;	// 66% chance for a hit, 33% chance for the rest (miss, block, counterattck and evade)
+        hit = gRandom->getRand()%12;	// 75% chance for a hit, 25% chance for the rest (miss, block, counterattck and evade)
+        if (hit > 4)
+        {
+            // This is a "hit".
+            hit = 0;
+        }
+    }
+    return(hit);
 }
 
 //======================================================================================================================
 
 int32 CombatManager::_mitigateDamage(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,int32 oldDamage,Weapon* weapon)
 {
-	// TODO
-	return(oldDamage);
+    // TODO
+    return(oldDamage);
 }
 
 //======================================================================================================================

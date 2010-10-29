@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -90,11 +90,10 @@ bool CraftingManager::HandleRequestDraftslotsBatch(Object* object,Object* target
 
     if(!elementCount)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
         return false;
     }
 
-    for(uint16 i = 1;i < elementCount;i += 2)
+    for(uint16 i = 1; i < elementCount; i += 2)
     {
         // since we currently store everything in 1 schematic object, just look up by the crc
         // lookup of weights is done in requestresourceweightsbatch
@@ -128,11 +127,10 @@ bool CraftingManager::HandleRequestResourceWeightsBatch(Object* object,Object* t
 
     if(!elementCount)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
         return false;
     }
 
-    for(uint16 i = 0;i < elementCount;i++)
+    for(uint16 i = 0; i < elementCount; i++)
     {
         uint64 itemId = boost::lexical_cast<uint64>(dataElements[i].getAnsi());
         DraftSchematic* schematic = gSchematicManager->getSchematicByWeightId(static_cast<uint32>(itemId));
@@ -158,81 +156,81 @@ bool CraftingManager::HandleSynchronizedUIListen(Object* object,Object* target,M
 // check inventory for same tool 'type' as crafting station
 CraftingTool* CraftingManager::getCraftingStationTool(PlayerObject* playerObject, CraftingStation* station)
 {
-        CraftingTool*	tool	= NULL;
-        int32 stationType = station->getItemType();
-        Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-        ObjectIDList::iterator It = inventory->getObjects()->begin();
-        while(It != inventory->getObjects()->end())
+    CraftingTool*	tool	= NULL;
+    int32 stationType = station->getItemType();
+    Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    ObjectIDList::iterator It = inventory->getObjects()->begin();
+    while(It != inventory->getObjects()->end())
+    {
+        Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
+        if(!item)
         {
-            Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById((*It)));
-            if(!item)
-            {
-                It++;
-                continue;
-            }
-            int32 itemType = item->getItemType();
-            switch (stationType)
-            {
-                case ItemType_ClothingStation:
-                case ItemType_ClothingStationPublic:
-                {
-                    if(itemType == ItemType_ClothingTool)
-                    {
-                        tool = dynamic_cast<CraftingTool*>(item);
-                    }
-                }
-                break;
-                case ItemType_WeaponStation:
-                case ItemType_WeaponStationPublic:
-                {
-                    if(itemType == ItemType_WeaponTool)
-                    {
-                        tool = dynamic_cast<CraftingTool*>(item);
-                    }
-                }
-                break;
-                case ItemType_FoodStation:
-                case ItemType_FoodStationPublic:
-                {
-                    if(itemType == ItemType_FoodTool)
-                    {
-                        tool = dynamic_cast<CraftingTool*>(item);
-                    }
-                }
-                break;
-                case ItemType_StructureStation:
-                case ItemType_StructureStationPublic:
-                {
-                    if(itemType == ItemType_StructureTool)
-                    {
-                        tool = dynamic_cast<CraftingTool*>(item);
-                    }
-                }
-                break;
-                case ItemType_SpaceStation:
-                case ItemType_SpaceStationPublic:
-                {
-                    if(itemType == ItemType_SpaceTool)
-                    {
-                        tool = dynamic_cast<CraftingTool*>(item);
-                    }
-                }
-                break;
-                default:
-                {
-                    break;
-                }
-                break;
-            }
-            if(tool)
-            {
-                // found it now jump out
-                break;
-            }
-            ++It;
+            It++;
             continue;
         }
-        return tool;
+        int32 itemType = item->getItemType();
+        switch (stationType)
+        {
+        case ItemType_ClothingStation:
+        case ItemType_ClothingStationPublic:
+        {
+            if(itemType == ItemType_ClothingTool)
+            {
+                tool = dynamic_cast<CraftingTool*>(item);
+            }
+        }
+        break;
+        case ItemType_WeaponStation:
+        case ItemType_WeaponStationPublic:
+        {
+            if(itemType == ItemType_WeaponTool)
+            {
+                tool = dynamic_cast<CraftingTool*>(item);
+            }
+        }
+        break;
+        case ItemType_FoodStation:
+        case ItemType_FoodStationPublic:
+        {
+            if(itemType == ItemType_FoodTool)
+            {
+                tool = dynamic_cast<CraftingTool*>(item);
+            }
+        }
+        break;
+        case ItemType_StructureStation:
+        case ItemType_StructureStationPublic:
+        {
+            if(itemType == ItemType_StructureTool)
+            {
+                tool = dynamic_cast<CraftingTool*>(item);
+            }
+        }
+        break;
+        case ItemType_SpaceStation:
+        case ItemType_SpaceStationPublic:
+        {
+            if(itemType == ItemType_SpaceTool)
+            {
+                tool = dynamic_cast<CraftingTool*>(item);
+            }
+        }
+        break;
+        default:
+        {
+            break;
+        }
+        break;
+        }
+        if(tool)
+        {
+            // found it now jump out
+            break;
+        }
+        ++It;
+        continue;
+    }
+    return tool;
 }
 //======================================================================================================================
 //
@@ -259,10 +257,9 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
     {
         tool = getCraftingStationTool(playerObject, station);
     }
-    
+
     if(!tool)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",target->getId());
         gMessageLib->SendSystemMessage(common::OutOfBand("ui_craft","err_no_crafting_tool"),playerObject);
         gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
         return false;
@@ -294,8 +291,7 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
 
         return false;
     }
-    gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: new session :)");
-    playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(), playerObject, tool, station, expFlag));
+	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(), playerObject, tool, station, expFlag));
     return true;
 }
 
@@ -335,12 +331,11 @@ bool CraftingManager::HandleCancelCraftingSession(Object* object,Object* target,
 
     message->setIndex(24);
 
-    /*uint32			counter			= */message->getUint32();
+    /*uint32			counter			= */
+    message->getUint32();
 
     gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
-
-    gLogger->log(LogManager::DEBUG, "session canceled");
-    //client complains over crafting tool already having an item when we go out of the slot screen!!!!!
+	//client complains over crafting tool already having an item when we go out of the slot screen!!!!!
     return true;
 }
 
@@ -412,7 +407,7 @@ void CraftingManager::handleCraftExperiment(Object* object, Message* message)
     if(!session || player->getCraftingStage() != 3)
         return;
 
-    for(uint32 i = 0;i < propCount;i++)
+    for(uint32 i = 0; i < propCount; i++)
         properties.push_back(std::make_pair(message->getUint32(),message->getUint32()));
 
     session->experiment(counter,properties);
@@ -452,9 +447,7 @@ void CraftingManager::handleCraftCustomization(Object* object,Message* message)
     while((custIt != cList->end())&&(i < hmmm2))
     {
         message->getUint32(color);
-        gLogger->log(LogManager::DEBUG,"craft customization int1 : %u",color);
         message->getUint32(color);
-        gLogger->log(LogManager::DEBUG,"craft customization int2 : %u at index : %u",color,(*custIt)->cutomizationIndex);
         session->getItem()->setCustomization(static_cast<uint8>((*custIt)->cutomizationIndex),(uint16)color,3);
 
         i++;
@@ -463,7 +456,7 @@ void CraftingManager::handleCraftCustomization(Object* object,Message* message)
 
     int8 sql[550];
     sprintf(sql, "INSERT INTO item_customization VALUES (%"PRIu64", %u, %u)",session->getItem()->getId(), session->getItem()->getCustomization(1), session->getItem()->getCustomization(2));
-    mDatabase->ExecuteSqlAsync(0, 0, sql);
+    mDatabase->executeSqlAsync(0, 0, sql);
 
     session->setProductionAmount(amount);
     session->customize(itemName.getAnsi());
@@ -499,49 +492,46 @@ bool CraftingManager::HandleNextCraftingStage(Object* object, Object* target,Mes
             gCraftingSessionFactory->destroySession(session);
             return false;
         }
-        gLogger->log(LogManager::DEBUG,"Counter We Got: %u", counter);
-        gLogger->log(LogManager::DEBUG,"Counter We'd Use: %u", session->getCounter());
     }
 
     switch(session->getStage())
     {
-        case 1:
-        {
-            //Player's Macro is wrong! :p
-        }
-        break;
+    case 1:
+    {
+        //Player's Macro is wrong! :p
+    }
+    break;
 
-        case 2:
-        {
-            session->assemble(counter);
-        }
-        break;
+    case 2:
+    {
+        session->assemble(counter);
+    }
+    break;
 
-        case 3:
-        {
-            session->experimentationStage(counter);
+    case 3:
+    {
+        session->experimentationStage(counter);
 
-        }
-        break;
+    }
+    break;
 
-        case 4:
-        {
-            session->customizationStage(counter);
-            //session->creationStage(counter);
-        }
-        break;
+    case 4:
+    {
+        session->customizationStage(counter);
+        //session->creationStage(counter);
+    }
+    break;
 
-        case 5:
-        {
-            session->creationStage(counter);
-        }
-        break;
+    case 5:
+    {
+        session->creationStage(counter);
+    }
+    break;
 
-        default:
-        {
-            gLogger->log(LogManager::NOTICE,"ObjController::_handlenextcraftingstage: unhandled stage %u",session->getStage());
-        }
-        break;
+    default:
+    {
+    }
+    break;
     }
     return true;
 }

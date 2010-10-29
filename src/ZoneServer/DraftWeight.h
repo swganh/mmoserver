@@ -35,29 +35,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class DraftWeight
 {
-	friend class SchematicManager;
+    friend class SchematicManager;
 
-	public:
+public:
 
-		DraftWeight();
-		~DraftWeight();
+    DraftWeight();
+    ~DraftWeight();
 
-		uint8	getDataType(){ return mDataType; }
-		void	setDataType(uint8 type){ mDataType = type; }
-		uint8	getDistribution(){ return mDistribution; }
-		void	setDistribution(uint8 dist){mDistribution = dist; }
+    uint8	getDataType() {
+        return mDataType;
+    }
+    void	setDataType(uint8 type) {
+        mDataType = type;
+    }
+    uint8	getDistribution() {
+        return mDistribution;
+    }
+    void	setDistribution(uint8 dist) {
+        mDistribution = dist;
+    }
 
-		void	prepareData();
-		uint8	getData(){ return mData; }
-		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
-		uint32  getBatchListId(){return mBatchListId;}
+    void	prepareData();
+    uint8	getData() {
+        return mData;
+    }
+    uint32  getSchemWeightBatch() {
+        return mSchemWeightBatch;
+    }
+    uint32  getBatchListId() {
+        return mBatchListId;
+    }
 
-	private:
-		uint32  mSchemWeightBatch;
-		uint8	mDataType;
-		uint8	mDistribution;
-		uint8	mData;
-		uint32  mBatchListId;
+private:
+    uint32  mSchemWeightBatch;
+    uint8	mDataType;
+    uint8	mDistribution;
+    uint8	mData;
+    uint32  mBatchListId;
 };
 
 #endif

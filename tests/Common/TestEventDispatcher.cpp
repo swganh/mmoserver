@@ -41,6 +41,72 @@ using ::common::EventListenerType;
 
 namespace {
 
+class MockEvent : public ::common::BaseEvent {
+public:
+    explicit MockEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0) 
+        : BaseEvent(subject_id, delay_ms)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback) 
+        : BaseEvent(subject_id, delay_ms, callback)
+    , some_event_val_(0) {}
+
+    explicit MockEvent(::common::ByteBuffer& in) {
+        deserialize(in);
+    }
+
+    ~MockEvent() {}
+
+    const ::common::EventType& event_type() const { return event_type_; }
+
+    int some_event_val() const { return some_event_val_; }
+    void some_event_val(int some_event_val) { some_event_val_ = some_event_val; }
+
+private:
+    void onSerialize(::common::ByteBuffer& out) const {
+        out << some_event_val_;
+    }
+
+    void onDeserialize(::common::ByteBuffer& in) {
+        some_event_val_ = in.Read<int>();
+    }
+
+    bool onConsume(bool handled) const {
+        return true;
+    }
+
+    static const ::common::EventType event_type_;
+    int some_event_val_;
+};
+
+class MockListener {
+public:
+    MockListener() : triggered_(false) {}
+    ~MockListener() {}
+
+    bool triggered() const { return triggered_; }
+
+    bool HandleEvent(::common::IEventPtr triggered_event) {
+        triggered_event;
+        triggered_ = true;
+        return true;
+    }
+
+private:
+    bool triggered_;
+};
+
+class MockListenerAlt {
+public:
+    MockListenerAlt() {}
+    ~MockListenerAlt() {}
+
+    bool HandleEvent(::common::IEventPtr triggered_event) {
+        triggered_event;
+        return true;
+    }
+};
+    
 TEST(EventDispatcherTests, CanConnectListenerToEvent) {
     // Create the EventDispatcher and a MockListener to use for testing.
     EventDispatcher dispatcher;   
@@ -48,7 +114,7 @@ TEST(EventDispatcherTests, CanConnectListenerToEvent) {
    
     // Connect the listener to a test event.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback));
 
     // Query the dispatcher for a list of the listeners for the test event.
     std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
@@ -68,8 +134,8 @@ TEST(EventDispatcherTests, CanConnectListenerToTwoEvents) {
    
     // Connect the listener to two test events.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback));
-    dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback));
 
     // Query the dispatcher for a list of the listeners for the test event.
     std::vector<EventListener> listeners1 = dispatcher.GetListeners(EventType("test_event1")).get();
@@ -90,8 +156,8 @@ TEST(EventDispatcherTests, CanConnectTwoListenersToEvent) {
     EventListenerCallback callback1(std::bind(&MockListener::HandleEvent, &listener1, std::placeholders::_1));
     EventListenerCallback callback2(std::bind(&MockListenerAlt::HandleEvent, &listener2, std::placeholders::_1));
     
-    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback1));
-    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListenerAlt"), callback2));
+    dispatcher.connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback1));
+    dispatcher.connect(EventType("test_event"), EventListener(EventListenerType("MockListenerAlt"), callback2));
 
     // Query the dispatcher for a list of the listeners for the test event.
     std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
@@ -116,8 +182,8 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromEvent) {
     EventListenerCallback callback1(std::bind(&MockListener::HandleEvent, &listener1, std::placeholders::_1));
     EventListenerCallback callback2(std::bind(&MockListenerAlt::HandleEvent, &listener2, std::placeholders::_1));
     
-    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback1));
-    dispatcher.Connect(EventType("test_event"), EventListener(EventListenerType("MockListenerAlt"), callback2));
+    dispatcher.connect(EventType("test_event"), EventListener(EventListenerType("MockListener"), callback1));
+    dispatcher.connect(EventType("test_event"), EventListener(EventListenerType("MockListenerAlt"), callback2));
     
     // Query the dispatcher for a list of the listeners for the test event.
     std::vector<EventListener> listeners = dispatcher.GetListeners(EventType("test_event")).get();
@@ -148,11 +214,11 @@ TEST(EventDispatcherTests, CanDisconnectListenerFromAllEvents) {
     EventListenerCallback callback1(std::bind(&MockListener::HandleEvent, &listener1, std::placeholders::_1));
     EventListenerCallback callback2(std::bind(&MockListenerAlt::HandleEvent, &listener2, std::placeholders::_1));
     
-    dispatcher.Connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback1));
-    dispatcher.Connect(EventType("test_event1"), EventListener(EventListenerType("MockListenerAlt"), callback2));
+    dispatcher.connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback1));
+    dispatcher.connect(EventType("test_event1"), EventListener(EventListenerType("MockListenerAlt"), callback2));
     
-    dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback1));
-    dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListenerAlt"), callback2));
+    dispatcher.connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback1));
+    dispatcher.connect(EventType("test_event2"), EventListener(EventListenerType("MockListenerAlt"), callback2));
     
     // Query for the listeners to both events and make sure there's 2 items in each.
     std::vector<EventListener> listeners1 = dispatcher.GetListeners(EventType("test_event1")).get();
@@ -179,9 +245,9 @@ TEST(EventDispatcherTests, CanGetListOfRegisteredEventTypes) {
    
     // Connect the listener to two test events.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback));
-    dispatcher.Connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback));
-    dispatcher.Connect(EventType("test_event3"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("test_event1"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("test_event2"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("test_event3"), EventListener(EventListenerType("MockListener"), callback));
 
     std::vector<EventType> event_types = dispatcher.GetRegisteredEvents().get();
     
@@ -216,7 +282,7 @@ TEST(EventDispatcherTests, DeliveringEventCallsAppropriateListener) {
    
     // Connect the listener to a test event.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType("mock_event"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("mock_event"), EventListener(EventListenerType("MockListener"), callback));
     
     // Create a new event.
     IEventPtr my_event = std::make_shared<MockEvent>();
@@ -233,7 +299,7 @@ TEST(EventDispatcherTests, DeliveringEventOfUnknownTypeIsSuccessful) {
    
     // Connect the listener to a test event.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType("some_alt_event"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("some_alt_event"), EventListener(EventListenerType("MockListener"), callback));
     
     // Create a new event.
     IEventPtr my_event = std::make_shared<MockEvent>();
@@ -249,7 +315,7 @@ TEST(EventDispatcherTests, DeliveringEventCallsGlobalListeners) {
    
     // Connect the listener to a test event.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType(::common::kWildCardHashString), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType(::common::kWildCardHashString), EventListener(EventListenerType("MockListener"), callback));
     
     // Create a new event.
     IEventPtr my_event = std::make_shared<MockEvent>();
@@ -266,7 +332,7 @@ TEST(EventDispatcherTests, CallingTickProcessesQueuedEvents) {
    
     // Connect the listener to a test event.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType("mock_event"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("mock_event"), EventListener(EventListenerType("MockListener"), callback));
     
     // Create a new event.
     IEventPtr my_event = std::make_shared<MockEvent>();
@@ -367,7 +433,7 @@ TEST(EventDispatcherTests, DelayedEventsAreOnlyProcessedAfterTimeoutHasBeenReach
    
     // Connect the listener to a test event.
     EventListenerCallback callback(std::bind(&MockListener::HandleEvent, &listener, std::placeholders::_1));
-    dispatcher.Connect(EventType("mock_event"), EventListener(EventListenerType("MockListener"), callback));
+    dispatcher.connect(EventType("mock_event"), EventListener(EventListenerType("MockListener"), callback));
     
     // Create a new event with a delay of 5 milliseconds.
     auto my_event = std::make_shared<MockEvent>(0, 5);

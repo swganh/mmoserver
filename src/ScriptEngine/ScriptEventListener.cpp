@@ -26,8 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ScriptEventListener.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Script.h"
-#include "Common/LogManager.h"
 
 
 //======================================================================================================================
@@ -40,41 +45,41 @@ ScriptEventListener::ScriptEventListener()
 
 ScriptEventListener::~ScriptEventListener()
 {
-	ScriptListMap::iterator it = mScriptListMap.begin();
+    ScriptListMap::iterator it = mScriptListMap.begin();
 
-	while(it != mScriptListMap.end())
-	{
-		delete((*it).second);
-		mScriptListMap.erase(it);
-		it = mScriptListMap.begin();
-	}
+    while(it != mScriptListMap.end())
+    {
+        delete((*it).second);
+        mScriptListMap.erase(it);
+        it = mScriptListMap.begin();
+    }
 }
 
 //======================================================================================================================
 
 void ScriptEventListener::_removeScriptList(const int8* functionName)
 {
-	ScriptListMap::iterator it = mScriptListMap.find(functionName);
+    ScriptListMap::iterator it = mScriptListMap.find(functionName);
 
-	if(it != mScriptListMap.end())
-		mScriptListMap.erase(it);
+    if(it != mScriptListMap.end())
+        mScriptListMap.erase(it);
 }
 
 //======================================================================================================================
 
 void ScriptEventListener::registerFunction(const int8* functionName)
 {
-	ScriptList* scriptList = getScriptList(functionName);
+    ScriptList* scriptList = getScriptList(functionName);
 
-	if(scriptList)
-	{
-		gLogger->log(LogManager::NOTICE, "Script Event Listener: function already registered %s", functionName);
-		return;
-	}
+    if(scriptList)
+    {
+    	LOG(WARNING) << "Function already registered [" << functionName << "]";
+        return;
+    }
 
-	//gLogger->log(LogManager::DEBUG, "Script Event Listener:registered function %s",functionName);
+    //gLogger->log(LogManager::DEBUG, "Script Event Listener:registered function %s",functionName);
 
-	mScriptListMap.insert(std::make_pair(functionName,new ScriptList));
+    mScriptListMap.insert(std::make_pair(functionName,new ScriptList));
 
 }
 
@@ -82,44 +87,44 @@ void ScriptEventListener::registerFunction(const int8* functionName)
 
 void ScriptEventListener::unregisterFunction(const int8* functionName)
 {
-	ScriptList* scriptList = getScriptList(functionName);
+    ScriptList* scriptList = getScriptList(functionName);
 
-	if(!scriptList)
-	{
-		gLogger->log(LogManager::NOTICE, "Script Event Listener could not find %s to unregister.", functionName);
-		return;
-	}
+    if(!scriptList)
+    {
+    	LOG(WARNING) << "Could not function to unregister [" << functionName << "]";
+        return;
+    }
 
-	delete(scriptList);
+    delete(scriptList);
 
-	_removeScriptList(functionName);
+    _removeScriptList(functionName);
 }
 
 //======================================================================================================================
 
 ScriptList* ScriptEventListener::getScriptList(const int8* functionName)
 {
-	ScriptListMap::iterator it = mScriptListMap.find(functionName);
+    ScriptListMap::iterator it = mScriptListMap.find(functionName);
 
-	if(it != mScriptListMap.end())
-		return((*it).second);
+    if(it != mScriptListMap.end())
+        return((*it).second);
 
-	return(NULL);
+    return(NULL);
 }
 
 //======================================================================================================================
 
 void ScriptEventListener::registerScript(Script* script,const int8* functionName)
 {
-	ScriptList* scriptList = getScriptList(functionName);
+    ScriptList* scriptList = getScriptList(functionName);
 
-	if(!scriptList)
-	{
-		gLogger->log(LogManager::NOTICE,"Script Event Listener: No function mapped for %s",functionName);
-		return;
-	}
+    if(!scriptList)
+    {
+    	LOG(WARNING) << "Function not mapped [" << functionName << "]";
+        return;
+    }
 
-	scriptList->push_back(script);
+    scriptList->push_back(script);
 }
 
 //======================================================================================================================
@@ -133,22 +138,22 @@ void ScriptEventListener::unregisterScript(Script* script)
 
 void ScriptEventListener::handleScriptEvent(const int8* functionName,BString params)
 {
-	ScriptList* scriptList = getScriptList(functionName);
+    ScriptList* scriptList = getScriptList(functionName);
 
-	if(!scriptList)
-	{
-		gLogger->log(LogManager::NOTICE, "Script Event Listener: No function mapped for %s",functionName);
-		return;
-	}
+    if(!scriptList)
+    {
+    	LOG(WARNING) << "Function not mapped [" << functionName << "]";
+        return;
+    }
 
-	ScriptList::iterator it = scriptList->begin();
+    ScriptList::iterator it = scriptList->begin();
 
-	while(it != scriptList->end())
-	{
-		(*it)->callFunction(functionName,"s",params.getAnsi());
+    while(it != scriptList->end())
+    {
+        (*it)->callFunction(functionName,"s",params.getAnsi());
 
-		++it;
-	}
+        ++it;
+    }
 }
 
 //======================================================================================================================

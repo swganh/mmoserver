@@ -38,28 +38,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //very temp
 unsigned char Swoop_Customization[99] =	{ 0x61, 0x00, 0x02, 0x11, 0xC3, //customization data
-0x9D, 0x28, 0xC3, 0xBF, 0x01, 0xC3, 0x9E, 0xC3, 0x8D, 0xC3, 0xBF, 0x01,
-0xC3, 0xA2, 0x1E, 0xC3, 0xBF, 0x01, 0xC3, 0x9B, 0x1D, 0xC3, 0xBF, 0x01,
-0xC3, 0x98, 0x2D, 0xC3,	0xBF, 0x01, 0xC3, 0x9A, 0x63, 0xC3, 0xBF, 0x01,
-0xC3, 0x99, 0x05, 0xC3, 0xBF, 0x01, 0xC3, 0xA1, 0x19, 0xC3, 0xBF, 0x01,
-0xC3, 0xA0, 0x14, 0xC3, 0xBF, 0x01, 0xC3, 0x9F, 0x05, 0xC3, 0xBF, 0x01,
-0xC3, 0x9C, 0x46, 0xC3, 0xBF, 0x01, 0xC3, 0x95, 0x19, 0xC3, 0xBF, 0x01,
-0x01, 0x04, 0xC3, 0x96, 0x67, 0xC3, 0xBF, 0x01, 0x22, 0x11, 0xC3, 0x97,
-0xC3, 0x9B, 0xC3, 0xBF, 0x01, 0x02, 0x11, 0xC3, 0xBF, 0x03 };
+                                        0x9D, 0x28, 0xC3, 0xBF, 0x01, 0xC3, 0x9E, 0xC3, 0x8D, 0xC3, 0xBF, 0x01,
+                                        0xC3, 0xA2, 0x1E, 0xC3, 0xBF, 0x01, 0xC3, 0x9B, 0x1D, 0xC3, 0xBF, 0x01,
+                                        0xC3, 0x98, 0x2D, 0xC3,	0xBF, 0x01, 0xC3, 0x9A, 0x63, 0xC3, 0xBF, 0x01,
+                                        0xC3, 0x99, 0x05, 0xC3, 0xBF, 0x01, 0xC3, 0xA1, 0x19, 0xC3, 0xBF, 0x01,
+                                        0xC3, 0xA0, 0x14, 0xC3, 0xBF, 0x01, 0xC3, 0x9F, 0x05, 0xC3, 0xBF, 0x01,
+                                        0xC3, 0x9C, 0x46, 0xC3, 0xBF, 0x01, 0xC3, 0x95, 0x19, 0xC3, 0xBF, 0x01,
+                                        0x01, 0x04, 0xC3, 0x96, 0x67, 0xC3, 0xBF, 0x01, 0x22, 0x11, 0xC3, 0x97,
+                                        0xC3, 0x9B, 0xC3, 0xBF, 0x01, 0x02, 0x11, 0xC3, 0xBF, 0x03
+                                        };
 
 
-VehicleController::VehicleController() 
-: IntangibleObject()
-, owner_(0)
-, body_(0)
-, flat_acceleration_(0)
-, hit_point_loss_(0)
-, incline_acceleration_(0) {
+VehicleController::VehicleController()
+    : IntangibleObject()
+    , owner_(0)
+    , body_(0)
+    , flat_acceleration_(0)
+    , hit_point_loss_(0)
+    , incline_acceleration_(0) {
 
-  // Over-ride base settings.
-  mType       = ObjType_Intangible;
-  mItnoGroup  = ItnoGroup_Vehicle;
-  mName       = L"";
+    // Over-ride base settings.
+    mType       = ObjType_Intangible;
+    mItnoGroup  = ItnoGroup_Vehicle;
+    mName       = L"";
 }
 
 VehicleController::~VehicleController() {
@@ -99,9 +100,9 @@ void VehicleController::handleObjectMenuSelect(uint8_t message_type, Object* sou
 //=============================================================================
 //handles the radial selection
 void VehicleController::prepareCustomRadialMenu(CreatureObject* creature, uint8_t item_count) {
-  
-  mRadialMenu = std::make_shared<RadialMenu>();
-  
+
+	mRadialMenu = std::make_shared<RadialMenu>();
+
     mRadialMenu->addItem(1, 0, radId_vehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
     mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_Default);
     mRadialMenu->addItem(3, 0, radId_examine, radAction_Default);
@@ -112,14 +113,12 @@ void VehicleController::prepareCustomRadialMenu(CreatureObject* creature, uint8_
 //spawns the physical body (CreatureObject)
 
 void VehicleController::Call() {
-  
     if(body_)	{
-      assert(false && "void Vehicle::call() body already exists");
-    return;
+        assert(false && "void Vehicle::call() body already exists");
+        return;
     }
 
     if(owner_->checkIfMountCalled()) {
-        gLogger->log(LogManager::DEBUG,"void Vehicle::call() mount already called");
         return;
     }
 
@@ -160,38 +159,38 @@ void VehicleController::Call() {
 
     // Set default direction and position for the body.
     body_->mDirection = owner_->mDirection;
-  body_->mPosition  = owner_->mPosition;
+    body_->mPosition  = owner_->mPosition;
 
     // Move it forward 2 meters
-  body_->moveForward(2);
-    
+    body_->moveForward(2);
+
     // And drop it a little below the terrain to allow the client to normalize it.
     //body_->mPosition.y = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
-     //TODO: Remove this patch when heightmaps are corrected!
-     if(owner_){
-         float hmapHighest = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
-         body_->mPosition.y = gHeightmap->compensateForInvalidHeightmap(hmapHighest, body_->mPosition.y, (float)10.0);
-         if(hmapHighest != body_->mPosition.y){
-             gLogger->log(LogManager::INFORMATION," VehicleController::Call: PlayerID(%u) calling vehicle... Heightmap found inconsistent, compensated height.", owner_->getId());
-         }
-     }//end TODO
+    //TODO: Remove this patch when heightmaps are corrected!
+    if(owner_) {
+        float hmapHighest = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
+        body_->mPosition.y = gHeightmap->compensateForInvalidHeightmap(hmapHighest, body_->mPosition.y, (float)10.0);
+        if(hmapHighest != body_->mPosition.y) {
+            DLOG(INFO) << " VehicleController::Call: PlayerID("<<owner_->getId() << ") calling vehicle... Heightmap found inconsistent, compensated height.";
+        }
+    }//end TODO
 
-  // Finally rotate it perpendicular to the player.
-  body_->rotateRight(90.0f);
+    // Finally rotate it perpendicular to the player.
+    body_->rotateRight(90.0f);
 
     // add to world
     if(!gWorldManager->addObject(body_)) {
-    gLogger->log(LogManager::DEBUG,"void Vehicle::call() creating vehicle with id % "PRIu64" failed : couldnt add to world", body_->getId());
+		DLOG(INFO) << "void Vehicle::call() creating vehicle with id "<<body_->getId()<<" failed : couldnt add to world";
         SAFE_DELETE(body_);
         return;
     }
 
-    gWorldManager->createObjectinWorld(owner_, body_);	
+    gWorldManager->createObjectinWorld(owner_, body_);
 
     gMessageLib->sendUpdateTransformMessage(body_);
 
     owner_->setMountCalled(true);
-    
+
     return;
 }
 
@@ -202,13 +201,13 @@ void VehicleController::Store()
 {
     if(!body_)
     {
-        gLogger->log(LogManager::DEBUG,"Vehicle::store() Error: Store was called for a nonexistant body object!");
+        DLOG(INFO) << "Vehicle::store() Error: Store was called for a nonexistant body object!";
         return;
     }
 
     if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
     {
-        gLogger->log(LogManager::DEBUG,"Vehicle::store() couldnt find owner");
+        DLOG(INFO) << "Vehicle::store() couldnt find owner";
         return;
     }
 
@@ -220,7 +219,7 @@ void VehicleController::Store()
 
     if(!owner_->checkIfMountCalled())
     {
-        gLogger->log(LogManager::DEBUG,"Vehicle::store() Mount wasnt called !!!");
+        DLOG(INFO) << "Vehicle::store() Mount wasnt called !!!";
         return;
     }
 
@@ -247,12 +246,12 @@ void VehicleController::Store()
 
 void VehicleController::DismountPlayer() {
     if(!body_) {
-    assert(false && "Vehicle::mountPlayer() no vehicle body!");
+        assert(false && "Vehicle::mountPlayer() no vehicle body!");
         return;
     }
 
     if(!owner_->checkIfMounted()) {
-    assert(false && "Vehicle::mountPlayer() owner is not mounted!");
+        assert(false && "Vehicle::mountPlayer() owner is not mounted!");
         return;
     }
 
@@ -263,7 +262,6 @@ void VehicleController::DismountPlayer() {
     //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_Standing);
 
     owner_->setMounted(false);
-    
     gMessageLib->sendUpdateMovementProperties(owner_);
 }
 
@@ -273,11 +271,10 @@ void VehicleController::DismountPlayer() {
 
 void VehicleController::MountPlayer()
 {
-  if (!body_) {
-    assert(false && "Vehicle::mountPlayer() no vehicle body!");
-    return;
-  }
-
+    if (!body_) {
+        assert(false && "Vehicle::mountPlayer() no vehicle body!");
+        return;
+    }
     //Make the mount equip the player
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), 4, owner_);
     gMessageLib->sendUpdateTransformMessage(body_);
@@ -290,7 +287,6 @@ void VehicleController::MountPlayer()
     //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
 
     owner_->setMounted(true);
-    
     gMessageLib->sendUpdateMovementProperties(owner_);
 }
 

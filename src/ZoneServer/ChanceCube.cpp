@@ -33,10 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 ChanceCube::ChanceCube() : Item()
 {
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
+    mRadialMenu = RadialMenuPtr(new RadialMenu());
 
-	mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+    mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 
 
@@ -50,11 +50,11 @@ ChanceCube::~ChanceCube(void)
 
 void ChanceCube::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject))
-	{	
-		if(messageType == radId_itemUse)
-		{
+    if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject))
+    {
+        if(messageType == radId_itemUse)
+        {
             gMessageLib->SendSystemMessage(::common::OutOfBand("dice", "red"), playerObject);
-		}
-	}
+        }
+    }
 }

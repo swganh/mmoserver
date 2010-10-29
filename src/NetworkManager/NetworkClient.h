@@ -62,22 +62,26 @@ class Message;
 
 class NET_API NetworkClient
 {
-	public:
+public:
 
-		NetworkClient(void) : mSession(0) {}
+    NetworkClient(void) : mSession(0) {}
 
-		virtual ~NetworkClient(void) {};
+    virtual ~NetworkClient(void) {};
 
-		virtual void	SendChannelA(Message* message, uint8 priority, bool fastpath);
-		virtual void	SendChannelAUnreliable(Message* message, uint8 priority);
-		virtual void	Disconnect(uint8 reason);
+    virtual void	SendChannelA(Message* message, uint8 priority, bool fastpath);
+    virtual void	SendChannelAUnreliable(Message* message, uint8 priority);
+    virtual void	Disconnect(uint8 reason);
 
-		Session*		getSession(void){ return mSession; }
-		void			setSession(Session* session){ mSession = session; }
+    Session*		getSession(void) {
+        return mSession;
+    }
+    void			setSession(Session* session) {
+        mSession = session;
+    }
 
-	protected:
+protected:
 
-	  Session*	mSession;
+    Session*	mSession;
 };
 
 //======================================================================================================================

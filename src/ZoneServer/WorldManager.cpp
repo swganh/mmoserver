@@ -25,8 +25,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "PlayerObject.h"
 #include "WorldManager.h"
+
+#ifdef WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
+#include "PlayerObject.h"
 #include "AdminManager.h"
 #include "Buff.h"
 #include "BuffEvent.h"
@@ -85,21 +92,17 @@ WorldManager*	WorldManager::mSingleton  = NULL;
 //======================================================================================================================
 
 WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* database)
-: mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
-, mDatabase(database)
-, mZoneServer(zoneServer)
-, mState(WMState_StartUp)
-, mServerTime(0)
-, mTotalObjectCount(0)
-, mZoneId(zoneId)
+    : mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
+    , mDatabase(database)
+    , mZoneServer(zoneServer)
+    , mState(WMState_StartUp)
+    , mServerTime(0)
+    , mTotalObjectCount(0)
+    , mZoneId(zoneId)
 {
-    #if !defined(_DEBUG)
-    #endif
-    #if defined(_DEBUG)
-        gLogger->log(LogManager::DEBUG,"WorldManager::StartUp");
-    #endif
-    
 
+    DLOG(INFO) << "WorldManager initialization";
+	
     // set up spatial index
     mSpatialIndex = new ZoneTree();
     mSpatialIndex->Init(gConfig->read<float>("FillFactor"),
@@ -108,19 +111,10 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
                         2,
                         gConfig->read<float>("Horizon"));
 
-    try
-    {
-        mDebug = gConfig->read<bool>("LoadReduceDebug");
-    }
-    catch (...)
-    {
-        mDebug = false;
-    }
 
     // load planet names and terrain files so we can start heightmap loading
-    mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT * FROM planet ORDER BY planet_id;"); // SQL Debug Log	
-    
+    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
+
 
     // create schedulers
     mSubsystemScheduler		= new Anh_Utils::Scheduler();
@@ -141,35 +135,27 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
     SkillManager::Init(database);
     SchematicManager::Init(database);
-    
-    //the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client 
+
+    //the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client
     //it will have to be initialized in the tutorial, too
-    if(zoneId != 41)
+    if(zoneId != 41) {
         ResourceManager::Init(database,mZoneId);
-    else
-    {
+    } else {
         //by not assigning a db we force the resourcemanager to not load db data
         ResourceManager::Init(NULL,mZoneId);
     }
     TreasuryManager::Init(database);
     ConversationManager::Init(database);
     CraftingSessionFactory::Init(database);
-    if(zoneId != 41)
-        MissionManager::Init(database,mZoneId);
+    /*if(zoneId != 41)
+        MissionManager::Init(database,mZoneId);*/
 
     // register world script hooks
     _registerScriptHooks();
 
     // initiate loading of objects
-    if(mDebug)
-    {
-        gLogger->log(LogManager::INFORMATION,"World Manager Debug StartUp with culled items, npcs, resources and stuff");
-        mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCountDebug(%i);",mZoneId);
-        gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getZoneObjectCountDebug(%i);",mZoneId); // SQL Debug Log	
-    }
-    else
-        mDatabase->ExecuteSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_getZoneObjectCount(%i);",mZoneId); // SQL Debug Log	
+    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    
 
 #if defined(_MSC_VER)
     mNonPersistantId =   422212465065984;
@@ -227,7 +213,7 @@ void WorldManager::Shutdown()
     delete(mEntertainerScheduler);
     delete(mBuffScheduler);
 
-    
+
 
     // we need to destroy that after the (player) objects!
     // as the playerobjects try to remove the Objectcontroller scheduler and crash us if the scheduler isnt existent anymore
@@ -281,13 +267,11 @@ void WorldManager::Shutdown()
 #endif
         if (container)
         {
-            gLogger->log(LogManager::DEBUG,"WorldManager::Shutdown(): Deleting the Tutorial container");
             this->destroyObject(container);
-            gLogger->log(LogManager::INFORMATION,"WorldManager::Shutdown(): Delete done!");
         }
     }
 
-    // remove all cells and factories first so we dont get a racecondition with their content 
+    // remove all cells and factories first so we dont get a racecondition with their content
     // when clearing the mainObjectMap
     ObjectIDList::iterator itStruct = mStructureList.begin();
     while(itStruct != mStructureList.end())
@@ -308,9 +292,9 @@ void WorldManager::Shutdown()
     // finally delete them
     mQTRegionMap.clear();
     mObjectMap.clear();
-    
-    
-    
+
+
+
 }
 
 //======================================================================================================================
@@ -327,8 +311,7 @@ WorldManager::~WorldManager()
 void WorldManager::_loadBuildings()
 {
     WMAsyncContainer* asynContainer = new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_All_Buildings);
-    mDatabase->ExecuteSqlAsync(this,asynContainer,"SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT id FROM buildings WHERE planet_id = %u;",mZoneId); // SQL Debug Log	
+    mDatabase->executeSqlAsync(this,asynContainer,"SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
 }
 
 
@@ -362,12 +345,13 @@ RegionObject* WorldManager::getRegionById(uint64 regionId)
 {
     RegionMap::iterator it = mRegionMap.find(regionId);
 
-    if(it != mRegionMap.end())
+    if(it != mRegionMap.end()) {
         return((*it).second);
-    else
-        gLogger->log(LogManager::NOTICE,"Worldmanager::getRegionById: Could not find region %"PRIu64"",regionId);
+    } else {
+        LOG(WARNING) << "Could not find region [" << regionId << "]";
+    }
 
-    return(NULL);
+    return nullptr;
 }
 
 
@@ -387,19 +371,18 @@ uint64 WorldManager::GetCurrentGlobalTick()
 void WorldManager::LoadCurrentGlobalTick()
 {
     uint64 Tick;
-    DatabaseResult* temp = mDatabase->ExecuteSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
-    gLogger->log(LogManager::DEBUG, "SQL :: SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'"); // SQL Debug Log	
+    DatabaseResult* temp = mDatabase->executeSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
+   
 
-    DataBinding*	tickbinding = mDatabase->CreateDataBinding(1);
+    DataBinding*	tickbinding = mDatabase->createDataBinding(1);
     tickbinding->addField(DFT_uint64,0,8,0);
 
-    temp->GetNextRow(tickbinding,&Tick);
-    mDatabase->DestroyDataBinding(tickbinding);
-    mDatabase->DestroyResult(temp);
+    temp->getNextRow(tickbinding,&Tick);
+    mDatabase->destroyDataBinding(tickbinding);
+    mDatabase->destroyResult(temp);
 
-    char strtemp[100];
-    sprintf(strtemp, "Current Global Tick Count = %"PRIu64"",Tick);
-    gLogger->log(LogManager::INFORMATION,strtemp, FOREGROUND_GREEN);
+
+    LOG(INFO) << "Current global tick count [" << Tick << "]";
     mTick = Tick;
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
 }
@@ -522,7 +505,10 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
 
         switch(shuttle->getShuttleState())
         {
-            case ShuttleState_Away:
+        case ShuttleState_Away:
+        {
+            uint32 awayTime = shuttle->getAwayTime() + 1000;
+            if(awayTime >= shuttle->getAwayInterval())
             {
                 uint32 awayTime = shuttle->getAwayTime() + 1000;
                 if(awayTime >= shuttle->getAwayInterval())
@@ -530,63 +516,67 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
                     shuttle->states.setPosture(0);
                     shuttle->setAwayTime(0);
                     shuttle->setShuttleState(ShuttleState_AboutBoarding);
-
-                    gMessageLib->sendPostureUpdate(shuttle);
-                    gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
-                }
-                else
-                    shuttle->setAwayTime(awayTime);
+					gMessageLib->sendPostureUpdate(shuttle);
+					gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
+				}
             }
-            break;
+            else
+                shuttle->setAwayTime(awayTime);
+        }
+        break;
 
-            case ShuttleState_Landing:
+        case ShuttleState_Landing:
+        {
+            uint32 landingTime = shuttle->getLandingTime() + 1000;
+
+            if(landingTime >= SHUTTLE_LANDING_ANIMATION_TIME - 5000)
             {
-                uint32 landingTime = shuttle->getLandingTime() + 1000;
-
-                if(landingTime >= SHUTTLE_LANDING_ANIMATION_TIME - 5000)
-                {
-                    shuttle->setShuttleState(ShuttleState_AboutBoarding);
-                }
-                else
-                    shuttle->setLandingTime(landingTime);
+                shuttle->setShuttleState(ShuttleState_AboutBoarding);
             }
-            break;
+            else
+                shuttle->setLandingTime(landingTime);
+        }
+        break;
 
-            case ShuttleState_AboutBoarding:
+        case ShuttleState_AboutBoarding:
+        {
+            uint32 landingTime = shuttle->getLandingTime() + 1000;
+
+            if(landingTime >= SHUTTLE_LANDING_ANIMATION_TIME)
             {
-                uint32 landingTime = shuttle->getLandingTime() + 1000;
+                shuttle->setLandingTime(0);
 
-                if(landingTime >= SHUTTLE_LANDING_ANIMATION_TIME)
-                {
-                    shuttle->setLandingTime(0);
-
-                    shuttle->setShuttleState(ShuttleState_InPort);
-                }
-                else
-                    shuttle->setLandingTime(landingTime);
+                shuttle->setShuttleState(ShuttleState_InPort);
             }
-            break;
+            else
+                shuttle->setLandingTime(landingTime);
+        }
+        break;
 
-            case ShuttleState_InPort:
-            {
+        case ShuttleState_InPort:
+        {
+            uint32 inPortTime = shuttle->getInPortTime() + 1000;
+            if(inPortTime >= shuttle->getInPortInterval())
+			{
                 uint32 inPortTime = shuttle->getInPortTime() + 1000;
                 if(inPortTime >= shuttle->getInPortInterval())
                 {
                     shuttle->setInPortTime(0);
                     shuttle->setShuttleState(ShuttleState_Away);
                     shuttle->states.setPosture(2);
-
-                    gMessageLib->sendPostureUpdate(shuttle);
-                    gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
-                }
-                else
-                {
-                    shuttle->setInPortTime(inPortTime);
-                }
+	                gMessageLib->sendPostureUpdate(shuttle);
+				    gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
+				}
             }
-            break;
+            else
+            {
+                shuttle->setInPortTime(inPortTime);
+            }
+        }
+        break;
 
-            default:break;
+        default:
+            break;
         }
 
         ++shuttleIt;
@@ -594,8 +584,6 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
 
     return(true);
 }
-
-
 
 //======================================================================================================================
 //
@@ -634,7 +622,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
         CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
         if(!tool)
         {
-            gLogger->log(LogManager::DEBUG,"WorldManager::_handleCraftToolTimers missing crafting tool");
+            LOG(ERROR) << "Missing crafting tool";
             it = mBusyCraftTools.erase(it);
             continue;
         }
@@ -658,7 +646,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
                     gWorldManager->addObject(item,true);
 
                     gMessageLib->sendCreateTangible(item,player);
-                    
+
                     gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "prototype_transferred"), player);
 
                     tool->setCurrentItem(NULL);
@@ -669,12 +657,11 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
                 it = mBusyCraftTools.erase(it);
                 tool->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-                mDatabase->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId());
-                gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId()); // SQL Debug Log
+                mDatabase->executeSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId());
 
                 tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
-                gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);	
-                gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);	 // SQL Debug Log	
+                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+           
 
                 continue;
             }
@@ -683,8 +670,8 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
             tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
             //gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
-            gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);	
-            gLogger->log(LogManager::DEBUG, "SQL :: UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime); // SQL Debug Log	
+            gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+            
         }
 
         ++it;
@@ -803,8 +790,6 @@ void WorldManager::updateWeather(float cloudX,float cloudY,float cloudZ,uint32 w
 
 void WorldManager::addAdminRequest(uint64 requestId, uint64 when)
 {
-    gLogger->log(LogManager::NOTICE,"Adding admin request %d for schedule in %"PRIu64" minutes(s) and %"PRIu64" second(s)", requestId, when/60000, when % 60000);
-
     uint64 expireTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
     mAdminRequestHandlers.insert(std::make_pair(requestId, expireTime + when));
 
@@ -851,8 +836,6 @@ bool WorldManager::_handleAdminRequests(uint64 callTime, void* ref)
             }
             else
             {
-                gLogger->log(LogManager::DEBUG,"Removed expired handler for admin request %d", (*it).first);
-
                 // Requested to remove the handler.
                 mAdminRequestHandlers.erase(it++);
                 continue;
@@ -889,13 +872,13 @@ void WorldManager::_handleLoadComplete()
     gSchematicManager->releaseAllPoolsMemory();
     gSkillManager->releaseAllPoolsMemory();
 
-    
+
 
     // register script hooks
     _startWorldScripts();
 
-    gLogger->log(LogManager::NOTICE,"World load complete");
-            
+    LOG(INFO) << "World load complete";
+
     if(mZoneId != 41)
     {
         while(!gHeightmap->isReady())
@@ -916,14 +899,14 @@ void WorldManager::_handleLoadComplete()
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleRegionUpdate),2,2000,NULL);
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleCraftToolTimers),3,1000,NULL);
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleNpcConversionTimers),8,1000,NULL);
-    
+
     //is this really necessary ?
     //whenever someone creates something near us were updated on it anyway ... ?
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerMovementUpdateTimers),4,5000,NULL);
-    
+
     //save player
     setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 120000, NULL));
-    
+
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleVariousUpdates),7,1000, NULL);
@@ -1115,7 +1098,7 @@ uint64 WorldManager::addObjControllerToProcess(ObjectController* objController)
     if(objController->getObject()->getType() == ObjType_Player)
     {
         PlayerObject* player = dynamic_cast<PlayerObject*>(objController->getObject());
-        
+
         if ((player->getConnectionState() == PlayerConnState_LinkDead) || (player->getConnectionState() == PlayerConnState_Destroying))
             return 0;
     }
@@ -1249,7 +1232,7 @@ void WorldManager::_startWorldScripts()
 
         ++scriptIt;
     }
-    gLogger->log(LogManager::DEBUG,"Loaded world scripts.");
+    LOG(ERROR) << "Loaded world scripts";
 }
 
 //======================================================================================================================
@@ -1480,16 +1463,16 @@ void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 
         if(playerAccIt != mPlayerAccMap.end())
         {
-            gLogger->log(LogManager::INFORMATION,"Player left: %"PRIu64", Total Players on zone : %i",player->getId(),(getPlayerAccMap())->size() -1);
+            LOG(INFO) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
             mPlayerAccMap.erase(playerAccIt);
         }
         else
         {
-            gLogger->log(LogManager::WARNING,"WorldManager::destroyObject: error removing from playeraccmap : %u",player->getAccountId());
+            LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
         }
     }
     else
     {
-        gLogger->log(LogManager::WARNING,"Worldmanager","WorldManager::destroyObject: error removing from playeraccmap : %u",player->getAccountId());
+        LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
     }
 }

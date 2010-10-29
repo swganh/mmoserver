@@ -36,22 +36,22 @@ class QuadTree;
 
 class QTRegion : public RegionObject
 {
-	friend class QTRegionFactory;
+    friend class QTRegionFactory;
 
-	public:
+public:
 
-		QTRegion();
-		virtual ~QTRegion();
+    QTRegion();
+    virtual ~QTRegion();
 
-		void		initTree();
-		bool		checkPlayerPosition(float x, float y);
+    void		initTree();
+    bool		checkPlayerPosition(float x, float y);
 
-		QuadTree*	mTree;
+    QuadTree*	mTree;
 
-	private:
+private:
 
-		uint8		mQTDepth;
-		
+    uint8		mQTDepth;
+
 };
 
 //=============================================================================

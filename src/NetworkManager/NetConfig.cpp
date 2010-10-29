@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "NetConfig.h"
-#include "Common/LogManager.h"
+
 #include "Common/ConfigManager.h"
 
 //======================================================================================================================
@@ -36,19 +36,19 @@ NetConfig*		NetConfig::mSingleton = NULL;
 
 //======================================================================================================================
 
-NetConfig::NetConfig() 
+NetConfig::NetConfig()
 {
 
-	 //packet sizes
-	 mReliableSizeServerServer		= gConfig->read<uint16>("ReliablePacketSizeServerServer",1400);
-	 mUnReliableSizeServerServer	= gConfig->read<int>("UnReliablePacketSizeServerServer",1400);
+    //packet sizes
+    mReliableSizeServerServer		= gConfig->read<uint16>("ReliablePacketSizeServerServer",1400);
+    mUnReliableSizeServerServer	= gConfig->read<int>("UnReliablePacketSizeServerServer",1400);
 
-	 mReliableSizeServerClient		= gConfig->read<int>("ReliablePacketSizeServerClient",496);
-	 mUnReliableSizeServerClient	= gConfig->read<int>("UnReliablePacketSizeServerClient",496);
+    mReliableSizeServerClient		= gConfig->read<int>("ReliablePacketSizeServerClient",496);
+    mUnReliableSizeServerClient	= gConfig->read<int>("UnReliablePacketSizeServerClient",496);
 
-	 mServerPacketWindow			= gConfig->read<int>("ServerPacketWindowSize",800);
-	 mClientPacketWindow			= gConfig->read<int>("ClientPacketWindowSize",80);
-	 //mMaxBazaarListing = gConfig->read<int>("BazaarMaxListing",35);
+    mServerPacketWindow			= gConfig->read<int>("ServerPacketWindowSize",800);
+    mClientPacketWindow			= gConfig->read<int>("ClientPacketWindowSize",80);
+    //mMaxBazaarListing = gConfig->read<int>("BazaarMaxListing",35);
 
 }
 
@@ -57,22 +57,22 @@ NetConfig::NetConfig()
 
 NetConfig* NetConfig::Init()
 {
-	if(mInsFlag == false)
-	{
-		mSingleton = new NetConfig();
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(mInsFlag == false)
+    {
+        mSingleton = new NetConfig();
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //======================================================================================================================
 
 NetConfig::~NetConfig()
 {
-	mInsFlag = false;
-	//delete(mSingleton);
+    mInsFlag = false;
+    //delete(mSingleton);
 }
 
 //======================================================================================================================

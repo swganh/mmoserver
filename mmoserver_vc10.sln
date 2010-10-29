@@ -2,13 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "tests\Tests.vcxproj", "{E152B75F-A0EC-4470-93BC-B41C3F0A72A7}"
-	ProjectSection(ProjectDependencies) = postProject
-		{7F3F121F-E03F-458B-BE2E-4B3011906A93} = {7F3F121F-E03F-458B-BE2E-4B3011906A93}
-		{9154B629-1049-4795-95BD-915A71EC755B} = {9154B629-1049-4795-95BD-915A71EC755B}
-		{FC533E81-C227-43D3-B68E-4A23241DD997} = {FC533E81-C227-43D3-B68E-4A23241DD997}
-		{BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5} = {BAE6CEDD-4387-4FDD-A5B1-7F9C9D7F43A5}
-		{9DC0B5E2-28A7-497C-8EFB-35C1EFA0527B} = {9DC0B5E2-28A7-497C-8EFB-35C1EFA0527B}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Utils", "src\Utils\Utils.vcxproj", "{95A1522D-A200-4F0C-9E57-815EB370D181}"
 EndProject
@@ -44,6 +37,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoeProtocol", "src\SoeProtocol\SoeProtocol.vcxproj", "{AF964DB7-2FC4-4232-9EB2-E2F7BBEF390A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SwgProtocol", "src\SwgProtocol\SwgProtocol.vcxproj", "{0A2CF1BC-A4EB-4113-825B-9BDA52C00E1B}"
+<<<<<<< HEAD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{962844E1-5C08-450E-9D48-2707BBEF00E2}"
 	ProjectSection(SolutionItems) = preProject
@@ -51,6 +45,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		mmoserver_vc10.vsmdi = mmoserver_vc10.vsmdi
 		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
+=======
+>>>>>>> develop
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

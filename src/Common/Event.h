@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <functional>
 #include <memory>
 
-#include "Common/ByteBuffer.h"
+#include "Common/byte_buffer.h"
 #include "Common/HashString.h"
 #include "Common/declspec.h"
 
@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  * classes used for maintaining application lifetimes.
  */
 namespace common {
-    
+
 // Use a HashString as the basis for EventType's.
 typedef HashString EventType;
 typedef uint64_t EventSubject;
@@ -53,8 +53,8 @@ typedef std::shared_ptr<IEvent> IEventPtr;
  * one or more listeners. The IEvent defines a common interface for all events.
  */
 class IEvent {
-public:  
-    /*! \returns The type of this event.     
+public:
+    /*! \returns The type of this event.
      * \see EventType
      */
     virtual const EventType& event_type() const = 0;
@@ -117,7 +117,7 @@ public:
 
     EventSubject subject() const;
     void subject(EventSubject subject);
-    
+
     EventPriority priority() const;
     void priority(EventPriority priority);
 
@@ -129,10 +129,10 @@ public:
 
     IEventPtr next() const;
     void next(IEventPtr next);
-    
+
     void serialize(ByteBuffer& out) const;
     void deserialize(ByteBuffer& in);
-    
+
     void consume(bool handled) const;
 
 protected:
@@ -145,7 +145,7 @@ private:
     EventPriority priority_;
     uint64_t timestamp_;
     uint64_t delay_ms_;
-    
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)
@@ -160,8 +160,8 @@ private:
 };
 
 
-/*! \brief This is an event that can be used to trigger off trivial events, in 
- * particular events that don't have any data related to them. 
+/*! \brief This is an event that can be used to trigger off trivial events, in
+ * particular events that don't have any data related to them.
  *
  * \code
  * using ::common::SimpleEvent;
@@ -171,16 +171,16 @@ private:
  *
  * ... // Some callback code to execute at the end of the event.
  *
- * }); 
- * 
+ * });
+ *
  * event_dispatcher.Notify(some_event);
  * \endcode
  */
 class COMMON_API SimpleEvent : public BaseEvent {
 public:
-    explicit SimpleEvent(::common::EventType& event_type, uint64_t subject_id = 0, uint64_t delay_ms = 0);
-    SimpleEvent(::common::EventType& event_type, uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
-    
+    explicit SimpleEvent(const common::EventType& event_type, uint64_t subject_id = 0, uint64_t delay_ms = 0);
+    SimpleEvent(const common::EventType& event_type, uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+
     ~SimpleEvent();
 
     const ::common::EventType& event_type() const;

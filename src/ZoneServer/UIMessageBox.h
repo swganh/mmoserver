@@ -37,21 +37,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UIMessageBox : public UIWindow
 {
-	public:
+public:
 
-		UIMessageBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType = SUI_MB_OK, void* container = NULL);
-		virtual ~UIMessageBox();
+    UIMessageBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType = SUI_MB_OK, void* container = nullptr);
+    virtual ~UIMessageBox();
 
-		virtual void	handleEvent(Message* message);
-		void			sendCreate();
+    virtual void	handleEvent(Message* message);
+    void			sendCreate();
 
-	protected:
+protected:
 
-		void	_initChildren();
+    void	_initChildren();
 
-		BString		mCaption;
-		BString		mText;
-		uint8		mMBType;
+    BString		mCaption;
+    BString		mText;
+    uint8		mMBType;
 
 };
 

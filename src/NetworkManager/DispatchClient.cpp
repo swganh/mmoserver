@@ -35,20 +35,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void DispatchClient::SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority)
 {
-	message->setRouted(true);
-	message->setAccountId(accountId);
-	message->setDestinationId(serverId);
-	NetworkClient::SendChannelA(message, priority, false);
-	
+    message->setRouted(true);
+    message->setAccountId(accountId);
+    message->setDestinationId(serverId);
+    NetworkClient::SendChannelA(message, priority, false);
+
 
 }
 
 void DispatchClient::SendChannelAUnreliable(Message* message, uint32 accountId, uint8 serverId, uint8 priority)
 {
-	message->setRouted(true);
-	message->setAccountId(accountId);
-	message->setDestinationId(serverId);
-	NetworkClient::SendChannelAUnreliable(message, priority);
+    message->setRouted(true);
+    message->setAccountId(accountId);
+    message->setDestinationId(serverId);
+    NetworkClient::SendChannelAUnreliable(message, priority);
 }
 
 //======================================================================================================================

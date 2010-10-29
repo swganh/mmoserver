@@ -34,17 +34,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Wearable : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		Wearable();
-		virtual ~Wearable();
-		BString	getAuctionDetails();
+    Wearable();
+    virtual ~Wearable();
+    BString	getAuctionDetails();
 
-		void	sendAttributes(PlayerObject* playerObject);
+    void	sendAttributes(PlayerObject* playerObject);
 
-	private:
+private:
 };
 
 //=============================================================================

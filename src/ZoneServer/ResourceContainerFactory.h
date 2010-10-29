@@ -44,37 +44,39 @@ class ResourceContainer;
 
 enum RCFQuery
 {
-	RCFQuery_MainData	= 1,
-	RCFQuery_Attributes	= 2
+    RCFQuery_MainData	= 1,
+    RCFQuery_Attributes	= 2
 };
 
 //=============================================================================
 
 class ResourceContainerFactory : public FactoryBase
 {
-	public:
+public:
 
-		static ResourceContainerFactory*	getSingletonPtr() { return mSingleton; }
-		static ResourceContainerFactory*	Init(Database* database);
+    static ResourceContainerFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static ResourceContainerFactory*	Init(Database* database);
 
-		~ResourceContainerFactory();
+    ~ResourceContainerFactory();
 
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-	private:
+private:
 
-		ResourceContainerFactory(Database* database);
+    ResourceContainerFactory(Database* database);
 
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-		ResourceContainer*	_createResourceContainer(DatabaseResult* result);
+    ResourceContainer*	_createResourceContainer(DatabaseResult* result);
 
-		static ResourceContainerFactory*	mSingleton;
-		static bool						mInsFlag;
+    static ResourceContainerFactory*	mSingleton;
+    static bool						mInsFlag;
 
-		DataBinding*						mResourceContainerBinding;
+    DataBinding*						mResourceContainerBinding;
 };
 
 //=============================================================================

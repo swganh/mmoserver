@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#include "NetworkManager/MessageFactory.h"
 //#include "NetworkManager/Message.h"
 //#include "MessageLib/MessageLib.h"
-//#include "Common/LogManager.h"
+//
 
 
 //=============================================================================================================================
@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleSampleDNA(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 

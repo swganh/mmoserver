@@ -42,43 +42,51 @@ class ChatAvatarId
 {
 public:
 
-	ChatAvatarId(){};
-	~ChatAvatarId(){};
+    ChatAvatarId() {};
+    ~ChatAvatarId() {};
 
-	BString			getGalaxy() { return mGalaxy; }
-	void			setGalaxy(const BString name) { mGalaxy = name; }
+    BString			getGalaxy() {
+        return mGalaxy;
+    }
+    void			setGalaxy(const BString name) {
+        mGalaxy = name;
+    }
 
-	Player*			getPlayer() { return mPlayer; }
-	void			setPlayer(Player* player);
-	void			setPlayer(const BString player);
+    Player*			getPlayer() {
+        return mPlayer;
+    }
+    void			setPlayer(Player* player);
+    void			setPlayer(const BString player);
 
-	virtual BString	getLoweredName() { return mName; }
+    virtual BString	getLoweredName() {
+        return mName;
+    }
 
-	BString	getPath();
+    BString	getPath();
 
 protected:
-	BString		mGalaxy;
-	BString		mName;
-	Player*		mPlayer;
+    BString		mGalaxy;
+    BString		mName;
+    Player*		mPlayer;
 };
 
 //======================================================================================================================
 
 class ChatSystemAvatar : public ChatAvatarId
 {
-public: 
+public:
 
-	~ChatSystemAvatar(){}
-	static ChatSystemAvatar* GetSingleton();
+    ~ChatSystemAvatar() {}
+    static ChatSystemAvatar* GetSingleton();
 
-	BString getLoweredName();
+    BString getLoweredName();
 
 private:
 
-	ChatSystemAvatar() : ChatAvatarId() {};
+    ChatSystemAvatar() : ChatAvatarId() {};
 
-	static bool					mInsFlag;
-	static ChatSystemAvatar*	mSingleton;
+    static bool					mInsFlag;
+    static ChatSystemAvatar*	mSingleton;
 };
 
 #endif

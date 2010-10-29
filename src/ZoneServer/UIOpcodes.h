@@ -31,12 +31,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum ui_opcodes
 {
-	opSuiCreatePageMessage				=	0xd44b7259,
-	opSuiEventNotification				=	0x092d3564,
-	opSuiForceClosePage					=	0x990b5de0,
-	opSuiUpdatePageMessage				=	0x5f3342f6,
-	opSuiSetProperty					=	0xe275798f,
-	opSuiClosedOk						=	0xe00cddba
+    opSuiCreatePageMessage				=	0xd44b7259,
+    opSuiEventNotification				=	0x092d3564,
+    opSuiForceClosePage					=	0x990b5de0,
+    opSuiUpdatePageMessage				=	0x5f3342f6,
+    opSuiSetProperty					=	0xe275798f,
+    opSuiClosedOk						=	0xe00cddba
 };
 
 #endif

@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AttackableStaticNpc.h"
 #include "Buff.h"
 #include "BuildingObject.h"
-//#include "Datapad.h"
 #include "EntertainerManager.h"
 #include "IncapRecoveryEvent.h"
 #include "PlayerObject.h"
@@ -120,7 +119,6 @@ CreatureObject::CreatureObject()
     registerEventFunction(this,&CreatureObject::onIncapRecovery);
 
     // register new event listeners
-    
 }
 
 //=============================================================================
@@ -357,7 +355,7 @@ bool CreatureObject::removeSkill(Skill* skill)
             mSkills.erase(skillIt);
             return(true);
         }
-            ++skillIt;
+        ++skillIt;
     }
 
     return(false);
@@ -528,7 +526,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
         if(player != 0)
         {
             //gMessageLib->sendSystemMessage(player, "You appear to have attempted to stack Buffs. The server has prevented this");
-            gLogger->log(LogManager::DEBUG,"Attempt to duplicate buffs prevented.");
+            DLOG(INFO) << "Attempt to duplicate buffs prevented.";
         }
         SAFE_DELETE(buff);
         return;
@@ -556,15 +554,15 @@ int CreatureObject::GetNoOfBuffs()
     BuffList::iterator it = mBuffList.begin();
     while(*it != *mBuffList.end())
     {
-        No++;it++;
+    	No++;it++;
     }
     return No;*/
     return mBuffList.size();
     /*if(*mBuffList.end())
     {
-        return 1 + ((*mBuffList.end()) - (*mBuffList.begin()));
+    	return 1 + ((*mBuffList.end()) - (*mBuffList.begin()));
     } else {
-        return 0;
+    	return 0;
     }*/
 }
 void CreatureObject::RemoveBuff(Buff* buff)
@@ -581,6 +579,7 @@ void CreatureObject::RemoveBuff(Buff* buff)
 
     //Perform any Final changes
     buff->FinalChanges();
+    buff->MarkForDeletion();
 }
 
 //================================================
@@ -621,18 +620,39 @@ void CreatureObject::updateRaceGenderMask(bool female)
     // set race flag
     switch(mRaceId)
     {
-        case 0:		mRaceGenderMask |= 0x4;		break;
-        case 1:		mRaceGenderMask |= 0x8;		break;
-        case 2:		mRaceGenderMask |= 0x10;	break;
-        case 3:		mRaceGenderMask |= 0x20;	break;
-        case 4:		mRaceGenderMask |= 0x40;	break;
-        case 5:		mRaceGenderMask |= 0x80;	break;
-        case 6:		mRaceGenderMask |= 0x100;	break;
-        case 7:		mRaceGenderMask |= 0x200;	break;
-        case 33:	mRaceGenderMask |= 0x400;	break;
-        case 49:	mRaceGenderMask |= 0x800;	break;
+    case 0:
+        mRaceGenderMask |= 0x4;
+        break;
+    case 1:
+        mRaceGenderMask |= 0x8;
+        break;
+    case 2:
+        mRaceGenderMask |= 0x10;
+        break;
+    case 3:
+        mRaceGenderMask |= 0x20;
+        break;
+    case 4:
+        mRaceGenderMask |= 0x40;
+        break;
+    case 5:
+        mRaceGenderMask |= 0x80;
+        break;
+    case 6:
+        mRaceGenderMask |= 0x100;
+        break;
+    case 7:
+        mRaceGenderMask |= 0x200;
+        break;
+    case 33:
+        mRaceGenderMask |= 0x400;
+        break;
+    case 49:
+        mRaceGenderMask |= 0x800;
+        break;
 
-        default: break;
+    default:
+        break;
     }
 
     // set gender flag
@@ -708,8 +728,7 @@ void CreatureObject::incap()
         {
             player->disableAutoAttack();
         }
-
-        //See if our player is mounted -- if so dismount him 
+        //See if our player is mounted -- if so dismount him
         if(player->checkIfMounted())
         {
             //Get the player's mount
@@ -735,6 +754,9 @@ void CreatureObject::incap()
 
             // schedule recovery event
             mObjectController.addEvent(new IncapRecoveryEvent(),mCurrentIncapTime);
+
+            // reset states
+            mState = 0;
 
             // reset ham regeneration
             mHam.updateRegenRates();
@@ -763,7 +785,7 @@ void CreatureObject::incap()
     }
     else
     {
-        gLogger->log(LogManager::NOTICE,"CreatureObject::incap Incapped unsupported type %u\n", this->getType());
+        LOG(INFO) << "CreatureObject::incap Incapped unsupported type " <<  this->getType();
     }
 
 }
@@ -901,7 +923,7 @@ void CreatureObject::die()
         }
         else
         {
-            gLogger->log(LogManager::DEBUG,"No cloning facility available\n");
+            DLOG(INFO) << "No cloning facility available ";
         }
     }
     else // if(CreatureObject* creature = dynamic_cast<CreatureObject*>(this))
@@ -1068,22 +1090,7 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
     }
     else
     {
-        /*
-        // Looks like we have to add the defender to the top of list.
-        CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
-        if (defenderId && defender && !defender->isDead() && !defender->isIncapacitated())
-        {
-            mDefenders.push_front(defenderId);
-            gMessageLib->sendDefenderUpdate(this,1,0,defenderId);
-            valid = true;
-        }
-        else
-        {
-            // We have lost our target.
-            // Refresh list to get around targeting rectile problems with corpse
-            // gMessageLib->sendNewDefenderList(this);
-        }
-        */
+        
     }
     return valid;
 }
@@ -1188,7 +1195,7 @@ void CreatureObject::buildCustomization(uint16 customization[])
     uint8 elementCount = 0;
 
     // get absolute bytecount(1 byte index + value)
-    for(uint8 i = 1;i < len;i++)
+    for(uint8 i = 1; i < len; i++)
     {
         if((customization[i] != 0))
         {
@@ -1213,7 +1220,7 @@ void CreatureObject::buildCustomization(uint16 customization[])
         byteCount += 1;
         elementCount++;
 
-        for(uint8 i = 171;i < 173;i++)
+        for(uint8 i = 171; i < 173; i++)
         {
             if(customization[i] == 0)
                 customization[i] = 511;
@@ -1239,7 +1246,7 @@ void CreatureObject::buildCustomization(uint16 customization[])
         playerCustomization[j] = 171;
         j += 1;
 
-        for(uint8 i = 171;i < 173;i++)
+        for(uint8 i = 171; i < 173; i++)
         {
             if((customization[i] < 255)&(customization[i] > 0))
             {
@@ -1259,7 +1266,7 @@ void CreatureObject::buildCustomization(uint16 customization[])
 
 
     // fill our string
-    for(uint8 i = 1;i < len;i++)
+    for(uint8 i = 1; i < len; i++)
     {
         if((customization[i] != 0))
         {
@@ -1320,7 +1327,6 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
     }
     else
     {
-        gLogger->log(LogManager::NOTICE,"Defender is of unknown type...");
         return;
     }
 
@@ -1412,8 +1418,8 @@ Object* CreatureObject::getTarget() const
 //handles building custom radials
 void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
- 
-return;
+
+    return;
 }
 
 //=============================================================================

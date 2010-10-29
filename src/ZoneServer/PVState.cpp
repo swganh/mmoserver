@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 
 PVState::PVState(ObjectController* controller)
-: ProcessValidator(controller)
+    : ProcessValidator(controller)
 {}
 
 PVState::~PVState()
@@ -39,7 +39,7 @@ PVState::~PVState()
 
 bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties)
 {
-     CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
 
     // if this command doesn't require state checks skip it, otherwise check our states
     if(creature && cmdProperties && (cmdProperties->mStates != 0) && (creature->states.getAction() & cmdProperties->mStates) != 0)
@@ -56,7 +56,6 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 			reply2 = mController->getLocoValidator(creature->states.getLocomotion());
 			return false;
 		}
-
     }
     return true;
 }

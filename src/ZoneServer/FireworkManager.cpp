@@ -41,22 +41,22 @@ FireworkManager*	FireworkManager::mSingleton = NULL;
 class FireworkEvent
 {
 public:
-	TangibleObject* firework;
-	uint64 timeFired; //Time the firework was fired.
-	bool playerToldToStand;
-	PlayerObject* player; //Person who fired the Firework
+    TangibleObject* firework;
+    uint64 timeFired; //Time the firework was fired.
+    bool playerToldToStand;
+    PlayerObject* player; //Person who fired the Firework
 };
 
 FireworkManager::~FireworkManager(void)
 {
-	std::list<FireworkEvent*>::iterator it=fireworkEvents.begin();
-	std::list<FireworkEvent*>::iterator fEnd = fireworkEvents.end();
-	while( it != fEnd)
-	{
-		if(*it)
-			delete *it;
-		it = fireworkEvents.erase(it);
-	}
+    std::list<FireworkEvent*>::iterator it=fireworkEvents.begin();
+    std::list<FireworkEvent*>::iterator fEnd = fireworkEvents.end();
+    while( it != fEnd)
+    {
+        if(*it)
+            delete *it;
+        it = fireworkEvents.erase(it);
+    }
 }
 
 //===============================================================================00
@@ -64,83 +64,82 @@ FireworkManager::~FireworkManager(void)
 //
 TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* player, const glm::vec3& position)
 {
-	if(!player) return NULL;
+    if(!player) return NULL;
 
 	if(player->states.checkState(CreatureState_Swimming))
 	{
 		//use the system message from suveying as we don't have an appropriate one especiially for this
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), player);
-		return NULL;
-	}
+        return NULL;
+    }
 
-	//this is by definition a nonpersistant object - so move it there 
-	TangibleObject* firework = new TangibleObject();
-	firework->setTangibleGroup(TanGroup_Static);
-	//firework->setTangibleType();
+    //this is by definition a nonpersistant object - so move it there
+    TangibleObject* firework = new TangibleObject();
+    firework->setTangibleGroup(TanGroup_Static);
+    //firework->setTangibleType();
 
-	//Make the Player Sit
-	player->setCrouched();
+    //Make the Player Sit
+    player->setCrouched();
 
     // Place the firework 1m in front of the player at the same heading.
-	firework->mDirection = player->mDirection;
+    firework->mDirection = player->mDirection;
 
     firework->mPosition = player->mPosition;
     firework->moveForward(1);
 
-	firework->setId(gWorldManager->getRandomNpId());
+    firework->setId(gWorldManager->getRandomNpId());
 
-	switch(typeId)
-	{
-	case ItemType_Firework_Type_1: 
-		firework->setModelString("object/static/firework/shared_fx_01.iff");
-		break;
-	case ItemType_Firework_Type_2:
-		firework->setModelString("object/static/firework/shared_fx_02.iff");
-		break;
-	case ItemType_Firework_Type_3: 
-		firework->setModelString("object/static/firework/shared_fx_03.iff");
-		break;
-	case ItemType_Firework_Type_4: 
-		firework->setModelString("object/static/firework/shared_fx_04.iff");
-		break;
-	case ItemType_Firework_Type_5: 
-		firework->setModelString("object/static/firework/shared_fx_05.iff");
-		break;
-	case ItemType_Firework_Type_10: 
-		firework->setModelString("object/static/firework/shared_fx_10.iff");
-		break;
-	case ItemType_Firework_Type_11: 
-		firework->setModelString("object/static/firework/shared_fx_11.iff");
-		break;
-	case ItemType_Firework_Type_18: 
-		firework->setModelString("object/static/firework/shared_fx_18.iff");
-		break;
-	case ItemType_Firework_Show: 
-		firework->setModelString("object/static/firework/shared_show_launcher.iff");
-		break;
+    switch(typeId)
+    {
+    case ItemType_Firework_Type_1:
+        firework->setModelString("object/static/firework/shared_fx_01.iff");
+        break;
+    case ItemType_Firework_Type_2:
+        firework->setModelString("object/static/firework/shared_fx_02.iff");
+        break;
+    case ItemType_Firework_Type_3:
+        firework->setModelString("object/static/firework/shared_fx_03.iff");
+        break;
+    case ItemType_Firework_Type_4:
+        firework->setModelString("object/static/firework/shared_fx_04.iff");
+        break;
+    case ItemType_Firework_Type_5:
+        firework->setModelString("object/static/firework/shared_fx_05.iff");
+        break;
+    case ItemType_Firework_Type_10:
+        firework->setModelString("object/static/firework/shared_fx_10.iff");
+        break;
+    case ItemType_Firework_Type_11:
+        firework->setModelString("object/static/firework/shared_fx_11.iff");
+        break;
+    case ItemType_Firework_Type_18:
+        firework->setModelString("object/static/firework/shared_fx_18.iff");
+        break;
+    case ItemType_Firework_Show:
+        firework->setModelString("object/static/firework/shared_show_launcher.iff");
+        break;
 
-	default:
-		{
-			gLogger->log(LogManager::NOTICE,"Error creating firework, type:%u", typeId);
-			return NULL;
-		}
-	}
+    default:
+    {
+        return NULL;
+    }
+    }
 
-	//add it to the world!!!
-	gWorldManager->addObject(firework);
-	gWorldManager->createObjectinWorld(player,firework);
-	
-	FireworkEvent* fevent = new FireworkEvent;
+    //add it to the world!!!
+    gWorldManager->addObject(firework);
+    gWorldManager->createObjectinWorld(player,firework);
 
-	//Setup the Manager Class
-	fevent->firework = firework;
-	fevent->player = player;
-	fevent->playerToldToStand = false;
-	fevent->timeFired = gWorldManager->GetCurrentGlobalTick();
+    FireworkEvent* fevent = new FireworkEvent;
 
-	this->fireworkEvents.push_back(fevent);
+    //Setup the Manager Class
+    fevent->firework = firework;
+    fevent->player = player;
+    fevent->playerToldToStand = false;
+    fevent->timeFired = gWorldManager->GetCurrentGlobalTick();
 
-	return firework;
+    this->fireworkEvents.push_back(fevent);
+
+    return firework;
 }
 
 void FireworkManager::Process()
@@ -175,5 +174,4 @@ void FireworkManager::Process()
 			++it;
 		}
 	}
-
 }

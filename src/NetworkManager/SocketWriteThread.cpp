@@ -27,13 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SocketWriteThread.h"
 
+#include <glog/logging.h>
+
 #include "CompCryptor.h"
 #include "NetConfig.h"
 #include "Packet.h"
 #include "Service.h"
 #include "Session.h"
 
-#include "Common/LogManager.h"
+
 
 #include "Utils/rand.h"
 
@@ -46,11 +48,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #if defined(_MSC_VER)
-    #ifndef _WINSOCK2API_
+#ifndef _WINSOCK2API_
 #include <WINSOCK2.h>
 #undef errno
 #define errno WSAGetLastError()
-    #endif
+#endif
 #else
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -66,10 +68,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 
 SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serverservice) :
-mService(0),
-mCompCryptor(0),
-mSocket(0),
-mIsRunning(false)
+    mService(0),
+    mCompCryptor(0),
+    mSocket(0),
+    mIsRunning(false)
 {
     mSocket = socket;
     mService = service;
@@ -99,22 +101,23 @@ mIsRunning(false)
 
     mThread = boost::move(t);
 
+#ifdef _WIN32
     HANDLE mtheHandle = mThread.native_handle();
-    SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);	
+    SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);
+#endif
 
-    
 
     //our thread load values
     //mThreadTime = mLastThreadTime = 0;
     mLastTime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
     //lastThreadProcessingTime = threadProcessingTime = 0;
-    
+
     unCount = 	reCount = 0;
 }
 
 SocketWriteThread::~SocketWriteThread()
 {
-    gLogger->log(LogManager::INFORMATION, "Socket Write Thread Ended.");
+    LOG(INFO) << "Socket Write Thread Ended.";
 
     // shutdown our thread
     mExit = true;
@@ -135,12 +138,12 @@ void SocketWriteThread::run()
 
     // Call our internal _startup method
     _startup();
-    
+
     uint32 packets = 50;
     if(mServerService)
         packets = 1000;
 
-    
+
     // Main loop
     while(!mExit)
     {
@@ -167,18 +170,19 @@ void SocketWriteThread::run()
                 if(packetCount > packets)
                     break;
 
+                LOG(INFO) << "Reliable packet sent";
                 packet = session->getOutgoingReliablePacket();
                 _sendPacket(packet, session);
             }
 
 
             packetCount = 0;
-            
+
             // Send any outgoing unreliable packets
             //uint32 ucount = 0;
             while (session->getOutgoingUnreliablePacketCount())
             {
-                
+                LOG(INFO) << "Unreliable packet sent";
                 packet = session->getOutgoingUnreliablePacket();
                 _sendPacket(packet, session);
                 session->DestroyPacket(packet);
@@ -192,13 +196,13 @@ void SocketWriteThread::run()
             }
             else
             {
-                gLogger->log(LogManager::DEBUG, "Socket Write Thread: Destroy Session");
-                
+                DLOG(INFO) << "Socket Write Thread: Destroy Session";
+
                 session->setStatus(SSTAT_Destroy);
                 mService->AddSessionToProcessQueue(session);
             }
         }
-    
+
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
     }
@@ -232,12 +236,12 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
     uint32              sent, toLen = sizeof(toAddr), outLen;
 
 
-  // Going to simulate network packet loss here.
-  //seed_rand_mwc1616(gClock->getLocalTime());
-  //if (rand_mwc1616() < 0xffffffff / 5)  // 20%
-  //{
+    // Going to simulate network packet loss here.
+    //seed_rand_mwc1616(gClock->getLocalTime());
+    //if (rand_mwc1616() < 0xffffffff / 5)  // 20%
+    //{
     //return;
-  //}
+    //}
 
     packet->setReadIndex(0);
     uint16 packetType = packet->getUint16();
@@ -285,11 +289,11 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
         // else a 0 - so no compression
         else
         {
-          memcpy(mSendBuffer, packet->getData(), packet->getSize());
-          outLen = packet->getSize();
+            memcpy(mSendBuffer, packet->getData(), packet->getSize());
+            outLen = packet->getSize();
 
-          mSendBuffer[outLen] = 0;
-          outLen += 1;
+            mSendBuffer[outLen] = 0;
+            outLen += 1;
         }
     }
     else if(packetType == SESSIONOP_SessionResponse || packetType == SESSIONOP_CriticalError)
@@ -326,11 +330,12 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
         outLen += 2;
     }
 
+    LOG(INFO) << "Sending message to " << session->getAddressString() << " on port " << ntohs(session->getPort());
     sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 
     if (sent < 0)
     {
-        gLogger->log(LogManager::ALERT, "Unkown Error from socket sendto: %u", errno);
+        LOG(WARNING) << "Unkown Error from socket sendto: " << errno;
     }
 }
 

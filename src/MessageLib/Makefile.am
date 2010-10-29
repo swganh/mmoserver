@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -I$(top_srcdir)/src $(SWGANH_CXXFLAGS) $(BOOST_CPPFLAGS)
+AM_CXXFLAGS = -I$(top_srcdir)/src $(BOOST_CPPFLAGS) @AM_CXXFLAGS@
   
 # MessageLib library - noinstall shared library
 noinst_LTLIBRARIES = libmessagelib.la
@@ -6,6 +6,7 @@ libmessagelib_la_SOURCES = \
 	BuildingMessages.cpp \
 	CommonMessages.cpp \
 	CreatureMessages.cpp \
+	FactoryCrateMessages.cpp \
 	HarvesterMessages.cpp \
 	IntangibleMessages.cpp \
 	InternalMessages.cpp \
@@ -20,5 +21,3 @@ libmessagelib_la_SOURCES = \
 	SystemMessages.cpp \
 	TangibleMessages.cpp
 	
-libmessagelib_la_CPPFLAGS = -I$(top_srcdir)/deps/spatialindex/include -I$(top_srcdir)/deps/spatialindex/tools/include -I$(top_srcdir)/deps/noise/src -Wall -pedantic-errors -Wfatal-errors -fshort-wchar 
-libmessagelib_la_LIBADD = ../Utils/libutils.la

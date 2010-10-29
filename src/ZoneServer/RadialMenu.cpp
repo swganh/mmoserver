@@ -37,20 +37,20 @@ RadialMenu::RadialMenu()
 
 RadialMenu::~RadialMenu()
 {
-	RadialItemList::iterator it = mItemList.begin();
-	while(it != mItemList.end())
-	{
-		delete(*it);
-		mItemList.erase(it);
-		it = mItemList.begin();
-	}
+    RadialItemList::iterator it = mItemList.begin();
+    while(it != mItemList.end())
+    {
+        delete(*it);
+        mItemList.erase(it);
+        it = mItemList.begin();
+    }
 }
 
 //=======================================================================
 
 void RadialMenu::addItem(uint8 index,uint8 parentItem,RadialIdentifier identifier,uint8 action,const int8* description)
 {
-	mItemList.push_back(new RadialMenuItem(index,parentItem,identifier,action,description));
+    mItemList.push_back(new RadialMenuItem(index,parentItem,identifier,action,description));
 }
 
 //=======================================================================

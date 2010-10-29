@@ -33,7 +33,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
@@ -49,22 +54,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class AdminRequestObject
 {
-    public:
-        AdminRequestObject(uint64 adminRequestType, BString reason, int32 timeToLive) :
-            mAdminRequestType(adminRequestType),
-            mReason(reason),
-            mTimeToLive(timeToLive){ }
+public:
+    AdminRequestObject(uint64 adminRequestType, BString reason, int32 timeToLive) :
+        mAdminRequestType(adminRequestType),
+        mReason(reason),
+        mTimeToLive(timeToLive) { }
 
-        ~AdminRequestObject()
-        {
-        }
+    ~AdminRequestObject()
+    {
+    }
 
-        uint64 mAdminRequestType;
-        BString mReason;
-        int32 mTimeToLive;
+    uint64 mAdminRequestType;
+    BString mReason;
+    int32 mTimeToLive;
 
-    private:
-        AdminRequestObject();
+private:
+    AdminRequestObject();
 };
 
 
@@ -108,9 +113,9 @@ AdminManager::AdminManager()
 //
 
 AdminManager::AdminManager(MessageDispatch* messageDispatch) :
-                            mMessageDispatch(messageDispatch),
-                            mPendingShutdown(false),
-                            mTerminateServer(false)
+    mMessageDispatch(messageDispatch),
+    mPendingShutdown(false),
+    mTerminateServer(false)
 
 {
     this->registerCallbacks();
@@ -200,7 +205,7 @@ void AdminManager::addAdminRequest(uint64 requestType, BString message, int32 tt
     {
         if (timeToFirstEvent > 0)
         {
-            gLogger->log(LogManager::WARNING,"Admin Manager: You have to wait %d seconds until first announcement", timeToFirstEvent);
+            LOG(WARNING) << "Admin Manager: You have to wait %d seconds until first announcement" << timeToFirstEvent;
         }
         mAdminRequests.insert(std::make_pair(requestType, requestObject));
         gWorldManager->addAdminRequest(requestType, (uint64)(timeToFirstEvent * 1000));
@@ -303,9 +308,9 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
 
             if (optReason.getLength())
             {
-                gLogger->log(LogManager::CRITICAL,optReason.getAnsi());
+                LOG(WARNING) << optReason.getAnsi();
             }
-            gLogger->log(LogManager::CRITICAL,broadcast.getAnsi());
+            LOG(WARNING) << broadcast.getAnsi();
 
             // For logging, we need ansi versions.
             BString logOptReason(optReason);
@@ -325,7 +330,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
                     {
                         gMessageLib->SendSystemMessage(optReason.getUnicode16(), player);
                     }
-                    
+
                     gMessageLib->SendSystemMessage(broadcast.getUnicode16(), player);
                 }
                 ++it;
@@ -367,7 +372,8 @@ void AdminManager::_processScheduleShutdown(Message* message, DispatchClient* cl
     msg.setType(BSTRType_Unicode16);
     msg.setLength(512);
 
-    /* uint32 opCode = */message->getUint32();
+    /* uint32 opCode = */
+    message->getUint32();
     uint32 scheduledTime = message->getUint32();
     message->getStringUnicode16(msg);
 
@@ -383,8 +389,10 @@ void AdminManager::_processCancelScheduledShutdown(Message* message, DispatchCli
     msg.setType(BSTRType_Unicode16);
     msg.setLength(512);
 
-    /* uint32 opCode = */message->getUint32();
-    /* uint32 option = */message->getUint32();
+    /* uint32 opCode = */
+    message->getUint32();
+    /* uint32 option = */
+    message->getUint32();
     message->getStringUnicode16(msg);
 
     msg.convert(BSTRType_ANSI);

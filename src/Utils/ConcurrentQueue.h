@@ -28,14 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_UTILS_CONCURRENTQUEUE_H_
 #define SRC_UTILS_CONCURRENTQUEUE_H_
 
-// The atomics library is part of the upcoming c++0x standard, until that is available
-// in the vendor library we need to use the boost spec version. This generates a few
-// warnings in vs2010 at this point in time so mute them as they aren't hurting anything.
-#pragma warning(disable:4800)
-#pragma warning(disable:4244)
-#include <boost/atomic.hpp>
-#pragma warning(default:4244)
-#pragma warning(default:4800)
+#include <tbb/atomic.h>
 
 // @todo Need a way to programatically determine the cache line size for a given environment
 // for now 64 will do for all environments we currently support.
@@ -46,7 +39,7 @@ namespace utils {
 /**
  * ConcurrentQueue is a multi-producer, multi-consumer queue intended for use across multiple threads.
  *
- * This code is an implementation of a design discussed in a series of concept articles by Herb Sutter 
+ * This code is an implementation of a design discussed in a series of concept articles by Herb Sutter
  * on developing a concurrent queue that uses light weight spin-locks at the head and tail of the queue
  * to keep it concurrent without resulting to context switching.
  *
@@ -84,25 +77,25 @@ public:
         Node* tmp = new Node(new T(t));
 
         // Spin-lock until exclusivity is acquired
-        while (producer_lock_.exchange(true)) {}
+        while (producer_lock_.fetch_and_store(true)) {}
 
         last_->next = tmp;
         last_ = tmp;
 
         producer_lock_ = false;
     }
-    
+
     /**
      * Pops an item off the front of the queue.
      *
      * Pops an item off the front of the queue and copies it into the container passed in.
-     * 
+     *
      * \param t The container to copy the queue item into.
      * \returns Returns true if an item was successfully popped, false if not or the queue was empty.
      */
     bool pop(T& t) {
-        while (consumer_lock_.exchange(true)) {}
-        
+        while (consumer_lock_.fetch_and_store(true)) {}
+
         if (first_->next != nullptr) {
             Node* old_first = first_;
             Node* first = first_->next;
@@ -123,19 +116,21 @@ public:
         consumer_lock_ = false;
         return false;
     }
-    
+
 private:
     // Node element used by the queue which holds the contained item and a pointer
     // to the next node in the queue.
     struct Node {
-        Node(T* val) : value(val), next(nullptr) {}
+        Node(T* val) : value(val) {
+            next = nullptr;
+        }
 
         T* value;
 
-        ::boost::atomic<Node*> next;
-        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(::boost::atomic<Node*>)];
+        tbb::atomic<Node*> next;
+        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(tbb::atomic<Node*>)];
     };
-    
+
     // @note: All these pad* variables are here to prevent hidden contention caused by
     // the push and pop methods both accessing data in close proximity. By adding the padding
     // it ensures that these things are kept on separate cache lines which eliminates the contention.
@@ -146,16 +141,16 @@ private:
     char pad1[CACHE_LINE_SIZE - sizeof(Node*)];
 
     // Shared among consumers.
-    ::boost::atomic<bool> consumer_lock_;
-    char pad2[CACHE_LINE_SIZE - sizeof(::boost::atomic<bool>)];
-    
+    tbb::atomic<bool> consumer_lock_;
+    char pad2[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+
     // Accessed by one producer at a time.
     Node* last_;
     char pad3[CACHE_LINE_SIZE - sizeof(Node*)];
-    
+
     // Shared among producers.
-    ::boost::atomic<bool> producer_lock_;
-    char pad4[CACHE_LINE_SIZE - sizeof(::boost::atomic<bool>)];
+    tbb::atomic<bool> producer_lock_;
+    char pad4[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
 };
 
 }  // namespace utils

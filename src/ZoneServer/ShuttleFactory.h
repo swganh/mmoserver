@@ -45,36 +45,38 @@ class Shuttle;
 
 enum SHFQuery
 {
-	SHFQuery_MainData	= 1
+    SHFQuery_MainData	= 1
 };
 
 //=============================================================================
 
 class ShuttleFactory : public FactoryBase
 {
-	public:
+public:
 
-		static ShuttleFactory*	getSingletonPtr() { return mSingleton; }
-		static ShuttleFactory*	Init(Database* database);
+    static ShuttleFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static ShuttleFactory*	Init(Database* database);
 
-		~ShuttleFactory();
+    ~ShuttleFactory();
 
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-	private:
+private:
 
-		ShuttleFactory(Database* database);
+    ShuttleFactory(Database* database);
 
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-		Shuttle*			_createShuttle(DatabaseResult* result);
+    Shuttle*			_createShuttle(DatabaseResult* result);
 
-		static ShuttleFactory*	mSingleton;
-		static bool				mInsFlag;
+    static ShuttleFactory*	mSingleton;
+    static bool				mInsFlag;
 
-		DataBinding*			mShuttleBinding;
+    DataBinding*			mShuttleBinding;
 };
 
 //=============================================================================

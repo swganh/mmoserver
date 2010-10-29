@@ -26,11 +26,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "NonPersistentItemFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "Food.h"
 #include "ItemFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -44,11 +49,11 @@ NonPersistentItemFactory* NonPersistentItemFactory::mSingleton  = NULL;
 
 NonPersistentItemFactory* NonPersistentItemFactory::Instance(void)
 {
-	if (!mSingleton)
-	{
-		mSingleton = new NonPersistentItemFactory(WorldManager::getSingletonPtr()->getDatabase());
-	}
-	return mSingleton;
+    if (!mSingleton)
+    {
+        mSingleton = new NonPersistentItemFactory(WorldManager::getSingletonPtr()->getDatabase());
+    }
+    return mSingleton;
 }
 
 
@@ -63,7 +68,7 @@ NonPersistentItemFactory::NonPersistentItemFactory() : FactoryBase(NULL)
 
 NonPersistentItemFactory::NonPersistentItemFactory(Database* database) : FactoryBase(database)
 {
-	_setupDatabindings();
+    _setupDatabindings();
 }
 
 
@@ -71,137 +76,137 @@ NonPersistentItemFactory::NonPersistentItemFactory(Database* database) : Factory
 
 NonPersistentItemFactory::~NonPersistentItemFactory()
 {
-	_destroyDatabindings();
-	mSingleton = NULL;
+    _destroyDatabindings();
+    mSingleton = NULL;
 }
 
 //=============================================================================
 
 void NonPersistentItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	QueryNonPersistentItemFactory* asyncContainer = reinterpret_cast<QueryNonPersistentItemFactory*>(ref);
+    QueryNonPersistentItemFactory* asyncContainer = reinterpret_cast<QueryNonPersistentItemFactory*>(ref);
 
-	switch(asyncContainer->mQueryType)
-	{
-		case NPQuery_MainData:
-		{
-			Item* item = _createItem(result, asyncContainer->mId);
+    switch(asyncContainer->mQueryType)
+    {
+    case NPQuery_MainData:
+    {
+        Item* item = _createItem(result, asyncContainer->mId);
 
-			// To be used when doing item factories.
-			if (item->getLoadState() == LoadState_Attributes)
-			{
-				QueryNonPersistentItemFactory* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryNonPersistentItemFactory(asyncContainer->mOfCallback,NPQuery_Attributes,asyncContainer->mId);
-				asContainer->mObject = item;
+        // To be used when doing item factories.
+        if (item->getLoadState() == LoadState_Attributes)
+        {
+            QueryNonPersistentItemFactory* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryNonPersistentItemFactory(asyncContainer->mOfCallback,NPQuery_Attributes,asyncContainer->mId);
+            asContainer->mObject = item;
 
-				mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
-															 " FROM item_family_attribute_defaults"
-															 " INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
-															 " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType());
-				gLogger->log(LogManager::DEBUG, "SQL :: SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
-												" FROM item_family_attribute_defaults"
-												" INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
-												" WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType()); // SQL Debug Log
-			}
-			else if (item->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-			{
-				asyncContainer->mOfCallback->handleObjectReady(item);
-			}
-		}
-		break;
+            mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
+                                       " FROM item_family_attribute_defaults"
+                                       " INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
+                                       " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType());
+           
+        }
+        else if (item->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
+        {
+            asyncContainer->mOfCallback->handleObjectReady(item);
+        }
+    }
+    break;
 
-		case NPQuery_Attributes:
-		{
-			_buildAttributeMap(asyncContainer->mObject,result);
-			if ((asyncContainer->mObject->getLoadState() == LoadState_Loaded) && (asyncContainer->mOfCallback))
-			{
-				asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject);
-			}
-		}
-		break;
+    case NPQuery_Attributes:
+    {
+        _buildAttributeMap(asyncContainer->mObject,result);
+        if ((asyncContainer->mObject->getLoadState() == LoadState_Loaded) && (asyncContainer->mOfCallback))
+        {
+            asyncContainer->mOfCallback->handleObjectReady(asyncContainer->mObject);
+        }
+    }
+    break;
 
-		default:break;
-	}
-	mQueryContainerPool.free(asyncContainer);
+    default:
+        break;
+    }
+    mQueryContainerPool.free(asyncContainer);
 }
 
 //=============================================================================
 void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	requestObject(ofCallback,id, 0);
+    requestObject(ofCallback,id, 0);
 }
 
 //=============================================================================
 
 void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint64 newId)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryNonPersistentItemFactory(ofCallback,NPQuery_MainData,newId),
-							"SELECT item_family_attribute_defaults.family_id, item_family_attribute_defaults.item_type_id, item_types.object_string, item_types.stf_name, item_types.stf_file, item_types.stf_detail_file"
-							" FROM item_types"
-							" INNER JOIN item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
-							" WHERE (item_types.id = %"PRIu64")",id);
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT item_family_attribute_defaults.family_id, item_family_attribute_defaults.item_type_id, item_types.object_string, item_types.stf_name, item_types.stf_file, item_types.stf_detail_file"
-									" FROM item_types"
-									" INNER JOIN item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
-									" WHERE (item_types.id = %"PRIu64")",id); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryNonPersistentItemFactory(ofCallback,NPQuery_MainData,newId),
+                               "SELECT item_family_attribute_defaults.family_id, item_family_attribute_defaults.item_type_id, item_types.object_string, item_types.stf_name, item_types.stf_file, item_types.stf_detail_file"
+                               " FROM item_types"
+                               " INNER JOIN item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
+                               " WHERE (item_types.id = %"PRIu64")",id);
+   
 }
 
 //=============================================================================
 
 Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId)
 {
+    if (!result->getRowCount()) {
+    	return nullptr;
+    }
 
-	Item*			item;
-	ItemIdentifier	itemIdentifier;
+    Item*			item;
+    ItemIdentifier	itemIdentifier;
 
-	uint64 count = result->getRowCount();
+    result->getNextRow(mItemIdentifierBinding,(void*)&itemIdentifier);
+    result->resetRowIndex();
 
-	result->GetNextRow(mItemIdentifierBinding,(void*)&itemIdentifier);
-	result->ResetRowIndex();
+    switch(itemIdentifier.mFamilyId)
+    {
+        // case ItemFamily_TravelTickets:			item	= new TravelTicket();				break;
+        // case ItemFamily_SurveyTools:				item	= new SurveyTool();					break;
+        // case ItemFamily_CraftingTools:			item	= new CraftingTool();				break;
+        // case ItemFamily_CraftingStations:		item	= new CraftingStation();			break;
+    case ItemFamily_Foods:
+        item	= new Food();
+        break;
+        // case ItemFamily_Furniture:				item	= new Furniture();					break;
+        // case ItemFamily_Wearable:				item	= new Wearable();					break;
+        // case ItemFamily_ManufacturingSchematic:	item	= new ManufacturingSchematic();		break;
+        // case ItemFamily_Instrument:
+    case ItemFamily_Generic:
+        item	= new Item();
+        break;
+        // case ItemFamily_Weapon:					item	= new Weapon();						break;
 
-	switch(itemIdentifier.mFamilyId)
-	{
-		// case ItemFamily_TravelTickets:			item	= new TravelTicket();				break;
-		// case ItemFamily_SurveyTools:				item	= new SurveyTool();					break;
-		// case ItemFamily_CraftingTools:			item	= new CraftingTool();				break;
-		// case ItemFamily_CraftingStations:		item	= new CraftingStation();			break;
-		case ItemFamily_Foods:						item	= new Food();						break;
-		// case ItemFamily_Furniture:				item	= new Furniture();					break;
-		// case ItemFamily_Wearable:				item	= new Wearable();					break;
-		// case ItemFamily_ManufacturingSchematic:	item	= new ManufacturingSchematic();		break;
-		// case ItemFamily_Instrument:
-		case ItemFamily_Generic:					item	= new Item();						break;
-		// case ItemFamily_Weapon:					item	= new Weapon();						break;
+    default:
+    {
+        item = new Item();
+    	LOG(ERROR) << "Created item for unknown family [" << itemIdentifier.mFamilyId << "]";
+    }
+    break;
+    }
 
-		default:
-		{
-			item = new Item();
-			gLogger->log(LogManager::DEBUG,"ItemFactory::NonPersistentItemFactory::_createItem unknown Family %u",itemIdentifier.mFamilyId);
-		}
-		break;
-	}
+    result->getNextRow(mItemBinding,item);
 
-	result->GetNextRow(mItemBinding,item);
-	
-	item->setId(newId);
-	item->setItemFamily(itemIdentifier.mFamilyId);
-	item->setItemType(itemIdentifier.mTypeId);
-	item->setLoadState(LoadState_Attributes);
-	return item;
+    item->setId(newId);
+    item->setItemFamily(itemIdentifier.mFamilyId);
+    item->setItemType(itemIdentifier.mTypeId);
+    item->setLoadState(LoadState_Attributes);
+    return item;
 }
 
 //=============================================================================
 
 void NonPersistentItemFactory::_setupDatabindings()
 {
-	mItemBinding = mDatabase->CreateDataBinding(4);
-	mItemBinding->addField(DFT_bstring,offsetof(Item,mModel),256,2);
-	mItemBinding->addField(DFT_bstring,offsetof(Item,mName),64,3);
-	mItemBinding->addField(DFT_bstring,offsetof(Item,mNameFile),64,4);
-	mItemBinding->addField(DFT_bstring,offsetof(Item,mDetailFile),64,5);
+    mItemBinding = mDatabase->createDataBinding(4);
+    mItemBinding->addField(DFT_bstring,offsetof(Item,mModel),256,2);
+    mItemBinding->addField(DFT_bstring,offsetof(Item,mName),64,3);
+    mItemBinding->addField(DFT_bstring,offsetof(Item,mNameFile),64,4);
+    mItemBinding->addField(DFT_bstring,offsetof(Item,mDetailFile),64,5);
 
-	mItemIdentifierBinding = mDatabase->CreateDataBinding(2);
-	mItemIdentifierBinding->addField(DFT_uint32,offsetof(ItemIdentifier,mFamilyId),4,0);
-	mItemIdentifierBinding->addField(DFT_uint32,offsetof(ItemIdentifier,mTypeId),4,1);
+    mItemIdentifierBinding = mDatabase->createDataBinding(2);
+    mItemIdentifierBinding->addField(DFT_uint32,offsetof(ItemIdentifier,mFamilyId),4,0);
+    mItemIdentifierBinding->addField(DFT_uint32,offsetof(ItemIdentifier,mTypeId),4,1);
 
 }
 
@@ -209,8 +214,8 @@ void NonPersistentItemFactory::_setupDatabindings()
 
 void NonPersistentItemFactory::_destroyDatabindings()
 {
-	mDatabase->DestroyDataBinding(mItemBinding);
-	mDatabase->DestroyDataBinding(mItemIdentifierBinding);
+    mDatabase->destroyDataBinding(mItemBinding);
+    mDatabase->destroyDataBinding(mItemIdentifierBinding);
 }
 
 //=============================================================================

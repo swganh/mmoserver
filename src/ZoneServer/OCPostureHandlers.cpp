@@ -43,8 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-    
+{    
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 
     if(playerObject)
@@ -106,7 +105,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
                     else
                     {
                         // we should never get here !
-                        gLogger->log(LogManager::DEBUG,"SitOnObject: could not find zone region in map");
+                        DLOG(INFO) << "SitOnObject: could not find zone region in map";
 
                         // hammertime !
                         exit(-1);
@@ -123,7 +122,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
                         if(cell)
                             cell->removeObject(playerObject);
                         else
-                            gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell %"PRIu64"",playerObject->getId(),playerObject->getParentId());
+                            DLOG(INFO) << "Error removing " << playerObject->getId() <<" to cell " << chairCell;
 
                         playerObject->setParentId(chairCell);
 
@@ -132,7 +131,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
                         if(cell)
                             cell->addObjectSecure(playerObject);
                         else
-                            gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell %"PRIu64"",playerObject->getId(),chairCell);
+                            DLOG(INFO) << "Error adding " << playerObject->getId() <<" to cell " << chairCell;
                     }
 
                     playerObject->mPosition = chair_position;
@@ -161,7 +160,6 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
         }
         gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Sitting);
     }
-    
 }
 
 //=============================================================================

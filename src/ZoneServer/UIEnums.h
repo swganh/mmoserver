@@ -49,7 +49,8 @@ enum ui_element_types
 
 //================================================================================
 
-enum ui_window_types : unsigned int
+enum ui_window_types :
+unsigned int
 {
     SUI_Window_MessageBox										= 1,
     SUI_Window_ListBox,
@@ -184,7 +185,6 @@ enum ui_mb_types
     SUI_MB_OK				= 1,
     SUI_MB_OKCANCEL			= 2,
     SUI_MB_YESNO			= 3
-    
 };
 
 //================================================================================

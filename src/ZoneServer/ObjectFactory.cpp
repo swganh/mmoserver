@@ -26,6 +26,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ObjectFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "BuildingFactory.h"
 #include "CreatureFactory.h"
 #include "Deed.h"
@@ -51,7 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TravelMapHandler.h"
 #include "WaypointFactory.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -67,269 +72,269 @@ ObjectFactory*		ObjectFactory::mSingleton  = NULL;
 
 ObjectFactory*	ObjectFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new ObjectFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new ObjectFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 
 ObjectFactory::ObjectFactory(Database* database) :
-mDatabase(database),
-mDbAsyncPool(sizeof(OFAsyncContainer))
+    mDatabase(database),
+    mDbAsyncPool(sizeof(OFAsyncContainer))
 {
-	mPlayerObjectFactory	= PlayerObjectFactory::Init(mDatabase);
-	mTangibleFactory		= TangibleFactory::Init(mDatabase);
-	mIntangibleFactory		= IntangibleFactory::Init(mDatabase);
-	mCreatureFactory		= CreatureFactory::Init(mDatabase);
-	mBuildingFactory		= BuildingFactory::Init(mDatabase);
-	mRegionFactory			= RegionFactory::Init(mDatabase);
-	mWaypointFactory		= WaypointFactory::Init(mDatabase);
-	mHarvesterFactory		= HarvesterFactory::Init(mDatabase);
-	mFactoryFactory			= FactoryFactory::Init(mDatabase);
-	mHouseFactory			= HouseFactory::Init(mDatabase);
+    mPlayerObjectFactory	= PlayerObjectFactory::Init(mDatabase);
+    mTangibleFactory		= TangibleFactory::Init(mDatabase);
+    mIntangibleFactory		= IntangibleFactory::Init(mDatabase);
+    mCreatureFactory		= CreatureFactory::Init(mDatabase);
+    mBuildingFactory		= BuildingFactory::Init(mDatabase);
+    mRegionFactory			= RegionFactory::Init(mDatabase);
+    mWaypointFactory		= WaypointFactory::Init(mDatabase);
+    mHarvesterFactory		= HarvesterFactory::Init(mDatabase);
+    mFactoryFactory			= FactoryFactory::Init(mDatabase);
+    mHouseFactory			= HouseFactory::Init(mDatabase);
 }
 
 //=============================================================================
 
 ObjectFactory::~ObjectFactory()
 {
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
 
 void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	OFAsyncContainer* asyncContainer = reinterpret_cast<OFAsyncContainer*>(ref);
+    OFAsyncContainer* asyncContainer = reinterpret_cast<OFAsyncContainer*>(ref);
 
-	switch(asyncContainer->query)
-	{
-		case OFQuery_House:
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
-			if(!result->getRowCount())
-			{
-				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create house failed : no result");
-				break;
-			}
+    switch(asyncContainer->query)
+    {
+    case OFQuery_House:
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
+        if(!result->getRowCount())
+        {
+        	LOG(ERROR) << "create house failed : no result";
+            break;
+        }
 
-			uint64 requestId = 0;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
-			result->GetNextRow(binding,&requestId);
-			mDatabase->DestroyDataBinding(binding);
+        uint64 requestId = 0;
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_uint64,0,8);
+        result->getNextRow(binding,&requestId);
+        mDatabase->destroyDataBinding(binding);
 
-			if(!requestId)
-			{
-				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create house failed : result is 0");
-			}
-			mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+        if(!requestId)
+        {
+            LOG(ERROR) << "Create house failed : result is 0";
+        }
+        mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
-			//now we need to update the Owners Lots				
-			//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
-			if(player)
-			{
-				gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-				Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
-				
-				ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-				//destroy it in the client
-				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-	
-				//delete it out of the inventory
-				tO->deleteObject(deed);
-				
-				Datapad* datapad			= player->getDataPad();
-				datapad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+        //now we need to update the Owners Lots
+        //cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+        if(player)
+        {
+            gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
+            Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 
-			}
-			
-			// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
-			int8 sql[250];
-			sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-				
-		}
-		break;
+            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
+            //destroy it in the client
+            gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
 
-		case OFQuery_Factory:
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
-			if(!result->getRowCount())
-			{
-				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Factory failed : no result");
-				break;
-			}
+            //delete it out of the inventory
+            tO->deleteObject(deed);
 
-			uint64 requestId = 0;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
-			result->GetNextRow(binding,&requestId);
-			mDatabase->DestroyDataBinding(binding);
+            Datapad* datapad			= player->getDataPad();
+            datapad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
-			if(!requestId)
-			{
-				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Factory failed : result is 0");
-			}
-			mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+        }
 
-			//now we need to update the Owners Lots
-				
-			//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
-			if(player)
-			{
-				gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-				Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
-				
-				//destroy it in the client
-				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-	
-				//delete it out of the container
-				ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-				tO->deleteObject(deed);
+        // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
+        int8 sql[250];
+        sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
 
-				Datapad* datapad			= player->getDataPad();
-				datapad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
-			}
-			
-			// now we need to link the deed to the factory in the db and remove it out of the inventory in the db
-			int8 sql[250];
-			sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-				
-		}
-		break;
+    }
+    break;
 
-		case OFQuery_Harvester:
-		{
-			if(!result->getRowCount())
-			{
-				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
-				break;
-			}
+    case OFQuery_Factory:
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
+        if(!result->getRowCount())
+        {
+        	LOG(ERROR) << "Create factory failed : no result";
+            break;
+        }
 
-			uint64 requestId = 0;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
-			result->GetNextRow(binding,&requestId);
-			mDatabase->DestroyDataBinding(binding);
+        uint64 requestId = 0;
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_uint64,0,8);
+        result->getNextRow(binding,&requestId);
+        mDatabase->destroyDataBinding(binding);
 
-			if(requestId)
-			{
-				mHarvesterFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+        if(!requestId)
+        {
+        	LOG(ERROR) << "Create factor failed : result is 0";
+        }
+        mFactoryFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
-				//now we need to update the Owners Lots
-				PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
-					
-				//cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
-				if(player)
-				{
-					gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-					
-					Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
-					
-					//destroy it in the client
-					gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-		
-					//delete it out of the inventory
-					ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-					tO->deleteObject(deed);
+        //now we need to update the Owners Lots
 
-					Datapad* datapad			= player->getDataPad();
-					datapad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+        //cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+        if(player)
+        {
+            gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
+            Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 
-				}
-				
-				// now we need to link the deed to the harvester in the db and remove it out of the inventory
-				int8 sql[250];
-				sprintf(sql,"UPDATE items SET parent_id = %I64u WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
-				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-				gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-			}
-			else
-				gLogger->log(LogManager::DEBUG,"ObjFactory::handleDatabaseJobComplete   :  create Harvester failed");
-		}
-		break;
+            //destroy it in the client
+            gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
 
-		case OFQuery_WaypointCreate:
-		{
-			uint64 requestId = 0;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
-			result->GetNextRow(binding,&requestId);
-			mDatabase->DestroyDataBinding(binding);
+            //delete it out of the container
+            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
+            tO->deleteObject(deed);
 
-			if(requestId)
-				mWaypointFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
-			else
-				gLogger->log(LogManager::DEBUG,"ObjFactory::createWaypoint failed");
-		}
-		break;
-		case QFQuery_WaypointUpdate:
-		{
-			// we're looking for a value of the waypoint that was updated
-			uint32 returnId = 0;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint32,0,4);
-			result->GetNextRow(binding,&returnId);
-			mDatabase->DestroyDataBinding(binding);
-			switch (returnId)
-			{
-				case 0:
-				case 3:
-					mWaypointFactory->requestObject(asyncContainer->ofCallback,asyncContainer->Id,0,0,asyncContainer->client);
-					break;
-				default:
-					gLogger->log(LogManager::DEBUG,"ObjFactory::updateWaypoint failed");
-			}
-		}
-		break;
-		case OFQuery_Item:
-		{
-			uint64 requestId = 0;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
-			result->GetNextRow(binding,&requestId);
-			mDatabase->DestroyDataBinding(binding);
+            Datapad* datapad			= player->getDataPad();
+            datapad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+        }
 
-			if(requestId)
-				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_Item,0,asyncContainer->client);
-			else
-				gLogger->log(LogManager::DEBUG,"ObjFactory::createItem failed");
-		}
-		break;
+        // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
+        int8 sql[250];
+        sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-		case OFQuery_ResourceContainerCreate:
-		{
-			uint64 requestId = 0;
-			DataBinding* binding = mDatabase->CreateDataBinding(1);
-			binding->addField(DFT_uint64,0,8);
-			result->GetNextRow(binding,&requestId);
-			mDatabase->DestroyDataBinding(binding);
+    }
+    break;
 
-			if(requestId)
-				mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_ResourceContainer,0,asyncContainer->client);
-			else
-				gLogger->log(LogManager::DEBUG,"ObjFactory::createResourceContainer failed");
-		}
-		break;
+    case OFQuery_Harvester:
+    {
+        if(!result->getRowCount())
+        {
+        	LOG(ERROR) << "Create harvester failed : no result";
+            break;
+        }
 
-		default:
-		{
-			mTangibleFactory->requestObject(asyncContainer->ofCallback,asyncContainer->Id,asyncContainer->Group,0,asyncContainer->client);
-		}
-		break;
-	}
+        uint64 requestId = 0;
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_uint64,0,8);
+        result->getNextRow(binding,&requestId);
+        mDatabase->destroyDataBinding(binding);
 
-	mDbAsyncPool.free(asyncContainer);
+        if(requestId)
+        {
+            mHarvesterFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+
+            //now we need to update the Owners Lots
+            PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
+
+            //cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+            if(player)
+            {
+                gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
+
+                Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
+
+                //destroy it in the client
+                gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
+
+                //delete it out of the inventory
+                ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
+                tO->deleteObject(deed);
+
+                Datapad* datapad			= player->getDataPad();
+                datapad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+
+            }
+
+            // now we need to link the deed to the harvester in the db and remove it out of the inventory
+            int8 sql[250];
+            sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, asyncContainer->DeedId);
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+         
+        }
+        else
+        	LOG(ERROR) << "Create harvester failed";
+    }
+    break;
+
+    case OFQuery_WaypointCreate:
+    {
+        uint64 requestId = 0;
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_uint64,0,8);
+        result->getNextRow(binding,&requestId);
+        mDatabase->destroyDataBinding(binding);
+
+        if(requestId)
+            mWaypointFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+        else
+        	LOG(ERROR) << "Create waypoint failed";
+    }
+    break;
+    case QFQuery_WaypointUpdate:
+    {
+        // we're looking for a value of the waypoint that was updated
+        uint32 returnId = 0;
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_uint32,0,4);
+        result->getNextRow(binding,&returnId);
+        mDatabase->destroyDataBinding(binding);
+        switch (returnId)
+        {
+        case 0:
+        case 3:
+            mWaypointFactory->requestObject(asyncContainer->ofCallback,asyncContainer->Id,0,0,asyncContainer->client);
+            break;
+        default:
+        	LOG(ERROR) << "Update waypoint failed";
+        }
+    }
+    break;
+    case OFQuery_Item:
+    {
+        uint64 requestId = 0;
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_uint64,0,8);
+        result->getNextRow(binding,&requestId);
+        mDatabase->destroyDataBinding(binding);
+
+        if(requestId)
+            mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_Item,0,asyncContainer->client);
+        else
+        	LOG(ERROR) << "Create item failed";
+    }
+    break;
+
+    case OFQuery_ResourceContainerCreate:
+    {
+        uint64 requestId = 0;
+        DataBinding* binding = mDatabase->createDataBinding(1);
+        binding->addField(DFT_uint64,0,8);
+        result->getNextRow(binding,&requestId);
+        mDatabase->destroyDataBinding(binding);
+
+        if(requestId)
+            mTangibleFactory->requestObject(asyncContainer->ofCallback,requestId,TanGroup_ResourceContainer,0,asyncContainer->client);
+        else
+        	LOG(ERROR) << "Create resource container failed";
+    }
+    break;
+
+    default:
+    {
+        mTangibleFactory->requestObject(asyncContainer->ofCallback,asyncContainer->Id,asyncContainer->Group,0,asyncContainer->client);
+    }
+    break;
+    }
+
+    mDbAsyncPool.free(asyncContainer);
 }
 
 //=============================================================================
@@ -338,10 +343,10 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 //
 void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId)
 {
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultManufactureSchematicCreate(%u,%"PRIu64")",schemCrc,parentId);
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DefaultManufactureSchematicCreate(%u,%"PRIu64")",schemCrc,parentId); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_DefaultManufactureSchematicCreate(%u,%"PRIu64")",schemCrc,parentId);
+    
 }
 
 //=============================================================================
@@ -350,10 +355,10 @@ void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback*
 //
 void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint64 templateId,uint64 parentId)
 {
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreateByTangibleTemplate(%"PRIu64",%"PRIu64")",parentId,templateId);
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DefaultItemCreateByTangibleTemplate(%"PRIu64",%"PRIu64")",parentId,templateId); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreateByTangibleTemplate(%"PRIu64",%"PRIu64")",parentId,templateId);
+    
 }
 
 
@@ -363,10 +368,10 @@ void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint6
 //
 void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uint32 schemCrc, uint64 parentId, uint16 planetId, const glm::vec3& position, const BString& customName)
 {
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreateBySchematic(%u,%"PRIu64",%u,%f,%f,%f,'%s')",schemCrc,parentId,planetId,position.x,position.y,position.z,customName.getAnsi());
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DefaultItemCreateBySchematic(%u,%"PRIu64",%u,%f,%f,%f,'%s')",schemCrc,parentId,planetId,position.x,position.y,position.z,customName.getAnsi()); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreateBySchematic(%u,%"PRIu64",%u,%f,%f,%f,'%s')",schemCrc,parentId,planetId,position.x,position.y,position.z,customName.getAnsi());
+    
 }
 
 //=============================================================================
@@ -375,10 +380,10 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uin
 //
 void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId, const glm::vec3& position, const BString& customName)
 {
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreate(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s')",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi());
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DefaultItemCreate(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s')",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi()); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_DefaultItemCreate(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s')",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi());
+    
 }
 
 //=============================================================================
@@ -387,10 +392,10 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint
 //
 void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId, const glm::vec3& position, const BString& customName, int useCount)
 {
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
 
-	mDatabase->ExecuteProcedureAsync(this,asyncContainer,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount);
-	gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount); // SQL Debug Log
+    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount);
+    
 }
 
 
@@ -400,22 +405,22 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
 //
 void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,TicketProperties ticketProperties,uint64 parentId,uint16 planetId)
 {
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
-	int8 sql[512],*sqlPointer;
-	int8 dstPlanetIdStr[64];
-	int8 restStr[128];
-	sprintf(dstPlanetIdStr,"','%s','",gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.dstPlanetId)));
-	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u)",parentId,0.0f,0.0f,0.0f,planetId);
-	sprintf(sql,"SELECT sf_TravelTicketCreate('%s','",gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.srcPlanetId)));
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer,ticketProperties.srcPoint->descriptor,strlen(ticketProperties.srcPoint->descriptor));
-	strcat(sql,dstPlanetIdStr);
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer,ticketProperties.dstPoint->descriptor,strlen(ticketProperties.dstPoint->descriptor));
-	strcat(sql,restStr);
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Item,NULL);
+    int8 sql[512],*sqlPointer;
+    int8 dstPlanetIdStr[64];
+    int8 restStr[128];
+    sprintf(dstPlanetIdStr,"','%s','",gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.dstPlanetId)));
+    sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u)",parentId,0.0f,0.0f,0.0f,planetId);
+    sprintf(sql,"SELECT sf_TravelTicketCreate('%s','",gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.srcPlanetId)));
+    sqlPointer = sql + strlen(sql);
+    sqlPointer += mDatabase->escapeString(sqlPointer,ticketProperties.srcPoint->descriptor,strlen(ticketProperties.srcPoint->descriptor));
+    strcat(sql,dstPlanetIdStr);
+    sqlPointer = sql + strlen(sql);
+    sqlPointer += mDatabase->escapeString(sqlPointer,ticketProperties.dstPoint->descriptor,strlen(ticketProperties.dstPoint->descriptor));
+    strcat(sql,restStr);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    
 }
 
 //=============================================================================
@@ -424,9 +429,9 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
 //
 void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount)
 {
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_ResourceContainerCreate,NULL);
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT sf_ResourceContainerCreate(%"PRIu64",%"PRIu64",0,0,0,%u,%u)",resourceId,parentId,planetId,amount);
-	gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_ResourceContainerCreate(%"PRIu64",%"PRIu64",0,0,0,%u,%u)",resourceId,parentId,planetId,amount); // SQL Debug Log
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_ResourceContainerCreate,NULL);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_ResourceContainerCreate(%"PRIu64",%"PRIu64",0,0,0,%u,%u)",resourceId,parentId,planetId,amount);
+    
 }
 
 //=============================================================================
@@ -435,59 +440,56 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
 //
 void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player)
 {
-	//create a new Harvester Object with the attributes as specified by the deed
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Harvester,client);
+    //create a new Harvester Object with the attributes as specified by the deed
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Harvester,client);
 
-	asyncContainer->DeedId = deed->getId();
-	asyncContainer->OwnerId = deed->getOwner();
-	asyncContainer->PlayerId = player->getId();
-	asyncContainer->coords.x = x;
-	asyncContainer->coords.y = y;
-	asyncContainer->coords.z = z;
-	int8 sql[512];
-	//sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20)
+    asyncContainer->DeedId = deed->getId();
+    asyncContainer->OwnerId = deed->getOwner();
+    asyncContainer->PlayerId = player->getId();
+    asyncContainer->coords.x = x;
+    asyncContainer->coords.y = y;
+    asyncContainer->coords.z = z;
+    int8 sql[512];
+    //sf_DefaultHarvesterCreate`(type_id INT(11),parent_id BIGINT(20),privateowner_id BIGINT(20),inPlanet INT,oX FLOAT,oY FLOAT,oZ FLOAT, oW FLOAT,inX FLOAT,inY FLOAT,inZ FLOAT,custom_name CHAR(255)) RETURNS bigint(20)
 
-	StructureDeedLink* deedLink;
-	deedLink = gStructureManager->getDeedData(deed->getItemType());
+    StructureDeedLink* deedLink;
+    deedLink = gStructureManager->getDeedData(deed->getItemType());
 
-	float oX, oY, oZ, oW;
-	if(dir== 0.0)
-	{
-		oX = 0;
-		oY = 0;
-		oZ = 0;
-		oW = 1;
-	}
-	if(dir== 1.0)	 //ok
-	{
-		oX = 0.0;
-		oY = static_cast<float>(0.71);
-		oZ = 0.0;
-		oW = static_cast<float>(0.71);
-	}
+    float oX, oY, oZ, oW;
+    if(dir== 0.0)
+    {
+        oX = 0;
+        oY = 0;
+        oZ = 0;
+        oW = 1;
+    }
+    if(dir== 1.0)	 //ok
+    {
+        oX = 0.0;
+        oY = static_cast<float>(0.71);
+        oZ = 0.0;
+        oW = static_cast<float>(0.71);
+    }
 
-	if(dir== 2.0)
-	{
-		oX = 0;
-		oY = 1;
-		oZ = 0;
-		oW = 0;
-	}
+    if(dir== 2.0)
+    {
+        oX = 0;
+        oY = 1;
+        oZ = 0;
+        oW = 0;
+    }
 
-	if(dir== 3.0)
-	{
-		oX = 0;
-		oY = static_cast<float>(-0.71);
-		oZ = 0;
-		oW = static_cast<float>(0.71);
-	}
+    if(dir== 3.0)
+    {
+        oX = 0;
+        oY = static_cast<float>(-0.71);
+        oZ = 0;
+        oW = static_cast<float>(0.71);
+    }
 
-
-	gLogger->log(LogManager::DEBUG,"New Harvester dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
-
-	sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    
 }
 
 //=============================================================================
@@ -496,116 +498,115 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 //
 void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player)
 {
-	//create a new Harvester Object with the attributes as specified by the deed
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Factory,client);
+    //create a new Harvester Object with the attributes as specified by the deed
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Factory,client);
 
-	asyncContainer->DeedId = deed->getId();
-	asyncContainer->OwnerId = deed->getOwner();
-	asyncContainer->PlayerId = player->getId();
-	asyncContainer->coords.x = x;
-	asyncContainer->coords.y = y;
-	asyncContainer->coords.z = z;
-	int8 sql[512];
-	
-
-	StructureDeedLink* deedLink;
-	deedLink = gStructureManager->getDeedData(deed->getItemType());
-
-	float oX, oY, oZ, oW;
-	if(dir== 0.0)
-	{
-		oX = 0;
-		oY = 0;
-		oZ = 0;
-		oW = 1;
-	}
-	if(dir== 1.0)	 //ok
-	{
-		oX = 0.0;
-		oY = static_cast<float>(0.71);
-		oZ = 0.0;
-		oW = static_cast<float>(0.71);
-	}
-
-	if(dir== 2.0)
-	{
-		oX = 0;
-		oY = 1;
-		oZ = 0;
-		oW = 0;
-	}
-
-	if(dir== 3.0)
-	{
-		oX = 0;
-		oY = static_cast<float>(-0.71);
-		oZ = 0;
-		oW = static_cast<float>(0.71);
-	}
+    asyncContainer->DeedId = deed->getId();
+    asyncContainer->OwnerId = deed->getOwner();
+    asyncContainer->PlayerId = player->getId();
+    asyncContainer->coords.x = x;
+    asyncContainer->coords.y = y;
+    asyncContainer->coords.z = z;
+    int8 sql[512];
 
 
-	gLogger->log(LogManager::DEBUG,"New Factory dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
+    StructureDeedLink* deedLink;
+    deedLink = gStructureManager->getDeedData(deed->getItemType());
 
-	sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    float oX, oY, oZ, oW;
+    if(dir== 0.0)
+    {
+        oX = 0;
+        oY = 0;
+        oZ = 0;
+        oW = 1;
+    }
+    if(dir== 1.0)	 //ok
+    {
+        oX = 0.0;
+        oY = static_cast<float>(0.71);
+        oZ = 0.0;
+        oW = static_cast<float>(0.71);
+    }
+
+    if(dir== 2.0)
+    {
+        oX = 0;
+        oY = 1;
+        oZ = 0;
+        oW = 0;
+    }
+
+    if(dir== 3.0)
+    {
+        oX = 0;
+        oY = static_cast<float>(-0.71);
+        oZ = 0;
+        oW = static_cast<float>(0.71);
+    }
+
+
+    DLOG(INFO) << "New Factory dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
+
+    sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
 }
 
 void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player)
 {
-		//create a new Harvester Object with the attributes as specified by the deed
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_House,client);
+    //create a new Harvester Object with the attributes as specified by the deed
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_House,client);
 
-	asyncContainer->DeedId = deed->getId();
-	asyncContainer->OwnerId = deed->getOwner();
-	asyncContainer->PlayerId = player->getId();
-	asyncContainer->coords.x = x;
-	asyncContainer->coords.y = y;
-	asyncContainer->coords.z = z;
-	int8 sql[512];
-	
-
-	StructureDeedLink* deedLink;
-	deedLink = gStructureManager->getDeedData(deed->getItemType());
-
-	float oX, oY, oZ, oW;
-	if(dir== 0.0)
-	{
-		oX = 0;
-		oY = 0;
-		oZ = 0;
-		oW = 1;
-	}
-	if(dir== 1.0)	 //ok
-	{
-		oX = 0.0;
-		oY = 0.707107f;
-		oZ = 0.0;
-		oW = 0.707107f;
-	}
-
-	if(dir== 2.0)
-	{
-		oX = 0;
-		oY = 1;
-		oZ = 0;
-		oW = 0;
-	}
-
-	if(dir== 3.0)
-	{
-		oX = 0;
-		oY = -0.707107f;
-		oZ = 0;
-		oW = 0.707107f;
-	}
+    asyncContainer->DeedId = deed->getId();
+    asyncContainer->OwnerId = deed->getOwner();
+    asyncContainer->PlayerId = player->getId();
+    asyncContainer->coords.x = x;
+    asyncContainer->coords.y = y;
+    asyncContainer->coords.z = z;
+    int8 sql[512];
 
 
-	gLogger->log(LogManager::DEBUG,"New House dir is %f, x:%f, y:%f, z:%f, w:%f",dir,oX, oY, oZ, oW);
+    StructureDeedLink* deedLink;
+    deedLink = gStructureManager->getDeedData(deed->getItemType());
 
-	sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%I64u)",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    float oX, oY, oZ, oW;
+    if(dir== 0.0)
+    {
+        oX = 0;
+        oY = 0;
+        oZ = 0;
+        oW = 1;
+    }
+    if(dir== 1.0)	 //ok
+    {
+        oX = 0.0;
+        oY = 0.707107f;
+        oZ = 0.0;
+        oW = 0.707107f;
+    }
+
+    if(dir== 2.0)
+    {
+        oX = 0;
+        oY = 1;
+        oZ = 0;
+        oW = 0;
+    }
+
+    if(dir== 3.0)
+    {
+        oX = 0;
+        oY = -0.707107f;
+        oZ = 0;
+        oW = 0.707107f;
+    }
+
+
+    DLOG(INFO) << "New House dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
+
+    sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    
 }
 
 //=============================================================================
@@ -615,86 +616,87 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 //
 void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 wpType)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_WaypointCreate,player->getClient());
-	int8 sql[512],*sqlPointer;
-	int8 restStr[128];
+    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_WaypointCreate,player->getClient());
+    int8 sql[512],*sqlPointer;
+    int8 restStr[128];
 
-	sprintf(sql,"SELECT sf_WaypointCreate('");
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer,name.getAnsi(),name.getLength());
-	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)", ownerId, coords.x, coords.y, coords.z, planetId, wpType);
-	strcat(sql,restStr);
+    sprintf(sql,"SELECT sf_WaypointCreate('");
+    sqlPointer = sql + strlen(sql);
+    sqlPointer += mDatabase->escapeString(sqlPointer,name.getAnsi(),name.getLength());
+    sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)", ownerId, coords.x, coords.y, coords.z, planetId, wpType);
+    strcat(sql,restStr);
 
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    
 
 }
 //=============================================================================
 //
 // update existing waypoint
-// never call this directly - always go over the datapad!!!!!  
+// never call this directly - always go over the datapad!!!!!
 //
-void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uint64 wpId,BString name, 
-	 const glm::vec3& coords,uint16 planetId,uint64 ownerId, uint8 activeStatus)
+void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uint64 wpId,BString name,
+        const glm::vec3& coords,uint16 planetId,uint64 ownerId, uint8 activeStatus)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
-	OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,QFQuery_WaypointUpdate,player->getClient());
-	asyncContainer->Id = wpId;
+    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
+    OFAsyncContainer* asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,QFQuery_WaypointUpdate,player->getClient());
+    asyncContainer->Id = wpId;
 
-	int8 sql[512],*sqlPointer;
-	int8 restStr[128];
-	name.convert(BSTRType_ANSI);
-	sprintf(sql,"CALL sp_WaypointUpdate('");
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer, name.getAnsi() ,name.getLength());
-	sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)",wpId, coords.x, coords.y, coords.z, planetId, activeStatus);
-	strcat(sql,restStr);
+    int8 sql[512],*sqlPointer;
+    int8 restStr[128];
+    name.convert(BSTRType_ANSI);
+    sprintf(sql,"CALL sp_WaypointUpdate('");
+    sqlPointer = sql + strlen(sql);
+    sqlPointer += mDatabase->escapeString(sqlPointer, name.getAnsi() ,name.getLength());
+    sprintf(restStr,"',%"PRIu64",%f,%f,%f,%u,%u)",wpId, coords.x, coords.y, coords.z, planetId, activeStatus);
+    strcat(sql,restStr);
 
-	mDatabase->ExecuteProcedureAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeProcedureAsync(this,asyncContainer,sql);
+    
 }
 //=============================================================================
 
 void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentID, TangibleGroup Group)
 {
-	//this is used to create an item after an auction and to load a Manufacturing schematic into the DataPad after it was removed from the factory
-	//After the owner ID was changed the item is requested through the OFQuery_Default request
+    //this is used to create an item after an auction and to load a Manufacturing schematic into the DataPad after it was removed from the factory
+    //After the owner ID was changed the item is requested through the OFQuery_Default request
 
-	OFAsyncContainer* asyncContainer;
-	int8 sql[512];
+    OFAsyncContainer* asyncContainer;
+    int8 sql[512];
 
-	asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Default,NULL);
-	asyncContainer->Id = ObjectId;
-	asyncContainer->Group = Group;
+    asyncContainer = new(mDbAsyncPool.ordered_malloc()) OFAsyncContainer(ofCallback,OFQuery_Default,NULL);
+    asyncContainer->Id = ObjectId;
+    asyncContainer->Group = Group;
 
-	switch(Group)
-	{
-		case TanGroup_ManufacturingSchematic:
-		case TanGroup_Item:
-		{
+    switch(Group)
+    {
+    case TanGroup_ManufacturingSchematic:
+    case TanGroup_Item:
+    {
 
-			sprintf(sql,"UPDATE items SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",parentID,ObjectId);
-		}
-		break;
+        sprintf(sql,"UPDATE items SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",parentID,ObjectId);
+    }
+    break;
 
-		case TanGroup_ResourceContainer:
-		{
+    case TanGroup_ResourceContainer:
+    {
 
-			sprintf(sql,"UPDATE resource_containers SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",parentID,ObjectId);
-		}
-		break;
+        sprintf(sql,"UPDATE resource_containers SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",parentID,ObjectId);
+    }
+    break;
 
-		default:break;
-	}
-	mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    default:
+        break;
+    }
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    
 }
 
 void ObjectFactory::createIteminInventory(ObjectFactoryCallback* ofCallback,uint64 ObjectId, TangibleGroup Group)
 {
 
-	mTangibleFactory->requestObject(ofCallback,ObjectId,Group,0,NULL);
+    mTangibleFactory->requestObject(ofCallback,ObjectId,Group,0,NULL);
 
 
 }
@@ -704,349 +706,341 @@ void ObjectFactory::createIteminInventory(ObjectFactoryCallback* ofCallback,uint
 
 void ObjectFactory::GiveNewOwnerInDB(Object* object, uint64 ID)
 {
-	int8 sql[256];
+    int8 sql[256];
 
-	switch(object->getType())
-	{
-		case ObjType_Tangible:
-		{
-			TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
+    switch(object->getType())
+    {
+    case ObjType_Tangible:
+    {
+        TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
 
-			switch(tangibleObject->getTangibleGroup())
-			{
-				case TanGroup_Item:
-				{
-					sprintf(sql,"UPDATE items SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",ID,object->getId());
-				}
-				break;
+        switch(tangibleObject->getTangibleGroup())
+        {
+        case TanGroup_Item:
+        {
+            sprintf(sql,"UPDATE items SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",ID,object->getId());
+        }
+        break;
 
-				case TanGroup_ResourceContainer:
-				{
-					sprintf(sql,"UPDATE resource_containers SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",ID,object->getId());
-				}
-				break;
+        case TanGroup_ResourceContainer:
+        {
+            sprintf(sql,"UPDATE resource_containers SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",ID,object->getId());
+        }
+        break;
 
-				default:break;
-			}
-		}
-		break;
+        default:
+            break;
+        }
+    }
+    break;
 
-		case ObjType_Waypoint:
-		{
-			sprintf(sql,"UPDATE waypoints SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",ID,object->getId());
-		}
-		break;
+    case ObjType_Waypoint:
+    {
+        sprintf(sql,"UPDATE waypoints SET parent_id = '%"PRIu64"' WHERE id = '%"PRIu64"' ",ID,object->getId());
+    }
+    break;
 
-		default:break;
-	}
-	mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-	gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    default:
+        break;
+    }
+    mDatabase->executeSqlAsync(NULL,NULL,sql);
+ 
 }
 
 //=============================================================================
 
 void ObjectFactory::deleteObjectFromDB(uint64 id)
 {
-	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(id));
-	deleteObjectFromDB(object );
+    Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(id));
+    deleteObjectFromDB(object );
 }
 
 void ObjectFactory::deleteObjectFromDB(Object* object)
 {
-	int8 sql[256];
+    int8 sql[256];
 
-	switch(object->getType())
-	{
-		case ObjType_Tangible:
-		{
-			TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
+    switch(object->getType())
+    {
+    case ObjType_Tangible:
+    {
+        TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
 
-			switch(tangibleObject->getTangibleGroup())
-			{
-				case TanGroup_Item:
-				{
-					Item* item = dynamic_cast<Item*>(object);
-					if(item->getItemType() == ItemFamily_ManufacturingSchematic)
-					{
-						ManufacturingSchematic* schem = dynamic_cast<ManufacturingSchematic*> (object);
-						if (schem)
-						{
-							//first associated item
-							sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",schem->getItem()->getId());
-							mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-							gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-							sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",schem->getItem()->getId());
-							mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-							gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-						}
+        switch(tangibleObject->getTangibleGroup())
+        {
+        case TanGroup_Item:
+        {
+            Item* item = dynamic_cast<Item*>(object);
+            if(item->getItemType() == ItemFamily_ManufacturingSchematic)
+            {
+                ManufacturingSchematic* schem = dynamic_cast<ManufacturingSchematic*> (object);
+                if (schem)
+                {
+                    //first associated item
+                    sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",schem->getItem()->getId());
+                    mDatabase->executeSqlAsync(NULL,NULL,sql);
+                    
+                    sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",schem->getItem()->getId());
+                    mDatabase->executeSqlAsync(NULL,NULL,sql);
+                    
+                }
 
-					}
+            }
 
-					ObjectIDList* objectList		= item->getObjects();
-					ObjectIDList::iterator objIt	= objectList->begin();
+            ObjectIDList* objectList		= item->getObjects();
+            ObjectIDList::iterator objIt	= objectList->begin();
 
-					while(objIt != objectList->end())
-					{			
-						Object* object = gWorldManager->getObjectById((*objIt));
-						deleteObjectFromDB(object);
-						
-						++objIt;
-					}
+            while(objIt != objectList->end())
+            {
+                Object* object = gWorldManager->getObjectById((*objIt));
+                deleteObjectFromDB(object);
 
-					sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",object->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+                ++objIt;
+            }
 
-					sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",object->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-				}
-				break;
+            sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",object->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+            
 
-				case TanGroup_ResourceContainer:
-				{
-					sprintf(sql,"DELETE FROM resource_containers WHERE id = %"PRIu64"",object->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-				}
-				break;
+            sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",object->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+            
+        }
+        break;
 
-				case TanGroup_Terminal:
-				{
-					sprintf(sql,"DELETE FROM terminals WHERE id = %"PRIu64"",object->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        case TanGroup_ResourceContainer:
+        {
+            sprintf(sql,"DELETE FROM resource_containers WHERE id = %"PRIu64"",object->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+            
+        }
+        break;
 
-				}
-				break;
+        case TanGroup_Terminal:
+        {
+            sprintf(sql,"DELETE FROM terminals WHERE id = %"PRIu64"",object->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+            
 
-				default:break;
-			}
-		}
-		break;
+        }
+        break;
 
-		case ObjType_Intangible:
-		{
-			IntangibleObject* itno = dynamic_cast<IntangibleObject*>(object);
+        default:
+            break;
+        }
+    }
+    break;
 
-			switch(itno->getItnoGroup())
-			{
-				case ItnoGroup_Vehicle:
-				{
-					sprintf(sql,"DELETE FROM vehicle_cutomization WHERE vehicles_id = %"PRIu64"",object->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-					sprintf(sql,"DELETE FROM vehicle_attributes WHERE vehicles_id = %"PRIu64"",object->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-					sprintf(sql,"DELETE FROM vehicles WHERE id = %"PRIu64"",object->getId());
-					mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-					gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-				}
-				break;
+    case ObjType_Intangible:
+    {
+        IntangibleObject* itno = dynamic_cast<IntangibleObject*>(object);
 
-				default: break;
-			}
-		}
-		break;
+        switch(itno->getItnoGroup())
+        {
+        case ItnoGroup_Vehicle:
+        {
+            sprintf(sql,"DELETE FROM vehicle_cutomization WHERE vehicles_id = %"PRIu64"",object->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+            
+            sprintf(sql,"DELETE FROM vehicle_attributes WHERE vehicles_id = %"PRIu64"",object->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+            
+            sprintf(sql,"DELETE FROM vehicles WHERE id = %"PRIu64"",object->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+            
+        }
+        break;
 
-		case ObjType_Cell:
-		{
-			CellObject* cell = dynamic_cast<CellObject*>(object);
-			ObjectIDList* cellObjects		= cell->getObjects();
-			ObjectIDList::iterator objIt	= cellObjects->begin();
+        default:
+            break;
+        }
+    }
+    break;
 
-			while(objIt != cellObjects->end())
-			{
-				Object* childObject = gWorldManager->getObjectById((*objIt));
+    case ObjType_Cell:
+    {
+        CellObject* cell = dynamic_cast<CellObject*>(object);
+        ObjectIDList* cellObjects		= cell->getObjects();
+        ObjectIDList::iterator objIt	= cellObjects->begin();
 
-				if(PlayerObject* player = dynamic_cast<PlayerObject*>(childObject))
-				{
-					//place the player in the world	and db	- do *NOT* delete him :P
-					//player->setParentId(0,0xffffffff,player->getKnownPlayers(),true);
-				}
-				else
-				if(CreatureObject* pet = dynamic_cast<CreatureObject*>(childObject))
-				{
-					//place the player in the world	and db	- do *NOT* delete him :P
-					//pet->setParentId(0,0xffffffff,pet->getKnownPlayers(),true);
-				}
-				else
-				{
-					deleteObjectFromDB(childObject);
-				}
-				
-				++objIt;
+        while(objIt != cellObjects->end())
+        {
+            Object* childObject = gWorldManager->getObjectById((*objIt));
 
-				sprintf(sql,"UPDATE characters SET parent_id = 0 WHERE parent_id = %"PRIu64"",object->getId());
-				mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			}
+            deleteObjectFromDB(childObject);
 
-			sprintf(sql,"DELETE FROM cells WHERE id = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-			sprintf(sql,"DELETE FROM structure_cells WHERE id = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-		}
-		break;
+            ++objIt;
 
-		case ObjType_Building:
-		{
-			//only delete when a playerbuilding
-			HouseObject* house = dynamic_cast<HouseObject*>(object);
-			if(!house)
-			{
-				//no player building
-				return;
-			}
+            sprintf(sql,"UPDATE characters SET parent_id = 0 WHERE parent_id = %"PRIu64"",object->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,sql);
+        }
 
-			CellObjectList*				cellList	= house->getCellList();
-			CellObjectList::iterator	cellIt		= cellList->begin();
+        sprintf(sql,"DELETE FROM cells WHERE id = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
+        sprintf(sql,"DELETE FROM structure_cells WHERE id = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
+    }
+    break;
 
-			while(cellIt != cellList->end())
-			{
-				CellObject* cell = (*cellIt);
-				deleteObjectFromDB(cell);
-				//remove items in the building from world and db
+    case ObjType_Building:
+    {
+        //only delete when a playerbuilding
+        HouseObject* house = dynamic_cast<HouseObject*>(object);
+        if(!house)
+        {
+            //no player building
+            return;
+        }
 
-				++cellIt;
-			}
+        CellObjectList*				cellList	= house->getCellList();
+        CellObjectList::iterator	cellIt		= cellList->begin();
 
-			sprintf(sql,"DELETE FROM houses WHERE ID = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        while(cellIt != cellList->end())
+        {
+            CellObject* cell = (*cellIt);
+            deleteObjectFromDB(cell);
+            //remove items in the building from world and db
 
-			//sprintf(sql,"DELETE FROM terminals WHERE ID = %"PRIu64"",object->getId());
-			//mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			//gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+            ++cellIt;
+        }
 
-			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        sprintf(sql,"DELETE FROM houses WHERE ID = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-			//Admin / Hopper Lists
-			sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+		//thats suposedly done by the db now?
+        //sprintf(sql,"DELETE FROM terminals WHERE ID = %"PRIu64"",object->getId());
+        //mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
+        //gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
-			//update attributes cave redeed vs destroy
-			sprintf(sql,"DELETE FROM structure_attributes WHERE Structure_id = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-		}
-		break;
-		case ObjType_Structure:
-		{			
+        //Admin / Hopper Lists
+        sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-			//Harvester
-			sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        //update attributes cave redeed vs destroy
+        sprintf(sql,"DELETE FROM structure_attributes WHERE Structure_id = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-			sprintf(sql,"DELETE FROM harvesters WHERE ID = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    }
+    break;
+    case ObjType_Structure:
+    {
 
-			sprintf(sql,"DELETE FROM factories WHERE ID = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        //Harvester
+        sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-			//Admin / Hopper Lists
-			sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        sprintf(sql,"DELETE FROM harvesters WHERE ID = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-			//update attributes cave redeed vs destroy
-			sprintf(sql,"DELETE FROM structure_attributes WHERE Structure_id = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        sprintf(sql,"DELETE FROM factories WHERE ID = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-			//update hopper contents
-			sprintf(sql,"DELETE FROM harvester_resources WHERE ID = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        //Admin / Hopper Lists
+        sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-		}
-		break;
+        //update attributes cave redeed vs destroy
+        sprintf(sql,"DELETE FROM structure_attributes WHERE Structure_id = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
 
-		case ObjType_Waypoint:
-		{
-			sprintf(sql,"DELETE FROM waypoints WHERE waypoint_id = %"PRIu64"",object->getId());
-			mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
-			gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
-		}
-		break;
+        //update hopper contents
+        sprintf(sql,"DELETE FROM harvester_resources WHERE ID = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
+
+    }
+    break;
+
+    case ObjType_Waypoint:
+    {
+        sprintf(sql,"DELETE FROM waypoints WHERE waypoint_id = %"PRIu64"",object->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        
+    }
+    break;
 
 
-		default:break;
-	}
+    default:
+        break;
+    }
 }
 
 //=============================================================================
 
 void ObjectFactory::requestObject(ObjectType objType,uint16 subGroup,uint16 subType,ObjectFactoryCallback* ofCallback,uint64 id,DispatchClient* client)
 {
-	switch(objType)
-	{
-		case ObjType_Player:
-		{
-			mPlayerObjectFactory->requestObject(ofCallback,id,subGroup,subType,client);
-		}
-		break;
+    switch(objType)
+    {
+    case ObjType_Player:
+    {
+        mPlayerObjectFactory->requestObject(ofCallback,id,subGroup,subType,client);
+    }
+    break;
 
-		case ObjType_Tangible:
-		{
-			mTangibleFactory->requestObject(ofCallback,id,subGroup,subType,client);
-		}
-		break;
-		case ObjType_NPC:
-		case ObjType_Creature:
-		{
-			mCreatureFactory->requestObject(ofCallback,id,subGroup,subType,client);
-		}
-		break;
+    case ObjType_Tangible:
+    {
+        mTangibleFactory->requestObject(ofCallback,id,subGroup,subType,client);
+    }
+    break;
+    case ObjType_NPC:
+    case ObjType_Creature:
+    {
+        mCreatureFactory->requestObject(ofCallback,id,subGroup,subType,client);
+    }
+    break;
 
-		case ObjType_Building:
-		{
-			mBuildingFactory->requestObject(ofCallback,id,subGroup,subType,client);
-		}
-		break;
+    case ObjType_Building:
+    {
+        mBuildingFactory->requestObject(ofCallback,id,subGroup,subType,client);
+    }
+    break;
 
-		case ObjType_Region:
-		{
-			mRegionFactory->requestObject(ofCallback,id,subGroup,subType,client);
-		}
-		break;
+    case ObjType_Region:
+    {
+        mRegionFactory->requestObject(ofCallback,id,subGroup,subType,client);
+    }
+    break;
 
-		case ObjType_Waypoint:
-		{
-			mWaypointFactory->requestObject(ofCallback,id,subGroup,subType,client);
-		}
-		break;
+    case ObjType_Waypoint:
+    {
+        mWaypointFactory->requestObject(ofCallback,id,subGroup,subType,client);
+    }
+    break;
 
-		default:
-			gLogger->log(LogManager::DEBUG,"ObjectFactory::requestObject Unknown Object type");
-		break;
-	}
+    default:
+        DLOG(INFO) << "ObjectFactory::requestObject Unknown Object type";
+        break;
+    }
 }
 
 //=============================================================================
 
 void ObjectFactory::releaseAllPoolsMemory()
 {
-	mDbAsyncPool.release_memory();
+    mDbAsyncPool.release_memory();
 
-	mPlayerObjectFactory->releaseAllPoolsMemory();
-	mTangibleFactory->releaseAllPoolsMemory();
-	mIntangibleFactory->releaseAllPoolsMemory();
-	mCreatureFactory->releaseAllPoolsMemory();
-	mBuildingFactory->releaseAllPoolsMemory();
-	mRegionFactory->releaseAllPoolsMemory();
-	mWaypointFactory->releaseQueryContainerPoolMemory();
-	mHarvesterFactory->releaseAllPoolsMemory();
-	mFactoryFactory->releaseAllPoolsMemory();
+    mPlayerObjectFactory->releaseAllPoolsMemory();
+    mTangibleFactory->releaseAllPoolsMemory();
+    mIntangibleFactory->releaseAllPoolsMemory();
+    mCreatureFactory->releaseAllPoolsMemory();
+    mBuildingFactory->releaseAllPoolsMemory();
+    mRegionFactory->releaseAllPoolsMemory();
+    mWaypointFactory->releaseQueryContainerPoolMemory();
+    mHarvesterFactory->releaseAllPoolsMemory();
+    mFactoryFactory->releaseAllPoolsMemory();
 
 }
 

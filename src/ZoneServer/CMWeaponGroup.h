@@ -35,11 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class CMWeaponGroup
 {
-	public:
+public:
 
-		uint32	mId;
-		uint32	mDefaultAttackAnimationCrc;
-		BString	mDefaultCombatSpam;
+    uint32	mId;
+    uint32	mDefaultAttackAnimationCrc;
+    BString	mDefaultCombatSpam;
 };
 
 //=========================================================================================

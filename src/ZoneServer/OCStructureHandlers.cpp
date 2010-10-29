@@ -58,7 +58,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -98,16 +97,16 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleModifyPermissionList Player not found");
+        DLOG(INFO) << " ObjectController::_handleModifyPermissionList Player not found";
         return;
     }
-    
+
     //find out where our structure is
     BString dataStr;
     message->getStringUnicode16(dataStr);
-    
+
     BString playerStr,list,action;
-    
+
     dataStr.convert(BSTRType_ANSI);
 
     int8 s1[64],s2[32],s3[32];
@@ -122,8 +121,6 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
         return;
     }
 
-    gLogger->log(LogManager::DEBUG," %s %s %s", playerStr.getAnsi(), list.getAnsi(), action.getAnsi());
-
     //TODO is target a structure?? used when using the commandline option
     uint64 id = player->getTargetId();
     Object* object = gWorldManager->getObjectById(id);
@@ -136,16 +133,15 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
         Object* object = gWorldManager->getObjectById(id);
         structure = dynamic_cast<PlayerStructure*>(object);
     }
-    
+
     if(!structure)
     {
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleModifyPermissionList No structure found :(");
         return;
     }
 
     //is the structure in Range???
     float fAdminListDistance = gWorldConfig->getConfiguration<float>("Player_Admin_List_Distance",(float)32.0);
-    
+
     if(player->getParentId())
     {
         if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId())))
@@ -159,7 +155,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
                 }
             }
         }
-        
+
     }
     else if(glm::distance(player->mPosition, structure->mPosition) > fAdminListDistance)
     {
@@ -168,7 +164,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
     }
 
     player->setStructurePermissionId(0);
-    
+
     StructureAsyncCommand command;
     command.PlayerId = player->getId();
     command.StructureId = structure->getId();
@@ -177,16 +173,16 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
     if(action == "add")
     {
-        command.Command = Structure_Command_AddPermission;	
+        command.Command = Structure_Command_AddPermission;
         gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
     }
 
     if(action == "remove")
     {
-        command.Command = Structure_Command_RemovePermission;	
+        command.Command = Structure_Command_RemovePermission;
         gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
     }
-        
+
 }
 
 //======================================================================================================================
@@ -203,7 +199,6 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleTransferStructure Player not found");
         return;
     }
 
@@ -211,7 +206,7 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
     // is the player online and near 30m ?
     // we get the  players id as targetid if yes, otherwise we get the name as string
     // however, we do not want players that  are not online
-    
+
     //now get the target player
     PlayerObject*	recipient	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 
@@ -231,10 +226,9 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
         // we need to get the nearest structure that we own
         // for now dustoff
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "command_no_building"), player);
-        gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferStructure No structure found :(");
         return;
     }
-    
+
     //is the structure in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Transfer_Structure_Distance",(float)8.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
@@ -248,10 +242,10 @@ void	ObjectController::_handleTransferStructure(uint64 targetId,Message* message
     command.StructureId = structure->getId();
     command.RecipientId = recipient->getId();
     command.PlayerStr = recipient->getFirstName().getAnsi();
-    command.Command = Structure_Command_TransferStructure;	
+    command.Command = Structure_Command_TransferStructure;
 
     gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-        
+
 }
 
 
@@ -273,7 +267,6 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleTransferStructure Player not found");
         return;
     }
 
@@ -287,7 +280,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "command_no_building"), player);
         return;
     }
-    
+
     //is the structure in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
@@ -299,9 +292,9 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
     //find out where our structure is
     BString dataStr;
     message->getStringUnicode16(dataStr);
-    
+
     BString nameStr;
-    
+
     dataStr.convert(BSTRType_ANSI);
 
     sscanf(dataStr.getAnsi(),"%s",nameStr.getAnsi());
@@ -318,7 +311,7 @@ void	ObjectController::_handleNameStructure(uint64 targetId,Message* message,Obj
     command.StructureId = structure->getId();
 
     gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-        
+
 }
 
 //======================================================================================================================
@@ -332,11 +325,10 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Player not found");
         return;
     }
 
-    //do we have a valid structure ??? 
+    //do we have a valid structure ???
     uint64 id = targetId;
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
@@ -344,15 +336,14 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not found");
         return;
     }
-    
+
     //is the structure in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
+        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData Structure not in Range";
         return;
     }
 
@@ -369,7 +360,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     return;
     gMessageLib->sendHarvesterResourceData(structure,player);
 
-    gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline");
+    DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline";
     gMessageLib->sendBaselinesHINO_7(harvester,player);
 
     //add the structure to the timer so the resource amounts are updated while we look at the hopper
@@ -378,10 +369,10 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     //structure->getTTS()->projectedTime = 5000 + Anh_Utils::Clock::getSingleton()->getLocalTime();
     //gStructureManager->addStructureforHopperUpdate(harvester->getId());
 
-    // this needs to be handled zoneserverside - otherwise the addition of a res will trigger a racecondition 
+    // this needs to be handled zoneserverside - otherwise the addition of a res will trigger a racecondition
     // between the sql write query and the sql read please note that the harvesting itself happens through stored procedures
     // and we cant keep the updatecounters synchronized
-    
+
 
 }
 
@@ -393,17 +384,14 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 //
 void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource");
-
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
         return;
     }
 
-    //do we have a valid structure ??? 
+    //do we have a valid structure ???
     uint64 id = targetId;
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
@@ -411,15 +399,14 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
-    
+
     //is the structure in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
+        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData Structure not in Range";
         return;
     }
 
@@ -430,33 +417,31 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
     message->getStringUnicode16(dataStr);
 
     uint64 resourceId;
-    swscanf(dataStr.getUnicode16(),L"%I64u",&resourceId);
+    swscanf(dataStr.getUnicode16(),L"%"WidePRIu64,&resourceId);
 
     Resource* tmpResource = gResourceManager->getResourceById(resourceId);
-    
+
     if((!tmpResource)||(!tmpResource->getCurrent()))
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData No valid resource!");
+        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData No valid resource!";
         return;
     }
 
     harvester->setCurrentResource(resourceId);
 
-    // update the current resource in the db 
-    mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET ResourceID=%"PRIu64" WHERE id=%"PRIu64" ",resourceId,harvester->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE harvesters SET ResourceID=%"PRIu64" WHERE id=%"PRIu64" ",resourceId,harvester->getId()); // SQL Debug Log
-
+    // update the current resource in the db
+    mDatabase->executeSqlAsync(0,0,"UPDATE harvesters SET ResourceID=%"PRIu64" WHERE id=%"PRIu64" ",resourceId,harvester->getId());
 
     CurrentResource* cR = reinterpret_cast<CurrentResource*>(tmpResource);
-        //resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
+    //resource = reinterpret_cast<CurrentResource*>(gResourceManager->getResourceByNameCRC(resourceName.getCrc()));
 
     float posX, posZ;
     float ratio = 0.0;
 
     posX	= harvester->mPosition.x;
     posZ	= harvester->mPosition.z;
-    
-    
+
+
     if(cR)
     {
         ratio	= cR->getDistribution((int)posX + 8192,(int)posZ + 8192);
@@ -474,19 +459,19 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
     // TODO keep the list up to date by removing unnecessary resources
     // to this end read the list anew and delete every resource with zero amount
     // have a stored function do this
-    
+
     if(!harvester->checkResourceList(resourceId))
     {
         //do *not* add to list - otherwise we get a racecondition with the asynch update from db !!!
         //harvester->getResourceList()->push_back(std::make_pair(resourceId,float(0.0)));
         //add to db
-        mDatabase->ExecuteSqlAsync(0,0,"INSERT INTO harvester_resources VALUES(%"PRIu64",%"PRIu64",0,0)",harvester->getId(),resourceId);
-        gLogger->log(LogManager::DEBUG, "SQL :: INSERT INTO harvester_resources VALUES(%"PRIu64",%"PRIu64",0,0)",harvester->getId(),resourceId); // SQL Debug Log
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO harvester_resources VALUES(%"PRIu64",%"PRIu64",0,0)",harvester->getId(),resourceId);
+     
     }
 
     // update the current extractionrate in the db for the stored procedure handling the harvesting
-    mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET rate=%f WHERE id=%"PRIu64" ",(ber*ratio),harvester->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE harvesters SET rate=%f WHERE id=%"PRIu64" ",(ber*ratio),harvester->getId()); // SQL Debug Log
+    mDatabase->executeSqlAsync(0,0,"UPDATE harvesters SET rate=%f WHERE id=%"PRIu64" ",(ber*ratio),harvester->getId());
+    
 
     //now send the updates
     gMessageLib->sendCurrentResourceUpdate(harvester,player);
@@ -507,11 +492,10 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
         return;
     }
 
-    //do we have a valid structure ??? 
+    //do we have a valid structure ???
     uint64 id = targetId;
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
@@ -519,15 +503,13 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
-    
+
     //is the structure in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterActivate Structure not in Range");
         return;
     }
 
@@ -537,10 +519,10 @@ void	ObjectController::_handleHarvesterActivate(uint64 targetId,Message* message
 
     //send the respective delta
     gMessageLib->sendHarvesterActive(harvester);
-    
+
     //send the db update
-    mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET active= 1 WHERE id=%"PRIu64" ",harvester->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE harvesters SET active= 1 WHERE id=%"PRIu64" ",harvester->getId()); // SQL Debug Log
+    mDatabase->executeSqlAsync(0,0,"UPDATE harvesters SET active= 1 WHERE id=%"PRIu64" ",harvester->getId());
+    
 
 }
 
@@ -556,11 +538,10 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
         return;
     }
 
-    //do we have a valid structure ??? 
+    //do we have a valid structure ???
     uint64 id = targetId;
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
@@ -568,15 +549,13 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
-    
+
     //is the structure in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
         return;
     }
 
@@ -586,10 +565,10 @@ void	ObjectController::_handleHarvesterDeActivate(uint64 targetId,Message* messa
 
     //send the respective delta
     gMessageLib->sendHarvesterActive(harvester);
-    
+
     //send the db update
-    mDatabase->ExecuteSqlAsync(0,0,"UPDATE harvesters SET active = 0 WHERE id=%"PRIu64" ",harvester->getId());
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE harvesters SET active = 0 WHERE id=%"PRIu64" ",harvester->getId()); // SQL Debug Log
+    mDatabase->executeSqlAsync(0,0,"UPDATE harvesters SET active = 0 WHERE id=%"PRIu64" ",harvester->getId());
+    
 
 }
 
@@ -605,11 +584,10 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Player not found");
         return;
     }
 
-    //do we have a valid structure ??? 
+    //do we have a valid structure ???
     uint64 id = targetId;
     Object* object = gWorldManager->getObjectById(id);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
@@ -617,19 +595,15 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
-    
+
     //is the structure in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
         return;
     }
-
-    HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
 
     StructureAsyncCommand command;
 
@@ -639,9 +613,6 @@ void	ObjectController::_handleDiscardHopper(uint64 targetId,Message* message,Obj
 
     gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-    // mDatabase->ExecuteSqlAsync(0,0,"SELECT sf_DiscardHopper(%"PRIu64") ",harvester->getId());
-    // gLogger->log(LogManager::DEBUG, "SQL :: SELECT sf_DiscardHopper(%"PRIu64") ",harvester->getId()); // SQL Debug Log
-    // gMessageLib->SendHarvesterHopperUpdate(harvester,player);
 
 }
 
@@ -654,33 +625,30 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
     uint64 playerId;
     uint64 harvesterId;
 
-    message->getUint64(playerId);	
+    message->getUint64(playerId);
     message->getUint64(harvesterId);
 
     PlayerObject*   player  = dynamic_cast<PlayerObject*>(mObject);
 
     if(!player)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::ResourceEmptyHopper Player not found");
         return;
     }
 
-    //do we have a valid structure ??? 
+    //do we have a valid structure ???
     Object* object = gWorldManager->getObjectById(harvesterId);
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
 
     if(!structure)
     {
         //gMessageLib->sendSystemMessage(player,L"","player_structure","command_no_building");
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterSelectResource Structure not found");
         return;
     }
-    
+
     //is the structure in Range???
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        gLogger->log(LogManager::DEBUG," ObjectController::_handleHarvesterGetResourceData Structure not in Range");
         return;
     }
 
@@ -693,16 +661,14 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
     message->getUint8(b1);
     message->getUint8(b2);
 
-    HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure);
-
     StructureAsyncCommand command;
 
     if(b1 == 0)
     {
         command.Command		=	Structure_Command_RetrieveResource;
-        command.PlayerId	=	player->getId();		   
+        command.PlayerId	=	player->getId();
         command.StructureId =	structure->getId();
-        command.ResourceId	=	resourceId; 
+        command.ResourceId	=	resourceId;
         command.Amount		=	amount;
         command.b1 = b1;
         command.b2 = b2;
@@ -710,9 +676,9 @@ void	ObjectController::handleResourceEmptyHopper(Message* message)
     if(b1 == 1)
     {
         command.Command		=	Structure_Command_DiscardResource;
-        command.PlayerId	=	player->getId();		   
+        command.PlayerId	=	player->getId();
         command.StructureId =	structure->getId();
-        command.ResourceId	=	resourceId; 
+        command.ResourceId	=	resourceId;
         command.Amount		=	amount;
         command.b1 = b1;
         command.b2 = b2;
@@ -733,27 +699,27 @@ void	ObjectController::HandleItemMoveForward_(
     uint64 targetId,
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-    
+
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveForward_ Player not found");
         return;
     }
-    
+
     // Verify that there was a target passed.
     if (!targetId) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
-    
+
     Object* object = gWorldManager->getObjectById(targetId);
-    
+
     if(!object)	{
         assert(false && "ObjectController::HandleItemMoveForward_ item not found");
         return;
     }
-    
+
     // Verify that the item and player are in the same structure.
     CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
     if(!playerCell)	{
@@ -761,23 +727,23 @@ void	ObjectController::HandleItemMoveForward_(
         return;
     }
     uint64 playerStructure = playerCell->getParentId();
-    
+
     CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
     if(!objectCell)	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
     uint64 objectStructure = objectCell->getParentId();
-    
+
     if (objectStructure != playerStructure) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
-    
+
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {    
+            if (!building->hasAdminRights(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -789,10 +755,10 @@ void	ObjectController::HandleItemMoveForward_(
         //so were not in a building ??
         return;
     }
-    
+
     // Move the object forward 1/10th of a meter.
     object->move(player->mDirection, MOVE_INCREMENT);
-        
+
     gMessageLib->sendDataTransformWithParent053(object);
     object->updateWorldPosition();
 }
@@ -806,27 +772,27 @@ void	ObjectController::HandleItemMoveBack_(
     uint64 targetId,
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-    
+
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveBack_ Player not found");
         return;
     }
-    
+
     // Verify that there was a target passed.
     if (!targetId) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
-    
+
     Object* object = gWorldManager->getObjectById(targetId);
-    
+
     if(!object)	{
         assert(false && "ObjectController::HandleItemMoveBack_ item not found");
         return;
     }
-    
+
     // Verify that the item and player are in the same structure.
     // Verify that the item and player are in the same structure.
     CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
@@ -835,23 +801,23 @@ void	ObjectController::HandleItemMoveBack_(
         return;
     }
     uint64 playerStructure = playerCell->getParentId();
-    
+
     CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
     if(!objectCell)	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
     uint64 objectStructure = objectCell->getParentId();
-    
+
     if (objectStructure != playerStructure) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
-    
+
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {    
+            if (!building->hasAdminRights(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -863,10 +829,10 @@ void	ObjectController::HandleItemMoveBack_(
         //so were just outside ??
         return;
     }
-    
+
     // Move the object back 1/10th of a meter.
     object->move(player->mDirection, -MOVE_INCREMENT);
-    
+
     gMessageLib->sendDataTransformWithParent053(object);
     object->updateWorldPosition();
 }
@@ -880,27 +846,27 @@ void	ObjectController::HandleItemMoveUp_(
     uint64 targetId,
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-    
+
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveUp_ Player not found");
         return;
     }
-    
+
     // Verify that there was a target passed.
     if (!targetId) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
-    
+
     Object* object = gWorldManager->getObjectById(targetId);
-    
+
     if(!object)	{
         assert(false && "ObjectController::HandleItemMoveUp_ item not found");
         return;
     }
-    
+
     // Verify that the item and player are in the same structure.
     // Verify that the item and player are in the same structure.
     CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
@@ -909,23 +875,23 @@ void	ObjectController::HandleItemMoveUp_(
         return;
     }
     uint64 playerStructure = playerCell->getParentId();
-    
+
     CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
     if(!objectCell)	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
     uint64 objectStructure = objectCell->getParentId();
-    
+
     if (objectStructure != playerStructure) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
-    
+
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {    
+            if (!building->hasAdminRights(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -937,9 +903,9 @@ void	ObjectController::HandleItemMoveUp_(
         //so were just outside
         return;
     }
-    
+
     object->mPosition.y += MOVE_INCREMENT;
-    
+
     gMessageLib->sendDataTransformWithParent053(object);
     object->updateWorldPosition();
 }
@@ -953,27 +919,27 @@ void ObjectController::HandleItemMoveDown_(
     uint64 targetId,
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-    
+
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveDown_ Player not found");
         return;
     }
-    
+
     // Verify that there was a target passed.
     if (!targetId) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
-    
+
     Object* object = gWorldManager->getObjectById(targetId);
-    
+
     if(!object)	{
         assert(false && "ObjectController::HandleItemMoveDown_ item not found");
         return;
     }
-    
+
     // Verify that the item and player are in the same structure.
     // Verify that the item and player are in the same structure.
     CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
@@ -982,23 +948,23 @@ void ObjectController::HandleItemMoveDown_(
         return;
     }
     uint64 playerStructure = playerCell->getParentId();
-    
+
     CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
     if(!objectCell)	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
     uint64 objectStructure = objectCell->getParentId();
-    
+
     if (objectStructure != playerStructure) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return;
     }
-    
+
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {    
+            if (!building->hasAdminRights(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -1010,9 +976,9 @@ void ObjectController::HandleItemMoveDown_(
         //were just outside??
         return;
     }
-    
+
     object->mPosition.y -= MOVE_INCREMENT;
-    
+
     gMessageLib->sendDataTransformWithParent053(object);
     object->updateWorldPosition();
 }
@@ -1026,27 +992,27 @@ void	ObjectController::HandleItemRotateRight_(
     uint64 targetId,
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-    
+
     if (!player)	{
         assert(false && "ObjectController::HandleItemRotateRight_ Player not found");
         return;
     }
-    
+
     // Verify that there was a target passed.
     if (!targetId) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
-    
+
     Object* object = gWorldManager->getObjectById(targetId);
-    
+
     if(!object)	{
         assert(false && "ObjectController::HandleItemRotateRight_ item not found");
         return;
     }
-    
+
     // Verify that the item and player are in the same structure.
     // Verify that the item and player are in the same structure.
     CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
@@ -1055,23 +1021,23 @@ void	ObjectController::HandleItemRotateRight_(
         return;
     }
     uint64 playerStructure = playerCell->getParentId();
-    
+
     CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
     if(!objectCell)	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
     uint64 objectStructure = objectCell->getParentId();
-    
+
     if (objectStructure != playerStructure) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
-    
+
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {    
+            if (!building->hasAdminRights(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -1083,10 +1049,10 @@ void	ObjectController::HandleItemRotateRight_(
         //were just outside
         return;
     }
-    
+
     // Rotate the object 90 degree's to the right
     object->rotateRight(ROTATE_INCREMENT);
-    
+
     gMessageLib->sendDataTransformWithParent053(object);
     object->updateWorldPosition();
 }
@@ -1099,27 +1065,27 @@ void ObjectController::HandleItemRotateLeft_(
     uint64 targetId,
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-    
+
     if (!player)	{
         assert(false && "ObjectController::HandleItemRotateLeft_ Player not found");
         return;
     }
-    
+
     // Verify that there was a target passed.
     if (!targetId) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
-    
+
     Object* object = gWorldManager->getObjectById(targetId);
-    
+
     if(!object)	{
         assert(false && "ObjectController::HandleItemRotateLeft_ item not found");
         return;
     }
-    
+
     // Verify that the item and player are in the same structure.
     // Verify that the item and player are in the same structure.
     CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
@@ -1128,23 +1094,23 @@ void ObjectController::HandleItemRotateLeft_(
         return;
     }
     uint64 playerStructure = playerCell->getParentId();
-    
+
     CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
     if(!objectCell)	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
     uint64 objectStructure = objectCell->getParentId();
-    
+
     if (objectStructure != playerStructure) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
-    
+
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {    
+            if (!building->hasAdminRights(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -1156,10 +1122,10 @@ void ObjectController::HandleItemRotateLeft_(
         //were just outside
         return;
     }
-    
+
     // Rotate the item 90 degrees to the left
     object->rotateLeft(ROTATE_INCREMENT);
-    
+
     gMessageLib->sendDataTransformWithParent053(object);
     object->updateWorldPosition();
 }
@@ -1169,30 +1135,30 @@ void ObjectController::HandleItemRotateLeft_(
 // rotates an item
 //
 void ObjectController::HandleRotateFurniture_(
-    uint64 targetId, 
+    uint64 targetId,
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-    
+
     if (!player)	{
         assert(false && "ObjectController::HandleRotateFurniture_ Player not found");
-            return;
+        return;
     }
-    
+
     // Verify that there was a target passed.
     if (!targetId) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
-    
+
     Object* object = gWorldManager->getObjectById(targetId);
-    
+
     if(!object)	{
         assert(false && "ObjectController::HandleRotateFurniture_ item not found");
         return;
-    }   
-    
+    }
+
     // Verify that the item and player are in the same structure.
     CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
     if(!playerCell)	{
@@ -1200,23 +1166,23 @@ void ObjectController::HandleRotateFurniture_(
         return;
     }
     uint64 playerStructure = playerCell->getParentId();
-    
+
     CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
     if(!objectCell)	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
     uint64 objectStructure = objectCell->getParentId();
-    
+
     if (objectStructure != playerStructure) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_what"), player);
         return;
     }
-    
+
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {    
+            if (!building->hasAdminRights(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return;
             }
@@ -1228,51 +1194,51 @@ void ObjectController::HandleRotateFurniture_(
         //were just outside??
         return;
     }
-    
+
     // Read the message out of the packet.
     BString tmp;
     message->getStringUnicode16(tmp);
-    
+
     // If the string has no length the message is ill-formatted, send the
     // proper format to the client.
     if (!tmp.getLength()) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "formet_rotratefurniture_degrees"), player);
         return;
     }
-    
+
     // Convert the string to an ansi string for ease with the regex.
     tmp.convert(BSTRType_ANSI);
     std::string input_string(tmp.getAnsi());
-    
+
     static const regex pattern("(right|left) ([0-9]+)");
     smatch result;
-    
+
     regex_search(input_string, result, pattern);
-    
+
     // If the pattern doesn't match all elements then send the proper format
     // to the client.
     if (result.length() < 2) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "formet_rotratefurniture_degrees"), player);
         return;
     }
-    
+
     // Gather the results of the pattern for validation and use.
     std::string direction(result[1]);
     float degrees = boost::lexical_cast<float>(result[2]);
-    
+
     // If the the specified amount is not within the valid range notify the client.
     if (degrees < 1.0f || degrees > 180.0f) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "rotate_params"), player);
         return;
     }
-    
+
     // Rotate by the necessary amount.
     if (direction.compare("left") == 0) {
         object->rotateLeft(degrees);
     } else {
         object->rotateRight(degrees);
     }
-    
+
     // Update the world with the changes.
     gMessageLib->sendDataTransformWithParent053(object);
     object->updateWorldPosition();
@@ -1284,25 +1250,25 @@ bool HandleMoveFurniture(
     Object* target,
     Message* message,
     ObjectControllerCmdProperties* cmdProperties) {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(object);
-    
+
     if (!player)	{
         assert(false && "ObjectController::HandleItemMoveDown_ Player not found");
         return false;
     }
-    
+
     // Verify that there was a target passed.
     if (!target) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return false;
     }
-    
+
     if(!target)	{
         assert(false && "ObjectController::HandleItemMoveDown_ item not found");
         return false;
     }
-    
+
     // Verify that the item and player are in the same structure.
     CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
     if(!playerCell)	{
@@ -1310,23 +1276,23 @@ bool HandleMoveFurniture(
         return false;
     }
     uint64 playerStructure = playerCell->getParentId();
-    
+
     CellObject* objectCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(object->getParentId()));
     if(!objectCell)	{
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return false;
     }
     uint64 objectStructure = objectCell->getParentId();
-    
+
     if (objectStructure != playerStructure) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "move_what"), player);
         return false;
     }
-    
+
     // Verify that the player has appropriate rights on this structure.
     if (playerCell) {
         if (BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(playerCell->getParentId()))) {
-            if (!building->hasAdminRights(player->getId())) {    
+            if (!building->hasAdminRights(player->getId())) {
                 gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "admin_move_only"), player);
                 return false;
             }
@@ -1338,44 +1304,44 @@ bool HandleMoveFurniture(
         //were just outside ??
         return false;
     }
-    
+
     // Read the message out of the packet.
     BString tmp;
     message->getStringUnicode16(tmp);
-    
+
     // If the string has no length the message is ill-formatted, send the
     // proper format to the client.
     if (!tmp.getLength()) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "format_movefurniture_distance"), player);
         return false;
     }
-    
+
     // Convert the string to an ansi string for ease with the regex.
     tmp.convert(BSTRType_ANSI);
     std::string input_string(tmp.getAnsi());
-    
+
     static const regex pattern("(forward|back|up|down) ([0-9]+)");
     smatch result;
-    
+
     regex_search(input_string, result, pattern);
-    
+
     // If the pattern doesn't match all elements then send the proper format
     // to the client.
     if (result.length() < 2) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "format_movefurniture_distance"), player);
         return false;
     }
-    
+
     // Gather the results of the pattern for validation and use.
     std::string direction(result[1]);
     float distance = boost::lexical_cast<float>(result[2]);
-    
+
     // If the the specified amount is not within the valid range notify the client.
     if ((distance < 1.0f) || (distance > 500.0f)) {
         gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "movefurniture_params"), player);
         return false;
     }
-    
+
     // Move object an MOVE_INCREMENT times by the amount and direction specified.
     if (direction == "forward") {
         target->move(player->mDirection, distance * MOVE_INCREMENT);
@@ -1386,10 +1352,10 @@ bool HandleMoveFurniture(
     } else if (direction == "down") {
         target->mPosition.y -= distance * MOVE_INCREMENT;
     }
-    
+
     // Update the world with the changes.
     gMessageLib->sendDataTransformWithParent053(target);
     target->updateWorldPosition();
-    
+
     return true;
 }

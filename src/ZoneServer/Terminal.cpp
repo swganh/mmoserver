@@ -33,10 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 Terminal::Terminal() : TangibleObject()
 {
-	mTanGroup = TanGroup_Terminal;
-	
-	//manually set to not static if the terminal can be picked up ba players
-	this->setStatic(true);
+    mTanGroup = TanGroup_Terminal;
+
+    //manually set to not static if the terminal can be picked up ba players
+    this->setStatic(true);
 }
 
 //=============================================================================

@@ -11,25 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ApplicationService.cpp" />
-    <ClCompile Include="atMacroString.cpp" />
-    <ClCompile Include="BuildInfo.cpp" />
-    <ClCompile Include="ByteBuffer.cpp" />
-    <ClCompile Include="ConfigFile.cpp" />
-    <ClCompile Include="ConfigManager.cpp" />
-    <ClCompile Include="Crc.cpp" />
-    <ClCompile Include="Event.cpp" />
-    <ClCompile Include="EventDispatcher.cpp" />
-    <ClCompile Include="HashString.cpp" />
-    <ClCompile Include="LogManager.cpp" />
-    <ClCompile Include="OutOfBand.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="ApplicationService.h" />
     <ClInclude Include="atMacroString.h" />
     <ClInclude Include="BuildInfo.h" />
-    <ClInclude Include="ByteBuffer-Inl.h" />
-    <ClInclude Include="ByteBuffer.h" />
+    <ClInclude Include="byte_buffer-inl.h" />
+    <ClInclude Include="byte_buffer.h" />
     <ClInclude Include="ConfigFile.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="declspec.h" />
@@ -44,6 +30,20 @@
     <ProjectReference Include="..\Utils\Utils.vcxproj">
       <Project>{95a1522d-a200-4f0c-9e57-815eb370d181}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ApplicationService.cc" />
+    <ClCompile Include="atMacroString.cc" />
+    <ClCompile Include="BuildInfo.cc" />
+    <ClCompile Include="byte_buffer.cc" />
+    <ClCompile Include="ConfigFile.cc" />
+    <ClCompile Include="ConfigManager.cc" />
+    <ClCompile Include="Crc.cc" />
+    <ClCompile Include="Event.cc" />
+    <ClCompile Include="EventDispatcher.cc" />
+    <ClCompile Include="HashString.cc" />
+    <ClCompile Include="LogManager.cc" />
+    <ClCompile Include="OutOfBand.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{432DCBE9-1F49-49FF-9753-BE806192A917}</ProjectGuid>
@@ -91,14 +91,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;COMMON_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\boost.atomic;$(SolutionDir)deps\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\glog\src\windows;$(SolutionDir)deps\tbb\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\noise\win32\Debug;$(SolutionDir)deps\spatialindex\Debug;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\glog\$(Configuration);$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\tbb\lib\ia32\vc10;$(SolutionDir)deps\mysql\lib\debug;$(SolutionDir)deps\noise\win32\Debug;$(SolutionDir)deps\spatialindex\Debug;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Debug;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;libglog.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -110,7 +110,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;COMMON_EXPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\boost.atomic;$(SolutionDir)deps\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)deps;$(SolutionDir)deps\boost;$(SolutionDir)deps\glm;$(SolutionDir)deps\glog\src\windows;$(SolutionDir)deps\tbb\include;$(SolutionDir)src</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DisableSpecificWarnings>4244</DisableSpecificWarnings>
     </ClCompile>
@@ -119,8 +119,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\noise\win32\Release;$(SolutionDir)deps\spatialindex\Release;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>winmm.lib;ws2_32.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)deps\boost\stage\lib;$(SolutionDir)deps\glog\$(Configuration);$(SolutionDir)deps\lua\lib;$(SolutionDir)deps\tbb\lib\ia32\vc10;$(SolutionDir)deps\mysql\lib\opt;$(SolutionDir)deps\noise\win32\Release;$(SolutionDir)deps\spatialindex\Release;$(SolutionDir)deps\tolua++\win32\vc9\withLua51_Release;$(SolutionDir)deps\zlib\projects\visualc6\Win32_LIB_Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>winmm.lib;ws2_32.lib;libglog.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

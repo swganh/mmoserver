@@ -34,7 +34,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Service.h"
 #include "NetworkManager/Session.h"
 #include "NetworkManager/NetworkClient.h"
-#include "Common/LogManager.h"
+
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 
 //#include <stdio.h>
@@ -43,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 
 MessageDispatch::MessageDispatch(Service* service) :
-mRouterService(service)
+    mRouterService(service)
 {
     // Put ourselves on the service callback list.
     mRouterService->AddNetworkCallback(this);
@@ -128,7 +134,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
         dispatchClient = new DispatchClient();
         dispatchClient->setAccountId(message->getAccountId());
         dispatchClient->setSession(client->getSession());
-    
+
         mAccountClientMap.insert(std::make_pair(message->getAccountId(),dispatchClient));
     }
     else if (opcode == opClusterClientDisconnect)
@@ -141,15 +147,15 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
             dispatchClient = (*iter).second;
             mAccountClientMap.erase(iter);
 
-            gLogger->log(LogManager::DEBUG, "Destroying Dispatch Client for account %u.", message->getAccountId());
+            DLOG(INFO) << "Destroying Dispatch Client for account " << message->getAccountId();
 
             // Mark it for deletion
             deleteClient = true;
-    
+
         }
         else
         {
-            gLogger->log(LogManager::NOTICE, "Could not find DispatchClient for account %u to be deleted.", message->getAccountId());
+            LOG(INFO) << "Could not find DispatchClient for account " <<  message->getAccountId() << " to be deleted.";
 
             client->getSession()->DestroyIncomingMessage(message);
             lk.unlock();
@@ -196,10 +202,10 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
     }
     else
     {
-        gLogger->log(LogManager::INFORMATION, "Unhandled opcode in MessageDispatch - 0x%x (%i)", opcode, opcode);
+        LOG(INFO) <<  "Unhandled opcode in MessageDispatch - " << opcode ;
     }
 
-    
+
     // Delete the client here if we got a disconnect.
     if(deleteClient)
     {
@@ -219,7 +225,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
 //	Create a sessionless dispatch client.
 //
 //	Clients created here may only receive data. Do NOT use when sending (the session is missing, you know).
-// 
+//
 //======================================================================================================================
 
 void MessageDispatch::registerSessionlessDispatchClient(uint32 accountId)
@@ -240,7 +246,7 @@ void MessageDispatch::registerSessionlessDispatchClient(uint32 accountId)
 //
 //	Remove a sessionless dispatch client.
 //
-// 
+//
 //======================================================================================================================
 void MessageDispatch::unregisterSessionlessDispatchClient(uint32 accountId)
 {

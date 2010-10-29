@@ -48,29 +48,31 @@ class SpawnRegionFactory;
 
 class RegionFactory : public FactoryBase
 {
-	public:
+public:
 
-		static RegionFactory*	getSingletonPtr() { return mSingleton; }
-		static RegionFactory*	Init(Database* database);
+    static RegionFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static RegionFactory*	Init(Database* database);
 
-		~RegionFactory();
+    ~RegionFactory();
 
-		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result){}
-		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result) {}
+    void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-		void					releaseAllPoolsMemory();
+    void					releaseAllPoolsMemory();
 
-	private:
+private:
 
-		RegionFactory(Database* database);
+    RegionFactory(Database* database);
 
-		static RegionFactory*	mSingleton;
-		static bool				mInsFlag;
+    static RegionFactory*	mSingleton;
+    static bool				mInsFlag;
 
-		CityFactory*			mCityFactory;
-		BadgeRegionFactory*		mBadgeRegionFactory;
-		SpawnRegionFactory*		mSpawnRegionFactory;
-		QTRegionFactory*		mQTRegionFactory;
+    CityFactory*			mCityFactory;
+    BadgeRegionFactory*		mBadgeRegionFactory;
+    SpawnRegionFactory*		mSpawnRegionFactory;
+    QTRegionFactory*		mQTRegionFactory;
 };
 
 //=============================================================================

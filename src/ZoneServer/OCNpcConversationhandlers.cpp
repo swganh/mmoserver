@@ -52,7 +52,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -127,13 +126,13 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
         }
 
         //check to see if he is part of a mission
-        if(gMissionManager->checkDeliverMission(player,npc) ||
-           gMissionManager->checkCraftingMission(player,npc)
-          ) return;		
+        /*if(gMissionManager->checkDeliverMission(player,npc) ||
+                gMissionManager->checkCraftingMission(player,npc)
+          ) return;*/
 
         // we don't want him to talk
         if(npc->hasInternalAttribute("no_chat"))
-        return;
+            return;
 
         // initiate a conversation dialog
         if(npc->hasInternalAttribute("base_conversation"))
@@ -174,9 +173,9 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
             if(npc->hasInternalAttribute("npc_chat"))	{
                 std::string tmp = npc->getInternalAttribute<std::string>("npc_chat");
                 npc_chat = std::wstring(tmp.begin(), tmp.end());
-            } else {        
+            } else {
                 std::pair<std::wstring,uint32> chat = gWorldManager->getRandNpcChatter();
-                
+
                 npc_chat  = chat.first;
                 animation = chat.second;
             }
@@ -193,7 +192,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
         }
     }
     else
-        gLogger->log(LogManager::DEBUG,"ObjController::_handleNPCConversationStart: Couldn't find object %"PRIu64"",targetId);
+        DLOG(INFO) << "ObjController::_handleNPCConversationStart: Couldn't find object " << targetId;
 }
 
 //=============================================================================
@@ -223,7 +222,7 @@ void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* mes
 
     if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
     {
-        gLogger->log(LogManager::DEBUG,"ObjController::handleNPCConversationSelect: Error in parameters\n");
+        DLOG(INFO) << "ObjController::handleNPCConversationSelect: Error in parameters";
         return;
     }
 

@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "AttackableCreature.h"
 #include "Datapad.h"
 #include "Inventory.h"
-#include "MissionManager.h"
+//#include "MissionManager.h"
 #include "MissionObject.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -86,7 +86,6 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
                 // start the duel
                 gMessageLib->sendUpdatePvpStatus(player,targetPlayer,player->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
                 gMessageLib->sendUpdatePvpStatus(targetPlayer,player,targetPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
-                
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "accept_self", 0, targetId, 0), player);
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "accept_target", 0, player->getId(), 0), targetPlayer);
             }
@@ -105,7 +104,6 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
                 else
                 {
                     player->addToDuelList(targetPlayer);
-                    
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "challenge_self", 0, targetId, 0), player);
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "challenge_target", 0, player->getId(), 0), targetPlayer);
                 }
@@ -150,7 +148,7 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
                 // end the duel
                 gMessageLib->sendUpdatePvpStatus(player,targetPlayer);
                 gMessageLib->sendUpdatePvpStatus(targetPlayer,player);
-                
+
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "end_self", 0, targetId, 0), player);
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "end_target", 0, player->getId(), 0), targetPlayer);
 
@@ -189,10 +187,10 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
 //
 //	Make peace with everything, stop auto-attack.
 //	Remove all defenders from player defender list.
-// 
+//
 //	Current enemies can very well start attcking this player again.
-// 
-// 
+//
+//
 
 void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
@@ -232,7 +230,6 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
             {
                 ++it;
             }
-            
         }
 
     }
@@ -259,7 +256,7 @@ void ObjectController::handleSetTarget(Message* message)
 // death blow
 //
 //	Right now, we will only DeathBlow players that are incapacitated and active duelling.
-// 
+//
 
 void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
@@ -308,20 +305,33 @@ void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectCont
 
        if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
        {
-            gMessageLib->sendPlayClientEffectLocMessage("clienteffect/combat_explosion_lair_large.cef",mission->getDestination().Coordinates,player);
-            gMissionManager->missionComplete(player,mission);
+		/*MissionList::iterator it = datapad->getMissions()->begin();
+		while(it != datapad->getMissions()->end())
+		{
+			MissionObject* mission = dynamic_cast<MissionObject*>(*it);
+			if(mission->getMissionType() != destroy) {
+				++it;
+				continue;
+			}
 
-            it = datapad->removeMission(it);
-            delete mission;
-       }
-       else
-       {
-            ++it;
-       }
-       
-    }
+			if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+			{
+				gMessageLib->sendPlayClientEffectLocMessage("clienteffect/combat_explosion_lair_large.cef",mission->getDestination().Coordinates,player);
+				gMissionManager->missionComplete(player,mission);
 
-return;
+				it = datapad->removeMission(it);
+				delete mission;
+			}
+			else
+			{
+				++it;
+			}
+
+		}*/
+	   }
+	}
+
+    return;
 }
 //=============================================================================================================================
 //
@@ -337,34 +347,31 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
         // There is noo need to do it, we will save the correct in DB when we store the player data.
         // And... pick a better name for the sp_.. below... like updateWoundsWithCloneData-something....
         // int8 sql_sp[128];
-        // sprintf(sql_sp,"call swganh.sp_CharacterActivateClone(%I64u)", player->getId());
         // (gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql_sp);
 
         // Update player objct with new data for wounds.
         ObjControllerAsyncContainer* asyncContainer;
-        
         asyncContainer = new ObjControllerAsyncContainer(OCQuery_CloneAtPreDes);
         asyncContainer->playerObject = player;
         asyncContainer->anyPtr = (void*)spawnPoint;
 
         int8 sql[256];
         sprintf(sql,"SELECT health_wounds,strength_wounds,constitution_wounds,action_wounds,quickness_wounds,"
-            "stamina_wounds,mind_wounds,focus_wounds,willpower_wounds"
-            " FROM character_clone"
-            " WHERE"
-            " (character_id = %"PRIu64");",player->getId());
+                "stamina_wounds,mind_wounds,focus_wounds,willpower_wounds"
+                " FROM character_clone"
+                " WHERE"
+                " (character_id = %"PRIu64");",player->getId());
 
-        mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-        gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+        mDatabase->executeSqlAsync(this,asyncContainer,sql);
     }
 }
 
 //=============================================================================================================================
 //
 //	Loot a creature of all items and credits, if possible.
-// 
+//
 //	Used both from _handleLoot() and radil's "loot all".
-// 
+//
 
 void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 {
@@ -382,8 +389,8 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
 
             // Player Inventory.
             Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-            
-            if (inventory && playerInventory)
+
+			if (inventory && playerInventory)
             {
                 // Looks like we have valid input, now handle it!
 
@@ -394,8 +401,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                 ObjectIDList*			invObjList	= inventory->getObjects();
                 ObjectIDList::iterator	invObjectIt = invObjList->begin();
                 int32 lootedItems = 0;
-                
-                
+
                 while (invObjectIt != invObjList->end())
                 {
                     Object* object = gWorldManager->getObjectById((*invObjectIt));
@@ -410,7 +416,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                         if(playerInventory->checkSlots(1))
                         {
                             gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
-                            
+
                             //remove from container - destroy for player
                             invObjectIt = inventory->removeObject(invObjectIt,playerObject);
                         }
@@ -442,7 +448,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                             // Number of additional members.
                             int32 noOfMembers = inRangeMembers.size();
                             int32 splittedCredits = lootedCredits/(noOfMembers + 1);
-                                            
+
                             int8 str[64];
                             sprintf(str,"%u", lootedCredits);
                             BString lootCreditsString(str);
@@ -464,7 +470,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                                 {
                                     // "[GROUP] You receive %DI credits as your share."
                                     gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split", 0, 0, 0, splittedCredits), playerObject);
-                                    
+
                                     // Now we need to add the credits to player inventory.
                                     Inventory* playerInventory = dynamic_cast<Inventory*>((*it)->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
                                     if (playerInventory)

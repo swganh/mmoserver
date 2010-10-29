@@ -49,50 +49,55 @@ typedef	std::map<uint64,GroupObject*> GroupMap;
 class GroupManager
 {
 public:
-	static GroupManager*	getSingletonPtr() { return mSingleton; }
-	static GroupManager*	Init(MessageDispatch* dispatch);
+    static GroupManager*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static GroupManager*	Init(MessageDispatch* dispatch);
 
-	GroupManager(MessageDispatch* dispatch);
-	~GroupManager();
+    GroupManager(MessageDispatch* dispatch);
+    ~GroupManager();
 
-	void				Shutdown();
+    void				Shutdown();
 
-	GroupObject*		getGroupById(uint64 groupId);
-	void				removeGroup(uint64 groupId);
+    GroupObject*		getGroupById(uint64 groupId);
+    void				removeGroup(uint64 groupId);
 
-	uint64				getNextGroupId(){ ++mNextGroupId; return mNextGroupId; }
+    uint64				getNextGroupId() {
+        ++mNextGroupId;
+        return mNextGroupId;
+    }
 
-	void				_processGroupInviteRequest(Message* message, DispatchClient* client);
-	void				_processGroupInviteResponse(Message* message, DispatchClient* client);
-	void				_processGroupUnInvite(Message* message, DispatchClient* client);
-	void				_processGroupDisband(Message* message, DispatchClient* client);	
-	void				_processGroupLeave(Message* message, DispatchClient* client);
-	void				_processGroupDismissGroupMember(Message* message, DispatchClient* client);
-	void				_processGroupMakeLeader(Message* message, DispatchClient* client);
-	void				_processGroupBaselineRequest(Message* message, DispatchClient* client);
-	void				_processGroupPositionNotification(Message* message, DispatchClient* client);
-	void				_processGroupLootModeRequest(Message* message, DispatchClient* client);
-	void				_processGroupLootModeResponse(Message* message, DispatchClient* client);
-	void				_processGroupLootMasterRequest(Message* message, DispatchClient* client);
-	void				_processGroupLootMasterResponse(Message* message, DispatchClient* client);
-	void				_processIsmInviteInRangeResponse(Message* message, DispatchClient* client);
-	void				_processIsmIsGroupLeaderRequest(Message* message, DispatchClient* client);
+    void				_processGroupInviteRequest(Message* message, DispatchClient* client);
+    void				_processGroupInviteResponse(Message* message, DispatchClient* client);
+    void				_processGroupUnInvite(Message* message, DispatchClient* client);
+    void				_processGroupDisband(Message* message, DispatchClient* client);
+    void				_processGroupLeave(Message* message, DispatchClient* client);
+    void				_processGroupDismissGroupMember(Message* message, DispatchClient* client);
+    void				_processGroupMakeLeader(Message* message, DispatchClient* client);
+    void				_processGroupBaselineRequest(Message* message, DispatchClient* client);
+    void				_processGroupPositionNotification(Message* message, DispatchClient* client);
+    void				_processGroupLootModeRequest(Message* message, DispatchClient* client);
+    void				_processGroupLootModeResponse(Message* message, DispatchClient* client);
+    void				_processGroupLootMasterRequest(Message* message, DispatchClient* client);
+    void				_processGroupLootMasterResponse(Message* message, DispatchClient* client);
+    void				_processIsmInviteInRangeResponse(Message* message, DispatchClient* client);
+    void				_processIsmIsGroupLeaderRequest(Message* message, DispatchClient* client);
 
 private:
 
-	static GroupManager*		mSingleton;
-	static bool					mInsFlag;
-	DispatchClient*				mClient;
+    static GroupManager*		mSingleton;
+    static bool					mInsFlag;
+    DispatchClient*				mClient;
 
-	MessageDispatch*			mMessageDispatch;
+    MessageDispatch*			mMessageDispatch;
 
-	GroupMap 					mGroups;
-	uint64						mNextGroupId;
+    GroupMap 					mGroups;
+    uint64						mNextGroupId;
 
-	BStringVector				mLootModeMessages;
-	BStringVector				mLootModeNotAllowedMessages;
+    BStringVector				mLootModeMessages;
+    BStringVector				mLootModeNotAllowedMessages;
 
 };
 
-#endif 
+#endif
 

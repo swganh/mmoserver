@@ -40,8 +40,8 @@ ForageManager*	ForageManager::mSingleton = NULL;
 
 ForageManager::ForageManager()
 {
-	mSI = gWorldManager->getSI();
-	pHead = NULL;
+    mSI = gWorldManager->getSI();
+    pHead = NULL;
 }
 
 //================================================================================
@@ -51,76 +51,76 @@ ForageManager::ForageManager()
 class ForageAttempt
 {
 public:
-	ForageAttempt::ForageAttempt(PlayerObject* player, uint64 time, forageClasses forageClass)
-	{
-		startTime = time;
-		playerID = player->getId();
-		completed = false;
+    ForageAttempt(PlayerObject* player, uint64 time, forageClasses forageClass)
+    {
+        startTime = time;
+        playerID = player->getId();
+        completed = false;
 
-		mForageClass = forageClass;
+        mForageClass = forageClass;
 
-		orig_x = player->mPosition.x;
-		orig_y = player->mPosition.y;
-		orig_z = player->mPosition.z;
-	}
+        orig_x = player->mPosition.x;
+        orig_y = player->mPosition.y;
+        orig_z = player->mPosition.z;
+    }
 
-	uint64 startTime;
-	uint64 playerID;
-	forageClasses mForageClass;
-	bool completed;
+    uint64 startTime;
+    uint64 playerID;
+    forageClasses mForageClass;
+    bool completed;
 
-	float orig_x;
-	float orig_y;
-	float orig_z;
+    float orig_x;
+    float orig_y;
+    float orig_z;
 };
 
 class ForagePocket
 {
 public:
-	ForagePocket::ForagePocket(PlayerObject* player, ZoneTree* mSI)
-	{
-		region = mSI->getQTRegion(player->mPosition.z,player->mPosition.z);
+    ForagePocket(PlayerObject* player, ZoneTree* mSI)
+    {
+        region = mSI->getQTRegion(player->mPosition.z,player->mPosition.z);
 
-		innerRect = Anh_Math::Rectangle(player->mPosition.x - 10,player->mPosition.z - 10,20,20);
-		outterRect = Anh_Math::Rectangle(player->mPosition.x - 30,player->mPosition.z - 30,60,60);
+        innerRect = Anh_Math::Rectangle(player->mPosition.x - 10,player->mPosition.z - 10,20,20);
+        outterRect = Anh_Math::Rectangle(player->mPosition.x - 30,player->mPosition.z - 30,60,60);
 
-		pNext = NULL;
-	}
+        pNext = NULL;
+    }
 
-	ForagePocket::~ForagePocket()
-	{
-		//This shouldn't be a problem, but it's here just in case.
+    ~ForagePocket()
+    {
+        //This shouldn't be a problem, but it's here just in case.
 
-		for(std::list<ForageAttempt*>::iterator it=attempts.begin(); it != attempts.end();)
-		{
-			delete (*it);
-			it=attempts.erase(it);
-		}
-	}
+        for(std::list<ForageAttempt*>::iterator it=attempts.begin(); it != attempts.end();)
+        {
+            delete (*it);
+            it=attempts.erase(it);
+        }
+    }
 
-	bool containsPlayer(PlayerObject* player)
-	{
-		if(region->mTree->ObjectContained(&outterRect, player))
-			return true;
-		else
-			return false;
-	}
+    bool containsPlayer(PlayerObject* player)
+    {
+        if(region->mTree->ObjectContained(&outterRect, player))
+            return true;
+        else
+            return false;
+    }
 
-	void addAttempt(ForageAttempt* attempt)
-	{
-		attempts.push_back(attempt);
-	}
+    void addAttempt(ForageAttempt* attempt)
+    {
+        attempts.push_back(attempt);
+    }
 
-	bool updateAttempts(uint64 currentTime); //if True Delete this Pocket, if False don't
+    bool updateAttempts(uint64 currentTime); //if True Delete this Pocket, if False don't
 
-	ForagePocket* pNext;
+    ForagePocket* pNext;
 
 private:
-	std::list<ForageAttempt*> attempts;
+    std::list<ForageAttempt*> attempts;
 
-	QTRegion* region;
-	Anh_Math::Rectangle innerRect;
-	Anh_Math::Rectangle outterRect;
+    QTRegion* region;
+    Anh_Math::Rectangle innerRect;
+    Anh_Math::Rectangle outterRect;
 };
 
 
@@ -210,63 +210,63 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 
 void ForageManager::forageUpdate()
 {
-	ForagePocket* it = pHead;
-	ForagePocket* previousHead = NULL;
-	while(it != NULL)
-	{
-		if(it->updateAttempts(gWorldManager->GetCurrentGlobalTick())) //If true we delete this Pocket
-		{
-			if(previousHead == NULL)
-			{
-				pHead = it->pNext;
-			}
-			else
-			{
-				previousHead->pNext = it->pNext;
-			}
-				delete it;
-				it = previousHead;
-		}
-		if(it != NULL)
-			it = it->pNext;
-	}
+    ForagePocket* it = pHead;
+    ForagePocket* previousHead = NULL;
+    while(it != NULL)
+    {
+        if(it->updateAttempts(gWorldManager->GetCurrentGlobalTick())) //If true we delete this Pocket
+        {
+            if(previousHead == NULL)
+            {
+                pHead = it->pNext;
+            }
+            else
+            {
+                previousHead->pNext = it->pNext;
+            }
+            delete it;
+            it = previousHead;
+        }
+        if(it != NULL)
+            it = it->pNext;
+    }
 }
 
 
 void ForageManager::failForage(PlayerObject* player, forageFails fail)
 {
-	if(!player || !player->isConnected())
-		return;
+    if(!player || !player->isConnected())
+        return;
 
-	switch(fail)
-	{
-	case NOT_OUTSIDE:
+    switch(fail)
+    {
+    case NOT_OUTSIDE:
         gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_inside"), player);
-		break;
-	case PLAYER_MOVED:
+        break;
+    case PLAYER_MOVED:
         gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_movefail"), player);
-		break;
-	case ACTION_LOW:
+        break;
+    case ACTION_LOW:
         gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_attrib"), player);
-		break;
-	case IN_COMBAT:
+        break;
+    case IN_COMBAT:
         gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_cant"), player);
-		break;
-	case AREA_EMPTY:
+        break;
+    case AREA_EMPTY:
         gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_empty"), player);
-		break;
-	case ENTERED_COMBAT:
+        break;
+    case ENTERED_COMBAT:
         gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_combatfail"), player);
-		break;
-	case NO_SKILL:
+        break;
+    case NO_SKILL:
         gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_noskill"), player);
-		break;
-	case ALREADY_FORAGING:
+        break;
+    case ALREADY_FORAGING:
         gMessageLib->SendSystemMessage(::common::OutOfBand("skl_use", "sys_forage_already"), player);
-		return;
-	}
+        return;
+    }
 
-	player->setForaging(false);
+    player->setForaging(false);
 }
 
 bool ForagePocket::updateAttempts(uint64 currentTime)
@@ -345,16 +345,16 @@ bool ForagePocket::updateAttempts(uint64 currentTime)
 
 void ForageManager::successForage(PlayerObject* player, forageClasses forageClass)
 {
-	if(!player || player->isForaging() == false)
-		return;
+    if(!player || player->isForaging() == false)
+        return;
 
-	switch(forageClass)
-	{
-	case ForageClass_Scout:
-		gScoutManager->successForage(player);
-		break;
-	case ForageClass_Medic:
-		gMedicManager->successForage(player);
-		break;
-	}
+    switch(forageClass)
+    {
+    case ForageClass_Scout:
+        gScoutManager->successForage(player);
+        break;
+    case ForageClass_Medic:
+        gMedicManager->successForage(player);
+        break;
+    }
 }

@@ -35,28 +35,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UITransferBox : public UIWindow
 {
-	public:
+public:
 
-		UITransferBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt
-			 ,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject, uint8 windowType = SUI_Window_Transfer_Box);
+    UITransferBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt
+                  ,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject, uint8 windowType = SUI_Window_Transfer_Box);
 
-		virtual ~UITransferBox();
+    virtual ~UITransferBox();
 
-		
-		void		handleEvent(Message* message);
-		void		sendCreate();
 
-	private:
+    void		handleEvent(Message* message);
+    void		sendCreate();
 
-		void		_initChildren();
+private:
 
-		BString		mCaption;
-		BString		mPrompt;
-		BString		mLeftTitle;
-		BString		mRightTitle;
-		BString		mLeftValue;
-		BString		mRightValue;
-		uint8		mLbType;
+    void		_initChildren();
+
+    BString		mCaption;
+    BString		mPrompt;
+    BString		mLeftTitle;
+    BString		mRightTitle;
+    BString		mLeftValue;
+    BString		mRightValue;
+    uint8		mLbType;
 };
 
 //================================================================================

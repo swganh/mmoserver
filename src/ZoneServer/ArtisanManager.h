@@ -55,8 +55,8 @@ class UIWindow;
 
 typedef struct tagResourceLocation
 {
-   glm::vec3		position;
-   float			ratio;
+    glm::vec3		position;
+    float			ratio;
 } ResourceLocation;
 
 class ArtisanManager : public ObjectFactoryCallback, public HeightMapCallBack, public UICallback
@@ -66,7 +66,9 @@ public:
     ~ArtisanManager();
 
     // inherited callbacks
-    virtual void			heightMapCallback(HeightmapAsyncContainer *ref){HeightmapArtisanHandler(ref);}
+    virtual void			heightMapCallback(HeightmapAsyncContainer *ref) {
+        HeightmapArtisanHandler(ref);
+    }
     void					HeightmapArtisanHandler(HeightmapAsyncContainer* ref);
 
     bool					handleRequestSurvey(Object* player,Object* target, Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -150,7 +152,7 @@ public:
     //events
     void					sampleEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
     void					surveyEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool);
-    
+
 private:
     ObjectFactoryCallback*					mObjectFactoryCallback;
     HeightMapCallBack*						mHeightMapCallback;
@@ -166,7 +168,7 @@ public:
     explicit ArtisanEvents(::common::ByteBuffer& in);
     explicit ArtisanEvents(uint64_t subject_id = 0, uint64_t delay_ms = 0);
     ArtisanEvents(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
-    
+
     ~ArtisanEvents();
 
     const ::common::EventType& event_type() const;

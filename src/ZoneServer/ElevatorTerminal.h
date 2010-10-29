@@ -34,38 +34,54 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ElevatorTerminal : public Terminal
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		ElevatorTerminal();
-		~ElevatorTerminal();
+    ElevatorTerminal();
+    ~ElevatorTerminal();
 
-		uint64					getDstCellUp(){ return mDstCellUp; }
-		const glm::quat&	    getDstDirUp(){ return mDstDirUp; }
-		const glm::vec3&		getDstPosUp(){ return mDstPosUp; }
-		uint32					getEffectUp(){ return mEffectUp; }
+    uint64					getDstCellUp() {
+        return mDstCellUp;
+    }
+    const glm::quat&	    getDstDirUp() {
+        return mDstDirUp;
+    }
+    const glm::vec3&		getDstPosUp() {
+        return mDstPosUp;
+    }
+    uint32					getEffectUp() {
+        return mEffectUp;
+    }
 
-		uint64					getDstCellDown(){ return mDstCellDown; }
-		const glm::quat&	    getDstDirDown(){ return mDstDirDown; }
-		const glm::vec3&		getDstPosDown(){ return mDstPosDown; }
-		uint32					getEffectDown(){ return mEffectDown; }
+    uint64					getDstCellDown() {
+        return mDstCellDown;
+    }
+    const glm::quat&	    getDstDirDown() {
+        return mDstDirDown;
+    }
+    const glm::vec3&		getDstPosDown() {
+        return mDstPosDown;
+    }
+    uint32					getEffectDown() {
+        return mEffectDown;
+    }
 
-		
-		virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-	private:
+    virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-		uint64		mDstCellUp;
-        glm::quat	mDstDirUp;
-        glm::vec3	mDstPosUp;
-		uint32		mEffectUp;
+private:
 
-		uint64		mDstCellDown;
-        glm::quat	mDstDirDown;
-        glm::vec3	mDstPosDown;
-		uint32		mEffectDown;
+    uint64		mDstCellUp;
+    glm::quat	mDstDirUp;
+    glm::vec3	mDstPosUp;
+    uint32		mEffectUp;
+
+    uint64		mDstCellDown;
+    glm::quat	mDstDirDown;
+    glm::vec3	mDstPosDown;
+    uint32		mEffectDown;
 };
 
 //=============================================================================

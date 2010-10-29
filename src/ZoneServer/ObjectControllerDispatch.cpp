@@ -42,10 +42,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //======================================================================================================================
 
 ObjectControllerDispatch::ObjectControllerDispatch(Database* database,MessageDispatch* dispatch) :
-mDatabase(database),
-mMessageDispatch(dispatch)
+    mDatabase(database),
+    mMessageDispatch(dispatch)
 {
-    mMessageDispatch->RegisterMessageCallback(opObjControllerMessage,std::bind(&ObjectControllerDispatch::_dispatchMessage, this, std::placeholders::_1, std::placeholders::_2)); 
+    mMessageDispatch->RegisterMessageCallback(opObjControllerMessage,std::bind(&ObjectControllerDispatch::_dispatchMessage, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opObjectMenuSelection,std::bind(&ObjectControllerDispatch::_dispatchObjectMenuSelect, this, std::placeholders::_1, std::placeholders::_2));
 }
 
@@ -53,7 +53,7 @@ mMessageDispatch(dispatch)
 
 ObjectControllerDispatch::~ObjectControllerDispatch()
 {
-    mMessageDispatch->UnregisterMessageCallback(opObjControllerMessage);  
+    mMessageDispatch->UnregisterMessageCallback(opObjControllerMessage);
     mMessageDispatch->UnregisterMessageCallback(opObjectMenuSelection);
 }
 
@@ -81,171 +81,171 @@ void ObjectControllerDispatch::_dispatchMessage(Message* message, DispatchClient
 
         switch(subOp1)
         {
-            case 0x00000021:
+        case 0x00000021:
+        {
+            switch(subOp2)
             {
-                switch(subOp2)
-                {
-                    case opDataTransform: 
-                    {
-                        ObjController->handleDataTransform(message,false);
-                    }
-                    break;
-
-                    case opDataTransformWithParent:
-                    {
-                        ObjController->handleDataTransformWithParent(message,false);
-                    }
-                    break;
-
-                    default:
-                        gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000021) %x",subOp2);
-                    break;
-                }
+            case opDataTransform:
+            {
+                ObjController->handleDataTransform(message,false);
             }
             break;
 
-            case 0x00000023:
+            case opDataTransformWithParent:
             {
-                switch(subOp2)
-                {
-                    case opImageDesignChangeMessage:
-                    {
-                        ObjController->handleImageDesignChangeMessage(message,objId);
-                    }
-                    break;
-
-                    case opImageDesignStopMessage:
-                    {
-                        ObjController->handleImageDesignStopMessage(message,objId);
-                    }
-                    break;
-
-                    case opDataTransform:
-                    {
-                        ObjController->handleDataTransform(message,true);
-                    }
-                    break;
-
-                    case opDataTransformWithParent:
-                    {
-                        ObjController->handleDataTransformWithParent(message,true);
-                    }
-                    break;
-
-                    case opCommandQueueEnqueue: 
-                    {
-                        ObjController->enqueueCommandMessage(message);
-                    }
-                    break;
-
-                    case opCommandQueueRemove:
-                    {
-                        ObjController->removeCommandMessage(message);
-                    }
-                    break;
-
-                    case opObjectMenuRequest:
-                    {
-                        ObjController->handleObjectMenuRequest(message);
-                    }
-                    break;
-
-                    case opTeleportAck:
-                    {
-                        gMessageLib->sendHeartBeat(client);
-                    }
-                    break;
-
-                    case opSecureTrade:
-                    {
-                        ObjController->handleSecureTradeInvitation(objId,message);
-                    }
-                    break;
-
-                    default:
-                        gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000023) %x",subOp2);
-                    break;
-                }
-            }
-            break;
-
-            case 0x00000083:
-            {
-                // skip ticks
-                message->getUint32();
-
-                switch(subOp2)
-                {
-                    case opOCCurrentTarget:
-                    {
-                        ObjController->handleSetTarget(message);
-                    }
-                    break;
-
-                    case opCraftFillSlot:
-                    {
-                        gCraftingManager->handleCraftFillSlot(object,message);
-                    }
-                    break;
-
-                    case opCraftEmptySlot:
-                    {
-                        gCraftingManager->handleCraftEmptySlot(object, message);
-                    }
-                    break;
-
-                    case opCraftExperiment:
-                    {
-                        gCraftingManager->handleCraftExperiment(object,message);
-                    }
-                    break;
-
-                    case opCraftCustomization:
-                    {
-                        gCraftingManager->handleCraftCustomization(object,message);
-                    }
-                    break;
-
-                    case opMissionTerminalOpen:
-                    {
-                        ObjController->handleMissionListRequest(message);
-                    }
-                    break;
-
-                    case opMissionDetailsRequest:
-                        ObjController->handleMissionDetailsRequest(message);
-                        break;
-
-                    case opGenericMissionRequest:
-                        ObjController->handleGenericMissionRequest(message);
-                        break;
-
-                    case opMissionCreateRequest:
-                        ObjController->handleMissionCreateRequest(message);
-                        break;
-
-                    case opMissionAbort:
-                        ObjController->handleMissionAbort(message);
-                        break;
-
-                    case opResourceEmptyHopper:
-                        ObjController->handleResourceEmptyHopper(message);
-                        break;
-
-                    default:
-                        gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(0x00000083) %x",subOp2);
-                    break;
-                }
+                ObjController->handleDataTransformWithParent(message,false);
             }
             break;
 
             default:
-                gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Unhandled Cmd(op1) %x %x",subOp1,subOp2);
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000021) " << subOp2;
+                break;
+            }
+        }
+        break;
+
+        case 0x00000023:
+        {
+            switch(subOp2)
+            {
+            case opImageDesignChangeMessage:
+            {
+                ObjController->handleImageDesignChangeMessage(message,objId);
+            }
+            break;
+
+            case opImageDesignStopMessage:
+            {
+                ObjController->handleImageDesignStopMessage(message,objId);
+            }
+            break;
+
+            case opDataTransform:
+            {
+                ObjController->handleDataTransform(message,true);
+            }
+            break;
+
+            case opDataTransformWithParent:
+            {
+                ObjController->handleDataTransformWithParent(message,true);
+            }
+            break;
+
+            case opCommandQueueEnqueue:
+            {
+                ObjController->enqueueCommandMessage(message);
+            }
+            break;
+
+            case opCommandQueueRemove:
+            {
+                ObjController->removeCommandMessage(message);
+            }
+            break;
+
+            case opObjectMenuRequest:
+            {
+                ObjController->handleObjectMenuRequest(message);
+            }
+            break;
+
+            case opTeleportAck:
+            {
+                gMessageLib->sendHeartBeat(client);
+            }
+            break;
+
+            case opSecureTrade:
+            {
+                ObjController->handleSecureTradeInvitation(objId,message);
+            }
+            break;
+
+            default:
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000023) " << subOp2;
+                break;
+            }
+        }
+        break;
+
+        case 0x00000083:
+        {
+            // skip ticks
+            message->getUint32();
+
+            switch(subOp2)
+            {
+            case opOCCurrentTarget:
+            {
+                ObjController->handleSetTarget(message);
+            }
+            break;
+
+            case opCraftFillSlot:
+            {
+                gCraftingManager->handleCraftFillSlot(object,message);
+            }
+            break;
+
+            case opCraftEmptySlot:
+            {
+                gCraftingManager->handleCraftEmptySlot(object, message);
+            }
+            break;
+
+            case opCraftExperiment:
+            {
+                gCraftingManager->handleCraftExperiment(object,message);
+            }
+            break;
+
+            case opCraftCustomization:
+            {
+                gCraftingManager->handleCraftCustomization(object,message);
+            }
+            break;
+
+            case opMissionTerminalOpen:
+            {
+                ObjController->handleMissionListRequest(message);
+            }
+            break;
+
+            case opMissionDetailsRequest:
+                ObjController->handleMissionDetailsRequest(message);
+                break;
+
+            case opGenericMissionRequest:
+                ObjController->handleGenericMissionRequest(message);
+                break;
+
+            case opMissionCreateRequest:
+                ObjController->handleMissionCreateRequest(message);
+                break;
+
+            case opMissionAbort:
+                ObjController->handleMissionAbort(message);
+                break;
+
+            case opResourceEmptyHopper:
+                ObjController->handleResourceEmptyHopper(message);
+                break;
+
+            default:
+                DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(0x00000083) " << subOp2;
+                break;
+            }
+        }
+        break;
+
+        default:
+            DLOG(INFO) << "ObjectControllerDispatch: Unhandled Cmd(op1) "<<subOp1<<subOp2;
             break;
         }
     }
     else
-        gLogger->log(LogManager::DEBUG,"ObjectControllerDispatch: Couldn't find Object %"PRIu64"",objId);
+        DLOG(INFO) << "ObjectControllerDispatch: Couldn't find Object " << objId;
 
     message->setPendingDelete(true);
 }
@@ -256,11 +256,11 @@ void ObjectControllerDispatch::_dispatchObjectMenuSelect(Message* message,Dispat
 {
     uint64	objectId = message->getUint64();
     Object* object = gWorldManager->getObjectById(objectId);
-    
+
     if(object != NULL)
         object->handleObjectMenuSelect(message->getUint8(),gWorldManager->getPlayerByAccId(client->getAccountId()));
     else
-        gLogger->log(LogManager::DEBUG,"ObjController::handleRadialSelect: Object not found %"PRIu64"",objectId);
+        DLOG(INFO) << "ObjectControllerDispatch: Couldn't find Object " << objectId;
 
     message->setPendingDelete(true);
 }

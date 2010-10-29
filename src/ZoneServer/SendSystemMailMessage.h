@@ -33,10 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class SendSystemMailMessage
 {
 public:
-	SendSystemMailMessage(void);
-	~SendSystemMailMessage(void);
+    SendSystemMailMessage(void);
+    ~SendSystemMailMessage(void);
 
-	void SendNewbieMailMessage(PlayerObject* player, BString subject, BString bodyDir, BString bodyStr);
+    void SendNewbieMailMessage(PlayerObject* player, BString subject, BString bodyDir, BString bodyStr);
 };
 
 #endif

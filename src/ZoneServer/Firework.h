@@ -36,29 +36,33 @@ class FireworkEvent;
 //=============================================================================
 struct _fireworkShowEvent
 {
-	uint32 typeId;
-	int32 delay;
-	uint64 itemId;
+    uint32 typeId;
+    int32 delay;
+    uint64 itemId;
 };
 
 typedef std::vector<_fireworkShowEvent> FireworkShowList;
 
 class Firework : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		Firework();
-		virtual ~Firework();
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    Firework();
+    virtual ~Firework();
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-		uint32			getDelay(){ return delay; };
-		void			setDelay(uint32 _delay){ delay = _delay; };
+    uint32			getDelay() {
+        return delay;
+    };
+    void			setDelay(uint32 _delay) {
+        delay = _delay;
+    };
 
-	private:
-		uint32			delay;
+private:
+    uint32			delay;
 
 };
 
@@ -66,28 +70,28 @@ class Firework : public Item
 
 class FireworkShow : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		FireworkShow();
-		virtual ~FireworkShow();
-		
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void			handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
-		void			handleUIEvent(BString available, BString delay, UIWindow* window);
-		void			onLaunch(const FireworkEvent* event);
+    FireworkShow();
+    virtual ~FireworkShow();
+
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void			handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+    void			handleUIEvent(BString available, BString delay, UIWindow* window);
+    void			onLaunch(const FireworkEvent* event);
 
 
-	private:
-		ObjectList*		_getInventoryFireworks(PlayerObject* playerObject);
-		BString			_getType(uint32 type);
+private:
+    ObjectList*		_getInventoryFireworks(PlayerObject* playerObject);
+    BString			_getType(uint32 type);
 
-		FireworkShowList	fireworkShowList;
-		uint32				fireworkShowListModify; //Bit of a filthy hack, but couldn't find an alternative due to ui callback system
+    FireworkShowList	fireworkShowList;
+    uint32				fireworkShowListModify; //Bit of a filthy hack, but couldn't find an alternative due to ui callback system
 
-		//ObjectList*		objList;
+    //ObjectList*		objList;
 
 };
 

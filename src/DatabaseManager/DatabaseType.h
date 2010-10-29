@@ -29,17 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_DATABASEMANAGER_DATABASETYPE_H
 
 
-
-//======================================================================================================================
-enum DBType
-{
-  DBTYPE_First = 0,
-  DBTYPE_MYSQL
+enum DBType {
+    DBTYPE_MYSQL = 0
 };
 
 
-
 #endif // ANH_DATABASEMANAGER_DATABASETYPE_H
-
-
-

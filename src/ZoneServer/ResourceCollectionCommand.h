@@ -35,38 +35,62 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ResourceCollectionCommand
 {
-	friend class ResourceCollectionManager;
+    friend class ResourceCollectionManager;
 
-	public:
+public:
 
-		ResourceCollectionCommand();
-		~ResourceCollectionCommand();
+    ResourceCollectionCommand();
+    ~ResourceCollectionCommand();
 
-		// getters
-		uint32	getId()							{ return mId; }
-		BString	getCommandName()				{ return mCommandName; }
-		int32	getHealthCost()					{ return mHealthCost; }
-		int32	getActionCost()					{ return mActionCost; }
-		int32	getMindCost()					{ return mMindCost; }
-		int32	getDamageModifier()				{ return mDamageModifier; }
+    // getters
+    uint32	getId()							{
+        return mId;
+    }
+    BString	getCommandName()				{
+        return mCommandName;
+    }
+    int32	getHealthCost()					{
+        return mHealthCost;
+    }
+    int32	getActionCost()					{
+        return mActionCost;
+    }
+    int32	getMindCost()					{
+        return mMindCost;
+    }
+    int32	getDamageModifier()				{
+        return mDamageModifier;
+    }
 
-		// setters
-		void	setId(uint32 id)				{ mId = id; }
-		void	setCommandName(BString cName)	{ mCommandName = cName; }
-		void	setHealthCost(int32 hCost)		{ mHealthCost = hCost; }
-		void	setActionCost(int32 aCost)		{ mActionCost = aCost; }
-		void	setMindCost(int32 mCost)		{ mMindCost = mCost; }
-		void	setDamageModifier(int32 damage) { mDamageModifier = damage; }
+    // setters
+    void	setId(uint32 id)				{
+        mId = id;
+    }
+    void	setCommandName(BString cName)	{
+        mCommandName = cName;
+    }
+    void	setHealthCost(int32 hCost)		{
+        mHealthCost = hCost;
+    }
+    void	setActionCost(int32 aCost)		{
+        mActionCost = aCost;
+    }
+    void	setMindCost(int32 mCost)		{
+        mMindCost = mCost;
+    }
+    void	setDamageModifier(int32 damage) {
+        mDamageModifier = damage;
+    }
 
 
-	private:
+private:
 
-		uint32	mId;
-		BString	mCommandName;
-		int32	mHealthCost;
-		int32	mActionCost;
-		int32	mMindCost;
-		int32	mDamageModifier;
+    uint32	mId;
+    BString	mCommandName;
+    int32	mHealthCost;
+    int32	mActionCost;
+    int32	mMindCost;
+    int32	mDamageModifier;
 };
 
 //=============================================================================

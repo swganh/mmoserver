@@ -77,7 +77,6 @@ private:
     void _handleResourceTypes(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
     void _handleResourcesTypes(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
     void _handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
-
     void _handleStateMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window);
 
     void _handleMainMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
@@ -152,8 +151,8 @@ private:
     BStringVector			mResourceMenu;
     BStringVector			mWoundMenu;
     BStringVector           mStatesMenu;
-
-    //2nd level menus
+	
+	//2nd level menus
     BStringVector			mStructureMenu;
     BStringVector			mFurnitureMenu;
     BStringVector			mVehicleMenu;
@@ -228,22 +227,37 @@ private:
 class ItemFrogItemClass
 {
 public:
-
-    ItemFrogItemClass () {};      
-    ~ItemFrogItemClass (){}; 
+    ItemFrogItemClass () {};
+    ~ItemFrogItemClass () {};
 
     //void AddCommoditie(TypeListItem theCommoditie){Commoditie = theCommoditie;}
-    BString	GetName() {return(name);}
-    void	SetName(BString n) {name = n;}
-    
-    uint32	GetType(){return type;}
-    void	SetType(uint32 n) {type = n;}
+    BString	GetName() {
+        return(name);
+    }
+    void	SetName(BString n) {
+        name = n;
+    }
 
-    uint32	GetFamily(){return family;}
-    void	SetFamily(uint32 n) {family = n;}
+    uint32	GetType() {
+        return type;
+    }
+    void	SetType(uint32 n) {
+        type = n;
+    }
 
-    uint8	GetActive(){return active;}
-    void	SetActive(uint8 n) {active = n;}
+    uint32	GetFamily() {
+        return family;
+    }
+    void	SetFamily(uint32 n) {
+        family = n;
+    }
+
+    uint8	GetActive() {
+        return active;
+    }
+    void	SetActive(uint8 n) {
+        active = n;
+    }
 
     uint64			id;
     uint32			type;
@@ -260,16 +274,20 @@ class ItemFrogTypeClass
 {
 public:
 
-    ItemFrogTypeClass () {};      
-    ~ItemFrogTypeClass (); 
+    ItemFrogTypeClass () {};
+    ~ItemFrogTypeClass ();
 
     ItemFrogItemClass*			mItemFrogItemHandler;
     ItemFrogItemList			mItemFrogItemList;
 
     //void InsertItem(TypeListItem Commoditie);
-    ItemFrogItemClass*	getItem(uint32 nr){return mItemFrogItemList[nr];}
-    void				InsertItem(ItemFrogItemClass* item){mItemFrogItemList.push_back(item);}
-    
+    ItemFrogItemClass*	getItem(uint32 nr) {
+        return mItemFrogItemList[nr];
+    }
+    void				InsertItem(ItemFrogItemClass* item) {
+        mItemFrogItemList.push_back(item);
+    }
+
     ItemFrogItemClass*	getType(uint32 type);
 
     uint32			family;
@@ -282,24 +300,27 @@ typedef std::vector<ItemFrogTypeClass*>			ItemFrogTypeList;
 
 class ItemFrogClass
 {
-    public:
-        ItemFrogTypeClass*				ItemFrogTypeHandler;
-        ItemFrogTypeList				mItemFrogTypeList;
+public:
+    ItemFrogTypeClass*				ItemFrogTypeHandler;
+    ItemFrogTypeList				mItemFrogTypeList;
 
-        ItemFrogClass(){}
-        ~ItemFrogClass();
+    ItemFrogClass() {}
+    ~ItemFrogClass();
 
-        ItemFrogTypeClass*		GetFamily(uint32 nr){return mItemFrogTypeList[nr];}
-        void					AddFamily(ItemFrogTypeClass* item){mItemFrogTypeList.push_back(item) ;}//adds an item to the list
-        
-        ItemFrogTypeClass*		LookUpFamily(uint32 family);
-        ItemFrogItemClass*		LookUpType(uint32 type);
-         //TypeListItem	LookUpCommoditie(uint32 crc);
-         //uint32			getCategory(uint32 crc);
-         
-         //uint32			GetCount(){return(CommoditiesTypeCount);}
-         //uint32			CommoditiesTypeCount;
-        
+    ItemFrogTypeClass*		GetFamily(uint32 nr) {
+        return mItemFrogTypeList[nr];
+    }
+    void					AddFamily(ItemFrogTypeClass* item) {
+        mItemFrogTypeList.push_back(item) ;   //adds an item to the list
+    }
+
+    ItemFrogTypeClass*		LookUpFamily(uint32 family);
+    ItemFrogItemClass*		LookUpType(uint32 type);
+    //TypeListItem	LookUpCommoditie(uint32 crc);
+    //uint32			getCategory(uint32 crc);
+
+    //uint32			GetCount(){return(CommoditiesTypeCount);}
+    //uint32			CommoditiesTypeCount;
 };
 
 //=============================================================================

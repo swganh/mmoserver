@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ConnectionServer.h"
+
 #include "ConnectionServerOpcodes.h"
 #include "ClientManager.h"
 #include "ConnectionDispatch.h"
@@ -35,7 +36,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 
-#include "Common/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
@@ -44,10 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/ConfigManager.h"
 #include "Utils/utils.h"
 #include "Utils/clock.h"
-
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
 
 //#include "stackwalker.h"
 #include <boost/thread/thread.hpp>
@@ -59,24 +61,24 @@ ConnectionServer* gConnectionServer = 0;
 //======================================================================================================================
 
 ConnectionServer::ConnectionServer(void) :
-mDatabaseManager(0),
-mDatabase(0),
-mNetworkManager(0),
-mMessageRouter(0),
-mClientManager(0),
-mServerManager(0),
-mConnectionDispatch(0),
-mClusterId(0),
-mClientService(0),
-mServerService(0),
-mLastHeartbeat(0),
-mLocked(false)
+    mDatabaseManager(0),
+    mDatabase(0),
+    mNetworkManager(0),
+    mMessageRouter(0),
+    mClientManager(0),
+    mServerManager(0),
+    mConnectionDispatch(0),
+    mClusterId(0),
+    mClientService(0),
+    mServerService(0),
+    mLocked(false),
+    mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
     // log msg to default log
     //gLogger->printSmallLogo();
-    gLogger->log(LogManager::INFORMATION,"ConnectionServer Startup");
-    
+    LOG(WARNING) << "ConnectionServer Startup";
+
     // Startup our core modules
     mNetworkManager = new NetworkManager();
 
@@ -88,56 +90,52 @@ mLocked(false)
 
     mDatabaseManager = new DatabaseManager();
 
-    mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
-                                       (char*)(gConfig->read<std::string>("DBServer")).c_str(),
-                                       gConfig->read<int>("DBPort"),
-                                       (char*)(gConfig->read<std::string>("DBUser")).c_str(),
-                                       (char*)(gConfig->read<std::string>("DBPass")).c_str(),
-                                       (char*)(gConfig->read<std::string>("DBName")).c_str());
+    mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
+                                          (char*)(gConfig->read<std::string>("DBServer")).c_str(),
+                                          gConfig->read<int>("DBPort"),
+                                          (char*)(gConfig->read<std::string>("DBUser")).c_str(),
+                                          (char*)(gConfig->read<std::string>("DBPass")).c_str(),
+                                          (char*)(gConfig->read<std::string>("DBName")).c_str());
 
     mClusterId = gConfig->read<uint32>("ClusterId");
-    
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // SQL Debug Log
 
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);");
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);"); // SQL Debug Log
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
+    
+
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);");
+    
 
     // In case of a crash, we need to cleanup the DB a little.
-    DatabaseResult* result = mDatabase->ExecuteSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
-    gLogger->log(LogManager::DEBUG, "SQL :: UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId); // SQL Debug Log
-
+    mDatabase->executeSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
+    
     // Status:  0=offline, 1=loading, 2=online
     _updateDBServerList(1);
 
     // Instant the messageFactory. It will also run the Startup ().
-    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced. 
-                                                // The code itself here is not needed, since it will instance itself at first use.
+    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.
+    // The code itself here is not needed, since it will instance itself at first use.
 
     // Startup our router modules.
     mConnectionDispatch = new ConnectionDispatch();
     mMessageRouter = new MessageRouter(mDatabase, mConnectionDispatch);
     mClientManager = new ClientManager(mClientService, mDatabase, mMessageRouter, mConnectionDispatch);
     mServerManager = new ServerManager(mServerService, mDatabase, mMessageRouter, mConnectionDispatch,mClientManager);
-  
+
     // We're done initiailizing.
     _updateDBServerList(2);
-    gLogger->log(LogManager::CRITICAL, "Connection Server Boot Complete");
-    // std::string BuildString(GetBuildString());	
 
-    gLogger->log(LogManager::INFORMATION,"Connection Server - Build %s",ConfigManager::getBuildString().c_str());
-    gLogger->log(LogManager::CRITICAL,"Welcome to your SWGANH Experience!");
+    LOG(WARNING) << "Connection server startup complete";
 }
 
 //======================================================================================================================
 
 ConnectionServer::~ConnectionServer(void)
 {
-    gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutting down...");
+    LOG(WARNING) << "ConnectionServer Shutting down...";
 
     // Update our status for the LoginServer
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 0, mClusterId); // Status set to offline
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 0, mClusterId); // SQL Debug Log
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 0, mClusterId); // Status set to offline
+    
 
     // We're shuttind down, so update the DB again.
     _updateDBServerList(0);
@@ -157,7 +155,7 @@ ConnectionServer::~ConnectionServer(void)
 
     MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-    gLogger->log(LogManager::CRITICAL,"ConnectionServer Shutdown Complete");
+    LOG(WARNING) << "ConnectionServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -166,8 +164,8 @@ void ConnectionServer::Process(void)
 {
     // Process our core services first.
     //mNetworkManager->Process();
-    mDatabaseManager->Process();
-    
+    mDatabaseManager->process();
+
     //we dont want this stalled by the clients!!!
     mServerService->Process();
     mClientService->Process();
@@ -183,9 +181,9 @@ void ConnectionServer::Process(void)
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
+        //gLogger->log(LogManager::NOTICE,"ConnectionServer Heartbeat. Connected Servers:%u Active Servers:%u", mServerManager->getConnectedServers(), mServerManager->getActiveServers());
     }
-    
+
 }
 
 //======================================================================================================================
@@ -193,8 +191,8 @@ void ConnectionServer::Process(void)
 void ConnectionServer::_updateDBServerList(uint32 status)
 {
     // Execute our query
-    mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', %u, '%s', %u);", status, mServerService->getLocalAddress(), mServerService->getLocalPort());
-    gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_ServerStatusUpdate('connection', %u, '%s', %u);", status, mServerService->getLocalAddress(), mServerService->getLocalPort()); // SQL Debug Log
+    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', %u, '%s', %u);", status, mServerService->getLocalAddress(), mServerService->getLocalPort());
+    
 }
 
 //======================================================================================================================
@@ -205,20 +203,30 @@ void ConnectionServer::ToggleLock()
     if(mLocked)
     {
         // Update our status for the LoginServer
-        mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 3, mClusterId); // Status set to online (DEV / CSR Only)
-        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 3, mClusterId); // SQL Debug Log
-        gLogger->log(LogManager::INFORMATION,"Locking server to normal users");
+        mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 3, mClusterId); // Status set to online (DEV / CSR Only)
+        
+        LOG(WARNING) << "Locking server to normal users";
     } else {
         // Update our status for the LoginServer
-        mDatabase->ExecuteProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Status set to online
-        gLogger->log(LogManager::DEBUG, "SQL :: CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // SQL Debug Log
-        gLogger->log(LogManager::INFORMATION,"unlocking server to normal users");
+        mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Status set to online
+        
+        LOG(WARNING) << "unlocking server to normal users";
     }
 }
 //======================================================================================================================
 
 int main(int argc, char* argv[])
 {
+    // Initialize the google logging.
+    google::InitGoogleLogging(argv[0]);
+
+#ifndef _WIN32
+    google::InstallFailureSignalHandler();
+#endif
+
+    FLAGS_log_dir = "./logs";
+    FLAGS_stderrthreshold = 1;
+
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 
@@ -229,7 +237,7 @@ int main(int argc, char* argv[])
         exit(-1);
     }
 
-    try {
+    /*try {
         LogManager::Init(
             static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
             static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
@@ -237,7 +245,7 @@ int main(int argc, char* argv[])
     } catch (...) {
         std::cout << "Unable to open log file for writing" << std::endl;
         exit(-1);
-    }
+    }*/
 
     gConnectionServer = new ConnectionServer();
 
@@ -245,16 +253,16 @@ int main(int argc, char* argv[])
     while(1)
     {
         gConnectionServer->Process();
-     
-                if(Anh_Utils::kbhit())
-                {
-                    char input = std::cin.get();
-                    if(input == 'q')
-                        break;
-                    else if(input == 'l')
-                        gConnectionServer->ToggleLock();
-                }
-                    
+
+        if(Anh_Utils::kbhit())
+        {
+            char input = std::cin.get();
+            if(input == 'q')
+                break;
+            else if(input == 'l')
+                gConnectionServer->ToggleLock();
+        }
+
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
     }

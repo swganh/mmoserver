@@ -34,28 +34,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Trainer : public NPCObject
 {
-	friend class PersistentNpcFactory;
-	friend class NonPersistentNpcFactory;
+    friend class PersistentNpcFactory;
+    friend class NonPersistentNpcFactory;
 
-	public:
+public:
 
-		Trainer();
-		virtual ~Trainer();
+    Trainer();
+    virtual ~Trainer();
 
-		virtual void respawn(void);
+    virtual void respawn(void);
 
-		void	filterConversationOptions(ConversationPage* page,std::vector<ConversationOption*>* filteredOptions,PlayerObject* player);
-		uint32	handleConversationEvent(ActiveConversation* av,ConversationPage* page,ConversationOption* option,PlayerObject* player);
-		bool	preProcessfilterConversation(ActiveConversation* av, Conversation* conversation, PlayerObject* player);
-		void	postProcessfilterConversation(ActiveConversation* av,ConversationPage* page,PlayerObject* player);
-		void	prepareConversation(PlayerObject* player);
-		virtual void	stopConversation(PlayerObject* player);
-		void	restorePosition(PlayerObject* player);
+    void	filterConversationOptions(ConversationPage* page,std::vector<ConversationOption*>* filteredOptions,PlayerObject* player);
+    uint32	handleConversationEvent(ActiveConversation* av,ConversationPage* page,ConversationOption* option,PlayerObject* player);
+    bool	preProcessfilterConversation(ActiveConversation* av, Conversation* conversation, PlayerObject* player);
+    void	postProcessfilterConversation(ActiveConversation* av,ConversationPage* page,PlayerObject* player);
+    void	prepareConversation(PlayerObject* player);
+    virtual void	stopConversation(PlayerObject* player);
+    void	restorePosition(PlayerObject* player);
 
-	private:
-		void	spawn(void);
-		void	postProcessfilter(ActiveConversation* av, /* ConversationPage* page ,*/ PlayerObject* player, uint32 pageId);
-		bool	mPlayerGotRequirementsForMasterSkill;
+private:
+    void	spawn(void);
+    void	postProcessfilter(ActiveConversation* av, /* ConversationPage* page ,*/ PlayerObject* player, uint32 pageId);
+    bool	mPlayerGotRequirementsForMasterSkill;
 
 };
 

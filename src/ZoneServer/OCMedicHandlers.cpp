@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -41,17 +41,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "ForageManager.h"
 
-    //consts
-    const char* const woundpack = "woundpack";
-    const char* const stim = "stim";
-    const char* const rangedstim = "ranged";
-    const char* const self = "self";
-    const char* const action = "action";
-    const char* const constitution = "constitution";
-    const char* const health = "health";
-    const char* const quickness = "quickness";
-    const char* const stamina = "stamina";
-    const char* const strength = "strength";
+//consts
+const char* const woundpack = "woundpack";
+const char* const stim = "stim";
+const char* const rangedstim = "ranged";
+const char* const self = "self";
+const char* const action = "action";
+const char* const constitution = "constitution";
+const char* const health = "health";
+const char* const quickness = "quickness";
+const char* const stamina = "stamina";
+const char* const strength = "strength";
 //=============================================================================================================================
 //
 // diagnose
@@ -101,7 +101,7 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
     std::string messageResponse = gMedicManager->handleMessage(message,"(action|constitution|health|quickness|stamina|strength)");
     if (messageResponse.length() == 0)
     {
-      //you must specify a valid wound type
+        //you must specify a valid wound type
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_65"), Medic);
     }
     else
@@ -130,7 +130,7 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleMedicalForage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
     if(player)
         gForageManager->startForage(player, ForageClass_Medic);
 }
@@ -182,7 +182,7 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
     std::string messageResponse = gMedicManager->handleMessage(message,"(action|constitution|health|quickness|stamina|strength)");
     if (messageResponse.length() == 0)
     {
-      //you must specify a valid wound type
+        //you must specify a valid wound type
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_65"), Medic);
     }
     else
@@ -205,7 +205,7 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
             gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
 
     }
-    
+
 }
 
 //=============================================================================================================================

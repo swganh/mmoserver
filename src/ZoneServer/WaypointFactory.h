@@ -44,36 +44,38 @@ class WaypointObject;
 
 enum WaypointFQuery
 {
-	WaypointFQuery_MainData	= 1
+    WaypointFQuery_MainData	= 1
 };
 
 //=============================================================================
 
 class WaypointFactory : public FactoryBase
 {
-	public:
+public:
 
-		static WaypointFactory*	getSingletonPtr() { return mSingleton; }
-		static WaypointFactory*	Init(Database* database);
+    static WaypointFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static WaypointFactory*	Init(Database* database);
 
-		~WaypointFactory();
+    ~WaypointFactory();
 
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-	private:
+private:
 
-		WaypointFactory(Database* database);
+    WaypointFactory(Database* database);
 
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-		WaypointObject*		_createWaypoint(DatabaseResult* result);
+    WaypointObject*		_createWaypoint(DatabaseResult* result);
 
-		static WaypointFactory*		mSingleton;
-		static bool				mInsFlag;
+    static WaypointFactory*		mSingleton;
+    static bool				mInsFlag;
 
-		DataBinding*				mWaypointBinding;
+    DataBinding*				mWaypointBinding;
 };
 
 //=============================================================================

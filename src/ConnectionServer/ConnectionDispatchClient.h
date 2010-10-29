@@ -33,18 +33,22 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ConnectionDispatchClient
 {
-	public:
-		
-		ConnectionDispatchClient() : mAccountId(0) {};
-		~ConnectionDispatchClient();
+public:
 
-		void	setAccountId(uint32 id){ mAccountId = id; };
+    ConnectionDispatchClient() : mAccountId(0) {};
+    ~ConnectionDispatchClient();
 
-		uint32	getAccountId(void){ return mAccountId; };
+    void	setAccountId(uint32 id) {
+        mAccountId = id;
+    };
 
-	private:
+    uint32	getAccountId(void) {
+        return mAccountId;
+    };
 
-		uint32	mAccountId;
+private:
+
+    uint32	mAccountId;
 };
 
 //======================================================================================================================

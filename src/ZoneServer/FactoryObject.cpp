@@ -45,15 +45,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //============================================================================
 FactoryObject::FactoryObject() : PlayerStructure()
 {
-	mType = ObjType_Structure;
-	
+    mType = ObjType_Structure;
+
 }
 
 //=============================================================================
 
 FactoryObject::~FactoryObject()
 {
-	//hoppers are strored in the factories objectcontainer and get automatically destroyed on shutdown
+    //hoppers are strored in the factories objectcontainer and get automatically destroyed on shutdown
 }
 
 
@@ -66,33 +66,28 @@ FactoryObject::~FactoryObject()
 
 void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uint64 hopper)
 {
-	Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(hopper));
-	if(!item)
-	{
-		gLogger->log(LogManager::CRITICAL,"FactoryObject::handleObjectReady::could not find Hopper");
-		assert(false && "FactoryObject::handleObjectReady WorldManager could not find hopper");
-	}
+    Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(hopper));
+    if(!item)
+    {
+        assert(false && "FactoryObject::handleObjectReady WorldManager could not find hopper");
+    }
 
-	if((item->getId() == this->getIngredientHopper())||(item->getId() == this->getOutputHopper()))
-	{
-		gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::handleObjectReady - Hopper found - open container");
-		
-		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getPlayerByAccId(client->getAccountId()));
-		if(player)
-		{
-			gMessageLib->sendOpenedContainer(item->getId(),player);
-		}
-		else
-		{
-			gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::handleObjectReady - Player NOT found - open container");
-		}
+    if((item->getId() == this->getIngredientHopper())||(item->getId() == this->getOutputHopper()))
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getPlayerByAccId(client->getAccountId()));
+        if(player)
+        {
+            gMessageLib->sendOpenedContainer(item->getId(),player);
+        }
+        else
+        {
+        }
 
-		
-	}
-	else
-	{
-		gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectReady::could not find Hopper");
-	}
+
+    }
+    else
+    {
+    }
 
 
 }
@@ -104,227 +99,225 @@ void FactoryObject::handleObjectReady(Object* object,DispatchClient* client, uin
 
 void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
-	if(!player)
-	{	
-		gLogger->log(LogManager::DEBUG,"FactoryObject::handleObjectMenuSelect::could not find player");
-		return;
-	}
-	
-	switch(messageType)
-	{
-		case radId_StopManufacture:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_StopFactory;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject);
+    if(!player)
+    {
+        return;
+    }
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
+    switch(messageType)
+    {
+    case radId_StopManufacture:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_StopFactory;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		case radId_StartManufacture:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_StartFactory;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
+    case radId_StartManufacture:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_StartFactory;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		case radId_serverManfHopperInput:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_AccessInHopper;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
-		}
-		break;
+    case radId_serverManfHopperInput:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_AccessInHopper;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		case radId_serverManfHopperOutput:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_AccessOutHopper;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
-		}
-		break;
+    case radId_serverManfHopperOutput:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_AccessOutHopper;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		case radId_serverManfStationSchematic:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_AccessSchem;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-		}
-		break;
-		
-		case radId_StructureStatus:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_ViewStatus;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    case radId_serverManfStationSchematic:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_AccessSchem;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-		}
-		break;
+    case radId_StructureStatus:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_ViewStatus;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		case radId_depositPower:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_DepositPower;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
 
-		}
-		break;
+    case radId_depositPower:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_DepositPower;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		case radId_payMaintenance:
-		{
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PayMaintenance;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-			
-		}
-		break;
+    }
+    break;
 
-		case radId_serverTerminalManagementDestroy: 
-		{
-			//is there a manufacturing schematic inside ???
+    case radId_payMaintenance:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PayMaintenance;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_Destroy;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
-			
-		}
-		break;
-		case radId_serverTerminalPermissionsAdmin:
-		{			
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionAdmin;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    }
+    break;
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    case radId_serverTerminalManagementDestroy:
+    {
+        //is there a manufacturing schematic inside ???
 
-		}
-		break;
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_Destroy;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		case radId_serverTerminalPermissionsHopper:
-		{			
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_PermissionHopper;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+    }
+    break;
+    case radId_serverTerminalPermissionsAdmin:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PermissionAdmin;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-		}
-		break;
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-		case radId_setName:
-		{
+    }
+    break;
 
-			StructureAsyncCommand command;
-			command.Command = Structure_Command_RenameStructure;
-			command.PlayerId = player->getId();
-			command.StructureId = this->getId();
+    case radId_serverTerminalPermissionsHopper:
+    {
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_PermissionHopper;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
 
-			gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
 
-			
-		}
-		break;
-		
-	}
+    }
+    break;
+
+    case radId_setName:
+    {
+
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_RenameStructure;
+        command.PlayerId = player->getId();
+        command.StructureId = this->getId();
+
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+
+    }
+    break;
+
+    }
 }
 
 //=============================================================================
 // prepares the custom radial for our harvester
 void FactoryObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
-	if(!player)
-	{	
-		gLogger->log(LogManager::DEBUG,"HarvesterObject::handleObjectMenuSelect::could not find player");
-		return;
-	}
-	
-	RadialMenu* radial	= new RadialMenu();
-			
-	
-	//radId_serverHouseManage
-	uint8 i = 0;
-	radial->addItem(++i,0,radId_examine,radAction_Default,"");
-	radial->addItem(++i,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
-	radial->addItem(++i,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
-	radial->addItem(++i,0,radId_StructureOptions,radAction_ObjCallback,"Options");
-	
-	radial->addItem(++i,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");
-	radial->addItem(++i,2,radId_StructureStatus,radAction_ObjCallback,"Status");
-	radial->addItem(++i,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");
-	radial->addItem(++i,2,radId_setName,radAction_ObjCallback,"Set Name");
-	radial->addItem(++i,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");
-	
-	
-	radial->addItem(++i,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");
-	radial->addItem(++i,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
+    if(!player)
+    {
+        return;
+    }
 
-	if(mManSchematicID)
-	{
-		if(!mActive)
-			radial->addItem(++i,4,radId_StartManufacture,radAction_ObjCallback,"Start manufacturing objects");
-		else
-			radial->addItem(++i,4,radId_StopManufacture,radAction_ObjCallback,"Stop manufacturing objects");
+    RadialMenu* radial	= new RadialMenu();
 
-		radial->addItem(++i,4,radId_ListIngredients,radAction_ObjCallback,"List ingredients needed for station");
 
-	}
-	radial->addItem(++i,4,radId_serverManfStationSchematic,radAction_ObjCallback,"Access schematic slot");
-	radial->addItem(++i,4,radId_serverManfHopperInput,radAction_ObjCallback,"Access station ingredient hopper");
-	radial->addItem(++i,4,radId_serverManfHopperOutput,radAction_ObjCallback,"Access station output hopper");
-	
-	
+    //radId_serverHouseManage
+    uint8 i = 0;
+    radial->addItem(++i,0,radId_examine,radAction_Default,"");
+    radial->addItem(++i,0,radId_serverHarvesterManage,radAction_ObjCallback,"Structure Management");
+    radial->addItem(++i,0,radId_serverTerminalManagement,radAction_ObjCallback,"Structure Permissions");
+    radial->addItem(++i,0,radId_StructureOptions,radAction_ObjCallback,"Options");
 
-		
-	RadialMenuPtr radialPtr(radial);
-	mRadialMenu = radialPtr;
+    radial->addItem(++i,2,radId_serverTerminalManagementDestroy,radAction_ObjCallback,"Destroy Structure");
+    radial->addItem(++i,2,radId_StructureStatus,radAction_ObjCallback,"Status");
+    radial->addItem(++i,2,radId_payMaintenance,radAction_ObjCallback,"Pay Maintenance");
+    radial->addItem(++i,2,radId_setName,radAction_ObjCallback,"Set Name");
+    radial->addItem(++i,2,radId_depositPower,radAction_ObjCallback,"Deposit Power");
+
+
+    radial->addItem(++i,3,radId_serverTerminalPermissionsAdmin,radAction_ObjCallback,"Admin List");
+    radial->addItem(++i,3,radId_serverTerminalPermissionsHopper,radAction_ObjCallback,"Hopper List");
+
+    if(mManSchematicID)
+    {
+        if(!mActive)
+            radial->addItem(++i,4,radId_StartManufacture,radAction_ObjCallback,"Start manufacturing objects");
+        else
+            radial->addItem(++i,4,radId_StopManufacture,radAction_ObjCallback,"Stop manufacturing objects");
+
+        radial->addItem(++i,4,radId_ListIngredients,radAction_ObjCallback,"List ingredients needed for station");
+
+    }
+    radial->addItem(++i,4,radId_serverManfStationSchematic,radAction_ObjCallback,"Access schematic slot");
+    radial->addItem(++i,4,radId_serverManfHopperInput,radAction_ObjCallback,"Access station ingredient hopper");
+    radial->addItem(++i,4,radId_serverManfHopperOutput,radAction_ObjCallback,"Access station output hopper");
+
+
+
+
+    RadialMenuPtr radialPtr(radial);
+    mRadialMenu = radialPtr;
 }
 
 
 
 void FactoryObject::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
+    StructureManagerAsyncContainer* asynContainer = (StructureManagerAsyncContainer*)ref;
 
 //	switch(asynContainer->mQueryType)
 //	{
 
-		
+
 //		default:break;
 
 //	}
 
-	SAFE_DELETE(asynContainer);
+    SAFE_DELETE(asynContainer);
 }
 
 

@@ -28,12 +28,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define SRC_ZONESERVER_MOODTYPES_H_
 
 /**
- * This Enum is used by spatial chat to indicate the mood of the speaker. This 
+ * This Enum is used by spatial chat to indicate the mood of the speaker. This
  * generally results in changes in the resultant speach and also in the character's
  * mannerisms.
  */
 
-enum MoodType : uint16_t {
+enum MoodType :
+uint16_t {
     kMoodNone = 0,
     kMoodAbsentminded,
     kMoodAmazed,

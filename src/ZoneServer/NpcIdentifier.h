@@ -32,11 +32,11 @@ class NpcIdentifier
 {
 public:
 
-	NpcIdentifier(){}
-	~NpcIdentifier(){}
+    NpcIdentifier() {}
+    ~NpcIdentifier() {}
 
-	uint32	mFamilyId;
-	uint32	mTypeId;
+    uint32	mFamilyId;
+    uint32	mTypeId;
 };
 
 //=============================================================================

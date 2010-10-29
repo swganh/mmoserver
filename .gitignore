@@ -1,6 +1,5 @@
 # These files should be ignored
 bin/
-build-aux/
 deps/
 data/heightmaps/
 ipch/
@@ -14,7 +13,34 @@ ipch/
 *.sdf
 *.opensdf
 *.lnk
+*.orig
+mmoserverdb/
+docs/latex/
+docs/html/
+
+# ignore autotools generated files
+autom4te.cache/
+aclocal.m4
+autoscan.log
+config.h.in~
+configure
+configure.scan
+Makefile.in
+tools/m4/libtool.m4
+tools/m4/lt*.m4
+
+# ignore directories created for the build process
+build/*
+build-aux/
+
+# ignore 3rd party libraries
+cppconn/
+glog/
+gtest/
+tbb/
+
+# ignore OS generated files
 .DS_Store
-mmoserverdb
-docs/latex
-docs/html
+
+# ignore eclipse generated files
+.settings/

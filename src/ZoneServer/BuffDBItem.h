@@ -37,26 +37,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class BuffDBItem
 {
 public:
-	BuffDBItem(void);
-	~BuffDBItem(void);
-	uint64 mBuffId;
-	uint64 mTargetId;
-	uint64 mInstigatorId;
-	uint64 mMaxTicks;
-	uint64 mTickLength;
-	uint64 mCurrentTick;
-	uint32 mIconCRC;
-	uint64 mPausedGlobalTick;
-	uint64 mStartGlobalTick;
-	BString mName;
+    BuffDBItem(void);
+    ~BuffDBItem(void);
+    uint64 mBuffId;
+    uint64 mTargetId;
+    uint64 mInstigatorId;
+    uint64 mMaxTicks;
+    uint64 mTickLength;
+    uint64 mCurrentTick;
+    uint32 mIconCRC;
+    uint64 mPausedGlobalTick;
+    uint64 mStartGlobalTick;
+    BString mName;
 };
 class BuffAttributeDBItem
 {
 public:
 
-	BuffAttributeDBItem(void){;}
-	~BuffAttributeDBItem(void){;}
-	int32 mType, mInitialValue, mTickValue, mFinalValue;
+    BuffAttributeDBItem(void) {
+        ;
+    }
+    ~BuffAttributeDBItem(void) {
+        ;
+    }
+    int32 mType, mInitialValue, mTickValue, mFinalValue;
 };
 
 

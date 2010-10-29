@@ -42,19 +42,22 @@ class DispatchClient;
 
 enum QueryType
 {
-	CAQuery_CreateCharacter	= 1,
-	CAQuery_RequestName		= 2
+    CAQuery_CreateCharacter	= 1,
+    CAQuery_RequestName		= 2
 };
 
 class CAAsyncContainer
 {
-	public:
+public:
 
-		CAAsyncContainer(QueryType queryType,DispatchClient* client){ mQueryType = queryType; mClient = client; }
+    CAAsyncContainer(QueryType queryType,DispatchClient* client) {
+        mQueryType = queryType;
+        mClient = client;
+    }
 
-		QueryType		mQueryType;
-		DispatchClient*	mClient;
-		BString			mObjBaseType;
+    QueryType		mQueryType;
+    DispatchClient*	mClient;
+    BString			mObjBaseType;
 };
 
 //======================================================================================================================
@@ -62,19 +65,19 @@ class CAAsyncContainer
 class CharacterCreateInfo
 {
 public:
-  uint32        mAccountId;
-  uint64        mCharacterId;
-  BString        mFirstName;
-  BString        mLastName;
-  BString        mBaseModel;
-  BString        mProfession;
-  BString        mStartCity;
-  float         mScale;
-  BString        mBiography;
-  uint16        mAppearance[0x255];
-  uint16        mHairCustomization[0x71];
-  BString        mHairModel;
-  BString        mHairColor;
+    uint32        mAccountId;
+    uint64        mCharacterId;
+    BString        mFirstName;
+    BString        mLastName;
+    BString        mBaseModel;
+    BString        mProfession;
+    BString        mStartCity;
+    float         mScale;
+    BString        mBiography;
+    uint16        mAppearance[0x255];
+    uint16        mHairCustomization[0x71];
+    BString        mHairModel;
+    BString        mHairColor;
 };
 
 
@@ -82,28 +85,28 @@ public:
 //======================================================================================================================
 class CharacterAdminHandler : public DatabaseCallback
 {
-	public:
+public:
 
-		CharacterAdminHandler(Database* database, MessageDispatch* dispatch);
-		~CharacterAdminHandler(void);
+    CharacterAdminHandler(Database* database, MessageDispatch* dispatch);
+    ~CharacterAdminHandler(void);
 
-		void			Process(void);
+    void			Process(void);
 
-		virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-	private:
+private:
 
-		void				_processRandomNameRequest(Message* message, DispatchClient* client);
-		void                _processCreateCharacter(Message* message, DispatchClient* client);
-		void                _parseAppearanceData(Message* message, CharacterCreateInfo* info);
+    void				_processRandomNameRequest(Message* message, DispatchClient* client);
+    void                _processCreateCharacter(Message* message, DispatchClient* client);
+    void                _parseAppearanceData(Message* message, CharacterCreateInfo* info);
 
-		void				_parseHairData(Message* message, CharacterCreateInfo* info);
+    void				_parseHairData(Message* message, CharacterCreateInfo* info);
 
-		void				_sendCreateCharacterSuccess(uint64 characterId,DispatchClient* client);
-		void				_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client);
+    void				_sendCreateCharacterSuccess(uint64 characterId,DispatchClient* client);
+    void				_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client);
 
-		Database*           mDatabase;
-		MessageDispatch*    mMessageDispatch;
+    Database*           mDatabase;
+    MessageDispatch*    mMessageDispatch;
 };
 
 

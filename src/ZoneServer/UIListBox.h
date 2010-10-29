@@ -36,28 +36,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UIListBox : public UIWindow
 {
-	public:
+public:
 
-		UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, float distance = 0, uint64 object = 0, void* container = NULL);
-		virtual ~UIListBox();
+    UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, float distance = 0, uint64 object = 0, void* container = nullptr);
+    virtual ~UIListBox();
 
-		BStringVector*	getDataItems(){ return &mDataItems; }
-		void			addDataItem(BString item){ mDataItems.push_back(item); }
+    BStringVector*	getDataItems() {
+        return &mDataItems;
+    }
+    void			addDataItem(BString item) {
+        mDataItems.push_back(item);
+    }
 
-		virtual void	handleEvent(Message* message);
-		void			sendCreate();
+    virtual void	handleEvent(Message* message);
+    void			sendCreate();
 
-	protected:
+protected:
 
-		void		_initChildren();
+    void		_initChildren();
 
-		BString			mCaption;
+    BString			mCaption;
 
-		BString			mPrompt;
-		uint8			mLbType;
-		BStringVector	mDataItems;
-		float			mDistance;
-		uint64			mObjectID;
+    BString			mPrompt;
+    uint8			mLbType;
+    BStringVector	mDataItems;
+    float			mDistance;
+    uint64			mObjectID;
 };
 
 //================================================================================

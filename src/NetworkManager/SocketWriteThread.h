@@ -50,60 +50,64 @@ typedef Anh_Utils::concurrent_queue<Session*>    SessionQueue;
 
 class NET_API SocketWriteThread
 {
-    public:
+public:
 
-        SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
-        ~SocketWriteThread();
+    SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
+    ~SocketWriteThread();
 
-        virtual void	run();
+    virtual void	run();
 
-        void			NewSession(Session* session);
+    void			NewSession(Session* session);
 
-        bool			getIsRunning(void){ return mIsRunning; }
-        void			requestExit(){ mExit = true; }
+    bool			getIsRunning(void) {
+        return mIsRunning;
+    }
+    void			requestExit() {
+        mExit = true;
+    }
 
-    private:
+private:
 
-        void			_startup(void);
-        void			_shutdown(void);
+    void			_startup(void);
+    void			_shutdown(void);
 
-        void			_sendPacket(Packet* packet, Session* session);
+    void			_sendPacket(Packet* packet, Session* session);
 
-        //void				*mtheHandle;
+    //void				*mtheHandle;
 
-        uint16				mMessageMaxSize;
-        int8				mSendBuffer[SEND_BUFFER_SIZE];  
-        Service*			mService;
-        CompCryptor*		mCompCryptor;
-        SOCKET				mSocket;
-        bool				mIsRunning;
-        uint64			    mLastTime;
-        uint64			    mLastThreadTime;
-        uint64			    mNewThreadTime;
-        uint32				mCpuUsage;
-        uint64			    mThreadTime;
-        uint64				lastThreadProcessingTime;
-        uint64				threadProcessingTime;
+    uint16				mMessageMaxSize;
+    int8				mSendBuffer[SEND_BUFFER_SIZE];
+    Service*			mService;
+    CompCryptor*		mCompCryptor;
+    SOCKET				mSocket;
+    bool				mIsRunning;
+    uint64			    mLastTime;
+    uint64			    mLastThreadTime;
+    uint64			    mNewThreadTime;
+    uint32				mCpuUsage;
+    uint64			    mThreadTime;
+    uint64				lastThreadProcessingTime;
+    uint64				threadProcessingTime;
 
-        uint32				unCount;
-        uint32				reCount;
-        bool				mServerService;
-        // Anh_Utils::Clock*	mClock;        
-        
+    uint32				unCount;
+    uint32				reCount;
+    bool				mServerService;
+    // Anh_Utils::Clock*	mClock;
+
     // Win32 complains about stl during linkage, disable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
-        SessionQueue				mSessionQueue;
+    SessionQueue				mSessionQueue;
 
-        boost::thread   			mThread;
-        boost::recursive_mutex      mSocketWriteMutex;
+    boost::thread   			mThread;
+    boost::recursive_mutex      mSocketWriteMutex;
     // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (default : 4251)
 #endif
 
-        bool						mExit;
+    bool						mExit;
 };
 
 //======================================================================================================================

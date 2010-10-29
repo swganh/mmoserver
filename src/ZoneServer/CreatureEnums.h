@@ -61,7 +61,8 @@ enum CreatureGroup
 };
 
 //=============================================================================
-enum CreatureState : unsigned long long
+enum CreatureState :
+unsigned long long
 {
     CreatureState_Cover							=	0x0000000000000001,
     CreatureState_Combat						=	0x0000000000000002,
@@ -95,13 +96,14 @@ enum CreatureState : unsigned long long
     CreatureState_PilotingShip					=	0x0000000020000000,
     CreatureState_ShipOperations				=	0x0000000040000000,
     CreatureState_ShipGunner					=	0x0000000080000000,
-    CreatureState_ShipInterior				    =	0x0000000100000000,
+    CreatureState_ShipInterior					=	0x0000000100000000,
     CreatureState_PilotingPobShip				=	0x0000000200000000,
-    CreatureState_ClearState                    =   0x0000000400000000,
+	CreatureState_ClearState					=	0x0000000400000000
 };
 
 //=============================================================================
-enum CreatureLocomotion : unsigned long long
+enum CreatureLocomotion :
+unsigned long long
 {
     CreatureLocomotion_Standing							=	0x0000000000000001,
     CreatureLocomotion_Sneaking							=	0x0000000000000002,
@@ -124,7 +126,7 @@ enum CreatureLocomotion : unsigned long long
     CreatureLocomotion_KnockedDown						=	0x0000000000040000,
     CreatureLocomotion_Incapacitated					=	0x0000000000080000,
     CreatureLocomotion_Dead								=	0x0000000000100000,
-    CreatureLocomotion_Blocking							=	0x0000000000200000,
+    CreatureLocomotion_Blocking							=	0x0000000000200000
 };
 //=============================================================================
 enum CreaturePosture
@@ -162,7 +164,8 @@ enum CreaturePvPStatus
 
 //=============================================================================
 
-enum CreatureEquipSlot : unsigned long long
+enum CreatureEquipSlot :
+unsigned long long
 {
     CreatureEquipSlot_Back					= 0x000000001,
     CreatureEquipSlot_Bandolier				= 0x000000002,
@@ -199,7 +202,7 @@ enum CreatureEquipSlot : unsigned long long
     CreatureEquipSlot_Shoes					= 0x080000000,
     CreatureEquipSlot_Utility_Belt			= 0x100000000,
     CreatureEquipSlot_Wrist_Left			= 0x200000000,
-    CreatureEquipSlot_Wrist_Right			= 0x400000000,
+    CreatureEquipSlot_Wrist_Right			= 0x400000000
 };
 
 #define CREATURE_SLOT_COUNT	35ULL

@@ -37,17 +37,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class NET_API DispatchClient : public NetworkClient
 {
-	public:
-  
-		virtual void	SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
-		virtual void	SendChannelAUnreliable(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
-		void			setAccountId(uint32 id){ mAccountId = id; };
+public:
 
-		uint32			getAccountId(void){ return mAccountId; };
+    virtual void	SendChannelA(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
+    virtual void	SendChannelAUnreliable(Message* message, uint32 accountId, uint8 serverId, uint8 priority);
+    void			setAccountId(uint32 id) {
+        mAccountId = id;
+    };
 
-	private:
+    uint32			getAccountId(void) {
+        return mAccountId;
+    };
 
-		uint32	mAccountId;
+private:
+
+    uint32	mAccountId;
 };
 
 //======================================================================================================================

@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 template <class T, unsigned int preAlloc = 64>
 class Queue
 {
-public:	
+public:
 	// our internal node class
 	template <class Tp>
 	class Node
@@ -54,7 +54,7 @@ public:
 
 		iterator(void) : mNode(0), mNext(0), mPrev(0) {};
 		iterator(Node<T>* node) : mNode(node), mNext(node->mNext), mPrev(node->mPrev) {};
-			
+
 		void			operator ++(void)					{ if (mNext) mNode = mNext; mNext = mNode->mNext; mPrev = mNode->mPrev; };
 		void			operator ++(int i)				{ if (mNext) mNode = mNext; mNext = mNode->mNext; mPrev = mNode->mPrev; };
 		void			operator --(void)					{ if (mPrev) mNode = mPrev; mNext = mNode->mNext; mPrev = mNode->mPrev; };
@@ -71,7 +71,7 @@ public:
 		Node<T>*														mNext;
 		Node<T>*														mPrev;
 	};
-	
+
 	// The reverse iterator class   This is a test
 	class iterator_reverse : public iterator
 	{
@@ -117,7 +117,7 @@ private:
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline Queue<T, preAlloc>::Queue(void)
 {
 	unsigned int i = 0;
@@ -146,20 +146,20 @@ inline Queue<T, preAlloc>::Queue(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline Queue<T, preAlloc>::~Queue(void)
 {
-	
+
 }
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline void Queue<T, preAlloc>::push(T object)
 {
 	mTemp = GetFreeNode();
 
-	mTemp->mData = object; 
+	mTemp->mData = object;
 	mTemp->mNext = mLast;
 	mTemp->mPrev = mLast->mPrev;
 
@@ -171,7 +171,7 @@ inline void Queue<T, preAlloc>::push(T object)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline void Queue<T, preAlloc>::pop(void)
 {
   if (mSize > 0)
@@ -187,7 +187,7 @@ inline void Queue<T, preAlloc>::pop(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 typename inline T Queue<T, preAlloc>::front(void)
 {
 	return mFirst->mNext->mData;
@@ -195,7 +195,7 @@ typename inline T Queue<T, preAlloc>::front(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 typename inline T Queue<T, preAlloc>::back(void)
 {
 	return mLast->mPrev->mData;
@@ -203,7 +203,7 @@ typename inline T Queue<T, preAlloc>::back(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline void Queue<T, preAlloc>::clear(void)
 {
 	Node<T>* node;
@@ -220,7 +220,7 @@ inline void Queue<T, preAlloc>::clear(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 typename inline Queue<T, preAlloc>::template Node<T>* Queue<T, preAlloc>::GetFreeNode(void)
 {
 	Node<T>* node = mFree;
@@ -241,7 +241,7 @@ typename inline Queue<T, preAlloc>::template Node<T>* Queue<T, preAlloc>::GetFre
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline void Queue<T, preAlloc>::ReleaseFreeNode(Node<T>* node)
 {
 	memset(&node->mData, 0, sizeof(node->mData));

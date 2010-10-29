@@ -94,7 +94,6 @@ enum ObjectUpdate
 class MessageLib
 {
 public:
-
     static MessageLib*	getSingletonPtr() { return mSingleton; }
     static MessageLib*	Init();
 
@@ -123,7 +122,6 @@ public:
 
     void				sendInventory(PlayerObject* playerObject);
     bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
-    
 
     // common messages, commonmessages.cpp
     bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const;
@@ -150,13 +148,13 @@ public:
     bool				sendSceneReadyToChat(DispatchClient* client);
     bool				sendServerTime(uint64 time,DispatchClient* client);
     void				sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType, PlayerObject* player = NULL);
-    
+
     /**
      * Sends a custom text string as a system message.
      *
      * @param custom_message A custom text string to be sent.
      * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
-     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox
      *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
      * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
      */
@@ -167,7 +165,7 @@ public:
      *
      * @param prose A custom STF string package.
      * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
-     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox
      *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
      * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
      */
@@ -236,7 +234,7 @@ public:
      * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
      */
     void SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
-    
+
     /**
      * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
      *
@@ -251,7 +249,7 @@ public:
      * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
      */
     void SendSpatialChat(CreatureObject* const speaking_object, const common::OutOfBand& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
-    
+
     /**
      * Sends a spatial emote (such as a player or NPC cheering).
      *
@@ -265,10 +263,8 @@ public:
      *                      - 3 - Source performs an animation and sends a text message.
      */
     void SendSpatialEmote(CreatureObject* source, uint32_t emote_id, uint64_t target_id = 0, uint8_t emote_flags = 1);
-
-    void				sendCreatureAnimation(CreatureObject* srcObject,BString animation);
     void                sendCreatureAnimation(CreatureObject* srcObject, const std::string& animation);
-
+	void                sendCreatureAnimation(CreatureObject* srcObject, BString animation);
     // spatial for tutorial
     void				sendCreatureAnimation(CreatureObject* srcObject,BString animation, PlayerObject* player);
 
@@ -396,7 +392,6 @@ public:
     // static object,	staticomessages.cpp
     bool				sendBaselinesSTAO_3(TangibleObject* staticObject, PlayerObject* targetObject);
     bool				sendBaselinesSTAO_6(TangibleObject* staticObject, PlayerObject* targetObject);
-    
     //crates
     bool				sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObject);
     bool				sendBaselinesTYCF_6( FactoryCrate* crate,PlayerObject* targetObject);
@@ -477,7 +472,6 @@ public:
     bool				sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* player);
     bool				sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* player);
     bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
-    
     void				sendNewHarvesterName(PlayerStructure* harvester);
     void				sendOperateHarvester(PlayerStructure* harvester,PlayerObject* player);
     void				sendHarvesterResourceData(PlayerStructure* structure,PlayerObject* player);
@@ -501,7 +495,6 @@ public:
 
     // deltas
     bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);
-    
     // Structures admin / placement
     bool				sendEnterStructurePlacement(Object* deed, BString objectString, PlayerObject* playerObject);
     bool				sendAdminList(PlayerStructure* structure, PlayerObject* playerObject);
@@ -567,19 +560,18 @@ public:
 private:
 
     MessageLib();
-    
     bool				_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel);
 
     bool				_checkPlayer(const PlayerObject* const player) const;
     bool				_checkPlayer(uint64 playerId) const;
-    
+
     void				_sendToInRangeUnreliable(Message* message, Object* const object, uint16 priority, bool toSelf = true);
     void				_sendToInRange(Message* message, Object* const object, uint16 priority, bool toSelf = true);
 
     void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;
     void				_sendToInstancedPlayers(Message* message, uint16 priority, const PlayerObject* const player) const ;
     void				_sendToAll(Message* message,uint16 priority,bool unreliable = false) const;
-    
+   
     /**
      * Sends a spatial message to in-range players.
      *
@@ -591,7 +583,6 @@ private:
      * @param player_object This is used to send out spatial messages in a player instance.
      */
     void SendSpatialToInRangeUnreliable_(Message* message, Object* const object, const PlayerObject* const player_object = NULL);
-    
     /**
      * Sends out a system message.
      *
@@ -600,12 +591,12 @@ private:
      * @param custom_message A custom text string to be sent.
      * @param prose A custom STF string package.
      * @param player The recepient of the system message. If no player is passed the message is sent to everyone.
-     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox 
+     * @param chatbox_only Determines whether the message is displayed on screen or in the chatbox
      *                     only. By default this is false meaning messages are by default displayed on screen and the chatbox.
      * @param send_to_inrange If true the message is sent to all in-range players of the target recipient.
      */
     bool SendSystemMessage_(const std::wstring& custom_message, const common::OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange);
-    
+
     /**
      * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
      *

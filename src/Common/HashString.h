@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace common {
 
 class HashString;
-    
+
 /**
  * Writes a HashString to an output stream in a human readable format.
  *
@@ -108,12 +108,12 @@ public:
      * \returns A unique identifier for this HashString.
      */
     uint32_t ident() const;
-    
+
     /**
      * \returns A unique identifier for this HashString.
      */
     const std::string& ident_string() const;
-    
+
 private:
     /// Disable the default constructor. Must use the explicit constructor.
     HashString();

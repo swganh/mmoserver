@@ -38,17 +38,17 @@ class Creatureobject;
 
 //This reflects the vehicle types id from the database
 enum vehicle_types {
-	VehicleType_JetPack           = 1,
-	VehicleType_LandSpeeder_av21  = 2,
-	VehicleType_LandSpeeder_base  = 3,
-	VehicleType_LandSpeeder_x31   = 4,
-	VehicleType_LandSpeeder_x34   = 5,
-	VehicleType_LandSpeeder_xp38  = 6,
-	VehicleType_SpeederBike       = 7,
-	VehicleType_SpeederBike_base  = 8,
-	VehicleType_SpeederBike_flash = 9,
-	VehicleType_SpeederBike_swoop = 10,
-	VehicleType_shared            = 11
+    VehicleType_JetPack           = 1,
+    VehicleType_LandSpeeder_av21  = 2,
+    VehicleType_LandSpeeder_base  = 3,
+    VehicleType_LandSpeeder_x31   = 4,
+    VehicleType_LandSpeeder_x34   = 5,
+    VehicleType_LandSpeeder_xp38  = 6,
+    VehicleType_SpeederBike       = 7,
+    VehicleType_SpeederBike_base  = 8,
+    VehicleType_SpeederBike_flash = 9,
+    VehicleType_SpeederBike_swoop = 10,
+    VehicleType_shared            = 11
 };
 
 
@@ -60,112 +60,136 @@ enum vehicle_types {
  * radial menu.
  */
 class VehicleController : public IntangibleObject {
-	friend class VehicleControllerFactory;
+    friend class VehicleControllerFactory;
 
- public:
-  /// Default constructor
-	VehicleController();
-	
-	/// Default deconstructor.
-	~VehicleController();
+public:
+    /// Default constructor
+    VehicleController();
 
-  
-  /// Returns the type id of the vehicle.
-  /**
-   * @returns uint32_t The type id of the vehicle.
-   */  
-	uint32_t type_id() const { return type_id_; }
-  
-  /// Sets the type id of the vehicle.
-  /**
-   * @returns type_id The type id of the vehicle.
-   */  
-	void set_type_id(uint32_t type_id) { type_id_ = type_id; }
-	
-  /// Returns the rate of hitpoint loss for the vehicle.
-  /**
-   * @returns uint32_t The rate of hitpoint loss for the vehicle.
-   */  
-  uint32_t hit_point_loss() const { return hit_point_loss_; }
+    /// Default deconstructor.
+    ~VehicleController();
 
-  /// Sets the rate of hitpoint loss for the vehicle.
-  /**
-   * @returns hitpoint_loss The rate of hitpoint loss for the vehicle.
-   */  
-  void set_hit_point_loss(uint32_t hitpoint_loss) { hit_point_loss_ = hitpoint_loss; }
 
-  /// Returns the acceleration rate of the vehicle on an incline.
-  /**
-   * @returns uint32_t The acceleration rate of the vehicle on an incline.
-   */  
-  uint32_t incline_acceleration() const { return incline_acceleration_; }
+    /// Returns the type id of the vehicle.
+    /**
+     * @returns uint32_t The type id of the vehicle.
+     */
+    uint32_t type_id() const {
+        return type_id_;
+    }
 
-  /// Sets the acceleration rate of the vehicle on an incline.
-  /**
-   * @returns uint32_t The acceleration rate of the vehicle on an incline.
-   */  
-  void set_incline_acceleration(uint32_t incline_acceleration) { incline_acceleration_ = incline_acceleration; }
+    /// Sets the type id of the vehicle.
+    /**
+     * @returns type_id The type id of the vehicle.
+     */
+    void set_type_id(uint32_t type_id) {
+        type_id_ = type_id;
+    }
 
-  /// Returns the acceleration rate of the vehicle on a flat stretch.
-  /**
-   * @returns uint32_t The acceleration rate of the vehicle on a flat stretch.
-   */  
-  int flat_acceleration() const { return flat_acceleration_; }
+    /// Returns the rate of hitpoint loss for the vehicle.
+    /**
+     * @returns uint32_t The rate of hitpoint loss for the vehicle.
+     */
+    uint32_t hit_point_loss() const {
+        return hit_point_loss_;
+    }
 
-  /// Returns the acceleration rate of the vehicle on a flat stretch.
-  /**
-   * @returns uint32_t The acceleration rate of the vehicle on a flat stretch.
-   */  
-  void set_flat_acceleration(int flat_acceleration) { flat_acceleration_ = flat_acceleration; }
+    /// Sets the rate of hitpoint loss for the vehicle.
+    /**
+     * @returns hitpoint_loss The rate of hitpoint loss for the vehicle.
+     */
+    void set_hit_point_loss(uint32_t hitpoint_loss) {
+        hit_point_loss_ = hitpoint_loss;
+    }
 
-  /// Returns the player object that owns this vehicle.
-  /**
-   * @returns PlayerObject The player object that owns this vehicle.
-   */  
-  PlayerObject* owner() { return owner_; }
-  
-  /// Sets the player object that owns this vehicle.
-  /**
-   * @returns owner The player object that owns this vehicle.
-   */  
-  void set_owner(PlayerObject* owner) { owner_ = owner; }
+    /// Returns the acceleration rate of the vehicle on an incline.
+    /**
+     * @returns uint32_t The acceleration rate of the vehicle on an incline.
+     */
+    uint32_t incline_acceleration() const {
+        return incline_acceleration_;
+    }
 
-  /// Returns the vehicle this controller is maintaining.
-  /**
-   * @returns PlayerObject The vehicle this controller is maintaining.
-   */  
-  MountObject* body() { return body_; }
+    /// Sets the acceleration rate of the vehicle on an incline.
+    /**
+     * @returns uint32_t The acceleration rate of the vehicle on an incline.
+     */
+    void set_incline_acceleration(uint32_t incline_acceleration) {
+        incline_acceleration_ = incline_acceleration;
+    }
 
-  /// Returns the called state of the vehicle.
-  /**
-   * @returns bool The called state of the vehicle, true if called false if not.
-   */ 
-  bool IsCalled() const { return body_ != NULL; }
-  
-  /// Calls the vehicle this controller maintains.
-  void Call();
-  
-  /// Stores the vehicle this controller maintains.
-  void Store();
+    /// Returns the acceleration rate of the vehicle on a flat stretch.
+    /**
+     * @returns uint32_t The acceleration rate of the vehicle on a flat stretch.
+     */
+    int flat_acceleration() const {
+        return flat_acceleration_;
+    }
 
-  /// Mounts the owner onto the vehicle.
-  void MountPlayer();
-  
-  /// Dismounts the owner off the vehicle.
-  void DismountPlayer();
+    /// Returns the acceleration rate of the vehicle on a flat stretch.
+    /**
+     * @returns uint32_t The acceleration rate of the vehicle on a flat stretch.
+     */
+    void set_flat_acceleration(int flat_acceleration) {
+        flat_acceleration_ = flat_acceleration;
+    }
 
-  virtual void prepareCustomRadialMenu(CreatureObject* creature, uint8_t item_count);
-  virtual void handleObjectMenuSelect(uint8_t message_type, Object* source_object);
+    /// Returns the player object that owns this vehicle.
+    /**
+     * @returns PlayerObject The player object that owns this vehicle.
+     */
+    PlayerObject* owner() {
+        return owner_;
+    }
 
- private:
+    /// Sets the player object that owns this vehicle.
+    /**
+     * @returns owner The player object that owns this vehicle.
+     */
+    void set_owner(PlayerObject* owner) {
+        owner_ = owner;
+    }
 
-  PlayerObject* owner_;
-  MountObject* body_;
+    /// Returns the vehicle this controller is maintaining.
+    /**
+     * @returns PlayerObject The vehicle this controller is maintaining.
+     */
+    MountObject* body() {
+        return body_;
+    }
 
-  uint32_t flat_acceleration_;
-  uint32_t hit_point_loss_; //amount of hitpoints lost during travel
-  uint32_t incline_acceleration_;
-  uint32_t type_id_;
+    /// Returns the called state of the vehicle.
+    /**
+     * @returns bool The called state of the vehicle, true if called false if not.
+     */
+    bool IsCalled() const {
+        return body_ != NULL;
+    }
+
+    /// Calls the vehicle this controller maintains.
+    void Call();
+
+    /// Stores the vehicle this controller maintains.
+    void Store();
+
+    /// Mounts the owner onto the vehicle.
+    void MountPlayer();
+
+    /// Dismounts the owner off the vehicle.
+    void DismountPlayer();
+
+    virtual void prepareCustomRadialMenu(CreatureObject* creature, uint8_t item_count);
+    virtual void handleObjectMenuSelect(uint8_t message_type, Object* source_object);
+
+private:
+
+    PlayerObject* owner_;
+    MountObject* body_;
+
+    uint32_t flat_acceleration_;
+    uint32_t hit_point_loss_; //amount of hitpoints lost during travel
+    uint32_t incline_acceleration_;
+    uint32_t type_id_;
 };
 
 

@@ -64,109 +64,109 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
     {
         switch(messageType)
         {
-            case radId_itemUse:
+        case radId_itemUse:
+        {
+
+            if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
             {
+                // create the vehicle and put in datapad
+                Datapad*		datapad = player->getDataPad();
 
-                if(this->getItemType() >= ItemType_Deed_X34 && this->getItemType() <= ItemType_Deed_Swoop) //landspeeder x34, speederbike, swoop
+                if(datapad->getCapacity())
                 {
-                    // create the vehicle and put in datapad
-                    Datapad*		datapad = player->getDataPad();
+                    gVehicleControllerFactory->createVehicle(this->getItemType(),player);
 
-                    if(datapad->getCapacity())
+                    //parent container can be every backpack / inventory / cell // chest
+                    //cave - we shouldnt be able to use it in a cell otherwise we need to think about sending updates to all players watching
+
+                    ObjectContainer* parentContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(this->getParentId()));
+                    if(!parentContainer)
                     {
-                        gVehicleControllerFactory->createVehicle(this->getItemType(),player);
-
-                        //parent container can be every backpack / inventory / cell // chest
-                        //cave - we shouldnt be able to use it in a cell otherwise we need to think about sending updates to all players watching
-                        
-                        ObjectContainer* parentContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(this->getParentId()));
-                        if(!parentContainer)
-                        {
-                            gLogger->log(LogManager::DEBUG,"Deed::handleObjectMenuSelect: couldnt cast deeds parent %I64u !",this->getParentId());
-                            return;
-                        }
-                        parentContainer->removeObject(this);
-
-                        //cave if were in a cell or it is an opened container we need to identify all onlookers and update them
-                        gMessageLib->sendDestroyObject(this->getId(),player);
-                        gObjectFactory->deleteObjectFromDB(this);
-                        gWorldManager->destroyObject(this);
+                        return;
                     }
-                    else
-                    {
-                        gMessageLib->SendSystemMessage(L"Error datapad at max capacity. Couldn't create the vehicle.", player);
-                    }
+                    parentContainer->removeObject(this);
+
+                    //cave if were in a cell or it is an opened container we need to identify all onlookers and update them
+                    gMessageLib->sendDestroyObject(this->getId(),player);
+                    gObjectFactory->deleteObjectFromDB(this);
+                    gWorldManager->destroyObject(this);
                 }
                 else
                 {
-                    unsigned int itemType = this->getItemType();
-
-                    //Is it a city hall?
-                    if(itemType ==  1566 ||itemType == 1567 || itemType == 1568)
-                    {
-                        if(PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getOwner())))
-                        {
-                            if(!player->checkSkill(623)) // Must be a novice Politician
-                            {
-                                gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
-                                return;
-                            }
-                        }
-                    }
-
-                    //check the region whether were allowed to build
-                    if(gStructureManager->checkNoBuildRegion(player))
-                    {
-                        return;
-                    }
-
-                    //enter deed placement mode
-                    StructureDeedLink* data = gStructureManager->getDeedData(this->getItemType());
-                    if(!data)
-                    {
-                        return;
-                    }
-                    if(player->getParentId())
-                    {
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_inside"), player);
-                        return;
-                    }
-
-                    //check available Lots and remove ... grml
-                    if(!player->useLots(data->requiredLots))
-                    {
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_enough_lots", 0, 0, 0, data->requiredLots, 0.0f), player);
-                        return;
-                    }
-
-                    //TODO
-                    //check for city boundaries
-                    
-                    //check if were allowed to build that structure on this planet
-                    
-                    uint64 zoneId = (uint64)pow(2.0,(int)gWorldManager->getZoneId());
-                    uint64 mask = data->placementMask;
-                    if((mask&zoneId) == zoneId)
-                    {
-                        //sadly the client wont inform us when the player hit escape
-                        gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
-                        gStructureManager->UpdateCharacterLots(player->getId());
-                    }
-                    else
-                    {
-                        //we cannot differ whether its a no build planet
-                        //or just the house type isnt permitted here
-                        //wrong_planet 
-                        //not_permitted
-                        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "wrong_planet", 0, 0, 0, data->requiredLots, 0.0f), player);
-                        gStructureManager->UpdateCharacterLots(player->getId());
-                        return;
-                    }
-
+                    gMessageLib->SendSystemMessage(L"Error datapad at max capacity. Couldn't create the vehicle.", player);
                 }
             }
+            else
+            {
+                unsigned int itemType = this->getItemType();
+
+                //Is it a city hall?
+                if(itemType ==  1566 ||itemType == 1567 || itemType == 1568)
+                {
+                    if(PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getOwner())))
+                    {
+                        if(!player->checkSkill(623)) // Must be a novice Politician
+                        {
+                            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "place_cityhall"), player);
+                            return;
+                        }
+                    }
+                }
+
+                //check the region whether were allowed to build
+                if(gStructureManager->checkNoBuildRegion(player))
+                {
+                    return;
+                }
+
+                //enter deed placement mode
+                StructureDeedLink* data = gStructureManager->getDeedData(this->getItemType());
+                if(!data)
+                {
+                    return;
+                }
+                if(player->getParentId())
+                {
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_inside"), player);
+                    return;
+                }
+
+                //check available Lots and remove ... grml
+                if(!player->useLots(data->requiredLots))
+                {
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_enough_lots", 0, 0, 0, data->requiredLots, 0.0f), player);
+                    return;
+                }
+
+                //TODO
+                //check for city boundaries
+
+                //check if were allowed to build that structure on this planet
+
+                uint64 zoneId = (uint64)pow(2.0,(int)gWorldManager->getZoneId());
+                uint64 mask = data->placementMask;
+                if((mask&zoneId) == zoneId)
+                {
+                    //sadly the client wont inform us when the player hit escape
+                    gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
+                    gStructureManager->UpdateCharacterLots(player->getId());
+                }
+                else
+                {
+                    //we cannot differ whether its a no build planet
+                    //or just the house type isnt permitted here
+                    //wrong_planet
+                    //not_permitted
+                    gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "wrong_planet", 0, 0, 0, data->requiredLots, 0.0f), player);
+                    gStructureManager->UpdateCharacterLots(player->getId());
+                    return;
+                }
+
+            }
+        }
+        break;
+        default:
             break;
-            default: break;
         }
 
 
@@ -229,7 +229,7 @@ void Deed::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
 
     //if we have a prefab Menu (we will have one as a deed)  iterate through it and add it to our response
     //this way we will have our menu item numbering done right
-    
+
     MenuItemList* menuItemList = 		getMenuList();
     if(menuItemList)
     {
@@ -238,7 +238,7 @@ void Deed::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
         while(it != menuItemList->end())
         {
             radId++;
-            
+
             if((*it)->sIdentifier == 7)
             {
                 radial->addItem((*it)->sItem,(*it)->sSubMenu,(RadialIdentifier)(*it)->sIdentifier,radAction_ObjCallback,"");
@@ -248,7 +248,7 @@ void Deed::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCou
             it++;
         }
     }
-     
+
 
     radial->addItem(radId++,0,radId_itemUse,radAction_ObjCallback,"");
     radial->addItem(radId++,0,radId_examine,radAction_ObjCallback,"");

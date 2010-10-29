@@ -29,33 +29,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BuffEvent.h"
 #include "Buff.h"
 #include <iostream>
-		
+
 
 BuffEvent::BuffEvent(Buff* buff)
-{ 
-    mBuff = &buff; 
+{
+    mBuff = &buff;
 }
-		
+
 
 BuffEvent::~BuffEvent()
 {}
-		
 
-Buff* BuffEvent::getBuff() const 
-{ 
-    return *mBuff; 
+
+Buff* BuffEvent::getBuff() const
+{
+    return *mBuff;
 }
 
 
 bool BuffEvent::Tick(uint64 CurrentTime, void *ref)
 {
-	Buff* temp = *mBuff;
-	std::cout<< "Event has Ptr " << temp << std::endl;
-	
-	bool bReturn = true;
-	//bool bReturn = temp->UpdateTick(CurrentTime);
-	
-	//Do any final cleanup Here
+    Buff* temp = *mBuff;
+    std::cout<< "Event has Ptr " << temp << std::endl;
 
-	return bReturn;
+    bool bReturn = true;
+    //bool bReturn = temp->UpdateTick(CurrentTime);
+
+    //Do any final cleanup Here
+
+    return bReturn;
 }

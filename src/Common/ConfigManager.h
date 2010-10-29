@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_CONFIGMANAGER_H
 #define ANH_CONFIGMANAGER_H
 
-#include "Utils/typedefs.h"
 #include "ConfigFile.h"
 
 #include "Common/declspec.h"
@@ -40,25 +39,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class COMMON_API ConfigManager
 {
-	public:
+public:
 
-		static ConfigManager*	getSingletonPtr() { return mSingleton; }
-		static ConfigManager*	Init(const std::string& name);
-		static std::string	getBuildString(void);
-		static std::string getBuildNumber(void);
-		static std::string getBuildTime(void);
+    static ConfigManager*	getSingletonPtr() {
+        return mSingleton;
+    }
 
-		ConfigFile*				getConfigFile() { return mConfigFile; }
-		~ConfigManager();
+    static ConfigManager*	Init(const std::string& name);
+    static std::string	getBuildString();
+    static std::string getBuildNumber();
+    static std::string getBuildTime();
 
-	private:
+    ConfigFile*				getConfigFile() {
+        return mConfigFile;
+    }
+    ~ConfigManager();
 
-		ConfigManager(const std::string& name);
+private:
 
-		static ConfigManager*	mSingleton;
-		static bool				mInsFlag;
+    ConfigManager(const std::string& name);
 
-		ConfigFile*				mConfigFile;
+    static ConfigManager*	mSingleton;
+    static bool				mInsFlag;
+
+    ConfigFile*				mConfigFile;
 };
 
 //======================================================================================================================

@@ -1,4 +1,4 @@
- /*
+/*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "GroupManager.h"
+
+#include <glog/logging.h>
+
 #include "GroupManagerCallbackContainer.h"
 
 #include "Datapad.h"
@@ -40,8 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
-
-#include "Common/LogManager.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -62,16 +63,19 @@ GroupManager*		GroupManager::mSingleton  = NULL;
 //======================================================================================================================
 
 GroupManager::GroupManager(Database* database, MessageDispatch* dispatch)
-{	
+{
+    LOG(INFO) << "Beginning GroupManager initialization";
     mDatabase = database;
     mMessageDispatch = dispatch;
-    
-    mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,std::bind(&GroupManager::_processIsmInviteRequest, this, std::placeholders::_1, std::placeholders::_2));  
-    mMessageDispatch->RegisterMessageCallback(opIsmGroupCREO6deltaGroupId,std::bind(&GroupManager::_processIsmGroupCREO6deltaGroupId, this, std::placeholders::_1, std::placeholders::_2));  
-    mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,std::bind(&GroupManager::_processIsmGroupLootModeResponse, this, std::placeholders::_1, std::placeholders::_2)); 
-    mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,std::bind(&GroupManager::_processIsmGroupLootMasterResponse, this, std::placeholders::_1, std::placeholders::_2)); 
+
+    mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteRequest,std::bind(&GroupManager::_processIsmInviteRequest, this, std::placeholders::_1, std::placeholders::_2));
+    mMessageDispatch->RegisterMessageCallback(opIsmGroupCREO6deltaGroupId,std::bind(&GroupManager::_processIsmGroupCREO6deltaGroupId, this, std::placeholders::_1, std::placeholders::_2));
+    mMessageDispatch->RegisterMessageCallback(opIsmGroupLootModeResponse,std::bind(&GroupManager::_processIsmGroupLootModeResponse, this, std::placeholders::_1, std::placeholders::_2));
+    mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,std::bind(&GroupManager::_processIsmGroupLootMasterResponse, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeRequest, std::bind(&GroupManager::_processIsmGroupInviteInRangeRequest, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderResponse, std::bind(&GroupManager::_processIsmIsGroupLeaderResponse, this, std::placeholders::_1, std::placeholders::_2));
+    
+    LOG(INFO) << "GroupManager initialization complete";
 }
 
 
@@ -95,7 +99,7 @@ GroupManager*	GroupManager::Init(Database* database, MessageDispatch* dispatch)
     }
     else
         return mSingleton;
-    
+
 }
 
 //======================================================================================================================
@@ -140,7 +144,7 @@ uint64 GroupManager::_insertLeaderRequest(GroupManagerCallbackContainer* contain
     {
         requestId = mLeaderRequestInc++;
         it = mLeaderRequests.find(requestId);
-        
+
         if(maxCount >= 50)
             return 0; //Lets not continue this little ordeal.
     }
@@ -172,7 +176,7 @@ void GroupManager::getGroupLeader(PlayerObject* requester, uint64 groupId, uint3
     container->operation = operation;
 
     uint64 requestId = _insertLeaderRequest(container);
-    
+
     if(requestId != 0)
         gMessageLib->sendGroupLeaderRequest(requester, requestId, operation, groupId);
 }
@@ -195,20 +199,19 @@ void GroupManager::getGroupLeader(PlayerObject* requester, uint64 groupId, uint3
 
 void GroupManager::_processIsmInviteRequest(Message* message, DispatchClient* client)
 {
-    
+
     PlayerObject* sender = gWorldManager->getPlayerByAccId(message->getUint32()); // the player who sent the invite
     PlayerObject* target = gWorldManager->getPlayerByAccId(message->getUint32());  // the player who will recieve it
 
     if(sender == NULL || target == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"GroupManager::_processIsmInviteRequest PlayerAccId not found");
-        return;	
+        return;
     }
 
     //target->setGroupId(message->getUint64()); // the group id provided by the chatserver
 
     gMessageLib->sendInviteSenderUpdateDeltasCreo6(sender->getId(),target);
-    
+
 }
 
 //=======================================================================================================================
@@ -221,10 +224,9 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
     PlayerObject* const player = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
     if(player == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"GroupManager::_processIsmGroupCREO6deltaGroupId PlayerAccId not found");
         return;
     }
-    
+
     //this makes the player a member of the group
     uint64 id = message->getUint64();
 
@@ -246,9 +248,9 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
             }
         }
     }
-    
+
     player->setGroupId(id);
-    
+
     if(id != 0)
     {
         //check if a group with that Id already exists
@@ -272,7 +274,7 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
     // to in-range folks
     const PlayerObjectSet*	const inRangePlayers	= player->getKnownPlayers();
     PlayerObjectSet::const_iterator	it				= inRangePlayers->begin();
-    
+
     while(it != inRangePlayers->end())
     {
         const PlayerObject* const targetObject = (*it);
@@ -294,12 +296,10 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
 
 void GroupManager::_processIsmGroupLootModeResponse(Message* message, DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"_processIsmGroupLootModeResponse");
     PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
     if(playerObject == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"GroupManager::processIsmGroupLootModeResponse PlayerAccId not found");
-        return;
+		return;
     }
 
     //send the SUI
@@ -317,17 +317,13 @@ void GroupManager::_processIsmGroupLootModeResponse(Message* message, DispatchCl
 
 void GroupManager::_processIsmGroupLootMasterResponse(Message* message, DispatchClient* client)
 {
-    gLogger->log(LogManager::DEBUG,"_processIsmGroupLootMasterResponse");
     PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
     if(playerObject == NULL)
     {
-        gLogger->log(LogManager::DEBUG,"GroupManager::_processIsmGroupLootMasterResponse PlayerAccId not found");
         return;
     }
 
     //send the SUI
-    gLogger->log(LogManager::DEBUG,"ok\n");
-
     PlayerList inRangeMembers	= playerObject->getInRangeGroupMembers(true);
     PlayerList::iterator it		= inRangeMembers.begin();
 
@@ -374,7 +370,7 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
             gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateAdd,player);
             // now update the DB
             datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), mission->getDestination().Coordinates,
-                static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
+                                    static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
             gMessageLib->SendSystemMessage(::common::OutOfBand("group","groupwaypoint"), player);
         }
         else
@@ -387,7 +383,7 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
             }
         }
 
-        
+
         playerListIt++;
     }
 }
@@ -417,7 +413,7 @@ MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
     while(playerListIt != members->end())
     {
         PlayerObject*	groupMember = dynamic_cast<PlayerObject*> (gWorldManager->getObjectById((*playerListIt)));
-        
+
         if(!groupMember)
         {
             playerListIt++;
@@ -437,7 +433,7 @@ MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
             missionRangeList.push_back(std::make_pair((*missionListIt),0));
             missionListIt++;
         }
-    
+
         playerListIt++;
     }
 
@@ -452,15 +448,14 @@ MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
     {
         PlayerObject*	groupMember = dynamic_cast<PlayerObject*> (gWorldManager->getObjectById((*playerListIt)));
         //now check for the nearest mission - increase its counter
-        
+
         MissionGroupRangeList::iterator missionRangeListIt = missionRangeList.begin();
         MissionGroupRangeList::iterator missionRangeListStorage = missionRangeList.begin();
 
         while(missionRangeListIt != missionRangeList.end())
         {
-            MissionObject* nearestMission = NULL;
             float	nearestDistance = 88000.0;
-            
+
             MissionObject* currentMission = (*missionRangeListIt).first;
             float currentDistance = glm::distance(groupMember->mPosition, currentMission->getDestination().Coordinates);
 
@@ -468,17 +463,15 @@ MissionObject* GroupManager::getZoneGroupMission(std::list<uint64>* members)
             if(currentDistance < nearestDistance)
             {
                 nearestDistance = currentDistance;
-                nearestMission = currentMission;
-                
+
                 //store the lists iterator for future reference
                 missionRangeListStorage = missionRangeListIt;
-
             }
 
-            
+
             missionRangeListIt++;
         }
-        
+
         //now take the nearest Mission and give it a rubberpoint
         (*missionRangeListStorage).second++;
 
@@ -510,7 +503,7 @@ GroupObject* GroupManager::getGroupObject(uint64 id)
     {
         if((*it)->getId() == id)
             return (*it);
-            
+
         it++;
     }
     return NULL;
@@ -534,11 +527,9 @@ void GroupManager::_processIsmGroupInviteInRangeRequest(Message *message, Dispat
 {
     PlayerObject* sender = gWorldManager->getPlayerByAccId(message->getUint32());
     PlayerObject* target = gWorldManager->getPlayerByAccId(message->getUint32());
-    Message* newMessage = new Message();
 
     if( sender == NULL || target == NULL )
     {
-        gLogger->log(LogManager::DEBUG,"GroupManager::_processIsmInviteInRangeRequest player not found");
         return;
     }
 

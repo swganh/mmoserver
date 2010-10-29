@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -57,13 +57,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleTeach(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-    
+
     // check if our attribute targetplayer exists
     // check if our target is a player
     // parse the string if a known skill was selected
     // check what skills we can teach
     // check which of these skills the target might learn
-    
+
     PlayerObject*	teacherObject	= dynamic_cast<PlayerObject*>(mObject);
     PlayerObject*	pupilObject	= dynamic_cast<PlayerObject*> (teacherObject->getTarget());
 
@@ -103,7 +103,7 @@ void ObjectController::_handleTeach(uint64 targetId,Message* message,ObjectContr
 
 //======================================================================================================================
 //
-// do teach 
+// do teach
 //
 
 //======================================================================================================================
@@ -111,7 +111,7 @@ void ObjectController::_handleTeach(uint64 targetId,Message* message,ObjectContr
 void ObjectController::teach(PlayerObject* pupilObject,PlayerObject* teacherObject)
 {
     // pupil and teacher bozh exist and are grouped
-    // we will now compare the teachers skill list to the pupils skill list 
+    // we will now compare the teachers skill list to the pupils skill list
     // and assemble a list with skill the pupil does not have but were she/he has the prerequesits
 
     SkillList*	teacherSkills = teacherObject->getSkills();
@@ -134,8 +134,8 @@ void ObjectController::teach(PlayerObject* pupilObject,PlayerObject* teacherObje
                 if(!strstr(gSkillManager->getSkillById((*teacherIt)->mId)->mName.getAnsi(),"novice"))
                 {
                     // oki were save to go no novice profession :))
-                    // add it to the teachable skills list 
-                    //however be aware of 
+                    // add it to the teachable skills list
+                    //however be aware of
                     //1) dont add the basic skill nodes for languages - only speak and comprehend
                     //1) dont add the basic skill nodes for other skills - like basic_species_human
                     if(strstr(gSkillManager->getSkillById((*teacherIt)->mId)->mName.getAnsi(),"language"))
@@ -167,7 +167,7 @@ void ObjectController::teach(PlayerObject* pupilObject,PlayerObject* teacherObje
                                 nr++;
                             }
                         }
-                    }	
+                    }
                 }
             }
         }

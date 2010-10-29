@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #      define SWGPROTOCOL_API __declspec(dllexport)
 #   else
 #      define SWGPROTOCOL_API __declspec(dllimport)
-#   endif 
+#   endif
 #else
 #   define SWGPROTOCOL_API
 #endif

@@ -34,27 +34,27 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 Container::Container() : TangibleObject(), mParent(NULL)
 {
-	mTanGroup = TanGroup_Container;
-	this->setStatic(true);
-	mObjectLoadCounter = 1000;
-	//mObjects.reserve(80);
+    mTanGroup = TanGroup_Container;
+    this->setStatic(true);
+    mObjectLoadCounter = 1000;
+    //mObjects.reserve(80);
 }
 
 //=============================================================================
 
 Container::~Container()
 {
-	ObjectList::iterator	containerObjectIt = mObjects.begin();
+    ObjectList::iterator	containerObjectIt = mObjects.begin();
 
-	while(containerObjectIt != mObjects.end())
-	{
-		// Can we have busy crafting tool in a container??? 
-		// in theory yes,albeit only shortly
+    while(containerObjectIt != mObjects.end())
+    {
+        // Can we have busy crafting tool in a container???
+        // in theory yes,albeit only shortly
 
-		gWorldManager->destroyObject((*containerObjectIt));
-		
-		containerObjectIt = mObjects.erase(containerObjectIt);
-	}
+        gWorldManager->destroyObject((*containerObjectIt));
+
+        containerObjectIt = mObjects.erase(containerObjectIt);
+    }
 
 
 }
@@ -63,33 +63,33 @@ Container::~Container()
 
 void Container::removeObject(Object* object)
 {
-	ObjectList::iterator it = mObjects.begin();
-	while(it != mObjects.end())
-	{
-		if((*it)->getId() == object->getId())
-		{
-			mObjects.erase(it);
-			break;
-		}
-		++it;
-	}
+    ObjectList::iterator it = mObjects.begin();
+    while(it != mObjects.end())
+    {
+        if((*it)->getId() == object->getId())
+        {
+            mObjects.erase(it);
+            break;
+        }
+        ++it;
+    }
 }
 
 //=============================================================================
 
 void Container::deleteObject(Object* object)
 {
-	ObjectList::iterator it = mObjects.begin();
-	while(it != mObjects.end())
-	{
-		if((*it) == object)
-		{
-			gWorldManager->destroyObject(object);
-			mObjects.erase(it);
-			break;
-		}
-		++it;
-	}
+    ObjectList::iterator it = mObjects.begin();
+    while(it != mObjects.end())
+    {
+        if((*it) == object)
+        {
+            gWorldManager->destroyObject(object);
+            mObjects.erase(it);
+            break;
+        }
+        ++it;
+    }
 }
 
 //=============================================================================

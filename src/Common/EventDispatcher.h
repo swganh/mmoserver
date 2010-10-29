@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace common {
 
 class EventDispatcher;
-#define gEventDispatcher ::utils::Singleton<::common::EventDispatcher>::Instance()
+#define gEventDispatcher utils::Singleton<common::EventDispatcher>::Instance()
 
 typedef std::function<bool (IEventPtr)> EventListenerCallback;
 
@@ -58,7 +58,7 @@ typedef HashString EventListenerType;
 
 // Most of the time spent processing events will be iterating over a collection
 // of callbacks to notify about an event so we want to make use of std::list, however,
-// very infrequently we also want to be able to add and remove listeners and need a 
+// very infrequently we also want to be able to add and remove listeners and need a
 // way to identify them in the list so a std::pair is used as the node.
 typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
 typedef std::list<EventListener> EventListenerList;
@@ -77,7 +77,7 @@ public:
     ~EventDispatcher();
 
     /**
-     * Connects an event listener to an event. 
+     * Connects an event listener to an event.
      *
      * \param event_type The event type to check for connected listeners.
      * \param listener The listener interested in the event specified.
@@ -109,7 +109,7 @@ public:
 
     /**
      * Gets a list of all of the registered events.
-     * 
+     *
      * \returns A list of all the registered events.
      */
     boost::unique_future<std::vector<EventType>> GetRegisteredEvents();
@@ -156,36 +156,45 @@ private:
 
     bool ValidateEventType_(const EventType& event_type) const;
     bool ValidateEventListenerType_(const EventListenerType& event_listener_type) const;
-    bool AddEventType_(const EventType& event_type);    
+    bool AddEventType_(const EventType& event_type);
     void Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type);
     bool Deliver_(IEventPtr triggered_event);
-    
-    // Win32 complains about stl during linkage, disable the warning.
+        
+    // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
     EventTypeSet event_type_set_;
-    
+
     EventListenerMap event_listener_map_;
-
-    // Uses a double buffered queue to prevent events that generate events from creating
-    // an infinite loop.
-    
-    enum ClassConstants
-    {
-        kNumQueues = 2
-    };
-
-    EventQueue event_queue_[kNumQueues];
-    int active_queue_;
-
-    ::boost::atomic<uint64_t> current_timestep_;
     // Re-enable the warning.
 #ifdef _WIN32
 #pragma warning (default : 4251)
 #endif
 
-    ::utils::ActiveObject active_;
+    uint64_t current_timestep_;
+    
+    // Uses a double buffered queue to prevent events that generate events from creating
+    // an infinite loop.
+
+    enum ClassConstants
+    {
+        kNumQueues = 2
+    };
+        
+    // Win32 complains about stl during linkage, disable the warning.
+#ifdef _WIN32
+#pragma warning (disable : 4251)
+#endif
+    EventQueue event_queue_[kNumQueues];
+    // Re-enable the warning.
+#ifdef _WIN32
+#pragma warning (default : 4251)
+#endif
+
+    int active_queue_;
+    
+    utils::ActiveObject active_;
 };
 
 }  // namespace common

@@ -32,19 +32,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 Anh_Utils::EventHandler::~EventHandler()
 {
-	mHandlers.clear();
+    mHandlers.clear();
 }
 
 //======================================================================================================================
 
 void Anh_Utils::EventHandler::handleEvent(const Anh_Utils::Event* event)
 {
-	Handlers::iterator it = mHandlers.find(Anh_Utils::TypeInfo(typeid(*event)));
+    Handlers::iterator it = mHandlers.find(Anh_Utils::TypeInfo(typeid(*event)));
 
-	if(it != mHandlers.end())
-	{
-		it->second->execute(event);
-	}
+    if(it != mHandlers.end())
+    {
+        it->second->execute(event);
+    }
 }
 
 //======================================================================================================================

@@ -42,27 +42,29 @@ UTILS_API unsigned int rand_mwc1616(void);
 
 namespace Anh_Utils
 {
-	//==============================================================================================================================
-	class UTILS_API Random
-	{
-		public:
+//==============================================================================================================================
+class UTILS_API Random
+{
+public:
 
-			// The random generator will be seeded when class becomes instantiated (at first use).
-			static Random*	getSingleton();
-		
-			// The getRand function returns a pseudorandom integer in the range 0 to RAND_MAX (32767). 
-			inline int32 getRand(void) const { return rand();}
+    // The random generator will be seeded when class becomes instantiated (at first use).
+    static Random*	getSingleton();
 
-			// seedRand shall ONLY be used when you have the need to repeat the "random numbers", i.e. debugging.
-			void	seedRand(const uint32) const;
+    // The getRand function returns a pseudorandom integer in the range 0 to RAND_MAX (32767).
+    inline int32 getRand(void) const {
+        return rand();
+    }
 
-		protected:
-			Random();
-			~Random();
+    // seedRand shall ONLY be used when you have the need to repeat the "random numbers", i.e. debugging.
+    void	seedRand(const uint32) const;
 
-		private:
-			static Random*	  mSingleton;
-	};
+protected:
+    Random();
+    ~Random();
+
+private:
+    static Random*	  mSingleton;
+};
 
 }
 

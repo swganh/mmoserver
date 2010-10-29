@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PlayerObject.h"
 #include "WorldManager.h"
-#include "Common/LogManager.h"
 #include "MessageLib/MessageLib.h"
 #include "UIManager.h"
 #include "UIResourceSelectListBox.h"
@@ -89,7 +88,6 @@ void CharacterBuilderTerminal::InitMenus()
     mMainMenu.push_back("Manage Items");
     mMainMenu.push_back("Manage Resources");
     mMainMenu.push_back("Manage Professions");
-    
     mMainCsrMenu.push_back("Manage Experience");
     mMainCsrMenu.push_back("Manage Credits");
     mMainCsrMenu.push_back("Manage Buffs");
@@ -127,7 +125,7 @@ void CharacterBuilderTerminal::InitProfessions()
 
         char profession_nam[64];
 
-        snprintf(profession_nam, 64, "@skl_n:%s", (*skillIt)->mName);
+        snprintf(profession_nam, 64, "@skl_n:%s", (*skillIt)->mName.getAnsi());
         mProfessionMenu.push_back(profession_nam);
 
         ++skillIt;
@@ -174,7 +172,6 @@ void CharacterBuilderTerminal::InitWounds()
     mWoundMenu.push_back("-100 Focus Wound");
     mWoundMenu.push_back("-100 Willpower Wound");
     mWoundMenu.push_back("-100 Battle Fatigue");
-    
     mWoundMenu.push_back("Heal all wound and Battle Fatigue");
 }
 void CharacterBuilderTerminal::InitStates()
@@ -209,8 +206,6 @@ void CharacterBuilderTerminal::InitStates()
     mStatesMenu.push_back("Immobolized State");
     mStatesMenu.push_back("Frozen State");
     mStatesMenu.push_back("Clear All States");
-    
-    
 }
 void CharacterBuilderTerminal::InitItems()
 {
@@ -243,7 +238,7 @@ void CharacterBuilderTerminal::InitStructures()
     mFactoryMenu.push_back("Food Factory");
     mFactoryMenu.push_back("Equipment Factory");
     mFactoryMenu.push_back("Structure Factory");
-    
+
     //BStringVector			mHarvesterMenu;
     mHarvesterMenu.push_back("Flora Harvester");
     mHarvesterMenu.push_back("Gas Harvester");
@@ -267,7 +262,7 @@ void CharacterBuilderTerminal::InitStructures()
     mGuildHallMenu.push_back("Generic Guild Hall");
     mGuildHallMenu.push_back("Naboo Guild Hall");
     mGuildHallMenu.push_back("Tatooine Guild Hall");
-    
+
     //City Halls
     mCityHallMenu.push_back("Corellian City Hall");
     mCityHallMenu.push_back("Nabooian City Hall");
@@ -286,22 +281,21 @@ void CharacterBuilderTerminal::InitStructures()
     mGasMenu.push_back("Small");
     mGasMenu.push_back("Heavy");
     mGasMenu.push_back("Medium");
-    
+
     //BStringVector			mChemicalMenu;
     mChemicalMenu.push_back("Small");
     mChemicalMenu.push_back("Heavy");
     mChemicalMenu.push_back("Medium");
-    
+
     //BStringVector			mWaterMenu;
     mWaterMenu.push_back("Small");
     mWaterMenu.push_back("Heavy");
     mWaterMenu.push_back("Medium");
-    
+
     //BStringVector			mMineralMenu;
     mMineralMenu.push_back("Heavy");
     mMineralMenu.push_back("Small");
     mMineralMenu.push_back("Medium");
-    
 
     ////Houses
     //BStringVector			mGenericMenu;
@@ -583,7 +577,6 @@ void CharacterBuilderTerminal::InitArmor()
     mUbeseArmorMenu.push_back("Helmet");
     mUbeseArmorMenu.push_back("Jacket");
     mUbeseArmorMenu.push_back("Pants");
-    
 }
 CharacterBuilderTerminal::~CharacterBuilderTerminal()
 {
@@ -631,7 +624,6 @@ void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 act
         SAFE_DELETE(mSortedList);
     }
     mSortedList = new SortedList;
-    
 
     while (xpIt != xpList->end())
     {
@@ -707,7 +699,7 @@ void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uin
 void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
   // Check if the player is a csr and handle the menu appropriately.
-  if (playerObject->getCsrTag())
+	if (playerObject->getCsrTag())
         return _handleMainCsrMenu(playerObject, action, element, inputStr, window);
 
     switch(element)
@@ -860,7 +852,7 @@ void CharacterBuilderTerminal::_handleExperienceMenu(PlayerObject* playerObject,
         gMessageLib->SendSystemMessage(L"Error while giving Xp!", playerObject);
     }
     else if (mSortedList)
-    {	// Get the xp type for the selection.
+    {   // Get the xp type for the selection.
         uint32 xpType = mSortedList->at(element).second;
         gSkillManager->addExperience(xpType,600000,playerObject);
     }
@@ -918,9 +910,6 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
             gMessageLib->SendSystemMessage(L"Invalid amount.", player);
             return;
         }
-
-        gLogger->log(LogManager::DEBUG,"input: %u", mInputBoxAmount);
-
         // bank or inv?
         if(window->getWindowType() == SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox)
         {
@@ -933,7 +922,7 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
             dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->setCredits(mInputBoxAmount);
             gTreasuryManager->saveAndUpdateBankCredits(player);
         }
-    }	
+    }
 }
 void CharacterBuilderTerminal::_handleBuffMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
@@ -1253,7 +1242,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
             }
         }
     }
-}	
+}
 void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
     if(element < 0)
@@ -1282,7 +1271,6 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
         }
         catch (...)
         {
-            gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
             return;
         }
 
@@ -1546,7 +1534,8 @@ void CharacterBuilderTerminal::_handleStructureMenu(PlayerObject* playerObject, 
         {
             gUIManager->createNewListBox(this, "handleCivicMenu", "Civic", "Select a category.", mCivicMenu, playerObject, SUI_Window_CharacterBuilder_ListBox_CivicMenu);
         }
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleFurnitureMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1589,7 +1578,8 @@ void CharacterBuilderTerminal::_handleFurnitureMenu(PlayerObject* playerObject, 
             gUIManager->createNewListBox(this,"handleCheapMenu","Cheap","Select a category.",mCheapMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CheapMenu);
         }
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleInstrumentMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1626,7 +1616,8 @@ void CharacterBuilderTerminal::_handleInstrumentMenu(PlayerObject* player, uint3
     case 9:
         GiveItem(player,1322);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleToolMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1645,7 +1636,8 @@ void CharacterBuilderTerminal::_handleToolMenu(PlayerObject* playerObject, uint3
             gUIManager->createNewListBox(this,"handleCraftingToolMenu","Crafting Tool","Select a category.",mCraftingToolMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CraftingToolMenu);
         }
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleWeaponMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1664,12 +1656,13 @@ void CharacterBuilderTerminal::_handleWeaponMenu(PlayerObject* playerObject, uin
             gUIManager->createNewListBox(this,"handleRangedMenu","Ranged","Select a category.",mRangedMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_RangedMenu);
         }
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleArmorMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-        switch(element)
+    switch(element)
     {
     case 0://Bone
         if(playerObject->isConnected())
@@ -1693,7 +1686,7 @@ void CharacterBuilderTerminal::_handleArmorMenu(PlayerObject* playerObject, uint
     }
 }
 void CharacterBuilderTerminal::_handleHarvesterMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
-{	
+{
     switch(element)
     {
     case 0:
@@ -1729,7 +1722,6 @@ void CharacterBuilderTerminal::_handleHarvesterMenu(PlayerObject* playerObject, 
     default:
         break;
     }
-
 }
 void CharacterBuilderTerminal::_handleHouseMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
@@ -1747,7 +1739,8 @@ void CharacterBuilderTerminal::_handleHouseMenu(PlayerObject* playerObject, uint
             gUIManager->createNewListBox(this,"handleTatooineMenu","Tatooine","Select a category.",mTatooineMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_TatooineMenu);
         }
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleRugMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1764,12 +1757,12 @@ void CharacterBuilderTerminal::_handleRugMenu(PlayerObject* player, uint32 actio
         GiveItem(player,472);
         break;
     default:
-            break;
+        break;
     }
 }
 void CharacterBuilderTerminal::_handlePlantMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-        switch(element)
+    switch(element)
     {
     case 0:
         GiveItem(player,364);
@@ -1778,7 +1771,7 @@ void CharacterBuilderTerminal::_handlePlantMenu(PlayerObject* player, uint32 act
         GiveItem(player,312);
         break;
     default:
-            break;
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleElegantMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1813,7 +1806,7 @@ void CharacterBuilderTerminal::_handleElegantMenu(PlayerObject* player, uint32 a
         GiveItem(player,217);
         break;
     default:
-            break;
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleModernMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1855,7 +1848,7 @@ void CharacterBuilderTerminal::_handleModernMenu(PlayerObject* player, uint32 ac
         break;
 
     default:
-            break;
+        break;
     }
 }
 void CharacterBuilderTerminal::_handlePlainMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1890,7 +1883,7 @@ void CharacterBuilderTerminal::_handlePlainMenu(PlayerObject* player, uint32 act
         GiveItem(player,419);
         break;
     default:
-            break;
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleCheapMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1925,7 +1918,7 @@ void CharacterBuilderTerminal::_handleCheapMenu(PlayerObject* player, uint32 act
         GiveItem(player,237);
         break;
     default:
-            break;
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleMeleeMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1974,7 +1967,8 @@ void CharacterBuilderTerminal::_handleMeleeMenu(PlayerObject* playerObject, uint
             gUIManager->createNewListBox(this,"UnarmedMenu","Unarmed","Select a category.",mUnarmedMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_UnarmedMenu);
         }
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleRangedMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2011,7 +2005,8 @@ void CharacterBuilderTerminal::_handleRangedMenu(PlayerObject* playerObject, uin
             gUIManager->createNewListBox(this,"handleRifleMenu","Rifle","Select a category.",mRifleMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_RifleMenu);
         }
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2061,7 +2056,8 @@ void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32
     case 10:
         GiveItem(player,870);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleCompositeArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2108,7 +2104,8 @@ void CharacterBuilderTerminal::_handleCompositeArmorMenu(PlayerObject* player, u
     case 9:
         GiveItem(player,1107);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleUbeseArmorMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2151,7 +2148,8 @@ void CharacterBuilderTerminal::_handleUbeseArmorMenu(PlayerObject* player, uint3
     case 8:
         GiveItem(player,1296);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleOneHandSwordMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2167,12 +2165,13 @@ void CharacterBuilderTerminal::_handleOneHandSwordMenu(PlayerObject* player, uin
     case 2:
         GiveItem(player,2302);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleTwoHandSwordMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-        switch(element)
+    switch(element)
     {
     case 0:
         GiveItem(player,2272);
@@ -2189,7 +2188,8 @@ void CharacterBuilderTerminal::_handleTwoHandSwordMenu(PlayerObject* player, uin
     case 4:
         GiveItem(player,2561);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleBatonMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2205,7 +2205,8 @@ void CharacterBuilderTerminal::_handleBatonMenu(PlayerObject* player, uint32 act
     case 2:
         GiveItem(player,2627);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handlePolearmMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2233,7 +2234,8 @@ void CharacterBuilderTerminal::_handlePolearmMenu(PlayerObject* player, uint32 a
     case 6:
         GiveItem(player,2293);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleKnifeMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2261,7 +2263,8 @@ void CharacterBuilderTerminal::_handleKnifeMenu(PlayerObject* player, uint32 act
     case 6:
         GiveItem(player,2282);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleCarbineMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2301,7 +2304,8 @@ void CharacterBuilderTerminal::_handleCarbineMenu(PlayerObject* player, uint32 a
     case 10:
         GiveItem(player,2749);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleThrownMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2338,7 +2342,8 @@ void CharacterBuilderTerminal::_handleThrownMenu(PlayerObject* player, uint32 ac
     case 9:
         GiveItem(player,2321);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleHeavyMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2360,7 +2365,8 @@ void CharacterBuilderTerminal::_handleHeavyMenu(PlayerObject* player, uint32 act
     case 4:
         GiveItem(player,2753);
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handlePistolMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2431,7 +2437,7 @@ void CharacterBuilderTerminal::_handlePistolMenu(PlayerObject* player, uint32 ac
         GiveItem(player,2340);
         break;
     default:
-            break;
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleRifleMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2496,14 +2502,14 @@ void CharacterBuilderTerminal::_handleRifleMenu(PlayerObject* player, uint32 act
         GiveItem(player,2767);
         break;
     default:
-            break;
+        break;
     }
 }
 
 void CharacterBuilderTerminal::_handleCSRItemSelect(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
     uint32 inputId = 0;
-    
+
     if(swscanf(inputStr.getUnicode16(),L"%u",&inputId) == 1)
     {
         GiveItem(playerObject,inputId);
@@ -2534,16 +2540,12 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
             }
         }
     }
-    else
-    {
-        gLogger->log(LogManager::NOTICE,"TravelTerminal: Unhandled MenuSelect: %u",messageType);
-    }
 }
 
 //=============================================================================
 void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-        PlayerObject* playerObject = window->getOwner();
+    PlayerObject* playerObject = window->getOwner();
 
     if(!playerObject || action || playerObject->getSurveyState() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead())
     {
@@ -2768,7 +2770,7 @@ void CharacterBuilderTerminal::_handleGuildMenu(PlayerObject* player, uint32 act
         break;
     default:
         break;
-    }	
+    }
 }
 
 void CharacterBuilderTerminal::_handleCityMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window)

@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/Message.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
+
 
 //======================================================================================================================
 //
@@ -92,11 +92,11 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
     }
 
     // or ignored
-    
+
     if(player->checkIgnoreList(friendName.getCrc()))
     {
         friendName.convert(BSTRType_Unicode16);
-        
+
         gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_fail_is_ignored", L"", friendName.getUnicode16(), L""), player);
         player->setContactListUpdatePending(false);
         return;
@@ -119,11 +119,11 @@ void ObjectController::_handleAddFriend(uint64 targetId,Message* message,ObjectC
     sprintf(sql,"SELECT sf_addFriend(%"PRIu64",'",player->getId());
     sprintf(end,"')");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,friendName.getAnsi(),friendName.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,friendName.getAnsi(),friendName.getLength());
     strcat(sql,end);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    
 }
 
 //======================================================================================================================
@@ -160,7 +160,7 @@ void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,Obje
 
     if(!player->checkFriendList(friendName.getCrc()))
     {
-        player->setContactListUpdatePending(false);	
+        player->setContactListUpdatePending(false);
         return;
     }
     ObjControllerAsyncContainer* asyncContainer = new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_RemoveFriend);
@@ -169,11 +169,11 @@ void ObjectController::_handleRemoveFriend(uint64 targetId,Message* message,Obje
     sprintf(sql,"SELECT sf_removeFriend(%"PRIu64",'",player->getId());
     sprintf(end,"')");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,friendName.getAnsi(),friendName.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,friendName.getAnsi(),friendName.getLength());
     strcat(sql,end);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    
 
 }
 
@@ -247,12 +247,12 @@ void ObjectController::_handleAddIgnore(uint64 targetId,Message* message,ObjectC
     sprintf(sql,"SELECT sf_addIgnore(%"PRIu64",'",player->getId());
     sprintf(end,"')");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
     strcat(sql,end);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
+
 }
 
 //======================================================================================================================
@@ -298,11 +298,11 @@ void ObjectController::_handleRemoveIgnore(uint64 targetId,Message* message,Obje
     sprintf(sql,"SELECT sf_removeIgnore(%"PRIu64",'",player->getId());
     sprintf(end,"')");
     sqlPointer = sql + strlen(sql);
-    sqlPointer += mDatabase->Escape_String(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
+    sqlPointer += mDatabase->escapeString(sqlPointer,ignoreName.getAnsi(),ignoreName.getLength());
     strcat(sql,end);
 
-    mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    
 }
 
 //======================================================================================================================
@@ -317,38 +317,38 @@ void ObjectController::_handleAddFriendDBReply(uint32 retCode,BString friendName
     switch(retCode)
     {
         // no such name
-        case 0:
-        default:
+    case 0:
+    default:
+    {
+        friendName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_not_found", L"", friendName.getUnicode16(), L""), player);
+
+    }
+    break;
+
+    // add ok
+    case 1:
+    {
+        // update list
+        player->addFriend(friendName.getAnsi());
+        gMessageLib->sendFriendListPlay9(player);
+
+        // send notification
+        friendName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_added", L"", friendName.getUnicode16(), L""), player);
+
+        // notify chat server
+        if(player->isConnected())
         {
-            friendName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_not_found", L"", friendName.getUnicode16(), L""), player);
-    
+            gMessageFactory->StartMessage();
+            gMessageFactory->addUint32(opNotifyChatAddFriend);
+            gMessageFactory->addString(friendName);
+            Message* message = gMessageFactory->EndMessage();
+
+            player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
         }
-        break;
-
-        // add ok
-        case 1:
-        {
-            // update list
-            player->addFriend(friendName.getAnsi());
-            gMessageLib->sendFriendListPlay9(player);
-
-            // send notification
-            friendName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_added", L"", friendName.getUnicode16(), L""), player);
-
-            // notify chat server
-            if(player->isConnected())
-            {
-                gMessageFactory->StartMessage();
-                gMessageFactory->addUint32(opNotifyChatAddFriend);
-                gMessageFactory->addString(friendName);
-                Message* message = gMessageFactory->EndMessage();
-
-                player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
-            }
-        }
-        break;
+    }
+    break;
     }
 
     player->setContactListUpdatePending(false);
@@ -405,37 +405,37 @@ void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,BString friendN
     switch(retCode)
     {
         // no such name
-        case 0:
-        default:
+    case 0:
+    default:
+    {
+        friendName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_not_found", L"", friendName.getUnicode16(), L""), player);
+    }
+    break;
+
+    // remove ok
+    case 1:
+    {
+        // update list
+        player->removeFriend(friendName.getCrc());
+        gMessageLib->sendFriendListPlay9(player);
+
+        // send notification
+        friendName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_removed", L"", friendName.getUnicode16(), L""), player);
+
+        if(player->isConnected())
         {
-            friendName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_not_found", L"", friendName.getUnicode16(), L""), player);
+            // notify chat server
+            gMessageFactory->StartMessage();
+            gMessageFactory->addUint32(opNotifyChatRemoveFriend);
+            gMessageFactory->addString(friendName);
+            Message* message = gMessageFactory->EndMessage();
+
+            player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
         }
-        break;
-
-        // remove ok
-        case 1:
-        {
-            // update list
-            player->removeFriend(friendName.getCrc());
-            gMessageLib->sendFriendListPlay9(player);
-
-            // send notification
-            friendName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "friend_removed", L"", friendName.getUnicode16(), L""), player);
-
-            if(player->isConnected())
-            {
-                // notify chat server
-                gMessageFactory->StartMessage();
-                gMessageFactory->addUint32(opNotifyChatRemoveFriend);
-                gMessageFactory->addString(friendName);
-                Message* message = gMessageFactory->EndMessage();
-
-                player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
-            }
-        }
-        break;
+    }
+    break;
     }
 
     player->setContactListUpdatePending(false);
@@ -449,43 +449,43 @@ void ObjectController::_handleRemoveFriendDBReply(uint32 retCode,BString friendN
 
 void ObjectController::_handleAddIgnoreDBReply(uint32 retCode,BString ignoreName)
 {
-    
+
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
 
     switch(retCode)
     {
         // no such name
-        case 0:
-        default:
+    case 0:
+    default:
+    {
+        ignoreName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_not_found", L"", ignoreName.getUnicode16(), L""), player);
+    }
+    break;
+
+    // add ok
+    case 1:
+    {
+        // update list
+        player->addIgnore(ignoreName.getAnsi());
+        gMessageLib->sendIgnoreListPlay9(player);
+
+        // send notification
+        ignoreName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_added", L"", ignoreName.getUnicode16(), L""), player);
+
+        // notify chat server
+        if(player->isConnected())
         {
-            ignoreName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_not_found", L"", ignoreName.getUnicode16(), L""), player);
+            gMessageFactory->StartMessage();
+            gMessageFactory->addUint32(opNotifyChatAddIgnore);
+            gMessageFactory->addString(ignoreName);
+            Message* message = gMessageFactory->EndMessage();
+
+            player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
         }
-        break;
-
-        // add ok
-        case 1:
-        {
-            // update list
-            player->addIgnore(ignoreName.getAnsi());
-            gMessageLib->sendIgnoreListPlay9(player);
-
-            // send notification
-            ignoreName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_added", L"", ignoreName.getUnicode16(), L""), player);
-
-            // notify chat server
-            if(player->isConnected())
-            {
-                gMessageFactory->StartMessage();
-                gMessageFactory->addUint32(opNotifyChatAddIgnore);
-                gMessageFactory->addString(ignoreName);
-                Message* message = gMessageFactory->EndMessage();
-
-                player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
-            }
-        }
-        break;
+    }
+    break;
     }
 
     player->setContactListUpdatePending(false);
@@ -503,37 +503,37 @@ void ObjectController::_handleRemoveIgnoreDBReply(uint32 retCode,BString ignoreN
     switch(retCode)
     {
         // no such name
-        case 0:
-        default:
+    case 0:
+    default:
+    {
+        ignoreName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_not_found", L"", ignoreName.getUnicode16(), L""), player);
+    }
+    break;
+
+    // remove ok
+    case 1:
+    {
+        // update list
+        player->removeIgnore(ignoreName.getCrc());
+        gMessageLib->sendIgnoreListPlay9(player);
+
+        // send notification
+        ignoreName.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_removed", L"", ignoreName.getUnicode16(), L""), player);
+
+        // notify chat server
+        if(player->isConnected())
         {
-            ignoreName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_not_found", L"", ignoreName.getUnicode16(), L""), player);
+            gMessageFactory->StartMessage();
+            gMessageFactory->addUint32(opNotifyChatRemoveIgnore);
+            gMessageFactory->addString(ignoreName);
+            Message* message = gMessageFactory->EndMessage();
+
+            player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
         }
-        break;
-
-        // remove ok
-        case 1:
-        {
-            // update list
-            player->removeIgnore(ignoreName.getCrc());
-            gMessageLib->sendIgnoreListPlay9(player);
-
-            // send notification
-            ignoreName.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(::common::OutOfBand("cmnty", "ignore_removed", L"", ignoreName.getUnicode16(), L""), player);
-
-            // notify chat server
-            if(player->isConnected())
-            {
-                gMessageFactory->StartMessage();
-                gMessageFactory->addUint32(opNotifyChatRemoveIgnore);
-                gMessageFactory->addString(ignoreName);
-                Message* message = gMessageFactory->EndMessage();
-
-                player->getClient()->SendChannelA(message,player->getAccountId(),CR_Chat,2);
-            }
-        }
-        break;
+    }
+    break;
     }
 
     player->setContactListUpdatePending(false);
@@ -560,7 +560,7 @@ void ObjectController::_handlefindfriend(uint64 targetId,Message* message,Object
         gMessageLib->SendSystemMessage(::common::OutOfBand("ui_cmnty", "friend_location_failed_usage"), playerObject);
         return;
     }
-    
+
     if(playerObject->isConnected())
     {
         // query the chat server
@@ -569,7 +569,7 @@ void ObjectController::_handlefindfriend(uint64 targetId,Message* message,Object
         gMessageFactory->addString(friendName);
         Message* message = gMessageFactory->EndMessage();
 
-        playerObject->getClient()->SendChannelA(message,playerObject->getAccountId(),CR_Chat,2);		
-    }	
+        playerObject->getClient()->SendChannelA(message,playerObject->getAccountId(),CR_Chat,2);
+    }
 }
 

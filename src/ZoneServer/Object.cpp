@@ -39,16 +39,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 Object::Object()
-: mModel("")
-, mLoadState(LoadState_Loading)
-, mId(0)
-, mParentId(0)
-, mPrivateOwner(0)
-, mEquipSlots(0)
-, mSubZoneId(0)
-, mTypeOptions(0)
-, mDataTransformCounter(0)
-, mMovementMessageToggle(true)
+    : mMovementMessageToggle(true)
+	, mModel("")
+    , mLoadState(LoadState_Loading)
+    , mId(0)
+    , mParentId(0)
+    , mPrivateOwner(0)
+    , mEquipSlots(0)
+    , mSubZoneId(0)
+    , mTypeOptions(0)
+    , mDataTransformCounter(0)
 {
     mDirection = glm::quat();
     mPosition  = glm::vec3();
@@ -59,17 +59,17 @@ Object::Object()
 //=============================================================================
 
 Object::Object(uint64 id,uint64 parentId,BString model,ObjectType type)
-: mModel(model)
-, mLoadState(LoadState_Loading)
-, mType(type)
-, mId(id)
-, mParentId(parentId)
-, mPrivateOwner(0)
-, mEquipSlots(0)
-, mSubZoneId(0)
-, mTypeOptions(0)
-, mDataTransformCounter(0)
-, mMovementMessageToggle(true)
+    : mMovementMessageToggle(true)
+    , mModel(model)
+    , mLoadState(LoadState_Loading)
+    , mType(type)
+    , mId(id)
+    , mParentId(parentId)
+    , mPrivateOwner(0)
+    , mEquipSlots(0)
+    , mSubZoneId(0)
+    , mTypeOptions(0)
+    , mDataTransformCounter(0)
 {
     mObjectController.setObject(this);
 
@@ -89,7 +89,7 @@ Object::~Object()
 
 //=============================================================================
 
-glm::vec3 Object::getWorldPosition() const 
+glm::vec3 Object::getWorldPosition() const
 {
     const Object* root_parent = getRootParent();
 
@@ -106,10 +106,10 @@ glm::vec3 Object::getWorldPosition() const
 
     // Calculate and return the object's position relative to root parent's position in the world.
     return glm::vec3(
-        root_parent->mPosition.x + (sin(theta) * length),
-        root_parent->mPosition.y + mPosition.y,
-        root_parent->mPosition.z - (cos(theta) * length)
-        );				
+               root_parent->mPosition.x + (sin(theta) * length),
+               root_parent->mPosition.y + mPosition.y,
+               root_parent->mPosition.z - (cos(theta) * length)
+           );
 }
 
 //=============================================================================
@@ -119,10 +119,10 @@ glm::vec3 Object::getWorldPosition() const
 // objects reference their parents - we just do not know who is the final (permissiongiving) container
 // as it is it will return either the player or the building owning the item regardless in what container it is
 //  @TODO: what if the player is in a building ???
-const Object* Object::getRootParent() const 
+const Object* Object::getRootParent() const
 {
     // If there's no parent id then this is the root object.
-    if (! getParentId()) 
+    if (! getParentId())
     {
         return this;
     }
@@ -155,21 +155,21 @@ void Object::rotateRight(float degrees) {
 
 //=============================================================================
 
-void Object::faceObject(Object* target_object) {	
+void Object::faceObject(Object* target_object) {
     facePosition(target_object->mPosition);
 }
 
 //=============================================================================
 
-void Object::facePosition(const glm::vec3& target_position) {	
+void Object::facePosition(const glm::vec3& target_position) {
     // Create a mirror direction vector for the direction we want to face.
     glm::vec3 direction_vector = glm::normalize(target_position - mPosition);
     direction_vector.x = -direction_vector.x;
 
     // Create a lookat matrix from the direction vector and convert it to a quaternion.
     mDirection = glm::toQuat(glm::lookAt(
-        direction_vector, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)
-        ));
+                                 direction_vector, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)
+                             ));
 
     // If in the 3rd quadrant the signs need to be flipped.
     if (mDirection.y <= 0.0f && mDirection.w >= 0.0f) {
@@ -199,21 +199,21 @@ void Object::moveForward(float distance) {
 
 //=============================================================================
 
-void Object::moveBack(float distance) {  
+void Object::moveBack(float distance) {
     move(mDirection, -distance);
 }
 
 //=============================================================================
 
-float Object::rotation_angle() const {	
-  glm::quat tmp = mDirection;
+float Object::rotation_angle() const {
+    glm::quat tmp = mDirection;
 
-  if (tmp.y < 0.0f && tmp.w > 0.0f) {
-    tmp.y *= -1;
-    tmp.w *= -1;
-  }
+    if (tmp.y < 0.0f && tmp.w > 0.0f) {
+        tmp.y *= -1;
+        tmp.w *= -1;
+    }
 
-  return glm::angle(tmp);
+    return glm::angle(tmp);
 }
 
 //=============================================================================
@@ -378,7 +378,7 @@ void Object::setAttribute(BString key,std::string value)
 
     if(it == mAttributeMap.end())
     {
-        gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -399,7 +399,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
 
     if(it == mAttributeMap.end())
     {
-        gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -408,7 +408,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table :" << key.getAnsi();
         return;
     }
 
@@ -417,15 +417,15 @@ void Object::setAttributeIncDB(BString key,std::string value)
     sprintf(sql,"UPDATE item_attributes SET value='");
 
     sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"'WHERE item_id=%I64u AND attribute_id=%u",this->getId(),attributeID);
+    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
+    sprintf(restStr,"'WHERE item_id=%"PRIu64" AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
     //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
+
 }
-    
+
 
 //=============================================================================
 //adds the attribute to the objects attribute list
@@ -453,7 +453,7 @@ void Object::addAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
         return;
     }
     int8 sql[512],*sqlPointer,restStr[128];
@@ -461,12 +461,11 @@ void Object::addAttributeIncDB(BString key,std::string value)
     sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'",this->getId(),attributeID);
 
     sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
+    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
     sprintf(restStr,"',%u,0)",static_cast<uint32>(this->getAttributeMap()->size()));
     strcat(sql,restStr);
-    
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
 
     //sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,%s,%u,0)",this->getId(),attributeID,value,mAttributeOrderList.size());
 }
@@ -490,7 +489,7 @@ void Object::removeAttribute(BString key)
     if(it != mAttributeMap.end())
         mAttributeMap.erase(it);
     else
-        gLogger->log(LogManager::DEBUG,"Object::removeAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::removeAttribute: could not find " << key.getAnsi();
 }
 
 //=========================================================================
@@ -509,7 +508,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
 
     if(it == mInternalAttributeMap.end())
     {
-        gLogger->log(LogManager::DEBUG,"Object::setAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::setAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -518,7 +517,7 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table :" << key.getAnsi();
         return;
     }
 
@@ -527,13 +526,13 @@ void Object::setInternalAttributeIncDB(BString key,std::string value)
     sprintf(sql,"UPDATE item_attributes SET value='");
 
     sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer,value.c_str(),value.length());
-    sprintf(restStr,"'WHERE item_id=%I64u AND attribute_id=%u",this->getId(),attributeID);
+    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,value.c_str(),value.length());
+    sprintf(restStr,"'WHERE item_id=%"PRIu64" AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
     //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
+  
 }
 
 void	Object::setInternalAttribute(BString key,std::string value)
@@ -542,7 +541,7 @@ void	Object::setInternalAttribute(BString key,std::string value)
 
     if(it == mInternalAttributeMap.end())
     {
-        gLogger->log(LogManager::DEBUG,"Object::setInternalAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::setInternalAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -565,7 +564,7 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
     uint32 attributeID = gWorldManager->getAttributeId(key.getCrc());
     if(!attributeID)
     {
-        gLogger->log(LogManager::DEBUG,"Object::addAttribute DB: no such attribute in the attribute table :%s",key.getAnsi());
+        DLOG(INFO) << "Object::addAttribute DB: no such attribute in the attribute table : " << key.getAnsi();
         return;
     }
     int8 sql[512],*sqlPointer,restStr[128];
@@ -573,12 +572,11 @@ void Object::addInternalAttributeIncDB(BString key,std::string value)
     sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'", this->getId(), attributeID);
 
     sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getDatabase()->Escape_String(sqlPointer, value.c_str(), value.length());
+    sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer, value.c_str(), value.length());
     sprintf(restStr,"',%u,0)",static_cast<uint32>(this->mInternalAttributeMap.size()));
     strcat(sql,restStr);
-    
-    gWorldManager->getDatabase()->ExecuteSqlAsync(0, 0, sql);
-    gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
+
+    gWorldManager->getDatabase()->executeSqlAsync(0, 0, sql);
 
     //sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,%s,%u,0)",this->getId(),attributeID,value,mAttributeOrderList.size());
 }
@@ -610,7 +608,7 @@ void Object::removeInternalAttribute(BString key)
     if(it != mInternalAttributeMap.end())
         mInternalAttributeMap.erase(it);
     else
-        gLogger->log(LogManager::DEBUG,"Object::removeInternalAttribute: could not find %s",key.getAnsi());
+        DLOG(INFO) << "Object::removeInternalAttribute: could not find " << key.getAnsi();
 }
 
 
@@ -642,7 +640,7 @@ void Object::addKnownObject(Object* object)
     }
     if(checkKnownObjects(object))
     {
-        gLogger->log(LogManager::DEBUG,"Object::addKnownObject %I64u couldnt be added to %I64u - already in it", object->getId(), this->getId());
+		DLOG(INFO) << "Object::addKnownObject " << object->getId() << " couldnt be added to " <<this->getId()<< " - already in it";
         return;
     }
 
@@ -663,7 +661,7 @@ void Object::destroyKnownObjects()
     ObjectSet::iterator			objIt		= mKnownObjects.begin();
     PlayerObjectSet::iterator	playerIt	= mKnownPlayers.begin();
 
-    
+
     // objects
     while(objIt != mKnownObjects.end())
     {
@@ -673,7 +671,7 @@ void Object::destroyKnownObjects()
 
     // players
     while(playerIt != mKnownPlayers.end())
-    {			 
+    {
         PlayerObject* targetPlayer = (*playerIt);
 
         gMessageLib->sendDestroyObject(mId,targetPlayer);
@@ -681,7 +679,7 @@ void Object::destroyKnownObjects()
         targetPlayer->removeKnownObject(this);
         mKnownPlayers.erase(playerIt++);
 
-        
+
     }
 }
 
@@ -698,10 +696,10 @@ bool Object::isOwnedBy(PlayerObject* player)
 
 void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObject* target, bool db)
 {
-    mParentId = parentId; 
+    mParentId = parentId;
     if(db)
     {
-        this->setParentIdIncDB(parentId);		
+        this->setParentIdIncDB(parentId);
     }
 
     if(target)
@@ -711,10 +709,10 @@ void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObject* target
 
 void Object::setParentId(uint64 parentId,uint32 contaiment, PlayerObjectSet*	knownPlayers, bool db)
 {
-    mParentId = parentId; 
+    mParentId = parentId;
     if(db)
     {
-        this->setParentIdIncDB(parentId);		
+        this->setParentIdIncDB(parentId);
     }
 
     PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();

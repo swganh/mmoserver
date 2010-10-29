@@ -35,73 +35,73 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace Anh_Utils
 {
-	//======================================================================================================================
+//======================================================================================================================
 
-	template<class T, class Compare = std::less<typename std::vector<T>::value_type> >
-	class priority_vector : public std::vector<T>
-	{
-		public:
+template<class T, class Compare = std::less<typename std::vector<T>::value_type> >
+class priority_vector : public std::vector<T>
+{
+public:
 
-			priority_vector(const Compare& cmp = Compare()) : mCompare(cmp)
-			{
-				std::make_heap(this->begin(),this->end(),mCompare);
-				mSorted = false;
-			}
+    priority_vector(const Compare& cmp = Compare()) : mCompare(cmp)
+    {
+        std::make_heap(this->begin(),this->end(),mCompare);
+        mSorted = false;
+    }
 
-	//======================================================================================================================
+    //======================================================================================================================
 
-			void assureHeap(bool force = false)
-			{
-				if(mSorted || force) 
-				{
-					std::make_heap(this->begin(),this->end(),mCompare);
-					mSorted = false;
-				}
-			}
+    void assureHeap(bool force = false)
+    {
+        if(mSorted || force)
+        {
+            std::make_heap(this->begin(),this->end(),mCompare);
+            mSorted = false;
+        }
+    }
 
-	//======================================================================================================================
+    //======================================================================================================================
 
-			const T& top()
-			{
-				assureHeap();
-				return this->front(); 
-			}
+    const T& top()
+    {
+        assureHeap();
+        return this->front();
+    }
 
-	//======================================================================================================================
+    //======================================================================================================================
 
-			void push(const T& x)
-			{
-				assureHeap();
-				this->push_back(x);
-				std::push_heap(this->begin(), this->end(),mCompare);
-			}
+    void push(const T& x)
+    {
+        assureHeap();
+        this->push_back(x);
+        std::push_heap(this->begin(), this->end(),mCompare);
+    }
 
-	//======================================================================================================================
+    //======================================================================================================================
 
-			void pop()
-			{
-				assureHeap();
-				std::pop_heap(this->begin(), this->end(),mCompare);
-				this->pop_back();
-			}
+    void pop()
+    {
+        assureHeap();
+        std::pop_heap(this->begin(), this->end(),mCompare);
+        this->pop_back();
+    }
 
-	//======================================================================================================================
+    //======================================================================================================================
 
-			void sort()
-			{
-				if(!mSorted)
-				{
-					std::sort_heap(this->begin(),this->end(),mCompare);
-					std::reverse(this->begin(),this->end());
-					mSorted = true;
-				}
-			}
+    void sort()
+    {
+        if(!mSorted)
+        {
+            std::sort_heap(this->begin(),this->end(),mCompare);
+            std::reverse(this->begin(),this->end());
+            mSorted = true;
+        }
+    }
 
-		protected:
+protected:
 
-			Compare mCompare;
-			bool	mSorted;
-	};
+    Compare mCompare;
+    bool	mSorted;
+};
 }
 
 #endif

@@ -44,7 +44,7 @@ class SpawnRegion;
 
 enum SpawnFQuery
 {
-	SpawnFQuery_MainData	= 1
+    SpawnFQuery_MainData	= 1
 };
 
 //=============================================================================
@@ -53,27 +53,29 @@ class SpawnRegionFactory : public FactoryBase
 {
 public:
 
-	static SpawnRegionFactory*	getSingletonPtr() { return mSingleton; }
-	static SpawnRegionFactory*	Init(Database* database);
+    static SpawnRegionFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static SpawnRegionFactory*	Init(Database* database);
 
-	~SpawnRegionFactory();
+    ~SpawnRegionFactory();
 
-	void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-	void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
 private:
 
-	SpawnRegionFactory(Database* database);
+    SpawnRegionFactory(Database* database);
 
-	void				_setupDatabindings();
-	void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-	SpawnRegion*		_createSpawnRegion(DatabaseResult* result);
+    SpawnRegion*		_createSpawnRegion(DatabaseResult* result);
 
-	static SpawnRegionFactory*		mSingleton;
-	static bool						mInsFlag;
+    static SpawnRegionFactory*		mSingleton;
+    static bool						mInsFlag;
 
-	DataBinding*					mSpawnRegionBinding;
+    DataBinding*					mSpawnRegionBinding;
 };
 
 //=============================================================================

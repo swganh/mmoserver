@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 
-//======================================================================================================================
+
 class NetworkManager;
 class Service;
 class LoginManager;
@@ -41,18 +41,18 @@ class Database;
 //======================================================================================================================
 class LoginServer
 {
-	public:
-		LoginServer(void);
-		~LoginServer(void);
+public:
+    LoginServer(void);
+    ~LoginServer(void);
 
-		void	Process(void);
+    void	Process(void);
 
 private:
-	NetworkManager*									mNetworkManager;
-  Service*                        mService;
-	DatabaseManager*								mDatabaseManager;
-	Database*												mDatabase;
-  LoginManager*                   mLoginManager;
+    NetworkManager*									mNetworkManager;
+    Service*                        mService;
+    DatabaseManager*								mDatabaseManager;
+    Database*												mDatabase;
+    LoginManager*                   mLoginManager;
 };
 
 

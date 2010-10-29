@@ -38,37 +38,47 @@ typedef std::list<uint64>				Uint64List;
 
 //=============================================================================
 
-class GroupObject 
+class GroupObject
 {
 
-	public:
+public:
 
-		GroupObject(uint64 id){mId = id;}
-		~GroupObject(){}
+    GroupObject(uint64 id) {
+        mId = id;
+    }
+    ~GroupObject() {}
 
-		
-		uint64				getId()	{ return mId;}
-		void				setId(uint64 id){mId = id;}
 
-		Uint64List*			getPlayerList()	{ return &mPlayerList;}
-		void				addPlayer(uint64 id){ mPlayerList.push_back(id);}
-		void				removePlayer(uint64 id)
-							{
-								Uint64List::iterator it = mPlayerList.begin();
-								while(it != mPlayerList.end())
-								{
-									if((*it) == id)
-										it = mPlayerList.erase(it);
-									if(it != mPlayerList.end())
-										it++;
-										
-								}
-							}
+    uint64				getId()	{
+        return mId;
+    }
+    void				setId(uint64 id) {
+        mId = id;
+    }
 
-	private:
-		
-		Uint64List		mPlayerList;
-		uint64			mId;
+    Uint64List*			getPlayerList()	{
+        return &mPlayerList;
+    }
+    void				addPlayer(uint64 id) {
+        mPlayerList.push_back(id);
+    }
+    void				removePlayer(uint64 id)
+    {
+        Uint64List::iterator it = mPlayerList.begin();
+        while(it != mPlayerList.end())
+        {
+            if((*it) == id)
+                it = mPlayerList.erase(it);
+            if(it != mPlayerList.end())
+                it++;
+
+        }
+    }
+
+private:
+
+    Uint64List		mPlayerList;
+    uint64			mId;
 };
 
 

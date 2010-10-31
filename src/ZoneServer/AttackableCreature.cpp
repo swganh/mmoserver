@@ -41,7 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneTree.h"
 #include "ZoneServer/NonPersistentNpcFactory.h"
 #include "Tutorial.h"
-#include "utils/rand.h"
+#include "Utils/rand.h"
 
 // TODO: Implement by functionality.
 static const int64 readyDefaultPeriodTime = 1000;

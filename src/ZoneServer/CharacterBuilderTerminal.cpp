@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/utils.h"
 
-#include "utils/rand.h"
+#include "Utils/rand.h"
 //=============================================================================
 
 CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(NULL)

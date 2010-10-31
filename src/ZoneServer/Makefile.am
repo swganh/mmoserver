@@ -256,7 +256,15 @@ zoneserver_SOURCES = \
 	ZoneTree.cpp
 	
 zoneserver_CPPFLAGS = $(MYSQL_CFLAGS) $(MYSQL_CFLAGS) -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof -Wno-write-strings
-zoneserver_LDADD = $(MYSQL_LDFLAGS) \
+zoneserver_LDADD = \
+  $(top_builddir)/src/ScriptEngine/libscriptengine.la \
+  $(top_builddir)/src/MessageLib/libmessagelib.la \
+  $(top_builddir)/src/SwgProtocol/libswgprotocol.la \
+  $(top_builddir)/src/Utils/libutils.la \
+  $(top_builddir)/src/Common/libcommon.la \
+  $(top_builddir)/src/DatabaseManager/libdatabasemanager.la \
+  $(top_builddir)/src/NetworkManager/libnetworkmanager.la \
+  $(MYSQL_LDFLAGS) \
   $(BOOST_LDFLAGS) \
   $(BOOST_REGEX_LIB) \
   $(BOOST_THREAD_LIB) \
@@ -267,11 +275,4 @@ zoneserver_LDADD = $(MYSQL_LDFLAGS) \
   -lspatialindex \
   -ltbb \
   -lmysqlcppconn \
-  -lnoise \
-  $(top_builddir)/src/Utils/libutils.la \
-  $(top_builddir)/src/Common/libcommon.la \
-  $(top_builddir)/src/DatabaseManager/libdatabasemanager.la \
-  $(top_builddir)/src/NetworkManager/libnetworkmanager.la \
-  $(top_builddir)/src/ScriptEngine/libscriptengine.la \
-  $(top_builddir)/src/MessageLib/libmessagelib.la \
-  $(top_builddir)/src/SwgProtocol/libswgprotocol.la
+  -lnoise

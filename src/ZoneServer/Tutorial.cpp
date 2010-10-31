@@ -78,7 +78,7 @@ using ::boost::wsmatch;
 using ::boost::regex_search;
 #endif
 
-#include "utils/rand.h"
+#include "Utils/rand.h"
 
 class TutorialQueryContainer
 {

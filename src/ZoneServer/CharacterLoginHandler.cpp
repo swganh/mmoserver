@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 #include "Common/ConfigManager.h"
-#include "utils/rand.h"
+#include "Utils/rand.h"
 
 
 //======================================================================================================================

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "FactoryObject.h"
 #include "ManufacturingSchematic.h"
 #include "Inventory.h"
-#include "DataPad.h"
+#include "Datapad.h"
 #include "Bank.h"
 #include "ResourceContainer.h"
 #include "ResourceType.h"

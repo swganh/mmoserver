@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Resource.h"
 #include "ZoneServer/noiseutils.h"
-#include <noise.h>
+#include <noise/noise.h>
 #include <string>
 
 

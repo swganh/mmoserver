@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 #include <time.h>
-#include "utils/rand.h"
+#include "Utils/rand.h"
 
 //=============================================================================
 

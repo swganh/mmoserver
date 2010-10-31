@@ -218,7 +218,7 @@ CXXFLAGS=$OLD_CXXFLAGS
 AC_PROG_CC
 
 # Checks for libraries.
-AX_BOOST_BASE([1.44])
+AX_BOOST_BASE([1.42])
 AX_BOOST_DATE_TIME
 AX_BOOST_PROGRAM_OPTIONS
 AX_BOOST_REGEX
@@ -421,7 +421,7 @@ fi
 OLD_CXXFLAGS=$CXXFLAGS;
 OLD_LDFLAGS=$LDFLAGS;
 CXXFLAGS="$AM_CXXFLAGS $CXXFLAGS"
-LDFLAGS="$AM_LDFLAGS $LDFLAGS"
+LDFLAGS="$AM_LDFLAGS -pthread $LDFLAGS"
 
 # ensure the library to check for is covered by the LIBS variable
 OLD_LIBS=$LIBS
@@ -539,7 +539,7 @@ LDFLAGS="$AM_LDFLAGS $LDFLAGS"
 
 # ensure the library to check for is covered by the LIBS variable
 OLD_LIBS=$LIBS
-LIBS="$LIBS -llua"
+LIBS="$LIBS -llua -lm"
 
 AC_LANG([C])
 

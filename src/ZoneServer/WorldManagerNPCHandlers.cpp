@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "WorldManager.h"
-#include "utils/rand.h"
+#include "Utils/rand.h"
 #include "PlayerObject.h"
 #include "ConversationManager.h"
 #include "NpcManager.h"

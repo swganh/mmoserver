@@ -98,7 +98,7 @@ public:
     uint64_t getRowCount();
 
 private:
-    friend Database;
+    friend class Database;
 
     DatabaseResult();
 

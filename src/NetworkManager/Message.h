@@ -287,6 +287,15 @@ public:
         return data.getLength();
     }
 
+    std::string getStringAnsi() {
+        uint16_t size = getUint16();
+        std::string tmp(&mData[mIndex], &mData[mIndex + size]);
+
+        mIndex += size;
+
+        return tmp;
+    }
+
     std::u16string getStringUnicode16() {
     	uint32_t size = getUint32();
     	std::u16string tmp(reinterpret_cast<char16_t*>(&mData[mIndex]),

@@ -26,93 +26,109 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "CharacterAdminHandler.h"
-#include "ChatOpcodes.h"
+
+#include <cassert>
+#include <cstdlib>
+#include <cstring>
+#include <string>
+#include <sstream>
+
+#include <boost/lexical_cast.hpp>
 
 // Fix for issues with glog redefining this constant
 #ifdef _WIN32
 #undef ERROR
 #endif
-
 #include <glog/logging.h>
 
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseResult.h"
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
+#include <cppconn/resultset.h>
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
+
+#include "Utils/utils.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 
-#include "Utils/utils.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
 
-#include <boost/lexical_cast.hpp>
+#include "ChatOpcodes.h"
 
-#include <string>
-#include <cassert>
-#include <cstdlib>
-#include <cstring>
 
-//======================================================================================================================
-CharacterAdminHandler::CharacterAdminHandler(Database* database, MessageDispatch* dispatch)
+CharacterAdminHandler::CharacterAdminHandler(Database* database, MessageDispatch* dispatch) 
+    : mDatabase(database)
+    , mMessageDispatch(dispatch)
 {
-    // Store our members
-    mDatabase = database;
-    mMessageDispatch = dispatch;
-
     // Register our opcodes
-    mMessageDispatch->RegisterMessageCallback(opClientCreateCharacter,std::bind(&CharacterAdminHandler::_processCreateCharacter, this, std::placeholders::_1, std::placeholders::_2));
-    //mMessageDispatch->RegisterMessageCallback(opLagRequest,this);
-    mMessageDispatch->RegisterMessageCallback(opClientRandomNameRequest,std::bind(&CharacterAdminHandler::_processRandomNameRequest, this, std::placeholders::_1, std::placeholders::_2));
-
-    // Load anything we need from the database
+    mMessageDispatch->RegisterMessageCallback(opClientCreateCharacter, std::bind(&CharacterAdminHandler::_processCreateCharacter, this, std::placeholders::_1, std::placeholders::_2));
+    mMessageDispatch->RegisterMessageCallback(opClientRandomNameRequest, std::bind(&CharacterAdminHandler::_processRandomNameRequest, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
-//======================================================================================================================
-CharacterAdminHandler::~CharacterAdminHandler(void)
-{
+CharacterAdminHandler::~CharacterAdminHandler() {
     // Unregister our callbacks
     mMessageDispatch->UnregisterMessageCallback(opClientCreateCharacter);
     mMessageDispatch->UnregisterMessageCallback(opLagRequest);
     mMessageDispatch->UnregisterMessageCallback(opClientRandomNameRequest);
 }
 
-//======================================================================================================================
-void CharacterAdminHandler::Process(void)
-{
 
-}
+void CharacterAdminHandler::Process() {}
 
-//======================================================================================================================
-void CharacterAdminHandler::_processRandomNameRequest(Message* message, DispatchClient* client)
-{
-    if(!client)
-    {
+
+void CharacterAdminHandler::_processRandomNameRequest(Message* message, DispatchClient* client) {
+    if(!client) {
         return;
     }
-
-    Message* newMessage;
 
     // If it's not, validate it to the client.
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opHeartBeat);
-    newMessage = gMessageFactory->EndMessage();
+    Message* newMessage = gMessageFactory->EndMessage();
 
     // Send our message to the client.
     client->SendChannelAUnreliable(newMessage, client->getAccountId(), CR_Client, 1);
 
     // set our object type string.
-    BString objectType;
-    message->getStringAnsi(objectType);
+    std::string object_type = message->getStringAnsi();
 
-    CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_RequestName,client);
-    asyncContainer->mObjBaseType = objectType.getAnsi();
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_CharacterNameCreate(\'%s\')",objectType.getAnsi());
+    std::stringstream ss;
+
+    ss << "SELECT sf_CharacterNameCreate('" << object_type << "')";
+    
+    mDatabase->executeAsyncSql(ss.str(), [this, client, object_type] (DatabaseResult* result) {
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        
+        if (!result_set->next()) {
+            LOG(WARNING) << "Unable to generate random name for client [" << client->getAccountId() << "]";
+            return;
+        }
+
+        std::string random_name = result_set->getString(1);
+
+        gMessageFactory->StartMessage();
+        gMessageFactory->addUint32(opClientRandomNameResponse);
+        gMessageFactory->addString(object_type);
+        gMessageFactory->addString(std::wstring(random_name.begin(), random_name.end()));
+        gMessageFactory->addString("ui");
+        gMessageFactory->addUint32(0);
+        gMessageFactory->addString("name_approved");
+        Message* newMessage = gMessageFactory->EndMessage();
+
+        client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 4);
+    });
 }
 
 
-//======================================================================================================================
 void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchClient* client)
 {
     CharacterCreateInfo characterInfo;
@@ -346,7 +362,6 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
     mDatabase->executeProcedureAsync(this, asyncContainer, sql);
 }
 
-//======================================================================================================================
 
 void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
@@ -408,7 +423,6 @@ void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
     SAFE_DELETE(asyncContainer);
 }
 
-//======================================================================================================================
 
 void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo* info)
 {
@@ -472,7 +486,6 @@ void CharacterAdminHandler::_parseHairData(Message* message, CharacterCreateInfo
     }
 }
 
-//======================================================================================================================
 
 void CharacterAdminHandler::_parseAppearanceData(Message* message, CharacterCreateInfo* info)
 {
@@ -561,7 +574,6 @@ void CharacterAdminHandler::_parseAppearanceData(Message* message, CharacterCrea
     /* uint16 end  = */message->getUint16();
 }
 
-//======================================================================================================================
 
 void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,DispatchClient* client)
 {
@@ -584,7 +596,6 @@ void CharacterAdminHandler::_sendCreateCharacterSuccess(uint64 characterId,Dispa
     client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 2);
 }
 
-//======================================================================================================================
 
 void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client)
 {
@@ -693,6 +704,3 @@ void CharacterAdminHandler::_sendCreateCharacterFailed(uint32 errorCode,Dispatch
 
     client->SendChannelA(newMessage, client->getAccountId(), CR_Client, 3);
 }
-
-//======================================================================================================================
-

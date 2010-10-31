@@ -535,7 +535,7 @@ void MessageFactory::_processGarbageCollection(void)
                 if (!message->mLogged)
                 {
                     LOG(WARNING) <<  "Garbage Collection found a new stuck message!"
-						<< "age : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
+                        << "age : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
 
                     message->mLogged = true;
                     message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();
@@ -650,7 +650,7 @@ void MessageFactory::_adjustHeapStartBounds(uint32 size)
         mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
        LOG(WARNING)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
-		<< heapSize << " maxUsed: " << mMaxHeapUsedPercent <<", created: " << mMessagesCreated <<", destroyed: " << mMessagesDestroyed;
+        << heapSize << " maxUsed: " << mMaxHeapUsedPercent <<", created: " << mMessagesCreated <<", destroyed: " << mMessagesDestroyed;
     }
 }
 
@@ -692,8 +692,8 @@ void MessageFactory::_adjustMessageStart(uint32 size)
 
         //mCurrentMessage->setData(mMessageHeap + sizeof(Message));
 
-		LOG(WARNING)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
-		<< heapSize << " maxUsed: " << mMaxHeapUsedPercent <<", created: " << mMessagesCreated <<", destroyed: " << mMessagesDestroyed;
+        LOG(WARNING)<< "Heap Rollover Service " << mServiceId << "STATS: MessageHeap - size:"
+        << heapSize << " maxUsed: " << mMaxHeapUsedPercent <<", created: " << mMessagesCreated <<", destroyed: " << mMessagesDestroyed;
     }
 }
 

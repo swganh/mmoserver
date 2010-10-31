@@ -137,6 +137,15 @@ public:
     */
     uint32_t escapeString(char* target, const char* source, uint32_t length);
 
+    
+    /*! Escapes a string to prepare for storage in a database.
+    *
+    * \param source The original string that needs escaping.
+    * 
+    * \return Returns the escaped string.
+    */
+    std::string escapeString(const std::string& source);
+
     /*! Destroys the requested database result.
     *
     * \param result The database result to destroy.

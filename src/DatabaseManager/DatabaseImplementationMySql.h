@@ -54,15 +54,17 @@ class DatabaseResult;
 class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation , private boost::noncopyable {
 public:
     DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
-    virtual ~DatabaseImplementationMySql();
+    ~DatabaseImplementationMySql();
 
-    virtual DatabaseResult* executeSql(const char* sql, bool procedure = false);
-    virtual void destroyResult(DatabaseResult* result);
+    DatabaseResult* executeSql(const char* sql, bool procedure = false);
+    void destroyResult(DatabaseResult* result);
 
-    virtual void getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;
-    virtual void resetRowIndex(DatabaseResult* result, uint64_t index = 0) const;
+    void getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;
+    void resetRowIndex(DatabaseResult* result, uint64_t index = 0) const;
 
-    virtual uint32_t escapeString(char* target, const char* source, uint32_t length);
+    uint32_t escapeString(char* target, const char* source, uint32_t length);
+    
+    std::string escapeString(const std::string& source);
 
 private:
     void processFieldBinding_(std::unique_ptr<sql::ResultSet>& result, DataBinding* binding, uint32_t field_id, void* object) const;

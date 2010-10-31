@@ -33,6 +33,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <sstream>
 
+#ifdef WIN32
+#include <regex>
+#else
+#include <boost/regex.hpp>
+#endif
+
 #include <boost/lexical_cast.hpp>
 
 // Fix for issues with glog redefining this constant
@@ -63,22 +69,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ChatOpcodes.h"
 
+#ifdef WIN32
+using std::wregex;
+using std::wsmatch;
+using std::regex_match;
+#else
+using boost::wregex;
+using boost::wsmatch;
+using boost::regex_match;
+#endif
 
 CharacterAdminHandler::CharacterAdminHandler(Database* database, MessageDispatch* dispatch) 
-    : mDatabase(database)
-    , mMessageDispatch(dispatch)
+    : database_(database)
+    , message_dispatch_(dispatch)
 {
     // Register our opcodes
-    mMessageDispatch->RegisterMessageCallback(opClientCreateCharacter, std::bind(&CharacterAdminHandler::_processCreateCharacter, this, std::placeholders::_1, std::placeholders::_2));
-    mMessageDispatch->RegisterMessageCallback(opClientRandomNameRequest, std::bind(&CharacterAdminHandler::_processRandomNameRequest, this, std::placeholders::_1, std::placeholders::_2));
+    message_dispatch_->RegisterMessageCallback(opClientCreateCharacter, std::bind(&CharacterAdminHandler::_processCreateCharacter, this, std::placeholders::_1, std::placeholders::_2));
+    message_dispatch_->RegisterMessageCallback(opClientRandomNameRequest, std::bind(&CharacterAdminHandler::_processRandomNameRequest, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 
 CharacterAdminHandler::~CharacterAdminHandler() {
     // Unregister our callbacks
-    mMessageDispatch->UnregisterMessageCallback(opClientCreateCharacter);
-    mMessageDispatch->UnregisterMessageCallback(opLagRequest);
-    mMessageDispatch->UnregisterMessageCallback(opClientRandomNameRequest);
+    message_dispatch_->UnregisterMessageCallback(opClientCreateCharacter);
+    message_dispatch_->UnregisterMessageCallback(opLagRequest);
+    message_dispatch_->UnregisterMessageCallback(opClientRandomNameRequest);
 }
 
 
@@ -105,7 +120,12 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
 
     ss << "SELECT sf_CharacterNameCreate('" << object_type << "')";
     
-    mDatabase->executeAsyncSql(ss.str(), [this, client, object_type] (DatabaseResult* result) {
+    database_->executeAsyncSql(ss.str(), [this, client, object_type] (DatabaseResult* result) {
+        // Vaalidate the input.
+        if (! client || ! result) {
+            return;
+        }
+
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
         
         if (!result_set->next()) {
@@ -137,102 +157,29 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
     // Using a string as a buffer object for the appearance data.  The string class can parse the message format
     _parseAppearanceData(message, &characterInfo);
 
-    BString characterName;
-    characterName.setType(BSTRType_Unicode16);
+    // Get the u16string and convert it to wstring for processing.
+    std::u16string raw_character_name = message->getStringUnicode16();
+    std::wstring tmp(raw_character_name.begin(), raw_character_name.end());
 
-    message->getStringUnicode16(characterName);
+    // A regular expression that searches for a first name and optional sirname.
+    // Only letters, and the ' and - characters are allowed. Only 3 instances
+    // of the ' and - characters may be in the entire name, which must be between
+    // 3 and 16 characters long.
+    const wregex p(L"(?!['-])(?!.*['-].*['-].*['-].*['-])([a-zA-Z][a-z'-]{3,16}?)(?: ([a-zA-Z][a-z'-]{3,16}?))?");
+    wsmatch m;
 
-    uint16* space = reinterpret_cast<uint16*>(wcschr(reinterpret_cast<wchar_t*>(characterName.getRawData()),' '));
-
-    // If there is no last name, there is no space.
-    if (space)
-    {
-        // Get our first name
-        *space = 0;
-        uint16 len = (uint16)wcslen(reinterpret_cast<wchar_t*>(characterName.getRawData()));
-        characterInfo.mFirstName.setType(BSTRType_Unicode16);
-        characterInfo.mFirstName.setLength(len);
-        wcscpy(reinterpret_cast<wchar_t*>(characterInfo.mFirstName.getRawData()), reinterpret_cast<wchar_t*>(characterName.getRawData()));
-
-        // Get our last name
-        *space = ' ';
-        len = (uint16)wcslen(reinterpret_cast<wchar_t*>(space) + 1);
-        characterInfo.mLastName.setType(BSTRType_Unicode16);
-        characterInfo.mLastName.setLength(len);
-        wcscpy(reinterpret_cast<wchar_t*>(characterInfo.mLastName.getRawData()), reinterpret_cast<wchar_t*>(space) + 1);
-    }
-    else
-    {
-        // We only have one name
-        characterInfo.mFirstName = characterName;
-        characterInfo.mLastName.setType(BSTRType_ANSI);
-    }
-
-    // we must have a firstname
-    if(characterInfo.mFirstName.getLength() < 3)
-    {
-        // characterInfo.mFirstName.convert(BSTRType_ANSI);
-        _sendCreateCharacterFailed(1,client);
-        return;
-    }
-    // we dont want large names
-    else if(characterInfo.mFirstName.getLength() > 16)
-    {
-        // characterInfo.mFirstName.convert(BSTRType_ANSI);
-        _sendCreateCharacterFailed(11,client);
+    if (! regex_match(tmp, m, p)) {
+        LOG(WARNING) << "Invalid character name [" << std::string(tmp.begin(), tmp.end()) << "]";
+        _sendCreateCharacterFailed(15, client);
         return;
     }
 
-    // check the name further, allow no numbers,only 3 special signs
-    // other verifications are done via the database
-    uint8 specialCount = 0;
-    BString checkName;
-    bool needsEscape = false;
-    checkName.setType(BSTRType_Unicode16);
+    characterInfo.mFirstName = m[1].str().c_str();
 
-    uint16 len = (uint16)wcslen(reinterpret_cast<wchar_t*>(characterName.getRawData()));
-    characterInfo.mFirstName.setType(BSTRType_Unicode16);
-    characterInfo.mFirstName.setLength(len);
-    wcscpy(reinterpret_cast<wchar_t*>(checkName.getRawData()),reinterpret_cast<wchar_t*>(characterName.getRawData()));
-    checkName.convert(BSTRType_ANSI);
-    int8* check = checkName.getAnsi();
-
-    while(*check)
-    {
-        if(!((*check >= 'A' && *check <= 'Z') || (*check >= 'a' && *check <= 'z')))
-        {
-            if(*check == ' ')
-            {
-                check++;
-                continue;
-            }
-            else if(*check == '\'' || *check == '-')
-            {
-                needsEscape = true;
-
-                if(++specialCount > 2)
-                {
-                    DLOG(INFO) << "specialCount > 2 in name";
-                    _sendCreateCharacterFailed(10,client);
-                    return;
-                }
-                else
-                {
-                    check++;
-                    continue;
-                }
-
-            }
-            else
-            {
-                DLOG(INFO) << "Invalid chars in name";
-                _sendCreateCharacterFailed(10,client);
-                return;
-            }
-        }
-        check++;
+    if (m[2].matched) {
+        characterInfo.mLastName = m[2].str().c_str();
     }
-
+    
     // Base character model
     message->getStringAnsi(characterInfo.mBaseModel);
     //uint32 crc = characterInfo.mBaseModel.getCrc();
@@ -281,31 +228,22 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
     // Convert our name strings to UTF8 so they can be put in the DB.
     characterInfo.mFirstName.convert(BSTRType_ANSI);
     characterInfo.mBiography.convert(BSTRType_ANSI);
-
-    if(needsEscape)
-        characterInfo.mFirstName = strRep(std::string(characterInfo.mFirstName.getAnsi()),"'","''").c_str();
-
-    if(characterInfo.mLastName.getType() != BSTRType_ANSI && characterInfo.mLastName.getLength())
-    {
+    
+    if(characterInfo.mLastName.getType() != BSTRType_ANSI && characterInfo.mLastName.getLength()) {
         characterInfo.mLastName.convert(BSTRType_ANSI);
-
-        if(needsEscape)
-            characterInfo.mLastName = strRep(std::string(characterInfo.mLastName.getAnsi()),"'","''").c_str();
-
+        
         // Build our procedure call
         sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2,'%s','%s', '%s', '%s', %f",
                 client->getAccountId(),
-                characterInfo.mFirstName.getAnsi(),
-                characterInfo.mLastName.getAnsi(),
+                database_->escapeString(characterInfo.mFirstName.getAnsi()).c_str(),
+                database_->escapeString(characterInfo.mLastName.getAnsi()).c_str(),
                 characterInfo.mProfession.getAnsi(),
                 characterInfo.mStartCity.getAnsi(),
                 characterInfo.mScale);
-    }
-    else
-    {
-        sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2, '%s',NULL , '%s', '%s', %f",
+    } else {
+        sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2, '%s', NULL , '%s', '%s', %f",
                 client->getAccountId(),
-                characterInfo.mFirstName.getAnsi(),
+                database_->escapeString(characterInfo.mFirstName.getAnsi()).c_str(),
                 characterInfo.mProfession.getAnsi(),
                 characterInfo.mStartCity.getAnsi(),
                 characterInfo.mScale);
@@ -356,71 +294,27 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
     strcat(sql, sql2);
 
     //Logging the character create sql for debugging purposes,beware this contains binary data
-    
-
-    CAAsyncContainer* asyncContainer = new CAAsyncContainer(CAQuery_CreateCharacter,client);
-    mDatabase->executeProcedureAsync(this, asyncContainer, sql);
-}
-
-
-void CharacterAdminHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
-{
-    CAAsyncContainer* asyncContainer = reinterpret_cast<CAAsyncContainer*>(ref);
-    switch(asyncContainer->mQueryType)
-    {
-    case CAQuery_CreateCharacter:
-    {
-        DataBinding* binding = mDatabase->createDataBinding(1);
-        binding->addField(DFT_uint64,0,8);
-
-        uint64 queryResult;
-        result->getNextRow(binding,&queryResult);
-
-        if(queryResult >= 0x0000000200000000ULL)
-        {
-            _sendCreateCharacterSuccess(queryResult,asyncContainer->mClient);
-        }
-        else
-        {
-            _sendCreateCharacterFailed(static_cast<uint32>(queryResult),asyncContainer->mClient);
+    database_->executeAsyncProcedure(sql, [this, client] (DatabaseResult* result) {       
+        // Vaalidate the input.
+        if (! client || ! result) {
+            return;
         }
 
-        mDatabase->destroyDataBinding(binding);
-    }
-    break;
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        
+        if (!result_set->next()) {
+            LOG(WARNING) << "Unable to generate random name for client [" << client->getAccountId() << "]";
+            return;
+        }
 
-    case CAQuery_RequestName:
-    {
-        Message* newMessage;
+        uint64 query_result = result_set->getUInt64(1);
 
-        BString randomName,ui,state;
-        ui = "ui";
-        state = "name_approved";
-
-        DataBinding* binding = mDatabase->createDataBinding(1);
-        binding->addField(DFT_bstring,0,64);
-        result->getNextRow(binding,&randomName);
-        randomName.convert(BSTRType_Unicode16);
-
-        gMessageFactory->StartMessage();
-        gMessageFactory->addUint32(opClientRandomNameResponse);
-        gMessageFactory->addString(asyncContainer->mObjBaseType);
-        gMessageFactory->addString(randomName);
-        gMessageFactory->addString(ui);
-        gMessageFactory->addUint32(0);
-        gMessageFactory->addString(state);
-        newMessage = gMessageFactory->EndMessage();
-
-        asyncContainer->mClient->SendChannelA(newMessage, asyncContainer->mClient->getAccountId(), CR_Client, 4);
-
-        mDatabase->destroyDataBinding(binding);
-    }
-    break;
-
-    default:
-        break;
-    }
-    SAFE_DELETE(asyncContainer);
+        if(query_result >= 0x0000000200000000ULL) {
+            _sendCreateCharacterSuccess(query_result, client);
+        } else {
+            _sendCreateCharacterFailed(static_cast<uint32>(query_result), client);
+        }
+    });
 }
 
 

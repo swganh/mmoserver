@@ -88,6 +88,14 @@ public:
     * \return Returns the length of the escaped string.
     */
     virtual uint32_t escapeString(char* target, const char* source, uint32_t length) = 0;
+    
+    /*! Escapes a string to prepare for storage in a database.
+    *
+    * \param source The original string that needs escaping.
+    * 
+    * \return Returns the escaped string.
+    */
+    virtual std::string escapeString(const std::string& source) = 0;
 
     /*! Releases the memory allocated for result sets.
     *

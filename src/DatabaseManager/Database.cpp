@@ -312,7 +312,11 @@ void  Database::destroyDataBinding(DataBinding* binding) {
 
 
 uint32_t Database::escapeString(char* target, const char* source, uint32_t length) {
-    return(database_impl_->escapeString(target,source,length));
+    return database_impl_->escapeString(target,source,length);
+}
+
+std::string Database::escapeString(const std::string& source) {    
+    return database_impl_->escapeString(source);
 }
 
 

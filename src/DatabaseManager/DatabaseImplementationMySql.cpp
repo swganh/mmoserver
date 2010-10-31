@@ -187,6 +187,12 @@ uint32_t DatabaseImplementationMySql::escapeString(char* target, const char* sou
 }
 
 
+std::string DatabaseImplementationMySql::escapeString(const std::string& source) {    
+    sql::mysql::MySQL_Connection* mysql_conn = dynamic_cast<sql::mysql::MySQL_Connection*>(connection_.get()); 
+    return mysql_conn->escapeString(source);
+}
+
+
 void DatabaseImplementationMySql::processFieldBinding_(
     std::unique_ptr<sql::ResultSet>& result, 
     DataBinding* binding, 

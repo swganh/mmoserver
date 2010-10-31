@@ -30,41 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 #include "Utils/bstring.h"
-#include "DatabaseManager/DatabaseCallback.h"
 
 
-//======================================================================================================================
 class Message;
 class Database;
 class DatabaseResult;
 class MessageDispatch;
 class DispatchClient;
 
-enum QueryType
-{
-    CAQuery_CreateCharacter	= 1,
-    CAQuery_RequestName		= 2
-};
 
-class CAAsyncContainer
-{
-public:
-
-    CAAsyncContainer(QueryType queryType,DispatchClient* client) {
-        mQueryType = queryType;
-        mClient = client;
-    }
-
-    QueryType		mQueryType;
-    DispatchClient*	mClient;
-    BString			mObjBaseType;
-};
-
-//======================================================================================================================
-
-class CharacterCreateInfo
-{
-public:
+struct CharacterCreateInfo {
     uint32        mAccountId;
     uint64        mCharacterId;
     BString        mFirstName;
@@ -81,32 +56,27 @@ public:
 };
 
 
-
-//======================================================================================================================
-class CharacterAdminHandler : public DatabaseCallback
-{
+class CharacterAdminHandler {
 public:
 
     CharacterAdminHandler(Database* database, MessageDispatch* dispatch);
-    ~CharacterAdminHandler(void);
+    ~CharacterAdminHandler();
 
-    void			Process(void);
-
-    virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void Process();
 
 private:
 
-    void				_processRandomNameRequest(Message* message, DispatchClient* client);
-    void                _processCreateCharacter(Message* message, DispatchClient* client);
-    void                _parseAppearanceData(Message* message, CharacterCreateInfo* info);
+    void _processRandomNameRequest(Message* message, DispatchClient* client);
+    void _processCreateCharacter(Message* message, DispatchClient* client);
+    void _parseAppearanceData(Message* message, CharacterCreateInfo* info);
+         
+    void _parseHairData(Message* message, CharacterCreateInfo* info);
+         
+    void _sendCreateCharacterSuccess(uint64 characterId, DispatchClient* client);
+    void _sendCreateCharacterFailed(uint32 errorCode, DispatchClient* client);
 
-    void				_parseHairData(Message* message, CharacterCreateInfo* info);
-
-    void				_sendCreateCharacterSuccess(uint64 characterId,DispatchClient* client);
-    void				_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client);
-
-    Database*           mDatabase;
-    MessageDispatch*    mMessageDispatch;
+    Database* database_;
+    MessageDispatch* message_dispatch_;
 };
 
 

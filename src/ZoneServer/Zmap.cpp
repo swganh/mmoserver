@@ -665,7 +665,13 @@ void zmap::UpdateObject(Object *updateObject)
 	}
 	
 	uint32 newBucket	= getCellId(position.x, position.z);
-	uint32 oldCell		= updateObject->getGridBucket();
+	uint32 oldBucket		= updateObject->getGridBucket();
+
+	//no need for an update
+	if(newBucket == oldBucket)
+	{
+		return;
+	}
 
 	//get out of old bucket
 	RemoveObject(updateObject);

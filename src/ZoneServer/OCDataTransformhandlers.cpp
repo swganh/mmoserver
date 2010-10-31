@@ -135,13 +135,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 		// we are outside again
 		player->setParentId(0);
-		player->mPosition = pos;
 	
 		// Add us to the world.
 		gMessageLib->broadcastContainmentMessage(player->getId(),0,4,player);
-		
-		//grid uses worldposition when were in a cell
-		gSpatialIndexManager->UpdateObject(player);
 
 		// Inform tutorial about cell change.
 		if (gWorldConfig->isTutorial())
@@ -152,7 +148,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	}
 	else //we have not been in a building
 	{
-		gSpatialIndexManager->UpdateObject(player);
 		
 		if(player->checkIfMounted() && player->getMount())
 		{
@@ -162,6 +157,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	player->mDirection = dir;
 	player->setCurrentSpeed(speed);
+	player->mPosition = pos;
+	
+	gSpatialIndexManager->UpdateObject(player);
 
 	// destroy the instanced instrument if out of range
 	if (player->getPlacedInstrumentId())
@@ -276,9 +274,6 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		// (4 for add and 0 for remove)
 		gMessageLib->broadcastContainmentMessage(player->getId(),oldParentId,0,player);
 
-		// update grid with world position
-		gSpatialIndexManager->UpdateObject(player);
-
 		if (oldParentId != 0)
 		{
 			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
@@ -308,7 +303,8 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
 			if(player->checkIfMounted() && player->getMount())
 			{
-			
+		
+	
 				gSpatialIndexManager->UpdateObject(player->getMount());
 
 				//Can't ride into a building with a mount! :-p
@@ -347,6 +343,8 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	player->mDirection = dir;
 	player->mPosition  = pos;
 	player->setCurrentSpeed(speed);
+
+	gSpatialIndexManager->UpdateObject(player);
 
 	// destroy the instanced instrument if out of range
 	if (player->getPlacedInstrumentId())

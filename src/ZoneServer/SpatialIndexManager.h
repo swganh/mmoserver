@@ -138,7 +138,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 
 		void					sendToRegisteredPlayers(ObjectContainer* container, std::function<void (PlayerObject* player)> callback);
 		//registers player as watcher to a container
-		void					registerPlayerToContainer(ObjectContainer* container,PlayerObject* player);
+		void					registerPlayerToContainer(Object* container,PlayerObject* player);
 		void					unRegisterPlayerFromContainer(ObjectContainer* container,PlayerObject* player);
 		void					createObjectToRegisteredPlayers(ObjectContainer* container,Object* object);
 	

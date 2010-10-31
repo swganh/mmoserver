@@ -209,6 +209,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
  			PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
 			if(player && _checkPlayer(player))
 			{
+				gLogger->log(LogManager::DEBUG,"MessageLib::_sendToInRangeUnreliable send unreliable Message to payer %I64u",player->getId());
  				// clone our message
  				mMessageFactory->StartMessage();
  				mMessageFactory->addData(message->getData(),message->getSize());
@@ -220,9 +221,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 				//an invalid player at this point is like armageddon and Ultymas birthday combined at one time
 				assert(false && "Invalid Player in sendtoInrange");
 				failed = true;
- 			}
-				
-				
+ 			}				
  		}
  
 		if( failed)
@@ -388,11 +387,8 @@ void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureOb
 			int8* data = clonedMessage->getData() + 12;
 			*((uint64*)data) = player->getId();
 			(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-		}
-		++playerIt;
- 		
+		} 		
 	}
-
 }
 
 void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object,uint16 priority, uint32 crc)
@@ -430,9 +426,7 @@ void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const Creat
 			int8* data = clonedMessage->getData() + 12;
 			*((uint64*)data) = player->getId();
 			(player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-		}
-		++playerIt;
- 		
+		} 		
 	}
 
 }
@@ -468,7 +462,7 @@ void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 pr
 			(player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
-		++playerIt;
+
 	}
 
 	if(toSelf)
@@ -524,7 +518,6 @@ void MessageLib::_sendToInstancedPlayers(Message* message,uint16 priority, const
 			(player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
 		}
 
-		++playerIt;
 	}
 
 	mMessageFactory->DestroyMessage(message);
@@ -575,7 +568,6 @@ void MessageLib::_sendToInstancedPlayersUnreliable(Message* message,uint16 prior
 				(player->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
 			}
 
-			++playerIt;
 		}
 	}
 

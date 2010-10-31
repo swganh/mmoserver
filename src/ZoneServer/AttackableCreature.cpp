@@ -1332,7 +1332,7 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 		case State_Unspawned:
 		{
 			// This is not a valid state.
-			gLogger->log(LogManager::CRITICAL,"AttackableCreature::handleState Invalid state State_Unspawned.");
+			//gLogger->log(LogManager::CRITICAL,"AttackableCreature::handleState Invalid state State_Unspawned.");
 			// It's a serious isse that we need to investigate.
 			//assert(false && "AttackableCreature should never be in an unspawned state");
 

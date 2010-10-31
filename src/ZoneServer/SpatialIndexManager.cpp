@@ -108,15 +108,18 @@ bool SpatialIndexManager::AddObject(Object *newObject)
 		
 		for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
 		{
-			sendCreateObject((*i),player, true);
-
-			if(((*i)->getType() == ObjType_Player) && ((*i)->getId() != player->getId()))
+			if(((*i)->getId() != player->getId()))
 			{
-				PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
-				sendCreateObject(player,otherPlayer, true);
+				sendCreateObject((*i),player, false);
+				registerPlayerToContainer((*i), player);
 
-				registerPlayerToContainer(otherPlayer, player);
-				registerPlayerToContainer(player, otherPlayer);
+				if(((*i)->getType() == ObjType_Player) )
+				{
+					PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
+					
+					sendCreateObject(player,otherPlayer, false);
+					registerPlayerToContainer(player, otherPlayer);
+				}
 			}
 		}
 	}
@@ -127,7 +130,7 @@ bool SpatialIndexManager::AddObject(Object *newObject)
 		for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
 		{
 			PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
-			sendCreateObject(newObject,otherPlayer, true);
+			sendCreateObject(newObject,otherPlayer, false);
 		}
 	}
 
@@ -451,15 +454,8 @@ void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested,
 {
 	PlayerObject* updatedPlayer = dynamic_cast<PlayerObject*>(toBeUpdated);
 
-	if(toBeTested->getId() != updatedPlayer->getId())
+	if(updatedPlayer && (toBeTested->getId() != updatedPlayer->getId()))
 	{
-
-		if(!updatedPlayer)
-		{
-			//ahem
-			assert(false);
-			return;
-		}
 
 		//is the object a container?? do we need to despawn the content and unregister it ?
 		ObjectContainer* container = dynamic_cast<ObjectContainer*>(toBeTested);
@@ -470,20 +466,21 @@ void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested,
 
 		//we (updateObject) got out of range of the following (*i) objects
 		//destroy them for us
-		if(updatedPlayer)
-		{
-			gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer);
-		}
-				
-		//if its a player, destroy us for him
-		PlayerObject* them = dynamic_cast<PlayerObject*> (toBeTested);
-		if(them)
-		{
-			unRegisterPlayerFromContainer(updatedPlayer,them);	
+		gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer);
+	}
 
-			gMessageLib->sendDestroyObject(updatedPlayer->getId(),them);
-			
+	//if its a player, destroy us for him
+	PlayerObject* them = dynamic_cast<PlayerObject*> (toBeTested);
+	if(them)
+	{
+		ObjectContainer* container = dynamic_cast<ObjectContainer*>(toBeUpdated);
+		if(container)
+		{
+			unRegisterPlayerFromContainer(container,them);	
 		}
+
+		gMessageLib->sendDestroyObject(toBeUpdated->getId(),them);
+			
 	}
 }
 
@@ -810,7 +807,8 @@ void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Ob
 		//we are a player and need to create the following object for us
 		if(updatedPlayer)
 		{
-			sendCreateObject(toBeTested,updatedPlayer,true);
+			sendCreateObject(toBeTested,updatedPlayer,false);
+			registerPlayerToContainer(toBeTested, updatedPlayer);
 			
 			//if it is a house we need to register the cells for watching *only* when we enter
 		}
@@ -818,7 +816,7 @@ void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Ob
 		PlayerObject* testedPlayer = dynamic_cast<PlayerObject*> (toBeTested);
 		if(testedPlayer)
 		{
-			sendCreateObject(updatedObject,testedPlayer,true);
+			sendCreateObject(updatedObject,testedPlayer,false);
 
 			//if we and it are players we need to register each other for watching our equipment
 			if(updatedPlayer)
@@ -1165,10 +1163,18 @@ void SpatialIndexManager::sendToPlayersInRange(const Object* const object, bool 
 
 // registers a containers content as known to a player
 // a container can be a backpack placed in a cell (or a cell itself ??? need to think of that - it might give us the ability to keep cell content loaded for a player until he leaves range)
-void SpatialIndexManager::registerPlayerToContainer(ObjectContainer* container,PlayerObject* player)
+void SpatialIndexManager::registerPlayerToContainer(Object* container,PlayerObject* player)
 {
+	ObjectContainer* theContainer = dynamic_cast<ObjectContainer*>(container);
+
+	if(!theContainer)
+	{
+		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: Container %I64u is no containner :(",container->getId());
+		return;
+	}
+
 	//are we sure the player doesnt know the container already ???
-	if(container->checkRegisteredWatchers(player))
+	if(theContainer->checkRegisteredWatchers(player))
 	{
 
 		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: Container %I64u already known to player %I64u",container->getId(),player->getId());
@@ -1176,11 +1182,16 @@ void SpatialIndexManager::registerPlayerToContainer(ObjectContainer* container,P
 								
 	}
 
-	container->registerWatcher(player);
+	if(PlayerObject* tO = dynamic_cast<PlayerObject*>(container))
+	{
+		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: registered player (container) %I64u to player %I64u",container->getId(),player->getId());
+	}
+
+	theContainer->registerWatcher(player);
 	player-> registerWatcher(container);
 
 
-	ObjectIDList*			contentList		= container->getObjects();
+	ObjectIDList*			contentList		= theContainer->getObjects();
 	ObjectIDList::iterator	it				= contentList->begin();
 
 	while(it != contentList->end())

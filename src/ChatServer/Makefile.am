@@ -25,6 +25,7 @@ chatserver_SOURCES = \
 chatserver_CPPFLAGS = $(MYSQL_CFLAGS) -fno-strict-aliasing -Wno-overflow -Wno-invalid-offsetof
 chatserver_LDADD = $(MYSQL_LDFLAGS) \
   $(BOOST_LDFLAGS) \
+  $(BOOST_REGEX_LIB) \
   $(BOOST_THREAD_LIB) \
   $(BOOST_SYSTEM_LIB) \
   -lglog \

@@ -30,13 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <string>
 #include "Utils/typedefs.h"
-#include "Common/declspec.h"
 
 //======================================================================================================================
 
-COMMON_API std::string GetBuildNumber();
-COMMON_API std::string GetBuildTime();
-COMMON_API std::string GetBuildString();
+std::string GetBuildNumber();
+std::string GetBuildTime();
+std::string GetBuildString();
 
 #endif // ANH_COMMON_BUILDINFO_H
 

@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 #include <string>
 
-#include "Common/declspec.h"
-
 /*! \brief Common is a catch-all library containing primarily base classes and
  * classes used for maintaining application lifetimes.
  */
@@ -61,7 +59,7 @@ class ByteBuffer;
  *
  * Credit to Xenozephyr for information.
  */
-struct COMMON_API ProsePackage {
+struct ProsePackage {
     /**
      * Default constructor.
      *
@@ -82,12 +80,7 @@ struct COMMON_API ProsePackage {
 
     /// Default deconstructor.
     ~ProsePackage();
-
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
-
+    
     std::string  base_stf_file;  ///< File containing the STF message.
     std::string  base_stf_label; ///< Label of the STF message.
 
@@ -105,11 +98,6 @@ struct COMMON_API ProsePackage {
     std::string  to_stf_file;      ///< Text Object value: STF file
     std::string  to_stf_label;     ///< Text Object value: STF label
     std::wstring to_custom_string; ///< Text Object value: custom string
-
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     int32_t di_integer; ///< Decimal value: integer
     float df_float;     ///< Decimal value: float
@@ -140,7 +128,7 @@ struct WaypointPackage {
  * @see ProsePackage
  * @see WaypointPackage
  */
-class COMMON_API OutOfBand {
+class OutOfBand {
 public:
     /// Default constructor, generates an empty OutOfBand package.
     OutOfBand();
@@ -279,15 +267,7 @@ private:
 
     uint16_t count_;
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     std::unique_ptr<ByteBuffer> data_;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 };
 
 }  // namespace common

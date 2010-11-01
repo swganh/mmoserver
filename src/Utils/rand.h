@@ -31,11 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstdlib>
 #include "typedefs.h"
-#include "Utils/declspec.h"
 
 //======================================================================================================================
-UTILS_API void seed_rand_mwc1616(unsigned int seed);
-UTILS_API unsigned int rand_mwc1616(void);
+void seed_rand_mwc1616(unsigned int seed);
+unsigned int rand_mwc1616(void);
 
 
 //==============================================================================================================================
@@ -43,7 +42,7 @@ UTILS_API unsigned int rand_mwc1616(void);
 namespace Anh_Utils
 {
 //==============================================================================================================================
-class UTILS_API Random
+class Random
 {
 public:
 

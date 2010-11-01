@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define SRC_UTILS_MATHFUNCTIONS_H_
 
 #include <glm/glm.hpp>
-#include "Utils/declspec.h"
 
 /**
  * Checks to see if a given point is within the bounds of a rectangle given its center and width/height.
@@ -40,6 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  * \param height The height of the rectangle.
  * \returns True if the check_point is within the rectangle bounds, false if not.
  */
-UTILS_API bool IsPointInRectangle(const glm::vec2& check_point, const glm::vec2& rectangle_center, float width, float height);
+bool IsPointInRectangle(const glm::vec2& check_point, const glm::vec2& rectangle_center, float width, float height);
 
 #endif  // SRC_UTILS_MATHFUNCTIONS_H_

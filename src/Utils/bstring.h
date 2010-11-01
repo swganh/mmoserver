@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstdint>
 #include <vector>
-#include "Utils/declspec.h"
 
 class BString;
 
@@ -49,7 +48,7 @@ enum BStringType
 
 //======================================================================================================================
 
-class UTILS_API BString
+class BString
 {
 public:
     BString();

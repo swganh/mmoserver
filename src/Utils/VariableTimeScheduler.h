@@ -35,8 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PriorityVector.h"
 #include "clock.h"
 
-#include "Utils/declspec.h"
-
 typedef fastdelegate::FastDelegate2<uint64,void*,uint64> VariableTimeCallback;
 
 
@@ -72,7 +70,7 @@ typedef priority_vector<VariableTimeTask> VariableTaskContainer;
 
 //======================================================================================================================
 
-class UTILS_API VariableTimeScheduler
+class VariableTimeScheduler
 {
 public:
 
@@ -90,15 +88,7 @@ public:
 
 protected:
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     VariableTaskContainer		mTasks;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     uint32				mNextTask;
     uint64				mNextTaskId;

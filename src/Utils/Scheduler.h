@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "FastDelegate.h"
 #include "PriorityVector.h"
 #include "clock.h"
-#include "Utils/declspec.h"
 
 typedef fastdelegate::FastDelegate2<uint64,void*,bool> FDCallback;
 
@@ -70,7 +69,7 @@ typedef priority_vector<Task> TaskContainer;
 
 //======================================================================================================================
 
-class UTILS_API Scheduler
+class Scheduler
 {
 public:
 
@@ -88,15 +87,7 @@ public:
 
 protected:
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     TaskContainer		mTasks;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     uint32				mNextTask;
     uint64				mNextTaskId;

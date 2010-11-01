@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/ActiveObject.h"
 #include "Utils/Singleton.h"
 #include "Common/Event.h"
-#include "Common/declspec.h"
 
 /*! \brief Common is a catch-all library containing primarily base classes and
  * classes used for maintaining application lifetimes.
@@ -70,7 +69,7 @@ typedef std::priority_queue<IEventPtr, std::vector<IEventPtr>, CompareEventWeigh
  * between different "modules" of code that may or may not be running on separate
  * processes or even separate physical machines.
  */
-class COMMON_API EventDispatcher {
+class EventDispatcher {
 public:
     EventDispatcher();
     explicit EventDispatcher(uint64_t current_time);
@@ -160,17 +159,9 @@ private:
     void Disconnect_(const EventType& event_type, const EventListenerType& event_listener_type);
     bool Deliver_(IEventPtr triggered_event);
         
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     EventTypeSet event_type_set_;
 
     EventListenerMap event_listener_map_;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     uint64_t current_timestep_;
     
@@ -182,15 +173,7 @@ private:
         kNumQueues = 2
     };
         
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     EventQueue event_queue_[kNumQueues];
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     int active_queue_;
     

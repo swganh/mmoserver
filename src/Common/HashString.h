@@ -31,8 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdint>
 #include <string>
 
-#include "Common/declspec.h"
-
 /*! \brief Common is a catch-all library containing primarily base classes and
  * classes used for maintaining application lifetimes.
  */
@@ -46,14 +44,14 @@ class HashString;
  * \param message The output stream to write the data to.
  * \param string The HashString to stream data from.
  */
-COMMON_API std::ostream& operator<<(std::ostream& message, const HashString& string);
+std::ostream& operator<<(std::ostream& message, const HashString& string);
 
 static const char* const kWildCardHashString = "*";
 
 /*! \brief This class provides a utility for generating identifiers that are
  * easy to read and can be used as key values in the standard associative containers.
  */
-class COMMON_API HashString {
+class HashString {
 public:
     /**
      * This explicit constructor takes a human readable string and stores a hash of it.
@@ -125,15 +123,7 @@ private:
     // to assign event types as desired.
     void * ident_; ///< This is a 32bit hash of the ident_string.
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     std::string ident_string_; ///< This is a human readable form of the event type.
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 };
 
 }  // namespace common

@@ -29,18 +29,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_STREAM_COLORS_H
 
 #include <iostream>
-#include "Utils/declspec.h"
 
-UTILS_API std::ostream& blue(std::ostream &s);
+std::ostream& blue(std::ostream &s);
 
-UTILS_API std::ostream& aqua(std::ostream &s);
+std::ostream& aqua(std::ostream &s);
 
-UTILS_API std::ostream& red(std::ostream &s);
+std::ostream& red(std::ostream &s);
 
-UTILS_API std::ostream& green(std::ostream &s);
+std::ostream& green(std::ostream &s);
 
-UTILS_API std::ostream& yellow(std::ostream &s);
+std::ostream& yellow(std::ostream &s);
 
-UTILS_API std::ostream& white(std::ostream &s);
+std::ostream& white(std::ostream &s);
 
 #endif

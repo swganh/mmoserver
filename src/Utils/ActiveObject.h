@@ -34,14 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/thread.hpp>
 #include <tbb/concurrent_queue.h>
 
-#include "Utils/declspec.h"
-
-// Win32 complains about stl and other libraries making use of templates during
-// linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
-
 /// The utils namespace hosts a number of useful utility classes intended to
 /// be used and reused in domain specific classes.
 namespace utils {
@@ -59,7 +51,7 @@ namespace utils {
  *
  * @see http://www.drdobbs.com/go-parallel/article/showArticle.jhtml?articleID=225700095
  */
-class UTILS_API ActiveObject {
+class ActiveObject {
 public:
     /// Messages are implemented as std::function to allow maximum flexibility for
     /// how a message can be created with support for functions, functors, class members,
@@ -94,10 +86,5 @@ private:
 };
 
 }
-
-// Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
 #endif  // SRC_UTILS_ACTIVEOBJECT_H_

@@ -33,13 +33,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/clock.h"
 #include "Utils/typedefs.h"
 
-#include "Utils/declspec.h"
-
 class TimerCallback;
 
 //==============================================================================================================================
 
-class UTILS_API Timer
+class Timer
 {
 public:
     Timer(uint32 id,TimerCallback* callback,uint64 interval, void* container);
@@ -52,15 +50,7 @@ public:
     }
 
 private:
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     boost::thread   mThread;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     void*						mContainer;
     TimerCallback*	mCallback;

@@ -30,14 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ConfigFile.h"
 
-#include "Common/declspec.h"
-
 #define CONFIG_DIR "config//"
 #define	gConfig	ConfigManager::getSingletonPtr()->getConfigFile()
 
 //======================================================================================================================
 
-class COMMON_API ConfigManager
+class ConfigManager
 {
 public:
 

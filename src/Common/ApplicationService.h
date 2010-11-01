@@ -32,8 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/ActiveObject.h"
 
-#include "Common/declspec.h"
-
 /*! \brief Common is a catch-all library containing primarily base classes and
  * classes used for maintaining application lifetimes.
  */
@@ -63,7 +61,7 @@ public:
  * system which allows it to run independently on it's own thread without contention
  * from locks.
  */
-class COMMON_API BaseApplicationService : public IApplicationService {
+class BaseApplicationService : public IApplicationService {
 public:
     /*! \brief The only available constructor for BaseApplicationService.
      *

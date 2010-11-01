@@ -49,8 +49,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "Common/declspec.h"
-
 struct file_not_found
 {
     std::string filename;
@@ -59,21 +57,13 @@ struct file_not_found
 
 //using namespace std;
 
-class COMMON_API ConfigFile {
+class ConfigFile {
 // Data
 protected:
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     std::string myDelimiter;  // separator between key and value
     std::string myComment;    // separator between value and comments
     std::string mySentry;     // optional string to signal end of file
     std::map<std::string,std::string> myContents;  // extracted keys and values
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     typedef std::map<std::string,std::string>::iterator mapi;
     typedef std::map<std::string,std::string>::const_iterator mapci;

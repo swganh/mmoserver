@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/byte_buffer.h"
 #include "Common/HashString.h"
-#include "Common/declspec.h"
 
 /*! \brief Common is a catch-all library containing primarily base classes and
  * classes used for maintaining application lifetimes.
@@ -108,7 +107,7 @@ public:
  * concrete instances with the ability to specify a callback that gets invoked
  * after the listeners have had an opportunity to process it.
  */
-class COMMON_API BaseEvent : public IEvent {
+class BaseEvent : public IEvent {
 public:
     BaseEvent(EventSubject subject = 0, uint64_t delay_ms = 0);
     BaseEvent(EventSubject subject, uint64_t delay_ms, EventCallback callback);
@@ -176,7 +175,7 @@ private:
  * event_dispatcher.Notify(some_event);
  * \endcode
  */
-class COMMON_API SimpleEvent : public BaseEvent {
+class SimpleEvent : public BaseEvent {
 public:
     explicit SimpleEvent(const common::EventType& event_type, uint64_t subject_id = 0, uint64_t delay_ms = 0);
     SimpleEvent(const common::EventType& event_type, uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
@@ -205,9 +204,9 @@ private:
  * \param rhs The "right-hand side" of the comparison (eg. x > z, z would be the rhs).
  * \returns Returns true if left-hand side is less than the right-hand side.
  */
-COMMON_API bool CompareEventWeightLessThan(const IEvent& lhs, const IEvent& rhs);
+bool CompareEventWeightLessThan(const IEvent& lhs, const IEvent& rhs);
 
-struct COMMON_API CompareEventWeightLessThanPredicate : public std::binary_function<std::shared_ptr<IEvent>, std::shared_ptr<IEvent>, bool> {
+struct CompareEventWeightLessThanPredicate : public std::binary_function<std::shared_ptr<IEvent>, std::shared_ptr<IEvent>, bool> {
     bool operator() (const std::shared_ptr<const IEvent>& lhs, const std::shared_ptr<const IEvent>& rhs) {
         return CompareEventWeightLessThan(*lhs, *rhs);
     }
@@ -223,9 +222,9 @@ struct COMMON_API CompareEventWeightLessThanPredicate : public std::binary_funct
  * \param rhs The "right-hand side" of the comparison (eg. x > z, z would be the rhs).
  * \returns Returns true if left-hand side is greater than the right-hand side.
  */
-COMMON_API bool CompareEventWeightGreaterThan(const IEvent& lhs, const IEvent& rhs);
+bool CompareEventWeightGreaterThan(const IEvent& lhs, const IEvent& rhs);
 
-struct COMMON_API CompareEventWeightGreaterThanPredicate : public std::binary_function<std::shared_ptr<IEvent>, std::shared_ptr<IEvent>, bool> {
+struct CompareEventWeightGreaterThanPredicate : public std::binary_function<std::shared_ptr<IEvent>, std::shared_ptr<IEvent>, bool> {
     bool operator() (const std::shared_ptr<const IEvent>& lhs, const std::shared_ptr<const IEvent>& rhs) {
         return CompareEventWeightGreaterThan(*lhs, *rhs);
     }

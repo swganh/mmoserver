@@ -64,6 +64,7 @@ enum CreatureGroup
 enum CreatureState :
 unsigned long long
 {
+    CreatureState_ClearState					=	0x0000000000000000,
     CreatureState_Cover							=	0x0000000000000001,
     CreatureState_Combat						=	0x0000000000000002,
     CreatureState_Peace							=	0x0000000000000004,
@@ -97,8 +98,7 @@ unsigned long long
     CreatureState_ShipOperations				=	0x0000000040000000,
     CreatureState_ShipGunner					=	0x0000000080000000,
     CreatureState_ShipInterior					=	0x0000000100000000,
-    CreatureState_PilotingPobShip				=	0x0000000200000000,
-	CreatureState_ClearState					=	0x0000000400000000
+    CreatureState_PilotingPobShip				=	0x0000000200000000
 };
 
 //=============================================================================

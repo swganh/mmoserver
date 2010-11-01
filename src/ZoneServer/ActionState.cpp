@@ -598,7 +598,7 @@ StatePilotingPobShip::StatePilotingPobShip(StateManager* const sm) : ActionState
 // StateClear State
 StateClear::StateClear(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = (CreatureState)0;
+    mStateID = CreatureState_ClearState;
 }
 void StateClear::Enter(CreatureObject* obj)
 {

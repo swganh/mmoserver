@@ -17,7 +17,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     # First make sure the version of gnu is new enough
     TRY_COMPILE(HAS_MININUM_GNUCXX_VERSION 
         ${CMAKE_CURRENT_BINARY_DIR} 
-        ${CMAKE_CURRENT_SOURCE_DIR}/build-aux/require_gcc_46.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/tools/cmake/require_gcc_46.cc
         )
         
     IF(NOT HAS_MININUM_GNUCXX_VERSION)

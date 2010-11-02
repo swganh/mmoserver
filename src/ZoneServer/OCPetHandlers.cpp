@@ -72,7 +72,6 @@ void ObjectController::_handleMount(uint64 targetId,Message* message,ObjectContr
                     //The /mount command can work up to 32m on live
                     if(glm::distance(vehicle->body()->mPosition, player->mPosition) <= 32)	{
                         //change locomotion
-                        player->states.setLocomotion(CreatureLocomotion_DrivingVehicle);
                         vehicle->MountPlayer();
                     }	else {
                         gMessageLib->SendSystemMessage(L"Your target is too far away to mount.", player);
@@ -119,7 +118,6 @@ void ObjectController::_handleDismount(uint64 targetId,Message* message,ObjectCo
                 // get the pets controller for a swoop its the vehicle
                 if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(pet->controller())))
                 {
-                    player->states.setLocomotion(CreatureLocomotion_Standing);
                     vehicle->DismountPlayer();
                 }
             }

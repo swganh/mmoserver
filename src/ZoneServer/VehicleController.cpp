@@ -259,9 +259,8 @@ void VehicleController::DismountPlayer() {
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
 
     // TODO: make this more automatic...
-    gStateManager.setCurrentActionState(owner_, CreatureState_ClearState);   
-    gStateManager.setCurrentPostureState(owner_,CreaturePosture_Upright);
-    gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_Standing);
+    gStateManager.removeActionState(owner_, CreatureState_RidingMount);   
+    gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
 
     owner_->setMounted(false);
     gMessageLib->sendUpdateMovementProperties(owner_);

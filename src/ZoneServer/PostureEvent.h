@@ -31,15 +31,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/Event.h"
 #include "CreatureObject.h"
 
-class PostureUpdateEvent : public ::common::BaseEvent
+
+class BasePostureEvent : public ::common::BaseEvent
 {
 public:
     static const ::common::EventType type;
 
-    explicit PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id=0, uint64_t delay_ms=0);
-    PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    explicit BasePostureEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id=0, uint64_t delay_ms=0);
+    BasePostureEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
     
-    ~PostureUpdateEvent(void);
+    ~BasePostureEvent(void);
 
     const ::common::EventType& event_type() const;
 
@@ -56,6 +57,50 @@ private:
     uint64                      mObjID;
     CreaturePosture             mOldPos;
     CreaturePosture             mNewPos;
+};
+
+class PostureUpdateEvent : public BasePostureEvent
+{
+public:
+    static const ::common::EventType type;
+
+    explicit PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id=0, uint64_t delay_ms=0);
+    PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    
+    ~PostureUpdateEvent(void);
+
+    uint64  getCreatureObjectByID()         { return mObjID;}
+    CreaturePosture getOldPostureState()    { return mOldPos;}
+    CreaturePosture getNewPostureState()    { return mNewPos;}
+
+private:
+
+    uint64                      mObjID;
+    CreaturePosture             mOldPos;
+    CreaturePosture             mNewPos;
+};
+
+class PostureErrorEvent : public BasePostureEvent
+{
+public:
+    static const ::common::EventType type;
+
+    explicit PostureErrorEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture, CreatureLocomotion mLocomotion,uint64_t subject_id=0, uint64_t delay_ms=0);
+    PostureErrorEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture, CreatureLocomotion mLocomotion,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    
+    ~PostureErrorEvent(void);
+
+    uint64  getCreatureObjectByID()         { return mObjID;}
+    CreaturePosture getOldPostureState()    { return mOldPos;}
+    CreaturePosture getNewPostureState()    { return mNewPos;}
+    CreatureLocomotion getBlockingLocomotionState()    { return mBlockingLoco;}
+
+private:
+
+    uint64                      mObjID;
+    CreaturePosture             mOldPos;
+    CreaturePosture             mNewPos;
+    CreatureLocomotion          mBlockingLoco;
 };
 
 #endif

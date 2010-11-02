@@ -31,6 +31,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 #include "Common/EventDispatcher.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 using ::common::EventType;
 
 StateManager::StateManager()
@@ -142,9 +149,8 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
         }
         else
         {
-            // send command queue remove message back to client (ie: you can't do x while y)
-            auto posture_error_event = std::make_shared<PostureUpdateEvent>(object->getId(), (CreaturePosture)object->states.getPosture(), newPosture);
-            gEventDispatcher.Notify(posture_error_event);
+            DLOG(WARNING) << "unable to transition from " << object->states.getPosture() << " to" << newPosture;
+            gMessageLib->SendSystemMessage(L"You cannot transition from this Posture state");
         }
         gEventDispatcher.Notify(posture_update_event);
     } 
@@ -171,9 +177,8 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
         }
         else
         {
-            // send command queue remove message back to client (ie: you can't do x while y)
-            auto action_error_event = std::make_shared<ActionStateUpdateEvent>(object->getId(), object->states.getAction(), newState);
-            gEventDispatcher.Notify(action_error_event);
+            DLOG(WARNING) << "unable to transition from " << object->states.getAction() << " to" << static_cast<uint64_t>(newState);
+            gMessageLib->SendSystemMessage(L"You cannot transition from this Action state");
         }
         gEventDispatcher.Notify(action_update_event);
     }
@@ -191,25 +196,31 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
             // Exit old State
             mLocomotionStateMap[object->states.getLocomotion()]->Exit(object);
             // Enter new State
-            mActionStateMap[newLocomotion]->Enter(object);
+            mLocomotionStateMap[newLocomotion]->Enter(object);
         }
         else
         {
-            // send command queue remove message back to client (ie: you can't do x while y)
-            auto locomotion_error_event = std::make_shared<LocomotionStateUpdateEvent>(object->getId(), (CreatureLocomotion)object->states.getLocomotion(), newLocomotion);
-            gEventDispatcher.Notify(locomotion_error_event);
+            DLOG(WARNING) << "unable to transition from " << object->states.getLocomotion() << " to" << static_cast<uint64_t>(newLocomotion);
+            gMessageLib->SendSystemMessage(L"You cannot transition from this Locomotion state");
         }
         gEventDispatcher.Notify(locomotion_update_event);
     }
 }
 void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToRemove)
 {
+        auto action_update_event = std::make_shared<ActionStateUpdateEvent>(obj->getId(), obj->states.getAction(), stateToRemove);
         // check if we can transition out of this action state
         if (mActionStateMap[stateToRemove]->CanTransition(obj, stateToRemove))
         {
             // Exit old State
             obj->states.toggleActionOff(stateToRemove);
         }
+        else
+        {
+            DLOG(WARNING) << "unable to remove action state " << static_cast<uint64_t>(stateToRemove);
+            gMessageLib->SendSystemMessage(L"You cannot remove this Action state");
+        }
+        gEventDispatcher.Notify(action_update_event);
 }
 void StateManager::loadStateMaps()
 {

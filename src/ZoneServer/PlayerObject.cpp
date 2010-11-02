@@ -220,7 +220,6 @@ PlayerObject::~PlayerObject()
     gCraftingSessionFactory->destroySession(mCraftingSession);
     this->setCraftingSession(NULL);
     gStateManager.removeActionState(this, CreatureState_Crafting);
-    gStateManager.setCurrentActionState(this, CreatureState_Peace);
     this->setCraftingStage(0);
     this->setExperimentationFlag(0);
     // update duel lists

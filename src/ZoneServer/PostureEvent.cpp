@@ -5,9 +5,11 @@ using ::common::EventType;
 using ::common::EventCallback;
 using ::common::ByteBuffer;
 
-const EventType PostureUpdateEvent::type      = EventType("PostureUpdateEvent");
+const EventType BasePostureEvent::type       = EventType("PostureUpdateEvent");
+const EventType PostureUpdateEvent::type     = EventType("PostureUpdateEvent");
+const EventType PostureErrorEvent::type      = EventType("PostureErrorEvent");
 
-PostureUpdateEvent::PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms) 
+BasePostureEvent::BasePostureEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms) 
     : BaseEvent(subject_id, delay_ms)
 {
     mObjID    = objID;
@@ -15,8 +17,38 @@ PostureUpdateEvent::PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,
     mNewPos   = newPosture;
 }
 
-PostureUpdateEvent::PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback)
+BasePostureEvent::BasePostureEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback)
     : BaseEvent(subject_id, delay_ms)
+{
+    mObjID    = objID;
+    mOldPos   = oldPosture;
+    mNewPos   = newPosture;
+}
+
+BasePostureEvent::~BasePostureEvent() {};
+
+const EventType& BasePostureEvent::event_type() const { 
+    return type; 
+}
+
+void BasePostureEvent::onSerialize(ByteBuffer& out) const {}
+void BasePostureEvent::onDeserialize(ByteBuffer& in) {}
+
+bool BasePostureEvent::onConsume(bool handled) const {
+    return true;
+}
+
+// PostureUpdateEvent
+PostureUpdateEvent::PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms) 
+    : BasePostureEvent(objID, oldPosture, newPosture, subject_id, delay_ms)
+{
+    mObjID    = objID;
+    mOldPos   = oldPosture;
+    mNewPos   = newPosture;
+}
+
+PostureUpdateEvent::PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,CreaturePosture newPosture,uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback)
+    : BasePostureEvent(objID, oldPosture, newPosture, subject_id, delay_ms)
 {
     mObjID    = objID;
     mOldPos   = oldPosture;
@@ -25,14 +57,3 @@ PostureUpdateEvent::PostureUpdateEvent(uint64 objID, CreaturePosture oldPosture,
 
 
 PostureUpdateEvent::~PostureUpdateEvent(void){}
-
-const EventType& PostureUpdateEvent::event_type() const { 
-    return type; 
-}
-
-void PostureUpdateEvent::onSerialize(ByteBuffer& out) const {}
-void PostureUpdateEvent::onDeserialize(ByteBuffer& in) {}
-
-bool PostureUpdateEvent::onConsume(bool handled) const {
-    return true;
-}

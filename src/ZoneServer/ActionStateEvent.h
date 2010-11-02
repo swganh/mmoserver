@@ -44,8 +44,8 @@ public:
     const ::common::EventType& event_type() const;
 
     uint64 getCreatureObjectByID()          { return mObjID;}
-    uint64 getOldPostureState()             { return mOldStates;}
-    CreatureState getNewPostureState()      { return mNewState;}
+    uint64 getOldState()                    { return mOldStates;}
+    CreatureState getNewState()             { return mNewState;}
 
 private:
     void onSerialize(::common::ByteBuffer& out) const;

@@ -165,31 +165,31 @@ class CreatureObject : public MovingObject
         // ONLY SWITCH STATES THROUGH THE STATE MANAGER!
         struct STATES
         {
-            uint32          posture;
-            uint32          locomotion;
-            uint64          action;
-            bool            blockPosture;
-            bool            blockAction;
-            bool            blockLocomotion;
+            uint32_t          posture;
+            uint32_t          locomotion;
+            uint64_t          action;
+            bool              blockPosture;
+            bool              blockAction;
+            bool              blockLocomotion;
 
             void            blockLayers() { blockPosture = true; blockAction = true; blockLocomotion = true; }
             // posture states
-            uint32          getPosture() { return posture; } 
-            void            setPosture(uint32 pos) { posture = pos; }
-            bool			checkPosture(uint32 pos) const { return (posture == pos); }
+            uint32_t        getPosture() { return posture; } 
+            void            setPosture(uint32_t pos) { posture = pos; }
+            bool			checkPosture(uint32_t pos) const { return (posture == pos); }
             // locomotion states
-            uint32          getLocomotion() { return locomotion; }
-            void            setLocomotion(uint32 loco) { locomotion = loco; }
-            bool			checkLocomotion(uint32 loco) const { return (locomotion == loco); }
+            uint32_t        getLocomotion() { return locomotion; }
+            void            setLocomotion(uint32_t loco) { locomotion = loco; }
+            bool			checkLocomotion(uint32_t loco) const { return (locomotion == loco); }
             // action states
-            uint64          getAction(){return action;}
+            uint64_t        getAction(){return action;}
             void            toggleActionOn(CreatureState state){ action = action | state; }
             void            toggleActionOff(CreatureState state){ action = action & ~ state; }
             bool            checkState(CreatureState state){ return ((action & state) == state); }
-            bool            checkStates(uint64 states){ return ((action & states) == states); }
-            bool            checkStatesEither(uint64 states){ return ((action & states) != 0); }
+            bool            checkStates(uint64_t states){ return ((action & states) == states); }
+            bool            checkStatesEither(uint64_t states){ return ((action & states) != 0); }
             // clear states, do not call directly
-            void            clearAllStates() { action = 0;}
+            void            clearAllStates() { action = CreatureState_ClearState;}
         } states;
         //// OLD WAY OF DOING STATES
         //// states

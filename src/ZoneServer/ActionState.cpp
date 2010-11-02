@@ -26,6 +26,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "ActionState.h"
 #include "StateManager.h"
+#include "Common\EventDispatcher.h"
+#include "Common\Event.h"
+
+
 
 #define insertAction mTransitionList.insert(std::make_pair(State_Action 
 #define insertPosture mTransitionList.insert(std::make_pair(State_Posture
@@ -34,6 +38,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define actionMap mStateManager->mActionStateMap
 #define postureMap mStateManager->mPostureStateMap
 #define locomotionMap mStateManager->mLocomotionStateMap
+
+using ::common::SimpleEvent;
+using ::common::EventType;
 
 ActionState::ActionState(StateManager* const sm) : IState(),
     mStateManager(sm){}
@@ -151,7 +158,7 @@ void StateCombat::Enter(CreatureObject* obj)
 // State Peace
 StatePeace::StatePeace(StateManager* const sm) : ActionState(sm)
 {
-    mStateID = CreatureState_Combat;
+    mStateID = CreatureState_Peace;
 
     insertPosture,CreaturePosture_Incapacitated));
     insertLocomotion,CreatureLocomotion_Incapacitated));
@@ -162,16 +169,25 @@ StatePeace::StatePeace(StateManager* const sm) : ActionState(sm)
 }
 void StatePeace::Enter(CreatureObject* obj)
 {
+
     actionMap[CreatureState_Combat]->Exit(obj);
     
     obj->states.toggleActionOn(mStateID);
+
+    // turn it back off after 5 seconds
+    // yay for Lambdas
+    std::shared_ptr<SimpleEvent> start_peace_delay_event = std::make_shared<SimpleEvent>(EventType("start_peace"),0, 5000, [=] 
+    {
+         obj->states.toggleActionOff(CreatureState_Peace); 
+         gMessageLib->sendPostureAndStateUpdate(obj);
+    });
+    gEventDispatcher.Notify(start_peace_delay_event);
 }
 
 // State Aiming
 StateAiming::StateAiming(StateManager* const sm) : ActionState(sm)
 {
     mStateID            = CreatureState_Aiming;
-    ////mClientEffect       = "clienteffect/combat_special_attacker_aim.cef";
 
     loadCommonLocomotionList(mTransitionList);
     insertLocomotion,CreatureLocomotion_Sitting));
@@ -197,7 +213,6 @@ StateAlert::StateAlert(StateManager* const sm) : ActionState(sm)
 StateBerserk::StateBerserk(StateManager* const sm) : ActionState(sm)
 {
     mStateID            = CreatureState_Berserk;
-    //mClientEffect       = "clienteffect/combat_special_attacker_berserk.cef";
 
     loadCommonLocomotionList(mTransitionList);
     insertLocomotion,CreatureLocomotion_Sitting));

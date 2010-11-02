@@ -24,6 +24,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include <cstdint>
 
 #ifndef ANH_ZONESERVER_CREATURE_ENUMS_H
 #define ANH_ZONESERVER_CREATURE_ENUMS_H
@@ -61,8 +62,7 @@ enum CreatureGroup
 };
 
 //=============================================================================
-enum CreatureState :
-unsigned long long
+enum CreatureState :uint64_t
 {
     CreatureState_ClearState					=	0x0000000000000000,
     CreatureState_Cover							=	0x0000000000000001,
@@ -102,8 +102,7 @@ unsigned long long
 };
 
 //=============================================================================
-enum CreatureLocomotion :
-unsigned long long
+enum CreatureLocomotion :uint64_t
 {
     CreatureLocomotion_Standing							=	0x0000000000000001,
     CreatureLocomotion_Sneaking							=	0x0000000000000002,

@@ -6,7 +6,7 @@ FIND_PATH(ZLIB_INCLUDE_DIR zlib.h
 MARK_AS_ADVANCED(ZLIB_INCLUDE_DIR)
 
 FIND_LIBRARY(ZLIB_LIBRARY_DEBUG
-    NAMES zlib zlib.lib
+    NAMES z zlib zlib.lib
     PATH
         $ENV{ZLIB_ROOT}
         ${ZLIB_ROOT}
@@ -16,7 +16,7 @@ FIND_LIBRARY(ZLIB_LIBRARY_DEBUG
 )
 
 FIND_LIBRARY(ZLIB_LIBRARY_RELEASE
-    NAMES zlib zlib.lib
+    NAMES z zlib zlib.lib
     PATH
         $ENV{ZLIB_ROOT}
         ${ZLIB_ROOT}

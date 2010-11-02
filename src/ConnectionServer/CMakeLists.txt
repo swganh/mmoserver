@@ -7,16 +7,22 @@ INCLUDE_DIRECTORIES(${MYSQL_INCLUDE_DIR} ${MysqlConnectorCpp_INCLUDES} ${GLOG_IN
 # Create the Utils library
 ADD_EXECUTABLE(ConnectionServer ${SOURCES} ${HEADERS})         
 TARGET_LINK_LIBRARIES(ConnectionServer
-    Utils
-    Common
     NetworkManager
     DatabaseManager
+    Common
+    Utils
     ${MYSQL_LIB}
+    debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
+    debug ${Boost_SYSTEM_LIBRARY_DEBUG}
+    debug ${Boost_THREAD_LIBRARY_DEBUG}
     debug ${GLOG_LIBRARY_DEBUG}
     debug ${MysqlConnectorCpp_LIBRARY_DEBUG}
     debug ${TBB_LIBRARY_DEBUG}
     debug ${TBB_MALLOC_LIBRARY_DEBUG}
     debug ${ZLIB_LIBRARY_DEBUG}
+    optimized ${Boost_DATE_TIME_LIBRARY_RELEASE}
+    optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
+    optimized ${Boost_THREAD_LIBRARY_RELEASE}
     optimized ${GLOG_LIBRARY_RELEASE}
     optimized ${MysqlConnectorCpp_LIBRARY_RELEASE}
     optimized ${TBB_LIBRARY}

@@ -52,6 +52,17 @@ ELSE()
     ENDIF()
 ENDIF()
 
+INCLUDE(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG(-Wno-invalid-offsetof HAS_NO_INVALID_OFFSETOF)
+IF(HAS_NO_INVALID_OFFSETOF)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
+ENDIF()
+
+CHECK_CXX_COMPILER_FLAG(-Wno-write-strings HAS_NO_WRITE_STRINGS)
+IF(HAS_NO_WRITE_STRINGS)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-write-strings")
+ENDIF()
+
 # ---------------------------------------------------------------------------
 # find -G arg for configuring external projects with the same generator
 #
@@ -62,7 +73,12 @@ ELSE()
 ENDIF()
 
 IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost")
-    SET(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost")
+    IF(WIN32)
+        SET(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost")
+    ELSE()
+        SET(BOOST_INCLUDEDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/include")
+        SET(BOOST_LIBRARYDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/lib")
+    ENDIF()
 ENDIF()
 
 IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/glm")
@@ -109,7 +125,7 @@ IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib")
     SET(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib")
 ENDIF()
 
-FIND_PACKAGE(Boost 1.44.0 COMPONENTS date_time thread REQUIRED)
+FIND_PACKAGE(Boost 1.44.0 COMPONENTS date_time regex thread system REQUIRED)
 FIND_PACKAGE(GLM REQUIRED)
 FIND_PACKAGE(GLog REQUIRED)
 FIND_PACKAGE(GTest REQUIRED)

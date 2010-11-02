@@ -9,7 +9,7 @@ FIND_PATH(TOLUAPP_INCLUDE_DIR tolua++.h
 MARK_AS_ADVANCED(TOLUAPP_INCLUDE_DIR)
 
 FIND_LIBRARY(TOLUAPP_LIBRARY_DEBUG
-    NAMES toluapp toluapp.lib
+    NAMES tolua++ toluapp toluapp.lib
     PATH
         $ENV{TOLUAPP_ROOT}
         ${TOLUAPP_ROOT}
@@ -19,7 +19,7 @@ FIND_LIBRARY(TOLUAPP_LIBRARY_DEBUG
 )
 
 FIND_LIBRARY(TOLUAPP_LIBRARY_RELEASE
-    NAMES toluapp toluapp.lib
+    NAMES tolua++ toluapp toluapp.lib
     PATH
         $ENV{TOLUAPP_ROOT}
         ${TOLUAPP_ROOT}

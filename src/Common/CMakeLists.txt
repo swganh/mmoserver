@@ -13,7 +13,20 @@ ADD_DEPENDENCIES(Common
 # Create an executable for the test and link it to gtest and anh
 INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS})
 ADD_EXECUTABLE(CommonTests ${COMMON_TEST_SOURCES})
-TARGET_LINK_LIBRARIES(CommonTests ${GTEST_BOTH_LIBRARIES} Utils Common)
+TARGET_LINK_LIBRARIES(CommonTests 
+    Common
+    Utils     
+    ${GTEST_BOTH_LIBRARIES}
+    debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
+    debug ${Boost_SYSTEM_LIBRARY_DEBUG}
+    debug ${Boost_THREAD_LIBRARY_DEBUG}
+    debug ${TBB_LIBRARY_DEBUG}
+    debug ${TBB_MALLOC_LIBRARY_DEBUG}
+    optimized ${Boost_DATE_TIME_LIBRARY_RELEASE}
+    optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
+    optimized ${Boost_THREAD_LIBRARY_RELEASE}
+    optimized ${TBB_LIBRARY}
+    optimized ${TBB_MALLOC_LIBRARY})
 GTEST_ADD_TESTS(CommonTests "" ${COMMON_TEST_SOURCES})
 
 # On Win32 tbb is a dll so we need to add its bin directory to the path so it

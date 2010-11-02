@@ -7,14 +7,18 @@ INCLUDE_DIRECTORIES(${GLOG_INCLUDE_DIR} ${LUA_INCLUDE_DIR} ${MYSQL_INCLUDE_DIR} 
 # Create the Utils library
 ADD_EXECUTABLE(ZoneServer ${SOURCES} ${HEADERS})         
 TARGET_LINK_LIBRARIES(ZoneServer
-    Utils
-    Common
     NetworkManager
     DatabaseManager
     MessageLib
     SwgProtocol
     ScriptEngine
+    Common
+    Utils
     ${MYSQL_LIB}
+    debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
+    debug ${Boost_REGEX_LIBRARY_DEBUG}
+    debug ${Boost_SYSTEM_LIBRARY_DEBUG}
+    debug ${Boost_THREAD_LIBRARY_DEBUG}
     debug ${GLOG_LIBRARY_DEBUG}
     debug ${LUA_LIBRARY_DEBUG}
     debug ${MysqlConnectorCpp_LIBRARY_DEBUG}
@@ -24,6 +28,10 @@ TARGET_LINK_LIBRARIES(ZoneServer
     debug ${TBB_MALLOC_LIBRARY_DEBUG}
     debug ${TOLUAPP_LIBRARY_DEBUG}
     debug ${ZLIB_LIBRARY_DEBUG}
+    optimized ${Boost_DATE_TIME_LIBRARY_RELEASE}
+    optimized ${Boost_REGEX_LIBRARY_RELEASE}
+    optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
+    optimized ${Boost_THREAD_LIBRARY_RELEASE}
     optimized ${GLOG_LIBRARY_RELEASE}
     optimized ${LUA_LIBRARY_RELEASE}
     optimized ${MysqlConnectorCpp_LIBRARY_RELEASE}

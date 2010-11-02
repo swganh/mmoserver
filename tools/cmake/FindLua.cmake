@@ -8,7 +8,7 @@ FIND_PATH(LUA_INCLUDE_DIR lua.h
 MARK_AS_ADVANCED(LUA_INCLUDE_DIR)
 
 FIND_LIBRARY(LUA_LIBRARY_DEBUG
-    NAMES luad lua5.1d lua5.1d.lib
+    NAMES lua5.1d lua5.1d.lib lua
     PATH
         $ENV{LUA_ROOT}
         ${LUA_ROOT}

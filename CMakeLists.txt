@@ -32,7 +32,10 @@ ELSE()
         IF(MSVC_VERSION LESS 1600)
             MESSAGE(FATAL_ERROR "MSVC 10 or higher is required to build this library")
         ENDIF()
-    
+        
+        SET(_WIN32_WINNT 0x0501 CACHE INTERNAL "Setting _WIN32_WINNT to 0x0501 for Windows XP minimum APIs")
+        SET(WINVER 0x0501 CACHE INTERNAL "Setting WINVER to 0x0501 for Windows XP minimum APIs")
+
         # If there hasn't been a tbb platform set (probably not on a win32 platform)
         # then set the TBB_ARCH_PLATFORM environment variable manually.
         SET(ENV{TBB_ARCH_PLATFORM} "ia32/vc10")
@@ -41,18 +44,21 @@ ELSE()
         SET(Boost_USE_STATIC_LIBS ON)
         SET(Boost_USE_MULTITHREADED ON)
         
+        ADD_DEFINITIONS (/D _WIN32_WINNT=${_WIN32_WINNT})
+        MESSAGE(STATUS "- MSVC: Set minimum Windows API version")
+        
         ADD_DEFINITIONS (/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS)
-        message(STATUS "- MSVC: Disabled NON-SECURE warnings")
+        MESSAGE(STATUS "- MSVC: Disabled NON-SECURE warnings")
         
         IF(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-          set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244")
           set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
-          message(STATUS "- MSVC: Disabled generic compiletime warnings")
+          MESSAGE(STATUS "- MSVC: Disabled generic compiletime warnings")
         ENDIF()  
     ENDIF()
 ENDIF()
 
 INCLUDE(CheckCXXCompilerFlag)
+
 CHECK_CXX_COMPILER_FLAG(-Wno-invalid-offsetof HAS_NO_INVALID_OFFSETOF)
 IF(HAS_NO_INVALID_OFFSETOF)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")

@@ -55,10 +55,4 @@ public:
     bool multi_job;
 };
 
-
-
-
 #endif // ANH_DATABASEMANAGER_DATABASEJOB_H
-
-
-

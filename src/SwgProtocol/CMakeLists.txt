@@ -3,4 +3,8 @@ FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 FILE(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)                
 
 # Create the Utils library
-ADD_LIBRARY(Utils STATIC ${SOURCES} ${HEADERS})
+ADD_LIBRARY(SwgProtocol STATIC ${SOURCES} ${HEADERS})       
+ADD_DEPENDENCIES(SwgProtocol
+    Utils
+    Common
+)

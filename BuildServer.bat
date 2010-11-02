@@ -543,20 +543,20 @@ if "%BUILD_TYPE%" == "all" (
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
-	"%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gtest-md.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
-	"%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gtest-md.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
-	"%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gtest-md.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 
-	"%MSBUILD%" "gtest.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	"%MSBUILD%" "gtest-md.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 

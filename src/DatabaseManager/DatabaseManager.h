@@ -35,18 +35,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/noncopyable.hpp>
 
 #include "DatabaseManager/DatabaseType.h"
-#include "DatabaseManager/declspec.h"
-
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
 
 class Database;
 
 /*! Manages multiple database connections.
 */
-class DBMANAGER_API DatabaseManager : private boost::noncopyable {
+class DatabaseManager : private boost::noncopyable {
 public:
     /*! Processes all current database connections.
     */
@@ -74,9 +68,4 @@ private:
     DatabaseList database_list_;
 };
 
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
-
 #endif  // DATABASE_MANAGER_DATABASE_MANAGER_H_
-

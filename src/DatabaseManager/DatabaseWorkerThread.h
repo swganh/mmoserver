@@ -38,13 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/ActiveObject.h"
 
 #include "DatabaseManager/DatabaseType.h"
-#include "DatabaseManager/declspec.h"
-
-// Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (push)
-#pragma warning (disable : 4251 4275)
-#endif
 
 struct DatabaseJob;
 class DatabaseImplementation;
@@ -53,7 +46,7 @@ class DatabaseImplementation;
 /*! \brief An encapsulation of a thread dedicated to executing an sql query 
 * asynchronusly. 
 */
-class DBMANAGER_API DatabaseWorkerThread : private boost::noncopyable {
+class DatabaseWorkerThread : private boost::noncopyable {
 public:
     typedef std::function<void (DatabaseWorkerThread*, DatabaseJob*)> Callback;
 
@@ -91,10 +84,5 @@ private:
     
     std::unique_ptr<DatabaseImplementation> database_impl_;
 };
-
-// Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (pop)
-#endif
 
 #endif // ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H

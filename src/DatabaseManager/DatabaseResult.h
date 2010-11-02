@@ -33,13 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/noncopyable.hpp>
 
-#include "DatabaseManager/declspec.h"
-
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
-
 namespace sql {
     class ResultSet;
     class Statement;
@@ -52,7 +45,7 @@ class DatabaseWorkerThread;
 
 /*! A container class for database results. 
 */
-class DBMANAGER_API DatabaseResult : private boost::noncopyable {
+class DatabaseResult : private boost::noncopyable {
 public:
     /*! Sets up the the database result after a query has been run.
     *
@@ -113,9 +106,5 @@ private:
     DatabaseWorkerThread* worker_;
     bool multi_result_;
 };
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 #endif //MMOSERVER_DATABASEMANAGER_DATABASERESULT_H

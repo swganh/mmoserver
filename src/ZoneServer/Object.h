@@ -472,7 +472,7 @@ T	Object::getInternalAttribute(BString key)
         }
         catch(boost::bad_lexical_cast &)
         {
-			DLOG(INFO) << "Object::getInternalAttribute: cast failed " << key.getAnsi();
+            DLOG(INFO) << "Object::getInternalAttribute: cast failed " << key.getAnsi();
         }
     }
     else

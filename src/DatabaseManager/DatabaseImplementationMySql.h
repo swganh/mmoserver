@@ -28,11 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 #define ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H
 
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif
-
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -40,7 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/noncopyable.hpp>
 
 #include "DatabaseManager/DatabaseImplementation.h"
-#include "DatabaseManager/declspec.h"
 
 namespace sql {
     class Connection;
@@ -51,7 +45,7 @@ namespace sql {
 class DataBinding;
 class DatabaseResult;
 
-class DBMANAGER_API DatabaseImplementationMySql : public DatabaseImplementation , private boost::noncopyable {
+class DatabaseImplementationMySql : public DatabaseImplementation , private boost::noncopyable {
 public:
     DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     ~DatabaseImplementationMySql();
@@ -72,10 +66,5 @@ private:
     std::unique_ptr<sql::Connection> connection_;
     std::unique_ptr<sql::Statement> statement_;
 };
-
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
 
 #endif // ANH_DATABASEMANAGER_DATABASEIMPLEMENTATIONMYSQL_H

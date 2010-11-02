@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Utils/bstring.h"
 #include "Common/ConfigManager.h"
-#include "NetworkManager/declspec.h"
 
 //======================================================================================================================
 
@@ -46,7 +45,7 @@ class Message;
 
 //======================================================================================================================
 
-class NET_API MessageFactory
+class MessageFactory
 {
 public:
 

@@ -35,8 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <map>
 #include <functional>
 
-#include "NetworkManager/declspec.h"
-
 //======================================================================================================================
 
 class Service;
@@ -54,7 +52,7 @@ typedef std::map<uint32, DispatchClient*>            AccountClientMap;
 
 //======================================================================================================================
 
-class NET_API MessageDispatch : public NetworkCallback
+class MessageDispatch : public NetworkCallback
 {
 public:
 
@@ -81,17 +79,9 @@ private:
 
     Service*					mRouterService;
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     MessageCallbackMap			mMessageCallbackMap;
     AccountClientMap			mAccountClientMap;
     boost::recursive_mutex		mSessionMutex;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 };
 
 //======================================================================================================================

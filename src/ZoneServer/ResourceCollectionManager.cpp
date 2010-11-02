@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Datapad.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -55,11 +54,8 @@ ResourceCollectionManager::ResourceCollectionManager(Database* database) :
     // load sample costs
     mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RCMAsyncContainer(RCMQuery_SampleCosts),
                                "select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('dosample');");
-    gLogger->log(LogManager::DEBUG, "SQL :: select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('dosample');"); // SQL Debug Log
-
     mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RCMAsyncContainer(RCMQuery_SurveyCosts),
                                "select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('requestSurvey');");
-    gLogger->log(LogManager::DEBUG, "SQL :: select id, commandname, healthcost, actioncost, mindcost, damage_multiplier from command_table where commandname in ('requestSurvey');"); // SQL Debug Log
 }
 
 //======================================================================================================================
@@ -124,10 +120,6 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
             this->sampleRadioactiveDamageModifier = cCommand->getDamageModifier();
 
         }
-
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded sample costs.");
-
     }
     break;
 
@@ -145,10 +137,6 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,DatabaseResu
             this->surveyMindCost = cCommand->getMindCost();
 
         }
-
-        if(result->getRowCount())
-            gLogger->log(LogManager::NOTICE,"Loaded survey costs.");
-
     }
     break;
 

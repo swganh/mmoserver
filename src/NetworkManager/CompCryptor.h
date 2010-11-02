@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_NETWORKMANAGER_COMPCRYPTOR_H
 
 #include "Utils/typedefs.h"
-#include "NetworkManager/declspec.h"
 
 
 //======================================================================================================================
@@ -37,7 +36,7 @@ typedef struct z_stream_s z_stream;
 
 
 //======================================================================================================================
-class NET_API CompCryptor
+class CompCryptor
 {
 public:
     CompCryptor(void);

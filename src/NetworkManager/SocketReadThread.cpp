@@ -154,7 +154,7 @@ void SocketReadThread::run(void)
         // Check to see if *WE* are about to connect to a remote server
         if(mNewConnection.mPort != 0)
         {
-        	LOG(INFO) << "Connecting to remote server";
+            LOG(INFO) << "Connecting to remote server";
             Session* newSession = mSessionFactory->CreateSession();
             newSession->setCommand(SCOM_Connect);
             newSession->setAddress(inet_addr(mNewConnection.mAddress));
@@ -259,7 +259,7 @@ void SocketReadThread::run(void)
                     session->mHash = hash;
 
                     LOG(INFO) << "Added Service " << mSessionFactory->getService()->getId() << ": New Session(" 
-					<<inet_ntoa(from.sin_addr) << ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size();
+                    <<inet_ntoa(from.sin_addr) << ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size();
                 }
                 else
                 {
@@ -452,7 +452,7 @@ void SocketReadThread::NewOutgoingConnection(int8* address, uint16 port)
     // queue so we can process these async.  This is NOT thread safe, and won't be.  Only should be called by the Service.
 
     // Init our NewConnection object
-	LOG(INFO) << "New connection to " << address << " on port " << port;
+    LOG(INFO) << "New connection to " << address << " on port " << port;
     strcpy(mNewConnection.mAddress, address);
     mNewConnection.mPort = port;
     mNewConnection.mSession = 0;
@@ -462,15 +462,15 @@ void SocketReadThread::NewOutgoingConnection(int8* address, uint16 port)
 
 void SocketReadThread::RemoveAndDestroySession(Session* session)
 {
-	if (! session) {
-		return;
-	}
+    if (! session) {
+        return;
+    }
 
     // Find and remove the session from the address map.
     uint64 hash = session->getAddress() | (((uint64)session->getPort()) << 32);
 
     LOG(INFO) << "Service " << mSessionFactory->getService()->getId() << ": Removing Session("	<< inet_ntoa(*((in_addr*)(&hash))) 
-	<<  ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size() - 1 << " hash " << hash;
+    <<  ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size() - 1 << " hash " << hash;
 
     boost::mutex::scoped_lock lk(mSocketReadMutex);
 
@@ -484,8 +484,8 @@ void SocketReadThread::RemoveAndDestroySession(Session* session)
     }
     else
     {
-		LOG(INFO) << "Service " << mSessionFactory->getService()->getId() << ": Removing Session FAILED("	<< inet_ntoa(*((in_addr*)(&hash))) 
-		<<  ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size() - 1 << " hash " << hash;
+        LOG(INFO) << "Service " << mSessionFactory->getService()->getId() << ": Removing Session FAILED("	<< inet_ntoa(*((in_addr*)(&hash))) 
+        <<  ", " << ntohs(session->getPort()) << "), AddressMap: " << mAddressSessionMap.size() - 1 << " hash " << hash;
     }
 }
 

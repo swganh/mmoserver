@@ -35,9 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <list>
 #include <map>
 
-#include "NetworkManager/declspec.h"
-
-
 //======================================================================================================================
 
 class SocketWriteThread;
@@ -68,7 +65,7 @@ public:
 
 //======================================================================================================================
 
-class NET_API SocketReadThread
+class SocketReadThread
 {
 public:
     SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice);
@@ -111,17 +108,9 @@ protected:
 
     uint32						mSessionResendWindowSize;
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     boost::thread 				mThread;
     boost::mutex					mSocketReadMutex;
     AddressSessionMap             mAddressSessionMap;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     bool							mExit;
 };

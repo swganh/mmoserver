@@ -33,18 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/noncopyable.hpp>
 #include <boost/pool/pool.hpp>
 
-#include "DatabaseManager/declspec.h"
-
-// Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (push)
-#pragma warning (disable : 4251 4275)
-#endif
-
 class DataBinding;
 struct DataField;
 
-class DBMANAGER_API DataBindingFactory : private boost::noncopyable {
+class DataBindingFactory : private boost::noncopyable {
 public:
     DataBindingFactory();
     ~DataBindingFactory();
@@ -59,10 +51,5 @@ public:
 private:
     boost::pool<boost::default_user_allocator_malloc_free>	binding_pool_;
 };
-
-// Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (pop)
-#endif
 
 #endif // ANH_DATABASEMANAGER_DATABINDINGFACTORY_H

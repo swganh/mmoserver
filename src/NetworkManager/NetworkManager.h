@@ -33,8 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Service.h"
 
-#include "NetworkManager/declspec.h"
-
 //======================================================================================================================
 
 class Client;
@@ -48,7 +46,7 @@ typedef Anh_Utils::concurrent_queue<Service*>	ServiceQueue;
 
 //======================================================================================================================
 
-class NET_API NetworkManager
+class NetworkManager
 {
 public:
 
@@ -68,15 +66,7 @@ public:
 
 private:
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     ServiceQueue		mServiceProcessQueue;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     uint32			mServiceIdIndex;
 };

@@ -34,8 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Utils/bstring.h"
 
-#include "NetworkManager/declspec.h"
-
 enum MessagePath
 {
     MP_None = 0,
@@ -53,7 +51,7 @@ enum MessagePath
 
 
 //======================================================================================================================
-class NET_API Message
+class Message
 {
 public:
     Message(void)

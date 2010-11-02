@@ -35,13 +35,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/byte_buffer.h"
 #include "Common/Event.h"
 
-#include "SwgProtocol/declspec.h"
-
 namespace swg_protocol {
 
 namespace object_controller {
 
-class SWGPROTOCOL_API PreCommandEvent : public common::BaseEvent {
+class PreCommandEvent : public common::BaseEvent {
 public:
     static const ::common::EventType type;
 
@@ -71,7 +69,7 @@ private:
 };
 
 
-class SWGPROTOCOL_API PreCommandExecuteEvent : public ::common::BaseEvent {
+class PreCommandExecuteEvent : public ::common::BaseEvent {
 public:
     static const ::common::EventType type;
 
@@ -100,7 +98,7 @@ private:
     uint32_t command_crc_;
 };
 
-class SWGPROTOCOL_API PostCommandEvent : public ::common::BaseEvent {
+class PostCommandEvent : public ::common::BaseEvent {
 public:
     static const ::common::EventType type;
 

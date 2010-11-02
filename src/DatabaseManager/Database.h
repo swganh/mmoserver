@@ -43,13 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseCallback.h"
 #include "DatabaseManager/DatabaseType.h"
 #include "DatabaseManager/DataBindingFactory.h"
-#include "DatabaseManager/declspec.h"
-
- // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (push)
-#pragma warning (disable : 4275 4251)
-#endif
 
 struct DatabaseJob;
 class DataBinding;
@@ -63,7 +56,7 @@ typedef tbb::concurrent_queue<DatabaseWorkerThread*> DatabaseWorkerThreadQueue;
 
 /*! An encapsulation of a connection to a database.
 */
-class DBMANAGER_API Database : private boost::noncopyable {
+class Database : private boost::noncopyable {
 public:
     /*! Connects to a specified database.
     *
@@ -223,10 +216,5 @@ private:
     boost::pool<boost::default_user_allocator_malloc_free> job_pool_;
     boost::pool<boost::default_user_allocator_malloc_free> transaction_pool_;
 };
-
-// Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (pop)
-#endif
 
 #endif // ANH_DATABASEMANAGER_DATABASE_H

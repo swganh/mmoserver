@@ -30,20 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <sstream>
 
-#include "DatabaseManager/declspec.h"
-
-// Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (push)
-#pragma warning (disable : 4251)
-#endif
-
 class DatabaseImplementation;
 class DatabaseCallback;
 class DatabaseResult;
 class Database;
 
-class DBMANAGER_API Transaction {
+class Transaction {
 public:
 
     Transaction(Database* database, DatabaseCallback* callback, void* ref);
@@ -60,10 +52,5 @@ private:
 
     std::ostringstream mQueries;
 };
-
-// Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (pop)
-#endif
 
 #endif

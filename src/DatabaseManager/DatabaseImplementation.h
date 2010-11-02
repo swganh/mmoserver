@@ -33,8 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <boost/pool/singleton_pool.hpp>
 
 #include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/declspec.h"
-
 
 class DataBinding;
 
@@ -46,7 +44,7 @@ typedef boost::singleton_pool<DatabaseResult,
 /*! An implementation class that provides needed functionality for a specific
 * rdbm type such as MySQL.
 */
-class DBMANAGER_API DatabaseImplementation {
+class DatabaseImplementation {
 public:
     virtual ~DatabaseImplementation() {}
 

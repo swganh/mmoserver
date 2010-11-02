@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Utils/clock.h"
 #include "Utils/concurrent_queue.h"
-#include "NetworkManager/declspec.h"
 
 #include <boost/thread/thread.hpp>
 
@@ -48,7 +47,7 @@ typedef Anh_Utils::concurrent_queue<Session*>    SessionQueue;
 
 //======================================================================================================================
 
-class NET_API SocketWriteThread
+class SocketWriteThread
 {
 public:
 
@@ -94,18 +93,10 @@ private:
     bool				mServerService;
     // Anh_Utils::Clock*	mClock;
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     SessionQueue				mSessionQueue;
 
     boost::thread   			mThread;
     boost::recursive_mutex      mSocketWriteMutex;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     bool						mExit;
 };

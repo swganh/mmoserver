@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UICallback.h"
 #include "glm/glm.hpp"
 #include "Common/Event.h"
-#include "SwgProtocol/declspec.h"
 
 class ArtisanManager;
 #define gArtisanManager ::utils::Singleton<ArtisanManager>::Instance()

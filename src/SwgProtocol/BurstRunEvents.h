@@ -34,11 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Common/Event.h"
 
-#include "SwgProtocol/declspec.h"
-
 namespace swg_protocol {
 
-class SWGPROTOCOL_API BurstRunEndEvent : public ::common::BaseEvent {
+class BurstRunEndEvent : public ::common::BaseEvent {
 public:
     explicit BurstRunEndEvent(::common::ByteBuffer& in);
     explicit BurstRunEndEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0);
@@ -57,7 +55,7 @@ private:
     static const ::common::EventType event_type_;
 };
 
-class SWGPROTOCOL_API BurstRunCooldownEndEvent : public ::common::BaseEvent {
+class BurstRunCooldownEndEvent : public ::common::BaseEvent {
 public:
     explicit BurstRunCooldownEndEvent(::common::ByteBuffer& in);
     explicit BurstRunCooldownEndEvent(uint64_t subject_id = 0, uint64_t delay_ms = 0);

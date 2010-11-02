@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 
 #include "NetworkManager/NetConfig.h"
-#include "NetworkManager/declspec.h"
 
 //======================================================================================================================
 
@@ -83,7 +82,7 @@ enum SessionCommand
 
 //======================================================================================================================
 
-class NET_API Session
+class Session
 {
 public:
     Session(void);
@@ -333,10 +332,6 @@ private:
     SessionCommand              mCommand;
 
 
-    // Win32 complains about stl during linkage, disable the warning.
-#ifdef _WIN32
-#pragma warning (disable : 4251)
-#endif
     // Message queues.
     MessageQueue                mOutgoingMessageQueue;		//here we store the messages given to us by the messagelib
     MessageQueue                mUnreliableMessageQueue;
@@ -360,10 +355,6 @@ private:
     PacketWindowList            mIncomingPacketList;
 
     boost::recursive_mutex	  mSessionMutex;
-    // Re-enable the warning.
-#ifdef _WIN32
-#pragma warning (default : 4251)
-#endif
 
     uint64					  lasttime;
     uint64					  avgTime;

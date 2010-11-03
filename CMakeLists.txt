@@ -39,10 +39,6 @@ ELSE()
         # If there hasn't been a tbb platform set (probably not on a win32 platform)
         # then set the TBB_ARCH_PLATFORM environment variable manually.
         SET(ENV{TBB_ARCH_PLATFORM} "ia32/vc10")
-    
-        # Use the static/multithreaded libraries.
-        SET(Boost_USE_STATIC_LIBS ON)
-        SET(Boost_USE_MULTITHREADED ON)
         
         ADD_DEFINITIONS (/D _WIN32_WINNT=${_WIN32_WINNT})
         MESSAGE(STATUS "- MSVC: Set minimum Windows API version")
@@ -57,6 +53,10 @@ ELSE()
     ENDIF()
 ENDIF()
 
+# Use the static/multithreaded libraries.
+SET(Boost_USE_STATIC_LIBS ON)
+SET(Boost_USE_MULTITHREADED ON)
+        
 INCLUDE(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG(-Wno-invalid-offsetof HAS_NO_INVALID_OFFSETOF)
@@ -152,3 +152,5 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${TBB_LIBRARY_DIRS})
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src)
+        
+INSTALL(DIRECTORY data/config data/script DESTINATION share/mmoserver)

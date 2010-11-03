@@ -17,6 +17,7 @@ ipch/
 mmoserverdb/
 docs/latex/
 docs/html/
+*.gz
 
 # ignore autotools generated files
 autom4te.cache/

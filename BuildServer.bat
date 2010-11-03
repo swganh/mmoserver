@@ -259,7 +259,7 @@ if not exist "data\heightmaps\%1.hmpw" (
 	if not exist "data\heightmaps\%1.hmpw.7z" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-		"tools\wget.exe" http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
+		"tools\wget.exe" --no-check-certificate http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
 		echo ** Downloading heightmap complete **
 	)
 
@@ -324,7 +324,7 @@ rem --- Downloads the dependency package for the current version of the source -
 :DOWNLOAD_DEPENDENCIES
 
 if not exist "%DEPENDENCIES_FILE%" (
-	"tools\wget.exe" !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
+	"tools\wget.exe" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
 )
 
 if exist "%DEPENDENCIES_FILE%" (

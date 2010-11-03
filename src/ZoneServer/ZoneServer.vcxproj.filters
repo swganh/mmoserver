@@ -338,9 +338,6 @@
     <ClCompile Include="Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObjectContainer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1133,9 +1130,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Object_Enums.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectContainer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjectController.h">

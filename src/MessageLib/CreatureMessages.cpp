@@ -890,7 +890,7 @@ bool MessageLib::sendEquippedListUpdate(CreatureObject* creatureObject, Creature
 	mMessageFactory->addUint32(creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(equippedObjects->size()));//+1
 	creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
 
-	mMessageFactory->addUint8(3);
+	mMessageFactory->addUint8(3);// 3 for ??
 	mMessageFactory->addUint16(equippedObjects->size());
 
 	while(eqIt != equippedObjects->end())

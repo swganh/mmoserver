@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CellObject.h"
 #include "PlayerObject.h"
 #include "TangibleObject.h"
+#include "WorldManager.h"
 #include "PlayerStructureTerminal.h"
 #include "MessageLib/MessageLib.h"
 

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 TangibleObject::TangibleObject()
-: ObjectContainer()
+: Object()
 , mComplexity(1.0f)
 , mLastTimerUpdate(0)
 , mTimer(0)
@@ -61,7 +61,7 @@ TangibleObject::TangibleObject()
 //=============================================================================
 
 TangibleObject::TangibleObject(uint64 id,uint64 parentId,string model,TangibleGroup tanGroup,TangibleType tanType,string name,string nameFile,string detailFile)
-			  : ObjectContainer(id,parentId,model,ObjType_Tangible),mName(name),mNameFile(nameFile),mDetailFile(detailFile),mTanGroup(tanGroup),mTanType(tanType)
+			  : Object(id,parentId,model,ObjType_Tangible),mName(name),mNameFile(nameFile),mDetailFile(detailFile),mTanGroup(tanGroup),mTanType(tanType)
 {
 	mColorStr			= "";
 	mUnknownStr1		= "";

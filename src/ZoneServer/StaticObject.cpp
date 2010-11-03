@@ -31,14 +31,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 //Cells are going to contain quite some stuff in our houses
-StaticObject::StaticObject() : ObjectContainer()
+StaticObject::StaticObject() : Object()
 {
 }
 
 //=============================================================================
 
 StaticObject::StaticObject(uint64 id,uint64 parentId,string model,ObjectType type)
-			 :ObjectContainer(id,parentId,model,type)
+			 :Object(id,parentId,model,type)
 {
 }
 

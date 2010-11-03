@@ -621,7 +621,7 @@ Object* WorldManager::getNearestTerminal(PlayerObject* player, TangibleType term
 	//this will get the nearest terminal in the world - we need to check playerbuildings, too
 	ObjectSet		inRangeObjects;
 
-	//gets all terminals in rangeb even those in building
+	//gets all terminals in range even those in building
 	gSpatialIndexManager->getObjectsInRange(player,&inRangeObjects,(ObjType_Tangible),searchrange,true);
 
 	ObjectSet::iterator it = inRangeObjects.begin();

@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
+#include "WorldManager.h"
 
 #include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
@@ -559,7 +560,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 			
 			gSpatialIndexManager->updateEquipListToRegisteredPlayers(customer);
 		
-			gSpatialIndexManager->destroyObjectToRegisteredPlayers(customer,playerHair->getId());
+			gSpatialIndexManager->destroyObjectToRegisteredPlayers(customer,playerHair->getId(), true);
 
 
 			//Update the db only if we remain bald

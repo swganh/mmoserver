@@ -28,9 +28,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <list>
 
 #include "ForageManager.h"
+#include "WorldManager.h"
 #include "PlayerObject.h"
 #include "MedicManager.h"
 #include "ScoutManager.h"
+#include "MathLib/Rectangle.h"
 
 #include "MessageLib/MessageLib.h"
 

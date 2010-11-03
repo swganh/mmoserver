@@ -63,6 +63,7 @@ typedef std::map<uint32,std::string>	AttributeMap;
 typedef std::tr1::shared_ptr<RadialMenu>	RadialMenuPtr;
 // typedef std::vector<uint64>				ObjectIDList;
 typedef std::list<uint64>				ObjectIDList;
+typedef std::list<Object*>				ObjectList;
 typedef std::set<Object*>				ObjectSet;
 typedef std::set<uint64>				ObjectIDSet;
 typedef std::set<PlayerObject*>			PlayerObjectSet;
@@ -75,11 +76,12 @@ typedef std::set<uint32>				Uint32Set;
  - Base class for all gameobjects
  */
 
-class Object : public UICallback, public Anh_Utils::EventHandler
+class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectFactoryCallback
 {
 	friend class PlayerObjectFactory;
 	friend class InventoryFactory;
 	friend class NonPersistentItemFactory;
+	friend class ItemFactory;
 
 
 	public:
@@ -186,6 +188,16 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		uint32						incDataTransformCounter(){ return ++mDataTransformCounter; }
 		void						setDataTransformCounter(uint32 restrictions){ mDataTransformCounter= restrictions; }
 
+		//===========================================================================
+		//Known Watchers to keep track of players watching container content
+		PlayerObjectSet*			getRegisteredWatchers() { return &mKnownPlayers; }
+		void						UnregisterAllWatchers();
+		bool						checkRegisteredWatchers(PlayerObject* player);
+		bool						registerWatcher(Object* object);
+		bool						unRegisterWatcher(Object* object);
+		virtual void				addContainerKnownObject(Object* object);
+		bool						checkContainerKnownObjects(Object* object) const;
+
 		
 		virtual ~Object();
 
@@ -283,7 +295,74 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		//Set of Subcells we're in.
 		Uint32Set					zmapSubCells;
 
+		//handles Object ready in case our item is in the container
+		void				handleObjectReady(Object* object,DispatchClient* client);
+
+		ObjectIDList*		getObjects() { return &mData; }
+		Object*				getObjectById(uint64 id);
+		
+		/// =====================================================
+		/// adds an Object to the cObjectContainer
+		///	returns false if the container was full and the item not added
+		
+		bool				addObject(Object* data);
+		bool				addObjectSecure(Object* data);
+		
+		bool				checkForObject(Object* object);
+		
+		bool				deleteObject(Object* data);
+		bool				removeObject(uint64 id);
+		bool				removeObject(Object* Data);
+		ObjectIDList::iterator removeObject(ObjectIDList::iterator it);
+		
+		
+		//we need to check the content of our children, too!!!!
+		virtual bool		checkCapacity(){return((mCapacity-mData.size()) > 0);}
+		virtual bool		checkCapacity(uint8 amount, PlayerObject* player = NULL);
+		void				setCapacity(uint16 cap){mCapacity = cap;}
+		uint16				getCapacity(){return mCapacity;}
+		uint16				getHeadCount();
+
+
+		
+
+//		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
+//		ObjectSet*					getContainerKnownObjects() { return &mKnownObjects; }
+	
+		//===========================================================================================
+		//gets the contents of containers including their subcontainers
+		uint16				getContentSize(uint16 iteration)
+		{
+			/*uint16 content = mData.size();
+
+			if(iteration > gWorldConfig->getPlayerContainerDepth())
+			{
+				return content;
+			}
+			
+			ObjectIDList*			ol = getObjects();
+			ObjectIDList::iterator	it = ol->begin();
+
+			while(it != ol->end())
+			{
+				ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(*it));
+				if(!tO)
+				{
+					assert(false);
+				}
+
+				content += tO->getContentSize(iteration+1);
+
+				it++;
+			}
+			return content;*/
+			return 1;
+		}
+
 	protected:
+
+		ObjectIDList				mData;
+		uint16						mCapacity;
 
 		bool						mMovementMessageToggle;
 		AttributeMap				mAttributeMap;
@@ -314,6 +393,9 @@ class Object : public UICallback, public Anh_Utils::EventHandler
 		uint32					zmapCellID;
 	private:
 		glm::vec3		        mLastUpdatePosition;	// Position where SI was updated.
+
+		ObjectSet					mKnownObjects;
+		PlayerObjectSet				mKnownPlayers;
 
 };
 

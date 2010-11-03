@@ -207,7 +207,7 @@ void MessageLib::sendSpatialChat(CreatureObject* srcObject,string chatMsg,char c
 }
 */
 
-void MessageLib::sendSpatialChat(const CreatureObject* srcObject,string chatMsg,char chatElement[5][32], const PlayerObject* const playerObject)
+void MessageLib::sendSpatialChat(CreatureObject* srcObject,string chatMsg,char chatElement[5][32], PlayerObject*  playerObject)
 {
 
 	using boost::lexical_cast;
@@ -276,12 +276,13 @@ void MessageLib::sendSpatialChat(const CreatureObject* srcObject,string chatMsg,
 			playerObject->getTutorial()->tutorialResponse("chatActive");
 		}
 
-		_sendToInRangeUnreliableChatGroup(newMessage, srcObject,5, loweredNameCrc);
+		_SendSpatialToInRangeUnreliable(newMessage, srcObject, playerObject);
+//		_sendToInRangeUnreliableChatGroup(newMessage, srcObject,5, loweredNameCrc);
 	}
 	mMessageFactory->DestroyMessage(newMessage);
 }
 
-bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const PlayerObject* const playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId) 
+bool MessageLib::sendSpatialChat( CreatureObject* srcObject,PlayerObject* playerObject,string customMessage,string mainFile,string mainVar,string toFile,string toVar,string toCustom,int32 di,string ttFile,string ttVar,string ttCustom,uint64 ttId,uint64 toId,uint64 tuId) 
 {
 	uint16 chatElementMood2	= srcObject->getMoodId();
 
@@ -380,7 +381,8 @@ bool MessageLib::sendSpatialChat(const CreatureObject* const srcObject,const Pla
 			playerObject->getTutorial()->tutorialResponse("chatActive");
 		}
 
-		_sendToInRangeUnreliableChatGroup(newMessage, srcObject,5, loweredNameCrc);
+		_SendSpatialToInRangeUnreliable(newMessage, srcObject, playerObject);
+		//_sendToInRangeUnreliableChatGroup(newMessage, srcObject,5, loweredNameCrc);
 		
 	}
 

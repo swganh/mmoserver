@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "SpatialIndexManager.h"
-
+#include "WorldManager.h"
+#include "WorldConfig.h"
 #include "BuildingObject.h"
 #include "CellObject.h"
 #include "Datapad.h"

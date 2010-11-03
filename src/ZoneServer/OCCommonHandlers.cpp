@@ -229,7 +229,7 @@ void ObjectController::_handleTransferItem(uint64 targetId,Message* message,Obje
 
 bool ObjectController::checkContainingContainer(uint64 containingContainer, uint64 playerId)
 {
-	ObjectContainer* container = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(containingContainer));
+	Object* container = gWorldManager->getObjectById(containingContainer);
 	
 	if(!container)
 	{
@@ -251,7 +251,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 
 	}
 
-	uint64 ownerId = container->getObjectMainParent(container);
+	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(container);
 
 	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
 
@@ -345,7 +345,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	
 	//*****************************
 	//ok everything else is a tangible Object
-	ObjectContainer* targetContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(targetContainerId));
+	Object* targetContainer = gWorldManager->getObjectById(targetContainerId);
 	
 	//sanity check - 
 	if(!targetContainer)
@@ -403,7 +403,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	//get the mainOwner of the container - thats a building or a player or an inventory
 	//
 	
-	uint64 ownerId = container->getObjectMainParent(targetContainer);
+	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(targetContainer);
 	
 	Object* objectOwner = dynamic_cast<Object*>(gWorldManager->getObjectById(ownerId));
 
@@ -680,8 +680,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	}
 
 	//get our containers
-	ObjectContainer* newContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(targetContainerId));
-	ObjectContainer* oldContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(tangible->getParentId()));
+	Object* newContainer = gWorldManager->getObjectById(targetContainerId);
+	Object* oldContainer = gWorldManager->getObjectById(tangible->getParentId());
 	
 	// We may want to transfer other things than items...basically tangibleObjects!
 	// resourcecontainers / factory crates
@@ -752,6 +752,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	itemObject->ResetRadialMenu();
 
 	//Now update the registered watchers!!
+	itemObject->setParentId(targetContainerId); 
 	gSpatialIndexManager->updateObjectPlayerRegistrations(newContainer, oldContainer, tangible, linkType);
 
 	//now go and move it to wherever it belongs

@@ -46,13 +46,7 @@ mPlanet(-1)
 
 Bank::~Bank()
 {
-	ObjectList::iterator it = mObjects.begin();
-	while(it != mObjects.end())
-	{
-		delete(*it);
-		mObjects.erase(it);
-		it = mObjects.begin();
-	}
+	
 }
 
 //=============================================================================

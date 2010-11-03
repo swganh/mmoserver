@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "Object.h"
+#include "CraftingTool.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "SpatialIndexManager.h"
@@ -47,6 +48,7 @@ Object::Object()
 : mModel("")
 , mLoadState(LoadState_Loading)
 , mId(0)
+, mCapacity(0)	
 , mParentId(0)
 , mPrivateOwner(0)
 , mEquipSlots(0)
@@ -68,6 +70,7 @@ Object::Object(uint64 id,uint64 parentId,string model,ObjectType type)
 , mLoadState(LoadState_Loading)
 , mType(type)
 , mId(id)
+, mCapacity(0)	
 , mParentId(parentId)
 , mPrivateOwner(0)
 , mEquipSlots(0)
@@ -88,6 +91,38 @@ Object::~Object()
 	mAttributeMap.clear();
 	mInternalAttributeMap.clear();
 	mAttributeOrderList.clear();
+
+	ObjectIDList::iterator	objectIt = mData.begin();
+
+	while(objectIt != mData.end())
+	{
+		//make sure we dont have invalid objects
+		
+	 	Object* object = gWorldManager->getObjectById((*objectIt));
+		if(!object)
+		{
+			gLogger->log(LogManager::DEBUG,"ObjectContainer::remove Object : No Object!!!!");
+			assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
+			objectIt = removeObject(objectIt);
+			
+			continue;
+		}
+
+		//take care of a crafting tool
+		if(CraftingTool* tool = dynamic_cast<CraftingTool*>(object))
+		{
+			if(tool->getCurrentItem())
+			{
+				gWorldManager->removeBusyCraftTool(tool);
+
+			}
+		}
+
+		//just deinitialization/removal out of mainObjectMap .. NO removal out of si/cells
+		gWorldManager->destroyObject(object);
+
+		objectIt = removeObject(objectIt);
+	}
 }
 
 //=============================================================================
@@ -555,3 +590,360 @@ bool Object::isOwnedBy(PlayerObject* player)
 	return ((mPrivateOwner == player->getId()) || (mPrivateOwner == player->getGroupId()));
 }
 
+
+bool Object::registerWatcher(Object* object)
+{
+	if(!checkContainerKnownObjects(object))
+	{
+		addContainerKnownObject(object);
+
+		return(true);
+	}
+
+	return(false);
+}
+
+//=============================================================================
+// the knownObjects are the containers we are watching 
+// the knownPlayers are the players watching us
+// we*can* watch ourselves!! (when equipping/unequipping stuff for example)
+
+void Object::addContainerKnownObject(Object* object)
+{
+	
+	if(checkContainerKnownObjects(object))
+	{
+		gLogger->log(LogManager::DEBUG,"Object*::addKnownObject %I64u couldnt be added to %I64u - already in it", object->getId(), this->getId());
+		return;
+	}
+
+	if(object->getType() == ObjType_Player)
+	{
+		mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));
+	}
+	else
+	{
+		mKnownObjects.insert(object);
+	}
+}
+
+//=============================================================================
+
+void Object::UnregisterAllWatchers()
+{
+	ObjectSet::iterator			objIt		= mKnownObjects.begin();
+	PlayerObjectSet::iterator	playerIt	= mKnownPlayers.begin();
+
+	/*
+	ObjectIDSet::iterator IDIt				= mKnownObjectsIDs.begin();
+	
+	while(IDIt != mKnownObjectsIDs.end())
+	{		
+		Object* object = gWorldManager->getObjectById(*IDIt);
+		if(!object)
+		{
+			(*IDIt)++;
+		}
+		ObjectIDSet::iterator itID = mKnownObjectsIDs.find(object->getId());
+
+		if(itID != mKnownObjectsIDs.end())
+		{
+			mKnownObjectsIDs.erase(itID);
+		}
+		else
+		{
+			IDIt++;
+		}		
+	
+	}
+	*/
+	// objects
+	while(objIt != mKnownObjects.end())
+	{
+		(*objIt)->unRegisterWatcher(this);
+		mKnownObjects.erase(objIt++);
+	}
+
+	// players
+	while(playerIt != mKnownPlayers.end())
+	{			 
+		PlayerObject* targetPlayer = (*playerIt);
+
+		targetPlayer->unRegisterWatcher(this);
+		mKnownPlayers.erase(playerIt++);
+
+		
+	}
+}
+
+//=============================================================================
+
+bool Object::unRegisterWatcher(Object* object)
+{
+	PlayerObject* player = dynamic_cast<PlayerObject*>(this);
+	if(player)
+	{
+		if(player->getTargetId() == object->getId())
+			player->setTarget(0);
+	}
+
+	if(object->getType() == ObjType_Player)
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+		PlayerObjectSet::iterator it = mKnownPlayers.find(player);
+
+		if(it != mKnownPlayers.end())
+		{
+			//we might be its target
+			if(player->getTargetId() == this->getId())
+				player->setTarget(0);
+
+			mKnownPlayers.erase(it);
+
+			return(true);
+		}
+	}
+	else
+	{
+		ObjectSet::iterator it = mKnownObjects.find(object);
+
+		if(it != mKnownObjects.end())
+		{
+			mKnownObjects.erase(it);
+
+			return(true);
+		}
+	}
+
+	return(false);
+}
+
+bool Object::checkRegisteredWatchers(PlayerObject* player)
+{
+	PlayerObjectSet::iterator it = mKnownPlayers.find(player);
+	return (it != mKnownPlayers.end());
+}
+
+//=============================================================================
+// returns true when item *is* found
+
+bool Object::checkContainerKnownObjects(Object* object) const
+{
+	if(object->getType() == ObjType_Player)
+	{
+		PlayerObjectSet::const_iterator it = mKnownPlayers.find(dynamic_cast<PlayerObject*>(object));
+
+		if(it != mKnownPlayers.end())
+		{
+			return(true);
+		}
+	}
+	else
+	{
+		ObjectSet::const_iterator it = mKnownObjects.find(object);
+
+		if(it != mKnownObjects.end())
+		{
+			return(true);
+		}
+	}
+
+	return(false);
+}
+
+//=============================================================================
+//use for cells - players must enter them of course - it might be prudent to separate											
+//players from items though
+bool Object::addObjectSecure(Object* data) 
+{ 
+	
+	mData.push_back(data->getId()); 
+
+	if(mCapacity)
+	{
+		return true;
+	}
+	else
+	{
+		gLogger->log(LogManager::DEBUG,"Object*::addObjectSecure No Capacity!!!!");
+		return true;
+
+	}
+}
+
+//===============================================
+//use only when youre prepared to receive a false result with a not added item
+//returns false when the item couldnt be added (container full)
+
+bool Object::addObject(Object* data) 
+{ 
+	if(mCapacity)
+	{
+		mData.push_back(data->getId()); 
+		return true;
+	}
+	else
+	{
+		gLogger->log(LogManager::DEBUG,"Object*::addObject No Capacity left for container %I64u!!!!", this->getId());			
+		return false;	
+	}
+}
+
+
+
+//=============================================================================
+
+Object* Object::getObjectById(uint64 id)
+{
+	ObjectIDList::iterator it = mData.begin();
+
+	while(it != mData.end())
+	{
+		if((*it) == id) 
+			return(gWorldManager->getObjectById((*it))); 
+
+		++it;
+	}
+	gLogger->log(LogManager::DEBUG,"Object*::getDataById Data %I64u not found", id);
+	return NULL;
+}
+
+//=============================================================================
+//just removes it out of the container - the object gets not deleted in the worldmanager
+//
+bool Object::removeObject(Object* data)
+{
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		if((*it) == data->getId())
+		{
+			it = mData.erase(it);
+			return true;
+		}
+		++it;
+	}
+	gLogger->log(LogManager::DEBUG,"Object*::removeDataByPointer Data %I64u not found", data->getId());
+//	assert(false);
+	return false;
+}
+
+//=============================================================================
+// removes it out of the container and destroys it in the worldmanager
+//
+bool Object::deleteObject(Object* data)
+{
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		if((*it) == data->getId())
+		{
+			gWorldManager->destroyObject(data);
+			return true;
+		}
+		++it;
+	}
+	gLogger->log(LogManager::DEBUG,"Object*::removeDataByPointer Data %I64u not found", data->getId());
+	return false;
+}
+
+
+//=============================================================================
+
+bool Object::removeObject(uint64 id)
+{
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		if((*it) == id)
+		{
+			gSpatialIndexManager->destroyObjectToRegisteredPlayers(this,id);
+			it = mData.erase(it);
+			return true;
+		}
+		++it;
+	}
+	gLogger->log(LogManager::DEBUG,"Object*::removeDataById  %I64u not found", id);
+	return false;
+}
+
+
+
+//=============================================================================
+
+ObjectIDList::iterator Object::removeObject(ObjectIDList::iterator it)
+{
+	gSpatialIndexManager->destroyObjectToRegisteredPlayers(this,(*it));
+	it = mData.erase(it);
+return it;
+}
+
+//=============================================================================
+// *this* is obviously a container that gets to hold the item we just created
+// we need to create this item to registered players
+// please note that the inventory and the datapad handle their own ObjectReady functions!!!!
+
+void Object::handleObjectReady(Object* object,DispatchClient* client)
+{
+	
+	//==========================
+	// reminder: objects are owned by the global map, our item (container) only keeps references
+	gWorldManager->addObject(object,true);
+
+	//add it to the spatialIndex, too
+	gSpatialIndexManager->createInWorld(object);
+
+	this->addObject(object);
+	
+}
+
+
+
+//=============================================================================================
+// gets a headcount of all tangible (!!!) Objects in the container 
+// including those contained in containers
+uint16 Object::getHeadCount()
+{
+	uint16 count = 0;
+
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		//do NOT count static tangibles like the playerStructureTerminal
+		TangibleObject* to = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(*it));
+		if(to && (!to->getStatic()))
+		{
+		 	count += to->getHeadCount();
+			count += 1; //implememt items counting more than 1 at one time	
+		}
+		++it;
+	}
+	return count;
+
+}
+bool Object::checkCapacity(uint8 amount, PlayerObject* player)
+{
+	uint16 contentCount = getHeadCount();
+	if(player&&(mCapacity-contentCount < amount))
+	{
+		gMessageLib->sendSystemMessage(player,L"","container_error_message","container3");
+	}
+
+	return((mCapacity-contentCount) >= amount);
+}
+
+
+
+bool Object::checkForObject(Object* object)
+{
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		if((*it) == object->getId())
+		{
+			return(true);
+		}
+		++it;
+	}
+	return(false);
+}

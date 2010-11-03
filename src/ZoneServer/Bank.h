@@ -45,7 +45,6 @@ class Bank : public TangibleObject
 		~Bank();
 
 		void		setParent(PlayerObject* player){ mParent = player; }
-		ObjectList*	getObjects(){ return &mObjects; }
 
 		int32		getCredits(){ return mCredits; }
 		void		setCredits(int32 credits){ mCredits = credits; }
@@ -57,7 +56,7 @@ class Bank : public TangibleObject
 	private:
 
 		PlayerObject*	mParent;
-		ObjectList		mObjects;
+		
 		int32			mCredits;
 		int8			mPlanet;
 };

@@ -28,12 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_TANGIBLE_OBJECT_H
 #define ANH_ZONESERVER_TANGIBLE_OBJECT_H
 
-#include "ObjectContainer.h"
+#include "Object.h"
 #include "TangibleEnums.h"
 
 //=============================================================================
 
-class TangibleObject :	public ObjectContainer
+class TangibleObject :	public Object
 {
 	friend class ObjectFactory;
 	friend class PlayerObjectFactory;

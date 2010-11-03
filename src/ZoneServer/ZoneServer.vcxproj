@@ -204,7 +204,6 @@
     <ClCompile Include="ObjControllerCommandMessage.cpp" />
     <ClCompile Include="ObjControllerEvent.cpp" />
     <ClCompile Include="Object.cpp" />
-    <ClCompile Include="ObjectContainer.cpp" />
     <ClCompile Include="ObjectController.cpp" />
     <ClCompile Include="ObjectControllerCommandMap.cpp" />
     <ClCompile Include="ObjectControllerDispatch.cpp" />
@@ -472,7 +471,6 @@
     <ClInclude Include="objcontrollercommandmessage.h" />
     <ClInclude Include="ObjControllerEvent.h" />
     <ClInclude Include="Object.h" />
-    <ClInclude Include="ObjectContainer.h" />
     <ClInclude Include="ObjectController.h" />
     <ClInclude Include="ObjectControllerCommandMap.h" />
     <ClInclude Include="ObjectControllerDispatch.h" />

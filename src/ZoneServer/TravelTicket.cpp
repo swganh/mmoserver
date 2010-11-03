@@ -93,7 +93,7 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 		ObjectSet objects;
 
 		// see if a shuttle is in range
-		gSpatialIndexManager->getObjectsInRange(player,&objects,ObjType_NPC | ObjType_Creature,25.0f,false);
+		gSpatialIndexManager->getObjectsInRange(player,&objects,ObjType_NPC | ObjType_Creature,25.0f,true);
 
 		ObjectSet::iterator objIt = objects.begin();
 

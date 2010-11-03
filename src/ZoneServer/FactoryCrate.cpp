@@ -232,7 +232,7 @@ void FactoryCrate::upDateFactoryVolume(string amount)
 
 	//update parentcontainers registered players
 
-	ObjectContainer* parent = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(this->getParentId()));
+	Object* parent = dynamic_cast<Object*>(gWorldManager->getObjectById(this->getParentId()));
 	gSpatialIndexManager->sendToRegisteredPlayers(parent,[this](PlayerObject* player)
 		{
 			gMessageLib->sendUpdateCrateContent(this,player);

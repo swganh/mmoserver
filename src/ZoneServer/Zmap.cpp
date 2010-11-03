@@ -732,6 +732,9 @@ void zmap::UpdateObject(Object *updateObject)
 			subCellIt++;
 	}
 
+	if(updateObject->getType() != ObjType_Player)
+		return;
+
 	//We need to check subregions -> New cell
 	
 	std::pair<std::multimap<uint32, SubCell*>::iterator, std::multimap<uint32, SubCell*>::iterator> multi_pairing;

@@ -95,19 +95,10 @@ class ObjectContainer :	public Object, public ObjectFactoryCallback
 		uint16				getHeadCount();
 
 
-		//Known Objectslist to keep track of players watching container content
-		PlayerObjectSet*			getRegisteredWatchers() { return &mKnownPlayers; }
-		//ObjectSet*					getContainerKnownObjects() { return &mKnownObjects; }
-		void						destroyContainerKnownObjects();
-		bool						checkRegisteredWatchers(PlayerObject* player);
-//		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
 		
-		bool						registerWatcher(Object* object);
-		bool						unRegisterWatcher(Object* object);
-		virtual void				addContainerKnownObject(Object* object);
-		
-		bool						checkContainerKnownObjects(Object* object) const;
 
+//		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
+//		ObjectSet*					getContainerKnownObjects() { return &mKnownObjects; }
 	
 		//===========================================================================================
 		//gets the contents of containers including their subcontainers
@@ -147,8 +138,7 @@ private:
 		ObjectIDList				mData;
 		uint16						mCapacity;
 		
-		ObjectSet					mKnownObjects;
-		PlayerObjectSet				mKnownPlayers;
+		
 
 		
 		

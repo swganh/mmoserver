@@ -61,7 +61,6 @@ enum TangibleType;
 class TangibleObject;
 class FactoryCrate;
 class CellObject;
-class ObjectContainer;
 
 namespace Anh_Utils
 {
@@ -136,14 +135,16 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		//iterate through all players in range and call our callback with the player as parameter
 		void					sendToPlayersInRange(const Object* const object, bool cellContent, std::function<void (PlayerObject* player)> callback);
 
-		void					sendToRegisteredPlayers(ObjectContainer* container, std::function<void (PlayerObject* player)> callback);
+		void					sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* player)> callback);
+		void					sendToGroupedRegisteredPlayers(CreatureObject* player, std::function<void (PlayerObject* player)> callback, bool self);
+
 		//registers player as watcher to a container
 		void					registerPlayerToContainer(Object* container,PlayerObject* player);
-		void					unRegisterPlayerFromContainer(ObjectContainer* container,PlayerObject* player);
-		void					createObjectToRegisteredPlayers(ObjectContainer* container,Object* object);
+		void					unRegisterPlayerFromContainer(Object* container,PlayerObject* player);
+		void					createObjectToRegisteredPlayers(Object* container,Object* object);
 	
-		void					destroyObjectToRegisteredPlayers(ObjectContainer* container,uint64 object, bool destroyForSelf = false);
-		void					updateObjectPlayerRegistrations(ObjectContainer* newContainer, ObjectContainer* oldContainer, ObjectContainer* object, uint32 containment);
+		void					destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf = false);
+		void					updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment);
 		void					updateEquipListToRegisteredPlayers(PlayerObject* player);
 
 		// removes an item from a structure
@@ -171,6 +172,8 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					sendInventory(PlayerObject* playerObject);
 		bool					sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
 		bool					sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
+
+		uint64					getObjectMainParent(Object* object);
 		
 	private:
 

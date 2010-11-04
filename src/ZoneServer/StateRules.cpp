@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "StateRules.h"
-#include "Common/LogManager.h"
 #include "Common/ConfigManager.h"
 #include <cstdlib>
 #include <iostream>
@@ -55,7 +54,6 @@ StateRules::StateRules()
     std::unique_ptr<sql::Statement> statement(sql_connection_->createStatement());
     sql::ResultSet* res;
     res = statement->executeQuery("select statetype, stateclass, validstates from staterules");
-    gLogger->log(LogManager::DEBUG, "select statetype, stateclass, validstates from staterules"); // SQL Debug Log
 
     while (res->next())
     {
@@ -77,7 +75,7 @@ StateRules::StateRules()
         }
     }
     res = statement->executeQuery("select state_class,state_to_remove from staterules_removalstates");
-    gLogger->log(LogManager::DEBUG, "select state_class,state_to_remove from staterules_removalstates"); // SQL Debug Log
+    
     while (res->next())
     {
         removal_state_class = res->getInt64("state_class");

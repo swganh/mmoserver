@@ -52,7 +52,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SampleEvent.h"
 
 #include "MessageLib/MessageLib.h"
-#include "Common/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -826,9 +825,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 return;
             }
             else
-            {
-                gLogger->log(LogManager::DEBUG,"sampling radioactive box: Yes");
-    
+            {    
                 player->getSampleData()->mPassRadioactive = true;
                 player->getSampleData()->mPendingSample = true;
                 
@@ -884,7 +881,6 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 }
                 else
                 {
-                    gLogger->log(LogManager::DEBUG,"sampling gamble box ... gamble");
                     //action costs
                     if(!ham->checkMainPools(0,mSampleActionCost*2,0))
                     {

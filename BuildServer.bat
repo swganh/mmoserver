@@ -717,13 +717,7 @@ rem --- Builds the actual project.                                           ---
 
 cd "%PROJECT_BASE%"
 
-if not exist %PROJECT_BASE%build (
-    mkdir %PROJECT_BASE%build
-)
-
-cd "%PROJECT_BASE%build"
-
-cmake -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% ..
+cmake -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% .
 
 if exist "*.cache" del /S /Q "*.cache" >NUL
 

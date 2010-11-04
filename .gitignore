@@ -1,8 +1,17 @@
 # These files should be ignored
 bin/
 deps/
+build/
+Debug/
+Release/
 data/heightmaps/
+docs/latex/
+docs/html/
 ipch/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
 *.cache
 *.zip
 *.7z
@@ -14,34 +23,14 @@ ipch/
 *.opensdf
 *.lnk
 *.orig
-mmoserverdb/
-docs/latex/
-docs/html/
 *.gz
-
-# ignore autotools generated files
-autom4te.cache/
-aclocal.m4
-autoscan.log
-config.h.in~
-configure
-configure.scan
-Makefile.in
-tools/m4/libtool.m4
-tools/m4/lt*.m4
-
-# ignore directories created for the build process
-build/*
-build-aux/
-
-# ignore 3rd party libraries
-cppconn/
-glog/
-gtest/
-tbb/
+mmoserverdb/
+CMakeFiles/
+CMakeCache.txt
+CTestTestfile.cmake
+cmake_install.cmake
+install_manifest.txt
 
 # ignore OS generated files
 .DS_Store
 
-# ignore eclipse generated files
-.settings/

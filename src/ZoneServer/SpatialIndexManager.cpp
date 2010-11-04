@@ -376,25 +376,31 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 
 	ObjectSet* knownObjects = removeObject->getRegisteredContainers();
 	ObjectSet::iterator objectIt = knownObjects->begin();
-		
+	PlayerObject* player = dynamic_cast<PlayerObject*> (removeObject);
+
+	// no need to unregister stuff from stuff
+	if(!player)
+	{
+		return;
+	}
+
 	//the only registration a player is still supposed to have at this point is himself and his inventory and equipped stuff
 	while(objectIt != knownObjects->end())
 	{
 		
 		//create it for the registered Players
-		PlayerObject* player = dynamic_cast<PlayerObject*>(removeObject);
-		if(player)
+		
+		Object* object = dynamic_cast<Object*>(*objectIt);
+		if(object)
 		{
 			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
-			unRegisterPlayerFromContainer((*objectIt), player);	
-			gMessageLib->sendDestroyObject((*objectIt)->getId(),player);
+			unRegisterPlayerFromContainer(object, player);	
+			gMessageLib->sendDestroyObject(object->getId(),player);
 			objectIt = knownObjects->begin();
 		}
 		else	
 			objectIt++;
 	}
-
-	return;
 }
 
 // when a player leaves a structure we need to either delete all items in the structure directly
@@ -1219,8 +1225,15 @@ void SpatialIndexManager::sendToPlayersInRange(const Object* const object, bool 
 
 }
 
+//=================================================================================================================================================
 // registers a containers content as known to a player
-// a container can be a backpack placed in a cell (or a cell itself ??? need to think of that - it might give us the ability to keep cell content loaded for a player until he leaves range)
+// a container can be a backpack placed in a cell or a cell itself
+// registering the container just means that we know the content
+// there are containers we register to automatically (like players)
+// containers we register to when we enter them (buildings)
+// and containers we register to when we look inside them (containers in the maincell)
+// to register to a container we need to have the proper permissions
+
 void SpatialIndexManager::registerPlayerToContainer(Object* container,PlayerObject* player)
 {
 
@@ -1259,8 +1272,11 @@ void SpatialIndexManager::registerPlayerToContainer(Object* container,PlayerObje
 	
 }
 
-//registering a player to a building is different, as the cells of a building must be known at all time to a player
-//even if the cellscontent is not loaded
+//===============================================================================================================================================================================
+//registering a player to a building is different, as the cells of a building must be known at all time to a player (as long as we know the building)
+//the cellcontent is not loaded on building creation
+//cellcontent gets loaded once we enter (registered to) the building 
+
 void SpatialIndexManager::registerPlayerToBuilding(BuildingObject* building,PlayerObject* player)
 {
 	//iterate through all the cells and add and register their content
@@ -1269,7 +1285,7 @@ void SpatialIndexManager::registerPlayerToBuilding(BuildingObject* building,Play
 
 	if(!building)
 	{
-		assert(false);
+		assert(false && "SpatialIndexManager::registerPlayerToBuilding no building");
 		return;
 	}
 	
@@ -1293,13 +1309,15 @@ void SpatialIndexManager::registerPlayerToBuilding(BuildingObject* building,Play
 
 }
 
-//unregistering a player from a building is different, as the cells of a building must be known at all time to a player
+//===============================================================================================================================================================================
+//unregistering a player from a building is different, as the cells of a building must be known at all time to a player (as long as we know the building)
+//but we register cells only when the player enters the building
 //even if the cellscontent can be destroyed unless of course we go out of range and the building is destroyed
 void SpatialIndexManager::unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player)
 {
 	if(!building)
 	{
-		assert(false);
+		assert(false && "SpatialIndexManager::unRegisterPlayerFromBuilding no building");
 		return;
 	}
 	

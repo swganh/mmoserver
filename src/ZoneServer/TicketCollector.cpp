@@ -61,27 +61,17 @@ TicketCollector::~TicketCollector()
 
 void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
-    if(messageType == radId_itemUse)
-    {
-        PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
+	if(messageType == radId_itemUse)
+	{
+		PlayerObject* playerObject = dynamic_cast<PlayerObject*>(srcObject);
+		
+		// don't use while incapped or dead or in combat
+		if(playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
+		{
+			return;
+		}
 
-        if(!playerObject)
-        {
-            return;
-        }
-
-        if(!mShuttle)
-        {
-            return;
-        }
-
-        // don't use while incapped or dead or in combat
-        if(playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
-        {
-            return;
-        }
-
-        // in range check for shuttle not for the droid
+		// in range check for shuttle not for the droid
         if(playerObject->getParentId() != mParentId || (glm::distance(playerObject->mPosition, mShuttle->mPosition) > 25.0f))
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);

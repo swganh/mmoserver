@@ -238,61 +238,61 @@ ActiveConversation* ConversationManager::getActiveConversation(uint64 id)
 
 void ConversationManager::startConversation(NPCObject* npc,PlayerObject* player)
 {
-    //we can't converse whilst in combat
-    /* commented out for preview as borked. client ctd ftl
-    if(player->checkState(CreatureState_Combat))
-    {
-    	stopConversation(player,true);
-    	gMessageLib->sendSystemMessage(player,"You may not start a Conversation whilst in Combat!");
-    }*/
+	//we can't converse whilst in combat
+	/* commented out for preview as borked. client ctd ftl
+	if(player->states.checkState(CreatureState_Combat))
+	{
+		stopConversation(player,true);
+		gMessageLib->sendSystemMessage(player,"You may not start a Conversation whilst in Combat!");
+	}*/
 
-    // make sure theres no conversation running yet
-    if(getActiveConversation(player->getId()) != NULL)
-    {
-        stopConversation(player);
-    }
+	// make sure theres no conversation running yet
+	if(getActiveConversation(player->getId()) != NULL)
+	{
+		stopConversation(player);
+	}
 
-    // initialize a new one
-    Conversation*		conv			= getConversation(npc->getInternalAttribute<uint32>("base_conversation"));
-    ActiveConversation*	av				= new(mActiveConversationPool.malloc()) ActiveConversation(conv,player,npc);
-    // ConversationPage*	currentPage		= av->getCurrentPage();
+	// initialize a new one
+	Conversation*		conv			= getConversation(npc->getInternalAttribute<uint32>("base_conversation"));
+	ActiveConversation*	av				= new(mActiveConversationPool.malloc()) ActiveConversation(conv,player,npc);
+	// ConversationPage*	currentPage		= av->getCurrentPage();
 
-    mActiveConversations.insert(std::make_pair(player->getId(),av));
+	mActiveConversations.insert(std::make_pair(player->getId(),av));
 
-    // In case of npc trainers, they may not always open a dialog, they just chat in spatial. (like traniers that you can not train from yet)
-    // We need a way to abort the dialog.
-    // Pre process npc conversation.
-    if (av->preProcessConversation())
-    {
-        ConversationPage* currentPage = av->getCurrentPage();
+	// In case of npc trainers, they may not always open a dialog, they just chat in spatial. (like traniers that you can not train from yet)
+	// We need a way to abort the dialog.
+	// Pre process npc conversation.
+	if (av->preProcessConversation())
+	{
+		ConversationPage* currentPage = av->getCurrentPage();
 
-        // Get the options dialog data.
-        av->prepareFilteredOptions();
+		// Get the options dialog data.
+		av->prepareFilteredOptions();
 
-        gMessageLib->sendStartNPCConversation(npc,player);
+		gMessageLib->sendStartNPCConversation(npc,player);
 
-        if(currentPage->mAnimation)
-        {
-            if (gWorldConfig->isInstance())
-            {
-                // We are running in an instance.
-                gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(currentPage->mAnimation), player);
-            }
-            else
-            {
-                gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(currentPage->mAnimation));
-            }
-        }
+		if(currentPage->mAnimation)
+		{
+			if (gWorldConfig->isInstance())
+			{
+				// We are running in an instance.
+				gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(currentPage->mAnimation), player);
+			}
+			else
+			{
+				gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(currentPage->mAnimation));
+			}
+		}
 
-        gMessageLib->sendNPCDialogMessage(av,player);
-
-        gMessageLib->sendNPCDialogOptions(av->getFilteredOptions(),player);
-    }
-    else
-    {
-        // We terminate (do not start) this conversation.
-        stopConversation(player);
-    }
+		gMessageLib->sendNPCDialogMessage(av,player);
+		
+		gMessageLib->sendNPCDialogOptions(av->getFilteredOptions(),player);
+	}
+	else
+	{
+		// We terminate (do not start) this conversation.
+		stopConversation(player);
+	}
 }
 
 //=========================================================================================

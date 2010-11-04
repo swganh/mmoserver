@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CMWeaponGroup.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "Weapon.h"
 #include "VehicleController.h"
 #include "WorldManager.h"
@@ -173,160 +174,157 @@ BString CombatManager::getDefaultSpam(uint32 weaponGroup)
 
 bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defenderId)
 {
-    PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-    CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
+	PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
+	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
 
-    if (!defender)
-    {
-        // No such object.
-        return(false);
-    }
+	if (!defender)
+	{
+		// No such object.
+		return(false);
+	}
 
-    // Do not try to attack already incapped or dead objects.
-    if (defender->isIncapacitated() || defender->isDead())
-    {
-        return false;
-    }
+	// Do not try to attack already incapped or dead objects.
+	if (defender->isIncapacitated() || defender->isDead())
+	{
+		return false;
+	}
 
-    //Do not attack if we are incapped or already dead or mounted.
-    if (attacker->isIncapacitated() || attacker->isDead() || playerAttacker->checkIfMounted())
-    {
-        return false;
-    }
+	//Do not attack if we are incapped or already dead or mounted.
+	if (attacker->isIncapacitated() || attacker->isDead() || playerAttacker->checkIfMounted())
+	{
+		return false;
+	}
 
-    // make sure we got both objects
-    if (playerAttacker && defender)
-    {
-        //Do not attack if we are mounted
-        if(playerAttacker->checkIfMounted())
-        {
-            return false;
-        }
+	// make sure we got both objects
+	if (playerAttacker && defender)
+	{
+		//Do not attack if we are mounted
+		if(playerAttacker->checkIfMounted())
+		{
+			return false;
+		}
 
-        // if our target is a player, he must be dueling us or both need to be overt(TODO)
-        if (PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defender))
-        {
-            // also return, if our target is incapacitated or dead
-            if(!playerAttacker->checkDuelList(defenderPlayer) || !defenderPlayer->checkDuelList(playerAttacker)
-                    || defenderPlayer == playerAttacker)
-            {
-                return(false);
-            }
+		// if our target is a player, he must be dueling us or both need to be overt(TODO)
+		if (PlayerObject* defenderPlayer = dynamic_cast<PlayerObject*>(defender))
+		{
+			// also return, if our target is incapacitated or dead
+			if(!playerAttacker->checkDuelList(defenderPlayer) || !defenderPlayer->checkDuelList(playerAttacker)
+			|| defenderPlayer == playerAttacker)
+			{
+				return(false);
+			}
 
-            if(defenderPlayer->isIncapacitated())
-            {
-                // gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap");
-                return(false);
-            }
-            else if(defenderPlayer->isDead())
-            {
-                // gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead");
-                return(false);
-            }
+			if(defenderPlayer->isIncapacitated())
+			{
+				// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap");
+				return(false);
+			}
+			else if(defenderPlayer->isDead())
+			{
+				// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead");
+				return(false);
+			}
 
-            // put us in combat state
-            if (!playerAttacker->checkState(CreatureState_Combat))
-            {
-                playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                gMessageLib->sendStateUpdate(playerAttacker);
-            }
+			// put us in combat state	
+			gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
+            gStateManager.setCurrentActionState(attacker, CreatureState_CombatAttitudeNormal);
+			// put our target in combat state
+			if(!defenderPlayer->states.checkState(CreatureState_Combat))
+			{
 
-            // put our target in combat state
-            if(!defenderPlayer->checkState(CreatureState_Combat))
-            {
-                defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                gMessageLib->sendStateUpdate(defenderPlayer);
-            }
+				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
+                gStateManager.setCurrentActionState(defender, CreatureState_CombatAttitudeNormal);
+			}
 
-            // update our defender list
-            if (!playerAttacker->checkDefenderList(defenderPlayer->getId()))
-            {
-                playerAttacker->addDefender(defenderPlayer->getId());
-                gMessageLib->sendDefenderUpdate(playerAttacker,1,playerAttacker->getDefenders()->size() - 1,defenderPlayer->getId());
-            }
+			// update our defender list
+			if (!playerAttacker->checkDefenderList(defenderPlayer->getId()))
+			{
+				playerAttacker->addDefender(defenderPlayer->getId());
+				gMessageLib->sendDefenderUpdate(playerAttacker,1,playerAttacker->getDefenders()->size() - 1,defenderPlayer->getId());
+			}
 
-            // update our targets defender list
-            if (!defenderPlayer->checkDefenderList(playerAttacker->getId()))
-            {
-                defenderPlayer->addDefender(playerAttacker->getId());
-                gMessageLib->sendDefenderUpdate(defenderPlayer,1,defenderPlayer->getDefenders()->size() - 1,playerAttacker->getId());
-            }
+			// update our targets defender list
+			if (!defenderPlayer->checkDefenderList(playerAttacker->getId()))
+			{
+				defenderPlayer->addDefender(playerAttacker->getId());
+				gMessageLib->sendDefenderUpdate(defenderPlayer,1,defenderPlayer->getDefenders()->size() - 1,playerAttacker->getId());
+			}
 
-            if (!defenderPlayer->autoAttackEnabled())
-            {
-                // Player can/may start auto-attack if idle.
-                defenderPlayer->getController()->enqueueAutoAttack(playerAttacker->getId());
-            }
+			if (!defenderPlayer->autoAttackEnabled())
+			{
+				// Player can/may start auto-attack if idle.
+				defenderPlayer->getController()->enqueueAutoAttack(playerAttacker->getId());
+			}
 
-        }
-        else
-        {
-            // our target is a creature
-            if (defender->isIncapacitated())
-            {
-                // gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap");
-                return(false);
-            }
-            else if (defender->isDead())
-            {
-                // gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead");
-                return(false);
-            }
+		}
+		else
+		{
+			// our target is a creature
+			if (defender->isIncapacitated())
+			{
+				// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap");
+				return(false);
+			}
+			else if (defender->isDead())
+			{
+				// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead");
+				return(false);
+			}
 
-            // Vefify that out target is attackable. It's not nice to spam attacks at innocent npc's.
-            if (!(defender->getPvPStatus() & CreaturePvPStatus_Attackable))
-            {
-                return(false);
-            }
+			// Vefify that out target is attackable. It's not nice to spam attacks at innocent npc's.
+			if (!(defender->getPvPStatus() & CreaturePvPStatus_Attackable))
+			{
+				return(false);
+			}
 
-            // put us in combat state
-            // if (!playerAttacker->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
-            {
-                // playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
-                gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() | CreaturePvPStatus_Attackable);
+			// put us in combat state
+			// if (!playerAttacker->states.checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
+			{
+				// playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
+				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() | CreaturePvPStatus_Attackable);
 
-                playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                gMessageLib->sendStateUpdate(playerAttacker);
+				// TEST STATE MANAGER!
+				gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
+                gStateManager.setCurrentActionState(attacker, CreatureState_CombatAttitudeNormal);
+				
+			}
 
-                // playerAttacker->toggleStateOn(CreatureState_Combat);
-                // gMessageLib->sendStateUpdate(playerAttacker);
-            }
+			if (!defender->states.checkState((CreatureState_Combat)))
+			{
+				// Creature was NOT in combat before, and may very well be dormant.
+				// Wake him up.
+				gWorldManager->forceHandlingOfDormantNpc(defender->getId());
+				gWorldManager->forceHandlingOfReadyNpc(defender->getId());
 
-            if (!defender->checkState((CreatureState_Combat)))
-            {
-                // Creature was NOT in combat before, and may very well be dormant.
-                // Wake him up.
-                gWorldManager->forceHandlingOfDormantNpc(defender->getId());
-                gWorldManager->forceHandlingOfReadyNpc(defender->getId());
+				// Creature may need some aggro built up before going into combat state??
+			
+				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
+                gStateManager.setCurrentActionState(defender, CreatureState_CombatAttitudeNormal);
+			}
 
-                // Creature may need some aggro built up before going into combat state??
-                defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                gMessageLib->sendStateUpdate(defender);
-            }
+			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Enemy);
 
-            gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Enemy);
+			// update our defender list
+			if (!playerAttacker->checkDefenderList(defender->getId()))
+			{
+				playerAttacker->addDefender(defender->getId());
+				gMessageLib->sendDefenderUpdate(playerAttacker,1,playerAttacker->getDefenders()->size() - 1,defender->getId());
+			}
 
-            // update our defender list
-            if (!playerAttacker->checkDefenderList(defender->getId()))
-            {
-                playerAttacker->addDefender(defender->getId());
-                gMessageLib->sendDefenderUpdate(playerAttacker,1,playerAttacker->getDefenders()->size() - 1,defender->getId());
-            }
-
-            // update our targets defender list
-            if (!defender->checkDefenderList(playerAttacker->getId()))
-            {
-                defender->addDefender(playerAttacker->getId());
-                gMessageLib->sendDefenderUpdate(defender,1, defender->getDefenders()->size() - 1,playerAttacker->getId());
-            }
-        }
-    }
-    else
-    {
-        return(false);
-    }
-
-    return(true);
+			// update our targets defender list
+			if (!defender->checkDefenderList(playerAttacker->getId()))
+			{
+				defender->addDefender(playerAttacker->getId());
+				gMessageLib->sendDefenderUpdate(defender,1, defender->getDefenders()->size() - 1,playerAttacker->getId());
+			}
+		}
+	}
+	else
+	{
+		return(false);
+	}
+	 
+	return(true);
 }
 
 //======================================================================================================================
@@ -403,133 +401,126 @@ bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, Obje
 
 uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
 {
-    uint8	randomHitPool			= 100;
-    //uint8	randomPoolHitChance		= 100;
-    int32	multipliedDamage		= 0;
-    BString	combatSpam				= "melee";
+	uint8	randomHitPool			= 100;
+	//uint8	randomPoolHitChance		= 100;
+	uint8	stateApplied			= 0;
+	int32	multipliedDamage		= 0;
+	BString	combatSpam				= "melee";
 
-    // first see if we actually hit our target
-    uint8 attackResult = _hitCheck(attacker,defender,cmdProperties,weapon);
+	// first see if we actually hit our target
+	uint8 attackResult = _hitCheck(attacker,defender,cmdProperties,weapon);
 
-    // only proceed, if so
-    if(!attackResult)
-    {
-        // TODO: retrieve from weapon
-        int32 baseMinDamage	= 50;
-        int32 baseMaxDamage	= 100;
+	// only proceed, if so
+	if(!attackResult)
+	{
+		// TODO: retrieve from weapon
+		int32 baseMinDamage	= 50;
+		int32 baseMaxDamage	= 100;
 
-        // NOTE: Some weapon data just for tesing and to give the npc a fair chance...
+		// NOTE: Some weapon data just for tesing and to give the npc a fair chance...
 
-        if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_min"))
-        {
-            baseMinDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_min");
-        }
-        if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_max"))
-        {
-            baseMaxDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_max");
-        }
-
-
-        //Sanity checks of db data
-        if (baseMinDamage < 1)
-            baseMinDamage = 1;
-
-        if (baseMaxDamage < 1)
-            baseMaxDamage = 1;
-
-        if(baseMaxDamage <= baseMinDamage)
-        {
-            baseMaxDamage = baseMinDamage +1;
-        }
-
-        int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
-
-        // apply damage multiplier
-        if(cmdProperties->mDamageMultiplier)
-        {
-            multipliedDamage = static_cast<uint32>(static_cast<float>(baseDamage) * cmdProperties->mDamageMultiplier);
-        }
-        else
-        {
-            multipliedDamage = baseDamage;
-        }
-
-        // mitigation
-        multipliedDamage = _mitigateDamage(attacker,defender,cmdProperties,multipliedDamage,weapon);
-
-        // state effects
-        _tryStateEffects(attacker,defender,cmdProperties,weapon);
+		if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_min"))
+		{
+			baseMinDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_min");
+		}
+		if (weapon->hasAttribute("cat_wpn_damage.wpn_damage_max"))
+		{
+			baseMaxDamage = weapon->getAttribute<int32>("cat_wpn_damage.wpn_damage_max");
+		}
 
 
-        // Here is the deal. When a player makes damage to a npc, we have to register the player, its group, damage done and what (kind of) weapon used.
-        NPCObject* npc = dynamic_cast<NPCObject*>(defender);
-        if (!defender->isDead() && npc)
-        {
-            PlayerObject* player = dynamic_cast<PlayerObject*>(attacker);
-            if (player)
-            {
-                npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), glm::distance(defender->mPosition, player->mPosition));
-            }
-        }
+		//Sanity checks of db data
+		if (baseMinDamage < 1)
+			baseMinDamage = 1;
 
-        // ham damage
-        // if no target pool set, pick a random one
-        if(!cmdProperties->mHealthHitChance && !cmdProperties->mActionHitChance && !cmdProperties->mMindHitChance)
-        {
-            switch(gRandom->getRand()%3)
-            {
-            case 0:
-                randomHitPool = HamBar_Health;
-                break;
-            case 1:
-                randomHitPool = HamBar_Action;
-                break;
-            case 2:
-                randomHitPool = HamBar_Mind;
-                break;
+		if (baseMaxDamage < 1)
+			baseMaxDamage = 1;
 
-            default:
-                randomHitPool = 0;
-                break;
-            }
-        }
+		if(baseMaxDamage <= baseMinDamage)
+		{
+			baseMaxDamage = baseMinDamage +1;
+		}
 
-        if (defender->getCreoGroup() != CreoGroup_AttackableObject)
-        {
-            // random pool attack
-            if(randomHitPool != 100)
-            {
-                defender->getHam()->updatePropertyValue(randomHitPool,HamProperty_CurrentHitpoints,multipliedDamage,true);
-            }
-            // direct pool attack
-            else
-            {
-                // health hit
-                if(cmdProperties->mHealthHitChance)
-                {
-                    defender->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,multipliedDamage,true);
-                }
-                // action hit
-                else if(cmdProperties->mActionHitChance)
-                {
-                    defender->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,multipliedDamage,true);
-                }
-                // mind hit
-                else if(cmdProperties->mMindHitChance)
-                {
-                    defender->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,multipliedDamage,true);
-                }
-            }
-        }
-        else
-        {
-            defender->getHam()->updateSingleHam(multipliedDamage, true);
-        }
-        if (defender->isIncapacitated())
-        {
-            PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-            if (playerAttacker && playerAttacker->isConnected())
-            {
+		int32 baseDamage	= -((gRandom->getRand()%(baseMaxDamage - baseMinDamage)) + baseMinDamage);
+
+		// apply damage multiplier
+		if(cmdProperties->mDamageMultiplier)
+		{
+			multipliedDamage = static_cast<uint32>(static_cast<float>(baseDamage) * cmdProperties->mDamageMultiplier);
+		}
+		else
+		{
+			multipliedDamage = baseDamage;
+		}
+
+		// mitigation
+		multipliedDamage = _mitigateDamage(attacker,defender,cmdProperties,multipliedDamage,weapon);
+
+		// state effects
+		stateApplied = _tryStateEffects(attacker,defender,cmdProperties,weapon);
+
+
+		// Here is the deal. When a player makes damage to a npc, we have to register the player, its group, damage done and what (kind of) weapon used.
+		NPCObject* npc = dynamic_cast<NPCObject*>(defender);
+		if (!defender->isDead() && npc)
+		{
+			PlayerObject* player = dynamic_cast<PlayerObject*>(attacker);
+			if (player)
+			{
+                npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->states.getPosture(), glm::distance(defender->mPosition, player->mPosition));
+			}
+		}
+
+		// ham damage
+		// if no target pool set, pick a random one
+		if(!cmdProperties->mHealthHitChance && !cmdProperties->mActionHitChance && !cmdProperties->mMindHitChance)
+		{
+			switch(gRandom->getRand()%3)
+			{
+				case 0: randomHitPool = HamBar_Health;	break;
+				case 1: randomHitPool = HamBar_Action;	break;
+				case 2: randomHitPool = HamBar_Mind;	break;
+
+				default: randomHitPool = 0;				break;
+			}
+		}
+
+		if (defender->getCreoGroup() != CreoGroup_AttackableObject)
+		{
+			// random pool attack
+			if(randomHitPool != 100)
+			{
+				defender->getHam()->updatePropertyValue(randomHitPool,HamProperty_CurrentHitpoints,multipliedDamage,true);
+			}
+			// direct pool attack
+			else
+			{
+				// health hit
+				if(cmdProperties->mHealthHitChance)
+				{
+					defender->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,multipliedDamage,true);
+				}
+				// action hit
+				else if(cmdProperties->mActionHitChance)
+				{
+					defender->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,multipliedDamage,true);
+				}
+				// mind hit
+				else if(cmdProperties->mMindHitChance)
+				{
+					defender->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,multipliedDamage,true);
+				}
+			}
+		}
+		else
+		{
+			defender->getHam()->updateSingleHam(multipliedDamage, true);
+		}
+		if (defender->isIncapacitated())
+		{
+			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
+			if (playerAttacker && playerAttacker->isConnected())
+			{
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_target_incap", 0, defender->getId(), 0), playerAttacker);
             }
         }
@@ -721,76 +712,52 @@ int32 CombatManager::_mitigateDamage(CreatureObject* attacker,CreatureObject* de
 
 uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
 {
-    if(cmdProperties->mKnockdownChance)
-    {
-        defender->toggleStateOff(CreatureState_SittingOnChair);
-        defender->setPosture(CreaturePosture_KnockedDown);
-        defender->updateMovementProperties();
-        defender->getHam()->updateRegenRates();
+	if(cmdProperties->mKnockdownChance)
+	{
+        gStateManager.setCurrentPostureState(defender, CreaturePosture_KnockedDown);
+        gStateManager.setCurrentLocomotionState(defender, CreatureLocomotion_KnockedDown);
 
-        gMessageLib->sendPostureAndStateUpdate(defender);
-        if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
-        {
-            //See if our player is mounted -- if so dismount him
-            if(player->checkIfMounted())
-            {
-                //Get the player's mount
-                if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
-                {
-                    //Now dismount
-                    vehicle->DismountPlayer();
-                }
-            }
+		if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
+		{
+			//See if our player is mounted -- if so dismount him 
+			if(player->checkIfMounted())
+			{
+				//Get the player's mount
+				if(VehicleController* vehicle = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
+				{
+					//Now dismount
+					vehicle->DismountPlayer();
+				}
+			}
+		}
+	}
 
-            gMessageLib->sendUpdateMovementProperties(player);
-            gMessageLib->sendSelfPostureUpdate(player);
-        }
+	if(cmdProperties->mDizzyChance)
+	{
+		gStateManager.setCurrentActionState(defender, CreatureState_Dizzy);
     }
 
-    if(cmdProperties->mDizzyChance)
-    {
-        defender->toggleStateOn(CreatureState_Dizzy);
+	if(cmdProperties->mBlindChance)
+	{
+        gStateManager.setCurrentActionState(defender, CreatureState_Blinded);
+	}
 
-        gMessageLib->sendStateUpdate(defender);
-    }
+	if(cmdProperties->mStunChance)
+	{
+		gStateManager.setCurrentActionState(defender, CreatureState_Stunned);
+	}
 
-    if(cmdProperties->mBlindChance)
-    {
-        defender->toggleStateOn(CreatureState_Blinded);
+	if(cmdProperties->mIntimidateChance)
+	{
+        gStateManager.setCurrentActionState(defender, CreatureState_Intimidated);
+	}
 
-        gMessageLib->sendStateUpdate(defender);
-    }
+	if(cmdProperties->mPostureDownChance)
+	{
+		gStateManager.setCurrentPostureState(defender, CreaturePosture_Crouched);
+	}
 
-    if(cmdProperties->mStunChance)
-    {
-        defender->toggleStateOn(CreatureState_Stunned);
-
-        gMessageLib->sendStateUpdate(defender);
-    }
-
-    if(cmdProperties->mIntimidateChance)
-    {
-        defender->toggleStateOn(CreatureState_Intimidated);
-
-        gMessageLib->sendStateUpdate(defender);
-    }
-
-    if(cmdProperties->mPostureDownChance)
-    {
-        defender->toggleStateOff(CreatureState_SittingOnChair);
-        defender->setPosture(CreaturePosture_Crouched);
-        defender->updateMovementProperties();
-        defender->getHam()->updateRegenRates();
-
-        gMessageLib->sendPostureAndStateUpdate(defender);
-        if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
-        {
-            gMessageLib->sendUpdateMovementProperties(player);
-            gMessageLib->sendSelfPostureUpdate(player);
-        }
-    }
-
-    return(0);
+	return(0);
 }
 
 //======================================================================================================================

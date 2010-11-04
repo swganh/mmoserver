@@ -102,8 +102,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 {
 
     DLOG(INFO) << "WorldManager initialization";
-
-
+	
     // set up spatial index
     mSpatialIndex = new ZoneTree();
     mSpatialIndex->Init(gConfig->read<float>("FillFactor"),
@@ -511,12 +510,15 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
             uint32 awayTime = shuttle->getAwayTime() + 1000;
             if(awayTime >= shuttle->getAwayInterval())
             {
-                shuttle->setPosture(0);
-                shuttle->setAwayTime(0);
-                shuttle->setShuttleState(ShuttleState_AboutBoarding);
-
-                gMessageLib->sendPostureUpdate(shuttle);
-                gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
+                uint32 awayTime = shuttle->getAwayTime() + 1000;
+                if(awayTime >= shuttle->getAwayInterval())
+                {
+                    shuttle->states.setPosture(0);
+                    shuttle->setAwayTime(0);
+                    shuttle->setShuttleState(ShuttleState_AboutBoarding);
+					gMessageLib->sendPostureUpdate(shuttle);
+					gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
+				}
             }
             else
                 shuttle->setAwayTime(awayTime);
@@ -555,13 +557,16 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
         {
             uint32 inPortTime = shuttle->getInPortTime() + 1000;
             if(inPortTime >= shuttle->getInPortInterval())
-            {
-                shuttle->setInPortTime(0);
-                shuttle->setShuttleState(ShuttleState_Away);
-                shuttle->setPosture(2);
-
-                gMessageLib->sendPostureUpdate(shuttle);
-                gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
+			{
+                uint32 inPortTime = shuttle->getInPortTime() + 1000;
+                if(inPortTime >= shuttle->getInPortInterval())
+                {
+                    shuttle->setInPortTime(0);
+                    shuttle->setShuttleState(ShuttleState_Away);
+                    shuttle->states.setPosture(2);
+	                gMessageLib->sendPostureUpdate(shuttle);
+				    gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
+				}
             }
             else
             {
@@ -579,8 +584,6 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
 
     return(true);
 }
-
-
 
 //======================================================================================================================
 //

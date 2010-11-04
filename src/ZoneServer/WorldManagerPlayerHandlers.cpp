@@ -50,6 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerStructure.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
+#include "StateManager.h"
 #include "TreasuryManager.h"
 #include "VehicleController.h"
 #include "WorldConfig.h"
@@ -223,15 +224,14 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
                              ham->mFocus.getWounds(),
                              ham->mWillpower.getWounds(),
                              ham->getBattleFatigue(),
-                             playerObject->getPosture(),
+                             playerObject->states.getPosture(),
                              playerObject->getMoodId(),
                              playerObject->getTitle().getAnsi(),
                              playerObject->getPlayerFlags(),
-                             playerObject->getState(),
+							 playerObject->states.getAction(),
                              playerObject->getLanguage(),
                              playerObject->getGroupId(),
                              playerObject->getId()));
-   
 
     gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
     if(remove)
@@ -307,7 +307,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
 
     gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
     playerObject->setCraftingSession(NULL);
-    playerObject->toggleStateOff(CreatureState_Crafting);
+    gStateManager.removeActionState(playerObject, CreatureState_Crafting);
 
     //despawn camps ??? - every reference is over id though
 

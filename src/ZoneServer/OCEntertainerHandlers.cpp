@@ -445,7 +445,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), performer);
     }
 
-    if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
+    if(performer->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
         return;
@@ -529,7 +529,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 
     }
 
-    if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
+    if(performer->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
         return;
@@ -633,7 +633,7 @@ void ObjectController::_handleStartBand(uint64 targetId,Message* message,ObjectC
 {
     PlayerObject*	performer	= dynamic_cast<PlayerObject*>(mObject);
 
-    if(performer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
+    if(performer->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), performer);
         return;
@@ -754,7 +754,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
     if(!imageDesigner)
         return;
 
-    if(designObject->getPosture() == CreaturePosture_Dead)
+    if(designObject->states.getPosture() == CreaturePosture_Dead)
     {
         gMessageLib->SendSystemMessage(OutOfBand("image_designer","target_dead", 0, designObject->getId(), 0), imageDesigner);
         return;
@@ -772,7 +772,7 @@ void ObjectController::_handleImageDesign(uint64 targetId,Message* message,Objec
         return;
     }
     //Sch we need to add more states and checks - Rouse
-    if(imageDesigner->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
+    if(imageDesigner->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming | CreatureState_Crafting))
     {
         gMessageLib->SendSystemMessage(L"You cannot perform that action on this target", imageDesigner);
         return;

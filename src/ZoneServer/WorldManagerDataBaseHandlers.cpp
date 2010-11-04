@@ -213,7 +213,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             for(uint64 i = 0; i < count; i++)
             {
                 result->getNextRow(factoryBinding,&factoryId);
-
                 gFactoryFactory->requestObject(this,factoryId,0,0,asyncContainer->mClient);
             }
 
@@ -689,8 +688,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                                        ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()
                                        ,ham->mHealth.getWounds(),ham->mStrength.getWounds()
                                        ,ham->mConstitution.getWounds(),ham->mAction.getWounds(),ham->mQuickness.getWounds(),ham->mStamina.getWounds(),ham->mMind.getWounds()
-                                       ,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()
-                                       ,playerObject->getPlayerFlags(),playerObject->getState(),playerObject->getLanguage(),playerObject->getNewPlayerExemptions(),playerObject->getId());
+                                       ,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->states.getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()
+                                       ,playerObject->getPlayerFlags(),playerObject->states.getAction(),playerObject->getLanguage(),playerObject->getNewPlayerExemptions(),playerObject->getId());
             
         }
         break;

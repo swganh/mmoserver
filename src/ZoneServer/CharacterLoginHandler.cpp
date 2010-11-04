@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "TravelMapHandler.h"
 #include "TravelTicket.h"
 #include "Tutorial.h"
@@ -376,9 +377,8 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         destination.z = dstPoint->spawnZ + (gRandom->getRand()%5 - 2);
 
         // Reset to standing
-        playerObject->setPosture(CreaturePosture_Upright);
-        playerObject->updateMovementProperties();
-
+        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Upright);
+        
 
         // Delete the ticket then save the position then the player
         CharacterLoadingContainer* asyncContainer = new(CharacterLoadingContainer);
@@ -406,8 +406,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
     if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)
     {
         // reset to standing
-        playerObject->setPosture(CreaturePosture_Upright);
-        playerObject->updateMovementProperties();
+        //playerObject->states.setPosture(CreaturePosture_Upright);
 
         // Save our player.
         gWorldManager->savePlayerSync(playerObject->getAccountId(),false);

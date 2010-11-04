@@ -94,10 +94,7 @@ enum ObjectUpdate
 class MessageLib
 {
 public:
-
-    static MessageLib*	getSingletonPtr() {
-        return mSingleton;
-    }
+    static MessageLib*	getSingletonPtr() { return mSingleton; }
     static MessageLib*	Init();
 
     // multiple messages, messagelib.cpp
@@ -117,15 +114,14 @@ public:
     bool				sendCreateFactory(FactoryObject* factory,PlayerObject* player);
     bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
     bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
-
+    
     // creatures
     bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
     bool				sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
-
+    
 
     void				sendInventory(PlayerObject* playerObject);
     bool				sendEquippedItems(PlayerObject* srcObject,PlayerObject* targetObject);
-
 
     // common messages, commonmessages.cpp
     bool				sendCreateObjectByCRC(Object* object,const PlayerObject* const targetObject,bool player) const;
@@ -267,9 +263,8 @@ public:
      *                      - 3 - Source performs an animation and sends a text message.
      */
     void SendSpatialEmote(CreatureObject* source, uint32_t emote_id, uint64_t target_id = 0, uint8_t emote_flags = 1);
-
-    void				sendCreatureAnimation(CreatureObject* srcObject,BString animation);
-
+    void                sendCreatureAnimation(CreatureObject* srcObject, const std::string& animation);
+	void                sendCreatureAnimation(CreatureObject* srcObject, BString animation);
     // spatial for tutorial
     void				sendCreatureAnimation(CreatureObject* srcObject,BString animation, PlayerObject* player);
 
@@ -393,11 +388,10 @@ public:
     void				sendFoodUpdate(PlayerObject* playerObject);
     void				sendDrinkUpdate(PlayerObject* playerObject);
     void				sendStationaryFlagUpdate(PlayerObject* playerObject);
-
+    
     // static object,	staticomessages.cpp
     bool				sendBaselinesSTAO_3(TangibleObject* staticObject, PlayerObject* targetObject);
     bool				sendBaselinesSTAO_6(TangibleObject* staticObject, PlayerObject* targetObject);
-
     //crates
     bool				sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObject);
     bool				sendBaselinesTYCF_6( FactoryCrate* crate,PlayerObject* targetObject);
@@ -478,7 +472,6 @@ public:
     bool				sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* player);
     bool				sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* player);
     bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
-
     void				sendNewHarvesterName(PlayerStructure* harvester);
     void				sendOperateHarvester(PlayerStructure* harvester,PlayerObject* player);
     void				sendHarvesterResourceData(PlayerStructure* structure,PlayerObject* player);
@@ -502,7 +495,6 @@ public:
 
     // deltas
     bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);
-
     // Structures admin / placement
     bool				sendEnterStructurePlacement(Object* deed, BString objectString, PlayerObject* playerObject);
     bool				sendAdminList(PlayerStructure* structure, PlayerObject* playerObject);
@@ -568,7 +560,6 @@ public:
 private:
 
     MessageLib();
-
     bool				_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel);
 
     bool				_checkPlayer(const PlayerObject* const player) const;
@@ -580,7 +571,7 @@ private:
     void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;
     void				_sendToInstancedPlayers(Message* message, uint16 priority, const PlayerObject* const player) const ;
     void				_sendToAll(Message* message,uint16 priority,bool unreliable = false) const;
-
+   
     /**
      * Sends a spatial message to in-range players.
      *
@@ -592,7 +583,6 @@ private:
      * @param player_object This is used to send out spatial messages in a player instance.
      */
     void SendSpatialToInRangeUnreliable_(Message* message, Object* const object, const PlayerObject* const player_object = NULL);
-
     /**
      * Sends out a system message.
      *

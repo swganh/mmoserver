@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
@@ -85,7 +86,6 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
                 // start the duel
                 gMessageLib->sendUpdatePvpStatus(player,targetPlayer,player->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
                 gMessageLib->sendUpdatePvpStatus(targetPlayer,player,targetPlayer->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive);
-
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "accept_self", 0, targetId, 0), player);
                 gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "accept_target", 0, player->getId(), 0), targetPlayer);
             }
@@ -104,7 +104,6 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
                 else
                 {
                     player->addToDuelList(targetPlayer);
-
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "challenge_self", 0, targetId, 0), player);
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "challenge_target", 0, player->getId(), 0), targetPlayer);
                 }
@@ -163,31 +162,7 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
                     // no more defenders, end combat
                     if(player->getDefenders()->empty())
                     {
-                        player->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                        gMessageLib->sendStateUpdate(player);
-                        //WARNING WHAT FOLLOWS IS A DIRTY HACK TO GET STATES CLEARING ON COMBAT END
-                        //At some point negative states should be handled either by the buff manager as short duration buffs or via a new manager for debuffs
-
-                        //not in combat clear all temp combat states from player
-                        // player->toggleStateOff(CreatureState_Dizzy);
-                        // gMessageLib->sendStateUpdate(player);
-
-                        // player->toggleStateOff(CreatureState_Blinded);
-                        // gMessageLib->sendStateUpdate(player);
-
-                        // player->toggleStateOff(CreatureState_Stunned);
-                        // gMessageLib->sendStateUpdate(player);
-
-                        // player->toggleStateOff(CreatureState_Intimidated);
-                        // gMessageLib->sendStateUpdate(player);
-
-                        // player->setPosture(CreaturePosture_Upright);
-                        // gMessageLib->sendPostureUpdate(player);
-                        // gMessageLib->sendSelfPostureUpdate(player);
-
-                        // gMessageLib->sendSystemMessage(player,L"All states cleared - dirty hack - will fix later");
-
-                        //END OF DIRTY COMBAT STATE HACK
+                        gStateManager.setCurrentActionState(player, CreatureState_Peace);
                     }
                 }
 
@@ -200,31 +175,7 @@ void ObjectController::_handleEndDuel(uint64 targetId,Message* message,ObjectCon
                     // no more defenders, end combat
                     if(targetPlayer->getDefenders()->empty())
                     {
-                        targetPlayer->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                        gMessageLib->sendStateUpdate(targetPlayer);
-                        //WARNING WHAT FOLLOWS IS A DIRTY HACK TO GET STATES CLEARING ON COMBAT END
-                        //At some point negative states should be handled either by the buff manager as short duration buffs or via a new manager for debuffs
-
-                        //not in combat clear all temp combat states from target player
-                        // targetPlayer->toggleStateOff(CreatureState_Dizzy);
-                        // gMessageLib->sendStateUpdate(targetPlayer);
-
-                        // targetPlayer->toggleStateOff(CreatureState_Blinded);
-                        // gMessageLib->sendStateUpdate(targetPlayer);
-
-                        // targetPlayer->toggleStateOff(CreatureState_Stunned);
-                        // gMessageLib->sendStateUpdate(targetPlayer);
-
-                        // targetPlayer->toggleStateOff(CreatureState_Intimidated);
-                        // gMessageLib->sendStateUpdate(targetPlayer);
-
-                        // targetPlayer->setPosture(CreaturePosture_Upright);
-                        // gMessageLib->sendPostureUpdate(targetPlayer);
-                        // gMessageLib->sendSelfPostureUpdate(targetPlayer);
-
-                        // gMessageLib->sendSystemMessage(targetPlayer,L"All states cleared - dirty hack - will fix later");
-                        //END OF DIRTY COMBAT STATE HACK
-
+                        gStateManager.setCurrentActionState(player, CreatureState_Peace);
                     }
                 }
             }
@@ -249,27 +200,28 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
         // player->removeAllDefender();
         player->mDefenders.clear();
 
-        gMessageLib->sendBaselinesCREO_6(player,player);
-        gMessageLib->sendEndBaselines(player->getPlayerObjId(),player);
-
         // gMessageLib->sendDefenderUpdate(player,4,0,0);
 
         player->setCombatTargetId(0);
 
-        player->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-        player->toggleStateOn(CreatureState_Peace);
-        gMessageLib->sendStateUpdate(player);
+        //player->states.toggleActionOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
+        // peace state automatically removes the combat states
+        gStateManager.setCurrentActionState(player,CreatureState_Peace);
+
+        gMessageLib->sendBaselinesCREO_6(player,player);
+        gMessageLib->sendEndBaselines(player->getPlayerObjId(),player);
+                
         player->disableAutoAttack();
 
         //End any duels if both players press peace
-
+        
         PlayerList* pList = player->getDuelList();
         PlayerList::iterator it = pList->begin();
 
         while(it != pList->end())
         {
             // check the target's peace state
-            if (!(*it)->checkState(CreatureState_Combat) )
+            if (!(*it)->states.checkState(CreatureState_Combat) )
             {
                 _handleEndDuel((*it)->getId(), NULL, NULL);
                 it = pList->begin();
@@ -278,7 +230,6 @@ void ObjectController::_handlePeace(uint64 targetId,Message* message,ObjectContr
             {
                 ++it;
             }
-
         }
 
     }
@@ -294,11 +245,11 @@ void ObjectController::handleSetTarget(Message* message)
     CreatureObject*  creatureObject = dynamic_cast<CreatureObject*>(mObject);
 
     //creatureObject->setTarget(gWorldManager->getObjectById(message->getUint64()));
-    creatureObject->setTarget(message->getUint64());
+    creatureObject->setTarget(message->getUint64());	
     // There is a reason we get data like targets from the client, as handlers (id's) instead of references (pointers).
 
     gMessageLib->sendTargetUpdateDeltasCreo6(creatureObject);
-}
+} 
 
 //=============================================================================================================================
 //
@@ -339,35 +290,46 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
 //
 
 void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectControllerCmdProperties *cmdProperties)
-{
+{	
     PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    Datapad* datapad			= player->getDataPad();
 
     // Loot creatures
     this->lootAll(targetId, player);
 
-    /*MissionList::iterator it = datapad->getMissions()->begin();
+    MissionList::iterator it = datapad->getMissions()->begin();
     while(it != datapad->getMissions()->end())
     {
-        MissionObject* mission = dynamic_cast<MissionObject*>(*it);
-        if(mission->getMissionType() != destroy) {
-            ++it;
-            continue;
-        }
+       MissionObject* mission = dynamic_cast<MissionObject*>(*it);
+       if(mission->getMissionType() != destroy) { ++it; continue; }
 
-        if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
-        {
-            gMessageLib->sendPlayClientEffectLocMessage("clienteffect/combat_explosion_lair_large.cef",mission->getDestination().Coordinates,player);
-            gMissionManager->missionComplete(player,mission);
+       if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+       {
+		/*MissionList::iterator it = datapad->getMissions()->begin();
+		while(it != datapad->getMissions()->end())
+		{
+			MissionObject* mission = dynamic_cast<MissionObject*>(*it);
+			if(mission->getMissionType() != destroy) {
+				++it;
+				continue;
+			}
 
-            it = datapad->removeMission(it);
-            delete mission;
-        }
-        else
-        {
-            ++it;
-        }
+			if (glm::distance(player->mPosition, mission->getDestination().Coordinates) < 20)
+			{
+				gMessageLib->sendPlayClientEffectLocMessage("clienteffect/combat_explosion_lair_large.cef",mission->getDestination().Coordinates,player);
+				gMissionManager->missionComplete(player,mission);
 
-    }*/
+				it = datapad->removeMission(it);
+				delete mission;
+			}
+			else
+			{
+				++it;
+			}
+
+		}*/
+	   }
+	}
 
     return;
 }
@@ -385,12 +347,10 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
         // There is noo need to do it, we will save the correct in DB when we store the player data.
         // And... pick a better name for the sp_.. below... like updateWoundsWithCloneData-something....
         // int8 sql_sp[128];
-        // sprintf(sql_sp,"call swganh.sp_CharacterActivateClone(%"PRIu64")", player->getId());
         // (gWorldManager->getDatabase())->ExecuteProcedureAsync(NULL,NULL,sql_sp);
 
         // Update player objct with new data for wounds.
         ObjControllerAsyncContainer* asyncContainer;
-
         asyncContainer = new ObjControllerAsyncContainer(OCQuery_CloneAtPreDes);
         asyncContainer->playerObject = player;
         asyncContainer->anyPtr = (void*)spawnPoint;
@@ -403,7 +363,6 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
                 " (character_id = %"PRIu64");",player->getId());
 
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
-        
     }
 }
 
@@ -431,7 +390,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
             // Player Inventory.
             Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-            if (inventory && playerInventory)
+			if (inventory && playerInventory)
             {
                 // Looks like we have valid input, now handle it!
 
@@ -442,7 +401,6 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                 ObjectIDList*			invObjList	= inventory->getObjects();
                 ObjectIDList::iterator	invObjectIt = invObjList->begin();
                 int32 lootedItems = 0;
-
 
                 while (invObjectIt != invObjList->end())
                 {

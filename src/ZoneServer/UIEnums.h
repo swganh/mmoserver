@@ -171,6 +171,7 @@ unsigned int
     SUI_Window_CharacterBuilder_ListBox_PistolMenu,
     SUI_Window_CharacterBuilder_ListBox_RifleMenu,
     SUI_Window_CharacterBuilder_ListBox_WoundMenu,
+    SUI_Window_CharacterBuilder_ListBox_StateMenu,
 
     //trade
     SUI_Window_Trade_BankTip_ConfirmSurcharge
@@ -184,7 +185,6 @@ enum ui_mb_types
     SUI_MB_OK				= 1,
     SUI_MB_OKCANCEL			= 2,
     SUI_MB_YESNO			= 3
-
 };
 
 //================================================================================

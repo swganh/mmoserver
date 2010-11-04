@@ -546,15 +546,15 @@ void WorldManager::destroyObject(Object* object)
         gWorldManager->removeCreatureStomachToProcess(player->getStomach()->mDrinkTaskId);
         gWorldManager->removeCreatureStomachToProcess(player->getStomach()->mFoodTaskId);
 
-        // move to the nearest cloning center, if we are incapped or dead
-        if(player->getPosture() == CreaturePosture_Incapacitated
-                || player->getPosture() == CreaturePosture_Dead)
-        {
-            // bring up the clone selection window
-            ObjectSet						inRangeBuildings;
-            BStringVector					buildingNames;
-            std::vector<BuildingObject*>	buildings;
-            BuildingObject*					nearestBuilding = NULL;
+            // move to the nearest cloning center, if we are incapped or dead
+            if(player->states.getPosture() == CreaturePosture_Incapacitated
+            || player->states.getPosture() == CreaturePosture_Dead)
+            {
+                // bring up the clone selection window
+                ObjectSet						inRangeBuildings;
+                BStringVector					buildingNames;
+                std::vector<BuildingObject*>	buildings;
+                BuildingObject*					nearestBuilding = NULL;
 
             gWorldManager->getSI()->getObjectsInRange(player,&inRangeBuildings,ObjType_Building,8192);
 

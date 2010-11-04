@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "PlayerObject.h"
 #include "StaticObject.h"
+#include "StateManager.h"
 #include "UIManager.h"
 
 #include "MessageLib/MessageLib.h"
@@ -65,9 +66,9 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 {
     if(!player) return NULL;
 
-    if(player->checkState(CreatureState_Swimming))
-    {
-        //use the system message from suveying as we don't have an appropriate one especiially for this
+	if(player->states.checkState(CreatureState_Swimming))
+	{
+		//use the system message from suveying as we don't have an appropriate one especiially for this
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_swimming"), player);
         return NULL;
     }
@@ -143,35 +144,34 @@ TangibleObject* FireworkManager::createFirework(uint32 typeId, PlayerObject* pla
 
 void FireworkManager::Process()
 {
-    //This iterates all fired fireworks and keeps everything spiffy.
+	//This iterates all fired fireworks and keeps everything spiffy.
 
-    std::list<FireworkEvent*>::iterator it=this->fireworkEvents.begin();
-    std::list<FireworkEvent*>::iterator fEnd = fireworkEvents.end();
+	std::list<FireworkEvent*>::iterator it=this->fireworkEvents.begin();
+	std::list<FireworkEvent*>::iterator fEnd = fireworkEvents.end();
 
-    //We can do this outside the while...We likely won't get a vastly different value while in it anyway.
-    uint64 currentTime = gWorldManager->GetCurrentGlobalTick();
-    while( it != fEnd)
-    {
-        if(*it && (currentTime - (*it)->timeFired) > 2000 && (*it)->playerToldToStand == false) //2 sec
-        {
-            if((*it)->player->getPosture() == CreaturePosture_Crouched)
-            {
-                (*it)->player->setUpright();
-                (*it)->playerToldToStand = true;
-            }
-            ++it;
-        }
-        else if(*it && (currentTime - (*it)->timeFired) > 25000) //25 sec (about the time of a firework)
-        {
-            gWorldManager->destroyObject((*it)->firework);
+	//We can do this outside the while...We likely won't get a vastly different value while in it anyway.
+	uint64 currentTime = gWorldManager->GetCurrentGlobalTick();
+	while( it != fEnd)
+	{
+		if(*it && (currentTime - (*it)->timeFired) > 2000 && (*it)->playerToldToStand == false) //2 sec
+		{
+			if((*it)->player->states.getPosture() == CreaturePosture_Crouched)
+			{
+				gStateManager.setCurrentPostureState((*it)->player, CreaturePosture_Upright);
+				(*it)->playerToldToStand = true;
+			}
+			++it;
+		}
+		else if(*it && (currentTime - (*it)->timeFired) > 25000) //25 sec (about the time of a firework)
+		{
+			gWorldManager->destroyObject((*it)->firework);
 
-            delete *it;
-            it = fireworkEvents.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-
+			delete *it;
+			it = fireworkEvents.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
 }

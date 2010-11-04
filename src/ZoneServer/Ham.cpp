@@ -670,11 +670,9 @@ bool Ham::_regenForce()
 
 void Ham::updateRegenRates()
 {
-
-
     float regenModifier = 1.0f;
 
-    switch(mParent->getPosture())
+    switch(mParent->states.getPosture())
     {
     case CreaturePosture_Crouched:
         regenModifier = 1.25f;

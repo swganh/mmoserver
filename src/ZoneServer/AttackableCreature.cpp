@@ -93,38 +93,38 @@ AttackableCreature::~AttackableCreature()
 
 void AttackableCreature::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-    mRadialMenu.reset();
-    mRadialMenu = RadialMenuPtr(new RadialMenu());
+	mRadialMenu.reset();
+	mRadialMenu = RadialMenuPtr(new RadialMenu());
 
-    if (this->isDead())
-    {
-        if (!creatureObject->isDead() && !creatureObject->isIncapacitated())
-        {
-            // mRadialMenu = RadialMenuPtr(new RadialMenu());
-            mRadialMenu->addItem(1,0,radId_lootAll,radAction_ObjCallback, "@ui_radial:loot_all");
-            mRadialMenu->addItem(2,1,radId_loot,radAction_ObjCallback, "@ui_radial:loot");
+	if (this->isDead())
+	{
+		if (!creatureObject->isDead() && !creatureObject->isIncapacitated())
+		{
+			// mRadialMenu = RadialMenuPtr(new RadialMenu());
+			mRadialMenu->addItem(1,0,radId_lootAll,radAction_ObjCallback, "@ui_radial:loot_all");
+			mRadialMenu->addItem(2,1,radId_loot,radAction_ObjCallback, "@ui_radial:loot");
 
-            //Harvesting of Corpse :D
-            if(creatureObject->checkSkill(31) && this->allowedToLoot(creatureObject->getId(), creatureObject->getGroupId()))
-            {
-                mRadialMenu->addItem(4,0,radId_serverHarvestCorpse, radAction_ObjCallback, "@sui:harvest_corpse");
+			//Harvesting of Corpse :D
+			if(creatureObject->checkSkill(31) && this->allowedToLoot(creatureObject->getId(), creatureObject->getGroupId()))
+			{
+				mRadialMenu->addItem(4,0,radId_serverHarvestCorpse, radAction_ObjCallback, "@sui:harvest_corpse");
 
-                if(this->hasAttribute("res_meat"))
-                    mRadialMenu->addItem(5,3,radId_diceRoll, radAction_ObjCallback, "@sui:harvest_meat");
+				if(this->hasAttribute("res_meat"))
+					mRadialMenu->addItem(5,3,radId_diceRoll, radAction_ObjCallback, "@sui:harvest_meat");
 
-                if(this->hasAttribute("res_hide"))
-                    mRadialMenu->addItem(6,3,radId_diceTwoFace, radAction_ObjCallback, "@sui:harvest_hide");
+				if(this->hasAttribute("res_hide"))
+					mRadialMenu->addItem(6,3,radId_diceTwoFace, radAction_ObjCallback, "@sui:harvest_hide");
 
-                if(this->hasAttribute("res_bone"))
-                    mRadialMenu->addItem(7,3,radId_diceThreeFace, radAction_ObjCallback, "@sui:harvest_bone");
-            }
-        }
-    }
-    else
-    {
-        //if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/ && !creatureObject->checkState(CreatureState_Combat))
-        //mRadialMenu->addItem(5,0,radId_serverMenu5, radAction_ObjCallback, "Collect Milk");
-    }
+				if(this->hasAttribute("res_bone"))
+					mRadialMenu->addItem(7,3,radId_diceThreeFace, radAction_ObjCallback, "@sui:harvest_bone");
+			}
+		}
+	}
+	else
+	{
+		//if(creatureObject->checkSkill(31) /*&& this->hasAttribute("res_milk")*/ && !creatureObject->states.checkState(CreatureState_Combat))
+			//mRadialMenu->addItem(5,0,radId_serverMenu5, radAction_ObjCallback, "Collect Milk");
+	}
 }
 
 //=============================================================================
@@ -351,94 +351,92 @@ void AttackableCreature::addKnownObject(Object* object)
 
 bool AttackableCreature::setTargetInAttackRange(void)
 {
-    bool targetSet = false;
+	bool targetSet = false;
 
-    // Attack nearest target or the first target found within range?
-    // if (mAgressiveMode)
-    if (isAgressive())
-    {
-        PlayerObjectSet* knownPlayers = this->getKnownPlayers();
-        PlayerObjectSet::iterator it = knownPlayers->begin();
+	// Attack nearest target or the first target found within range?
+	// if (mAgressiveMode)
+	if (isAgressive())
+	{
+		PlayerObjectSet* knownPlayers = this->getKnownPlayers();
+		PlayerObjectSet::iterator it = knownPlayers->begin();
 
-        // For now, we attack the first target we see, that have we enough aggro towards.
-        while(it != knownPlayers->end())
-        {
-            if (!(*it)->isIncapacitated() && !(*it)->isDead())
-            {
-                // We only accepts new targets.
-                /*
-                ObjectIDList::iterator defenderIt = this->getDefenders()->begin();
-                bool newTarget = true;
-                while (defenderIt != this->getDefenders()->end())
-                {
-                	if ((*defenderIt) == (*it)->getId())
-                	{
-                		// Already in my list, try next.
-                		newTarget = false;
-                		break;
-                	}
-                	defenderIt++;
-                }
-                */
-                // Only test players not having aggro.
+		// For now, we attack the first target we see, that have we enough aggro towards.
+		while(it != knownPlayers->end())
+		{
+			if (!(*it)->isIncapacitated() && !(*it)->isDead())
+			{
+				// We only accepts new targets.
+				/*
+				ObjectIDList::iterator defenderIt = this->getDefenders()->begin();
+				bool newTarget = true;
+				while (defenderIt != this->getDefenders()->end())
+				{
+					if ((*defenderIt) == (*it)->getId())
+					{
+						// Already in my list, try next.
+						newTarget = false;
+						break;
+					}
+					defenderIt++;
+				}
+				*/
+				// Only test players not having aggro.
 
-                if ((!this->attackerHaveAggro((*it)->getId())) && gWorldManager->objectsInRange(this->getId(), (*it)->getId(), this->getAttackRange()))
-                {
-                    if (gWorldConfig->isInstance())
-                    {
-                        if (this->getPrivateOwner() == (*it)->getId())
-                        {
-                        }
-                        else
-                        {
-                            //gLogger->log(LogManager::DEBUG,"Attacking WRONG TARGET = %s\n",(*it)->getFirstName().getAnsi());
-                        }
-                    }
-                    // We have a new target in range etc.. But we may need him to be visible for a while before we attack.
-                    this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->getPosture());
+				if ((!this->attackerHaveAggro((*it)->getId())) && gWorldManager->objectsInRange(this->getId(), (*it)->getId(), this->getAttackRange()))
+				{
+					if (gWorldConfig->isInstance())
+					{
+						if (this->getPrivateOwner() == (*it)->getId())
+						{
+						}
+						else
+						{
+						}
+					}
+					// We have a new target in range etc.. But we may need him to be visible for a while before we attack.
+					this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->states.getPosture());
 
-                    if (!targetSet)
-                    {
-                        if (this->attackerHaveAggro((*it)->getId()))
-                        {
-                            this->setTarget((*it)->getId());
-                            targetSet = true;
-                            // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
+					if (!targetSet)
+					{
+						if (this->attackerHaveAggro((*it)->getId()))
+						{
+							this->setTarget((*it)->getId());
+							targetSet = true;
+							// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
-                            // No break, cycle all targets in range, since we are building up aggro.
-                            // break;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Handle incapped and dead targets, for now we remove any aggro to them.
-                this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->getPosture());
+							// No break, cycle all targets in range, since we are building up aggro.
+							// break;
+						}
+					}
+				}
+			}
+			else
+			{
+				// Handle incapped and dead targets, for now we remove any aggro to them.
+				this->updateAggro((*it)->getId(), (*it)->getGroupId(), (*it)->states.getPosture());
 
 
-                // Let's this player rebuild is aggro before we attack him again.
-                if (this->mLairNeedAssistanceWithId == (*it)->getId())
-                {
-                    this->mAssistanceNeededWithId = 0;
-                    this->mLairNeedAssistanceWithId = 0;
-                    this->mIsAssistingLair = false;
-                }
-            }
-            ++it;
-        }
-    }
+				// Let's this player rebuild is aggro before we attack him again.
+				if (this->mLairNeedAssistanceWithId == (*it)->getId())
+				{
+					this->mAssistanceNeededWithId = 0;
+					this->mLairNeedAssistanceWithId = 0;
+					this->mIsAssistingLair = false;
+				}
+			}
+			++it;
+		}
+	}
 
-    if (targetSet && !this->isAttackTauntSent())
-    {
-        this->setAttackTauntSent();
+	if (targetSet && !this->isAttackTauntSent())
+	{
+		this->setAttackTauntSent();
 
-        if (this->getAttackStartMessage().getLength())
-        {
-            // for now, let's just taunt him.
-            BString msg(this->getAttackStartMessage());
-            msg.convert(BSTRType_Unicode16);
-
+		if (this->getAttackStartMessage().getLength())
+		{
+			// for now, let's just taunt him.
+			BString msg(this->getAttackStartMessage());
+			msg.convert(BSTRType_Unicode16);
             gMessageLib->SendSpatialChat(this, msg.getUnicode16());
         }
         else
@@ -833,450 +831,449 @@ void AttackableCreature::handleEvents(void)
             // make a final position update, reading the heightmap, since we may have been "on the move" and y-axis is not correct.
             glm::vec3 newPosition(this->mPosition);
 
-            if (this->getParentId() == 0)
-            {
-                // Heightmap only works outside.
-                newPosition.y = getHeightAt2DPosition(newPosition.x, newPosition.z, true);
-                this->updatePosition(this->getParentId(), newPosition);
-            }
-        }
-        return;
-    }
+			if (this->getParentId() == 0)
+			{
+				// Heightmap only works outside.
+				newPosition.y = getHeightAt2DPosition(newPosition.x, newPosition.z, true);
+				this->updatePosition(this->getParentId(), newPosition);
+			}
+		}
+		return;
+	}
 
-    switch (mCombatState)
-    {
-    case State_Unspawned:
-    {
-        // Let's get this object into the world.
-        if (!this->isSpawned())
-        {
-            this->spawn();
-        }
+	switch (mCombatState)
+	{
+		case State_Unspawned:
+		{
+			// Let's get this object into the world.
+			if (!this->isSpawned())
+			{
+				this->spawn();
+			}
 
-        if (this->getKnownPlayers()->empty() || !this->isAgressive())
-        {
-            // We will not start roaming or do any action if there are no one near us watching. Creatures here have a big ego. :)
-            mCombatState = State_Idle;
-            this->setAiState(NpcIsDormant);
-        }
-        else
-        {
-            // mCombatState = State_Idle;
-            // this->setAiState(NpcIsReady);
+			if (this->getKnownPlayers()->empty() || !this->isAgressive())
+			{
+				// We will not start roaming or do any action if there are no one near us watching. Creatures here have a big ego. :)
+				mCombatState = State_Idle;
+				this->setAiState(NpcIsDormant);
+			}
+			else
+			{
+				// mCombatState = State_Idle;
+				// this->setAiState(NpcIsReady);
 
-            // We have got some company.
-            mCombatState = State_Alerted;
-            this->setAiState(NpcIsReady);
+				// We have got some company.
+				mCombatState = State_Alerted;
+				this->setAiState(NpcIsReady);
 
-            // Setup roaming, if any.
-            if (this->isRoaming())
-            {
-                this->setupRoaming(15, 15);
-            }
-        }
-    }
-    break;
+				// Setup roaming, if any.
+				if (this->isRoaming())
+				{
+					this->setupRoaming(15, 15);
+				}
+			}
+		}
+		break;
 
-    case State_Idle:
-    {
-        if (!this->getKnownPlayers()->empty())
-        {
-            // We have got some company.
-            mCombatState = State_Alerted;
-            this->setAiState(NpcIsReady);
+		case State_Idle:
+		{
+			if (!this->getKnownPlayers()->empty())
+			{
+				// We have got some company.
+				mCombatState = State_Alerted;
+				this->setAiState(NpcIsReady);
 
-            // Setup roaming, if any.
-            if (this->isRoaming())
-            {
-                // Setup a delay, we do not want all npc to start roam at the same time when a player enters a dormant area.
-                // Make the base delay time shorter than normal case, since we can assume we have been dormant.
-                // uint64 roamingPeriods = this->getRoamingDelay() / ((uint32)readyDefaultPeriodTime);
-                // int64 roamingReadyTicksDelay = (int64)((int64)(roamingPeriods/2) + gRandom->getRand() % (int32) (roamingPeriods));
+				// Setup roaming, if any.
+				if (this->isRoaming())
+				{
+					// Setup a delay, we do not want all npc to start roam at the same time when a player enters a dormant area.
+					// Make the base delay time shorter than normal case, since we can assume we have been dormant.
+					// uint64 roamingPeriods = this->getRoamingDelay() / ((uint32)readyDefaultPeriodTime);
+					// int64 roamingReadyTicksDelay = (int64)((int64)(roamingPeriods/2) + gRandom->getRand() % (int32) (roamingPeriods));
 
-                int64 roamingReadyTicksDelay = (int64)(this->getRoamingDelay()/2);
-                roamingReadyTicksDelay += (int64)(((uint64)gRandom->getRand() * 1000) % (this->getRoamingDelay() + 1));
+					int64 roamingReadyTicksDelay = (int64)(this->getRoamingDelay()/2);
+					roamingReadyTicksDelay += (int64)(((uint64)gRandom->getRand() * 1000) % (this->getRoamingDelay() + 1));
 
-                this->SetReadyDelay(roamingReadyTicksDelay /(uint32)readyDefaultPeriodTime);
+					this->SetReadyDelay(roamingReadyTicksDelay /(uint32)readyDefaultPeriodTime);
 
-                // this->setupRoaming(15, 15);
-            }
-        }
-    }
-    break;
+					// this->setupRoaming(15, 15);
+				}
+			}
+		}
+		break;
 
-    case State_Alerted:
-    {
-        if (this->getKnownPlayers()->empty())
-        {
-            mCombatState = State_Idle;
-            this->setAiState(NpcIsDormant);
-        }
-        else
-        {
-            // Any attacked us?
-            if (this->setTargetDefenderWithinWeaponRange())
-            {
-                // Yes.
-                mCombatState = State_Combat;
-                this->setAiState(NpcIsActive);
+		case State_Alerted:
+		{
+			if (this->getKnownPlayers()->empty())
+			{
+				mCombatState = State_Idle;
+				this->setAiState(NpcIsDormant);
+			}
+			else
+			{
+				// Any attacked us?
+				if (this->setTargetDefenderWithinWeaponRange())
+				{
+					// Yes.
+					mCombatState = State_Combat;
+					this->setAiState(NpcIsActive);
 
-                // Change pvp-status to agressive.
-                PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
-                if (targetPlayer)
-                {
-                    gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
-                }
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
-                // We may need to chase the target.
-                this->setupStalking(activeDefaultPeriodTime);
-            }
-            // Any new target in range we can aggro??
-            else if (this->setTargetInAttackRange())		// Any player within attack range when in aggressiveMode.
-            {
-                // Yes.
-                mCombatState = State_Combat;
-                this->setAiState(NpcIsActive);
+					// We may need to chase the target.
+					this->setupStalking(activeDefaultPeriodTime);
+				}
+				// Any new target in range we can aggro??
+				else if (this->setTargetInAttackRange())		// Any player within attack range when in aggressiveMode.
+				{
+					// Yes.
+					mCombatState = State_Combat;
+					this->setAiState(NpcIsActive);
 
-                // Change pvp-status to agressive.
-                PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
-                if (targetPlayer)
-                {
-                    gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
-                }
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
-                // We may need to chase the target.
-                this->setupStalking(activeDefaultPeriodTime);
-            }
-            // Anyone need our help?
-            if (this->needToAssistLair())
-            {
-                this->executeLairAssist();
-            }
-            else if (this->needAssist())
-            {
-                this->executeAssist();
-            }
-            // Any target we can rush into?
-            else if (this->setTargetDefenderWithinMaxRange())	// Defenders within max range (stalkerDistanceMax + weaponMaxRange)
-            {
-                // Yes.
-                mCombatState = State_Combat;
-                this->setAiState(NpcIsActive);
+					// We may need to chase the target.
+					this->setupStalking(activeDefaultPeriodTime);
+				}
+				// Anyone need our help?
+				if (this->needToAssistLair())
+				{
+					this->executeLairAssist();
+				}
+				else if (this->needAssist())
+				{
+					this->executeAssist();
+				}
+				// Any target we can rush into?
+				else if (this->setTargetDefenderWithinMaxRange())	// Defenders within max range (stalkerDistanceMax + weaponMaxRange)
+				{
+					// Yes.
+					mCombatState = State_Combat;
+					this->setAiState(NpcIsActive);
 
-                // Change pvp-status to agressive.
-                PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
-                if (targetPlayer)
-                {
-                    gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
-                }
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
-                // We may need to chase the target.
-                this->setupStalking(activeDefaultPeriodTime);
-            }
-            else if (this->getDefenders()->size() != 0)
-            {
-                mCombatState = State_CombatReady;
-                this->setAiState(NpcIsReady);
-            }
-        }
-    }
-    break;
+					// We may need to chase the target.
+					this->setupStalking(activeDefaultPeriodTime);
+				}
+				else if (this->getDefenders()->size() != 0)
+				{
+					mCombatState = State_CombatReady;
+					this->setAiState(NpcIsReady);
+				}
+			}
+		}
+		break;
 
-    case State_CombatReady:
-    {
-        if (this->getKnownPlayers()->empty())
-        {
-            if (this->insideRoamingLimit())
-            {
-                mCombatState = State_Idle;
-                this->setAiState(NpcIsDormant);
-            }
-            else
-            {
-                this->enableHoming();
-                this->SetReadyDelay(1);	// Want to start the homing asap.
-                this->setupRoaming(15, 15);
-            }
-            // End all combat.
-        }
-        else if (!this->isTargetValid())
-        {
-            // We lost our target.
-            this->setTarget(0);
-            // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
+		case State_CombatReady:
+		{
+			if (this->getKnownPlayers()->empty())
+			{
+				if (this->insideRoamingLimit())
+				{
+					mCombatState = State_Idle;
+					this->setAiState(NpcIsDormant);
+				}
+				else
+				{
+					this->enableHoming();
+					this->SetReadyDelay(1);	// Want to start the homing asap.
+					this->setupRoaming(15, 15);
+				}
+				// End all combat.
+			}
+			else if (!this->isTargetValid())
+			{
+				// We lost our target.
+				this->setTarget(NULL);
+				// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
-            mCombatState = State_Alerted;
-            this->setAiState(NpcIsReady);
+				mCombatState = State_Alerted;
+				this->setAiState(NpcIsReady);
 
-            this->mAssistanceNeededWithId = 0;
-            this->mLairNeedAssistanceWithId = 0;
-            this->mIsAssistingLair = false;
-        }
+				this->mAssistanceNeededWithId = 0;
+				this->mLairNeedAssistanceWithId = 0;
+				this->mIsAssistingLair = false;
+			}
 
-        if (this->needToAssistLair())
-        {
-            this->executeLairAssist();
-        }
-        else if (this->isTargetWithinWeaponRange())
-        {
-            mCombatState = State_Combat;
-            this->setAiState(NpcIsActive);
+			if (this->needToAssistLair())
+			{
+				this->executeLairAssist();
+			}
+			else if (this->isTargetWithinWeaponRange())
+			{
+				mCombatState = State_Combat;
+				this->setAiState(NpcIsActive);
 
-            // We may need to chase the target.
-            this->setupStalking(activeDefaultPeriodTime);
-        }
-        else if (this->isHoming())
-        {
-            if (this->needToAssistLair())
-            {
-                this->executeLairAssist();
-            }
-            // Continue until I'm home.
-            // Anyone need our help?
-            else if (this->needAssist())
-            {
-                this->executeAssist();
-            }
-        }
-        else
-        {
-            // Any attacked us?
-            if (this->setTargetDefenderWithinWeaponRange())
-            {
-                // Yes.
-                mCombatState = State_Combat;
-                this->setAiState(NpcIsActive);
+				// We may need to chase the target.
+				this->setupStalking(activeDefaultPeriodTime);
+			}
+			else if (this->isHoming())
+			{
+				if (this->needToAssistLair())
+				{
+					this->executeLairAssist();
+				}
+				// Continue until I'm home.
+				// Anyone need our help?
+				else if (this->needAssist())
+				{
+					this->executeAssist();
+				}
+			}
+			else
+			{
+				// Any attacked us?
+				if (this->setTargetDefenderWithinWeaponRange())
+				{
+					// Yes.
+					mCombatState = State_Combat;
+					this->setAiState(NpcIsActive);
 
-                // Change pvp-status to agressive.
-                PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
-                if (targetPlayer)
-                {
-                    gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
-                }
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
-                // We may need to chase the target.
-                this->setupStalking(activeDefaultPeriodTime);
-            }
-            // Any new target in range?
-            else if (this->setTargetInAttackRange())
-            {
-                // Yes.
-                mCombatState = State_Combat;
-                this->setAiState(NpcIsActive);
+					// We may need to chase the target.
+					this->setupStalking(activeDefaultPeriodTime);
+				}
+				// Any new target in range?
+				else if (this->setTargetInAttackRange())
+				{
+					// Yes.
+					mCombatState = State_Combat;
+					this->setAiState(NpcIsActive);
 
-                // Change pvp-status to agressive.
-                PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
-                if (targetPlayer)
-                {
-                    gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
-                }
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
-                // We may need to chase the target.
-                this->setupStalking(activeDefaultPeriodTime);
-            }
-            // Any active target we can rush into?
-            else if (this->setTargetDefenderWithinMaxRange())	// Defenders within max range (stalkerDistanceMax + weaponMaxRange)
-            {
-                // Yes.
-                mCombatState = State_Combat;
-                this->setAiState(NpcIsActive);
+					// We may need to chase the target.
+					this->setupStalking(activeDefaultPeriodTime);
+				}
+				// Any active target we can rush into?
+				else if (this->setTargetDefenderWithinMaxRange())	// Defenders within max range (stalkerDistanceMax + weaponMaxRange)
+				{
+					// Yes.
+					mCombatState = State_Combat;
+					this->setAiState(NpcIsActive);
 
-                // Change pvp-status to agressive.
-                PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
-                if (targetPlayer)
-                {
-                    gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
-                }
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
-                // We may need to chase the target.
-                this->setupStalking(activeDefaultPeriodTime);
-            }
-            else if (this->getDefenders()->size() == 0)
-            {
-                mCombatState = State_Alerted;
-                this->setAiState(NpcIsReady);
-            }
-            else if (!this->isHoming())
-            {
-                if (isTargetValid())
-                {
-                    if (this->targetOutsideRoamingLimit())
-                    {
-                        // Only attempt to "walk away" if we are a stalker.
-                        if (this->isStalker())
-                        {
-                            this->enableHoming();
-                            this->SetReadyDelay(1);	// Want to start the homing asap.
-                            this->setupRoaming(15, 15);
-                        }
-                    }
-                }
-                else
-                {
-                    // We lost our target.
-                    this->setTarget(0);
-                    // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
-                }
-            }
-        }
-    }
-    break;
+					// We may need to chase the target.
+					this->setupStalking(activeDefaultPeriodTime);
+				}
+				else if (this->getDefenders()->size() == 0)
+				{
+					mCombatState = State_Alerted;
+					this->setAiState(NpcIsReady);
+				}
+				else if (!this->isHoming())
+				{
+					if (isTargetValid())
+					{
+						if (this->targetOutsideRoamingLimit())
+						{
+							// Only attempt to "walk away" if we are a stalker.
+							if (this->isStalker())
+							{
+								this->enableHoming();
+								this->SetReadyDelay(1);	// Want to start the homing asap.
+								this->setupRoaming(15, 15);
+							}
+						}
+					}
+					else
+					{
+						// We lost our target.
+						this->setTarget(NULL);
+						// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
+					}
+				}
+			}
+		}
+		break;
 
-    case State_Combat:
-    {
-        if (!this->isTargetValid())
-        {
-            // We lost our target.
-            this->setTarget(0);
-            // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
+		case State_Combat:
+		{
+			if (!this->isTargetValid())
+			{
+				// We lost our target.
+				this->setTarget(NULL);
+				// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
-            mCombatState = State_CombatReady;
-            this->setAiState(NpcIsReady);
+				mCombatState = State_CombatReady;
+				this->setAiState(NpcIsReady);
 
-            this->mAssistanceNeededWithId = 0;
-            this->mLairNeedAssistanceWithId = 0;
-            this->mIsAssistingLair = false;
+				this->mAssistanceNeededWithId = 0;
+				this->mLairNeedAssistanceWithId = 0;
+				this->mIsAssistingLair = false;
 
-            this->SetReadyDelay(1);	// Want to start the homing asap, if nothing better to do.
-            this->setupRoaming(15, 15);
-        }
-        else if (this->needToAssistLair())
-        {
-            this->executeLairAssist();
-        }
-        else if (!this->checkState((CreatureState)(CreatureState_Combat)))
-        {
-            // We are not in combat.
-            // We may be stalking a target....
-            // But.. if someone attack us, we prio to defence ourself.
-            // Anyone attacked us?
-            if (this->setTargetDefenderWithinWeaponRange())
-            {
-                // Yes.
-                // mCombatState = State_Combat;
-                // this->setAiState(NpcIsActive);
+				this->SetReadyDelay(1);	// Want to start the homing asap, if nothing better to do.
+				this->setupRoaming(15, 15);
+			}
+			else if (this->needToAssistLair())
+			{
+				this->executeLairAssist();
+			}
+			else if (!this->states.checkState((CreatureState)(CreatureState_Combat)))
+			{
+				// We are not in combat.
+				// We may be stalking a target....
+				// But.. if someone attack us, we prio to defence ourself.
+				// Anyone attacked us?
+				if (this->setTargetDefenderWithinWeaponRange())
+				{
+					// Yes.
+					// mCombatState = State_Combat;
+					// this->setAiState(NpcIsActive);
 
-                // Change pvp-status to agressive.
-                PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
-                if (targetPlayer)
-                {
-                    gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
-                }
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
-                // We may need to chase the target.
-                this->setupStalking(activeDefaultPeriodTime);
-            }
-            // Any new target in range we can aggro??
-            else if (this->setTargetInAttackRange())		// Any player within attack range when in aggressiveMode.
-            {
-                // Yes.
-                // mCombatState = State_Combat;
-                // this->setAiState(NpcIsActive);
+					// We may need to chase the target.
+					this->setupStalking(activeDefaultPeriodTime);
+				}
+				// Any new target in range we can aggro??
+				else if (this->setTargetInAttackRange())		// Any player within attack range when in aggressiveMode.
+				{
+					// Yes.
+					// mCombatState = State_Combat;
+					// this->setAiState(NpcIsActive);
 
-                // Change pvp-status to agressive.
-                PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
-                if (targetPlayer)
-                {
-                    gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
-                }
+					// Change pvp-status to agressive.
+					PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(this->getTarget());
+					if (targetPlayer)
+					{
+						gMessageLib->sendUpdatePvpStatus(this,targetPlayer, this->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Aggressive | CreaturePvPStatus_Enemy);
+					}
 
-                // We may need to chase the target.
-                this->setupStalking(activeDefaultPeriodTime);
-            }
-            else if (this->atStalkLimit())
-            {
-                // We are at max limit and target is out of range. Let's go home.
-                this->enableHoming();
-                this->SetReadyDelay(1);	// Want to start the homing asap.
-                this->setupRoaming(15, 15);
+					// We may need to chase the target.
+					this->setupStalking(activeDefaultPeriodTime);
+				}
+				else if (this->atStalkLimit())
+				{
+					// We are at max limit and target is out of range. Let's go home.
+					this->enableHoming();
+					this->SetReadyDelay(1);	// Want to start the homing asap.
+					this->setupRoaming(15, 15);
 
-                // We drop the target, it's out of range.
-                this->setTarget(0);
-                // TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
+					// We drop the target, it's out of range.
+					this->setTarget(NULL);
+					// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
-                mCombatState = State_CombatReady;
-                this->setAiState(NpcIsReady);
+					mCombatState = State_CombatReady;
+					this->setAiState(NpcIsReady);
 
-                // Clear the current assist target.
-                this->mAssistanceNeededWithId = 0;
-                this->mLairNeedAssistanceWithId = 0;
-                this->mIsAssistingLair = false;
+					// Clear the current assist target.
+					this->mAssistanceNeededWithId = 0;
+					this->mLairNeedAssistanceWithId = 0;
+					this->mIsAssistingLair = false;
 
-            }
-            // else
-            //{
-            //	// Hunt him down.
-            //	this->setupStalking(activeDefaultPeriodTime);
-            //}
-        }
-        else
-        {
-            // Clear the current assist target.
-            this->mAssistanceNeededWithId = 0;
-            // this->mLairNeedAssistanceWithId = 0;
+				}
+				// else
+				//{
+				//	// Hunt him down.
+				//	this->setupStalking(activeDefaultPeriodTime);
+				//}
+			}
+			else
+			{
+				// Clear the current assist target.
+				this->mAssistanceNeededWithId = 0;
+				// this->mLairNeedAssistanceWithId = 0;
 
-            CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(this->getTarget());
-            if (targetCreature)
-            {
-                if (targetCreature->isIncapacitated())
-                {
-                    // Target is incapped, leave him alone, try to find a new target.
-                    mCombatState = State_CombatReady;
-                    this->setAiState(NpcIsReady);
-                }
-                else if (targetCreature->isDead())
-                {
-                    // Target is dead, try to find a new target.
-                    mCombatState = State_CombatReady;
-                    this->setAiState(NpcIsReady);
-                }
-                else if (!this->isTargetWithinWeaponRange() && (!this->isStalker()))
-                {
-                    // Target is out of range, try to find a new target.
-                    mCombatState = State_CombatReady;
-                    this->setAiState(NpcIsReady);
-                }
-                else
-                {
-                    if (this->atStalkLimit())
-                    {
-                        // We are at max limit and target is out of range. Let's go home.
-                        this->enableHoming();
-                        this->SetReadyDelay(1);	// Want to start the homing asap.
-                        this->setupRoaming(15, 15);
-                        mCombatState = State_CombatReady;
-                        this->setAiState(NpcIsReady);
-                    }
-                    else
-                    {
-                        // Hunt him down.
-                        this->setupStalking(activeDefaultPeriodTime);
-                    }
-                }
-            }
-            else
-            {
-                // Invalid target.
-                mCombatState = State_CombatReady;
-                this->setAiState(NpcIsReady);
+				CreatureObject* targetCreature = dynamic_cast<CreatureObject*>(this->getTarget());
+				if (targetCreature)
+				{
+					if (targetCreature->isIncapacitated())
+					{
+						// Target is incapped, leave him alone, try to find a new target.
+						mCombatState = State_CombatReady;
+						this->setAiState(NpcIsReady);
+					}
+					else if (targetCreature->isDead())
+					{
+						// Target is dead, try to find a new target.
+						mCombatState = State_CombatReady;
+						this->setAiState(NpcIsReady);
+					}
+					else if (!this->isTargetWithinWeaponRange() && (!this->isStalker()))
+					{
+						// Target is out of range, try to find a new target.
+						mCombatState = State_CombatReady;
+						this->setAiState(NpcIsReady);
+					}
+					else
+					{
+						if (this->atStalkLimit())
+						{
+							// We are at max limit and target is out of range. Let's go home.
+							this->enableHoming();
+							this->SetReadyDelay(1);	// Want to start the homing asap.
+							this->setupRoaming(15, 15);
+							mCombatState = State_CombatReady;
+							this->setAiState(NpcIsReady);
+						}
+						else
+						{
+							// Hunt him down.
+							this->setupStalking(activeDefaultPeriodTime);
+						}
+					}
+				}
+				else
+				{
+					// Invalid target.
+					mCombatState = State_CombatReady;
+					this->setAiState(NpcIsReady);
 
-                assert(false);
-            }
-        }
-    }
-    break;
+					assert(false);
+				}
+			}
+		}
+		break;
 
-    case State_Halted:
-    {
-        // Do nothing. Mainly used by tutorial when getting the "bandit" to hold it's fighting animations.
-    }
-    break;
+		case State_Halted:
+		{
+			// Do nothing. Mainly used by tutorial when getting the "bandit" to hold it's fighting animations.
+		}
+		break;
 
-    default:
-        break;
-    }
+		default:
+		break;
+	}
 }
-
 
 uint64 AttackableCreature::handleState(uint64 timeOverdue)
 {

@@ -126,86 +126,86 @@ private:
 
 void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 {
-    //Check for Inside building
-    if(player->getParentId() != 0)
-    {
-        gForageManager->failForage(player, NOT_OUTSIDE);
-        return;
-    }
+	//Check for Inside building
+	if(player->getParentId() != 0)
+	{
+		gForageManager->failForage(player, NOT_OUTSIDE);
+		return;
+	}
 
-    //Check for combat
-    if(player->checkState(CreatureState_Combat))
-    {
-        gForageManager->failForage(player, IN_COMBAT);
-        return;
-    }
+	//Check for combat
+	if(player->states.checkState(CreatureState_Combat))
+	{
+		gForageManager->failForage(player, IN_COMBAT);
+		return;
+	}
 
-    //Check for action being too low
-    if(player->getHam()->mAction.getCurrentHitPoints() < 101)
-    {
-        gForageManager->failForage(player, ACTION_LOW);
-        return;
-    }
+	//Check for action being too low
+	if(player->getHam()->mAction.getCurrentHitPoints() < 101)
+	{
+		gForageManager->failForage(player, ACTION_LOW);
+		return;
+	}
 
-    //Check for skill being too low
-    if(forageClass == ForageClass_Scout && !player->checkSkill(45)) //Scout -> Survival 1
-    {
-        gForageManager->failForage(player, NO_SKILL);
-        return;
-    }
-    else if(forageClass == ForageClass_Medic && !player->checkSkill(51))
-    {
-        gForageManager->failForage(player, NO_SKILL);
-        return;
-    }
+	//Check for skill being too low
+	if(forageClass == ForageClass_Scout && !player->checkSkill(45)) //Scout -> Survival 1
+	{
+		gForageManager->failForage(player, NO_SKILL);
+		return;
+	}
+	else if(forageClass == ForageClass_Medic && !player->checkSkill(51))
+	{
+		gForageManager->failForage(player, NO_SKILL);
+		return;
+	}
 
-    //Already foraging
-    if(player->isForaging())
-    {
-        gForageManager->failForage(player, ALREADY_FORAGING);
-        return;
-    }
+	//Already foraging
+	if(player->isForaging())
+	{
+		gForageManager->failForage(player, ALREADY_FORAGING);
+		return;
+	}
 
-    player->setForaging(true);
+	player->setForaging(true);
 
-    //Starts the Foraging Animation
-    gMessageLib->sendCreatureAnimation(player, "forage");
+	//Starts the Foraging Animation
+	gMessageLib->sendCreatureAnimation(player, std::string("forage"));
 
-    //Use up some action!
-    player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, -100);
+	//Use up some action!
+	player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, -100);
 
-    //Creates a ForageAttempt object for tracking the forage operation
-    ForageAttempt* attempt = new ForageAttempt(player, gWorldManager->GetCurrentGlobalTick(), forageClass);
+	//Creates a ForageAttempt object for tracking the forage operation
+	ForageAttempt* attempt = new ForageAttempt(player, gWorldManager->GetCurrentGlobalTick(), forageClass);
 
-    //FIND THE APPROPRIATE FORAGEPocket
-    ForagePocket* it = pHead;
-    while(it != NULL)
-    {
-        if(it->containsPlayer(player))
-        {
-            it->addAttempt(attempt);
-            return;
-        }
-        it = it->pNext;
-    }
+	//FIND THE APPROPRIATE FORAGEPocket
+	ForagePocket* it = pHead;
+	while(it != NULL)
+	{
+		if(it->containsPlayer(player))
+		{
+			it->addAttempt(attempt);
+			return;
+		}
+		it = it->pNext;
+	}
 
-    //None of them contained the player. We need to make new one.
+	//None of them contained the player. We need to make new one.
 
-    ForagePocket* new_pocket = new ForagePocket(player, mSI);
-    it = pHead;
-    ForagePocket* previousHead = NULL;
-    while(it != NULL)
-    {
-        previousHead = it;
-        it = it->pNext;
-    }
+	ForagePocket* new_pocket = new ForagePocket(player, mSI);
+	it = pHead;
+	ForagePocket* previousHead = NULL;
+	while(it != NULL)
+	{
+		previousHead = it;
+		it = it->pNext;
+	}
 
-    if(previousHead == NULL)
-        pHead = new_pocket;
-    else
-        previousHead->pNext = new_pocket;
+	if(previousHead == NULL)
+		pHead = new_pocket;
+	else
+		previousHead->pNext = new_pocket;
 
-    new_pocket->addAttempt(attempt);
+	new_pocket->addAttempt(attempt);
 }
 
 void ForageManager::forageUpdate()
@@ -270,76 +270,76 @@ void ForageManager::failForage(PlayerObject* player, forageFails fail)
 }
 
 bool ForagePocket::updateAttempts(uint64 currentTime)
-{
-    if(attempts.empty())
-        return true;
+{	
+	if(attempts.empty())
+		return true;
 
-    std::list<ForageAttempt*>::iterator it = attempts.begin();
-    unsigned int AttemptCount = 0;
-    while(it != attempts.end())
-    {
-        if((currentTime - (*it)->startTime) >= 300000) //5minutes until we reopen the pocket
-        {
-            delete (*it);
-            it = attempts.erase(it);
-            AttemptCount--;
-        }
-        else if((currentTime - (*it)->startTime) >= 8000 && !(*it)->completed)
-        {
-            PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
-            if(player != NULL)
-            {
-                if(player->checkState(CreatureState_Combat))
-                {
-                    ForageManager::failForage(player, ENTERED_COMBAT);
-                    (*it)->completed = true;
-                    it++;
-                    AttemptCount++;
-                    continue;
-                }
+	std::list<ForageAttempt*>::iterator it = attempts.begin();
+	unsigned int AttemptCount = 0;
+	while(it != attempts.end())
+	{
+		if((currentTime - (*it)->startTime) >= 300000) //5minutes until we reopen the pocket
+		{
+			delete (*it);
+			it = attempts.erase(it);
+			AttemptCount--;
+		}
+		else if((currentTime - (*it)->startTime) >= 8000 && !(*it)->completed)
+		{
+			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
+			if(player != NULL)
+			{
+				if(player->states.checkState(CreatureState_Combat))
+				{
+					ForageManager::failForage(player, ENTERED_COMBAT);
+					(*it)->completed = true;
+					it++; 
+					AttemptCount++;
+					continue;
+				}
 
-                if(region->mTree->ObjectContained(&innerRect, player) && AttemptCount < 4)
-                {
-                    //The player has a chance to get something
-                    ForageManager::successForage(player, (*it)->mForageClass);
-                    (*it)->completed = true;
-                }
-                else
-                {
-                    ForageManager::failForage(player, AREA_EMPTY);
-                    (*it)->completed = true;
-                }
-            }
-            AttemptCount++;
-            it++;
-        }
-        else
-        {
-            PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
-            if(!(*it)->completed && player)
-            {
-                if(player->checkState(CreatureState_Combat))
-                {
-                    ForageManager::failForage(player, ENTERED_COMBAT);
-                    (*it)->completed = true;
-                }
+				if(region->mTree->ObjectContained(&innerRect, player) && AttemptCount < 4)
+				{
+					//The player has a chance to get something
+					ForageManager::successForage(player, (*it)->mForageClass);
+					(*it)->completed = true;
+				}
+				else
+				{
+					ForageManager::failForage(player, AREA_EMPTY);
+					(*it)->completed = true;
+				}
+			}
+			AttemptCount++;
+			it++;
+		}
+		else
+		{
+			PlayerObject* player = (PlayerObject*)gWorldManager->getObjectById((*it)->playerID);
+			if(!(*it)->completed && player)
+			{
+				if(player->states.checkState(CreatureState_Combat))
+				{
+					ForageManager::failForage(player, ENTERED_COMBAT);
+					(*it)->completed = true;
+				}
 
-                if(!(*it)->completed)
-                {
-                    if((*it)->orig_x != player->mPosition.x || (*it)->orig_y != player->mPosition.y ||
-                            (*it)->orig_z != player->mPosition.z)
-                    {
-                        ForageManager::failForage(player, PLAYER_MOVED);
-                        (*it)->completed = true;
-                    }
-                }
-            }
-            AttemptCount++;
-            it++;
-        }
-    }
+				if(!(*it)->completed)
+				{
+					if((*it)->orig_x != player->mPosition.x || (*it)->orig_y != player->mPosition.y || 
+						(*it)->orig_z != player->mPosition.z)
+					{
+						ForageManager::failForage(player, PLAYER_MOVED);
+						(*it)->completed = true;
+					}
+				}
+			}
+			AttemptCount++;
+			it++;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 

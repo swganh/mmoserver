@@ -627,8 +627,7 @@ void NonPersistentNpcFactory::_setupDatabindings()
     mNonPersistentNpcBinding->addField(DFT_float,offsetof(NPCObject,mScale),4,10);
 
     mNpcIdentifierBinding = mDatabase->createDataBinding(1);
-    mNpcIdentifierBinding->addField(DFT_uint32,offsetof(NpcIdentifier,mFamilyId),4,11);
-}
+    mNpcIdentifierBinding->addField(DFT_uint32,offsetof(NpcIdentifier,mFamilyId),4,11);}
 
 //=============================================================================
 

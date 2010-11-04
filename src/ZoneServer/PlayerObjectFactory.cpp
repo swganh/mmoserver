@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MissionBag.h"
 #include "ObjectFactoryCallback.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "TangibleFactory.h"
 #include "Tutorial.h"
 #include "Weapon.h"
@@ -648,27 +649,11 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     // just making sure
     playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
 
-    // A note by Eruptor: Do we really want to clear combat states here, like Dizzy etc...
-    //
-    /*
-    playerObject->toggleStateOff(CreatureState_Crafting);
-    playerObject->toggleStateOff(CreatureState_Combat);
-    playerObject->toggleStateOff(CreatureState_Dizzy);
-    playerObject->toggleStateOff(CreatureState_Stunned);
-    playerObject->toggleStateOff(CreatureState_Blinded);
-    playerObject->toggleStateOff(CreatureState_Intimidated);
-    */
-
-    // logging in dead or incapped, shouldn't happen. (player is moved to cloning facility when disconnecting in those states
-
-    // gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer Posture = %u", playerObject->getPosture());
-    // gLogger->log(LogManager::DEBUG,"PlayerObjectFactory::_createPlayer State = %"PRIu64"", playerObject->getState());
-
-    if(playerObject->getPosture() == CreaturePosture_SkillAnimating
-            || playerObject->getPosture() == CreaturePosture_Incapacitated
-            || playerObject->getPosture() == CreaturePosture_Dead)
+    if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating
+            || playerObject->states.getPosture() == CreaturePosture_Incapacitated
+            || playerObject->states.getPosture() == CreaturePosture_Dead)
     {
-        playerObject->setPosture(CreaturePosture_Upright);
+        playerObject->states.setPosture(CreaturePosture_Upright);
     }
 
     //Just set mStates to Zero on initialization ??????????????????????????????????????????????????????
@@ -678,20 +663,20 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     // We may have to take ceratin actions on these, and then this is not the best placce to do the validation etc...
 
     // Todo : which states remain valid after a zone to zone transition ??? in order to transfer zone e need to be out of combat - so ... none ?
-    playerObject->toggleStateOff((CreatureState)(
-                                     CreatureState_Cover |
-                                     CreatureState_Combat |
-                                     CreatureState_Aiming |
-                                     CreatureState_Berserk |
-                                     CreatureState_FeignDeath |
-                                     CreatureState_CombatAttitudeEvasive |		// these should be altered on login ???
-                                     CreatureState_CombatAttitudeNormal |		// these should be altered on login ???
-                                     CreatureState_CombatAttitudeAggressive |	// these should be altered on login ???
-                                     CreatureState_Swimming |
-                                     CreatureState_Crafting |
-                                     CreatureState_RidingMount |
-                                     CreatureState_MountedCreature |
-                                     CreatureState_Peace ));
+	playerObject->states.toggleActionOff((CreatureState)(
+								 CreatureState_Cover |
+								 CreatureState_Combat |
+								 CreatureState_Aiming |
+								 CreatureState_Berserk |
+								 CreatureState_FeignDeath |
+								 CreatureState_CombatAttitudeEvasive |		// these should be altered on login ???
+								 CreatureState_CombatAttitudeNormal |		// these should be altered on login ???
+								 CreatureState_CombatAttitudeAggressive |	// these should be altered on login ???
+								 CreatureState_Swimming |
+								 CreatureState_Crafting |
+								 CreatureState_RidingMount |
+								 CreatureState_MountedCreature |
+								 CreatureState_Peace ));
 
     playerObject->mHam.updateRegenRates();
     playerObject->mHam.checkForRegen();
@@ -719,99 +704,99 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 void PlayerObjectFactory::_setupDatabindings()
 {
-    //player binding
-    mPlayerBinding = mDatabase->createDataBinding(185);
-    mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mId),8,0);
-    mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mParentId),8,1);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.x),4,3);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.y),4,4);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.z),4,5);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.w),4,6);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.x),4,7);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.y),4,8);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.z),4,9);
-    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mModel),128,10);
-    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFirstName),64,11);
-    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mLastName),64,12);
-    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
-    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFaction),16,165);
-    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mPosture),1,166);
-    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mMoodId),1,167);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mJediState),4,168);
-    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mTitle),255,169);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mScale),4,170);
+	//player binding
+	mPlayerBinding = mDatabase->createDataBinding(185);
+	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mId),8,0);
+	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mParentId),8,1);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.x),4,3);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.y),4,4);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.z),4,5);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.w),4,6);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.x),4,7);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.y),4,8);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.z),4,9);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mModel),128,10);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFirstName),64,11);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mLastName),64,12);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFaction),16,165);
+	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,states.posture),1,166);
+	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mMoodId),1,167);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mJediState),4,168);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mTitle),255,169);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mScale),4,170);
 
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseRunSpeedLimit),4,171);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseAcceleration),4,172);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTurnRate),4,173);
-    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,174);//24
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseRunSpeedLimit),4,171);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseAcceleration),4,172);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTurnRate),4,173);
+	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,174);//24
 
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,175);
-    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mBiography),4096,176);
-    mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mState),8,177);
-    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mRaceId),1,178);
-    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mLanguage),1,163);
-    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mCsrTag),1,180);
-    mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mGroupId),8,181);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mBornyear),4,182);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[0]),4,183);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[1]),4,184);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[2]),4,185);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,186);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mCurrentForce),4,187);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMaxForce),4,188);
-    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,189);		 //39
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,175);
+	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mBiography),4096,176);
+	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,states.action),8,177);
+	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mRaceId),1,178);
+	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mLanguage),1,163);
+	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mCsrTag),1,180);
+	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mGroupId),8,181);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mBornyear),4,182);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[0]),4,183);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[1]),4,184);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[2]),4,185);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,186);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mCurrentForce),4,187);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMaxForce),4,188);
+	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,189);		 //39
 
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mMaxHitPoints),4,132);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mMaxHitPoints),4,133);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mMaxHitPoints),4,134);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mMaxHitPoints),4,135);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mMaxHitPoints),4,136);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mMaxHitPoints),4,137);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mMaxHitPoints),4,138);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mMaxHitPoints),4,139);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mMaxHitPoints),4,140); //48
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mMaxHitPoints),4,132);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mMaxHitPoints),4,133);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mMaxHitPoints),4,134);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mMaxHitPoints),4,135);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mMaxHitPoints),4,136);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mMaxHitPoints),4,137);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mMaxHitPoints),4,138);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mMaxHitPoints),4,139);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mMaxHitPoints),4,140); //48
 
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mCurrentHitPoints),4,141);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mCurrentHitPoints),4,142);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mCurrentHitPoints),4,143);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mCurrentHitPoints),4,144);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mCurrentHitPoints),4,145);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mCurrentHitPoints),4,146);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mCurrentHitPoints),4,147);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mCurrentHitPoints),4,148);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mCurrentHitPoints),4,149);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mWounds),4,150);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mWounds),4,151);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mWounds),4,152);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mWounds),4,153);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mWounds),4,154);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mWounds),4,155);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mWounds),4,156);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mWounds),4,157);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,158);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mEncumbrance),4,159);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mEncumbrance),4,160);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mEncumbrance),4,161);
-    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);				 //70
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mCurrentHitPoints),4,141);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mCurrentHitPoints),4,142);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mCurrentHitPoints),4,143);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mCurrentHitPoints),4,144);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mCurrentHitPoints),4,145);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mCurrentHitPoints),4,146);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mCurrentHitPoints),4,147);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mCurrentHitPoints),4,148);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mCurrentHitPoints),4,149);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mWounds),4,150);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mWounds),4,151);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mWounds),4,152);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mWounds),4,153);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mWounds),4,154);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mWounds),4,155);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mWounds),4,156);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mWounds),4,157);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,158);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mEncumbrance),4,159);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mEncumbrance),4,160);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mEncumbrance),4,161);
+	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);				 //70
 
-    for(uint16 i = 0; i < 0x71; i++)
-        mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization)+(i*2),2,i + 17);//+113 = 183
+	for(uint16 i = 0;i < 0x71;i++)
+		mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[i]),2,i + 17);//+113 = 183
 
-    mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
-    mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);				   //185
+	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
+	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);				   //185
 
-    //hair binding
-    mHairBinding = mDatabase->createDataBinding(3);
-    mHairBinding->addField(DFT_bstring,offsetof(TangibleObject,mModel),128,13);
-    mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[1]),2,14);
-    mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[2]),2,15);
+	//hair binding
+	mHairBinding = mDatabase->createDataBinding(3);
+	mHairBinding->addField(DFT_bstring,offsetof(TangibleObject,mModel),128,13);
+	mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[1]),2,14);
+	mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[2]),2,15);
 
-    //bank binding
-    mBankBinding = mDatabase->createDataBinding(2);
-    mBankBinding->addField(DFT_uint32,offsetof(Bank,mCredits),4,164);
-    mBankBinding->addField(DFT_uint8,offsetof(Bank,mPlanet),1,179);
+	//bank binding
+	mBankBinding = mDatabase->createDataBinding(2);
+	mBankBinding->addField(DFT_uint32,offsetof(Bank,mCredits),4,164);
+	mBankBinding->addField(DFT_uint8,offsetof(Bank,mPlanet),1,179);
 }
 
 //=============================================================================

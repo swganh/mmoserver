@@ -102,23 +102,23 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
         return;
     }
 
-    if(invitedPlayer->checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
+    if(invitedPlayer->states.checkStatesEither(CreatureState_Combat | CreatureState_Tumbling | CreatureState_Swimming))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), invitingPlayer);
         return;
     }
 
     // Can NOT use bitwise operation on non bitwise constants. CreaturePostures are used exclusive.
-    // if(invitedPlayer->checkPosturesEither(CreaturePosture_Dead | CreaturePosture_Incapacitated))
-    if (invitedPlayer->checkPosture(CreaturePosture_Dead) || invitedPlayer->checkPosture(CreaturePosture_Incapacitated))
+    // if(invitedPlayer->states.checkPosturesEither(CreaturePosture_Dead | CreaturePosture_Incapacitated))
+    if (invitedPlayer->states.checkPosture(CreaturePosture_Dead) || invitedPlayer->states.checkPosture(CreaturePosture_Incapacitated))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), invitingPlayer);
         return;
     }
 
     // Can NOT use bitwise operation on non bitwise constants.
-    // if(invitingPlayer->checkPosturesEither(CreaturePosture_Dead | CreaturePosture_Incapacitated))
-    if (invitingPlayer->checkPosture(CreaturePosture_Dead) || invitingPlayer->checkPosture(CreaturePosture_Incapacitated))
+    // if(invitingPlayer->states.checkPosturesEither(CreaturePosture_Dead | CreaturePosture_Incapacitated))
+    if (invitingPlayer->states.checkPosture(CreaturePosture_Dead) || invitingPlayer->states.checkPosture(CreaturePosture_Incapacitated))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), invitingPlayer);
         return;

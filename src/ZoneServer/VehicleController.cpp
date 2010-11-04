@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CreatureObject.h"
 #include "IntangibleObject.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "MountObject.h"
 #include "Heightmap.h"
 #include "WorldManager.h"
@@ -75,23 +76,23 @@ void VehicleController::handleObjectMenuSelect(uint8_t message_type, Object* sou
 
     if(dynamic_cast<PlayerObject*>(source_object)) {
         switch(message_type)	{
-        case radId_vehicleGenerate:
-        case radId_vehicleStore:
-        {
-            // If a body for the vehicle exists then store it, if it doesn't then call it.
-            if (body_) {
-                Store();
-            } else {
-                Call();
+            case radId_vehicleGenerate:
+            case radId_vehicleStore:
+            {
+        // If a body for the vehicle exists then store it, if it doesn't then call it.
+        if (body_) {
+          Store();
+        } else {
+                  Call();
+        }
             }
-        }
-        break;
+            break;
 
-        default:
-        {
-            assert(false && "Vehicle::handleObjectMenuSelect Unknown radial selection!");
-        }
-        break;
+            default:
+            {
+        assert(false && "Vehicle::handleObjectMenuSelect Unknown radial selection!");
+            }
+            break;
         }
     }
 }
@@ -100,7 +101,7 @@ void VehicleController::handleObjectMenuSelect(uint8_t message_type, Object* sou
 //handles the radial selection
 void VehicleController::prepareCustomRadialMenu(CreatureObject* creature, uint8_t item_count) {
 
-    mRadialMenu = std::make_shared<RadialMenu>();
+	mRadialMenu = std::make_shared<RadialMenu>();
 
     mRadialMenu->addItem(1, 0, radId_vehicleGenerate, radAction_ObjCallback, "@pet/pet_menu:menu_call");
     mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_Default);
@@ -112,7 +113,6 @@ void VehicleController::prepareCustomRadialMenu(CreatureObject* creature, uint8_
 //spawns the physical body (CreatureObject)
 
 void VehicleController::Call() {
-
     if(body_)	{
         assert(false && "void Vehicle::call() body already exists");
         return;
@@ -145,7 +145,7 @@ void VehicleController::Call() {
     body_->setModelString(mPhysicalModel);
     body_->setSpeciesGroup(mNameFile.getAnsi());
     body_->setSpeciesString(mName.getAnsi());
-    body_->setPosture(0);
+    body_->states.setPosture(0);
     body_->setScale(1.0f);
 
 
@@ -214,7 +214,6 @@ void VehicleController::Store()
     // todo auto dismount
     if(owner_->checkIfMounted())
     {
-        owner_->setLocomotion(kLocomotionStanding);
         DismountPlayer();
     }
 
@@ -259,14 +258,11 @@ void VehicleController::DismountPlayer() {
     //For safe measures make the player equipped by nothing
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
 
-    body_->toggleStateOff(CreatureState_MountedCreature);
-    gMessageLib->sendStateUpdate(body_);
-
-    owner_->toggleStateOff(CreatureState_RidingMount);
-    gMessageLib->sendStateUpdate(owner_);
+    // TODO: make this more automatic...
+    gStateManager.removeActionState(owner_, CreatureState_RidingMount);   
+    gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
 
     owner_->setMounted(false);
-
     gMessageLib->sendUpdateMovementProperties(owner_);
 }
 
@@ -280,19 +276,18 @@ void VehicleController::MountPlayer()
         assert(false && "Vehicle::mountPlayer() no vehicle body!");
         return;
     }
-
     //Make the mount equip the player
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), body_->getId(), 4, owner_);
     gMessageLib->sendUpdateTransformMessage(body_);
-
-    body_->toggleStateOn(CreatureState_MountedCreature);
+  
+    body_->states.toggleActionOn(CreatureState_MountedCreature);
     gMessageLib->sendStateUpdate(body_);
 
-    owner_->toggleStateOn(CreatureState_RidingMount);
-    gMessageLib->sendStateUpdate(owner_);
+    gStateManager.setCurrentActionState(owner_,CreatureState_RidingMount);
+    //gStateManager.setCurrentPostureState(owner_,CreaturePosture_DrivingVehicle);
+    //gStateManager.setCurrentLocomotionState(owner_,CreatureLocomotion_DrivingVehicle);
 
     owner_->setMounted(true);
-
     gMessageLib->sendUpdateMovementProperties(owner_);
 }
 

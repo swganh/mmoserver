@@ -69,6 +69,7 @@ private:
     void InitArmor();
     void InitProfessions();
     void InitWounds();
+    void InitStates();
 
     void SendXPMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
     void SendResourcesMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
@@ -76,6 +77,7 @@ private:
     void _handleResourceTypes(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
     void _handleResourcesTypes(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
     void _handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
+    void _handleStateMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window);
 
     void _handleMainMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
     void _handleExperienceMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);
@@ -148,8 +150,9 @@ private:
     BStringVector			mItemMenu;
     BStringVector			mResourceMenu;
     BStringVector			mWoundMenu;
-
-    //2nd level menus
+    BStringVector           mStatesMenu;
+	
+	//2nd level menus
     BStringVector			mStructureMenu;
     BStringVector			mFurnitureMenu;
     BStringVector			mVehicleMenu;
@@ -224,7 +227,6 @@ private:
 class ItemFrogItemClass
 {
 public:
-
     ItemFrogItemClass () {};
     ~ItemFrogItemClass () {};
 
@@ -319,7 +321,6 @@ public:
 
     //uint32			GetCount(){return(CommoditiesTypeCount);}
     //uint32			CommoditiesTypeCount;
-
 };
 
 //=============================================================================

@@ -44,6 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NpcManager.h"
 #include "ScoutManager.h"
 #include "SkillManager.h"
+#include "StateManager.h"
 #include "StructureManager.h"
 #include "TradeManager.h"
 #include "UIManager.h"
@@ -164,7 +165,7 @@ ZoneServer::ZoneServer(int8* zoneName)
     MessageLib::Init();
     ObjectFactory::Init(mDatabase);
 
-    //attribute commands for food buffs
+	//attribute commands for food buffs
     FoodCommandMapClass::Init();
 
     //structure manager callback functions
@@ -176,16 +177,18 @@ ZoneServer::ZoneServer(int8* zoneName)
     // We can NOT create these factories among the already existing ones, if we want to have any kind of "ownership structure",
     // since the existing factories are impossible to delete without crashing the server.
     // NonPersistentContainerFactory::Init(mDatabase);
-    NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
-    // The object will create itself upon first usage,
-    NonPersistentNpcFactory::Instance();
+    (void)NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
+                                                // The object will create itself upon first usage,
+    (void)NonPersistentNpcFactory::Instance();
 
-    ForageManager::Instance();
-    ScoutManager::Instance();
-    NonPersistantObjectFactory::Instance();
+    (void)ForageManager::Instance();
+    (void)ScoutManager::Instance();
+    (void)NonPersistantObjectFactory::Instance();
 
     //ArtisanManager callback
     CraftingManager::Init(mDatabase);
+    gStateManager;
+    gStateManager.loadStateMaps();
 
     UIManager::Init(mDatabase,mMessageDispatch);
     CombatManager::Init(mDatabase);
@@ -201,7 +204,7 @@ ZoneServer::ZoneServer(int8* zoneName)
     if(zoneId != 41)
         StructureManager::Init(mDatabase,mMessageDispatch);
 
-    // Invoked when all creature regions for spawning of lairs are loaded
+	// Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
     ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
@@ -288,6 +291,7 @@ void ZoneServer::Process(void)
     mRouterService->Process();
 
     //  Process our core services
+
     mDatabaseManager->process();
     mNetworkManager->Process();
 
@@ -304,7 +308,6 @@ void ZoneServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
     mDatabase->executeProcedure("CALL sp_ServerStatusUpdate('%s', %u, '%s', %u)", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
-    
 }
 
 //======================================================================================================================
@@ -325,8 +328,7 @@ void ZoneServer::_connectToConnectionServer(void)
 
     // Execute our statement
     DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
-    
-    uint32 count = static_cast<uint32>(result->getRowCount());
+	uint32 count = static_cast<uint32>(result->getRowCount());
 
     // If we found them
     if (count == 1)

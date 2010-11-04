@@ -70,161 +70,161 @@ CampRegion::~CampRegion()
 
 void CampRegion::update()
 {
-    //Camps have a max timer of 55 minutes
-    if(gWorldManager->GetCurrentGlobalTick() - mSetUpTime > 3300000)
-    {
-        despawnCamp();
-        return;
-    }
+	//Camps have a max timer of 55 minutes
+	if(gWorldManager->GetCurrentGlobalTick() - mSetUpTime > 3300000)
+	{
+		despawnCamp();
+		return;
+	}
 
-    if(mAbandoned)
-    {
-        if((gWorldManager->GetCurrentGlobalTick() >= mExpiresTime) && (!mDestroyed))
-        {
-            despawnCamp();
-        }
-    }
+	if(mAbandoned)
+	{
+		if((gWorldManager->GetCurrentGlobalTick() >= mExpiresTime) && (!mDestroyed))
+		{
+			despawnCamp();
+		}
+	}
 
-    PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
 
-    if(!owner)
-    {
-        despawnCamp();
-        return;
-    }
+	if(!owner)
+	{
+		despawnCamp();
+		return;
+	}
 
-    if(owner->checkState(CreatureState_Combat))
-    {
-        //abandon
-        mAbandoned	= true;
-        mExpiresTime	= gWorldManager->GetCurrentGlobalTick(); //There is no grace period for combat.
-        return;
-    }
+	if(owner->states.checkState(CreatureState_Combat))
+	{
+		//abandon
+		mAbandoned	= true;
+		mExpiresTime	= gWorldManager->GetCurrentGlobalTick(); //There is no grace period for combat.
+		return;
+	}
 
-    if(!mSubZoneId)
-    {
-        mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
-        mSubZoneId	= (uint32)mQTRegion->getId();
-        mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth*2,mHeight*2);
-    }
+	if(!mSubZoneId)
+	{
+		mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
+		mSubZoneId	= (uint32)mQTRegion->getId();
+		mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth*2,mHeight*2);
+	}
 
-    Object*		object;
-    ObjectSet	objList;
+	Object*		object;
+	ObjectSet	objList;
 
-    if(mParentId)
-    {
-        mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
-    }
+	if(mParentId)
+	{
+		mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
+	}
 
-    if(mQTRegion)
-    {
-        mQTRegion->mTree->getObjectsInRangeContains(this,&objList,ObjType_Player,&mQueryRect);
-    }
+	if(mQTRegion)
+	{
+		mQTRegion->mTree->getObjectsInRangeContains(this,&objList,ObjType_Player,&mQueryRect);
+	}
 
-    ObjectSet::iterator objIt = objList.begin();
+	ObjectSet::iterator objIt = objList.begin();
 
-    while(objIt != objList.end())
-    {
-        object = (*objIt);
+	while(objIt != objList.end())
+	{
+		object = (*objIt);
 
-        //one xp per player in camp every 2 seconds
-        if(!mAbandoned)
-        {
-            applyHAMHealing(object);
-            mXp++;
-        }
+		//one xp per player in camp every 2 seconds
+		if(!mAbandoned)
+		{
+			applyHAMHealing(object);
+			mXp++;
+		}
 
-        if(!(checkKnownObjects(object)))
-        {
-            onObjectEnter(object);
+		if(!(checkKnownObjects(object)))
+		{
+			onObjectEnter(object);
 
-            std::list<campLink*>::iterator i;
-            bool alreadyExists = false;
+			std::list<campLink*>::iterator i;
+			bool alreadyExists = false;
 
-            for(i = links.begin(); i != links.end(); i++)
-            {
-                if((*i)->objectID == object->getId())
-                {
-                    alreadyExists = true;
-                }
-            }
+			for(i = links.begin(); i != links.end(); i++)
+			{
+				if((*i)->objectID == object->getId())
+				{
+					alreadyExists = true;
+				}
+			}
 
-            if(!alreadyExists)
-            {
-                campLink* temp = new campLink;
-                temp->objectID = object->getId();
-                temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
-                temp->tickCount = 0;
+			if(!alreadyExists)
+			{
+				campLink* temp = new campLink;
+				temp->objectID = object->getId();
+				temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
+				temp->tickCount = 0;
 
-                links.push_back(temp);
-            }
-        }
-        else
-        {
-            //Find the right link
-            std::list<campLink*>::iterator i;
+				links.push_back(temp);
+			}
+		}
+		else
+		{
+			//Find the right link
+			std::list<campLink*>::iterator i;
 
-            for(i = links.begin(); i != links.end(); i++)
-            {
-                if((*i)->objectID == object->getId())
-                {
+			for(i = links.begin(); i != links.end(); i++)
+			{
+				if((*i)->objectID == object->getId())
+				{
 
-                    (*i)->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
+					(*i)->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
 
-                    if((*i)->tickCount == 15)
-                    {
-                        applyWoundHealing(object);
-                        (*i)->tickCount = 0;
-                    }
-                    else
-                        (*i)->tickCount++;
+					if((*i)->tickCount == 15)
+					{
+						applyWoundHealing(object);
+						(*i)->tickCount = 0;
+					}
+					else
+						(*i)->tickCount++;
 
-                    break;
-                }
-            }
+					break;
+				}
+			}
 
 
-            /*
-            //This code causes the Zone Server to print relational position and rotation info
-            //to allow the adding of items without much effort.
-            int8 text[256];
-            sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.x - this->mPosition.x), (object->mPosition.y - this->mPosition.y), (object->mPosition.z - this->mPosition.z), object->mDirection.x,object->mDirection.y,object->mDirection.z,object->mDirection.w);
-            */
-        }
+			/*
+			//This code causes the Zone Server to print relational position and rotation info
+			//to allow the adding of items without much effort.
+			int8 text[256];
+			sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.x - this->mPosition.x), (object->mPosition.y - this->mPosition.y), (object->mPosition.z - this->mPosition.z), object->mDirection.x,object->mDirection.y,object->mDirection.z,object->mDirection.w);
+			*/
+		}
 
-        ++objIt;
-    }
+		++objIt;
+	}
 
-    PlayerObjectSet oldKnownObjects = mKnownPlayers;
-    PlayerObjectSet::iterator objSetIt = oldKnownObjects.begin();
+	PlayerObjectSet oldKnownObjects = mKnownPlayers;
+	PlayerObjectSet::iterator objSetIt = oldKnownObjects.begin();
 
-    while(objSetIt != oldKnownObjects.end())
-    {
-        object = dynamic_cast<Object*>(*objSetIt);
+	while(objSetIt != oldKnownObjects.end())
+	{
+		object = dynamic_cast<Object*>(*objSetIt);
 
-        if(objList.find(object) == objList.end())
-        {
-            onObjectLeave(object);
-        }
+		if(objList.find(object) == objList.end())
+		{
+			onObjectLeave(object);
+		}
 
-        ++objSetIt;
-    }
+		++objSetIt;
+	}
 
-    //prune the list
-    std::list<campLink*>::iterator i = links.begin();
+	//prune the list
+	std::list<campLink*>::iterator i = links.begin();
 
-    while(i != links.end())
-    {
-        if(gWorldManager->GetCurrentGlobalTick() - (*i)->lastSeenTime >= 30000)
-        {
-            delete (*i);
-            i = links.erase(i);
-        }
-        else
-        {
-            i++;
-        }
-    }
+	while(i != links.end())
+	{
+		if(gWorldManager->GetCurrentGlobalTick() - (*i)->lastSeenTime >= 30000)
+		{
+			delete (*i);
+			i = links.erase(i);
+		}
+		else
+		{
+			i++;
+		}
+	}
 }
 
 //=============================================================================

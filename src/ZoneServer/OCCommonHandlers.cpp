@@ -91,7 +91,7 @@ void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,Ob
     ObjectSet		inRangeObjects;
     float			boardingRange	= 25.0;
 
-    if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
+    if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;
@@ -1084,7 +1084,7 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
     float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
 
-    if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
+    if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating)
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return;
@@ -1342,7 +1342,7 @@ void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectContr
 {
     // set locomotion
     PlayerObject* playerObject = (PlayerObject*)mObject;
-    playerObject->setLocomotion(kLocomotionStanding);
+    playerObject->states.setLocomotion(CreatureLocomotion_Standing);
 }
 
 //======================================================================================================================
@@ -1665,8 +1665,7 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
     gMessageLib->sendUpdateMovementProperties(player);
 
     // Update the player's locomotion to a running state.
-    player->setLocomotion(kLocomotionRunning);
-
+    player->states.setLocomotion(CreatureLocomotion_Running);
     // Toggle the flags for the burst run effect and the cool-down timer on the corresponding command.
     player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRunCD);
     player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRun);
@@ -1690,8 +1689,8 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
             gMessageLib->sendUpdateMovementProperties(player);
 
             // Update the player's locomotion to a walking state.
-            player->setLocomotion(kLocomotionWalking);
-
+            player->states.setLocomotion(CreatureLocomotion_Walking);
+            
             // Remove the burst run flag.
             player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);
 

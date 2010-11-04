@@ -24,6 +24,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include <cstdint>
 
 #ifndef ANH_ZONESERVER_CREATURE_ENUMS_H
 #define ANH_ZONESERVER_CREATURE_ENUMS_H
@@ -61,9 +62,9 @@ enum CreatureGroup
 };
 
 //=============================================================================
-enum CreatureState :
-unsigned long long
+enum CreatureState :uint64_t
 {
+    CreatureState_ClearState					=	0x0000000000000000,
     CreatureState_Cover							=	0x0000000000000001,
     CreatureState_Combat						=	0x0000000000000002,
     CreatureState_Peace							=	0x0000000000000004,
@@ -95,37 +96,36 @@ unsigned long long
     CreatureState_MountedCreature				=	0x0000000010000000,
     CreatureState_PilotingShip					=	0x0000000020000000,
     CreatureState_ShipOperations				=	0x0000000040000000,
-    CreatureState_ShipGunner					=	0x0000000080000000
-    /*CreatureState_ShipInterior				=	0x0000000100000000,
-    CreatureState_PilotingPobShip				=	0x0000000200000000,*/
+    CreatureState_ShipGunner					=	0x0000000080000000,
+    CreatureState_ShipInterior					=	0x0000000100000000,
+    CreatureState_PilotingPobShip				=	0x0000000200000000
 };
 
 //=============================================================================
-enum CreatureLocomotion :
-unsigned long long
+enum CreatureLocomotion :uint64_t
 {
-    kLocomotionStanding							=	0x0000000000000001,
-    kLocomotionSneaking							=	0x0000000000000002,
-    kLocomotionWalking							=	0x0000000000000004,
-    kLocomotionRunning							=	0x0000000000000008,
-    kLocomotionKneeling							=	0x0000000000000010,
-    kLocomotionCrouchSneaking					=	0x0000000000000020,
-    kLocomotionCrouchWalking					=	0x0000000000000040,
-    kLocomotionProne							=	0x0000000000000080,
-    kLocomotionCrawling							=	0x0000000000000100,
-    kLocomotionClimbingStationary				=	0x0000000000000200,
-    kLocomotionClimbing							=	0x0000000000000400,
-    kLocomotionHovering							=	0x0000000000000800,
-    kLocomotionFlying							=	0x0000000000001000,
-    kLocomotionLyingDown						=	0x0000000000002000,
-    kLocomotionSitting							=	0x0000000000004000,
-    kLocomotionSkillAnimating					=	0x0000000000008000,
-    kLocomotionDrivingVehicle					=	0x0000000000010000,
-    kLocomotionRidingCreature					=	0x0000000000200000,
-    kLocomotionKnockedDown						=	0x0000000000400000,
-    kLocomotionIncapacitated					=	0x0000000000800000,
-    kLocomotionDead								=	0x0000000010000000,
-    kLocomotionBlocking							=	0x0000000020000000
+    CreatureLocomotion_Standing							=	0x0000000000000001,
+    CreatureLocomotion_Sneaking							=	0x0000000000000002,
+    CreatureLocomotion_Walking							=	0x0000000000000004,
+    CreatureLocomotion_Running							=	0x0000000000000008,
+    CreatureLocomotion_Kneeling							=	0x0000000000000010,
+    CreatureLocomotion_CrouchSneaking					=	0x0000000000000020,
+    CreatureLocomotion_CrouchWalking					=	0x0000000000000040,
+    CreatureLocomotion_Prone							=	0x0000000000000080,
+    CreatureLocomotion_Crawling							=	0x0000000000000100,
+    CreatureLocomotion_ClimbingStationary				=	0x0000000000000200,
+    CreatureLocomotion_Climbing							=	0x0000000000000400,
+    CreatureLocomotion_Hovering							=	0x0000000000000800,
+    CreatureLocomotion_Flying							=	0x0000000000001000,
+    CreatureLocomotion_LyingDown						=	0x0000000000002000,
+    CreatureLocomotion_Sitting							=	0x0000000000004000,
+    CreatureLocomotion_SkillAnimating					=	0x0000000000008000,
+    CreatureLocomotion_DrivingVehicle					=	0x0000000000010000,
+    CreatureLocomotion_RidingCreature					=	0x0000000000020000,
+    CreatureLocomotion_KnockedDown						=	0x0000000000040000,
+    CreatureLocomotion_Incapacitated					=	0x0000000000080000,
+    CreatureLocomotion_Dead								=	0x0000000000100000,
+    CreatureLocomotion_Blocking							=	0x0000000000200000
 };
 //=============================================================================
 enum CreaturePosture
@@ -192,7 +192,7 @@ unsigned long long
     CreatureEquipSlot_Hold_Both				= 0x000600000,
     CreatureEquipSlot_Inventory				= 0x000800000,
     CreatureEquipSlot_Mission				= 0x001000000,
-    CreatureEquipSlot_Mouth					= 0x002000000,
+    CreatureEquipSlot_Mouth					= 0x002000000,	
     CreatureEquipSlot_Neck					= 0x004000000,
     CreatureEquipSlot_Pants1				= 0x008000000,
     CreatureEquipSlot_Pants2				= 0x010000000,

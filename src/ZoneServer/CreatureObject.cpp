@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "EntertainerManager.h"
 #include "IncapRecoveryEvent.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "SpawnPoint.h"
 #include "UIManager.h"
 #include "VehicleController.h"
@@ -41,50 +42,56 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneTree.h"
 #include "ZoneServer/Tutorial.h"
 #include "MessageLib/MessageLib.h"
+// events
+#include "PostureEvent.h"
+#include "ActionStateEvent.h"
+#include "LocomotionStateEvent.h"
+#include "Common/EventDispatcher.h"
 
 #include "Utils/clock.h"
 
 #include "Utils/rand.h"
 #include <cfloat>
 
+using ::common::IEventPtr;
+using ::common::EventDispatcher;
+using ::common::EventType;
+using ::common::EventListener;
+using ::common::EventListenerType;
+
 //=============================================================================
 
 CreatureObject::CreatureObject()
-    : MovingObject()
-    ,	mTargetId(0)
-    , mDefenderUpdateCounter(0)
-    , mSkillModUpdateCounter(0)
-
-    , mCurrentAnimation("")
-    , mCustomizationStr("")
-    , mFaction("")
-    , mSpecies("")
-    , mSpeciesGroup("")
-    , mHair(NULL)
-    , mPerformance(NULL)
-    , mPvPStatus(CreaturePvPStatus_None)
-    , mPendingPerform(PlayerPerformance_None)
-    , mCurrentIncapTime(0)
-    , mEntertainerListenToId(0)
-    , mFirstIncapTime(0)
-    , mGroupId(0)
-    , mState(0)
-    , mLastEntertainerXP(0)
-    , mScale(1.0)
-    , mLanguage(1)
-    ,	mLastMoveTick(0)
-    , mPerformanceCounter(0)
-    , mPerformanceId(0)
-    , mRaceGenderMask(0)
-    , mSkillUpdateCounter(0)
-    , mCL(1)
-    , mFactionRank(0)
-    , mIncapCount(0)
-    , mMoodId(0)
-    , mPosture(0)
-    , mLocomotion(0)
-
-    ,mReady(false)
+: MovingObject()
+,	mTargetId(0)
+, mDefenderUpdateCounter(0)
+, mSkillModUpdateCounter(0)
+, mCurrentAnimation("")
+, mCustomizationStr("")
+, mFaction("")
+, mSpecies("")
+, mSpeciesGroup("")
+, mHair(NULL)
+, mPerformance(NULL)
+, mPvPStatus(CreaturePvPStatus_None)
+, mPendingPerform(PlayerPerformance_None)
+, mCurrentIncapTime(0)
+, mEntertainerListenToId(0)
+, mFirstIncapTime(0)
+, mGroupId(0)
+, mLastEntertainerXP(0)
+, mScale(1.0)
+, mLanguage(1)
+, mLastMoveTick(0)
+, mPerformanceCounter(0)
+, mPerformanceId(0)
+, mRaceGenderMask(0)
+, mSkillUpdateCounter(0)
+, mCL(1)
+, mFactionRank(0)
+, mIncapCount(0)
+, mMoodId(0)
+, mReady(false)
 {
     mType = ObjType_Creature;
 
@@ -96,11 +103,22 @@ CreatureObject::CreatureObject()
     mHam.setParent(this);
     mEquipManager.setParent(this);
 
-    for(uint16 i = 1; i<256; i++)
+    for(uint16 i = 1;i<256;i++)
         mCustomization[i]=0;
+    
+    // initialize state struct
+    states.action          = 0;
+    states.posture         = 0;
+    states.locomotion      = 0;
+    
+    states.blockAction     = false;
+    states.blockLocomotion = false;
+    states.blockPosture    = false;
 
     // register event functions
     registerEventFunction(this,&CreatureObject::onIncapRecovery);
+
+    // register new event listeners
 }
 
 //=============================================================================
@@ -378,55 +396,55 @@ bool CreatureObject::handleImagedesignerTimeOut(uint64 time,void* ref)
 
 void CreatureObject::updateMovementProperties()
 {
-    switch(mPosture)
+    switch(states.posture)
     {
-    case CreaturePosture_KnockedDown:
-    case CreaturePosture_Incapacitated:
-    case CreaturePosture_Dead:
-    case CreaturePosture_Sitting:
-    {
-        mCurrentRunSpeedLimit		= 0.0f;
-        mCurrentAcceleration		= 0.0f;
-        mCurrentTurnRate			= 0.0f;
-        mCurrentTerrainNegotiation	= 0.0f;
-    }
-    break;
+        case CreaturePosture_KnockedDown:
+        case CreaturePosture_Incapacitated:
+        case CreaturePosture_Dead:
+        case CreaturePosture_Sitting:
+        {
+            mCurrentRunSpeedLimit		= 0.0f;
+            mCurrentAcceleration		= 0.0f;
+            mCurrentTurnRate			= 0.0f;
+            mCurrentTerrainNegotiation	= 0.0f;
+        }
+        break;
 
-    case CreaturePosture_Upright:
-    {
-        mCurrentRunSpeedLimit		= mBaseRunSpeedLimit;
-        mCurrentAcceleration		= mBaseAcceleration;
-        mCurrentTurnRate			= mBaseTurnRate;
-        mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;
-    }
-    break;
+        case CreaturePosture_Upright:
+        {
+            mCurrentRunSpeedLimit		= mBaseRunSpeedLimit;
+            mCurrentAcceleration		= mBaseAcceleration;
+            mCurrentTurnRate			= mBaseTurnRate;
+            mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;
+        }
+        break;
 
-    case CreaturePosture_Prone:
-    {
-        mCurrentRunSpeedLimit		= 1.0f;
-        mCurrentAcceleration		= 0.25f;
-        mCurrentTurnRate			= mBaseTurnRate;
-        mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;
-    }
-    break;
+        case CreaturePosture_Prone:
+        {
+            mCurrentRunSpeedLimit		= 1.0f;
+            mCurrentAcceleration		= 0.25f;
+            mCurrentTurnRate			= mBaseTurnRate;
+            mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;
+        }
+        break;
 
-    case CreaturePosture_Crouched:
-    {
-        mCurrentRunSpeedLimit		= 0.0f;
-        mCurrentAcceleration		= 0.0f;
-        mCurrentTurnRate			= mBaseTurnRate;
-        mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;
-    }
-    break;
+        case CreaturePosture_Crouched:
+        {
+            mCurrentRunSpeedLimit		= 0.0f;
+            mCurrentAcceleration		= 0.0f;
+            mCurrentTurnRate			= mBaseTurnRate;
+            mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;
+        }
+        break;
 
-    default:
-    {
-        mCurrentRunSpeedLimit		= mBaseRunSpeedLimit;
-        mCurrentAcceleration		= mBaseAcceleration;
-        mCurrentTurnRate			= mBaseTurnRate;
-        mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;
-    }
-    break;
+        default:
+        {
+            mCurrentRunSpeedLimit		= mBaseRunSpeedLimit;
+            mCurrentAcceleration		= mBaseAcceleration;
+            mCurrentTurnRate			= mBaseTurnRate;
+            mCurrentTerrainNegotiation	= mBaseTerrainNegotiation;
+        }
+        break;
     }
 }
 
@@ -656,6 +674,22 @@ void CreatureObject::updateRaceGenderMask(bool female)
         }
     }
 }
+void CreatureObject::creatureActionStateUpdate()
+{
+    gMessageLib->sendPostureAndStateUpdate(this);
+    
+}
+void CreatureObject::creaturePostureUpdate()
+{
+    this->getHam()->updateRegenRates();
+    this->updateMovementProperties();
+}
+
+void CreatureObject::creatureLocomotionUpdate()
+{
+    this->getHam()->updateRegenRates();
+    this->updateMovementProperties();
+}
 
 //=============================================================================
 //
@@ -694,7 +728,6 @@ void CreatureObject::incap()
         {
             player->disableAutoAttack();
         }
-
         //See if our player is mounted -- if so dismount him
         if(player->checkIfMounted())
         {
@@ -712,8 +745,8 @@ void CreatureObject::incap()
         if(++mIncapCount < (uint8)configIncapCount)
         {
             // update the posture and locomotion
-            mPosture = CreaturePosture_Incapacitated;
-            setLocomotionByPosture(mPosture);
+            gStateManager.setCurrentPostureState(this, CreaturePosture_Incapacitated);
+            gStateManager.setCurrentActionState(this, CreatureState_ClearState);
 
             // send timer updates
             mCurrentIncapTime = gWorldConfig->getBaseIncapTime() * 1000;
@@ -730,15 +763,15 @@ void CreatureObject::incap()
             gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
             mHam.setTaskId(0);
 
-            updateMovementProperties();
+            //updateMovementProperties();
 
-            gMessageLib->sendPostureAndStateUpdate(this);
+            //gMessageLib->sendPostureAndStateUpdate(this);
 
-            if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
-            {
-                gMessageLib->sendUpdateMovementProperties(player);
-                gMessageLib->sendSelfPostureUpdate(player);
-            }
+            //if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
+            //{
+            //    gMessageLib->sendUpdateMovementProperties(player);
+            //    gMessageLib->sendSelfPostureUpdate(player);
+            //}
         }
         // we hit the max -> death
         else
@@ -773,9 +806,6 @@ void CreatureObject::die()
         player->disableAutoAttack();
     }
 
-    mPosture = CreaturePosture_Dead;
-    setLocomotionByPosture(mPosture);
-
     // reset ham regeneration
     mHam.updateRegenRates();
     gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
@@ -783,15 +813,16 @@ void CreatureObject::die()
 
     updateMovementProperties();
 
+    gStateManager.setCurrentPostureState(this, CreaturePosture_Dead);
     // clear states
-    mState = 0;
+    gStateManager.setCurrentActionState(this, CreatureState_ClearState);
 
-    gMessageLib->sendPostureAndStateUpdate(this);
+    //gMessageLib->sendPostureAndStateUpdate(this);
 
     if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
     {
-        gMessageLib->sendUpdateMovementProperties(player);
-        gMessageLib->sendSelfPostureUpdate(player);
+        /*gMessageLib->sendUpdateMovementProperties(player);
+        gMessageLib->sendSelfPostureUpdate(player);*/
 
         // update duel lists
         player->clearDuelList();
@@ -816,8 +847,7 @@ void CreatureObject::die()
                 // if no more defenders, clear combat state
                 if (!defenderCreature->getDefenders()->size())
                 {
-                    defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-                    gMessageLib->sendStateUpdate(defenderCreature);
+                    gStateManager.setCurrentActionState(defenderCreature, CreatureState_Peace);
                 }
             }
             // If we remove self from all defenders, then we should remove all defenders from self. Remember, we are dead.
@@ -852,7 +882,7 @@ void CreatureObject::die()
                     // TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
                     // Tranformation is needed before the correct distance can be calculated.
                     if(!nearestBuilding	||
-                            (nearestBuilding != building && (glm::distance(mPosition, building->mPosition) < glm::distance(mPosition, nearestBuilding->mPosition))))
+                        (nearestBuilding != building && (glm::distance(mPosition, building->mPosition) < glm::distance(mPosition, nearestBuilding->mPosition))))
                     {
                         nearestBuilding = building;
                     }
@@ -1060,22 +1090,7 @@ bool CreatureObject::setAsActiveDefenderAndUpdateList(uint64 defenderId)
     }
     else
     {
-        /*
-        // Looks like we have to add the defender to the top of list.
-        CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(defenderId));
-        if (defenderId && defender && !defender->isDead() && !defender->isIncapacitated())
-        {
-        	mDefenders.push_front(defenderId);
-        	gMessageLib->sendDefenderUpdate(this,1,0,defenderId);
-        	valid = true;
-        }
-        else
-        {
-        	// We have lost our target.
-        	// Refresh list to get around targeting rectile problems with corpse
-        	// gMessageLib->sendNewDefenderList(this);
-        }
-        */
+        
     }
     return valid;
 }
@@ -1341,8 +1356,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
             // Inform npc about this event.
             this->inPeace();
         }
-        this->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-        gMessageLib->sendStateUpdate(this);
+        gStateManager.setCurrentActionState(this, CreatureState_Peace);
     }
     else
     {
@@ -1376,8 +1390,7 @@ void CreatureObject::makePeaceWithDefender(uint64 defenderId)
                 // Inform npc about this event.
                 defenderCreature->inPeace();
             }
-            defenderCreature->toggleStateOff((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-            gMessageLib->sendStateUpdate(defenderCreature);
+            gStateManager.setCurrentActionState(defenderCreature, CreatureState_Peace);
         }
         else
         {
@@ -1415,70 +1428,48 @@ void CreatureObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uin
 void CreatureObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
 
+    if(PlayerObject* player = dynamic_cast<PlayerObject*>(srcObject))
+    {
+            
+    }
 }
 //=============================================================================
 // maps the incoming posture
-void CreatureObject::setLocomotionByPosture(uint32 posture)
-{
-    switch (posture)
-    {
-    case CreaturePosture_Upright:
-        mLocomotion = kLocomotionStanding;
-        break;
-        // not even sure if this is used.
-    case CreaturePosture_Crouched:
-    {
-        if(this->getCurrentSpeed() < this->getBaseAcceleration())
-            mLocomotion = kLocomotionCrouchWalking;
-        else
-            mLocomotion = kLocomotionCrouchSneaking;
-        break;
-    }
-    case CreaturePosture_Prone:
-        mLocomotion = kLocomotionProne;
-        break;
-    case CreaturePosture_Sneaking:
-        mLocomotion = kLocomotionSneaking;
-        break;
-        // is this used?
-    case CreaturePosture_Blocking:
-        mLocomotion = kLocomotionBlocking;
-        break;
-        // is this used?
-    case CreaturePosture_Climbing:
-    {
-        if(this->getCurrentSpeed() >0)
-            mLocomotion = kLocomotionClimbing;
-        else
-            mLocomotion = kLocomotionClimbingStationary;
-        break;
-    }
-    case CreaturePosture_Flying:
-        mLocomotion = kLocomotionFlying;
-        break;
-    case CreaturePosture_LyingDown:
-        mLocomotion = kLocomotionLyingDown;
-        break;
-    case CreaturePosture_Sitting:
-        mLocomotion = kLocomotionSitting;
-        break;
-    case CreaturePosture_SkillAnimating:
-        mLocomotion = kLocomotionSkillAnimating;
-        break;
-    case CreaturePosture_DrivingVehicle:
-        mLocomotion = kLocomotionDrivingVehicle;
-        break;
-    case CreaturePosture_RidingCreature:
-        mLocomotion = kLocomotionRidingCreature;
-        break;
-    case CreaturePosture_KnockedDown:
-        mLocomotion = kLocomotionKnockedDown;
-        break;
-    case CreaturePosture_Incapacitated:
-        mLocomotion = kLocomotionIncapacitated;
-        break;
-    case CreaturePosture_Dead:
-        mLocomotion = kLocomotionDead;
-        break;
-    }
-}
+//void CreatureObject::setLocomotionByPosture(uint32 posture)
+//{
+//    switch (posture)
+//    {
+//        case CreaturePosture_Upright: mLocomotion = CreatureLocomotion_Standing; break;
+//        // not even sure if this is used.
+//        case CreaturePosture_Crouched:
+//        {
+//            if(this->getCurrentSpeed() < this->getBaseAcceleration())
+//                mLocomotion = CreatureLocomotion_CrouchWalking;
+//            else
+//                mLocomotion = CreatureLocomotion_CrouchSneaking;
+//            break;
+//        }
+//        case CreaturePosture_Prone: mLocomotion = CreatureLocomotion_Prone; break;
+//        case CreaturePosture_Sneaking: mLocomotion = CreatureLocomotion_Sneaking; break;
+//        // is this used?
+//        case CreaturePosture_Blocking: mLocomotion = CreatureLocomotion_Blocking; break;
+//        // is this used?
+//        case CreaturePosture_Climbing:
+//        {
+//                if(this->getCurrentSpeed() >0)
+//                    mLocomotion = CreatureLocomotion_Climbing;
+//                else
+//                    mLocomotion = CreatureLocomotion_ClimbingStationary;
+//                break;
+//        }
+//        case CreaturePosture_Flying: mLocomotion = CreatureLocomotion_Flying; break;
+//        case CreaturePosture_LyingDown:	mLocomotion = CreatureLocomotion_LyingDown; break;
+//        case CreaturePosture_Sitting: mLocomotion = CreatureLocomotion_Sitting; break;
+//        case CreaturePosture_SkillAnimating: mLocomotion = CreatureLocomotion_SkillAnimating; break;
+//        case CreaturePosture_DrivingVehicle: mLocomotion = CreatureLocomotion_DrivingVehicle; break;
+//        case CreaturePosture_RidingCreature: mLocomotion = CreatureLocomotion_RidingCreature; break;
+//        case CreaturePosture_KnockedDown: mLocomotion = CreatureLocomotion_KnockedDown; break;
+//        case CreaturePosture_Incapacitated: mLocomotion = CreatureLocomotion_Incapacitated; break;
+//        case CreaturePosture_Dead: mLocomotion = CreatureLocomotion_Dead; break;
+//    }
+//}

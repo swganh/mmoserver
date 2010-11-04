@@ -826,13 +826,13 @@ void ScriptSupport::scriptSystemMessage(uint64 playerId, uint64 targetId, std::s
 
 bool ScriptSupport::npcInCombat(uint64 npcId)
 {
-    bool inCombat = false;
-    CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
-    if (creature)
-    {
-        inCombat = creature->checkState(CreatureState_Combat);
-    }
-    return inCombat;
+	bool inCombat = false;
+	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
+	if (creature)
+	{
+		inCombat = creature->states.checkState(CreatureState_Combat);
+	}
+	return inCombat;
 }
 
 bool ScriptSupport::npcIsDead(uint64 npcId)

@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "ResourceContainer.h"
 #include "ResourceManager.h"
+#include "StateManager.h"
 #include "SchematicManager.h"
 #include "WorldManager.h"
 
@@ -77,30 +78,29 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,Database* database,Play
     , mCounter(2)
     , mItemLoaded(false)
 {
+	// update player variables
+	mOwner->setCraftingStage(mStage);
+	mOwner->setExperimentationFlag(mExpFlag);
+	mOwner->setExperimentationPoints(0);
 
-    // update player variables
-    mOwner->setCraftingStage(mStage);
-    mOwner->setExperimentationFlag(mExpFlag);
-    mOwner->setExperimentationPoints(0);
 
+	// the station given is the crafting station compatible with our tool in a set radius
+	//
+	if(station)
+		mOwner->setNearestCraftingStation(station->getId());
+	else
+		mOwner->setNearestCraftingStation(0);
 
-    // the station given is the crafting station compatible with our tool in a set radius
-    //
-    if(station)
-        mOwner->setNearestCraftingStation(station->getId());
-    else
-        mOwner->setNearestCraftingStation(0);
+	gStateManager.setCurrentActionState(mOwner,CreatureState_Crafting);
 
-    mOwner->toggleStateOn(CreatureState_Crafting);
-
-    // send the updates
-    gMessageLib->sendStateUpdate(mOwner);
-    gMessageLib->sendUpdateCraftingStage(mOwner);
-    gMessageLib->sendUpdateExperimentationFlag(mOwner);
-    gMessageLib->sendUpdateNearestCraftingStation(mOwner);
-    gMessageLib->sendUpdateExperimentationPoints(mOwner);
-    gMessageLib->sendDraftSchematicsList(mTool,mOwner);
-    mToolEffectivity = mTool->getAttribute<float>("craft_tool_effectiveness");
+	// send the updates
+	gMessageLib->sendStateUpdate(mOwner);
+	gMessageLib->sendUpdateCraftingStage(mOwner);
+	gMessageLib->sendUpdateExperimentationFlag(mOwner);
+	gMessageLib->sendUpdateNearestCraftingStation(mOwner);
+	gMessageLib->sendUpdateExperimentationPoints(mOwner);
+	gMessageLib->sendDraftSchematicsList(mTool,mOwner);
+	mToolEffectivity = mTool->getAttribute<float>("craft_tool_effectiveness");
 }
 
 //=============================================================================
@@ -109,18 +109,18 @@ CraftingSession::CraftingSession(Anh_Utils::Clock* clock,Database* database,Play
 //
 CraftingSession::~CraftingSession()
 {
-    _cleanUp();
+	_cleanUp();
 
-    // reset player variables
-    mOwner->setCraftingSession(NULL);
-    mOwner->toggleStateOff(CreatureState_Crafting);
-    mOwner->setCraftingStage(0);
-    mOwner->setExperimentationFlag(1);
-    mOwner->setExperimentationPoints(10);
-    mOwner->setNearestCraftingStation(0);
+	// reset player variables
+	mOwner->setCraftingSession(NULL);
+    gStateManager.removeActionState(mOwner, CreatureState_Crafting);
+	mOwner->setCraftingStage(0);
+	mOwner->setExperimentationFlag(1);
+	mOwner->setExperimentationPoints(10);
+	mOwner->setNearestCraftingStation(0);
 
-    // send cancel session
-    gMessageLib->sendSharedNetworkMessage(mOwner,0,1);
+	// send cancel session
+	gMessageLib->sendSharedNetworkMessage(mOwner,0,1);
     gMessageLib->SendSystemMessage(::common::OutOfBand("ui_craft", "session_ended"), mOwner);
 
     // send player updates

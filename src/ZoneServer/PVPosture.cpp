@@ -41,15 +41,15 @@ bool PVPosture::validate(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 op
 {
     if(CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject()))
     {
-        uint32 postureBit = 1 << creature->getPosture();
+        uint32 postureBit = 1 << creature->states.getPosture();
 
         // check our posture
         if(cmdProperties && ((cmdProperties->mPostureMask & postureBit) != postureBit))
         {
             reply1 = kCannotDoWhileLocomotion;
-            reply2 = mController->getLowestCommonBit(creature->getPosture(),cmdProperties->mPostureMask);
-            return false;
-        }
+            reply2 = mController->getLowestCommonBit(creature->states.getPosture(),cmdProperties->mPostureMask);
+			return false;
+		}
     }
 
     return true;

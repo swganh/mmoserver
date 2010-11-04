@@ -466,41 +466,39 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 
 void TreasuryManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-    // gLogger->logMsgF("CloningTerminal::handleUIEvent You are here!",MSG_NORMAL);
+	// gLogger->logMsgF("CloningTerminal::handleUIEvent You are here!",MSG_NORMAL);
 
-    if(window == NULL)
-    {
-        return;
-    }
+	if(window == NULL)
+	{
+		return;
+	}
 
-    PlayerObject* playerObject = window->getOwner(); // window owner
+	PlayerObject* playerObject = window->getOwner(); // window owner
 
-    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->checkState(CreatureState_Combat))
-    {
-        return;
-    }
+	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
+	{
+		return;
+	}
 
-    switch(window->getWindowType())
-    {
-    case SUI_Window_Trade_BankTip_ConfirmSurcharge:
-    {
-        if (action == 1)
-        {
-            // That's the Cancel.
-            //what
-        }
-        else
-        {
-            // This is the OK.  (action == 0)
-
-            TreasuryManagerAsyncContainer* asynContainer = (TreasuryManagerAsyncContainer*) window->getAsyncContainer();
-            handleBankTipSurchargeConfirmed(asynContainer);
-        }
-    }
-    break;
-    }
-
-
+	switch(window->getWindowType())
+	{
+		case SUI_Window_Trade_BankTip_ConfirmSurcharge:
+		{
+			if (action == 1)
+			{
+				// That's the Cancel.
+				//what 
+			}
+			else
+			{
+				// This is the OK.  (action == 0)
+				
+				TreasuryManagerAsyncContainer* asynContainer = (TreasuryManagerAsyncContainer*) window->getAsyncContainer();
+				handleBankTipSurchargeConfirmed(asynContainer);
+			}
+		}
+		break;
+	}
 }
 
 

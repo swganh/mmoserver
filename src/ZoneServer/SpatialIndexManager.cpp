@@ -323,20 +323,75 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 	//now destroy it for everyone around as well as around for it
 	
 	ObjectListType playerList;
-	getGrid()->GetPlayerViewingRangeCellContents(gridCell, &playerList);//cell means gridcell here
+	//getGrid()->GetPlayerViewingRangeCellContents(gridCell, &playerList);//cell means gridcell here
+	getGrid()->GetViewingRangeCellContents(gridCell, &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
+	
+	PlayerObject* removePlayer = dynamic_cast<PlayerObject*>(removeObject);
 
 	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
 	{
-		PlayerObject* player = dynamic_cast<PlayerObject*>((*i));
+		PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
+
+		//if we are a player unregister us from everything around
+		if(removePlayer)
+		{
+			if((*i)->getId() != removePlayer->getId())
+				unRegisterPlayerFromContainer((*i), removePlayer);	
+		}
+		else
 
 		//is the object a container?? do we need to despawn the content and unregister it ?
-		
-		if(removeObject->checkRegisteredWatchers(player))
+		//just dont unregister us for ourselves or our equipment - we likely only travel
+		if(otherPlayer)
 		{
-			unRegisterPlayerFromContainer(removeObject, player);	
-		}
+			if(removeObject->checkRegisteredWatchers(otherPlayer) )
+			{
+				unRegisterPlayerFromContainer(removeObject, otherPlayer);	
+			}
 
-		gMessageLib->sendDestroyObject(removeObject->getId(),player);
+			gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
+		}
+	}
+
+	PlayerObjectSet* knownPlayers = removeObject->getRegisteredWatchers();
+	PlayerObjectSet::iterator it = knownPlayers->begin();
+		
+	while(it != knownPlayers->end())
+	{
+		
+		//the only registration a player is still supposed to have at this point is himself and his inventory
+		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
+		if(player->getId() != removeObject->getId())
+		{
+			//we shouldnt get here
+			assert(false);
+			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
+			unRegisterPlayerFromContainer(removeObject, player);	
+			gMessageLib->sendDestroyObject(removeObject->getId(),player);
+			it = knownPlayers->begin();
+		}
+		else
+			it++;
+	}
+
+	ObjectSet* knownObjects = removeObject->getRegisteredContainers();
+	ObjectSet::iterator objectIt = knownObjects->begin();
+		
+	//the only registration a player is still supposed to have at this point is himself and his inventory and equipped stuff
+	while(objectIt != knownObjects->end())
+	{
+		
+		//create it for the registered Players
+		PlayerObject* player = dynamic_cast<PlayerObject*>(removeObject);
+		if(player)
+		{
+			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
+			unRegisterPlayerFromContainer((*objectIt), player);	
+			gMessageLib->sendDestroyObject((*objectIt)->getId(),player);
+			objectIt = knownObjects->begin();
+		}
+		else	
+			objectIt++;
 	}
 
 	return;
@@ -359,7 +414,6 @@ void SpatialIndexManager::removePlayerFromStructure(PlayerObject* player, CellOb
 // removes all structures items
 void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building)
 {
-
 	ObjectList cellObjects		= building->getAllCellChilds();
 	ObjectList::iterator objIt	= cellObjects.begin();
 
@@ -1269,9 +1323,12 @@ void SpatialIndexManager::unRegisterPlayerFromBuilding(BuildingObject* building,
 	
 }
 
+//===============================================================================================================================================================================
 // UnRegisters a container to a player
-// a container can be a backpack placed in a cell (or a cell itself ??? need to think of that - it might give us the ability to keep cell content loaded for a player until he leaves range)
-// we will only destroy the contents for the client however, not the container
+// a container can be a backpack placed in a cell (or a cell itself) - unregistering it means that the content is not known to us anylonger
+// the container itself might (but must not necessarily) still be known afterwards
+// we will only destroy the contents for the client however, not the container and unregister the player
+// unRegisterPlayerFromContainer *invalidates* the knownObject / knownPlayer iterator
 void SpatialIndexManager::unRegisterPlayerFromContainer(Object* container,PlayerObject* player)
 {
 	//are we sure the player doesnt know the container already ???

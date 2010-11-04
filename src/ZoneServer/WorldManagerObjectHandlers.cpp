@@ -293,6 +293,8 @@ void WorldManager::destroyObject(Object* object)
 			
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
+			gSpatialIndexManager->RemoveObjectFromWorld(player);
+
 
 			// onPlayerLeft event, notify scripts
 			string params;

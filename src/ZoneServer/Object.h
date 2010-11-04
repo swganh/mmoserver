@@ -191,6 +191,9 @@ class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectF
 		//===========================================================================
 		//Known Watchers to keep track of players watching container content
 		PlayerObjectSet*			getRegisteredWatchers() { return &mKnownPlayers; }
+		ObjectSet*					getRegisteredContainers() { return &mKnownObjects; }
+
+		
 		void						UnregisterAllWatchers();
 		bool						checkRegisteredWatchers(PlayerObject* player);
 		bool						registerWatcher(Object* object);

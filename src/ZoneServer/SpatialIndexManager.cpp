@@ -1398,13 +1398,12 @@ void SpatialIndexManager::unRegisterPlayerFromContainer(Object* container,Player
 	//its important we do not destroy cells when unregistering a building!!
 	while(it != contentList->end())
 	{
-		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-		if(!tO)
+		Object* tO = dynamic_cast<Object*>(gWorldManager->getObjectById((*it)));
+		if(tO)
 		{
-			//assert(false && "SpatialIndexManager::registerPlayerToContainer ::unable to find tangible object (container content)");
+			unRegisterPlayerFromContainer(tO,player);
 		}
-
-		unRegisterPlayerFromContainer(tO,player);
+		
 		it++;
 	}
 	

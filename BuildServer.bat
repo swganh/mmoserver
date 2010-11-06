@@ -20,6 +20,7 @@ rem Build the environment and bail out if it fails
 call :BUILD_ENVIRONMENT
 if x%environment_built% == x goto :eof
 
+%PROJECT_DRIVE%
 cd %PROJECT_BASE%
 
 if %SKIPHEIGHTMAPS% == false (
@@ -71,6 +72,7 @@ set DEPENDENCIES_VERSION=0.4.0
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%-win.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
+set "PROJECT_DRIVE=%~d0"
 set BUILD_TYPE=debug
 set REBUILD=build
 set MSVC_VERSION=10
@@ -715,16 +717,17 @@ rem --- Start of BUILD_PROJECT -------------------------------------------------
 rem --- Builds the actual project.                                           ---
 :BUILD_PROJECT
 
-cd "%PROJECT_BASE%"
+if not exist "%PROJECT_BASE%build" (
+    mkdir "%PROJECT_BASE%build"    
+)
+cd "%PROJECT_BASE%build"
 
-cmake -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% .
+cmake -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% ..
 
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
 	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
-	"%MSBUILD%" "INSTALL.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
@@ -732,21 +735,15 @@ if "%BUILD_TYPE%" == "debug" (
 if "%BUILD_TYPE%" == "release" (
 	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
-	"%MSBUILD%" "INSTALL.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
 	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
-	"%MSBUILD%" "INSTALL.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 
 	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
-	"%MSBUILD%" "INSTALL.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )

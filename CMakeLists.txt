@@ -50,6 +50,8 @@ ELSE()
           set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
           MESSAGE(STATUS "- MSVC: Disabled generic compiletime warnings")
         ENDIF()  
+        
+        SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE} CACHE PATH "Executable output path")
     ENDIF()
 ENDIF()
 
@@ -152,12 +154,3 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${TBB_LIBRARY_DIRS})
 ENABLE_TESTING()
 
 ADD_SUBDIRECTORY(src)
-
-IF(WIN32)
-    INSTALL(DIRECTORY data/config data/script data/heightmaps DESTINATION bin/Debug CONFIGURATIONS Debug)  
-    INSTALL(DIRECTORY data/config data/script data/heightmaps DESTINATION bin/Release CONFIGURATIONS Release)
-    INSTALL(FILES data/ServerStart.bat deps/glog/Release/libglog.dll deps/mysql/bin/libmysql.dll deps/mysql-connector-cpp/driver/Release/mysqlcppconn.dll deps/spatialindex/spatialindex-vc/Release/spatialindex.dll deps/tbb/bin/ia32/vc10/tbb.dll deps/tbb/bin/ia32/vc10/tbbmalloc.dll DESTINATION bin/Release CONFIGURATIONS Release)
-    INSTALL(FILES data/ServerStart.bat deps/glog/Debug/libglog.dll deps/mysql/bin/libmysql.dll deps/mysql-connector-cpp/driver/Debug/mysqlcppconn.dll deps/spatialindex/spatialindex-vc/Debug/spatialindex_d.dll deps/tbb/bin/ia32/vc10/tbb_debug.dll deps/tbb/bin/ia32/vc10/tbbmalloc_debug.dll DESTINATION bin/Debug CONFIGURATIONS Debug)  
-    INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/Debug/logs)" CONFIGURATIONS Debug)
-    INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/Release/logs)" CONFIGURATIONS Release)
-ENDIF()

@@ -36,8 +36,9 @@ IF(WIN32)
 ENDIF(WIN32)
 
 IF (WIN32)
-    INSTALL(TARGETS ConnectionServer RUNTIME DESTINATION bin/Debug CONFIGURATIONS Debug)  
-    INSTALL(TARGETS ConnectionServer RUNTIME DESTINATION bin/Release CONFIGURATIONS Release)     
+    ADD_CUSTOM_COMMAND(TARGET ConnectionServer POST_BUILD
+        COMMAND call \"${PROJECT_SOURCE_DIR}/tools/postbuild.bat\" \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\" \"\$\(ConfigurationName\)\"
+    )    
 ELSE()
     INSTALL(TARGETS ConnectionServer RUNTIME DESTINATION bin)
 ENDIF()

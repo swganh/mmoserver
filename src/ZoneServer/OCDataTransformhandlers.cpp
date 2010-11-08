@@ -146,14 +146,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 
 	}
-	else //we have not been in a building
-	{
-		
-		if(player->checkIfMounted() && player->getMount())
-		{
-			gSpatialIndexManager->UpdateObject(player->getMount());
-		}		
-	}
+	
 
 	player->mDirection = dir;
 	player->setCurrentSpeed(speed);
@@ -198,10 +191,12 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	{
 		//gMessageLib->sendDataTransform(player->getMount());
 		player->getMount()->mDirection = dir;
+		player->getMount()->mPosition = pos;
 		player->getMount()->setCurrentSpeed(speed);
 		player->getMount()->setLastMoveTick(tickCount);
 		player->getMount()->setInMoveCount((inMoveCount));
 		gMessageLib->sendUpdateTransformMessage(player->getMount());
+		gSpatialIndexManager->UpdateObject(player->getMount());
 	}
 	else
 	{

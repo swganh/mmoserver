@@ -374,8 +374,6 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 			it++;
 	}
 
-	ObjectSet* knownObjects = removeObject->getRegisteredContainers();
-	ObjectSet::iterator objectIt = knownObjects->begin();
 	PlayerObject* player = dynamic_cast<PlayerObject*> (removeObject);
 
 	// no need to unregister stuff from stuff
@@ -384,8 +382,12 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 		return;
 	}
 
+	//create a copy of the list and iterate through it
+	ObjectSet knownObjects = *removeObject->getRegisteredContainers();
+	ObjectSet::iterator objectIt = knownObjects.begin();
+	
 	//the only registration a player is still supposed to have at this point is himself and his inventory and equipped stuff
-	while(objectIt != knownObjects->end())
+	while(objectIt != knownObjects.end())
 	{
 		
 		//create it for the registered Players
@@ -396,10 +398,9 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
 			unRegisterPlayerFromContainer(object, player);	
 			gMessageLib->sendDestroyObject(object->getId(),player);
-			objectIt = knownObjects->begin();
 		}
-		else	
-			objectIt++;
+		
+		objectIt++;
 	}
 }
 
@@ -1353,7 +1354,7 @@ void SpatialIndexManager::unRegisterPlayerFromContainer(Object* container,Player
 	if(!container->checkRegisteredWatchers(player))
 	{
 
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::UnRegisterPlayerToContainer :: Container %I64u not known to player %I64u",container->getId(),player->getId());
+		//gLogger->log(LogManager::DEBUG,"SpatialIndexManager::UnRegisterPlayerToContainer :: Container %I64u not known to player %I64u",container->getId(),player->getId());
 		return;	
 								
 	}

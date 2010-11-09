@@ -157,34 +157,8 @@ rem --- project to it's original state like a fresh checkout.                ---
 
 echo Cleaning the build environment
 
-if exist "bin" (
-	if exist "%PROJECT_BASE%bin/Debug" (
-	cd "%PROJECT_BASE%bin/Debug"
-
-		if exist *.exe del /Q *.exe
-		if exist *.ilk del /Q *.ilk
-		if exist *.pdb del /Q *.pdb
-		if exist *.map del /Q *.map
-		if exist *.bat del /Q *.bat
-
-	cd "%PROJECT_BASE%"
-	)
-
-	if exist "%PROJECT_BASE%bin/Release" (
-	cd "%PROJECT_BASE%bin/Release"
-
-		if exist *.exe del /Q *.exe
-		if exist *.ilk del /Q *.ilk
-		if exist *.pdb del /Q *.pdb
-		if exist *.map del /Q *.map
-		if exist *.bat del /Q *.bat
-
-	cd "%PROJECT_BASE%"
-	)
-)
-
 if exist "deps" rmdir /S /Q "deps"
-if exist "build-aux" rmdir /S /Q "build-aux"
+if exist "build" rmdir /S /Q "build"
 
 goto :eof
 rem --- End of CLEAN_BUILD -----------------------------------------------------
@@ -261,11 +235,11 @@ if not exist "data\heightmaps\%1.hmpw" (
 	if not exist "data\heightmaps\%1.hmpw.7z" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-		"tools\wget.exe" --no-check-certificate http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
+		"tools\windows\wget.exe" --no-check-certificate http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
 		echo ** Downloading heightmap complete **
 	)
 
-	"tools\7z.exe" x -y -odata\heightmaps data\heightmaps\%1.hmpw.7z 
+	"tools\windows\7z.exe" x -y -odata\heightmaps data\heightmaps\%1.hmpw.7z 
 )
 
 goto :eof
@@ -326,13 +300,13 @@ rem --- Downloads the dependency package for the current version of the source -
 :DOWNLOAD_DEPENDENCIES
 
 if not exist "%DEPENDENCIES_FILE%" (
-	"tools\wget.exe" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
+	"tools\windows\wget.exe" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
 )
 
 if exist "%DEPENDENCIES_FILE%" (
 	echo Extracting dependencies ...
 
-	"tools\7z.exe" x -y "%DEPENDENCIES_FILE%"
+	"tools\windows\7z.exe" x -y "%DEPENDENCIES_FILE%"
 	echo %DEPENDENCIES_VERSION% >"deps\VERSION"
 	echo Complete!
 	echo.

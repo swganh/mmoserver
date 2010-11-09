@@ -33,12 +33,13 @@ TARGET_LINK_LIBRARIES(ConnectionServer
 IF(WIN32)
     SET_TARGET_PROPERTIES(ConnectionServer PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMT")
 	TARGET_LINK_LIBRARIES(ConnectionServer "winmm.lib" "ws2_32.lib")
-ENDIF(WIN32)
-
-IF (WIN32)
+	
     ADD_CUSTOM_COMMAND(TARGET ConnectionServer POST_BUILD
-        COMMAND call \"${PROJECT_SOURCE_DIR}/tools/postbuild.bat\" \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\" \"\$\(ConfigurationName\)\"
-    )    
+        COMMAND call \"${PROJECT_SOURCE_DIR}/tools/windows/postbuild.bat\" \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\" \"\$\(ConfigurationName\)\"
+    )
+        
+	CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/tools/windows/user_project.vcxproj.in 
+	    ${CMAKE_CURRENT_BINARY_DIR}/ConnectionServer.vcxproj.user @ONLY)
 ELSE()
     INSTALL(TARGETS ConnectionServer RUNTIME DESTINATION bin)
 ENDIF()

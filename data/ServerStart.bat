@@ -1,9 +1,7 @@
 @echo off
 
-set BINDIR=%~dp0
-cd %BINDIR%
-
-PATH=%BINDIR%..\..\deps\tbb\bin\ia32\vc10;%PATH%
+%~d0
+cd %~dp0
 
 start ConnectionServer.exe
 

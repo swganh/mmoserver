@@ -126,6 +126,16 @@ FUNCTION(AddMMOServerLibrary name)
             TARGET_LINK_LIBRARIES(${name}Tests optimized ${MMOSERVERLIB_OPTIMIZED_LIBRARIES})
         ENDIF()
         
+        IF(WIN32)
+            # Set the default output directory for binaries for convenience.
+            SET_TARGET_PROPERTIES(${name}Tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}")
+        
+            # Create a custom built user configuration so that the "run in debug mode"
+            # works without any issues.
+    	    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/tools/windows/user_project.vcxproj.in 
+    	        ${CMAKE_CURRENT_BINARY_DIR}/${name}Tests.vcxproj.user @ONLY)
+    	ENDIF()
+        
         GTEST_ADD_TESTS(${name}Tests "" ${TEST_SOURCES})
     ENDIF()
 ENDFUNCTION()

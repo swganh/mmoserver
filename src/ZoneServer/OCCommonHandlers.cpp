@@ -44,7 +44,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerOpcodes.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
 #include "ResourceContainer.h"
 #include "ResourceManager.h"
 #include "Shuttle.h"
@@ -58,10 +57,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 #include "Utils/clock.h"
-#include "ZoneTree.h"
+
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -177,7 +176,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 					aContainer = true;
 					
 					//register the player to the container and create the content
-					gSpatialIndexManager->registerPlayerToContainer(tangObj,playerObject);
+					gContainerManager->registerPlayerToContainer(tangObj,playerObject);
 				}
 			}
 		}
@@ -753,7 +752,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	//Now update the registered watchers!!
 	itemObject->setParentId(targetContainerId); 
-	gSpatialIndexManager->updateObjectPlayerRegistrations(newContainer, oldContainer, tangible, linkType);
+	gContainerManager->updateObjectPlayerRegistrations(newContainer, oldContainer, tangible, linkType);
 
 	//now go and move it to wherever it belongs
 	cell = dynamic_cast<CellObject*>(newContainer);

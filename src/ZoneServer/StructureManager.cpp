@@ -42,7 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerStructure.h"
 
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "RegionObject.h"
 #include "MessageLib/MessageLib.h"
 
@@ -805,7 +805,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			//create the outputhoppers contents
 
 
-			gSpatialIndexManager->registerPlayerToContainer(outHopper,player);
+			gContainerManager->registerPlayerToContainer(outHopper,player);
 			
 
 			gFactoryFactory->upDateHopper(factory,factory->getOutputHopper(),player->getClient(),factory);
@@ -834,7 +834,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			}
 
 			//now register the hopper with the player who opened it
-			gSpatialIndexManager->registerPlayerToContainer(inHopper,player);
+			gContainerManager->registerPlayerToContainer(inHopper,player);
 
 
 			gFactoryFactory->upDateHopper(factory,factory->getIngredientHopper(),player->getClient(),factory);

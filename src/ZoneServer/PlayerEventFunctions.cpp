@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Heightmap.h"
 #include "WaypointObject.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "DatabaseManager/Database.h"
 #include "Utils/clock.h"
 #include "MessageLib/MessageLib.h"
@@ -430,7 +430,7 @@ void PlayerObject::onSample(const SampleEvent* event)
 	{
 		gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,this);
 		
-		gSpatialIndexManager->sendToRegisteredPlayers(this,[effect,this] (PlayerObject* recipient) 
+		gContainerManager->sendToRegisteredPlayers(this,[effect,this] (PlayerObject* recipient) 
 			{
 				gMessageLib->sendPlayClientEffectLocMessage(effect,mPosition,recipient);
 			}

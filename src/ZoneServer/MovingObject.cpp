@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "VehicleController.h"
 #include "WorldManager.h"
 #include "SpatialIndexManager.h"
+#include "ContainerManager.h"
  
 
 //=============================================================================
@@ -152,10 +153,10 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 				if(newBuilding != oldBuilding)
 				{
 					//unregister player from the old building - either always or only when out of range??
-					gSpatialIndexManager->unRegisterPlayerFromBuilding(oldBuilding,player);
+					gContainerManager->unRegisterPlayerFromBuilding(oldBuilding,player);
 
 					//and register player for the new building
-					gSpatialIndexManager->registerPlayerToBuilding(oldBuilding,player);
+					gContainerManager->registerPlayerToBuilding(oldBuilding,player);
 									
 				}
 

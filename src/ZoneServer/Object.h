@@ -201,6 +201,14 @@ class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectF
 		virtual void				addContainerKnownObject(Object* object);
 		bool						checkContainerKnownObjects(Object* object) const;
 
+
+		//===========================================================================
+		//static knownObject is the inventory, the hair, etc - these dont need to be altered by the SI
+		bool						checkStatics(Object* object) const;
+		ObjectSet*					getStatitcs() { return &mKnownStatics; }
+		bool						registerStatic(Object* object);
+		
+
 		
 		virtual ~Object();
 
@@ -397,8 +405,12 @@ class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectF
 	private:
 		glm::vec3		        mLastUpdatePosition;	// Position where SI was updated.
 
+		//registered Objects in the SI
 		ObjectSet					mKnownObjects;
 		PlayerObjectSet				mKnownPlayers;
+
+		//registered Objects out of the SI
+		ObjectSet					mKnownStatics;
 
 };
 

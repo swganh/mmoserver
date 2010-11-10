@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Heightmap.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
@@ -100,7 +100,7 @@ void ObjectController::_handleRequestSurvey(uint64 targetId,Message* message,Obj
 
 		gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,playerObject);
 
-		gSpatialIndexManager->sendToRegisteredPlayers(playerObject,[effect,playerObject] (PlayerObject* recipient) 
+		gContainerManager->sendToRegisteredPlayers(playerObject,[effect,playerObject] (PlayerObject* recipient) 
 			{
 				gMessageLib->sendPlayClientEffectLocMessage(effect,playerObject->mPosition,recipient);
 			}

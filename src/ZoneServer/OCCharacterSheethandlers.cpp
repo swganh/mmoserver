@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "UIManager.h"
 
 #include "MessageLib/MessageLib.h"
@@ -318,7 +318,7 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 	playersMatched.push_back(player);
 	
 	//for our practical purpose were not sending to them but merely iterating through them
-	gSpatialIndexManager->sendToRegisteredPlayers(player,[playerFlags, raceId, factionCrc, skill, pTitle, matchReference, this] ( PlayerObject* inRangePlayer) 
+	gContainerManager->sendToRegisteredPlayers(player,[playerFlags, raceId, factionCrc, skill, pTitle, matchReference, this] ( PlayerObject* inRangePlayer) 
 		{
 			
 			if(((playerFlags & inRangePlayer->getPlayerFlags()) == playerFlags)

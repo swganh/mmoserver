@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/BuildingObject.h"
 #include "ZoneServer/CellObject.h"
 #include "ZoneServer/CharSheetManager.h"
+#include "ZoneServer/ContainerManager.h"
 #include "ZoneServer/Conversation.h"
 #include "ZoneServer/CraftingTool.h"
 #include "ZoneServer/CurrentResource.h"
@@ -53,6 +54,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
+
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer/Zmap.h"
 
@@ -184,7 +186,7 @@ bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uin
 void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf)
 {
 	
-	gSpatialIndexManager->sendToRegisteredPlayers(object, [this, priority, message, object, toSelf] (PlayerObject* recipient)
+	gContainerManager->sendToRegisteredPlayers(object, [this, priority, message, object, toSelf] (PlayerObject* recipient)
 		{
 		
 			bool failed = false;
@@ -325,7 +327,7 @@ void MessageLib::_SendSpatialToInRangeUnreliable(Message* message, Object* objec
     if (!playerObject) 
 	{
 		// Loop through the in range players and send them the message.
-		gSpatialIndexManager->sendToRegisteredPlayers(object,[object, message, senders_name_crc, this, &cloned_message ] (PlayerObject* recipient) 
+		gContainerManager->sendToRegisteredPlayers(object,[object, message, senders_name_crc, this, &cloned_message ] (PlayerObject* recipient) 
 			{
 
 
@@ -350,7 +352,7 @@ void MessageLib::_SendSpatialToInRangeUnreliable(Message* message, Object* objec
 
     } else {
         // This is an instance message, so only send it out to known players in the instance.
-        gSpatialIndexManager->sendToGroupedRegisteredPlayers(playerObject,[object, message, senders_name_crc, this, &cloned_message ] (PlayerObject* recipient) 
+        gContainerManager->sendToGroupedRegisteredPlayers(playerObject,[object, message, senders_name_crc, this, &cloned_message ] (PlayerObject* recipient) 
 			{
 
 				// If the player is not online, or if the sender is in the player's ignore list

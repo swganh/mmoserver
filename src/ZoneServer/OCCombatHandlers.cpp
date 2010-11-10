@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 
 #include "MessageLib/MessageLib.h"
 #include "LogManager/LogManager.h"
@@ -448,7 +448,7 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                             gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
 							
 							//remove from container - destroy for watching players
-							gSpatialIndexManager->destroyObjectToRegisteredPlayers(inventory,(*invObjectIt), true);
+							gContainerManager->destroyObjectToRegisteredPlayers(inventory,(*invObjectIt), true);
 				
 						}
 						lootedItems++;

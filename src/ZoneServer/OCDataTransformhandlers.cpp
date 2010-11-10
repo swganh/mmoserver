@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Tutorial.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "VehicleController.h"
 #include "zmap.h"
 
@@ -294,7 +294,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			}
 			BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
 			
-			gSpatialIndexManager->registerPlayerToBuilding(newBuilding,player);
+			gContainerManager->registerPlayerToBuilding(newBuilding,player);
 
 			if(player->checkIfMounted() && player->getMount())
 			{

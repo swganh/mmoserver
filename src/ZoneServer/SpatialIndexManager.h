@@ -109,10 +109,6 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					addRegion(RegionObject *region);
 		RegionObject*			getRegion(uint32 id);
 
-		//sends the destroys for an object equipped by a creature / player that gets unequipped
-		void					SendDestroyEquippedObject(Object *removeObject);
-
-
 
 		//Update functions for spawn and despawn
 		void					UpdateBackCells(Object* updateObject,uint32);
@@ -135,24 +131,10 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		//iterate through all players in range and call our callback with the player as parameter
 		void					sendToPlayersInRange(const Object* const object, bool cellContent, std::function<void (PlayerObject* player)> callback);
 
-		void					sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* player)> callback);
-		void					sendToGroupedRegisteredPlayers(CreatureObject* player, std::function<void (PlayerObject* player)> callback, bool self);
-
-		//registers player as watcher to a container
-		void					registerPlayerToContainer(Object* container,PlayerObject* player);
-		void					unRegisterPlayerFromContainer(Object* container,PlayerObject* player);
-		void					createObjectToRegisteredPlayers(Object* container,Object* object);
-	
-		void					destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf = false);
-		void					updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment);
-		void					updateEquipListToRegisteredPlayers(PlayerObject* player);
-
+		
 		// removes an item from a structure
 		void					removeObjectFromBuilding(Object* object, BuildingObject* building);
 
-		//buildings are special containers as they always have their cells loaded even if otherwise unloaded
-		void					registerPlayerToBuilding(BuildingObject* building,PlayerObject* player);
-		void					unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player);
 
 		//======================================================================================================================
 		// when creating a player and the player is in a cell we need to create all the cells contents for the player

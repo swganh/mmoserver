@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Resource.h"
 #include "ResourceType.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 #include "LogManager/LogManager.h"
 #include "Common/Message.h"
@@ -254,7 +254,7 @@ void ResourceContainer::upDateFactoryVolume(string amount)
 
 	TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
 
-	gSpatialIndexManager->sendToRegisteredPlayers(hopper,[this] (PlayerObject* player)
+	gContainerManager->sendToRegisteredPlayers(hopper,[this] (PlayerObject* player)
 	{
 		gMessageLib->sendResourceContainerUpdateAmount(this,player);
 	});

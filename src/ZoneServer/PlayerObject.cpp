@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "GroupManager.h"
 #include "GroupObject.h"
 #include "Inventory.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 
 #include "SampleEvent.h"
 #include "SchematicGroup.h"
@@ -1186,7 +1186,7 @@ PlayerList PlayerObject::getInRangeGroupMembers(bool self)
 		return members;
 	}
 
-	gSpatialIndexManager->sendToRegisteredPlayers(this,[this, pMembers] (PlayerObject* recipient) 
+	gContainerManager->sendToRegisteredPlayers(this,[this, pMembers] (PlayerObject* recipient) 
 		{
 
 			if(recipient->getGroupId() == mGroupId)

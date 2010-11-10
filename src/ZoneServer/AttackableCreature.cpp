@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NpcManager.h"
 #include "PlayerObject.h"
 #include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "ResourceContainer.h"
 #include "Weapon.h"
 #include "WorldManager.h"
@@ -158,7 +159,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 						if (inventory)
 						{
 
-							gSpatialIndexManager->registerPlayerToContainer(inventory,playerObject);
+							gContainerManager->registerPlayerToContainer(inventory,playerObject);
 							gMessageLib->sendOpenedContainer(this->getId()+1, playerObject);
 							
 

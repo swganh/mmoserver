@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CraftingTool.h"
 #include "PlayerObject.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
 #include "Common/Message.h"
@@ -603,6 +603,17 @@ bool Object::registerWatcher(Object* object)
 	return(false);
 }
 
+bool Object::registerStatic(Object* object)
+{
+	if(!checkStatics(object))
+	{
+		mKnownStatics.insert(object);
+		return(true);
+	}
+
+	return(false);
+}
+
 //=============================================================================
 // the knownObjects are the containers we are watching 
 // the knownPlayers are the players watching us
@@ -626,6 +637,8 @@ void Object::addContainerKnownObject(Object* object)
 		mKnownObjects.insert(object);
 	}
 }
+
+
 
 //=============================================================================
 
@@ -722,6 +735,15 @@ bool Object::checkRegisteredWatchers(PlayerObject* player)
 {
 	PlayerObjectSet::iterator it = mKnownPlayers.find(player);
 	return (it != mKnownPlayers.end());
+}
+
+
+//=============================================================================
+// checks the statics
+bool Object::checkStatics(Object* object) const
+{
+	ObjectSet::iterator it = mKnownStatics.find(object);
+	return (it != mKnownStatics.end());
 }
 
 //=============================================================================
@@ -857,7 +879,7 @@ bool Object::removeObject(uint64 id)
 	{
 		if((*it) == id)
 		{
-			gSpatialIndexManager->destroyObjectToRegisteredPlayers(this,id);
+			gContainerManager->destroyObjectToRegisteredPlayers(this,id);
 			it = mData.erase(it);
 			return true;
 		}
@@ -873,7 +895,7 @@ bool Object::removeObject(uint64 id)
 
 ObjectIDList::iterator Object::removeObject(ObjectIDList::iterator it)
 {
-	gSpatialIndexManager->destroyObjectToRegisteredPlayers(this,(*it));
+	gContainerManager->destroyObjectToRegisteredPlayers(this,(*it));
 	it = mData.erase(it);
 return it;
 }

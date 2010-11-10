@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "WorldManager.h"
 
+#include "ContainerManager.h"
 #include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
 
@@ -558,9 +559,9 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 			//Udate equiplist
 			customer->getEquipManager()->removeEquippedObject(CreatureEquipSlot_Hair);
 			
-			gSpatialIndexManager->updateEquipListToRegisteredPlayers(customer);
+			gContainerManager->updateEquipListToRegisteredPlayers(customer);
 		
-			gSpatialIndexManager->destroyObjectToRegisteredPlayers(customer,playerHair->getId(), true);
+			gContainerManager->destroyObjectToRegisteredPlayers(customer,playerHair->getId(), true);
 
 
 			//Update the db only if we remain bald
@@ -606,8 +607,8 @@ void EntertainerManager::applyHair(PlayerObject* customer,string newHairString)
 		{
 			customer->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,playerHair);
 			
-			gSpatialIndexManager->updateEquipListToRegisteredPlayers(customer);
-			gSpatialIndexManager->createObjectToRegisteredPlayers(customer,playerHair);
+			gContainerManager->updateEquipListToRegisteredPlayers(customer);
+			gContainerManager->createObjectToRegisteredPlayers(customer,playerHair);
 
 		}
 	}

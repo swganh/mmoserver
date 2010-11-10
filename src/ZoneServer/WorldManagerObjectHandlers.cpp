@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "WorldManager.h"
 #include "AdminManager.h"
 #include "Buff.h"
@@ -185,8 +185,8 @@ bool WorldManager::addObject(Object* object,bool manual)
 			//just do this once when the player is created the first time!!!
 			//the spatialIndexhandler will be called whenever we teleport or change planet!
 			//these functions will be moved to a containerhandler at some point
-			gSpatialIndexManager->registerPlayerToContainer(player,player);
-			gSpatialIndexManager->registerPlayerToContainer(player->getInventory(),player);
+			gContainerManager->registerPlayerToContainer(player,player);
+			gContainerManager->registerPlayerToContainer(player->getInventory(),player);
 
 	
 		}

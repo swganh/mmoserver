@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 
 #include "BuildingObject.h"
 #include "CellObject.h"
@@ -111,14 +112,14 @@ bool SpatialIndexManager::AddObject(Object *newObject)
 			if(((*i)->getId() != player->getId()))
 			{
 				sendCreateObject((*i),player, false);
-				registerPlayerToContainer((*i), player);
+				gContainerManager->registerPlayerToContainer((*i), player);
 
 				if(((*i)->getType() == ObjType_Player) )
 				{
 					PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
 					
 					sendCreateObject(player,otherPlayer, false);
-					registerPlayerToContainer(player, otherPlayer);
+					gContainerManager->registerPlayerToContainer(player, otherPlayer);
 				}
 			}
 		}
@@ -173,29 +174,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 		
 }
 
-// sends destroys for an equipped object like hair/ a weapon / armor etc
-// 
-void SpatialIndexManager::SendDestroyEquippedObject(Object *removeObject)
-{
-	CreatureObject* owner = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(removeObject->getParentId()));
-	if(owner)
-	{
-		uint32 cell = owner->getGridBucket();
-		ObjectListType playerList;
-		getGrid()->GetPlayerViewingRangeCellContents(cell, &playerList);
 
-		for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>((*i));
-			gMessageLib->sendDestroyObject(removeObject->getId(),player);
-		}
-
-	}
-	else
-	{
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::SendDestroyEquippedObject :: cannot find %I64u owner (%I64u)",removeObject->getId(),removeObject->getParentId());
-	}
-}
 
 void SpatialIndexManager::RemoveRegion(RegionObject *removeObject)
 {
@@ -239,7 +218,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 				gMessageLib->sendEquippedListUpdate_InRange(owner);				
 
 				//destroy for players in the grid
-				gSpatialIndexManager->SendDestroyEquippedObject(removeObject);
+				gContainerManager->SendDestroyEquippedObject(removeObject);
 				
 				//Bailout - the reson we use SendDestroyEquippedObject(object); instead of the (faster) destroyObjectToRegisteredPlayers
 				//is that creatures do not get registered to players as containers (yet) - that might be an idea to change
@@ -247,7 +226,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 
 			}
 
-			destroyObjectToRegisteredPlayers(container,removeObject->getId());
+			gContainerManager->destroyObjectToRegisteredPlayers(container,removeObject->getId());
 		}
 		
 		//remove the object out of the container
@@ -279,7 +258,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 	{
 		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
 		{
-			this->unRegisterPlayerFromBuilding(building,removePlayer);
+			gContainerManager->unRegisterPlayerFromBuilding(building,removePlayer);
 		}
 
 		cell->removeObject(removePlayer);
@@ -302,7 +281,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
 	Object* container = gWorldManager->getObjectById(removeCreature->getParentId());
 	if(container)
 	{
-		destroyObjectToRegisteredPlayers(container,removeCreature->getId());
+		gContainerManager->destroyObjectToRegisteredPlayers(container,removeCreature->getId());
 
 		//remove the object out of the container
 		container->removeObject(removeCreature);
@@ -336,7 +315,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 		if(removePlayer)
 		{
 			if((*i)->getId() != removePlayer->getId())
-				unRegisterPlayerFromContainer((*i), removePlayer);	
+				gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);	
 		}
 		else
 
@@ -346,7 +325,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 		{
 			if(removeObject->checkRegisteredWatchers(otherPlayer) )
 			{
-				unRegisterPlayerFromContainer(removeObject, otherPlayer);	
+				gContainerManager->unRegisterPlayerFromContainer(removeObject, otherPlayer);	
 			}
 
 			gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
@@ -366,7 +345,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 			//we shouldnt get here
 			assert(false);
 			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
-			unRegisterPlayerFromContainer(removeObject, player);	
+			gContainerManager->unRegisterPlayerFromContainer(removeObject, player);	
 			gMessageLib->sendDestroyObject(removeObject->getId(),player);
 			it = knownPlayers->begin();
 		}
@@ -396,7 +375,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 		if(object)
 		{
 			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
-			unRegisterPlayerFromContainer(object, player);	
+			gContainerManager->unRegisterPlayerFromContainer(object, player);	
 			gMessageLib->sendDestroyObject(object->getId(),player);
 		}
 		
@@ -443,7 +422,7 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
 		{
 			if((object) && (object->checkRegisteredWatchers(player)))
 			{
-				unRegisterPlayerFromContainer(object,player);	
+				gContainerManager->unRegisterPlayerFromContainer(object,player);	
 			}
 
 			//destroy item for the player
@@ -484,7 +463,7 @@ void SpatialIndexManager::removeObjectFromBuilding(Object* object, BuildingObjec
 				{
 					if((object) && (object->checkRegisteredWatchers(player)))
 					{
-						unRegisterPlayerFromContainer(object,player);	
+						gContainerManager->unRegisterPlayerFromContainer(object,player);	
 					}
 
 					//destroy item for the player
@@ -515,7 +494,7 @@ void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested,
 	{
 		if(toBeTested->checkRegisteredWatchers(updatedPlayer))
 		{
-			unRegisterPlayerFromContainer(toBeTested,updatedPlayer);	
+			gContainerManager->unRegisterPlayerFromContainer(toBeTested,updatedPlayer);	
 		}
 
 		//we (updateObject) got out of range of the following (*i) objects
@@ -528,7 +507,7 @@ void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested,
 	if(them)
 	{
 		
-		unRegisterPlayerFromContainer(toBeUpdated,them);	
+		gContainerManager->unRegisterPlayerFromContainer(toBeUpdated,them);	
 		
 
 		gMessageLib->sendDestroyObject(toBeUpdated->getId(),them);
@@ -860,7 +839,7 @@ void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Ob
 		if(updatedPlayer)
 		{
 			sendCreateObject(toBeTested,updatedPlayer,false);
-			registerPlayerToContainer(toBeTested, updatedPlayer);
+			gContainerManager->registerPlayerToContainer(toBeTested, updatedPlayer);
 			
 			//if it is a house we need to register the cells for watching *only* when we enter
 		}
@@ -873,8 +852,8 @@ void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Ob
 			//if we and it are players we need to register each other for watching our equipment
 			if(updatedPlayer)
 			{
-				registerPlayerToContainer(testedPlayer, updatedPlayer);
-				registerPlayerToContainer(updatedPlayer, testedPlayer);
+				gContainerManager->registerPlayerToContainer(testedPlayer, updatedPlayer);
+				gContainerManager->registerPlayerToContainer(updatedPlayer, testedPlayer);
 			}
 		}
 
@@ -952,7 +931,7 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
 
 			while(cellIt != building->getCellList()->end())
 			{
-				this->registerPlayerToContainer((*cellIt),player);
+				gContainerManager->registerPlayerToContainer((*cellIt),player);
 				++cellIt;
 			}			
 		}
@@ -992,7 +971,7 @@ void SpatialIndexManager::createInWorld(Object* object)
 		player->getEquipManager()->addEquippedObject(object);
 		//createObjectToRegisteredPlayers(player, object);// no ... ! create it only for the owner
 		sendCreateObject(object,player,false);
-		updateEquipListToRegisteredPlayers(player);
+		gContainerManager->updateEquipListToRegisteredPlayers(player);
 		return;
 	}
 
@@ -1001,14 +980,14 @@ void SpatialIndexManager::createInWorld(Object* object)
 	CellObject* cell = dynamic_cast<CellObject*>(parent);
 	if(cell)
 	{
-		createObjectToRegisteredPlayers(parent, object);
+		gContainerManager->createObjectToRegisteredPlayers(parent, object);
 		return;
 	}	
 	
 	if(parent)
 	{
 		//items in containers
-		createObjectToRegisteredPlayers(parent, object);
+		gContainerManager->createObjectToRegisteredPlayers(parent, object);
 		return;
 	}	
 
@@ -1226,343 +1205,7 @@ void SpatialIndexManager::sendToPlayersInRange(const Object* const object, bool 
 
 }
 
-//=================================================================================================================================================
-// registers a containers content as known to a player
-// a container can be a backpack placed in a cell or a cell itself
-// registering the container just means that we know the content
-// there are containers we register to automatically (like players)
-// containers we register to when we enter them (buildings)
-// and containers we register to when we look inside them (containers in the maincell)
-// to register to a container we need to have the proper permissions
 
-void SpatialIndexManager::registerPlayerToContainer(Object* container,PlayerObject* player)
-{
-
-	//are we sure the player doesnt know the container already ???
-	if(container->checkRegisteredWatchers(player))
-	{
-
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: Container %I64u already known to player %I64u",container->getId(),player->getId());
-		return;	
-								
-	}
-
-	if(PlayerObject* tO = dynamic_cast<PlayerObject*>(container))
-	{
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: registered player (container) %I64u to player %I64u",container->getId(),player->getId());
-	}
-
-	container->registerWatcher(player);
-	player-> registerWatcher(container);
-
-
-	ObjectIDList*			contentList		= container->getObjects();
-	ObjectIDList::iterator	it				= contentList->begin();
-
-	while(it != contentList->end())
-	{
-		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-		if(tO)
-		{
-			sendCreateObject(tO,player,false);
-			registerPlayerToContainer(tO,player);
-		}
-		
-		it++;
-	}
-	
-}
-
-//===============================================================================================================================================================================
-//registering a player to a building is different, as the cells of a building must be known at all time to a player (as long as we know the building)
-//the cellcontent is not loaded on building creation
-//cellcontent gets loaded once we enter (registered to) the building 
-
-void SpatialIndexManager::registerPlayerToBuilding(BuildingObject* building,PlayerObject* player)
-{
-	//iterate through all the cells and add and register their content
-	
-	//BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-
-	if(!building)
-	{
-		assert(false && "SpatialIndexManager::registerPlayerToBuilding no building");
-		return;
-	}
-	
-	//cells are not subcontainers that get autoregistered on registering a building!!
-	//they already are registered, as a building cannot be created without cells without crashing the client
-	//the buildings contents however we want to create once we enter the building
-
-	registerPlayerToContainer(building,player);
-
-	//iterate through all the cells and add the player as listener
-	if(player)
-	{		
-		CellObjectList::iterator cellIt = building->getCellList()->begin();
-
-		while(cellIt != building->getCellList()->end())
-		{
-			registerPlayerToContainer((*cellIt),player);
-			++cellIt;
-		}
-	}
-
-}
-
-//===============================================================================================================================================================================
-//unregistering a player from a building is different, as the cells of a building must be known at all time to a player (as long as we know the building)
-//but we register cells only when the player enters the building
-//even if the cellscontent can be destroyed unless of course we go out of range and the building is destroyed
-void SpatialIndexManager::unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player)
-{
-	if(!building)
-	{
-		assert(false && "SpatialIndexManager::unRegisterPlayerFromBuilding no building");
-		return;
-	}
-	
-	//cells are not subcontainers that get autoregistered on registering a building!!
-	//they already are registered, as a building cannot be created without cells without crashing the client
-	//the buildings contents however we want to create once we enter the building
-
-	unRegisterPlayerFromContainer(building,player);
-
-	//iterate through all the cells and add the player as listener
-	if(player)
-	{		
-		CellObjectList::iterator cellIt = building->getCellList()->begin();
-
-		while(cellIt != building->getCellList()->end())
-		{
-			unRegisterPlayerFromContainer((*cellIt),player);
-			++cellIt;
-		}
-	}
-	
-}
-
-//===============================================================================================================================================================================
-// UnRegisters a container to a player
-// a container can be a backpack placed in a cell (or a cell itself) - unregistering it means that the content is not known to us anylonger
-// the container itself might (but must not necessarily) still be known afterwards
-// we will only destroy the contents for the client however, not the container and unregister the player
-// unRegisterPlayerFromContainer *invalidates* the knownObject / knownPlayer iterator
-void SpatialIndexManager::unRegisterPlayerFromContainer(Object* container,PlayerObject* player)
-{
-	//are we sure the player doesnt know the container already ???
-	if(!container->checkRegisteredWatchers(player))
-	{
-
-		//gLogger->log(LogManager::DEBUG,"SpatialIndexManager::UnRegisterPlayerToContainer :: Container %I64u not known to player %I64u",container->getId(),player->getId());
-		return;	
-								
-	}
-
-	//buildings are a different kind of animal all together
-	//as cells need to be handled in a different way
-	if(BuildingObject* building = dynamic_cast<BuildingObject*>(container))
-	{
-		container->unRegisterWatcher(player);
-		player->unRegisterWatcher(container);
-
-		CellObjectList::iterator cellIt = building->getCellList()->begin();
-
-		while(cellIt != building->getCellList()->end())
-		{
-			unRegisterPlayerFromContainer((*cellIt),player);
-			++cellIt;
-		}
-
-		//still destroy cells for the player
-		CellObjectList* cellList = building->getCellList();
-		CellObjectList::iterator it = cellList->begin();
-
-		while(it != cellList->end())
-		{
-			gMessageLib->sendDestroyObject((*it)->getId(),player);
-			it++;
-		}
-
-		gMessageLib->sendDestroyObject(container->getId(),player);
-		return;
-	}
-
-	container->unRegisterWatcher(player);
-	player->unRegisterWatcher(container);
-
-	gMessageLib->sendDestroyObject(container->getId(),player);
-
-	ObjectIDList*			contentList		= container->getObjects();
-	ObjectIDList::iterator	it				= contentList->begin();
-	
-	//its important we do not destroy cells when unregistering a building!!
-	while(it != contentList->end())
-	{
-		Object* tO = dynamic_cast<Object*>(gWorldManager->getObjectById((*it)));
-		if(tO)
-		{
-			unRegisterPlayerFromContainer(tO,player);
-		}
-		
-		it++;
-	}
-	
-}
-
-void SpatialIndexManager::createObjectToRegisteredPlayers(Object* container,Object* object)
-{
-	//creatures players entering a cell get here, too
-	//they are however already members of the grid so just ignore them
-	if(CreatureObject* creature = dynamic_cast<CreatureObject*>(object))
-	{
-		return;
-	}
-
-	gSpatialIndexManager->sendToRegisteredPlayers(container,[object, this] (PlayerObject* recipient) 
-		{
-			sendCreateObject(object,recipient,false);
-		
-			//the registered object likely is a container in itself
-			registerPlayerToContainer(object,recipient);
-		}
-	);
-	
-}
-
-//=======================================================================
-// player / creature equipped something - update all registered listeners with the changed equiplist
-void SpatialIndexManager::updateEquipListToRegisteredPlayers(PlayerObject* player)
-{
-
-	sendToRegisteredPlayers(player,[player](PlayerObject* recepient)
-		{
-			gMessageLib->sendEquippedListUpdate(player, recepient);
-		}
-	);
-}
-
-
-// sends given function to all of the containers registered watchers
-void SpatialIndexManager::sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* player)> callback)
-{
-
-	PlayerObjectSet* knownPlayers = container->getRegisteredWatchers();
-	PlayerObjectSet::iterator it = knownPlayers->begin();
-		
-	while(it != knownPlayers->end())
-	{
-		//create it for the registered Players
-		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
-		if(player)
-		{
-			callback(player);
-		}
-	
-		it++;
-	}
-}
-
-// sends given function to all of the containers registered watchers
-void SpatialIndexManager::sendToGroupedRegisteredPlayers(CreatureObject* container, std::function<void (PlayerObject* player)> callback, bool self)
-{
-	PlayerObject* ourSelve;
-	if(self && (ourSelve = dynamic_cast<PlayerObject*>(container)))
-	{
-		callback(ourSelve);
-	}
-
-	if(container->getGroupId() == 0)
-	{
-		return;
-	}
-
-	PlayerObjectSet* knownPlayers = container->getRegisteredWatchers();
-	PlayerObjectSet::iterator it = knownPlayers->begin();
-		
-	while(it != knownPlayers->end())
-	{
-		//create it for the registered Players
-		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
-		if(player && (player->getGroupId() == container->getGroupId()))
-		{
-			callback(player);
-		}
-	
-		it++;
-	}
-}
-
-
-//=======================================================================
-// we remove an Object for all the players registered to *container*
-// if destroyForSelf is false we will not destroy it for the player who is the recipient (used for transfers when the player remains registered: ie in the inventory)
-//
-void SpatialIndexManager::destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf)
-{
-	gSpatialIndexManager->sendToRegisteredPlayers(container,[container, object, this, destroyForSelf] (PlayerObject* recipient) 
-		{
-			if((recipient->getId() != container->getId()) || (destroyForSelf == true))
-			{
-				Object* destroyObject = gWorldManager->getObjectById(object);
-				if(destroyObject)
-					this->unRegisterPlayerFromContainer(destroyObject,recipient);
-
-				//destroy it for the registered Players
-				gMessageLib->sendDestroyObject(object,recipient);
-			}
-		}
-	);
-
-	//the destroyed object can be a container in itself
-	//if so destroy it for the parent containers known players
-	
-}
-
-//=======================================================================
-// we remove an Object for all the players registered to *container*
-// if destroyForSelf is false we will not destroy it for the player who is the recipient (used for transfers when the player remains registered: ie in the inventory)
-//
-void SpatialIndexManager::updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment)
-{
-
-	gLogger->log(LogManager::DEBUG,"SpatialIndexManager::updateObjectPlayerRegistrations :: newContainer %I64u oldContainer %I64u - update old player set",newContainer->getId(),oldContainer->getId());
-	//destroy for old Players that are NOT on the new list
-	gSpatialIndexManager->sendToRegisteredPlayers(oldContainer,[oldContainer, object, this, newContainer, containment] (PlayerObject* recipient) 
-		{
-			//if the watcher is still known just update the contaiment
-			if(newContainer->checkRegisteredWatchers(recipient))
-			{
-				gLogger->log(LogManager::DEBUG,"SpatialIndexManager::updateObjectPlayerRegistrations :: player %I64u still known - update containment",recipient->getId());
-				gMessageLib->sendContainmentMessage(object->getId(),newContainer->getId(),containment,recipient);
-			}
-			else//if the watcher is not known anymore destroy us and our content
-			{
-				gLogger->log(LogManager::DEBUG,"SpatialIndexManager::updateObjectPlayerRegistrations :: player %I64u will be unknown - remove",recipient->getId());
-				this->unRegisterPlayerFromContainer(object,recipient);
-
-				//destroy it for the registered Players
-				gMessageLib->sendDestroyObject(object->getId(),recipient);
-			}
-		}
-	);
-
-	//create for all players on the new list who are NOT on the old list
-	gSpatialIndexManager->sendToRegisteredPlayers(newContainer,[object, this, oldContainer] (PlayerObject* recipient) 
-		{
-			if(!oldContainer->checkRegisteredWatchers(recipient))
-			{
-				gLogger->log(LogManager::DEBUG,"SpatialIndexManager::updateObjectPlayerRegistrations :: player %I64u added - create",recipient->getId());
-				sendCreateObject(object,recipient,false);
-		
-				//the registered object likely is a container in itself
-				registerPlayerToContainer(object,recipient);
-			}
-		}
-	);
-	
-	
-}
 
 //============================================================================================================
 // the idea is that the container holding our new item might be held by a container, too

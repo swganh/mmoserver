@@ -32,7 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "StructureManager.h"
 #include "WorldManager.h"
-#include "SpatialIndexManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -233,7 +233,7 @@ void FactoryCrate::upDateFactoryVolume(string amount)
 	//update parentcontainers registered players
 
 	Object* parent = dynamic_cast<Object*>(gWorldManager->getObjectById(this->getParentId()));
-	gSpatialIndexManager->sendToRegisteredPlayers(parent,[this](PlayerObject* player)
+	gContainerManager->sendToRegisteredPlayers(parent,[this](PlayerObject* player)
 		{
 			gMessageLib->sendUpdateCrateContent(this,player);
 		}

@@ -125,6 +125,7 @@
     <ClCompile Include="CloningTerminal.cpp" />
     <ClCompile Include="CombatManager.cpp" />
     <ClCompile Include="Container.cpp" />
+    <ClCompile Include="ContainerManager.cpp" />
     <ClCompile Include="ContainerObjectFactory.cpp" />
     <ClCompile Include="Conversation.cpp" />
     <ClCompile Include="ConversationManager.cpp" />
@@ -379,6 +380,7 @@
     <ClInclude Include="CMWeaponGroup.h" />
     <ClInclude Include="CombatManager.h" />
     <ClInclude Include="Container.h" />
+    <ClInclude Include="ContainerManager.h" />
     <ClInclude Include="ContainerObjectFactory.h" />
     <ClInclude Include="Conversation.h" />
     <ClInclude Include="ConversationManager.h" />

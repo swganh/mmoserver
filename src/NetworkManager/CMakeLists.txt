@@ -1,12 +1,13 @@
-# Grab all of the source files and all of the unit test files.
-FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)          
-FILE(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)          
+include(MMOServerLibrary)
 
-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR} ${GLOG_INCLUDE_DIR})
-
-# Create the Common library
-ADD_LIBRARY(NetworkManager STATIC ${SOURCES} ${HEADERS})         
-ADD_DEPENDENCIES(NetworkManager
-    Utils
-    Common
+AddMMOServerLibrary(NetworkManager
+    MMOSERVER_DEPS 
+        Utils
+        Common
+    ADDITIONAL_INCLUDE_DIRS
+        ${ZLIB_INCLUDE_DIR}
+    DEBUG_LIBRARIES
+        debug ${ZLIB_LIBRARY_DEBUG}       
+    OPTIMIZED_LIBRARIES
+        optimized ${ZLIB_LIBRARY_RELEASE}
 )

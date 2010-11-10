@@ -1,7 +1,6 @@
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(mmoserver CXX)
-
-INCLUDE(ExternalProject)
 
 # Variables
 SET(MMOSERVER_VERSION_MAJOR 2)
@@ -11,6 +10,8 @@ SET(MMOSERVER_VERSION_VERSION "${MMOSERVER_VERSION_MAJOR}.${MMOSERVER_VERSION_MI
 
 # Load up the custom cmake rules
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tools/cmake")
+
+INCLUDE(ExternalProject)
 
 # On gcc platforms the c++0x flag is needed to enable features used by this project.
 IF(CMAKE_COMPILER_IS_GNUCXX)
@@ -49,9 +50,7 @@ ELSE()
         IF(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
           set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
           MESSAGE(STATUS "- MSVC: Disabled generic compiletime warnings")
-        ENDIF()  
-        
-        SET(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE} CACHE PATH "Executable output path")
+        ENDIF()
     ENDIF()
 ENDIF()
 
@@ -147,7 +146,7 @@ FIND_PACKAGE(ToLuapp REQUIRED)
 FIND_PACKAGE(ZLIB REQUIRED)
 
 # Add boost and tbb to the include and link directories as everything needs it.
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/ ${Boost_INCLUDE_DIRS} ${GLM_INCLUDE_DIR} ${TBB_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/ ${Boost_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${GLM_INCLUDE_DIR}  ${TBB_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${TBB_LIBRARY_DIRS})
 
 # Enable testing and add gtest to the include directories.

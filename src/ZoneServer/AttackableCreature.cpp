@@ -1000,7 +1000,7 @@ void AttackableCreature::handleEvents(void)
 			else if (!this->isTargetValid())
 			{
 				// We lost our target.
-				this->setTarget(NULL);
+				this->setTarget(0);
 				// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
 				mCombatState = State_Alerted;
@@ -1112,7 +1112,7 @@ void AttackableCreature::handleEvents(void)
 					else
 					{
 						// We lost our target.
-						this->setTarget(NULL);
+						this->setTarget(0);
 						// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 					}
 				}
@@ -1125,7 +1125,7 @@ void AttackableCreature::handleEvents(void)
 			if (!this->isTargetValid())
 			{
 				// We lost our target.
-				this->setTarget(NULL);
+				this->setTarget(0);
 				// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
 				mCombatState = State_CombatReady;
@@ -1189,7 +1189,7 @@ void AttackableCreature::handleEvents(void)
 					this->setupRoaming(15, 15);
 
 					// We drop the target, it's out of range.
-					this->setTarget(NULL);
+					this->setTarget(0);
 					// TEST ERU gMessageLib->sendTargetUpdateDeltasCreo6(this);
 
 					mCombatState = State_CombatReady;

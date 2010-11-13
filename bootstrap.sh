@@ -2,7 +2,7 @@
 
 basedir=$(cd $(dirname $0) && pwd)
 
-filename=mmoserver-deps-0.4.0-src.tar.gz
+filename=mmoserver-deps-0.4.1.tar.bz2
 
 if [ -d $basedir/deps ]; then
     rm -rf $basedir/deps
@@ -12,7 +12,7 @@ if [ ! -f $basedir/$filename ]; then
     wget -nc --no-check-certificate https://github.com/downloads/swganh/mmoserver/$filename
 fi
 
-tar -xvzf $basedir/$filename
+tar -xvjf $basedir/$filename
 
 ./deps/build_deps.sh
 

@@ -24,6 +24,8 @@ ipch/
 *.lnk
 *.orig
 *.gz
+*.bz2
+*.zip
 .cproject
 .project
 mmoserverdb/

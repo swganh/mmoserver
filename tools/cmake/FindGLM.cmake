@@ -1,7 +1,10 @@
 FIND_PATH(GLM_INCLUDE_DIR glm/glm.hpp
-    HINTS
+    PATH
         $ENV{GLM_ROOT}
         ${GLM_ROOT}
+    HINTS
+        $ENV{GLM_ROOT}/include
+        ${GLM_ROOT}/include
 )
 MARK_AS_ADVANCED(GLM_INCLUDE_DIR)
 

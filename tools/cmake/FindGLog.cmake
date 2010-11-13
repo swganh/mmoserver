@@ -3,6 +3,8 @@ FIND_PATH(GLOG_INCLUDE_DIR glog/logging.h
         $ENV{GLOG_ROOT}
         ${GLOG_ROOT}
     HINTS
+        $ENV{GLOG_ROOT}/include
+        ${GLOG_ROOT}/include
         $ENV{GLOG_ROOT}/src/windows
         ${GLOG_ROOT}/src/windows
 )
@@ -14,6 +16,8 @@ FIND_LIBRARY(GLOG_LIBRARY_DEBUG
         $ENV{GLOG_ROOT}
         ${GLOG_ROOT}
     HINTS
+	    $ENV{GLOG_ROOT}/lib
+	    ${GLOG_ROOT}/lib
         $ENV{GLOG_ROOT}/Debug
         ${GLOG_ROOT}/Debug
 )
@@ -24,6 +28,8 @@ FIND_LIBRARY(GLOG_LIBRARY_RELEASE
         $ENV{GLOG_ROOT}
         ${GLOG_ROOT}
     HINTS
+		$ENV{GLOG_ROOT}/lib
+		${GLOG_ROOT}/lib
         $ENV{GLOG_ROOT}/Release
         ${GLOG_ROOT}/Release
 )

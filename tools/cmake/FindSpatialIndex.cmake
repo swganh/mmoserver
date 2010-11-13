@@ -14,6 +14,8 @@ FIND_LIBRARY(SpatialIndex_LIBRARY_DEBUG
         $ENV{SpatialIndex_ROOT}
         ${SpatialIndex_ROOT}
     HINTS
+	    $ENV{SpatialIndex_ROOT}/lib
+	    ${SpatialIndex_ROOT}/lib
         $ENV{SpatialIndex_ROOT}/spatialindex-vc/Debug
         ${SpatialIndex_ROOT}/spatialindex-vc/Debug
 )
@@ -24,6 +26,8 @@ FIND_LIBRARY(SpatialIndex_LIBRARY_RELEASE
         $ENV{SpatialIndex_ROOT}
         ${SpatialIndex_ROOT}
     HINTS
+		$ENV{SpatialIndex_ROOT}/lib
+        ${SpatialIndex_ROOT}/lib
         $ENV{SpatialIndex_ROOT}/spatialindex-vc/Release
         ${SpatialIndex_ROOT}/spatialindex-vc/Release
 )

@@ -3,10 +3,10 @@ FIND_PATH(MysqlConnectorCpp_INCLUDE_DIR cppconn/connection.h
         $ENV{MysqlConnectorCpp_ROOT}
         ${MysqlConnectorCpp_ROOT}
     HINTS
-        $ENV{MysqlConnectorCpp_ROOT}
-        ${MysqlConnectorCpp_ROOT}
-        $ENV{MysqlConnectorCpp_ROOT}/driver
-        ${MysqlConnectorCpp_ROOT}/driver
+	    $ENV{MysqlConnectorCpp_ROOT}
+	    ${MysqlConnectorCpp_ROOT}
+        $ENV{MysqlConnectorCpp_ROOT}/include
+        ${MysqlConnectorCpp_ROOT}/include
 )
 MARK_AS_ADVANCED(MysqlConnectorCpp_INCLUDE_DIR)
 
@@ -19,25 +19,33 @@ FIND_PATH(MysqlConnectorCpp_DRIVER_INCLUDE_DIR mysql_driver.h
         ${MysqlConnectorCpp_ROOT}
         $ENV{MysqlConnectorCpp_ROOT}/driver
         ${MysqlConnectorCpp_ROOT}/driver
+	    $ENV{MysqlConnectorCpp_ROOT}/include
+	    ${MysqlConnectorCpp_ROOT}/include
+	    $ENV{MysqlConnectorCpp_ROOT}/include/driver
+	    ${MysqlConnectorCpp_ROOT}/include/driver
 )
 MARK_AS_ADVANCED(MysqlConnectorCpp_DRIVER_INCLUDE_DIR)
 
 FIND_LIBRARY(MysqlConnectorCpp_LIBRARY_DEBUG
-    NAMES mysqlcppconn mysqlcppconn.lib
+    NAMES mysqlcppconn mysqlcppconn.lib mysqlcppconn-static
     PATH
         $ENV{MysqlConnectorCpp_ROOT}
         ${MysqlConnectorCpp_ROOT}
     HINTS
+	    $ENV{MysqlConnectorCpp_ROOT}/lib
+	    ${MysqlConnectorCpp_ROOT}/lib
         $ENV{MysqlConnectorCpp_ROOT}/driver/Debug
         ${MysqlConnectorCpp_ROOT}/driver/Debug
 )
 
 FIND_LIBRARY(MysqlConnectorCpp_LIBRARY_RELEASE
-    NAMES mysqlcppconn mysqlcppconn.lib
+    NAMES mysqlcppconn mysqlcppconn.lib mysqlcppconn-static
     PATH
         $ENV{MysqlConnectorCpp_ROOT}
         ${MysqlConnectorCpp_ROOT}
     HINTS
+		$ENV{MysqlConnectorCpp_ROOT}/lib
+		${MysqlConnectorCpp_ROOT}/lib
         $ENV{MysqlConnectorCpp_ROOT}/driver/Release
         ${MysqlConnectorCpp_ROOT}/driver/Release
 )

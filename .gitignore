@@ -24,6 +24,8 @@ ipch/
 *.lnk
 *.orig
 *.gz
+.cproject
+.project
 mmoserverdb/
 CMakeFiles/
 Testing/

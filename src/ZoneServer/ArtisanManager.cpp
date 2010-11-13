@@ -26,6 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ArtisanManager.h"
+
+#include <algorithm>
+
 #include "CurrentResource.h"
 #include "Buff.h"
 #include "Item.h"
@@ -426,7 +429,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
             if(dieRoll == 200) 
             {
                 sampleAmount = (static_cast<uint32>(3*maxSample));
-                sampleAmount = max(sampleAmount,static_cast<uint>(1));
+                sampleAmount = std::max<uint>(sampleAmount,static_cast<uint>(1));
                 gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "node_recovery"), player);
                 gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
                 player->getSampleData()->mSampleEventFlag = false;
@@ -440,7 +443,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
                 {
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_success"), player);
                     sampleAmount = (static_cast<uint32>(3*maxSample));
-                    sampleAmount = max(sampleAmount, static_cast<uint>(1));
+                    sampleAmount = std::max<uint>(sampleAmount, static_cast<uint>(1));
                     actionCost = 300; //300 action
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
                     player->getSampleData()->mSampleGambleFlag = false;
@@ -450,7 +453,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
                 {
                 //CRITICAL SUCCESS
                     sampleAmount = (static_cast<uint32>(2*maxSample));
-                    sampleAmount = max(sampleAmount, static_cast<uint>(1));
+                    sampleAmount = std::max<uint>(sampleAmount, static_cast<uint>(1));
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "critical_success", L"", L"", resName.getUnicode16()), player);
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
 
@@ -460,7 +463,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
             {
                 //NORMAL SUCCESS
                 sampleAmount = (static_cast<uint32>(floor(static_cast<float>((maxSample-minSample)*(dieRoll-failureChance)/(90-failureChance)+minSample))));         // floor == round down, so 9.9 == 9
-                sampleAmount = max(sampleAmount, static_cast<uint>(1));
+                sampleAmount = std::max<uint>(sampleAmount, static_cast<uint>(1));
                 gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_located", L"", L"", resName.getUnicode16(), sampleAmount), player);
             }
         }

@@ -2,6 +2,8 @@ FIND_PATH(LUA_INCLUDE_DIR lua.h
     HINTS
         $ENV{LUA_ROOT}
         ${LUA_ROOT}
+	    $ENV{LUA_ROOT}/include
+	    ${LUA_ROOT}/include
         $ENV{LUA_ROOT}/src
         ${LUA_ROOT}/src
 )

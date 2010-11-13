@@ -32,8 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #pragma warning (disable : 4251)
 #endif
-#include <driver/mysql_connection.h>
-#include <driver/mysql_driver.h>
+#include <mysql_connection.h>
+#include <mysql_driver.h>
 
 #include <cppconn/driver.h>
 #include <cppconn/exception.h>
@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #pragma warning (default : 4251)
 #endif
+
+#include "Utils/typedefs.h"
 
 StateRules::StateRules()
 {
@@ -98,7 +100,7 @@ void StateRules::loadActionStateRules()
     if (iter != gStateManager.mActionStateMap.end())
     {
         gStateManager.mActionStateMap[stateClass]->insertIntoTransitionList(
-           std::make_pair<StateTypes,uint32>(State_Action,validStates));
+           std::make_pair(State_Action, validStates));
     }
    
 }
@@ -108,7 +110,7 @@ void StateRules::loadPostureStateRules()
     if (iter != gStateManager.mPostureStateMap.end())
     {
         gStateManager.mPostureStateMap[stateClass]->insertIntoTransitionList(
-            std::make_pair<StateTypes,uint32>(State_Posture,validStates));
+            std::make_pair(State_Posture, validStates));
     }
 }
 void StateRules::loadLocomotionStateRules()
@@ -117,7 +119,7 @@ void StateRules::loadLocomotionStateRules()
     if (iter != gStateManager.mLocomotionStateMap.end())
     {
         gStateManager.mLocomotionStateMap[stateClass]->insertIntoTransitionList(
-            std::make_pair<StateTypes,uint32>(State_Locomotion,validStates));   
+            std::make_pair(State_Locomotion, validStates));   
     }
 }
 void StateRules::loadActionStatesToRemove()

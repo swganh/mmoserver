@@ -1,4 +1,7 @@
 FIND_PATH(ZLIB_INCLUDE_DIR zlib.h
+	PATH
+	    $ENV{ZLIB_ROOT}
+	    ${ZLIB_ROOT}
     HINTS
         $ENV{ZLIB_ROOT}
         ${ZLIB_ROOT}
@@ -11,6 +14,8 @@ FIND_LIBRARY(ZLIB_LIBRARY_DEBUG
         $ENV{ZLIB_ROOT}
         ${ZLIB_ROOT}
     HINTS
+	    $ENV{ZLIB_ROOT}/lib
+	    ${ZLIB_ROOT}/lib
         $ENV{ZLIB_ROOT}/projects/visualc6/Win32_LIB_Debug
         ${ZLIB_ROOT}/projects/visualc6/Win32_LIB_Debug
 )
@@ -21,6 +26,8 @@ FIND_LIBRARY(ZLIB_LIBRARY_RELEASE
         $ENV{ZLIB_ROOT}
         ${ZLIB_ROOT}
     HINTS
+		$ENV{ZLIB_ROOT}/lib
+	    ${ZLIB_ROOT}/lib
         $ENV{ZLIB_ROOT}/projects/visualc6/Win32_LIB_Release
         ${ZLIB_ROOT}/projects/visualc6/Win32_LIB_Release
 )

@@ -3,6 +3,8 @@ FIND_PATH(NOISE_INCLUDE_DIR noise/noise.h
         $ENV{NOISE_ROOT}
         ${NOISE_ROOT}
     HINTS
+	    $ENV{NOISE_ROOT}
+	    ${NOISE_ROOT}
         $ENV{NOISE_ROOT}/include
         ${NOISE_ROOT}/include
 )
@@ -14,6 +16,10 @@ FIND_LIBRARY(NOISE_LIBRARY_DEBUG
         $ENV{NOISE_ROOT}
         ${NOISE_ROOT}
     HINTS
+		$ENV{NOISE_ROOT}
+		${NOISE_ROOT}
+	    $ENV{NOISE_ROOT}/lib
+	    ${NOISE_ROOT}/lib
         $ENV{NOISE_ROOT}/win32/Debug
         ${NOISE_ROOT}/win32/Debug
 )
@@ -24,6 +30,10 @@ FIND_LIBRARY(NOISE_LIBRARY_RELEASE
         $ENV{NOISE_ROOT}
         ${NOISE_ROOT}
     HINTS
+		$ENV{NOISE_ROOT}
+		${NOISE_ROOT}
+		$ENV{NOISE_ROOT}/lib
+		${NOISE_ROOT}/lib
         $ENV{NOISE_ROOT}/win32/Release
         ${NOISE_ROOT}/win32/Release
 )

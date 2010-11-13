@@ -3,6 +3,8 @@ FIND_PATH(GLM_INCLUDE_DIR glm/glm.hpp
         $ENV{GLM_ROOT}
         ${GLM_ROOT}
     HINTS
+        $ENV{GLM_ROOT}
+        ${GLM_ROOT}
         $ENV{GLM_ROOT}/include
         ${GLM_ROOT}/include
 )

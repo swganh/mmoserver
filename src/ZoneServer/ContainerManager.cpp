@@ -210,6 +210,43 @@ void ContainerManager::registerPlayerToContainer(Object* container,PlayerObject*
 	
 }
 
+void ContainerManager::registerPlayerToStaticContainer(Object* container,PlayerObject* player)
+{
+
+	//are we sure the player doesnt know the container already ???
+	if(container->checkRegisteredWatchers(player))
+	{
+
+		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: Container %I64u already known to player %I64u",container->getId(),player->getId());
+		return;	
+								
+	}
+
+	if(PlayerObject* tO = dynamic_cast<PlayerObject*>(container))
+	{
+		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: registered player (container) %I64u to player %I64u",container->getId(),player->getId());
+	}
+
+	container->registerStatic(player);
+	player-> registerStatic(container);
+
+
+	ObjectIDList*			contentList		= container->getObjects();
+	ObjectIDList::iterator	it				= contentList->begin();
+
+	while(it != contentList->end())
+	{
+		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+		if(tO)
+		{
+			gSpatialIndexManager->sendCreateObject(tO,player,false);
+			registerPlayerToContainer(tO,player);
+		}
+		
+		it++;
+	}
+	
+}
 //===============================================================================================================================================================================
 //registering a player to a building is different, as the cells of a building must be known at all time to a player (as long as we know the building)
 //the cellcontent is not loaded on building creation
@@ -321,6 +358,21 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
 	PlayerObjectSet* knownPlayers = container->getRegisteredWatchers();
 	PlayerObjectSet::iterator it = knownPlayers->begin();
 		
+	while(it != knownPlayers->end())
+	{
+		//create it for the registered Players
+		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
+		if(player)
+		{
+			callback(player);
+		}
+	
+		it++;
+	}
+
+	knownPlayers = container->getRegisteredStaticWatchers();
+	it = knownPlayers->begin();
+
 	while(it != knownPlayers->end())
 	{
 		//create it for the registered Players

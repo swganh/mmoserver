@@ -185,8 +185,8 @@ bool WorldManager::addObject(Object* object,bool manual)
 			//just do this once when the player is created the first time!!!
 			//the spatialIndexhandler will be called whenever we teleport or change planet!
 			//these functions will be moved to a containerhandler at some point
-			gContainerManager->registerPlayerToContainer(player,player);
-			gContainerManager->registerPlayerToContainer(player->getInventory(),player);
+			gContainerManager->registerPlayerToStaticContainer(player,player);
+			gContainerManager->registerPlayerToStaticContainer(player->getInventory(),player);
 
 	
 		}

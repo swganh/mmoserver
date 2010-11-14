@@ -216,7 +216,7 @@ void VehicleController::Store()
 	}
 
 	//the body is a creature_object!!!
-	gMessageLib->sendDestroyObject_InRangeofObject(body_);
+	gSpatialIndexManager->RemoveObjectFromWorld(body_);
 
 	owner_->setMount(NULL);
 

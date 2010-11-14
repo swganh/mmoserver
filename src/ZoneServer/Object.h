@@ -191,6 +191,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectF
 		//===========================================================================
 		//Known Watchers to keep track of players watching container content
 		PlayerObjectSet*			getRegisteredWatchers() { return &mKnownPlayers; }
+		PlayerObjectSet*			getRegisteredStaticWatchers() { return &mKnownStaticPlayers; }
 		ObjectSet*					getRegisteredContainers() { return &mKnownObjects; }
 
 		
@@ -411,6 +412,7 @@ class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectF
 
 		//registered Objects out of the SI
 		ObjectSet					mKnownStatics;
+		PlayerObjectSet				mKnownStaticPlayers;
 
 };
 

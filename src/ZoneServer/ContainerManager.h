@@ -92,8 +92,11 @@ class ContainerManager :  public TimerCallback
 		void					sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* player)> callback);
 		void					sendToGroupedRegisteredPlayers(CreatureObject* player, std::function<void (PlayerObject* player)> callback, bool self);
 
-		//registers player as watcher to a container
+		//registers player as watcher to a container based on si
 		void					registerPlayerToContainer(Object* container,PlayerObject* player);
+		//static containers are not affected by si updates
+		void					registerPlayerToStaticContainer(Object* container,PlayerObject* player);
+
 		void					unRegisterPlayerFromContainer(Object* container,PlayerObject* player);
 		void					createObjectToRegisteredPlayers(Object* container,Object* object);
 	

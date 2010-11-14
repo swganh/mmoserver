@@ -607,7 +607,14 @@ bool Object::registerStatic(Object* object)
 {
 	if(!checkStatics(object))
 	{
-		mKnownStatics.insert(object);
+		PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+		if(player)
+		{
+			mKnownStaticPlayers.insert(player);
+		}
+		else
+			mKnownStatics.insert(object);
+
 		return(true);
 	}
 
@@ -730,20 +737,34 @@ bool Object::unRegisterWatcher(Object* object)
 
 	return(false);
 }
-
+//======================================================================================================================
+//checks whether a player is registered as watcher be it over the si or constant
 bool Object::checkRegisteredWatchers(PlayerObject* player)
 {
 	PlayerObjectSet::iterator it = mKnownPlayers.find(player);
+	if(it == mKnownPlayers.end())
+	{
+		it = mKnownStaticPlayers.find(player);
+		return (it != mKnownStaticPlayers.end());
+	}
 	return (it != mKnownPlayers.end());
 }
 
 
 //=============================================================================
-// checks the statics
+// checks whether an Object is registered as a static to us
 bool Object::checkStatics(Object* object) const
 {
-	ObjectSet::iterator it = mKnownStatics.find(object);
-	return (it != mKnownStatics.end());
+	if(object->getType() == ObjType_Player)
+	{
+		PlayerObjectSet::const_iterator it = mKnownStaticPlayers.find(dynamic_cast<PlayerObject*>(object));
+		return (it != mKnownStaticPlayers.end());
+	}
+	else
+	{
+		ObjectSet::iterator it = mKnownStatics.find(object);
+		return (it != mKnownStatics.end());
+	}
 }
 
 //=============================================================================

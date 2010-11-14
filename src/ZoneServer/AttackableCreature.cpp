@@ -159,7 +159,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
 						if (inventory)
 						{
 
-							gContainerManager->registerPlayerToContainer(inventory,playerObject);
+							gContainerManager->registerPlayerToContainer(inventory,playerObject);//
 							gMessageLib->sendOpenedContainer(this->getId()+1, playerObject);
 							
 

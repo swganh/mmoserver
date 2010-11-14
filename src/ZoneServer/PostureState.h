@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_POSTURE_STATE_H
 #define ANH_ZONESERVER_POSTURE_STATE_H
 
-#include "abstractstate.h"
+#include "AbstractState.h"
 #include "PlayerObject.h"
 
 class StateManager;

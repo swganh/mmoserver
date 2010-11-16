@@ -13,6 +13,12 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tools/cmake")
 
 INCLUDE(ExternalProject)
 
+# Some automated systems need an xml report which requires a second run of the
+# tests. To prevent these unnecessary runnings during normal builds the
+# following option is set with a default of false.
+OPTION(ENABLE_TEST_REPORT
+    "Enables the generation of a test report when running tests" FALSE)
+
 # On gcc platforms the c++0x flag is needed to enable features used by this project.
 IF(CMAKE_COMPILER_IS_GNUCXX)
     # First make sure the version of gnu is new enough

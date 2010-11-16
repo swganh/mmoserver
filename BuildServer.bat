@@ -155,6 +155,12 @@ if "%~0" == "/buildnumber" (
 	shift
 )
 
+rem Check for /build:x format and then set BUILD_TYPE
+if "%~0" == "/build" (
+set BUILD_TYPE=%~1
+shift
+)
+
 shift
 
 goto :PROCESS_ARGUMENTS

@@ -271,7 +271,6 @@ void SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject, Obj
 bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject)
 {
 	
-
 	gMessageLib->sendCreatePlayer(playerObject, targetObject);
 
 	// tangible objects

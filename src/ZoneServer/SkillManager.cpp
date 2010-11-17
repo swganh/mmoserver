@@ -80,7 +80,7 @@ SkillManager::SkillManager(Database* database)
     
 
     // load extended skill information (tex)
-    //gLogger->log(LogManager::DEBUG,"Start Loading Skill Descriptions.");
+    DLOG(INFO) << "Start Loading Skill Descriptions.";
     mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillDescriptions),"SELECT * FROM skills_description ORDER BY skill_id");
     
 }

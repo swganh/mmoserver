@@ -1433,6 +1433,12 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
 // Handle deletion of destroyed Structures / building fences and other stuff
 //
 
+
+//======================================================================================================================
+//
+// Handle deletion of destroyed Structures / building fences and other stuff
+//
+
 bool StructureManager::_handleStructureDBCheck(uint64 callTime, void* ref)
 {
     //iterate through all harvesters which are marked inactive in the db

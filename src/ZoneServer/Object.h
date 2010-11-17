@@ -125,8 +125,6 @@ public:
 	bool						addKnownObjectSafe(Object* object);
 	*/
 
-		
-
 	RadialMenuPtr				getRadialMenu(){ return mRadialMenu; }
     virtual void				ResetRadialMenu() {}//	RadialMenu* radial	= NULL;RadialMenuPtr radialPtr(radial);	mRadialMenu = radialPtr;}
 

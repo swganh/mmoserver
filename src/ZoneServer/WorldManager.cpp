@@ -264,9 +264,6 @@ void WorldManager::Shutdown()
 	mCreatureObjectDeletionMap.clear();
 	mPlayerObjectReviveMap.clear();
 
-    // shutdown SI
-    gSpatialIndexManager->Shutdown();
-
 	// remove all cells and factories first so we dont get a racecondition with their content 
 	// when clearing the mainObjectMap
 	ObjectIDList::iterator itStruct = mStructureList.begin();

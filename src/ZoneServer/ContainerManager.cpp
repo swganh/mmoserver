@@ -355,9 +355,9 @@ void ContainerManager::updateEquipListToRegisteredPlayers(PlayerObject* const pl
 void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* const player)> callback)
 {
 	PlayerObjectSet registered_watchers = container->getRegisteredWatchers();
-	PlayerObjectSet::const_iterator end = registered_watchers.end();
+	PlayerObjectSet::const_iterator it = registered_watchers.begin();
 		
-	for(auto it = registered_watchers.begin(); it != end; ++it)
+	while(it != registered_watchers.end())
 	{
 		//create it for the registered Players
 		PlayerObject* const player = *it;
@@ -365,14 +365,13 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
 		{
 			callback(player);
 		}
-	
-		it++;
+        it++;
 	}
 
 	registered_watchers = container->getRegisteredStaticWatchers();
-	PlayerObjectSet::const_iterator end_it = registered_watchers.end();
+	PlayerObjectSet::const_iterator beg_it = registered_watchers.end();
 		
-	for(auto it = registered_watchers.begin(); it != end_it; ++it)
+	while(beg_it != registered_watchers.end())
 	{
 		//create it for the registered Players
 		PlayerObject* const player = *it;
@@ -380,8 +379,7 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
 		{
 			callback(player);
 		}
-	
-		it++;
+        it++;
 	}
 }
 
@@ -398,9 +396,9 @@ void ContainerManager::sendToGroupedRegisteredPlayers(PlayerObject* const contai
 		return;
 	}
 	PlayerObjectSet in_range_players = container->getRegisteredWatchers();
-	PlayerObjectSet::const_iterator end = in_range_players.end();
+	PlayerObjectSet::const_iterator it = in_range_players.end();
 		
-	for (auto it = in_range_players.begin(); it != end; ++it)
+	while (it != in_range_players.end())
 	{
         PlayerObject* const player = *it;
 		//create it for the registered Players
@@ -408,8 +406,7 @@ void ContainerManager::sendToGroupedRegisteredPlayers(PlayerObject* const contai
 		{
 			callback(player);
 		}
-	
-		it++;
+        it++;
 	}
 }
 

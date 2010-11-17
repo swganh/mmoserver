@@ -216,9 +216,6 @@ Inventory* InventoryFactory::_createInventory(DatabaseResult* result)
     inventory->setCapacity(inventory->mMaxSlots);
     gWorldManager->addObject(inventory,true);
 
-	inventory->setCapacity(inventory->mMaxSlots);
-
-	gWorldManager->addObject(inventory,true);
 	return inventory;
 }
 

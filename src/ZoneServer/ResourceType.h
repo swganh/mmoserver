@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_RESOURCETYPE_H
 #define ANH_ZONESERVER_RESOURCETYPE_H
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 
 
@@ -35,41 +36,73 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ResourceType
 {
-	friend class ResourceManager;
+    friend class ResourceManager;
 
-	public:
+public:
 
-		ResourceType();
-		~ResourceType();
+    ResourceType();
+    ~ResourceType();
 
-		uint32	getId(){ return mId; }
-		void	setId(uint32 id){ mId = id; }
-		string	getName(){ return mName; }
-		void	setName(const string name){ mName = name; }
-		string	getDescriptor(){ return mDescriptor; }
-		void	setDescriptor(const string desc){ mDescriptor = desc; }
-		uint16	getCategoryId(){ return mCatId; }
-		void	setCategoryId(uint16 cat){ mCatId = cat; }
-		string	getModel(){ return mModel; }
-		void	setModel(const string model){ mModel = model; }
-		string	getContainerModel();
-		string	getTypeName(){ return mTypeName; }
-		void	setTypeName(const string name){ mTypeName = name; }
-		uint32	getCategoryBazaar(){ return mCategoryBazaar; }
-		void	setCategoryBazaar(uint32 cat) { mCategoryBazaar = cat; }
-		string	getResourceType() { return mResourceType; }
-		void	setResourceType(const string type) { mResourceType = type; }
+    uint32	getId() {
+        return mId;
+    }
+    void	setId(uint32 id) {
+        mId = id;
+    }
+    BString	getName() {
+        return mName;
+    }
+    void	setName(const BString name) {
+        mName = name;
+    }
+    BString	getDescriptor() {
+        return mDescriptor;
+    }
+    void	setDescriptor(const BString desc) {
+        mDescriptor = desc;
+    }
+    uint16	getCategoryId() {
+        return mCatId;
+    }
+    void	setCategoryId(uint16 cat) {
+        mCatId = cat;
+    }
+    BString	getModel() {
+        return mModel;
+    }
+    void	setModel(const BString model) {
+        mModel = model;
+    }
+    BString	getContainerModel();
+    BString	getTypeName() {
+        return mTypeName;
+    }
+    void	setTypeName(const BString name) {
+        mTypeName = name;
+    }
+    uint32	getCategoryBazaar() {
+        return mCategoryBazaar;
+    }
+    void	setCategoryBazaar(uint32 cat) {
+        mCategoryBazaar = cat;
+    }
+    BString	getResourceType() {
+        return mResourceType;
+    }
+    void	setResourceType(const BString type) {
+        mResourceType = type;
+    }
 
-	private:
+private:
 
-		uint32	mId;
-		string	mName;
-		string	mTypeName;
-		string	mDescriptor;
-		string	mModel;
-		uint16	mCatId;
-		uint32  mCategoryBazaar;
-		string	mResourceType;
+    uint32	mId;
+    BString	mName;
+    BString	mTypeName;
+    BString	mDescriptor;
+    BString	mModel;
+    uint16	mCatId;
+    uint32  mCategoryBazaar;
+    BString	mResourceType;
 };
 
 //=============================================================================

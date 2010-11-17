@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 
 PVState::PVState(ObjectController* controller)
-: ProcessValidator(controller)
+    : ProcessValidator(controller)
 {}
 
 PVState::~PVState()
@@ -41,26 +41,21 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 {
     CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
 
-    // check our states
-    if(!creature || !cmdProperties || (creature->getState() & cmdProperties->mStates) != 0)
+    // if this command doesn't require state checks skip it, otherwise check our states
+    if(creature && cmdProperties && (cmdProperties->mStates != 0) && (creature->states.getAction() & cmdProperties->mStates) != 0)
     {
-
-		if(!creature)
-			gLogger->log(LogManager::DEBUG,"ObjController::PVState::validate: creature not found %"PRIu64"",mController->getObject()->getId());
-
-		if((creature->getState() & cmdProperties->mStates) != 0)
-			gLogger->log(LogManager::DEBUG,"ObjController::PVState::validate: state denial state :  %"PRIu64"",((creature->getState() & cmdProperties->mStates)));
-
-        reply1 = 0;
-        reply2 = 0;
-
-		gLogger->log(LogManager::DEBUG,"ObjController::PVState::validate: state denial state Command crc :  %u",cmdProperties->mCmdCrc);
-		//handle canceling of crafting session if it was denied
-		
-        
-        return false;
+		if(creature->states.checkStates(cmdProperties->mStates))
+		{
+			reply1 = kCannotDoWhileState;
+			reply2 = mController->getLowestCommonBit(creature->states.getAction(), cmdProperties->mStates);
+			return false;
+		}
+		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->states.getLocomotion()) != 0))
+		{
+			reply1 = kCannotDoWhileLocomotion;
+			reply2 = mController->getLocoValidator(creature->states.getLocomotion());
+			return false;
+		}
     }
-    
     return true;
 }
-

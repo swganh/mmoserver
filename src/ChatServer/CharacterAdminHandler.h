@@ -28,83 +28,55 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef SRC_CHATSERVER_CHARACTERADMINHANDLER_H_
 #define SRC_CHATSERVER_CHARACTERADMINHANDLER_H_
 
-#include "Common/MessageDispatchCallback.h"
-#include "DatabaseManager/DatabaseCallback.h"
+#include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 
 
-//======================================================================================================================
 class Message;
 class Database;
 class DatabaseResult;
 class MessageDispatch;
 class DispatchClient;
 
-enum QueryType
-{
-	CAQuery_CreateCharacter	= 1,
-	CAQuery_RequestName		= 2
+
+struct CharacterCreateInfo {
+    uint32        mAccountId;
+    uint64        mCharacterId;
+    BString        mFirstName;
+    BString        mLastName;
+    BString        mBaseModel;
+    BString        mProfession;
+    BString        mStartCity;
+    float         mScale;
+    BString        mBiography;
+    uint16        mAppearance[0x255];
+    uint16        mHairCustomization[0x71];
+    BString        mHairModel;
+    BString        mHairColor;
 };
 
-class CAAsyncContainer
-{
-	public:
 
-		CAAsyncContainer(QueryType queryType,DispatchClient* client){ mQueryType = queryType; mClient = client; }
-
-		QueryType		mQueryType;
-		DispatchClient*	mClient;
-		string			mObjBaseType;
-};
-
-//======================================================================================================================
-
-class CharacterCreateInfo
-{
+class CharacterAdminHandler {
 public:
-  uint32        mAccountId;
-  uint64        mCharacterId;
-  string        mFirstName;
-  string        mLastName;
-  string        mBaseModel;
-  string        mProfession;
-  string        mStartCity;
-  float         mScale;
-  string        mBiography;
-  uint16        mAppearance[0x255];
-  uint16        mHairCustomization[0x71];
-  string        mHairModel;
-  string        mHairColor;
-};
 
+    CharacterAdminHandler(Database* database, MessageDispatch* dispatch);
+    ~CharacterAdminHandler();
 
+    void Process();
 
-//======================================================================================================================
-class CharacterAdminHandler : public MessageDispatchCallback, public DatabaseCallback
-{
-	public:
+private:
 
-		CharacterAdminHandler(Database* database, MessageDispatch* dispatch);
-		~CharacterAdminHandler(void);
+    void _processRandomNameRequest(Message* message, DispatchClient* client);
+    void _processCreateCharacter(Message* message, DispatchClient* client);
+    void _parseAppearanceData(Message* message, CharacterCreateInfo* info);
+         
+    void _parseHairData(Message* message, CharacterCreateInfo* info);
+         
+    void _sendCreateCharacterSuccess(uint64 characterId, DispatchClient* client);
+    void _sendCreateCharacterFailed(uint32 errorCode, DispatchClient* client);
 
-		void			Process(void);
-
-		// Inherited from MessageDispatchCallback
-		virtual void	handleDispatchMessage(uint32 opcode, Message* message, DispatchClient* client);
-		virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-
-	private:
-
-		void				_processRandomNameRequest(Message* message, DispatchClient* client);
-		void                _processCreateCharacter(Message* message, DispatchClient* client);
-		void                _parseAppearanceData(Message* message, CharacterCreateInfo* info);
-
-		void				_parseHairData(Message* message, CharacterCreateInfo* info);
-
-		void				_sendCreateCharacterSuccess(uint64 characterId,DispatchClient* client);
-		void				_sendCreateCharacterFailed(uint32 errorCode,DispatchClient* client);
-
-		Database*           mDatabase;
-		MessageDispatch*    mMessageDispatch;
+    Database* database_;
+    MessageDispatch* message_dispatch_;
 };
 
 

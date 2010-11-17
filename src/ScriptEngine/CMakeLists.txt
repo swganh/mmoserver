@@ -1,0 +1,21 @@
+include(MMOServerLibrary)
+
+AddMMOServerLibrary(ScriptEngine
+    MMOSERVER_DEPS 
+        Utils
+        Common
+    ADDITIONAL_SOURCE_DIRS
+        ${CMAKE_CURRENT_SOURCE_DIR}/glue_files
+    ADDITIONAL_INCLUDE_DIRS
+        ${LUA_INCLUDE_DIR} 
+        ${NOISE_INCLUDE_DIR} 
+        ${TOLUAPP_INCLUDE_DIR}
+    DEBUG_LIBRARIES
+        ${LUA_LIBRARY_DEBUG}
+        ${NOISE_LIBRARY_DEBUG}
+        ${TOLUAPP_LIBRARY_DEBUG}
+    OPTIMIZED_LIBRARIES
+        ${LUA_LIBRARY_RELEASE}
+        ${NOISE_LIBRARY_RELEASE}
+        ${TOLUAPP_LIBRARY_RELEASE}
+)

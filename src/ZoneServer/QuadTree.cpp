@@ -34,13 +34,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 QuadTree::QuadTree(float lowX,float lowZ,float width,float height,uint8 depth) :
-QuadTreeNode(lowX,lowZ,width,height)
+    QuadTreeNode(lowX,lowZ,width,height)
 {
-	// lets grow a tree
-	for(uint8 i = 0;i < depth;i++)
-	{
-		subDivide();
-	}
+    // lets grow a tree
+    for(uint8 i = 0; i < depth; i++)
+    {
+        subDivide();
+    }
 }
 
 //======================================================================================================================

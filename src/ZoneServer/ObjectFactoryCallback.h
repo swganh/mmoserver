@@ -38,12 +38,12 @@ class DispatchClient;
 class ObjectFactoryCallback
 {
 public:
-	ObjectFactoryCallback();
-	virtual ~ObjectFactoryCallback();
+    ObjectFactoryCallback();
+    virtual ~ObjectFactoryCallback();
 
-	virtual void	handleObjectReady(Object* object,DispatchClient* client, uint64 hopper) {};
-	virtual void	handleObjectReady(Object* object,DispatchClient* client) {};
-	virtual void	handleObjectReady(Object* object) {};
+    virtual void	handleObjectReady(Object* object,DispatchClient* client, uint64 hopper) {};
+    virtual void	handleObjectReady(Object* object,DispatchClient* client) {};
+    virtual void	handleObjectReady(Object* object) {};
 };
 
 #endif

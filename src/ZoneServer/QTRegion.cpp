@@ -34,13 +34,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 // Constructor
 //
 
-QTRegion::QTRegion() : 
-RegionObject(),
-mTree(NULL),
-mQTDepth(8)
+QTRegion::QTRegion() :
+    RegionObject(),
+    mTree(NULL),
+    mQTDepth(8)
 {
-	mRegionType = Region_Zone;
-	mActive		= false;
+    mRegionType = Region_Zone;
+    mActive		= false;
 }
 
 //=============================================================================
@@ -50,7 +50,7 @@ mQTDepth(8)
 
 QTRegion::~QTRegion()
 {
-	delete(mTree);
+    delete(mTree);
 }
 
 //=============================================================================
@@ -60,7 +60,7 @@ QTRegion::~QTRegion()
 
 void QTRegion::initTree()
 {
-	mTree = new QuadTree(mPosition.x,mPosition.z,mWidth,mHeight,mQTDepth);
+    mTree = new QuadTree(mPosition.x,mPosition.z,mWidth,mHeight,mQTDepth);
 }
 
 //==============================================================================
@@ -69,12 +69,12 @@ void QTRegion::initTree()
 //
 bool QTRegion::checkPlayerPosition(float x, float z)
 {
-	if(mPosition.x + getWidth() > x)
-		if(mPosition.z + getHeight() > z)
-			return true;
+    if(mPosition.x + getWidth() > x)
+        if(mPosition.z + getHeight() > z)
+            return true;
 
-	return false;
-	
+    return false;
+
 }
 
 //=============================================================================

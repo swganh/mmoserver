@@ -41,19 +41,21 @@ class ObjectFactoryCallback;
 
 class MissionFactory //: public FactoryBase
 {
-	public:
+public:
 
-		static	MissionFactory*	getSingletonPtr() { return mSingleton; }
-		static	MissionFactory*	Init(Database* database);
+    static	MissionFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static	MissionFactory*	Init(Database* database);
 
-		~MissionFactory();
+    ~MissionFactory();
 
-	private:
-		
-		MissionFactory();
+private:
 
-		static MissionFactory*		mSingleton;
-		static bool					mInsFlag;
+    MissionFactory();
+
+    static MissionFactory*		mSingleton;
+    static bool					mInsFlag;
 
 };
 

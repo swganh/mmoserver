@@ -38,19 +38,23 @@ class PlayerObject;
 
 class UISkillSelectBox : public UIListBox
 {
-	public:
+public:
 
-		UISkillSelectBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType,PlayerObject* pupil)
-			: UIListBox(callback,id,SUI_Window_Teach_SelectSkill_ListBox,eventStr,caption,prompt,dataItems,playerObject,lbType),mPupil(pupil) {}
+    UISkillSelectBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType,PlayerObject* pupil)
+        : UIListBox(callback,id,SUI_Window_Teach_SelectSkill_ListBox,eventStr,caption,prompt,dataItems,playerObject,lbType),mPupil(pupil) {}
 
-		virtual		~UISkillSelectBox(){}
+    virtual		~UISkillSelectBox() {}
 
-		PlayerObject*		getPupil(){ return mPupil; }
-		void				setPupil(PlayerObject* pupil){ mPupil = pupil; }
+    PlayerObject*		getPupil() {
+        return mPupil;
+    }
+    void				setPupil(PlayerObject* pupil) {
+        mPupil = pupil;
+    }
 
-	private:
+private:
 
-		PlayerObject*		mPupil;
+    PlayerObject*		mPupil;
 };
 
 //================================================================================

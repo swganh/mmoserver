@@ -28,16 +28,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_OBJECTCONTROLLERCOMMANDMAP_H
 #define ANH_ZONESERVER_OBJECTCONTROLLERCOMMANDMAP_H
 
+#include <cstdint>
+#include <functional>
+#include <map>
+
+#ifdef _MSC_VER
+#include <functional>  // NOLINT
+#else
+#include <tr1/functional>  // NOLINT
+#endif
+
 #include "Utils/typedefs.h"
 #include "ScriptEngine/ScriptEventListener.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include <map>
 
 
 //======================================================================================================================
 
 class ObjectController;
 class ObjectControllerCmdProperties;
+class Object;
 class Message;
 class Database;
 class DatabaseCallback;
@@ -48,91 +58,107 @@ class Script;
 #define gObjControllerCmdMap			((ObjectControllerCommandMap::getSingletonPtr())->mCommandMap)
 #define gObjControllerCmdPropertyMap	((ObjectControllerCommandMap::getSingletonPtr())->mCmdPropertyMap)
 
-typedef void											(ObjectController::*funcPointer)(uint64,Message*,ObjectControllerCmdProperties*);
-typedef std::map<uint32,funcPointer>					CommandMap;
-typedef std::map<uint32,ObjectControllerCmdProperties*>	CmdPropertyMap;
+// Rename the old style handler and map.
+typedef std::function<void (ObjectController*, uint64, Message*, ObjectControllerCmdProperties*)> OriginalObjectControllerHandler;
+typedef std::map<uint32,OriginalObjectControllerHandler> OriginalCommandMap;
+
+// New style ObjectController handlers accept an Object* as the first arguement.
+typedef std::function<bool (Object* object, Object* target, Message*, ObjectControllerCmdProperties*)> ObjectControllerHandler;
+typedef std::map<uint32,ObjectControllerHandler> CommandMap;
+
+typedef std::map<uint32_t,ObjectControllerCmdProperties*>	CmdPropertyMap;
 
 //======================================================================================================================
 
 class ObjectControllerCommandMap : public DatabaseCallback
 {
-	public:
+public:
 
-		static ObjectControllerCommandMap*  getSingletonPtr() { return mSingleton; }
-		static ObjectControllerCommandMap*	Init(Database* database);
+    static ObjectControllerCommandMap*  getSingletonPtr() {
+        return mSingleton;
+    }
+    static ObjectControllerCommandMap*	Init(Database* database);
 
-		void								handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void								handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		void								ScriptRegisterEvent(void* script,std::string eventFunction);
+    void								ScriptRegisterEvent(void* script,std::string eventFunction);
 
-		~ObjectControllerCommandMap();
+    const CommandMap& getCommandMap();
 
-		CommandMap				mCommandMap;
-		CmdPropertyMap			mCmdPropertyMap;
-		ScriptEventListener		mCmdScriptListener;
-		
-	private:
+    ~ObjectControllerCommandMap();
 
-		ObjectControllerCommandMap(Database* database);
+    OriginalCommandMap				mCommandMap;
+    CmdPropertyMap			mCmdPropertyMap;
+    ScriptEventListener		mCmdScriptListener;
 
-		void								_registerCppHooks();
+private:
 
-		static bool							mInsFlag;
-		static ObjectControllerCommandMap*	mSingleton;
-		Database*							mDatabase;
+    ObjectControllerCommandMap(Database* database);
+
+    void								_registerCppHooks();
+
+    // This is here for utility purposes during the transition and is used to load
+    // up the new command map.
+    void RegisterCppHooks_();
+
+    static bool							mInsFlag;
+    static ObjectControllerCommandMap*	mSingleton;
+    CommandMap  command_map_;
+    Database*							mDatabase;
 };
 
 //======================================================================================================================
 
 class ObjectControllerCmdProperties
 {
-	public:
+public:
 
-		ObjectControllerCmdProperties()
-			:mCmdCrc(0),mAbilityCrc(0),mStates(0),mCmdGroup(0){}
+    ObjectControllerCmdProperties()
+        :mCmdCrc(0),mAbilityCrc(0),mStates(0),mCmdGroup(0) {}
 
-		ObjectControllerCmdProperties(uint32 cmdCrc,uint32 abilityCrc,uint64 states,uint8 cmdGroup) 
-			: mCmdCrc(cmdCrc),mAbilityCrc(abilityCrc),mStates(states),mCmdGroup(cmdGroup){}
+    ObjectControllerCmdProperties(uint32 cmdCrc,uint32 abilityCrc,uint64 states,uint8 cmdGroup)
+        : mCmdCrc(cmdCrc),mAbilityCrc(abilityCrc),mStates(states),mCmdGroup(cmdGroup) {}
 
-		~ObjectControllerCmdProperties(){}
+    ~ObjectControllerCmdProperties() {}
 
-		Script*	mScript;
+    Script*	mScript;
 
-		// generic
-		uint32	mCmdCrc;
-		uint32	mAbilityCrc;
-		uint64	mStates;
-		uint8	mCmdGroup;
-		string	mScriptHook;
-		string	mFailScriptHook;
-		string	mCommandStr;
-		string	mAbilityStr;
-		uint64	mDefaultTime;
-		float	mMaxRangeToTarget;
-		uint8	mAddToCombatQueue;
-		int32	mHealthCost;
-		int32	mActionCost;
-		int32	mMindCost;
-		uint32	mPostureMask;
+    // generic
+    uint32	mCmdCrc;
+    uint32	mAbilityCrc;
+    uint64	mStates;
+    uint8	mCmdGroup;
+    BString	mScriptHook;
+    BString	mFailScriptHook;
+    BString	mCommandStr;
+    BString	mAbilityStr;
+    uint64	mDefaultTime;
+    float	mMaxRangeToTarget;
+    uint8	mAddToCombatQueue;
+    int32	mHealthCost;
+    int32	mActionCost;
+    int32	mMindCost;
+    uint64	mPostureMask;
+    uint64	mLocomotionMask;
 
-		// combat
-		uint32	mAnimationCrc;
-		uint32	mRequiredWeaponGroup;
-		string	mCbtSpam;
-		uint8	mTrail1;
-		uint8	mTrail2;
-		float	mHealthHitChance;
-		float	mActionHitChance;
-		float	mMindHitChance;
-		float	mKnockdownChance;
-		float	mDizzyChance;
-		float	mBlindChance;
-		float	mStunChance;
-		float	mIntimidateChance;
-		float	mPostureDownChance;
-		float	mExtendedRange;
-		float	mDamageMultiplier;
-		float	mDelayMultiplier;
+    // combat
+    uint32	mAnimationCrc;
+    uint32	mRequiredWeaponGroup;
+    BString	mCbtSpam;
+    uint8	mTrail1;
+    uint8	mTrail2;
+    float	mHealthHitChance;
+    float	mActionHitChance;
+    float	mMindHitChance;
+    float	mKnockdownChance;
+    float	mDizzyChance;
+    float	mBlindChance;
+    float	mStunChance;
+    float	mIntimidateChance;
+    float	mPostureDownChance;
+    float	mExtendedRange;
+    float	mDamageMultiplier;
+    float	mDelayMultiplier;
 };
 
 //======================================================================================================================

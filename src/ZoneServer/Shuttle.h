@@ -35,52 +35,78 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum ShuttleState
 {
-	ShuttleState_Away			= 0,
-	ShuttleState_InPort			= 1,
-	ShuttleState_Landing		= 2,
-	ShuttleState_AboutBoarding	= 3
+    ShuttleState_Away			= 0,
+    ShuttleState_InPort			= 1,
+    ShuttleState_Landing		= 2,
+    ShuttleState_AboutBoarding	= 3
 };
 
 //=============================================================================
 
 class Shuttle : public CreatureObject
 {
-	friend class ShuttleFactory;
+    friend class ShuttleFactory;
 
-	public:
+public:
 
-		Shuttle();
-		~Shuttle();
+    Shuttle();
+    ~Shuttle();
 
-		void			setAwayInterval(uint32 v){ mAwayInterval = v; }
-		uint32			getAwayInterval(){ return mAwayInterval; }
-		void			setInPortInterval(uint32 v){ mInPortInterval = v; }
-		uint32			getInPortInterval(){ return mInPortInterval; }
-		void			setInPortTime(uint32 time){ mInPortTime = time; }
-		uint32			getInPortTime(){ return mInPortTime; }
-		void			setAwayTime(uint32 time){ mAwayTime = time; }
-		uint32			getAwayTime(){ return mAwayTime; }
-		void			setLandingTime(uint32 time){ mLandingTime = time; }
-		uint32			getLandingTime(){ return mLandingTime; }
-		void			setShuttleState(ShuttleState state){ mShuttleState = state; }
-		ShuttleState	getShuttleState();
-		bool			availableInPort(void);
-		void			setCollectorId(uint64 id){ mTicketCollectorId = id; }
-		uint64			getCollectorId(){ return mTicketCollectorId; }
-		void			useShuttle(PlayerObject* playerObject);
-		bool			ticketCollectorEnabled() const;
-		void			ticketCollectorEnable();
+    void			setAwayInterval(uint32 v) {
+        mAwayInterval = v;
+    }
+    uint32			getAwayInterval() {
+        return mAwayInterval;
+    }
+    void			setInPortInterval(uint32 v) {
+        mInPortInterval = v;
+    }
+    uint32			getInPortInterval() {
+        return mInPortInterval;
+    }
+    void			setInPortTime(uint32 time) {
+        mInPortTime = time;
+    }
+    uint32			getInPortTime() {
+        return mInPortTime;
+    }
+    void			setAwayTime(uint32 time) {
+        mAwayTime = time;
+    }
+    uint32			getAwayTime() {
+        return mAwayTime;
+    }
+    void			setLandingTime(uint32 time) {
+        mLandingTime = time;
+    }
+    uint32			getLandingTime() {
+        return mLandingTime;
+    }
+    void			setShuttleState(ShuttleState state) {
+        mShuttleState = state;
+    }
+    ShuttleState	getShuttleState();
+    bool			availableInPort(void);
+    void			setCollectorId(uint64 id) {
+        mTicketCollectorId = id;
+    }
+    uint64			getCollectorId() {
+        return mTicketCollectorId;
+    }
+    void			useShuttle(PlayerObject* playerObject);
+    bool			ticketCollectorEnabled() const;
+    void			ticketCollectorEnable();
 
-	private:
+private:
 
-		ShuttleState	mShuttleState;
-		uint64			mTicketCollectorId;
-		uint32			mAwayInterval;
-		uint32			mAwayTime;
-		uint32			mInPortInterval;
-		uint32			mInPortTime;
-		uint32			mLandingTime;
-		bool			mTicketCollectorEnabled;
+    ShuttleState	mShuttleState;
+    uint64			mTicketCollectorId;
+    uint32			mAwayInterval;
+    uint32			mAwayTime;
+    uint32			mInPortInterval;
+    uint32			mInPortTime;
+    uint32			mLandingTime;
+    bool			mTicketCollectorEnabled;
 
 };
 

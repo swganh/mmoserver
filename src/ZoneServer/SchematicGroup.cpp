@@ -33,20 +33,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 SchematicGroup::SchematicGroup()
 {
-	mSchematics.reserve(64);
+    mSchematics.reserve(64);
 }
 
 //======================================================================
 
 SchematicGroup::~SchematicGroup()
 {
-	SchematicsList::iterator it = mSchematics.begin();
-	while(it != mSchematics.end())
-	{
-		delete(*it);
-		mSchematics.erase(it);
-		it = mSchematics.begin();
-	}
+    SchematicsList::iterator it = mSchematics.begin();
+    while(it != mSchematics.end())
+    {
+        delete(*it);
+        mSchematics.erase(it);
+        it = mSchematics.begin();
+    }
 }
 
 //======================================================================

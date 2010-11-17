@@ -47,8 +47,8 @@ class NPCObject;
 
 enum PersistentNpcQuery
 {
-	PersistentNpcQuery_MainData		= 1,
-	PersistentNpcQuery_Attributes	= 2
+    PersistentNpcQuery_MainData		= 1,
+    PersistentNpcQuery_Attributes	= 2
 };
 
 //=============================================================================
@@ -57,28 +57,30 @@ class PersistentNpcFactory : public FactoryBase
 {
 public:
 
-	static PersistentNpcFactory*	getSingletonPtr() { return mSingleton; }
-	static PersistentNpcFactory*	Init(Database* database);
+    static PersistentNpcFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static PersistentNpcFactory*	Init(Database* database);
 
-	~PersistentNpcFactory();
+    ~PersistentNpcFactory();
 
-	void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-	void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
 private:
 
-	PersistentNpcFactory(Database* database);
+    PersistentNpcFactory(Database* database);
 
-	void				_setupDatabindings();
-	void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-	NPCObject*			_createPersistentNpc(DatabaseResult* result);
+    NPCObject*			_createPersistentNpc(DatabaseResult* result);
 
-	static PersistentNpcFactory*	mSingleton;
-	static bool						mInsFlag;
+    static PersistentNpcFactory*	mSingleton;
+    static bool						mInsFlag;
 
-	DataBinding*					mPersistentNpcBinding;
-	DataBinding*					mNpcIdentifierBinding;
+    DataBinding*					mPersistentNpcBinding;
+    DataBinding*					mNpcIdentifierBinding;
 };
 
 //=============================================================================

@@ -35,25 +35,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UIElement
 {
-	public:
+public:
 
-		UIElement(){}
-		UIElement(uint32 id,uint8 elementType);
-		virtual ~UIElement();
+    UIElement() {}
+    UIElement(uint32 id,uint8 elementType);
+    virtual ~UIElement();
 
-		uint32			getId(){ return mId; }
-		void			setId(uint32 id){ mId = id; }
+    uint32			getId() {
+        return mId;
+    }
+    void			setId(uint32 id) {
+        mId = id;
+    }
 
-		uint8			getElementType(){ return mElementType; }
-		void			setElementType(uint8 type){ mElementType = type; }
+    uint8			getElementType() {
+        return mElementType;
+    }
+    void			setElementType(uint8 type) {
+        mElementType = type;
+    }
 
-		virtual void	addMessageData(){}
-		virtual uint32	getPropertyCount(){ return(0); }
+    virtual void	addMessageData() {}
+    virtual uint32	getPropertyCount() {
+        return(0);
+    }
 
-	protected:
+protected:
 
-		uint32	mId;
-		uint8	mElementType;
+    uint32	mId;
+    uint8	mElementType;
 };
 
 #endif

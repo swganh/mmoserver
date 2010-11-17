@@ -36,12 +36,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class QuadTree : public QuadTreeNode
 {
-	public:
+public:
 
-		QuadTree(float lowX,float lowZ,float width,float height,uint8 depth);
-		virtual ~QuadTree();
+    QuadTree(float lowX,float lowZ,float width,float height,uint8 depth);
+    virtual ~QuadTree();
 
-	protected:
+protected:
 
 };
 

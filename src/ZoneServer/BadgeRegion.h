@@ -41,22 +41,25 @@ class PlayerObject;
 
 class BadgeRegion : public RegionObject
 {
-	friend class BadgeRegionFactory;
+    friend class BadgeRegionFactory;
 
-	public:
+public:
 
-		BadgeRegion();
-		virtual ~BadgeRegion();
+    BadgeRegion();
+    virtual ~BadgeRegion();
 
-		uint32			getBadgeId(){ return mBadgeId; }
-		void			setBadgeId(uint32 id){ mBadgeId = id; }
+    uint32			getBadgeId() {
+        return mBadgeId;
+    }
+    void			setBadgeId(uint32 id) {
+        mBadgeId = id;
+    }
 
-		virtual void	onObjectEnter(Object* object);
+	virtual void	onObjectEnter(Object* object);
 
-	protected:
+protected:
 
-		uint32				mBadgeId;
-		
+	uint32				mBadgeId;
 };
 
 

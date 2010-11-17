@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
 
-EVAbility::EVAbility(ObjectController* controller) 
-: EnqueueValidator(controller)
+EVAbility::EVAbility(ObjectController* controller)
+    : EnqueueValidator(controller)
 {}
 
 EVAbility::~EVAbility()
@@ -41,19 +41,18 @@ bool EVAbility::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32
 {
     CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject());
 
-	// check if we need to have an ability
-	if(creature && cmdProperties && cmdProperties->mAbilityCrc != 0)
-	{
-		// check if the player has it
-		if(!(creature->verifyAbility(cmdProperties->mAbilityCrc)))
-		{
-			reply1 = 2;
-			reply2 = 0;
+    // check if we need to have an ability
+    if(creature && cmdProperties && cmdProperties->mAbilityCrc != 0)
+    {
+        // check if the player has it
+        if(!(creature->verifyAbility(cmdProperties->mAbilityCrc)))
+        {
+            reply1 = 2;
+            reply2 = 0;
+            return(false);
+        }
+    }
 
-			return(false);
-		}
-	}
-
-	return(true);
+    return(true);
 }
 

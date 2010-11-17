@@ -34,35 +34,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum PortType
 {
-	portType_Starport		=	1,
-	portType_Shuttleport	=	2
+    portType_Starport		=	1,
+    portType_Shuttleport	=	2
 };
 
 //=============================================================================
 
 class TravelTerminal : public Terminal
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		TravelTerminal();
-		~TravelTerminal();
+    TravelTerminal();
+    ~TravelTerminal();
 
-		string		getPosDescriptor(){ return mPositionDescriptor; }
-		void		setPosDescriptor(const int8* desc){ mPositionDescriptor = desc; }
+    BString		getPosDescriptor() {
+        return mPositionDescriptor;
+    }
+    void		setPosDescriptor(const int8* desc) {
+        mPositionDescriptor = desc;
+    }
 
-		PortType	getPortType(){ return mPortType; }
-		void		setPortType(PortType portType){ mPortType = portType; }
+    PortType	getPortType() {
+        return mPortType;
+    }
+    void		setPortType(PortType portType) {
+        mPortType = portType;
+    }
 
-		virtual void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    virtual void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-		virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
-	private:
+private:
 
-		string		mPositionDescriptor;
-		PortType	mPortType;
+    BString		mPositionDescriptor;
+    PortType	mPortType;
 
 };
 

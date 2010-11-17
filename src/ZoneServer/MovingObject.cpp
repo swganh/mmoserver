@@ -35,24 +35,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "SpatialIndexManager.h"
 #include "ContainerManager.h"
- 
 
 //=============================================================================
 
 MovingObject::MovingObject()
-: Object()
-, mInMoveCount(0)
-, mBaseAcceleration(1.50f)
-, mBaseRunSpeedLimit(5.75f)
-, mBaseTerrainNegotiation(1.0f)
-, mBaseTurnRate(1.0f)
-, mCurrentRunSpeedLimit(5.75f)
-, mCurrentSpeed(0.0f)
-, mCurrentTerrainNegotiation(1.0f)
-, mCurrentTurnRate(1.0f)
-, mCurrentSpeedMod(1.0f)
-, mBaseSpeedMod(1.0f)
-, mSubZone(NULL)
+    : Object()
+    , mInMoveCount(0)
+    , mBaseAcceleration(1.50f)
+    , mBaseRunSpeedLimit(5.75f)
+    , mBaseTerrainNegotiation(1.0f)
+    , mBaseTurnRate(1.0f)
+    , mCurrentRunSpeedLimit(5.75f)
+    , mCurrentSpeed(0.0f)
+    , mCurrentTerrainNegotiation(1.0f)
+    , mCurrentTurnRate(1.0f)
+    , mCurrentSpeedMod(1.0f)
+    , mBaseSpeedMod(1.0f)
+    , mSubZone(NULL)
 {
 }
 
@@ -73,7 +72,6 @@ MovingObject::~MovingObject()
 
 void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPosition)
 {
-
 	this->mPosition = newPosition;
 	gSpatialIndexManager->UpdateObject(this);
 	
@@ -93,7 +91,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 		}
 		else
 		{
-			gLogger->log(LogManager::NOTICE,"Error removing %"PRIu64" from cell(%"PRIu64")",this->getId(),this->getParentId());
+			LOG(WARNING) << "Error removing " << this->getId() << " from cell " << this->getParentId();
 		}
 
 		// now set our new ParentId
@@ -104,7 +102,6 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 		gMessageLib->broadcastContainmentMessage(this,0,4);
 
 	}
-
 }
 
 void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPosition)
@@ -127,7 +124,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 			cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId));
 			if(!cell)
 			{
-				gLogger->log(LogManager::NOTICE,"Error removing %"PRIu64" from cell(%"PRIu64")",this->getId(),oldParentId);
+				LOG(WARNING) << "Error removing " << this->getId() << " from cell " << this->getParentId();
 				assert(false);
 				return;
 			}
@@ -144,7 +141,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 				newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
 				if (!newCell)
 				{
-					gLogger->log(LogManager::NOTICE,"%"PRIu64" error casting new cell cell(%"PRIu64")",this->getId(),parentId);
+					LOG(WARNING) << this->getId() << " Error casting new cell " << this->getParentId();
 					assert(false);
 					return;
 				}
@@ -173,7 +170,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 		cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
 		if (!cell)
 		{
-			gLogger->log(LogManager::NOTICE,"Error adding %"PRIu64" to cell(%"PRIu64")",this->getId(),parentId);
+			LOG(WARNING) << "Error adding " << this->getId() << " from cell " << this->getParentId();
 			assert(false);
 			return;
 		}
@@ -188,7 +185,6 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 //server initiated movement
 void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 {
-
 	if (parentId == 0)
 	{
 		//we are to be moved (or already are) outside
@@ -228,7 +224,7 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 	}
 
 	//check whether updates are necessary before building the packet and then destroying it
-	if ((!isPlayer) && this->getRegisteredWatchers()->empty())
+	if ((!isPlayer) && this->getRegisteredWatchers().empty())
 	{
 		return;
 	}

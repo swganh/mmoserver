@@ -34,14 +34,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class CraftingStation : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		CraftingStation();
-		virtual ~CraftingStation();
+    CraftingStation();
+    void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    void	prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
+    virtual ~CraftingStation();
 
-	private:
+private:
 
 };
 

@@ -34,8 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseManager/DatabaseCallback.h"
 
-#include "Common/MessageDispatchCallback.h"
-
 #include "Utils/TimerCallback.h"
 
 #include <boost/thread/mutex.hpp>
@@ -77,87 +75,90 @@ typedef std::vector<AuctionItem*>	AuctionList;
 
 //======================================================================================================================
 
-class TradeManagerChatHandler : public MessageDispatchCallback, public DatabaseCallback, public TimerCallback
+class TradeManagerChatHandler : public DatabaseCallback, public TimerCallback
 {
-	public:
+public:
 
-		static TradeManagerChatHandler*	getSingletonPtr() { return mSingleton; }
-		static TradeManagerChatHandler*	Init(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
+    static TradeManagerChatHandler*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static TradeManagerChatHandler*	Init(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
 
-		~TradeManagerChatHandler();
+    ~TradeManagerChatHandler();
 
-		TradeManagerChatHandler(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
+    TradeManagerChatHandler(Database* database,MessageDispatch* dispatch, ChatManager* chatManager);
 
-		void				Shutdown();
-		void				Process();
-				// TimerCallback
-		virtual void		handleTimer(uint32 id, void* container);
+    void				Shutdown();
+    void				Process();
+    // TimerCallback
+    virtual void		handleTimer(uint32 id, void* container);
 
-		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
-		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		uint64				getGlobalTickCount(){return mGlobalTickCount;}
+    uint64				getGlobalTickCount() {
+        return mGlobalTickCount;
+    }
 
-		CommoditiesClass*	Commodities;
+    CommoditiesClass*	Commodities;
 
-		uint32				TerminalRegionbyID(uint64 id);
-		uint32				getBazaarRegion(uint64 ID);
-		string				getBazaarString(uint64 ID);
-		Bazaar*				getBazaarInfo(uint64 ID);
-
-
-	private:
-
-		void				processRetrieveAuctionItemMessage(Message* message,DispatchClient* client);
-		void				processCreateItemMessage(Message* message,DispatchClient* client);
-		void				processHandleIsVendorMessage(Message* message,DispatchClient* client);
-		void				processHandleopAuctionQueryHeadersMessage(Message* message,DispatchClient* client);
-		void				processGetAuctionDetails(Message* message,DispatchClient* client);
-		void				processCancelLiveAuctionMessage(Message* message,DispatchClient* client);
-		void				processBidAuctionMessage(Message* message,DispatchClient* client);
-		void				ProcessCreateAuction(Message* message,DispatchClient* client);
-		void				processAuctionBid(TradeManagerAsyncContainer* asynContainer, Player* player);
-		void				ProcessRequestTypeList(Message* message,DispatchClient* client);
-
-		void				ProcessBankTip(Message* message,DispatchClient* client);
-		void				processAuctionEMails(AuctionItem* AuctionTemp);
-
-		// process chat timers
-		void				handleGlobalTickPreserve();
-		void				processTimerEvents();
-		void				handleGlobalTickUpdate();
-		void				handleCheckAuctions();
+    uint32				TerminalRegionbyID(uint64 id);
+    uint32				getBazaarRegion(uint64 ID);
+    BString				getBazaarString(uint64 ID);
+    Bazaar*				getBazaarInfo(uint64 ID);
 
 
+private:
 
-		static TradeManagerChatHandler*	mSingleton;
-		static bool					mInsFlag;
+    void				processRetrieveAuctionItemMessage(Message* message,DispatchClient* client);
+    void				processCreateItemMessage(Message* message,DispatchClient* client);
+    void				processHandleIsVendorMessage(Message* message,DispatchClient* client);
+    void				processHandleopAuctionQueryHeadersMessage(Message* message,DispatchClient* client);
+    void				processGetAuctionDetails(Message* message,DispatchClient* client);
+    void				processCancelLiveAuctionMessage(Message* message,DispatchClient* client);
+    void				processBidAuctionMessage(Message* message,DispatchClient* client);
+    void				ProcessCreateAuction(Message* message,DispatchClient* client);
+    void				processAuctionBid(TradeManagerAsyncContainer* asynContainer, Player* player);
+    void				ProcessRequestTypeList(Message* message,DispatchClient* client);
 
-		BazaarList					mBazaars;
-		AttributesList				mAtrributesList;
+    void				ProcessBankTip(Message* message,DispatchClient* client);
+    void				processAuctionEMails(AuctionItem* AuctionTemp);
 
-		AuctionClass*				auction;
+    // process chat timers
+    void				handleGlobalTickPreserve();
+    void				processTimerEvents();
+    void				handleGlobalTickUpdate();
+    void				handleCheckAuctions();
 
-		ListStringStruct*			ListStringHandler;
-		ListStringList				mListStringList;
 
-		Database*					mDatabase;
-		MessageDispatch*			mMessageDispatch;
-		TRMPermissionType			mPermissionTyp;
-		bool						mBazaarsLoaded;
-		uint32						mBazaarCount;
-		PlayerAccountMap			mPlayerAccountMap;
 
-		ChatManager*				mChatManager;
+    static TradeManagerChatHandler*	mSingleton;
+    static bool					mInsFlag;
 
-		uint64      				mGlobalTickCount;
-		TimerList					mTimers;
-		TimerEventQueue				mTimerEventQueue;
-        boost::mutex                mTimerMutex;
-		uint64						mTimerQueueProcessTimeLimit;
-		uint32						mBazaarMaxBid;
+    BazaarList					mBazaars;
+    AttributesList				mAtrributesList;
 
-		AuctionList					mAuction;
+    AuctionClass*				auction;
+
+    ListStringStruct*			ListStringHandler;
+    ListStringList				mListStringList;
+
+    Database*					mDatabase;
+    MessageDispatch*			mMessageDispatch;
+    TRMPermissionType			mPermissionTyp;
+    bool						mBazaarsLoaded;
+    uint32						mBazaarCount;
+    PlayerAccountMap			mPlayerAccountMap;
+
+    ChatManager*				mChatManager;
+
+    uint64      				mGlobalTickCount;
+    TimerList					mTimers;
+    TimerEventQueue				mTimerEventQueue;
+    boost::mutex                mTimerMutex;
+    uint64						mTimerQueueProcessTimeLimit;
+    uint32						mBazaarMaxBid;
+
+    AuctionList					mAuction;
 
 
 

@@ -28,118 +28,193 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASE_H
 #define ANH_DATABASEMANAGER_DATABASE_H
 
-#include "DatabaseType.h"
-#include "Utils/typedefs.h"
-#include "Utils/concurrent_queue.h"
+#include <cstdint>
+
+#include <functional>
+#include <memory>
 #include <queue>
-#include "DataBindingFactory.h"
+#include <string>
+
+#include <boost/noncopyable.hpp>
 #include <boost/pool/pool.hpp>
 
+#include <tbb/concurrent_queue.h>
 
-//======================================================================================================================
+#include "DatabaseManager/DatabaseCallback.h"
+#include "DatabaseManager/DatabaseType.h"
+#include "DatabaseManager/DataBindingFactory.h"
 
+struct DatabaseJob;
 class DataBinding;
 class DatabaseWorkerThread;
 class DatabaseImplementation;
-class DatabaseCallback;
 class DatabaseResult;
-class DatabaseJob;
 class Transaction;
 
-typedef Anh_Utils::concurrent_queue<DatabaseJob*>				DatabaseJobQueue;
-typedef Anh_Utils::concurrent_queue<DatabaseWorkerThread*>		DatabaseWorkerThreadQueue;
+typedef tbb::concurrent_queue<DatabaseJob*> DatabaseJobQueue;
+typedef tbb::concurrent_queue<DatabaseWorkerThread*> DatabaseWorkerThreadQueue;
 
-//======================================================================================================================
+/*! An encapsulation of a connection to a database.
+*/
+class Database : private boost::noncopyable {
+public:
+    /*! Connects to a specified database.
+    *
+    * \param type The type of database to connect to (such as MySQL).
+    * \param host The database host to connect to.
+    * \param port The port of the database host to connect to.
+    * \param user The username for accessing the requested schema.
+    * \param pass The password for accessing the requested schema.
+    * \param schema The database to connect to.
+    */
+    Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
+    ~Database();
+    
+    /*! Executes an asynchronus sql query and invokes the specified callback on
+    * completion.
+    *
+    * \param sql The sql query to run.
+    * \param callback The callback to invoke once the sql query has been executed.
+    */
+    void executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback);
 
-class Database
-{
-  public:
-                                          Database(DBType type,int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-                                          ~Database(void);
+    /*! Executes an asynchronus stored procedure and invokes the specified 
+    * callback on completion.
+    *
+    * \param sql The sql query to run.
+    * \param callback The callback to invoke once the sql query has been executed.
+    */
+    void executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback);
 
-  void                                    Process(void);
+    /*! Processes async queries.
+    */
+    void process();
+    
+    /*! Executes an sql query with an unspecified number of parameters.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
+    DatabaseResult* executeSynchSql(const char* sql, ...);
 
-  DatabaseResult*                         ExecuteSynchSql(const int8* sql, ...);
-  //DatabaseResult*                         ExecuteSql(int8* sql, ...);
-  void                                    ExecuteSqlAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
-  void									  ExecuteSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const int8* sql);
+    /*! Executes an sql query asynchronusly with an unspecified number of parameters.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
+    void executeSqlAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
+    
+    /*! Executes an sql query asynchronusly.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
+    void executeSqlAsyncNoArguments(DatabaseCallback* callback, void* ref, const char* sql);
 
-  DatabaseResult*                         ExecuteProcedure(const int8* sql, ...);
-  void                                    ExecuteProcedureAsync(DatabaseCallback* callback, void* ref, const int8* sql, ...);
+    /*! Executes an sql procedure with an unspecified number of parameters.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
+    DatabaseResult* executeProcedure(const char* sql, ...);
 
-  uint32								  Escape_String(int8* target,const int8* source,uint32 length);
+    /*! Executes an sql procedure asynchronusly with an unspecified number of parameters.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
+    void executeProcedureAsync(DatabaseCallback* callback, void* ref, const char* sql, ...);
 
-  void									  DestroyResult(DatabaseResult* result);
+    /*! Escapes a string to prepare for storage in a database.
+    *
+    * \param target The container to hold the escaped string.
+    * \param source The original string that needs escaping.
+    * \param length The length of the original string.
+    * 
+    * \return Returns the length of the escaped string.
+    */
+    uint32_t escapeString(char* target, const char* source, uint32_t length);
 
-  DataBinding*                            CreateDataBinding(uint16 fieldCount);
-  void									  DestroyDataBinding(DataBinding* binding);
+    
+    /*! Escapes a string to prepare for storage in a database.
+    *
+    * \param source The original string that needs escaping.
+    * 
+    * \return Returns the escaped string.
+    */
+    std::string escapeString(const std::string& source);
 
-  DatabaseWorkerThread*                   popIdleWorker();
-  void									  pushIdleWorker(DatabaseWorkerThread* worker);
+    /*! Destroys the requested database result.
+    *
+    * \param result The database result to destroy.
+    */
+    void destroyResult(DatabaseResult* result);
 
-  void									  pushDatabaseJobComplete(DatabaseJob* job);
+    /*! Creates a databinding for retrieving sql data.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
+    DataBinding* createDataBinding(uint16_t fieldCount);
 
-  Transaction*							  startTransaction(DatabaseCallback* callback, void* ref);
-  void									  destroyTransaction(Transaction* t);
+    /*! Destroys a databinding for retrieving sql data.
+    *
+    * \depricated This method is being phased out for a more type-safe solution.
+    */
+    void destroyDataBinding(DataBinding* binding);
 
-  bool									  releaseResultPoolMemory();	
-  bool									  releaseJobPoolMemory(){ return(mJobPool.release_memory()); }
-  bool									  releaseTransactionPoolMemory(){ return(mTransactionPool.release_memory()); }
-  bool									  releaseBindingPoolMemory(){ return(mDataBindingFactory->releasePoolMemory()); }
-  int									  GetCount(const int8* tablename);
-  int									  GetSingleValueSync(const int8* sql);
+    /*! Begins a transaction intended to execute multiple statements.
+    *
+    * \param callback The database callback to invoke at the end of the query.
+    * \param ref State data needed for the callback to process the results of the transaction.
+    *
+    * \return A transaction object to execute multiple queries with.
+    */
+    Transaction* startTransaction(DatabaseCallback* callback, void* ref);
+
+    /*! Destroys the requested database transaction.
+    *
+    * \param t The database transaction to destroy.
+    */
+    void destroyTransaction(Transaction* t);
+
+    /*! Releases the memory allocated for result sets.
+    *
+    * \return Returns true if the pool was released, false if not.
+    */
+    bool releaseResultPoolMemory();
+
+    /*! Releases the memory allocated for asynchronus query jobs.
+    *
+    * \return Returns true if the pool was released, false if not.
+    */
+    bool releaseJobPoolMemory();
+
+    /*! Releases the memory allocated for transactions.
+    *
+    * \return Returns true if the pool was released, false if not.
+    */
+    bool releaseTransactionPoolMemory();
+
+    /*! Releases the memory allocated for row bindings.
+    *
+    * \return Returns true if the pool was released, false if not.
+    */
+    bool releaseBindingPoolMemory();
+
 private:
+    // Disable the default constructor, construction always occurs through the
+    // single overloaded constructor.
+    Database();
 
-  DBType                                  mDatabaseType;      // This denotes which DB implementation we are connecting to. MySQL, Postgres, etc.
+    DatabaseResult* executeSql(const char* sql, ...);
+    
+    void pushDatabaseJobComplete(DatabaseJob* job);
 
-  DataBindingFactory*                     mDataBindingFactory;
+    DataBindingFactory binding_factory_;
 
-  DatabaseJobQueue                        mJobPendingQueue;
-  DatabaseJobQueue                        mJobCompleteQueue;
-  DatabaseWorkerThreadQueue               mWorkerIdleQueue;
+    DatabaseJobQueue job_pending_queue_;
+    DatabaseJobQueue job_complete_queue_;
+    DatabaseWorkerThreadQueue idle_worker_queue_;
 
-  DatabaseImplementation*                 mDatabaseImplementation;  // Use this implementation for any syncronous calls.
-
-  uint32                                  mMinThreads;
-  uint32                                  mMaxThreads;
-
-  boost::pool<boost::default_user_allocator_malloc_free>							  mJobPool;
-  boost::pool<boost::default_user_allocator_malloc_free>							  mTransactionPool;
-protected:
-	DatabaseResult*                         ExecuteSql(const int8* sql, ...);
+    std::unique_ptr<DatabaseImplementation> database_impl_;  // Use this implementation for any syncronous calls.
+    
+    boost::pool<boost::default_user_allocator_malloc_free> job_pool_;
+    boost::pool<boost::default_user_allocator_malloc_free> transaction_pool_;
 };
 
-//======================================================================================================================
-
-inline DatabaseWorkerThread* Database::popIdleWorker(void)
-{
-  DatabaseWorkerThread* worker = 0;
-
-  worker = mWorkerIdleQueue.pop();
-
-  return worker;
-}
-
-//======================================================================================================================
-
-inline void Database::pushIdleWorker(DatabaseWorkerThread* worker)
-{
-  mWorkerIdleQueue.push(worker);
-}
-
-//======================================================================================================================
-
-inline void Database::pushDatabaseJobComplete(DatabaseJob* job)
-{
-  mJobCompleteQueue.push(job);
-}
-
-//======================================================================================================================
-
 #endif // ANH_DATABASEMANAGER_DATABASE_H
-
-
-
-
-
-

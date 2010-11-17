@@ -36,24 +36,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UIInputBox : public UIWindow
 {
-	public:
+public:
 
-		UIInputBox(UICallback* callback,uint32 id,uint8 windowType, const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements
-				  ,PlayerObject* playerObject,uint8 ibType = SUI_IB_NODROPDOWN_OKCANCEL,uint16 maxInputLength = 127);
+    UIInputBox(UICallback* callback,uint32 id,uint8 windowType, const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements
+               ,PlayerObject* playerObject,uint8 ibType = SUI_IB_NODROPDOWN_OKCANCEL,uint16 maxInputLength = 127);
 
-		virtual ~UIInputBox();
+    virtual ~UIInputBox();
 
-		virtual	 void	handleEvent(Message* message);
-		void			sendCreate();
+    virtual	 void	handleEvent(Message* message);
+    void			sendCreate();
 
-	protected:
+protected:
 
-		void	_initChildren(BStringVector dropdownElements);
+    void	_initChildren(BStringVector dropdownElements);
 
-		string			mCaption;
-		string			mPrompt;
-		uint8			mIbType;
-		uint16			mMaxInputLength;
+    BString			mCaption;
+    BString			mPrompt;
+    uint8			mIbType;
+    uint16			mMaxInputLength;
 };
 
 //================================================================================

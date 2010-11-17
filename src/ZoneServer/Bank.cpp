@@ -35,35 +35,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 Bank::Bank() : TangibleObject(),
-mCredits(0),
-mPlanet(-1)
+    mCredits(0),
+    mPlanet(-1)
 {
-	mTanGroup	= TanGroup_PlayerInternal;
-	mTanType	= TanType_Bank;
+    mTanGroup	= TanGroup_PlayerInternal;
+    mTanType	= TanType_Bank;
 }
 
 //=============================================================================
 
-Bank::~Bank()
-{
-	
-}
+Bank::~Bank(){}
 
 //=============================================================================
 
 bool Bank::updateCredits(int32 amount)
 {
-	if(mCredits + amount < 0)
-		return(false);
+    if(mCredits + amount < 0)
+        return(false);
 
-	mCredits += amount;
+    mCredits += amount;
 
-	if(mParent->getType() == ObjType_Player)
-		gMessageLib->sendBankCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
+    if(mParent->getType() == ObjType_Player)
+        gMessageLib->sendBankCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
 
-	gWorldManager->getDatabase()->ExecuteSqlAsync(NULL,NULL,"UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId);
+    gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId);
+    
 
-	return(true);
+    return(true);
 }
 
 //=============================================================================

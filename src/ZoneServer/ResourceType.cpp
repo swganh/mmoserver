@@ -42,23 +42,23 @@ ResourceType::~ResourceType()
 
 //=============================================================================
 
-string ResourceType::getContainerModel()
+BString ResourceType::getContainerModel()
 {
-	// gotta put shared_resource_container_ into the name
-	BStringVector splits;
-	string tmpStr;
-	tmpStr.setLength(512);
+    // gotta put shared_resource_container_ into the name
+    BStringVector splits;
+    BString tmpStr;
+    tmpStr.setLength(512);
 
-	int elements = mModel.split(splits,'/');
+    int elements = mModel.split(splits,'/');
 
-	tmpStr = splits[0].getAnsi();
+    tmpStr = splits[0].getAnsi();
 
-	for(int i = 1;i < elements - 1;i++)
-		tmpStr << "/" << splits[i].getAnsi(); 
+    for(int i = 1; i < elements - 1; i++)
+        tmpStr << "/" << splits[i].getAnsi();
 
-	tmpStr << "/shared_resource_container_" << splits[elements-1].getAnsi();
+    tmpStr << "/shared_resource_container_" << splits[elements-1].getAnsi();
 
-return tmpStr;
+    return tmpStr;
 }
 
 

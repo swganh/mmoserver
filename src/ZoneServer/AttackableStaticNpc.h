@@ -34,24 +34,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class AttackableStaticNpc : public NPCObject
 {
-	friend class PersistentNpcFactory;
-	friend class NonPersistentNpcFactory;
+    friend class PersistentNpcFactory;
+    friend class NonPersistentNpcFactory;
 
-	public:
+public:
 
-		AttackableStaticNpc();
-		virtual ~AttackableStaticNpc();
+    AttackableStaticNpc();
+    virtual ~AttackableStaticNpc();
 
-		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void respawn(void);
+    virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void respawn(void);
 
-		void	setDeathEffect(uint32 effectId) {mDeathEffectId = effectId;}
-		void	playDeathAnimation(void);
+    void	setDeathEffect(uint32 effectId) {
+        mDeathEffectId = effectId;
+    }
+    void	playDeathAnimation(void);
 
-	private:
-		void	spawn(void);
+private:
+    void	spawn(void);
 
-		uint32 mDeathEffectId;
+    uint32 mDeathEffectId;
 
 };
 

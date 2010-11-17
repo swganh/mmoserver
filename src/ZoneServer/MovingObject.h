@@ -41,79 +41,79 @@ class MovingObject : public Object
 	friend class ObjectFactory;
 	friend class PlayerObjectFactory;
 
-	public:
-		MovingObject();
-		virtual ~MovingObject();
+public:
+	MovingObject();
+	virtual ~MovingObject();
 
-		//NPC Player movement through server (warping, elevators)
-		void updatePosition(uint64 parentId, const glm::vec3& newPosition);
-		void updatePositionInCell(uint64 parentId, const glm::vec3& newPosition);
-		void updatePositionOutside(uint64 parentId, const glm::vec3& newPosition);
+	//NPC Player movement through server (warping, elevators)
+	void updatePosition(uint64 parentId, const glm::vec3& newPosition);
+	void updatePositionInCell(uint64 parentId, const glm::vec3& newPosition);
+	void updatePositionOutside(uint64 parentId, const glm::vec3& newPosition);
 
-		// current movement updates sequence
-		uint32		getInMoveCount(){ return mInMoveCount; }
-		void		setInMoveCount(uint32 moveCount){ mInMoveCount = moveCount; }
-		uint32		incInMoveCount(){ return ++mInMoveCount; }
+	// current movement updates sequence
+	uint32		getInMoveCount(){ return mInMoveCount; }
+	void		setInMoveCount(uint32 moveCount){ mInMoveCount = moveCount; }
+	uint32		incInMoveCount(){ return ++mInMoveCount; }
 
-		// walk speed
-		float		getBaseAcceleration(){ return mBaseAcceleration; }
-		void		setBaseAcceleration(float acc){ mBaseAcceleration = acc; }
-		void		setCurrentAcceleration(float acceleration){ mCurrentAcceleration = acceleration; }
-		float		getCurrentAcceleration(){ return mCurrentAcceleration; }
+	// walk speed
+	float		getBaseAcceleration(){ return mBaseAcceleration; }
+	void		setBaseAcceleration(float acc){ mBaseAcceleration = acc; }
+	void		setCurrentAcceleration(float acceleration){ mCurrentAcceleration = acceleration; }
+	float		getCurrentAcceleration(){ return mCurrentAcceleration; }
 
-		// turn rate
-		float		getBaseTurnRate(){ return mBaseTurnRate; }
-		void		setBaseTurnRate(float rate){ mBaseTurnRate = rate; }
-		float		getCurrentTurnRate(){ return mCurrentTurnRate; }
-		void		setCurrentTurnRate(float rate){ mCurrentTurnRate = rate; }
+	// turn rate
+	float		getBaseTurnRate(){ return mBaseTurnRate; }
+	void		setBaseTurnRate(float rate){ mBaseTurnRate = rate; }
+	float		getCurrentTurnRate(){ return mCurrentTurnRate; }
+	void		setCurrentTurnRate(float rate){ mCurrentTurnRate = rate; }
 
-		// speed
-		float		getBaseRunSpeedLimit(){ return mBaseRunSpeedLimit; }
-		void		setBaseRunSpeedLimit(float speed){ mBaseRunSpeedLimit = speed; }
+	// speed
+	float		getBaseRunSpeedLimit(){ return mBaseRunSpeedLimit; }
+	void		setBaseRunSpeedLimit(float speed){ mBaseRunSpeedLimit = speed; }
 
-		float		getCurrentSpeedModifier(){ return mCurrentSpeedMod; }
-		void		setCurrentSpeedModifier(float rate){ mCurrentSpeedMod = rate; }
+	float		getCurrentSpeedModifier(){ return mCurrentSpeedMod; }
+	void		setCurrentSpeedModifier(float rate){ mCurrentSpeedMod = rate; }
 
-		float		getBaseSpeedModifier(){ return mBaseSpeedMod; }
-		void		setBaseSpeedModifier(float rate){ mBaseSpeedMod = rate; }
+	float		getBaseSpeedModifier(){ return mBaseSpeedMod; }
+	void		setBaseSpeedModifier(float rate){ mBaseSpeedMod = rate; }
 		
-		//current Run speed limit is the speed at which we run
-		void		setCurrentRunSpeedLimit(float speed){ mCurrentRunSpeedLimit = speed; }
-		float		getCurrentRunSpeedLimit(){ return mCurrentRunSpeedLimit; }
+	//current Run speed limit is the speed at which we run
+	void		setCurrentRunSpeedLimit(float speed){ mCurrentRunSpeedLimit = speed; }
+	float		getCurrentRunSpeedLimit(){ return mCurrentRunSpeedLimit; }
 
-		//current speed is the speed of our current movement
-		float		getCurrentSpeed(){ return mCurrentSpeed; }
-		void		setCurrentSpeed(float speed){ mCurrentSpeed = speed; }
+	//current speed is the speed of our current movement
+	float		getCurrentSpeed(){ return mCurrentSpeed; }
+	void		setCurrentSpeed(float speed){ mCurrentSpeed = speed; }
 
-		// terrain negotiation
-		float		getBaseTerrainNegotiation(){ return mBaseTerrainNegotiation; }
-		void		setBaseTerrainNegotiation(float tn){ mBaseTerrainNegotiation = tn; }
-		float		getCurrentTerrainNegotiation(){ return mCurrentTerrainNegotiation; }
-		void		setCurrentTerrainNegotiation(float tn){ mCurrentTerrainNegotiation = tn; }
+	// terrain negotiation
+	float		getBaseTerrainNegotiation(){ return mBaseTerrainNegotiation; }
+	void		setBaseTerrainNegotiation(float tn){ mBaseTerrainNegotiation = tn; }
+	float		getCurrentTerrainNegotiation(){ return mCurrentTerrainNegotiation; }
+	void		setCurrentTerrainNegotiation(float tn){ mCurrentTerrainNegotiation = tn; }
 
-		// update current values
-		virtual void	updateMovementProperties() = 0;
+	// update current values
+	virtual void	updateMovementProperties() = 0;
 
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount){}
+	virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount){}
 
 
-	protected:
+protected:
 
-		uint32		mInMoveCount;
-		float		mBaseAcceleration;
-		float		mBaseRunSpeedLimit;
-		float		mBaseTerrainNegotiation;
-		float		mBaseTurnRate;
-		float		mCurrentAcceleration;
-		float		mCurrentRunSpeedLimit;
-		float		mCurrentSpeed;
-		float		mCurrentTerrainNegotiation;
-		float		mCurrentTurnRate;
-		float		mCurrentSpeedMod;
-		float		mBaseSpeedMod;
+	uint32		mInMoveCount;
+	float		mBaseAcceleration;
+	float		mBaseRunSpeedLimit;
+	float		mBaseTerrainNegotiation;
+	float		mBaseTurnRate;
+	float		mCurrentAcceleration;
+	float		mCurrentRunSpeedLimit;
+	float		mCurrentSpeed;
+	float		mCurrentTerrainNegotiation;
+	float		mCurrentTurnRate;
+	float		mCurrentSpeedMod;
+	float		mBaseSpeedMod;
 
 		
-		QTRegion*	mSubZone;
+	QTRegion*	mSubZone;
 };
 
 //=============================================================================

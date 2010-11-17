@@ -30,8 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectController.h"
 #include "ObjectControllerCommandMap.h"
 
-EVPosture::EVPosture(ObjectController* controller) 
-: EnqueueValidator(controller)
+EVPosture::EVPosture(ObjectController* controller)
+    : EnqueueValidator(controller)
 {}
 
 EVPosture::~EVPosture()
@@ -41,14 +41,14 @@ bool EVPosture::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32
 {
     if(CreatureObject* creature = dynamic_cast<CreatureObject*>(mController->getObject()))
     {
-        uint32 postureBit = 1 << creature->getPosture();
+        uint32 postureBit = 1 << creature->states.getPosture();
 
         // check our posture
         if(cmdProperties && ((cmdProperties->mPostureMask & postureBit) != postureBit))
         {
-            reply1 = 0;
-            reply2 = 0;
-            return false;
+            reply1 = kCannotDoWhileLocomotion;
+			reply2 = mController->getLocoValidator(creature->states.getLocomotion());
+			return false;
         }
     }
 

@@ -34,20 +34,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class CraftingTool : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		CraftingTool();
-		virtual ~CraftingTool();
-	
-		Item*	getCurrentItem(){ return mCurrentItem; }
-		void	setCurrentItem(Item* item){ mCurrentItem = item; }
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    CraftingTool();
+    virtual ~CraftingTool();
 
-	private:
+    Item*	getCurrentItem() {
+        return mCurrentItem;
+    }
+    void	setCurrentItem(Item* item) {
+        mCurrentItem = item;
+    }
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
-		Item*	mCurrentItem;
+private:
+
+    Item*	mCurrentItem;
 
 };
 

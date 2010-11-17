@@ -39,43 +39,50 @@ class Scheduler;
 
 namespace Anh_Utils
 {
-	class Clock	//: public TimerCallback
-	{
-    public:
-		static Clock* getSingleton(){return mSingleton;}
-		static Clock* Init();
-        static void	destroySingleton(void); 
+class Clock	//: public TimerCallback
+{
+public:
+    static Clock* getSingleton() {
+        return mSingleton;
+    }
+    static Clock* Init();
+    static void	destroySingleton(void);
 
 
-    protected:
-        Clock();
-        ~Clock();
-    
-    public:
-        char*	GetCurrentDateTimeString();
+protected:
+    Clock();
+    ~Clock();
 
-        uint64	getGlobalTime() const; 
-        uint64	getLocalTime() const;
+public:
+    char*	GetCurrentDateTimeString();
 
-        void	setGlobalDrift(int64 drift);
+    uint64	getGlobalTime() const;
+    uint64	getLocalTime() const;
 
-		//timegettime uses 8µs to execute
-		//by stamping our timestamp every second and using it instead
-		//we have a much lower resolution but save a lot of processing time
-		uint64	getStoredTime(){return mStoredTime;}
-		bool	_setStoredTime(uint64 callTime, void* ref){mStoredTime = getLocalTime(); return true;}
-		void	process();
+    void	setGlobalDrift(int64 drift);
 
-    private:
-        
-		
-		int64			mGlobalDrift;      // The amount of time the local clock is from the global system clock
-		uint64			mStoredTime;
-		Scheduler*		mClockScheduler;
+    //timegettime uses 8µs to execute
+    //by stamping our timestamp every second and using it instead
+    //we have a much lower resolution but save a lot of processing time
+    uint64	getStoredTime() {
+        return mStoredTime;
+    }
+    bool	_setStoredTime(uint64 callTime, void* ref) {
+        mStoredTime = getLocalTime();
+        return true;
+    }
+    void	process();
 
-        static Clock*	mSingleton;
-		static bool		mInsFlag;
-	};
+private:
+
+
+    int64			mGlobalDrift;      // The amount of time the local clock is from the global system clock
+    uint64			mStoredTime;
+    Scheduler*		mClockScheduler;
+
+    static Clock*	mSingleton;
+    static bool		mInsFlag;
+};
 }
 
 //==============================================================================================================================

@@ -29,12 +29,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/Message.h"
 
 
 
@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleTumbleToKneeling(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -54,7 +54,7 @@ void ObjectController::_handleTumbleToKneeling(uint64 targetId,Message* message,
 
 void ObjectController::_handleTumbleToProne(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -63,7 +63,7 @@ void ObjectController::_handleTumbleToProne(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleTumbleToStanding(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -72,7 +72,7 @@ void ObjectController::_handleTumbleToStanding(uint64 targetId,Message* message,
 
 void ObjectController::_handleTakeCover(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -81,7 +81,7 @@ void ObjectController::_handleTakeCover(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleAim(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 

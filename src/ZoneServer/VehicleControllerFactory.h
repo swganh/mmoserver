@@ -49,44 +49,46 @@ class VehicleController;
 
 enum VehicleQuery
 {
-	VehicleControllerFactoryQuery_Create		= 1,
-	VehicleControllerFactoryQuery_TypesId		= 2,
-	VehicleControllerFactoryQuery_ItnoData	= 3,
-	VehicleControllerFactoryQuery_MainData	= 4,
-	VehicleControllerFactoryQuery_Attributes	= 5
+    VehicleControllerFactoryQuery_Create		= 1,
+    VehicleControllerFactoryQuery_TypesId		= 2,
+    VehicleControllerFactoryQuery_ItnoData	= 3,
+    VehicleControllerFactoryQuery_MainData	= 4,
+    VehicleControllerFactoryQuery_Attributes	= 5
 };
 
 //=============================================================================
 
 class VehicleControllerFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static	VehicleControllerFactory*	getSingletonPtr() { return mSingleton; }
-		static	VehicleControllerFactory*	Init(Database* database);
+    static	VehicleControllerFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static	VehicleControllerFactory*	Init(Database* database);
 
-		~VehicleControllerFactory();
+    ~VehicleControllerFactory();
 
-		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		virtual void			handleObjectReady(Object* object,DispatchClient* client);
-		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void					createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer);
+    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    virtual void			handleObjectReady(Object* object,DispatchClient* client);
+    void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void					createVehicle(uint32 vehicle_type,PlayerObject* targetPlayer);
 
 
-	private:
+private:
 
-		VehicleControllerFactory(Database* database);
+    VehicleControllerFactory(Database* database);
 
-		void						_setupDatabindings();
-		void						_destroyDatabindings();
+    void						_setupDatabindings();
+    void						_destroyDatabindings();
 
-		VehicleController*			_createVehicle(DatabaseResult* result);
+    VehicleController*			_createVehicle(DatabaseResult* result);
 
-		static VehicleControllerFactory*	mSingleton;
-		static bool					mInsFlag;
+    static VehicleControllerFactory*	mSingleton;
+    static bool					mInsFlag;
 
-		DataBinding*				mVehicleItno_Binding;
-		DataBinding*				mVehicleCreo_Binding;
+    DataBinding*				mVehicleItno_Binding;
+    DataBinding*				mVehicleCreo_Binding;
 
 };
 

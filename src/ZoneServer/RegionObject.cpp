@@ -29,8 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 RegionObject::RegionObject() : Object()
 {
-	mType = ObjType_Region;
-	mActive = false;
+    mType = ObjType_Region;
+    mActive = false;
 }
 
 RegionObject::~RegionObject()

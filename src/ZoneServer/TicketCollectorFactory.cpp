@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TicketCollectorFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "TicketCollector.h"
-#include "LogManager/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -43,108 +43,112 @@ TicketCollectorFactory*	TicketCollectorFactory::mSingleton  = NULL;
 
 TicketCollectorFactory*	TicketCollectorFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new TicketCollectorFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new TicketCollectorFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
 
 TicketCollectorFactory::TicketCollectorFactory(Database* database) : FactoryBase(database)
 {
-	_setupDatabindings();
+    _setupDatabindings();
 }
 
 //=============================================================================
 
 TicketCollectorFactory::~TicketCollectorFactory()
 {
-	_destroyDatabindings();
+    _destroyDatabindings();
 
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
 
 void TicketCollectorFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
+    QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
 
-	switch(asyncContainer->mQueryType)
-	{
-		case TCFQuery_MainData:
-		{
-			TicketCollector* collector = _createTicketCollector(result);
+    switch(asyncContainer->mQueryType)
+    {
+    case TCFQuery_MainData:
+    {
+        TicketCollector* collector = _createTicketCollector(result);
 
-			if(collector->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-				asyncContainer->mOfCallback->handleObjectReady(collector,asyncContainer->mClient);
-			else
-			{
+        if(collector->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
+            asyncContainer->mOfCallback->handleObjectReady(collector,asyncContainer->mClient);
+        else
+        {
 
-			}
-		}
-		break;
+        }
+    }
+    break;
 
-		default:break;
-	}
+    default:
+        break;
+    }
 
-	mQueryContainerPool.free(asyncContainer);
+    mQueryContainerPool.free(asyncContainer);
 }
 
 //=============================================================================
 
 void TicketCollectorFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	mDatabase->ExecuteSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,TCFQuery_MainData,client),"SELECT * FROM ticket_collectors WHERE id = %"PRIu64"",id);
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,TCFQuery_MainData,client),"SELECT * FROM ticket_collectors WHERE id = %"PRIu64"",id);
+    
 }
 
 //=============================================================================
 
 TicketCollector* TicketCollectorFactory::_createTicketCollector(DatabaseResult* result)
 {
-	TicketCollector*	ticketCollector = new TicketCollector();
+	if (!result->getRowCount()) {
+		return nullptr;
+	}
 
-	uint64 count = result->getRowCount();
+    TicketCollector*	ticketCollector = new TicketCollector();
 
-	result->GetNextRow(mTicketCollectorBinding,(void*)ticketCollector);
+    result->getNextRow(mTicketCollectorBinding,(void*)ticketCollector);
 
-	ticketCollector->mTypeOptions = 0x108;
-	ticketCollector->setLoadState(LoadState_Loaded);
+    ticketCollector->mTypeOptions = 0x108;
+    ticketCollector->setLoadState(LoadState_Loaded);
 
-	return ticketCollector;
+    return ticketCollector;
 }
 
 //=============================================================================
 
 void TicketCollectorFactory::_setupDatabindings()
 {
-	mTicketCollectorBinding = mDatabase->CreateDataBinding(13);
-	mTicketCollectorBinding->addField(DFT_uint64,offsetof(TicketCollector,mId),8,0);
-	mTicketCollectorBinding->addField(DFT_uint64,offsetof(TicketCollector,mParentId),8,1);
-	mTicketCollectorBinding->addField(DFT_bstring,offsetof(TicketCollector,mModel),256,2);
-	mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mDirection.x),4,3);
-	mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mDirection.y),4,4);
-	mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mDirection.z),4,5);
-	mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mDirection.w),4,6);
-	mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mPosition.x),4,7);
-	mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mPosition.y),4,8);
-	mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mPosition.z),4,9);
-	mTicketCollectorBinding->addField(DFT_bstring,offsetof(TicketCollector,mName),64,11);
-	mTicketCollectorBinding->addField(DFT_bstring,offsetof(TicketCollector,mNameFile),64,12);
-	mTicketCollectorBinding->addField(DFT_bstring,offsetof(TicketCollector,mPortDescriptor),64,13);
+    mTicketCollectorBinding = mDatabase->createDataBinding(13);
+    mTicketCollectorBinding->addField(DFT_uint64,offsetof(TicketCollector,mId),8,0);
+    mTicketCollectorBinding->addField(DFT_uint64,offsetof(TicketCollector,mParentId),8,1);
+    mTicketCollectorBinding->addField(DFT_bstring,offsetof(TicketCollector,mModel),256,2);
+    mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mDirection.x),4,3);
+    mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mDirection.y),4,4);
+    mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mDirection.z),4,5);
+    mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mDirection.w),4,6);
+    mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mPosition.x),4,7);
+    mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mPosition.y),4,8);
+    mTicketCollectorBinding->addField(DFT_float,offsetof(TicketCollector,mPosition.z),4,9);
+    mTicketCollectorBinding->addField(DFT_bstring,offsetof(TicketCollector,mName),64,11);
+    mTicketCollectorBinding->addField(DFT_bstring,offsetof(TicketCollector,mNameFile),64,12);
+    mTicketCollectorBinding->addField(DFT_bstring,offsetof(TicketCollector,mPortDescriptor),64,13);
 }
 
 //=============================================================================
 
 void TicketCollectorFactory::_destroyDatabindings()
 {
-	mDatabase->DestroyDataBinding(mTicketCollectorBinding);
+    mDatabase->destroyDataBinding(mTicketCollectorBinding);
 }
 
 //=============================================================================

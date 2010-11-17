@@ -33,14 +33,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum NPCFamily
 {
-	NpcFamily_Trainer	= 1,
-	NpcFamily_Filler	= 2,
-	NpcFamily_QuestGiver = 3,
-	NpcFamily_AttackableObject = 7,		// Like Debris and stuff we can fight. They have a single health bar. H(am)
-	NpcFamily_AttackableCreatures = 8,	// Like npc's and creatures in the wild we can fight. Full HAM.
-	NpcFamily_NaturalLairs = 9,			// 
-	NpcFamily_MissionLairs = 10,		// 
-	NpcFamily_InvisibleLairs = 11		// 
+    NpcFamily_Trainer	= 1,
+    NpcFamily_Filler	= 2,
+    NpcFamily_QuestGiver = 3,
+    NpcFamily_AttackableObject = 7,		// Like Debris and stuff we can fight. They have a single health bar. H(am)
+    NpcFamily_AttackableCreatures = 8,	// Like npc's and creatures in the wild we can fight. Full HAM.
+    NpcFamily_NaturalLairs = 9,			//
+    NpcFamily_MissionLairs = 10,		//
+    NpcFamily_InvisibleLairs = 11		//
 };
 
 //=============================================================================

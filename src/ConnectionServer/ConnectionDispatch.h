@@ -45,21 +45,21 @@ typedef std::map<uint32,ConnectionDispatchCallback*>   ConnectionMessageCallback
 
 class ConnectionDispatch
 {
-	public:
+public:
 
-		ConnectionDispatch(void);
-		~ConnectionDispatch(void);
+    ConnectionDispatch(void);
+    ~ConnectionDispatch(void);
 
-		void	Process(void);
+    void	Process(void);
 
-		void	RegisterMessageCallback(uint32 opcode, ConnectionDispatchCallback* callback);
-		void	UnregisterMessageCallback(uint32 opcode);
+    void	RegisterMessageCallback(uint32 opcode, ConnectionDispatchCallback* callback);
+    void	UnregisterMessageCallback(uint32 opcode);
 
-		void	handleIncomingMessage(ConnectionClient* client, Message* message);
+    void	handleIncomingMessage(ConnectionClient* client, Message* message);
 
-	private:
+private:
 
-		ConnectionMessageCallbackMap              mMessageCallbackMap;
+    ConnectionMessageCallbackMap              mMessageCallbackMap;
 };
 
 

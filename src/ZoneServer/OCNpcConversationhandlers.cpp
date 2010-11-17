@@ -52,12 +52,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/Message.h"
 
 #include "Utils/clock.h"
 
@@ -114,115 +113,86 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 		}
 
 		// we are out of range
-		if(!inRange)
-		{
-			char buffer[100];
-			sprintf(buffer, "You are out of range (%f m).", distance);
-			string msg(buffer);
-			msg.convert(BSTRType_Unicode16);
-			
-			gMessageLib->sendSystemMessage(player,msg.getUnicode16());
-			// gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
-			return;
-		}
-
-		//check to see if he is part of a mission
-		if(gMissionManager->checkDeliverMission(player,npc) ||
-		   gMissionManager->checkCraftingMission(player,npc)
-		  ) return;		
-
-		// we don't want him to talk
-		if(npc->hasInternalAttribute("no_chat"))
-		return;
-
-		// initiate a conversation dialog
-		if(npc->hasInternalAttribute("base_conversation"))
-		{
-			// Let the npc have your attention, and some npc-movement.
-			npc->prepareConversation(player);
-			gConversationManager->startConversation(npc,player);
-		}
-
-		// say some chatter
-		else
-		{
-			// spam protection
-			uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
-			if(npc->getLastConversationTarget() == player->getId())
-			{
-				if(localTime - npc->getLastConversationRequest() < NPC_CHAT_SPAM_PROTECTION_TIME)
-				{
-					return;
-				}
-				else
-				{
-					npc->setLastConversationRequest(localTime);
-				}
-			}
-			else
-			{
-				npc->setLastConversationRequest(localTime);
-				npc->setLastConversationTarget(player->getId());
-			}
-
-			// Let the npc have your attention, and some npc-movement.
-			// Nope... npc->prepareConversation(player);
-      std::wstring npc_chat;
-      uint32_t animation = 0;
-
-			// say a specific preset sentence
-			if(npc->hasInternalAttribute("npc_chat"))	{
-				std::string tmp = npc->getInternalAttribute<std::string>("npc_chat");
-        npc_chat = std::wstring(tmp.begin(), tmp.end());
-      } else {        
-				std::pair<std::wstring,uint32> chat = gWorldManager->getRandNpcChatter();
-
-        npc_chat  = chat.first;
-        animation = chat.second;
-      }
-              
-      // Use regex to check if the chat string matches the stf string format.
-      static const wregex pattern(L"@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
-      wsmatch result;
-      
-      regex_search(npc_chat, result, pattern);
-
-      // If not an exact match (2 sub-patterns + the full string = 3 elements) it's just a pain text string.
-      if (result.size() != 3) {     
-			  char quack[5][32];
-			  memset(quack, 0, sizeof(quack));
-        
-			  if (!gWorldConfig->isInstance()) {
-			  	gMessageLib->sendSpatialChat(npc, npc_chat.c_str(), quack);
-
-          if (animation) {
-						gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation));
-          }
-			  } else {
-			  	gMessageLib->sendSpatialChat(npc, npc_chat.c_str(), quack, player);
-          
-          if (animation) {
-						gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation), player);
-          }
-			  }
-      } else {
-        // This is an STF dialog send it out appropriately.
-        std::wstring filename = result[1].str();
-        std::wstring varname  = result[2].str();
-        
-        // If there was a match send it out as an stf spatial message.
-        gMessageLib->sendSpatialChat(npc, player, L"", 
-          std::string(filename.begin(), filename.end()).c_str(), 
-          std::string(varname.begin(), varname.end()).c_str());
-        
-        if (animation) {
-				  gMessageLib->sendCreatureAnimation(npc, gWorldManager->getNpcConverseAnimation(animation));
+        if(!inRange)
+        {
+            float distance = glm::distance(player->mPosition, npc->mPosition);
+            char buffer[100];
+            sprintf(buffer, "You are out of range (%f m).", distance);
+            BString msg(buffer);
+            msg.convert(BSTRType_Unicode16);
+            gMessageLib->SendSystemMessage(msg.getUnicode16(), player);
+            // gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
+            return;
         }
-      }   
-		}
-	}
-	else
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleNPCConversationStart: Couldn't find object %"PRIu64"",targetId);
+
+        //check to see if he is part of a mission
+        /*if(gMissionManager->checkDeliverMission(player,npc) ||
+                gMissionManager->checkCraftingMission(player,npc)
+          ) return;*/
+
+        // we don't want him to talk
+        if(npc->hasInternalAttribute("no_chat"))
+            return;
+
+        // initiate a conversation dialog
+        if(npc->hasInternalAttribute("base_conversation"))
+        {
+            // Let the npc have your attention, and some npc-movement.
+            npc->prepareConversation(player);
+            gConversationManager->startConversation(npc,player);
+        }
+
+        // say some chatter
+        else
+        {
+            // spam protection
+            uint64 localTime = Anh_Utils::Clock::getSingleton()->getLocalTime();
+            if(npc->getLastConversationTarget() == player->getId())
+            {
+                if(localTime - npc->getLastConversationRequest() < NPC_CHAT_SPAM_PROTECTION_TIME)
+                {
+                    return;
+                }
+                else
+                {
+                    npc->setLastConversationRequest(localTime);
+                }
+            }
+            else
+            {
+                npc->setLastConversationRequest(localTime);
+                npc->setLastConversationTarget(player->getId());
+            }
+
+            // Let the npc have your attention, and some npc-movement.
+            // Nope... npc->prepareConversation(player);
+            std::wstring npc_chat;
+            uint32_t animation = 0;
+
+            // say a specific preset sentence
+            if(npc->hasInternalAttribute("npc_chat"))	{
+                std::string tmp = npc->getInternalAttribute<std::string>("npc_chat");
+                npc_chat = std::wstring(tmp.begin(), tmp.end());
+            } else {
+                std::pair<std::wstring,uint32> chat = gWorldManager->getRandNpcChatter();
+
+                npc_chat  = chat.first;
+                animation = chat.second;
+            }
+
+            if (!gWorldConfig->isInstance()) {
+                gMessageLib->SendSpatialChat(npc, npc_chat);
+
+                if (animation) gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation));
+            } else {
+                gMessageLib->SendSpatialChat(npc, npc_chat, player);
+
+                if (animation) gMessageLib->sendCreatureAnimation(npc,gWorldManager->getNpcConverseAnimation(animation), player);
+            }
+        }
+    }
+    else
+        DLOG(INFO) << "ObjController::_handleNPCConversationStart: Couldn't find object " << targetId;
 }
 
 //=============================================================================
@@ -232,9 +202,9 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 
 void ObjectController::_handleNPCConversationStop(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	gConversationManager->stopConversation(playerObject);
+    gConversationManager->stopConversation(playerObject);
 }
 
 //=============================================================================
@@ -244,19 +214,19 @@ void ObjectController::_handleNPCConversationStop(uint64 targetId,Message* messa
 
 void ObjectController::_handleNPCConversationSelect(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			dataStr;
-	uint32			selectId		= 0;
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    BString			dataStr;
+    uint32			selectId		= 0;
 
-	message->getStringUnicode16(dataStr);
+    message->getStringUnicode16(dataStr);
 
-	if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::handleNPCConversationSelect: Error in parameters\n");
-		return;
-	}
+    if(swscanf(dataStr.getUnicode16(),L"%u",&selectId) != 1)
+    {
+        DLOG(INFO) << "ObjController::handleNPCConversationSelect: Error in parameters";
+        return;
+    }
 
-	gConversationManager->updateConversation(selectId,playerObject);
+    gConversationManager->updateConversation(selectId,playerObject);
 }
 
 //=============================================================================

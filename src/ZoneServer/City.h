@@ -42,26 +42,30 @@ class QTRegion;
 
 class City : public RegionObject
 {
-	friend class CityFactory;
+    friend class CityFactory;
 
-	public:
+public:
 
-		City();
-		virtual ~City();
+    City();
+    virtual ~City();
 
-		string			getCityName(){ return mCityName; }
-		void			setCityName(const string cityName){ mCityName = cityName; }
+    BString			getCityName() {
+        return mCityName;
+    }
+    void			setCityName(const BString cityName) {
+        mCityName = cityName;
+    }
 
-		virtual void	update();
-		virtual void	onObjectEnter(Object* object);
-		virtual void	onObjectLeave(Object* object);
+    virtual void	update();
+    virtual void	onObjectEnter(Object* object);
+    virtual void	onObjectLeave(Object* object);
 
-	protected:
+protected:
 
-		string				mCityName;
-		ZoneTree*			mSI;
-		QTRegion*			mQTRegion;
-		Anh_Math::Rectangle mQueryRect;
+    BString				mCityName;
+    ZoneTree*			mSI;
+    QTRegion*			mQTRegion;
+    Anh_Math::Rectangle mQueryRect;
 };
 
 

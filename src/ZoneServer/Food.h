@@ -36,32 +36,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Food : public Item
 {
-	friend class ItemFactory;
-	friend class FoodCommandMapClass;
+    friend class ItemFactory;
+    friend class FoodCommandMapClass;
 
-	public:
+public:
 
-		Food();
-		virtual ~Food();
+    Food();
+    virtual ~Food();
 
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void			handleFoodUse(Object* srcObject);
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void			handleFoodUse(Object* srcObject);
 
-	private:
+private:
 
-		void			_handleUses_Remaining(PlayerObject* playerObject);
-		//void			_handleHealth_Buff(PlayerObject* playerObject);
-		//void			_handleMind_Buff(PlayerObject* playerObject);
-		//void			_handleMask_Scent_Buff(PlayerObject* playerObject);
-		void			_handleBuff(PlayerObject* playerObject);
-		void			_handleInstant(PlayerObject* playerObject);
+    void			_handleUses_Remaining(PlayerObject* playerObject);
+    //void			_handleHealth_Buff(PlayerObject* playerObject);
+    //void			_handleMind_Buff(PlayerObject* playerObject);
+    //void			_handleMask_Scent_Buff(PlayerObject* playerObject);
+    void			_handleBuff(PlayerObject* playerObject);
+    void			_handleInstant(PlayerObject* playerObject);
 
 
-		bool			toDelete;
-		uint32			mIcon;
-		uint32			mDuration;
-		Buff*			mBuff;
+    bool			toDelete;
+    uint32			mIcon;
+    uint32			mDuration;
+    Buff*			mBuff;
 
 };
 
@@ -72,23 +72,25 @@ typedef void									(Food::*funcfoodPointer)(PlayerObject*);
 typedef std::map<uint32,funcfoodPointer>		FoodCommandMap;
 #define gFoodCmdMap								((FoodCommandMapClass::getSingletonPtr())->mCommandMap)
 
-class FoodCommandMapClass 
+class FoodCommandMapClass
 {
-	public:
+public:
 
-		static FoodCommandMapClass*  getSingletonPtr() { return mSingleton; }
-		static FoodCommandMapClass*	Init();
+    static FoodCommandMapClass*  getSingletonPtr() {
+        return mSingleton;
+    }
+    static FoodCommandMapClass*	Init();
 
-		
-		~FoodCommandMapClass();
-		FoodCommandMapClass();
 
-		FoodCommandMap						mCommandMap;
+    ~FoodCommandMapClass();
+    FoodCommandMapClass();
 
-	private:
-		
-		static bool							mInsFlag;
-		static FoodCommandMapClass*			mSingleton;
+    FoodCommandMap						mCommandMap;
+
+private:
+
+    static bool							mInsFlag;
+    static FoodCommandMapClass*			mSingleton;
 
 };
 

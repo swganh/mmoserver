@@ -42,10 +42,10 @@ class CraftAttributeWeight;
 
 struct CustomizationOption
 {
-	string		attribute;
-	uint16		cutomizationIndex;
-	uint32		paletteSize;
-	uint32		defaultValue;
+    BString		attribute;
+    uint16		cutomizationIndex;
+    uint32		paletteSize;
+    uint32		defaultValue;
 };
 
 typedef std::vector<CustomizationOption*>	CustomizationList;
@@ -64,154 +64,213 @@ typedef std::vector<std::pair<Item*,uint32> >	FilledComponent;
 
 class ManufacturingSchematic : public Item
 {
-	public:
+public:
 
-		friend class ItemFactory;
+    friend class ItemFactory;
 
-		ManufacturingSchematic();
-		~ManufacturingSchematic();
+    ManufacturingSchematic();
+    ~ManufacturingSchematic();
 
-		uint8	getFilledSlotCount(){ return mSlotsFilled; }
-		void	setFilledSlotCount(uint8 count){ mSlotsFilled = count; }
+    uint8	getFilledSlotCount() {
+        return mSlotsFilled;
+    }
+    void	setFilledSlotCount(uint8 count) {
+        mSlotsFilled = count;
+    }
 
-		uint8	getCounter(){ return mCounter += (mManufactureSlots).size(); }
-		void	setCounter(uint8 count){ mCounter = count; }
+    uint8	getCounter() {
+        return mCounter += (mManufactureSlots).size();
+    }
+    void	setCounter(uint8 count) {
+        mCounter = count;
+    }
 
-		void	addFilledSlot(){ mSlotsFilled++; }
-		void	removeFilledSlot(){ mSlotsFilled--; }
+    void	addFilledSlot() {
+        mSlotsFilled++;
+    }
+    void	removeFilledSlot() {
+        mSlotsFilled--;
+    }
 
-		string	getItemModel(){ return mItemModel; }
-		void	setItemModel(const int8* model) { mItemModel = model; }
+    BString	getItemModel() {
+        return mItemModel;
+    }
+    void	setItemModel(const int8* model) {
+        mItemModel = model;
+    }
 
-		Item*	getItem(){ return mItem; }
-		void	setItem(Item* item) { mItem = item; }
+    Item*	getItem() {
+        return mItem;
+    }
+    void	setItem(Item* item) {
+        mItem = item;
+    }
 
-		uint8	getUnknown(){ return mUnknown; }
-		void	setUnknown(uint8 unknown){ mUnknown = unknown; }
+    uint8	getUnknown() {
+        return mUnknown;
+    }
+    void	setUnknown(uint8 unknown) {
+        mUnknown = unknown;
+    }
 
-		float	getExpFailureChance(){ return mExpFailureChance; }
-		void	setExpFailureChance(float chance){ mExpFailureChance = chance; }
+    float	getExpFailureChance() {
+        return mExpFailureChance;
+    }
+    void	setExpFailureChance(float chance) {
+        mExpFailureChance = chance;
+    }
 
-		void	prepareManufactureSlots();
-		void	prepareCraftingAttributes();
-		void	prepareAttributes();
-		void	sendAttributes(PlayerObject* playerObject);
+    void	prepareManufactureSlots();
+    void	prepareCraftingAttributes();
+    void	prepareAttributes();
+    void	sendAttributes(PlayerObject* playerObject);
 
-		void	ModifyBlueBars(float mod);
+    void	ModifyBlueBars(float mod);
 
-		ManufactureSlots*			getManufactureSlots(){ return &mManufactureSlots; }
-
-
-		//===============================================================================0
-		// necessary to keep track on the same experimental propertie added to a schematic several times
-		// because its attributes have differing resource weights
-		// they need to still be send in the MSCOs as one experimental propertie
-		bool							expPropStorefind(uint32 crc);
-		ExperimentationProperties*		getExperimentationProperties(){ return &mExperimentationProperties; }
-		ExperimentationPropertiesStore*	getExperimentationPropertiesStore(){ return &expPropStore; }
+    ManufactureSlots*			getManufactureSlots() {
+        return &mManufactureSlots;
+    }
 
 
-		//===============================================================================0
-		// the mPPAttributeMap stores relevant additions to be added to the final attributes from components AFTER experimentation
-		// see implementation for details
-		AttributeMap*				getPPAttributeMap(){ return &mPPAttributeMap; }
-		template<typename T> T		getPPAttribute(string key) const;
-		template<typename T> T		getPPAttribute(uint32 keyCrc) const;
-		void						setPPAttribute(string key,std::string value);
-		void						addPPAttribute(string key,std::string value);
-		bool						hasPPAttribute(string key) const;
-		void						removePPAttribute(string key);
+    //===============================================================================0
+    // necessary to keep track on the same experimental propertie added to a schematic several times
+    // because its attributes have differing resource weights
+    // they need to still be send in the MSCOs as one experimental propertie
+    bool							expPropStorefind(uint32 crc);
+    ExperimentationProperties*		getExperimentationProperties() {
+        return &mExperimentationProperties;
+    }
+    ExperimentationPropertiesStore*	getExperimentationPropertiesStore() {
+        return &expPropStore;
+    }
 
-		CustomizationList*			getCustomizationList(){return &mCustomizationList;}
 
-		void						incComplexity(){mComplexity++;}
+    //===============================================================================0
+    // the mPPAttributeMap stores relevant additions to be added to the final attributes from components AFTER experimentation
+    // see implementation for details
+    AttributeMap*				getPPAttributeMap() {
+        return &mPPAttributeMap;
+    }
+    template<typename T> T		getPPAttribute(BString key) const;
+    template<typename T> T		getPPAttribute(uint32 keyCrc) const;
+    void						setPPAttribute(BString key,std::string value);
+    void						addPPAttribute(BString key,std::string value);
+    bool						hasPPAttribute(BString key) const;
+    void						removePPAttribute(BString key);
 
-		uint32					mUpdateCounter[19];
-		uint32					mAttributesUpdateCounter;
+    CustomizationList*			getCustomizationList() {
+        return &mCustomizationList;
+    }
 
-		bool					mExpAttributeValueChange;
-		bool					mBlueBarSizeChange;
-		bool					mMaxExpValueChange;
+    void						incComplexity() {
+        mComplexity++;
+    }
 
-		uint64					mDataPadId;
-		uint32					mPaletteSize;
+    uint32					mUpdateCounter[19];
+    uint32					mAttributesUpdateCounter;
 
-		CustomizationList		mCustomizationList;
+    bool					mExpAttributeValueChange;
+    bool					mBlueBarSizeChange;
+    bool					mMaxExpValueChange;
 
-		ExperimentationPropertiesStore				expPropStore;
+    uint64					mDataPadId;
+    uint32					mPaletteSize;
 
-	private:
+    CustomizationList		mCustomizationList;
 
-		string						mItemModel;
-		uint8						mSlotsFilled;
-		ManufactureSlots			mManufactureSlots;
-		ExperimentationProperties	mExperimentationProperties;
-		uint8						mUnknown;
-		uint8						mCounter;
-		float						mExpFailureChance;
-		Item*						mItem;
-		string						mSerial;
+    ExperimentationPropertiesStore				expPropStore;
 
-		AttributeMap				mPPAttributeMap;
+private:
+
+    BString						mItemModel;
+    uint8						mSlotsFilled;
+    ManufactureSlots			mManufactureSlots;
+    ExperimentationProperties	mExperimentationProperties;
+    uint8						mUnknown;
+    uint8						mCounter;
+    float						mExpFailureChance;
+    Item*						mItem;
+    BString						mSerial;
+
+    AttributeMap				mPPAttributeMap;
 };
 
 //=============================================================================
 
 class ManufactureSlot
 {
-	public:
+public:
 
-		ManufactureSlot(DraftSlot* draftSlot)
-		:	mDraftSlot(draftSlot)
-		, mFilled(0)
-		, mFilledType(DST_Empty)
-		, mUnknown1(0)
-		, mUnknown2(0xffffffff)
-		, mUnknown3(0)
-		, mFilledIndicatorChange(false)
-		, mResourceId(0)
-		{mSerial = "";}
+    ManufactureSlot(DraftSlot* draftSlot)
+        : mDraftSlot(draftSlot)
+        , mResourceId(0)
+        , mFilled(0)
+        , mFilledType(DST_Empty)
+        , mUnknown1(0)
+        , mUnknown2(0xffffffff)
+        , mUnknown3(0)
+        , mFilledIndicatorChange(false)
+    {
+        mSerial = "";
+    }
 
-		virtual ~ManufactureSlot(){}
+    virtual ~ManufactureSlot() {}
 
-		bool	addResourcetoSlot(uint64 resID, uint32 amount, uint8 type);
-		void	addComponenttoSlot(uint64 resID, uint32 amount, uint8 type);
-		
-		DSType	getFilledType(){ return mFilledType; }
-		void	setFilledType(DSType indicator){ mFilledIndicatorChange = (mFilledType != indicator);mFilledType= indicator; }
+    bool	addResourcetoSlot(uint64 resID, uint32 amount, uint8 type);
+    void	addComponenttoSlot(uint64 resID, uint32 amount, uint8 type);
 
-		uint64	getResourceId(){return mResourceId;}
-		void	setResourceId(uint64 id){mResourceId = id;}
+    DSType	getFilledType() {
+        return mFilledType;
+    }
+    void	setFilledType(DSType indicator) {
+        mFilledIndicatorChange = (mFilledType != indicator);
+        mFilledType= indicator;
+    }
 
-		string	getSerial(){return mSerial;}
-		void	setSerial(string s){mSerial= s;}
+    uint64	getResourceId() {
+        return mResourceId;
+    }
+    void	setResourceId(uint64 id) {
+        mResourceId = id;
+    }
 
-		uint32	getFilledAmount(){return mFilled;}
-		void	setFilledAmount(uint32 amount){mFilled = amount;}
+    BString	getSerial() {
+        return mSerial;
+    }
+    void	setSerial(BString s) {
+        mSerial= s;
+    }
 
-		FilledResources	mFilledResources;
-		
-		FilledComponent	mUsedComponentStacks;
-		
-		// slots
-		DraftSlot*		mDraftSlot;
+    uint32	getFilledAmount() {
+        return mFilled;
+    }
+    void	setFilledAmount(uint32 amount) {
+        mFilled = amount;
+    }
 
-		//id of the resource filled or the serial
-		uint64	mResourceId;
-		string  mSerial;
+    FilledResources	mFilledResources;
 
-		//amount we have filled in the slot
-		uint32			mFilled;
-		
-		//type of stuff filled see draftslot.h
-		DSType			mFilledType;
+    FilledComponent	mUsedComponentStacks;
 
-		uint32			mUnknown1;
-		uint32			mUnknown2;
-		uint32			mUnknown3;
+    // slots
+    DraftSlot*		mDraftSlot;
 
-		// informs us whether there have been changes to know whether to update the counter
-		bool			mFilledIndicatorChange;
+    //id of the resource filled or the serial
+    uint64	mResourceId;
+    BString  mSerial;
+
+    //amount we have filled in the slot
+    uint32			mFilled;
+
+    //type of stuff filled see draftslot.h
+    DSType			mFilledType;
+
+    uint32			mUnknown1;
+    uint32			mUnknown2;
+    uint32			mUnknown3;
+
+    // informs us whether there have been changes to know whether to update the counter
+    bool			mFilledIndicatorChange;
 
 };
 
@@ -223,34 +282,34 @@ class ManufactureSlot
 
 class ExperimentationProperty//CraftingAttribute
 {
-	public:
+public:
 
-		ExperimentationProperty(const int8* expAttName,CraftWeights* craftWeights,CraftAttributes* craftAttributes,float expAttValue,float assAttValue,float maxExpValue)
-		: mExpAttributeName(expAttName)
-		, mWeights(craftWeights)
-		, mAttributes(craftAttributes)
-		, mBlueBarSize(assAttValue)
-		, mExpAttributeValue(expAttValue)
-		, mMaxExpValue(maxExpValue)
-		, mExpUnknown(0)
-		{}
+    ExperimentationProperty(const int8* expAttName,CraftWeights* craftWeights,CraftAttributes* craftAttributes,float expAttValue,float assAttValue,float maxExpValue)
+        : mExpAttributeName(expAttName)
+        , mWeights(craftWeights)
+        , mAttributes(craftAttributes)
+        , mBlueBarSize(assAttValue)
+        , mExpAttributeValue(expAttValue)
+        , mMaxExpValue(maxExpValue)
+        , mExpUnknown(0)
+    {}
 
-		virtual ~ExperimentationProperty(){}
+    virtual ~ExperimentationProperty() {}
 
-		string						mExpAttributeName;
-		CraftWeights*			mWeights;
-		CraftAttributes*	mAttributes;
-		float							mBlueBarSize;
-		float							mBlueBarSizeOld;
-		float							mExpAttributeValue;
-		float							mExpAttributeValueOld;
-		float							mMaxExpValue;
-		float							mMaxExpValueOld;
-		uint32							mExpUnknown;//ExperimentationOffsetList
-		int32							mRoll;
-		bool							mBlueBarSizeChange;
-		bool							mExpAttributeValueChange;
-		bool							mMaxExpValueChange;
+    BString						mExpAttributeName;
+    CraftWeights*			mWeights;
+    CraftAttributes*	mAttributes;
+    float							mBlueBarSize;
+    float							mBlueBarSizeOld;
+    float							mExpAttributeValue;
+    float							mExpAttributeValueOld;
+    float							mMaxExpValue;
+    float							mMaxExpValueOld;
+    uint32							mExpUnknown;//ExperimentationOffsetList
+    int32							mRoll;
+    bool							mBlueBarSizeChange;
+    bool							mExpAttributeValueChange;
+    bool							mMaxExpValueChange;
 };
 
 //=============================================================================
@@ -258,48 +317,48 @@ class ExperimentationProperty//CraftingAttribute
 //=============================================================================
 
 template<typename T>
-T	ManufacturingSchematic::getPPAttribute(string key) const
+T	ManufacturingSchematic::getPPAttribute(BString key) const
 {
-	AttributeMap::const_iterator it = mPPAttributeMap.find(key.getCrc());
+    AttributeMap::const_iterator it = mPPAttributeMap.find(key.getCrc());
 
-	if(it != mPPAttributeMap.end())
-	{
-		try
-		{
-			return(boost::lexical_cast<T>((*it).second));
-		}
-		catch(boost::bad_lexical_cast &)
-		{
-			gLogger->log(LogManager::DEBUG,"ManufacturingSchematic::getPPAttribute: cast failed (%s)",key.getAnsi());
-		}
-	}
-	else
-		gLogger->log(LogManager::DEBUG,"ManufacturingSchematic::getPPAttribute: could not find %s",key.getAnsi());
+    if(it != mPPAttributeMap.end())
+    {
+        try
+        {
+            return(boost::lexical_cast<T>((*it).second));
+        }
+        catch(boost::bad_lexical_cast &)
+        {
+            DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: cast failed " << key.getAnsi();
+        }
+    }
+    else
+        DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: could not find " << key.getAnsi();
 
-	return(T());
+    return(T());
 }
 //=============================================================================
 
 template<typename T>
 T	ManufacturingSchematic::getPPAttribute(uint32 keyCrc) const
 {
-	AttributeMap::iterator it = mPPAttributeMap.find(keyCrc);
+    AttributeMap::iterator it = mPPAttributeMap.find(keyCrc);
 
-	if(it != mPPAttributeMap.end())
-	{
-		try
-		{
-			return(boost::lexical_cast<T>((*it).second));
-		}
-		catch(boost::bad_lexical_cast &)
-		{
-			gLogger->log(LogManager::NOTICE,"ManufacturingSchematic::getPPAttribute: cast failed (%u)",dkeyCrc);
-		}
-	}
-	else
-		gLogger->log(LogManager::NOTICE,"ManufacturingSchematic::getPPAttribute: could not find %u",keyCrc);
+    if(it != mPPAttributeMap.end())
+    {
+        try
+        {
+            return(boost::lexical_cast<T>((*it).second));
+        }
+        catch(boost::bad_lexical_cast &)
+        {
+            DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: cast failed " << keyCrc;
+        }
+    }
+    else
+        DLOG(INFO) << "ManufacturingSchematic::getPPAttribute: could not find " << keyCrc;
 
-	return(T());
+    return(T());
 }
 
 

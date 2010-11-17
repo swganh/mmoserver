@@ -28,63 +28,61 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 #define ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H
 
-#include "DatabaseType.h"
-#include "Utils/typedefs.h"
-#include <boost/thread/thread.hpp>
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <string>
 
-//======================================================================================================================
+#include <boost/noncopyable.hpp>
 
-class Database;
-class DatabaseJob;
+#include "Utils/ActiveObject.h"
+
+#include "DatabaseManager/DatabaseType.h"
+
+struct DatabaseJob;
 class DatabaseImplementation;
 
 
-//======================================================================================================================
-class DatabaseWorkerThread
-{
+/*! \brief An encapsulation of a thread dedicated to executing an sql query 
+* asynchronusly. 
+*/
+class DatabaseWorkerThread : private boost::noncopyable {
 public:
-                              DatabaseWorkerThread(DBType type, Database* datbase, int8* host, uint16 port, int8* user, int8* pass, int8* schema);
-                              ~DatabaseWorkerThread(void);
+    typedef std::function<void (DatabaseWorkerThread*, DatabaseJob*)> Callback;
 
-  virtual void				  run(); 
+public:
+    /*! Overloaded constructor takes in the managing Database instance and 
+    * connection details for starting a new connection.
+    * 
+    * \param type The type of database to connect to.
+    * \param host The hostname to connect to the database on.
+    * \param post The port to connect to the database on.
+    * \param user The username to connect to the database with.
+    * \param pass The password to connect to the database with.
+    * \param schema The schema to connect to to perform queries on.
+    */
+    DatabaseWorkerThread(DBType type, 
+                         const std::string& host, 
+                         uint16_t port, 
+                         const std::string& user, 
+                         const std::string& pass, 
+                         const std::string& schema);
 
-  void                        ExecuteJob(DatabaseJob* job);
+    /*! Executes a DatabaseJob asynchronusly on the worker's private thread.
+    *
+    * \param job The database job to execute.
+    * \param callback The callback to invoke once execution of the job 
+    *   has completed.
+    */
+    void executeJob(DatabaseJob* job, Callback callback);
 
-  void						  requestExit(){ mExit = true; }
-
-protected:
-  int8                        mHostname[256];
-  int16                       mPort;
-  int8                        mUsername[64];
-  int8                        mPassword[64];
-  int8                        mSchema[64];
-  
 private:
-  void                        _startup(void);
-  void                        _shutdown(void);
+    // Disable default construction.
+    DatabaseWorkerThread();
 
-  bool						  mIsDone;
-  Database*                   mDatabase;
-  DatabaseImplementation*     mDatabaseImplementation;
-
-  DatabaseJob*                mCurrentJob;
-  DBType                      mDatabaseImplementationType;
-
-  boost::mutex              mWorkerThreadMutex;
-  boost::thread			    mThread;
-  bool						  mExit;
+    utils::ActiveObject active_;
+    
+    std::unique_ptr<DatabaseImplementation> database_impl_;
 };
-
-
-
-//======================================================================================================================
-
-inline void DatabaseWorkerThread::ExecuteJob(DatabaseJob* job)
-{
-    boost::mutex::scoped_lock lk(mWorkerThreadMutex);
-    mCurrentJob = job;
-}
-
-//======================================================================================================================
 
 #endif // ANH_DATABASEMANAGER_DATABASEWORKERTHREAD_H

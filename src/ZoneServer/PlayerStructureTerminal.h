@@ -35,25 +35,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class PlayerStructureTerminal : public Terminal
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		PlayerStructureTerminal();
-		~PlayerStructureTerminal();
+    PlayerStructureTerminal();
+    ~PlayerStructureTerminal();
 
-		void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+    void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void		handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
-		void		prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount);
+    void		prepareCustomRadialMenu(CreatureObject* player, uint8 itemCount);
 
-		void		setStructure(uint64 s){mStructure = s;}
-		uint64		getStructure(){return mStructure;}
+    void		setStructure(uint64 s) {
+        mStructure = s;
+    }
+    uint64		getStructure() {
+        return mStructure;
+    }
 
-	private:
-		
-		
-		uint64			mStructure;
+private:
+
+
+    uint64			mStructure;
 
 };
 

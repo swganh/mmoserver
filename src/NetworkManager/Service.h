@@ -52,49 +52,62 @@ typedef std::list<NetworkCallback*>				NetworkCallbackList;
 
 class Service
 {
-	public:
+public:
 
-		Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize);
-		~Service(void);
+    Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize);
+    ~Service(void);
 
-		void	Process();
+    void	Process();
 
-		void	Connect(NetworkClient* client, int8* address, uint16 port);
+    void	Connect(NetworkClient* client, int8* address, uint16 port);
 
-		void	AddSessionToProcessQueue(Session* session);
-		//void	AddNetworkCallback(NetworkCallback* callback){ mNetworkCallbackList.push_back(callback); }
-		void	AddNetworkCallback(NetworkCallback* callback){ assert((mCallBack == NULL) && "dammit"); mCallBack = callback; }
-		
+    void	AddSessionToProcessQueue(Session* session);
+    //void	AddNetworkCallback(NetworkCallback* callback){ mNetworkCallbackList.push_back(callback); }
+    void	AddNetworkCallback(NetworkCallback* callback) {
+        assert((mCallBack == NULL) && "dammit");
+        mCallBack = callback;
+    }
 
-		int8*	getLocalAddress(void);
-		uint16	getLocalPort(void);
-		uint32	getId(void){ return mId; };
 
-		void	setId(uint32 id){ mId = id; };
-		void	setQueued(bool b){ mQueued = b; }
-		bool	isQueued(){ return mQueued; }
+    int8*	getLocalAddress(void);
+    uint16	getLocalPort(void);
+    uint32	getId(void) {
+        return mId;
+    };
 
-	private:
+    void	setId(uint32 id) {
+        mId = id;
+    };
+    void	setQueued(bool b) {
+        mQueued = b;
+    }
+    bool	isQueued() {
+        return mQueued;
+    }
 
-		NetworkCallback*		mCallBack;
-		//NetworkCallbackList		mNetworkCallbackList;
-		SessionQueue			mSessionProcessQueue;
-		int8					mLocalAddressName[256];
-		NetworkManager*			mNetworkManager;
-		SocketReadThread*		mSocketReadThread;
-		SocketWriteThread*		mSocketWriteThread;
-		SOCKET					mLocalSocket;
-		uint64					avgTime;
-		uint64					lasttime;
-		uint32					avgPacketsbuild;
-		uint32					mId;
-		uint32					mLocalAddress;
-		uint32					mSessionResendWindowSize;
-		uint16					mLocalPort;
-		bool					mQueued;
-		bool					mServerService;	//marks us as the serverservice / clientservice
+private:
 
-		static bool				mSocketsSubsystemInitComplete;
+    NetworkCallback*		mCallBack;
+    //NetworkCallbackList		mNetworkCallbackList;
+
+    SessionQueue			mSessionProcessQueue;
+
+    int8					mLocalAddressName[256];
+    NetworkManager*			mNetworkManager;
+    SocketReadThread*		mSocketReadThread;
+    SocketWriteThread*		mSocketWriteThread;
+    SOCKET					mLocalSocket;
+    uint64					avgTime;
+    uint64					lasttime;
+    uint32					avgPacketsbuild;
+    uint32					mId;
+    uint32					mLocalAddress;
+    uint32					mSessionResendWindowSize;
+    uint16					mLocalPort;
+    bool					mQueued;
+    bool					mServerService;	//marks us as the serverservice / clientservice
+
+    static bool				mSocketsSubsystemInitComplete;
 };
 
 

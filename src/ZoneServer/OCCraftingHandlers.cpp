@@ -48,12 +48,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SpatialIndexManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
 #include "Utils/clock.h"
 
 #include <boost/lexical_cast.hpp>
@@ -66,7 +65,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 void ObjectController::_handleRequestDraftslotsBatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			requestStr;
+	BString			requestStr;
 	BStringVector	dataElements;
 	uint16			elementCount;
 
@@ -77,7 +76,7 @@ void ObjectController::_handleRequestDraftslotsBatch(uint64 targetId,Message* me
 
 	if(!elementCount)
 	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
+		DLOG(WARNING) << "ObjectController::_handleRequestDraftslotsBatch: Error in requestStr");
 		return;
 	}
 
@@ -103,7 +102,7 @@ void ObjectController::_handleRequestDraftslotsBatch(uint64 targetId,Message* me
 void ObjectController::_handleRequestResourceWeightsBatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			requestStr;
+	BString			requestStr;
 	BStringVector	dataElements;
 	uint16			elementCount;
 
@@ -114,7 +113,7 @@ void ObjectController::_handleRequestResourceWeightsBatch(uint64 targetId,Messag
 
 	if(!elementCount)
 	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
+		DLOG(WARNING) << "ObjectController::_handleRequestResourceWeightsBatch: Error in requestStr");
 		return;
 	}
 
@@ -139,126 +138,6 @@ void ObjectController::_handleSynchronizedUIListen(uint64 targetId,Message* mess
 {
 
 }
-
-//======================================================================================================================
-//
-// request crafting session
-//
-
-void ObjectController::_handleRequestCraftingSession(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	CraftingTool*		tool			= dynamic_cast<CraftingTool*>(gWorldManager->getObjectById(targetId));
-	CraftingStation*	station			= NULL;
-	uint32				expFlag			= 2;//needs to be >1 !!!!!
-
-	message->setIndex(24);
-	/*uint32				counter			= */
-	message->getUint32();
-
-	//get nearest crafting station
-	ObjectSet			inRangeObjects;
-	float				range = 25.0;
-
-	if(!tool)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: could not find tool %"PRIu64"",targetId);
-		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
-		return;
-	}
-
-
-	// get the tangible objects in range
-	gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range,true);
-
-	//and see if a fitting crafting station is near
-	station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
-
-	if(!station)
-	{
-		expFlag = false;
-	}
-
-	if(playerObject->isDead() || playerObject->isIncapacitated())
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
-		return;
-	}
-
-	if(playerObject->getPerformingState() != PlayerPerformance_None)
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
-		return;
-	}
-
-	if(playerObject->checkState(CreatureState_Crafting) || playerObject->getCraftingSession())
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: state or session");
-		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
-		return;
-	}
-
-	if(tool->getAttribute<std::string>("craft_tool_status") == "@crafting:tool_status_working")
-	{
-		if(tool->getCurrentItem())
-			gMessageLib->sendSystemMessage(playerObject,L"","system_msg","crafting_tool_creating_prototype");
-
-		// TODO: put the right message for practice
-		else
-			gMessageLib->sendSystemMessage(playerObject,L"","system_msg","crafting_tool_creating_prototype");
-
-		gMessageLib->sendCraftAcknowledge(opCraftCancelResponse,0,0,playerObject);
-
-		return;
-	}
-
-	gLogger->log(LogManager::DEBUG,"ObjController::handleRequestcraftingsession: new session :)");
-	playerObject->setCraftingSession(gCraftingSessionFactory->createSession(Anh_Utils::Clock::getSingleton(),playerObject,tool,station,expFlag));
-}
-
-//======================================================================================================================
-//
-// select draft schematic
-//
-
-void ObjectController::_handleSelectDraftSchematic(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-	PlayerObject*		playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	CraftingSession*	session			= playerObject->getCraftingSession();
-	//DraftSchematic*		schematic		= NULL;
-	string				dataStr;
-	uint32				schematicIndex	= 0;
-
-	message->getStringUnicode16(dataStr);
-
-	if(session)
-	{
-		if(swscanf(dataStr.getUnicode16(),L"%u",&schematicIndex) != 1 || !session->selectDraftSchematic(schematicIndex))
-		{
-			gCraftingSessionFactory->destroySession(session);
-		}
-	}
-}
-
-//======================================================================================================================
-//
-// cancel crafting session
-//
-
-void ObjectController::_handleCancelCraftingSession(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-
-	message->setIndex(24);
-
-	/*uint32			counter			= */message->getUint32();
-
-	gCraftingSessionFactory->destroySession(playerObject->getCraftingSession());
-
-	gLogger->log(LogManager::DEBUG,"session canceled");
-	//client complains over crafting tool already hacing an item when we go out of the slot screen!!!!!
-}
-
 //=============================================================================================================================
 //
 // craft fill slot

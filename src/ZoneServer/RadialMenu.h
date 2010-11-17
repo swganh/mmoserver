@@ -35,16 +35,18 @@ typedef std::vector<RadialMenuItem*>	RadialItemList;
 
 class RadialMenu
 {
-	public:
-		RadialMenu();
-		~RadialMenu();
+public:
+    RadialMenu();
+    ~RadialMenu();
 
-		void			addItem(uint8 index,uint8 parentItem,RadialIdentifier identifier,uint8 action,const int8* description = "");
-		RadialItemList*	getItemList(){ return &mItemList; }
+    void			addItem(uint8 index,uint8 parentItem,RadialIdentifier identifier,uint8 action,const int8* description = "");
+    RadialItemList*	getItemList() {
+        return &mItemList;
+    }
 
-	private:
+private:
 
-		RadialItemList	mItemList;
+    RadialItemList	mItemList;
 };
 
 #endif

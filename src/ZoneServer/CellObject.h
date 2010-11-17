@@ -38,29 +38,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class CellObject :	public StaticObject
 {
-	friend class CellFactory;
+    friend class CellFactory;
 
-	public:
+public:
 
-		//TODO : use the objectcontainer methods instead!
-		//please note that the objects need to stay in the worlmanager then though
-		//alternatively keep this for creatureObjects
+    //TODO : use the objectcontainer methods instead!
+    //please note that the objects need to stay in the worlmanager then though
+    //alternatively keep this for creatureObjects
 
-		CellObject();
-		CellObject(uint64 id,uint64 parentId,const string model = "object/cell/shared_cell.iff");
-		~CellObject();
+    CellObject();
+    CellObject(uint64 id,uint64 parentId,const BString model = "object/cell/shared_cell.iff");
+    ~CellObject();
 
-		uint32		getLoadCount(){ return mTotalLoadCount; }
-		void		setLoadCount(uint32 count){ mTotalLoadCount = count; }
+    uint32		getLoadCount() {
+        return mTotalLoadCount;
+    }
+    void		setLoadCount(uint32 count) {
+        mTotalLoadCount = count;
+    }
 
-		void		prepareDestruction();
+    void		prepareDestruction();
 
 
-	private:
+private:
 
-		//ObjectList	mChildObjects;
-		uint32		mTotalLoadCount;
-	
+    //ObjectList	mChildObjects;
+    uint32		mTotalLoadCount;
+
 };
 
 //=============================================================================

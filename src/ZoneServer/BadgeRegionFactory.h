@@ -44,7 +44,7 @@ class ObjectFactoryCallback;
 
 enum BadgeFQuery
 {
-	BadgeFQuery_MainData	= 1
+    BadgeFQuery_MainData	= 1
 };
 
 //=============================================================================
@@ -53,27 +53,29 @@ class BadgeRegionFactory : public FactoryBase
 {
 public:
 
-	static BadgeRegionFactory*	getSingletonPtr() { return mSingleton; }
-	static BadgeRegionFactory*	Init(Database* database);
+    static BadgeRegionFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static BadgeRegionFactory*	Init(Database* database);
 
-	~BadgeRegionFactory();
+    ~BadgeRegionFactory();
 
-	void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-	void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
 private:
 
-	BadgeRegionFactory(Database* database);
+    BadgeRegionFactory(Database* database);
 
-	void				_setupDatabindings();
-	void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-	BadgeRegion*		_createBadgeRegion(DatabaseResult* result);
+    BadgeRegion*		_createBadgeRegion(DatabaseResult* result);
 
-	static BadgeRegionFactory*		mSingleton;
-	static bool						mInsFlag;
+    static BadgeRegionFactory*		mSingleton;
+    static bool						mInsFlag;
 
-	DataBinding*					mBadgeRegionBinding;
+    DataBinding*					mBadgeRegionBinding;
 };
 
 //=============================================================================

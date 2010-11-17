@@ -32,18 +32,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 CraftingTool::CraftingTool() : Item(),
-mCurrentItem(NULL)
+    mCurrentItem(NULL)
 {
-	
+
 }
 
 void CraftingTool::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	mRadialMenu	= RadialMenuPtr(new RadialMenu());
+    mRadialMenu	= RadialMenuPtr(new RadialMenu());
 
-	mRadialMenu->addItem(1,0,radId_craftStart,radAction_Default);
-	mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
-	mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_Default);
+    mRadialMenu->addItem(1,0,radId_craftStart,radAction_Default);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+    mRadialMenu->addItem(3,0,radId_itemDestroy,radAction_Default);
 }
 
 //=============================================================================

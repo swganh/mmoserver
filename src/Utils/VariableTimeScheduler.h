@@ -28,41 +28,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_UTILS_VARIABLETIMESCHEDULER_H
 #define ANH_UTILS_VARIABLETIMESCHEDULER_H
 
+#include <algorithm>
+
 #include "typedefs.h"
 #include "FastDelegate.h"
 #include "PriorityVector.h"
 #include "clock.h"
-#include <algorithm>
-
 
 typedef fastdelegate::FastDelegate2<uint64,void*,uint64> VariableTimeCallback;
 
 
 namespace Anh_Utils
 {
-	//======================================================================================================================
+//======================================================================================================================
 
-	class VariableTimeTask
-	{
-		public:
+class VariableTimeTask
+{
+public:
 
-			VariableTimeTask(uint64 id,uint8 priority,uint64 lastCallTime,uint64 interval,VariableTimeCallback callback,void* async)
-				: mId(id),mPriority(priority),mLastCallTime(lastCallTime),mInterval(interval),mCallback(callback),mAsync(async){}
-			
-			~VariableTimeTask(){}
+    VariableTimeTask(uint64 id,uint8 priority,uint64 lastCallTime,uint64 interval,VariableTimeCallback callback,void* async)
+        : mId(id),mPriority(priority),mLastCallTime(lastCallTime),mInterval(interval),mCallback(callback),mAsync(async) {}
 
-			bool operator< (const VariableTimeTask& right) const
-			{
-				return(mPriority < right.mPriority);
-			} 
+    ~VariableTimeTask() {}
 
-			uint64		mId;
-			uint8		mPriority;
-			uint64		mLastCallTime;
-			uint64		mInterval;
-			VariableTimeCallback	mCallback;
-			void*		mAsync;
-	};
+    bool operator< (const VariableTimeTask& right) const
+    {
+        return(mPriority < right.mPriority);
+    }
+
+    uint64		mId;
+    uint8		mPriority;
+    uint64		mLastCallTime;
+    uint64		mInterval;
+    VariableTimeCallback	mCallback;
+    void*		mAsync;
+};
 
 //======================================================================================================================
 
@@ -70,28 +70,31 @@ typedef priority_vector<VariableTimeTask> VariableTaskContainer;
 
 //======================================================================================================================
 
-	class VariableTimeScheduler
-	{
-		public:
+class VariableTimeScheduler
+{
+public:
 
-			VariableTimeScheduler(uint64 processTimeLimit = 100, uint64 throttleLimit = 0);
-			~VariableTimeScheduler();
+    VariableTimeScheduler(uint64 processTimeLimit = 100, uint64 throttleLimit = 0);
+    ~VariableTimeScheduler();
 
-			uint64	addTask(VariableTimeCallback callback,uint8 priority,uint64 interval,void* async);
-			void	removeTask(uint64 id);
-			bool	checkTask(uint64 id);
-			void	reset(){ mNextTask = 0; }
-			void	process();
-			bool	runTask();
-		
-		protected:
+    uint64	addTask(VariableTimeCallback callback,uint8 priority,uint64 interval,void* async);
+    void	removeTask(uint64 id);
+    bool	checkTask(uint64 id);
+    void	reset() {
+        mNextTask = 0;
+    }
+    void	process();
+    bool	runTask();
 
-			VariableTaskContainer		mTasks;	
-			uint32				mNextTask;
-			uint64				mNextTaskId;
-			// Anh_Utils::Clock*	mClock;
-			uint64				mProcessTimeLimit, mThrottleLimit, mLastProcessTime;
-	};
+protected:
+
+    VariableTaskContainer		mTasks;
+
+    uint32				mNextTask;
+    uint64				mNextTaskId;
+    // Anh_Utils::Clock*	mClock;
+    uint64				mProcessTimeLimit, mThrottleLimit, mLastProcessTime;
+};
 }
 
 #endif

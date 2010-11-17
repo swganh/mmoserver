@@ -29,12 +29,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/Message.h"
 
 
 
@@ -45,7 +45,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleSysGroup(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -54,7 +54,7 @@ void ObjectController::_handleSysGroup(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleSteadyAim(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -63,7 +63,7 @@ void ObjectController::_handleSteadyAim(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleVolleyFire(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -72,7 +72,7 @@ void ObjectController::_handleVolleyFire(uint64 targetId,Message* message,Object
 
 void ObjectController::_handleFormup(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -81,7 +81,7 @@ void ObjectController::_handleFormup(uint64 targetId,Message* message,ObjectCont
 
 void ObjectController::_handleBoostMorale(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -90,7 +90,7 @@ void ObjectController::_handleBoostMorale(uint64 targetId,Message* message,Objec
 
 void ObjectController::_handleRally(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -99,7 +99,7 @@ void ObjectController::_handleRally(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleRetreat(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 

@@ -45,45 +45,44 @@ class PlayerObject;
 
 class CampRegion : public RegionObject
 {
+public:
 
-	public:
-
-		CampRegion();
-		virtual ~CampRegion();
+    CampRegion();
+    virtual ~CampRegion();
 
 
-		virtual void	update();
-		virtual void	onObjectEnter(Object* object);
-		virtual void	onObjectLeave(Object* object);
+    virtual void	update();
+    virtual void	onObjectEnter(Object* object);
+    virtual void	onObjectLeave(Object* object);
 
-				void	setOwner(uint64 owner){mOwnerId = owner;}
-				uint64	getOwner(){return mOwnerId;}
+	void	setOwner(uint64 owner){mOwnerId = owner;}
+	uint64	getOwner(){return mOwnerId;}
 
-				void	setAbandoned(bool mmh){mAbandoned = mmh;}
-				uint64	getAbandoned(){return mAbandoned;}
+	void	setAbandoned(bool mmh){mAbandoned = mmh;}
+	uint64	getAbandoned(){return mAbandoned;}
 				
-				void	setMaxXp(uint32 max){mXpMax = max;}
-				uint32	getMaxXp(){return mXpMax;}
+	void	setMaxXp(uint32 max){mXpMax = max;}
+	uint32	getMaxXp(){return mXpMax;}
 
-				void	setCamp(uint64 id){mCampId = id;}
-				uint64	getCamp(){return mCampId;}
+	void	setCamp(uint64 id){mCampId = id;}
+	uint64	getCamp(){return mCampId;}
 
-				uint64	getUpTime(){return((gWorldManager->GetCurrentGlobalTick() - mSetUpTime)/1000);}
+	uint64	getUpTime(){return((gWorldManager->GetCurrentGlobalTick() - mSetUpTime)/1000);}
 				
-				uint32	getVisitors(){return(links.size());}
-				uint32	getCurrentVisitors(){return(mVisitingPlayers.size());}
+	uint32	getVisitors(){return(links.size());}
+	uint32	getCurrentVisitors(){return(mVisitingPlayers.size());}
 				
 
-				void	setCampOwnerName(string name){mOwnerName = name;}
-				string	getCampOwnerName(){return mOwnerName;}
+	void	setCampOwnerName(std::string name){mOwnerName = name;}
+	std::string	getCampOwnerName(){return mOwnerName;}
 
-				void	setHealingModifier(float mod){mHealingModifier = mod;}
-				float	getHealingModifier(){return mHealingModifier;}
+	void	setHealingModifier(float mod){mHealingModifier = mod;}
+	float	getHealingModifier(){return mHealingModifier;}
 
-				void	despawnCamp();
-				void	applyHAMHealing(Object* object);
-				void	applyWoundHealing(Object* object);
-				void	applyXp();
+	void	despawnCamp();
+	void	applyHAMHealing(Object* object);
+	void	applyWoundHealing(Object* object);
+	void	applyXp();
 
 	protected:
 
@@ -95,7 +94,7 @@ class CampRegion : public RegionObject
 		uint64				mExpiresTime;
 		uint32				mXpMax;
 		uint32				mXp;
-		string				mOwnerName;
+		std::string			mOwnerName;
 		float				mHealingModifier;
 
 		uint32				mHealingDone;
@@ -105,6 +104,4 @@ class CampRegion : public RegionObject
 		struct				campLink;
 		std::list<campLink*>	links;
 };
-
-
 #endif

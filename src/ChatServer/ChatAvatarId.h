@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_CHATAVATARID_CHANNEL_H
 
 #include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 
 class ChatSystemAvatar;
 class Player;
@@ -41,43 +42,51 @@ class ChatAvatarId
 {
 public:
 
-	ChatAvatarId(){};
-	~ChatAvatarId(){};
+    ChatAvatarId() {};
+    ~ChatAvatarId() {};
 
-	string			getGalaxy() { return mGalaxy; }
-	void			setGalaxy(const string name) { mGalaxy = name; }
+    BString			getGalaxy() {
+        return mGalaxy;
+    }
+    void			setGalaxy(const BString name) {
+        mGalaxy = name;
+    }
 
-	Player*			getPlayer() { return mPlayer; }
-	void			setPlayer(Player* player);
-	void			setPlayer(const string player);
+    Player*			getPlayer() {
+        return mPlayer;
+    }
+    void			setPlayer(Player* player);
+    void			setPlayer(const BString player);
 
-	virtual string	getLoweredName() { return mName; }
+    virtual BString	getLoweredName() {
+        return mName;
+    }
 
-	string	getPath();
+    BString	getPath();
 
 protected:
-	string		mGalaxy;
-	string		mName;
-	Player*		mPlayer;
+    BString		mGalaxy;
+    BString		mName;
+    Player*		mPlayer;
 };
 
 //======================================================================================================================
 
 class ChatSystemAvatar : public ChatAvatarId
 {
-public: 
+public:
 
-	~ChatSystemAvatar(){}
-	static ChatSystemAvatar* GetSingleton();
+    ~ChatSystemAvatar() {}
+    static ChatSystemAvatar* GetSingleton();
 
-	string getLoweredName();
+    BString getLoweredName();
 
 private:
 
-	ChatSystemAvatar() : ChatAvatarId() {};
+    ChatSystemAvatar() : ChatAvatarId() {};
 
-	static bool					mInsFlag;
-	static ChatSystemAvatar*	mSingleton;
+    static bool					mInsFlag;
+    static ChatSystemAvatar*	mSingleton;
 };
 
 #endif

@@ -28,8 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_DATABASEMANAGER_TRANSACTION_H
 #define ANH_DATABASEMANAGER_TRANSACTION_H
 
-
-#include "Utils/typedefs.h"
 #include <sstream>
 
 class DatabaseImplementation;
@@ -37,27 +35,22 @@ class DatabaseCallback;
 class DatabaseResult;
 class Database;
 
-//======================================================================================================================
+class Transaction {
+public:
 
-class Transaction
-{
-	public:
+    Transaction(Database* database, DatabaseCallback* callback, void* ref);
+    ~Transaction();
 
-		Transaction(Database* database,DatabaseCallback* callback,void* ref);
-		~Transaction();
+    void execute();
+    void addQuery(const char* query, ...);
 
-		void		execute();
-		void		addQuery(int8* query,...);
+private:
 
-	private:
+    Database* mDatabase;
+    DatabaseCallback* mCallback;
+    void* mReference;
 
-		Database*				mDatabase;
-		DatabaseCallback*		mCallback;
-		void*					mReference;
-		std::ostringstream		mQueries;
+    std::ostringstream mQueries;
 };
 
-//======================================================================================================================
-
 #endif
-

@@ -39,32 +39,40 @@ class TravelTicket;
 
 class TicketCollector : public TangibleObject
 {
-	friend class TicketCollectorFactory;
+    friend class TicketCollectorFactory;
 
-	public:
+public:
 
-		TicketCollector();
-		~TicketCollector();
+    TicketCollector();
+    ~TicketCollector();
 
-		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
-		void			setShuttle(Shuttle* shuttle){ mShuttle = shuttle; }
-		Shuttle*		getShuttle(){ return mShuttle; }
+    void			setShuttle(Shuttle* shuttle) {
+        mShuttle = shuttle;
+    }
+    Shuttle*		getShuttle() {
+        return mShuttle;
+    }
 
-		void			setPortDescriptor(string des){ mPortDescriptor = des; }
-		string			getPortDescriptor(){ return mPortDescriptor; }
+    void			setPortDescriptor(BString des) {
+        mPortDescriptor = des;
+    }
+    BString			getPortDescriptor() {
+        return mPortDescriptor;
+    }
 
-		void			travelRequest(TravelTicket* ticket,PlayerObject* playerObject);
+    void			travelRequest(TravelTicket* ticket,PlayerObject* playerObject);
 
-		virtual void	handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+    virtual void	handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
-	private:
+private:
 
-		void			_createTicketSelectMenu(PlayerObject* playerObject);
+    void			_createTicketSelectMenu(PlayerObject* playerObject);
 
-		Shuttle*		mShuttle;
-		string			mPortDescriptor;
+    Shuttle*		mShuttle;
+    BString			mPortDescriptor;
 
 };
 

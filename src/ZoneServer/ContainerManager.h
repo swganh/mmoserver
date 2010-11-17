@@ -89,15 +89,15 @@ class ContainerManager :  public TimerCallback
 
 		void					removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building);
 		
-		void					sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* player)> callback);
-		void					sendToGroupedRegisteredPlayers(CreatureObject* player, std::function<void (PlayerObject* player)> callback, bool self);
+		void					sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* const player)> callback);
+		void					sendToGroupedRegisteredPlayers(PlayerObject* const player, std::function<void (PlayerObject*  const player)> callback, bool self);
 
 		//registers player as watcher to a container based on si
-		void					registerPlayerToContainer(Object* container,PlayerObject* player);
+		void					registerPlayerToContainer(Object* container, PlayerObject* const player) const;
 		//static containers are not affected by si updates
-		void					registerPlayerToStaticContainer(Object* container,PlayerObject* player);
+		void					registerPlayerToStaticContainer(Object* container, PlayerObject* const player) const;
 
-		void					unRegisterPlayerFromContainer(Object* container,PlayerObject* player);
+		void					unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const;
 		void					createObjectToRegisteredPlayers(Object* container,Object* object);
 	
 		void					destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf = false);

@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_EV_POSTURE_H
 
 #include "EnqueueValidator.h"
+#include "Common/Event.h"
 
 class ObjectController;
 class ObjectControllerCmdProperties;

@@ -38,10 +38,10 @@ class ObjectControllerCmdProperties;
 class EVQueueSize : public EnqueueValidator
 {
 public:
-	explicit EVQueueSize(ObjectController* controller);
-	virtual ~EVQueueSize();
+    explicit EVQueueSize(ObjectController* controller);
+    virtual ~EVQueueSize();
 
-	virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties);
+    virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties);
 };
 
 //=======================================================================

@@ -39,13 +39,15 @@ class Message;
 
 class NetworkCallback
 {
-	public:
+public:
 
-	  virtual NetworkClient*  handleSessionConnect(Session* session, Service* service)            { return (NetworkClient*)-1; };
-	  virtual void            handleSessionDisconnect(NetworkClient* client)                      {};
-	  virtual void            handleSessionMessage(NetworkClient* client, Message* message)       {};
+    virtual NetworkClient*  handleSessionConnect(Session* session, Service* service)            {
+        return (NetworkClient*)-1;
+    };
+    virtual void            handleSessionDisconnect(NetworkClient* client)                      {};
+    virtual void            handleSessionMessage(NetworkClient* client, Message* message)       {};
 
-	private:
+private:
 };
 
 //======================================================================================================================

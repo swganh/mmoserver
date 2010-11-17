@@ -187,4 +187,3 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 
 
 
-

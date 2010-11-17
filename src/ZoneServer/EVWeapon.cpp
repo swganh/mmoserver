@@ -34,8 +34,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Weapon.h"
 #include "MessageLib/MessageLib.h"
 
-EVWeapon::EVWeapon(ObjectController* controller) 
-: EnqueueValidator(controller)
+EVWeapon::EVWeapon(ObjectController* controller)
+    : EnqueueValidator(controller)
 {}
 
 EVWeapon::~EVWeapon()
@@ -53,20 +53,20 @@ bool EVWeapon::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 
         // could be an instrument
         if(weapon->getItemFamily() == ItemFamily_Weapon)
         {
-            weaponGroup = dynamic_cast<Weapon*>(weapon)->getGroup();	
+            weaponGroup = dynamic_cast<Weapon*>(weapon)->getGroup();
         }
     }
-			
+
     if(cmdProperties->mRequiredWeaponGroup && (weaponGroup & cmdProperties->mRequiredWeaponGroup) != weaponGroup)
     {
         reply1 = 0;
-        reply2 = 0;
+        reply2 = 1;
 
         if(PlayerObject* player = dynamic_cast<PlayerObject*>(creature))
         {
-            gMessageLib->sendSystemMessage(player,L"","cbt_spam","no_attack_wrong_weapon");
+            gMessageLib->SendSystemMessage(::common::OutOfBand("cbt_spam", "no_attack_wrong_weapon"), player);
         }
-				
+
         return(false);
     }
 

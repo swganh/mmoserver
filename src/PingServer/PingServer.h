@@ -77,9 +77,9 @@ private:
     void HandleReceive(const boost::system::error_code& error, size_t bytesReceived);
     void HandleSend(const boost::system::error_code& error, size_t bytesSent);
 
-    boost::asio::ip::udp::endpoint		remote_endpoint_;   //Storage for Current Client End Point (Thread Safe)	
+    boost::asio::ip::udp::endpoint		remote_endpoint_;   //Storage for Current Client End Point (Thread Safe)
     boost::asio::io_service             io_service_;        //Boost IO Service
-	boost::asio::ip::udp::socket        socket_;            //Server Socket
+    boost::asio::ip::udp::socket        socket_;            //Server Socket
 
     std::vector<uint8>                  receive_buffer_;
 

@@ -27,11 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "EnqueueValidator.h"
 #include "ObjectController.h"
+#include "CreatureEnums.h"
 
 EnqueueValidator::EnqueueValidator(ObjectController* controller)
-: mController(controller)
+    : mController(controller)
 {}
 
 EnqueueValidator::~EnqueueValidator()
 {}
-

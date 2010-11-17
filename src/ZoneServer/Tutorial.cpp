@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BuildingObject.h"
 #include "CharSheetManager.h"
 #include "Container.h"
+#include "Datapad.h"
 #include "FillerNPC.h"
 #include "Inventory.h"
 #include "NonPersistentNpcFactory.h"
@@ -46,34 +47,53 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIPlayerSelectBox.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "WaypointObject.h"
+#include "SendSystemMailMessage.h"
+#include "SocialChatTypes.h"
 
 #include "Utils/EventHandler.h"
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
-#include "LogManager/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 #include "Common/atMacroString.h"
+#include "ChatServer/Mail.h"
+#include "ChatServer/ChatOpcodes.h"
 
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
 
-#include "utils/rand.h"
+#ifdef WIN32
+using ::std::wregex;
+using ::std::wsmatch;
+using ::std::regex_search;
+#else
+using ::boost::wregex;
+using ::boost::wsmatch;
+using ::boost::regex_search;
+#endif
 
+#include "Utils/rand.h"
 
 class TutorialQueryContainer
 {
-	public:
-		uint32 mQueryType;
-		uint64 mId;
+public:
+    uint32 mQueryType;
+    uint64 mId;
 };
 
 class TutorialStartingLocation
 {
-	public:
-		uint32 destinationPlanet;
-		float  destX;
-		float  destY;
-		float  destZ;
+public:
+    uint32 destinationPlanet;
+    float  destX;
+    float  destY;
+    float  destZ;
 };
 
 #if defined(_MSC_VER)
@@ -94,141 +114,155 @@ const uint32 DefaultQuestWeaponType = 2326; // A even more useless gun for the t
 
 //=============================================================================
 Tutorial::Tutorial(PlayerObject* player) :
-mPlayerObject(player),
-mState(0),
-mSubState(1),
-mZoomCamera(false),
-mChatBox(false),
-mFoodSelected(false),
-mFoodUsed(false),
-mCloneDataSaved(false),
-mItemsInsured(false),
-mCloseHolocron(false),
-mChangeLookAtTarget(false),
-mOpenInventory(false),
-mCloseInventory(false),
-mCellId(0),
-mNpcConversationId(0),
-mContainerEventId(0),
-mQuestWeaponFamily(DefaultQuestWeaponFamily),
-mQuestWeaponType(DefaultQuestWeaponType)
+    mPlayerObject(player),
+    mState(0),
+    mSubState(1),
+    mZoomCamera(false),
+    mChatBox(false),
+    mFoodSelected(false),
+    mFoodUsed(false),
+    mCloneDataSaved(false),
+    mItemsInsured(false),
+    mCloseHolocron(false),
+    mChangeLookAtTarget(false),
+    mOpenInventory(false),
+    mCloseInventory(false),
+    mCellId(0),
+    mNpcConversationId(0),
+    mContainerEventId(0),
+    mQuestWeaponFamily(DefaultQuestWeaponFamily),
+    mQuestWeaponType(DefaultQuestWeaponType)
 // mSpawnedNpc(NULL)
 {
-	// State shall be stored/fetched to/from DB.
-	
-	// query tutorial
-	TutorialQueryContainer* asContainer = new TutorialQueryContainer();
-	// asContainer->mObject = playerObject;
-	asContainer->mQueryType = TutorialQuery_MainData;
-	asContainer->mId = player->getId(); 
+    // State shall be stored/fetched to/from DB.
 
-	(gWorldManager->getDatabase())->ExecuteSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM character_tutorial WHERE character_id = %I64u",player->getId());	
+    // query tutorial
+    TutorialQueryContainer* asContainer = new TutorialQueryContainer();
+    // asContainer->mObject = playerObject;
+    asContainer->mQueryType = TutorialQuery_MainData;
+    asContainer->mId = player->getId();
+
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM character_tutorial WHERE character_id = %"PRIu64"",player->getId());
+    
 }
 
 Tutorial::~Tutorial()
 {
 
-	// Save-update the state.
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    // Save-update the state.
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    
 
-	// clear scripts
-	ScriptList::iterator scriptIt = mPlayerScripts.begin();
+    // clear scripts
+    ScriptList::iterator scriptIt = mPlayerScripts.begin();
 
-	while(scriptIt != mPlayerScripts.end())
-	{
-		gScriptEngine->removeScript(*scriptIt);
-		scriptIt = mPlayerScripts.erase(scriptIt);
-	}
+    while(scriptIt != mPlayerScripts.end())
+    {
+        gScriptEngine->removeScript(*scriptIt);
+        scriptIt = mPlayerScripts.erase(scriptIt);
+    }
 }
 
-void Tutorial::warpToStartingLocation(string startingLocation)
+void Tutorial::warpToStartingLocation(BString startingLocation)
 {
-	gLogger->log(LogManager::DEBUG,"Tutorial::warpToStartingLocation: Starting city = %s", startingLocation.getAnsi());
+    TutorialQueryContainer* asContainer = new TutorialQueryContainer();
+    asContainer->mQueryType = TutorialQuery_PlanetLocation;
+    asContainer->mId = mPlayerObject->getId();
 
-	TutorialQueryContainer* asContainer = new TutorialQueryContainer();
-	asContainer->mQueryType = TutorialQuery_PlanetLocation;
-	asContainer->mId = mPlayerObject->getId(); 
-
-	(gWorldManager->getDatabase())->ExecuteSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM starting_location WHERE location LIKE '%s'", startingLocation.getAnsi());	
-
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM starting_location WHERE location LIKE '%s'", startingLocation.getAnsi());
+    
 }
 
 void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	TutorialQueryContainer* asyncContainer = reinterpret_cast<TutorialQueryContainer*>(ref);
-	
-	switch(asyncContainer->mQueryType)
-	{
-		case TutorialQuery_MainData:
-		{
-			DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(3);
-			binding->addField(DFT_uint32,offsetof(Tutorial,mState),4,0);
-			binding->addField(DFT_int32,offsetof(Tutorial,mSubState),4,1);
-			binding->addField(DFT_bstring,offsetof(Tutorial,mStartingProfession),64,2);
+    TutorialQueryContainer* asyncContainer = reinterpret_cast<TutorialQueryContainer*>(ref);
 
-			uint64 count = result->getRowCount();
+    switch(asyncContainer->mQueryType)
+    {
+    case TutorialQuery_MainData:
+    {
+        DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(3);
+        binding->addField(DFT_uint32,offsetof(Tutorial,mState),4,0);
+        binding->addField(DFT_int32,offsetof(Tutorial,mSubState),4,1);
+        binding->addField(DFT_bstring,offsetof(Tutorial,mStartingProfession),64,2);
 
-			if (count == 1)
-			{
-				result->GetNextRow(binding,this);
-				gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Starting profession = %s", mStartingProfession.getAnsi());
-			}
-			else if (count == 0)
-			{
-				// First time, no tutorial data saved.
-				mSubState = 1;
-				mState = 1;
+        uint64 count = result->getRowCount();
 
-				// Save the state.
-				(gWorldManager->getDatabase())->ExecuteSqlAsync(0,0,"INSERT INTO character_tutorial VALUES (%"PRIu64",%u,%u)",asyncContainer->mId,mState, mSubState);
-			}
-			gWorldManager->getDatabase()->DestroyDataBinding(binding);
-		
-			// Here we go...
-			this->startScript();
-		}
-		break;
+        if (count == 1)
+        {
+            result->getNextRow(binding,this);
+        }
+        else if (count == 0)
+        {
+            // First time, no tutorial data saved.
+            mSubState = 1;
+            mState = 1;
 
-		case TutorialQuery_PlanetLocation:
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->mId));
-			if (player)
-			{
-				DataBinding* binding = gWorldManager->getDatabase()->CreateDataBinding(4);
-				TutorialStartingLocation startingLocation;
-				
-				binding->addField(DFT_uint32, offsetof(TutorialStartingLocation, destinationPlanet), 4, 0);
-				binding->addField(DFT_float, offsetof(TutorialStartingLocation, destX), 4, 1);
-				binding->addField(DFT_float, offsetof(TutorialStartingLocation, destY), 4, 2);
-				binding->addField(DFT_float, offsetof(TutorialStartingLocation, destZ), 4, 3);
+            // Save the state.
+            (gWorldManager->getDatabase())->executeSqlAsync(0,0,"INSERT INTO character_tutorial VALUES (%"PRIu64",%u,%u)",asyncContainer->mId,mState, mSubState);
+    
+        }
+        gWorldManager->getDatabase()->destroyDataBinding(binding);
 
-				result->GetNextRow(binding, &startingLocation);
+        // Here we go...
+        this->startScript();
+    }
+    break;
 
-				startingLocation.destX += (gRandom->getRand()%5 - 2);
-				startingLocation.destZ += (gRandom->getRand()%5 - 2);
+    case TutorialQuery_PlanetLocation:
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->mId));
+        if (player)
+        {
+            DataBinding* binding = gWorldManager->getDatabase()->createDataBinding(4);
+            TutorialStartingLocation startingLocation;
 
-				gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: New destination planet = %u", startingLocation.destinationPlanet);
+            binding->addField(DFT_uint32, offsetof(TutorialStartingLocation, destinationPlanet), 4, 0);
+            binding->addField(DFT_float, offsetof(TutorialStartingLocation, destX), 4, 1);
+            binding->addField(DFT_float, offsetof(TutorialStartingLocation, destY), 4, 2);
+            binding->addField(DFT_float, offsetof(TutorialStartingLocation, destZ), 4, 3);
 
-				gMessageLib->sendClusterZoneTransferRequestByPosition(player, 
-                    glm::vec3(startingLocation.destX, startingLocation.destY, startingLocation.destZ), 
-																	  startingLocation.destinationPlanet);
-			}
-			else
-			{
-				gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Player gone!");
-			}
-		}
-		break;
+            result->getNextRow(binding, &startingLocation);
 
-		default:
-		{
-			gLogger->log(LogManager::DEBUG,"Tutorial::handleDatabaseJobComplete: Unknown query = %u\n",  asyncContainer->mQueryType);
-		}
-		break;
-	}
-	delete asyncContainer;
+            startingLocation.destX += (gRandom->getRand()%5 - 2);
+            startingLocation.destZ += (gRandom->getRand()%5 - 2);
 
-}	
+            gMessageLib->sendClusterZoneTransferRequestByPosition(player,
+                    glm::vec3(startingLocation.destX, startingLocation.destY, startingLocation.destZ),
+                    startingLocation.destinationPlanet);
+
+            // create waypoint at starting location.
+            glm::vec3 position;
+            position.x = startingLocation.destX;
+            position.z = startingLocation.destZ;
+
+            Datapad* datapad = player->getDataPad();
+
+            WaypointObject* wp = datapad->getWaypointByName("@ui:cpt_avatar_location");
+            if(wp)
+            {
+                datapad->removeWaypoint(wp->getId());
+            }
+
+            datapad->requestNewWaypoint("@ui:cpt_avatar_location", position, startingLocation.destinationPlanet, Waypoint_blue);
+
+            //send starting emails
+            sendStartingMails();
+        }
+        else
+        {
+        }
+    }
+    break;
+
+    default:
+    {
+    }
+    break;
+    }
+    delete asyncContainer;
+
+}
 
 //======================================================================================================================
 
@@ -237,16 +271,16 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void Tutorial::ScriptRegisterEvent(void* script,std::string eventFunction)
 {
-	mCmdScriptListener.registerScript(reinterpret_cast<Script*>(script),(int8*)eventFunction.c_str());
+    mCmdScriptListener.registerScript(reinterpret_cast<Script*>(script),(int8*)eventFunction.c_str());
 }
 
 //======================================================================================================================
 //
 // available for scripts
-// 
+//
 void Tutorial::scriptPlayMusic(uint32 soundId)
 {
-	gMessageLib->sendPlayMusicMessage(soundId, mPlayerObject);
+    gMessageLib->sendPlayMusicMessage(soundId, mPlayerObject);
 }
 
 //======================================================================================================================
@@ -257,63 +291,63 @@ void Tutorial::scriptPlayMusic(uint32 soundId)
 
 void Tutorial::scriptSystemMessage(std::string message)
 {
-	if (mPlayerObject && mPlayerObject->isConnected())
-	{
-    std::wstring msg(message.begin(), message.end());
-		gMessageLib->sendSystemMessage(mPlayerObject, msg);
-	}
+    if (mPlayerObject && mPlayerObject->isConnected())
+    {
+        std::wstring msg(message.begin(), message.end());
+        gMessageLib->SendSystemMessage(msg, mPlayerObject);
+    }
 }
 
 //======================================================================================================================
 //
-// update tutorial 
+// update tutorial
 //
 
 void Tutorial::updateTutorial(std::string customMessage)
 {
-	// gLogger->log(LogManager::DEBUG,"Tutorial::updateTutorial sending %s",(int8*)(customMessage.c_str()));
-	if (strcmp((int8*)(customMessage.c_str()), "chatActive") == 0)
-	{
-		// I don't know how to get chat-info via client newbie-function, so here is a local fix.
-		mChatBox = false;		// Clear previous chat indications.
-		return;
-	}
-	else if (strcmp((int8*)(customMessage.c_str()), "foodSelected") == 0)
-	{
-		// I don't know how to get info of selected item from the Inventory, so here is a local fix.
-		mFoodSelected = false;
-		return;
-	}
-	else if (strcmp((int8*)(customMessage.c_str()), "foodUsed") == 0)
-	{
-		// I don't know how to get info of radial actions, so here is a local fix.
-		mFoodUsed = false;
-		return;
-	}
-	else if (strcmp((int8*)(customMessage.c_str()), "cloneDataSaved") == 0)
-	{
-		// I don't know how to get info of radial actions, so here is a local fix.
-		mCloneDataSaved = false;
-		return;
-	}
-	else if (strcmp((int8*)(customMessage.c_str()), "insureItemsDone") == 0)
-	{
-		// I don't know how to get info of radial actions, so here is a local fix.
-		mItemsInsured = false;
-		return;
-	}
-	else
-	{
-		tutorialResponseReset((int8*)(customMessage.c_str()));
-	}
-	gMessageLib->sendUpdateTutorialRequest(mPlayerObject, BString((int8*)(customMessage.c_str())));
+    // gLogger->log(LogManager::DEBUG,"Tutorial::updateTutorial sending %s",(int8*)(customMessage.c_str()));
+    if (strcmp((int8*)(customMessage.c_str()), "chatActive") == 0)
+    {
+        // I don't know how to get chat-info via client newbie-function, so here is a local fix.
+        mChatBox = false;		// Clear previous chat indications.
+        return;
+    }
+    else if (strcmp((int8*)(customMessage.c_str()), "foodSelected") == 0)
+    {
+        // I don't know how to get info of selected item from the Inventory, so here is a local fix.
+        mFoodSelected = false;
+        return;
+    }
+    else if (strcmp((int8*)(customMessage.c_str()), "foodUsed") == 0)
+    {
+        // I don't know how to get info of radial actions, so here is a local fix.
+        mFoodUsed = false;
+        return;
+    }
+    else if (strcmp((int8*)(customMessage.c_str()), "cloneDataSaved") == 0)
+    {
+        // I don't know how to get info of radial actions, so here is a local fix.
+        mCloneDataSaved = false;
+        return;
+    }
+    else if (strcmp((int8*)(customMessage.c_str()), "insureItemsDone") == 0)
+    {
+        // I don't know how to get info of radial actions, so here is a local fix.
+        mItemsInsured = false;
+        return;
+    }
+    else
+    {
+        tutorialResponseReset((int8*)(customMessage.c_str()));
+    }
+    gMessageLib->sendUpdateTutorialRequest(mPlayerObject, BString((int8*)(customMessage.c_str())));
 }
 
 
 void Tutorial::openHolocron()
 {
-	// gLogger->log(LogManager::DEBUG,"Tutorial::sendOpenHolocron");
-	gMessageLib->sendOpenHolocron(mPlayerObject);
+    // gLogger->log(LogManager::DEBUG,"Tutorial::sendOpenHolocron");
+    gMessageLib->sendOpenHolocron(mPlayerObject);
 }
 
 //======================================================================================================================
@@ -324,8 +358,8 @@ void Tutorial::openHolocron()
 
 void Tutorial::enableHudElement(std::string customMessage)
 {
-	// gLogger->log(LogManager::DEBUG,"Tutorial::enableHudElement sending %s",(int8*)(customMessage.c_str()));
-	gMessageLib->sendEnableHudElement(mPlayerObject, BString((int8*)(customMessage.c_str())));
+    // gLogger->log(LogManager::DEBUG,"Tutorial::enableHudElement sending %s",(int8*)(customMessage.c_str()));
+    gMessageLib->sendEnableHudElement(mPlayerObject, BString((int8*)(customMessage.c_str())));
 }
 
 //======================================================================================================================
@@ -336,88 +370,88 @@ void Tutorial::enableHudElement(std::string customMessage)
 
 void Tutorial::disableHudElement(std::string customMessage)
 {
-	// gLogger->log(LogManager::DEBUG,"Tutorial::disableHudElement sending %s",(int8*)(customMessage.c_str()));
-	gMessageLib->sendDisableHudElement(mPlayerObject, BString((int8*)(customMessage.c_str())));
+    // gLogger->log(LogManager::DEBUG,"Tutorial::disableHudElement sending %s",(int8*)(customMessage.c_str()));
+    gMessageLib->sendDisableHudElement(mPlayerObject, BString((int8*)(customMessage.c_str())));
 }
 
 //======================================================================================================================
 //
 //
 
-void Tutorial::tutorialResponse(string tutorialEventString)
+void Tutorial::tutorialResponse(BString tutorialEventString)
 {
-	if (strcmp(tutorialEventString.getAnsi(), "zoomCamera") == 0)
-	{
-		mZoomCamera = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "chatActive") == 0)
-	{
-		mChatBox = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "foodSelected") == 0)
-	{
-		mFoodSelected = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "foodUsed") == 0)
-	{
-		mFoodUsed = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "cloneDataSaved") == 0)
-	{
-		mCloneDataSaved = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "insureItemsDone") == 0)
-	{
-		mItemsInsured = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "closeHolocron") == 0)
-	{
-		mCloseHolocron = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "changeLookAtTarget") == 0)
-	{
-		mChangeLookAtTarget = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "openInventory") == 0)
-	{
-		mOpenInventory = true;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "closeInventory") == 0)
-	{
-		mCloseInventory = true;
-	}
+    if (strcmp(tutorialEventString.getAnsi(), "zoomCamera") == 0)
+    {
+        mZoomCamera = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "chatActive") == 0)
+    {
+        mChatBox = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "foodSelected") == 0)
+    {
+        mFoodSelected = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "foodUsed") == 0)
+    {
+        mFoodUsed = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "cloneDataSaved") == 0)
+    {
+        mCloneDataSaved = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "insureItemsDone") == 0)
+    {
+        mItemsInsured = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "closeHolocron") == 0)
+    {
+        mCloseHolocron = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "changeLookAtTarget") == 0)
+    {
+        mChangeLookAtTarget = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "openInventory") == 0)
+    {
+        mOpenInventory = true;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "closeInventory") == 0)
+    {
+        mCloseInventory = true;
+    }
 }
 
 //======================================================================================================================
 //
 //
 
-void Tutorial::tutorialResponseReset(string tutorialEventString)
+void Tutorial::tutorialResponseReset(BString tutorialEventString)
 {
-	if (strcmp(tutorialEventString.getAnsi(), "zoomCamera") == 0)
-	{
-		mZoomCamera = false;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "chatActive") == 0)
-	{
-		mChatBox = false;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "closeHolocron") == 0)
-	{
-		mCloseHolocron = false;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "changeLookAtTarget") == 0)
-	{
-		mChangeLookAtTarget = false;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "openInventory") == 0)
-	{
-		mOpenInventory = false;
-	}
-	else if (strcmp(tutorialEventString.getAnsi(), "closeInventory") == 0)
-	{
-		mCloseInventory = false;
-	}
+    if (strcmp(tutorialEventString.getAnsi(), "zoomCamera") == 0)
+    {
+        mZoomCamera = false;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "chatActive") == 0)
+    {
+        mChatBox = false;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "closeHolocron") == 0)
+    {
+        mCloseHolocron = false;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "changeLookAtTarget") == 0)
+    {
+        mChangeLookAtTarget = false;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "openInventory") == 0)
+    {
+        mOpenInventory = false;
+    }
+    else if (strcmp(tutorialEventString.getAnsi(), "closeInventory") == 0)
+    {
+        mCloseInventory = false;
+    }
 
 }
 
@@ -427,7 +461,7 @@ void Tutorial::tutorialResponseReset(string tutorialEventString)
 //
 bool Tutorial::isZoomCamera()
 {
-	return mZoomCamera;
+    return mZoomCamera;
 }
 
 //======================================================================================================================
@@ -436,7 +470,7 @@ bool Tutorial::isZoomCamera()
 //
 bool Tutorial::isChatBox()
 {
-	return mChatBox;
+    return mChatBox;
 }
 
 //======================================================================================================================
@@ -445,7 +479,7 @@ bool Tutorial::isChatBox()
 //
 bool Tutorial::isFoodSelected()
 {
-	return mFoodSelected;
+    return mFoodSelected;
 }
 
 
@@ -455,7 +489,7 @@ bool Tutorial::isFoodSelected()
 //
 bool Tutorial::isFoodUsed()
 {
-	return mFoodUsed;
+    return mFoodUsed;
 }
 
 //======================================================================================================================
@@ -464,7 +498,7 @@ bool Tutorial::isFoodUsed()
 //
 bool Tutorial::isCloneDataSaved()
 {
-	return mCloneDataSaved;
+    return mCloneDataSaved;
 }
 
 //======================================================================================================================
@@ -473,7 +507,7 @@ bool Tutorial::isCloneDataSaved()
 //
 bool Tutorial::isItemsInsured()
 {
-	return mItemsInsured;
+    return mItemsInsured;
 }
 
 //======================================================================================================================
@@ -482,7 +516,7 @@ bool Tutorial::isItemsInsured()
 //
 bool Tutorial::isCloseHolocron()
 {
-	return mCloseHolocron;
+    return mCloseHolocron;
 }
 
 //======================================================================================================================
@@ -491,7 +525,7 @@ bool Tutorial::isCloseHolocron()
 //
 bool Tutorial::isChangeLookAtTarget()
 {
-	return mChangeLookAtTarget;
+    return mChangeLookAtTarget;
 }
 
 //======================================================================================================================
@@ -500,7 +534,7 @@ bool Tutorial::isChangeLookAtTarget()
 //
 bool Tutorial::isOpenInventory()
 {
-	return mOpenInventory;
+    return mOpenInventory;
 }
 
 //======================================================================================================================
@@ -509,7 +543,7 @@ bool Tutorial::isOpenInventory()
 //
 bool Tutorial::isCloseInventory()
 {
-	return mCloseInventory;
+    return mCloseInventory;
 }
 
 //======================================================================================================================
@@ -518,7 +552,7 @@ bool Tutorial::isCloseInventory()
 //
 uint32 Tutorial::getState()
 {
-	return mState;
+    return mState;
 }
 
 //======================================================================================================================
@@ -527,10 +561,11 @@ uint32 Tutorial::getState()
 //
 void Tutorial::setState(uint32 state)
 {
-	mState = state;
+    mState = state;
 
-	// Save-update the state.
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    // Save-update the state.
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    
 
 }
 
@@ -540,14 +575,14 @@ void Tutorial::setState(uint32 state)
 //
 void Tutorial::startScript(void)
 {
-	Script* script = ScriptEngine::Init()->createScript();
-	script->setPriority(0);
-	
-	script->setFileName("script/TutorialPart_1_9.lua");
-	script->setTutorial(this);	// Dirty... I know..(eru)
+    Script* script = ScriptEngine::Init()->createScript();
+    script->setPriority(0);
 
-	mPlayerScripts.push_back(script);
-	script->run();
+    script->setFileName("script/TutorialPart_1_9.lua");
+    script->setTutorial(this);	// Dirty... I know..(eru)
+
+    mPlayerScripts.push_back(script);
+    script->run();
 }
 
 
@@ -557,7 +592,7 @@ void Tutorial::startScript(void)
 //
 uint32 Tutorial::getSubState()
 {
-	return mSubState;
+    return mSubState;
 }
 
 //======================================================================================================================
@@ -566,10 +601,11 @@ uint32 Tutorial::getSubState()
 //
 void Tutorial::setSubState(uint32 subState)
 {
-	mSubState = subState;
+    mSubState = subState;
 
-	// Save-update the state.
-	gWorldManager->getDatabase()->ExecuteSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    // Save-update the state.
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    
 
 }
 
@@ -579,314 +615,315 @@ void Tutorial::setSubState(uint32 subState)
 //
 bool Tutorial::getReady()
 {
-	bool status = false;
-	if (mPlayerObject && mPlayerObject->isConnected())
-	{
-		status = mPlayerObject->getReady();
-	}
-	return status;
+    bool status = false;
+    if (mPlayerObject && mPlayerObject->isConnected())
+    {
+        status = mPlayerObject->getReady();
+    }
+    return status;
 }
 
 void Tutorial::setCellId(uint64 cellId)
 {
-	mCellId = cellId;
+    mCellId = cellId;
 }
 
 uint32 Tutorial::getRoom()
 {
-	if (mCellId == 0)
-	{
-		// We need to manually update the cell id since we have not passed any cell borders yet.
-		if (mPlayerObject && mPlayerObject->isConnected())
-		{
-			mCellId = mPlayerObject->getParentId();
-		}
-	}
-	return static_cast<uint32>(mCellId + 1 - StartingRoom); // First room is 1.
+    if (mCellId == 0)
+    {
+        // We need to manually update the cell id since we have not passed any cell borders yet.
+        if (mPlayerObject && mPlayerObject->isConnected())
+        {
+            mCellId = mPlayerObject->getParentId();
+        }
+    }
+    return static_cast<uint32>(mCellId + 1 - StartingRoom); // First room is 1.
 }
 
 void Tutorial::spatialChat(uint64 targetId, std::string chatMsg)
 {
-	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
-	if (mPlayerObject && mPlayerObject->isConnected() && npc)
-	{
-		string msg = (int8*)chatMsg.c_str();
-		msg.convert(BSTRType_Unicode16);
-		char quack[5][32];
-		memset(quack, 0, sizeof(quack));
-		gMessageLib->sendSpatialChat(npc, msg, quack, mPlayerObject);
-	}
+    NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
+    if (mPlayerObject && mPlayerObject->isConnected() && npc)
+    {
+        std::wstring message(chatMsg.begin(), chatMsg.end());
+        gMessageLib->SendSpatialChat(npc, message, mPlayerObject, 0);
+    }
 }
+
+/*
+
+*/
 
 void Tutorial::spatialChatShout(uint64 targetId, std::string chatMsg)
 {
-	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
-	if (mPlayerObject && mPlayerObject->isConnected() && npc)
-	{
-		string msg = (int8*)chatMsg.c_str();
-		msg.convert(BSTRType_Unicode16);
-		char quack[5][32];
-		memset(quack, 0, sizeof(quack));
-		quack[1][0] = '8';
-		quack[1][1] = '0';
-		gMessageLib->sendSpatialChat(npc, msg, quack, mPlayerObject);
-	}
+    NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(targetId));
+    if (mPlayerObject && mPlayerObject->isConnected() && npc)
+    {
+        std::wstring message(chatMsg.begin(), chatMsg.end());
+
+        // 80 is shout
+        // @todo: need an enum of all potential chat types
+        gMessageLib->SendSpatialChat(npc, message, mPlayerObject, 0, 0x32, kSocialChatShout);
+    }
 }
 
 
 void Tutorial::enableTutorial()
 {
-	gWorldConfig->enableTutorial();
+    gWorldConfig->enableTutorial();
 }
 
 void Tutorial::disableTutorial()
 {
-	gWorldConfig->disableTutorial();
+    gWorldConfig->disableTutorial();
 }
 
 float Tutorial::getPlayerPosX()
 {
-	float posX = -9000.0f;	// Out of range.
-	if (mPlayerObject && mPlayerObject->isConnected())
-	{
-		posX = mPlayerObject->mPosition.x;
-	}
-	return posX;
+    float posX = -9000.0f;	// Out of range.
+    if (mPlayerObject && mPlayerObject->isConnected())
+    {
+        posX = mPlayerObject->mPosition.x;
+    }
+    return posX;
 }
 
 float Tutorial::getPlayerPosY()
 {
-	float posY = -9000.0f;	// Out of range.
-	if (mPlayerObject && mPlayerObject->isConnected())
-	{
-		posY = mPlayerObject->mPosition.y;
-	}
-	return posY;
+    float posY = -9000.0f;	// Out of range.
+    if (mPlayerObject && mPlayerObject->isConnected())
+    {
+        posY = mPlayerObject->mPosition.y;
+    }
+    return posY;
 }
 
 float Tutorial::getPlayerPosZ()
 {
-	float posZ = -9000.0f;	// Out of range.
-	if (mPlayerObject && mPlayerObject->isConnected())
-	{
-		posZ = mPlayerObject->mPosition.z;
-	}
-	return posZ;
+    float posZ = -9000.0f;	// Out of range.
+    if (mPlayerObject && mPlayerObject->isConnected())
+    {
+        posZ = mPlayerObject->mPosition.z;
+    }
+    return posZ;
 }
 
 float Tutorial::getPlayerPosToObject(uint64 objectId)
 {
-	float distance = -9000.0f;
+    float distance = -9000.0f;
 
-	Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(objectId));
-	if (object && mPlayerObject && mPlayerObject->isConnected())
-	{
+    Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(objectId));
+    if (object && mPlayerObject && mPlayerObject->isConnected())
+    {
         distance = glm::distance(mPlayerObject->mPosition, object->mPosition);
-	}
-	return distance;
+    }
+    return distance;
 }
 
 void Tutorial::enableNpcConversationEvent(uint64 objectId)
 {
-	mNpcConversationStarted = false;
-	mNpcConversationEnded = false;
-	mNpcConversationId = objectId;
+    mNpcConversationStarted = false;
+    mNpcConversationEnded = false;
+    mNpcConversationId = objectId;
 }
 
 void Tutorial::npcConversationHasStarted(uint64 npcId)
 {
-	if (npcId == mNpcConversationId)
-	{
-		mNpcConversationStarted = true;
-	}
+    if (npcId == mNpcConversationId)
+    {
+        mNpcConversationStarted = true;
+    }
 }
 
 void Tutorial::npcConversationHasEnded(uint64 npcId)
 {
-	// There are situations where we can not quarantee that we will setup the npcId for a conversion before it has already started.
-	// AT least let us know when it's finished.
+    // There are situations where we can not quarantee that we will setup the npcId for a conversion before it has already started.
+    // AT least let us know when it's finished.
 
-	// if ((npcId == mNpcConversationId) && (mNpcConversationStarted == true))
-	if (npcId == mNpcConversationId)
-	{
-		mNpcConversationEnded = true;
-		mNpcConversationStarted = true;	// If we set ended, we have to set started also, else objects may be "hanging".
-	}
+    // if ((npcId == mNpcConversationId) && (mNpcConversationStarted == true))
+    if (npcId == mNpcConversationId)
+    {
+        mNpcConversationEnded = true;
+        mNpcConversationStarted = true;	// If we set ended, we have to set started also, else objects may be "hanging".
+    }
 }
 
 bool Tutorial::isNpcConversationStarted(uint64 npcId)
 {
-	return ((npcId == mNpcConversationId)  && (mNpcConversationStarted == true));
+    return ((npcId == mNpcConversationId)  && (mNpcConversationStarted == true));
 }
 
 bool Tutorial::isNpcConversationEnded(uint64 npcId)
 {
-	return ((npcId == mNpcConversationId)  && (mNpcConversationEnded == true));
+    return ((npcId == mNpcConversationId)  && (mNpcConversationEnded == true));
 }
 
 void Tutorial::enableItemContainerEvent(uint64 objectId)
 {
-	mContainerIsOpen = false;
-	mContainerIsClosed = false;
-	mContainerTransferredItemCount = 0;
-	mHasTransfered = false;
-	mContainerEventId = objectId;
+    mContainerIsOpen = false;
+    mContainerIsClosed = false;
+    mContainerTransferredItemCount = 0;
+    mHasTransfered = false;
+    mContainerEventId = objectId;
 }
 
 bool Tutorial::isContainerOpen(uint64 containerId)
 {
-	return ((containerId == mContainerEventId)  && (mContainerIsOpen == true));
+    return ((containerId == mContainerEventId)  && (mContainerIsOpen == true));
 }
 
 bool Tutorial::isContainerClosed(uint64 containerId)
 {
-	return ((containerId == mContainerEventId)  && (mContainerIsClosed == true));
+    return ((containerId == mContainerEventId)  && (mContainerIsClosed == true));
 }
 
 void Tutorial::containerOpen(uint64 containerId)
 {
-	if (containerId == mContainerEventId)
-	{
-		mContainerIsOpen = true;
-		mContainerIsClosed = false; 
-	}
+    if (containerId == mContainerEventId)
+    {
+        mContainerIsOpen = true;
+        mContainerIsClosed = false;
+    }
 }
 
 void Tutorial::containerClose(uint64 containerId)
 {
-	if (containerId == mContainerEventId)
-	{
-		mContainerIsClosed = true;
-		mContainerIsOpen = false;
-	}
+    if (containerId == mContainerEventId)
+    {
+        mContainerIsClosed = true;
+        mContainerIsOpen = false;
+    }
 }
 
 
 bool Tutorial::isContainerEmpty(uint64 containerId)
 {
-	bool empty = false;
-	if (containerId == mContainerEventId)
-	{
-		Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
-		if (container)
-		{
-			uint32 objectCount = 0;
-			ObjectIDList* objList = container->getObjects();
-			ObjectIDList::iterator it = objList->begin();
+    bool empty = false;
+    if (containerId == mContainerEventId)
+    {
+	    Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
+	    if (container)
+	    {
+		    uint32 objectCount = 0;
+		    ObjectIDList* objList = container->getObjects();
+		    ObjectIDList::iterator it = objList->begin();
 
-			ObjectIDList::iterator cEnd = objList->end();
+		    ObjectIDList::iterator cEnd = objList->end();
 
-			while(it != cEnd)
-			{
-				TangibleObject* item = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
-				if(item->getPrivateOwner() == this->getPlayer())
-					++objectCount;
+		    while(it != cEnd)
+		    {
+			    TangibleObject* item = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+			    if(item->getPrivateOwner() == this->getPlayer())
+                {
+				    ++objectCount;
+                }
 
-				++it;
-			}
+                ++it;
+            }
 
-			empty = (objectCount == 0);
-		}
-	}
-	return empty;
+            empty = (objectCount == 0);
+        }
+    }
+    return empty;
 }
 
 void Tutorial::transferedItemFromContainer(uint64 itemId, uint64 containerId)
 {
-	if (containerId == mContainerEventId)
-	{
-		mContainerTransferredItemCount++;
-		mHasTransfered = true;
-	}
+    if (containerId == mContainerEventId)
+    {
+        mContainerTransferredItemCount++;
+        mHasTransfered = true;
+    }
 }
 
 bool Tutorial::isItemTransferedFromContainer(uint64 containerId)
 {
-	bool hasTransfered = mHasTransfered;
-	mHasTransfered = false;
-	return hasTransfered;
+    bool hasTransfered = mHasTransfered;
+    mHasTransfered = false;
+    return hasTransfered;
 }
 
 
 
 uint64 Tutorial::getPlayer(void)
 {
-	uint64 playerId = 0;
-	if (mPlayerObject)
-	{
-		playerId = mPlayerObject->getId();
-	}
-	return playerId;
+    uint64 playerId = 0;
+    if (mPlayerObject)
+    {
+        playerId = mPlayerObject->getId();
+    }
+    return playerId;
 }
 
 void Tutorial::addQuestWeapon(uint32 familyId, uint32 typeId)
 {
-	// gLogger->log(LogManager::DEBUG,"Tutorial::addItem Invoked",MSG_NORMAL);
-	if (mPlayerObject && mPlayerObject->isConnected())
-	{
-		Inventory* inventory = dynamic_cast<Inventory*>(mPlayerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		if (inventory)
-		{
-			if ((familyId != 0) && (typeId != 0))
-			{
-				// Set new default weapon
-				mQuestWeaponFamily = familyId;
-				mQuestWeaponType = typeId;
-			}
+    // gLogger->log(LogManager::DEBUG,"Tutorial::addItem Invoked",MSG_NORMAL);
+    if (mPlayerObject && mPlayerObject->isConnected())
+    {
+        Inventory* inventory = dynamic_cast<Inventory*>(mPlayerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        if (inventory)
+        {
+            if ((familyId != 0) && (typeId != 0))
+            {
+                // Set new default weapon
+                mQuestWeaponFamily = familyId;
+                mQuestWeaponType = typeId;
+            }
             gObjectFactory->requestNewDefaultItem(inventory,mQuestWeaponFamily,mQuestWeaponType,inventory->getId(),99, glm::vec3(), "");
-		}
-	}
+        }
+    }
 }
 
 uint32 Tutorial::getQuestWeaponFamily(void)
 {
-	return mQuestWeaponFamily;
+    return mQuestWeaponFamily;
 }
 
 uint32 Tutorial::getQuestWeaponType(void)
 {
-	return mQuestWeaponType;
+    return mQuestWeaponType;
 }
 
 
 void Tutorial::npcStopFight(uint64 npcId)
 {
-	AttackableCreature* npc = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(npcId));
-	if (npc)
-	{
-		// NpcManager::Instance()->removeNpc(npcId);
-		// npc->makePeaceWithDefender(mPlayerObject->getId());
-		// npc->haltAllActions();
-		// npc->unequipWeapon();
-	}
+    AttackableCreature* npc = dynamic_cast<AttackableCreature*>(gWorldManager->getObjectById(npcId));
+    if (npc)
+    {
+        // NpcManager::Instance()->removeNpc(npcId);
+        // npc->makePeaceWithDefender(mPlayerObject->getId());
+        // npc->haltAllActions();
+        // npc->unequipWeapon();
+    }
 }
 
 bool Tutorial::isLowHam(uint64 npcId, int32 hamLevel)
 {
-	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(npcId));
-	if (npc)
-	{
-		if ((npc->getHam()->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints) < hamLevel) || 
-			(npc->getHam()->getPropertyValue(HamBar_Action,HamProperty_CurrentHitpoints) < hamLevel) ||
-			(npc->getHam()->getPropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints) < hamLevel) ||
-			(mPlayerObject->getHam()->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints) < hamLevel) || 
-			(mPlayerObject->getHam()->getPropertyValue(HamBar_Action,HamProperty_CurrentHitpoints) < hamLevel) ||
-			(mPlayerObject->getHam()->getPropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints) < hamLevel))
-		{
-			return true;
-		}
-	}
-	return false;
+    NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(npcId));
+    if (npc)
+    {
+        if ((npc->getHam()->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints) < hamLevel) ||
+                (npc->getHam()->getPropertyValue(HamBar_Action,HamProperty_CurrentHitpoints) < hamLevel) ||
+                (npc->getHam()->getPropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints) < hamLevel) ||
+                (mPlayerObject->getHam()->getPropertyValue(HamBar_Health,HamProperty_CurrentHitpoints) < hamLevel) ||
+                (mPlayerObject->getHam()->getPropertyValue(HamBar_Action,HamProperty_CurrentHitpoints) < hamLevel) ||
+                (mPlayerObject->getHam()->getPropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints) < hamLevel))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 uint64 Tutorial::getSkillTrainerTypeId(void)
 {
-	uint64 typeId = getSkillTrainerTypeId(this->mStartingProfession);
-	if (typeId == 0)
-	{
-		gLogger->log(LogManager::DEBUG,"Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.");
-	}
-	return typeId;
+    uint64 typeId = getSkillTrainerTypeId(this->mStartingProfession);
+    if (typeId == 0)
+    {
+        DLOG(INFO) << "Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.";
+    }
+    return typeId;
 }
 
 
@@ -906,127 +943,186 @@ static const uint64 MarksmanTrainerId[3] = {47244640339, 47244640363, 4724464045
 static const uint64 ScoutTrainerId[3] = {47244640311, 47244640461, 47244640525};
 */
 
-uint64 Tutorial::getSkillTrainerTypeId(string startingProfession)
+uint64 Tutorial::getSkillTrainerTypeId(BString startingProfession)
 {
-	uint64 typeId = 0;
-	uint8 index = (uint8)(gRandom->getRand() % 3);
+    uint64 typeId = 0;
+    uint8 index = (uint8)(gRandom->getRand() % 3);
 
-	if (strcmp(startingProfession.getAnsi(), "crafting_artisan") == 0)
-	{
-		// typeId = 47244640805;
-		typeId = ArtisanTrainerId[index];
-	}
-	else if (strcmp(startingProfession.getAnsi(), "combat_brawler") == 0)
-	{
-		// typeId = 47244640807;
-		typeId = BrawlerTrainerId[index];
-	}
-	else if (strcmp(startingProfession.getAnsi(), "social_entertainer") == 0)
-	{
-		// typeId = 47244640879;
-		typeId = EntertainerTrainerId[index];
-	}
-	else if (strcmp(startingProfession.getAnsi(), "combat_marksman") == 0)
-	{
-		// typeId = 47244640813;
-		typeId = MarksmanTrainerId[index];
-	}
-	else if (strcmp(startingProfession.getAnsi(), "science_medic") == 0)
-	{
-		// typeId = 47244640799;
-		typeId = MedicTrainerId[index];
-	}
-	else if (strcmp(startingProfession.getAnsi(), "outdoors_scout") == 0)
-	{
-		// typeId = 47244640819;
-		typeId = ScoutTrainerId[index];
-	}
-	return typeId;
+    if (strcmp(startingProfession.getAnsi(), "crafting_artisan") == 0)
+    {
+        // typeId = 47244640805;
+        typeId = ArtisanTrainerId[index];
+    }
+    else if (strcmp(startingProfession.getAnsi(), "combat_brawler") == 0)
+    {
+        // typeId = 47244640807;
+        typeId = BrawlerTrainerId[index];
+    }
+    else if (strcmp(startingProfession.getAnsi(), "social_entertainer") == 0)
+    {
+        // typeId = 47244640879;
+        typeId = EntertainerTrainerId[index];
+    }
+    else if (strcmp(startingProfession.getAnsi(), "combat_marksman") == 0)
+    {
+        // typeId = 47244640813;
+        typeId = MarksmanTrainerId[index];
+    }
+    else if (strcmp(startingProfession.getAnsi(), "science_medic") == 0)
+    {
+        // typeId = 47244640799;
+        typeId = MedicTrainerId[index];
+    }
+    else if (strcmp(startingProfession.getAnsi(), "outdoors_scout") == 0)
+    {
+        // typeId = 47244640819;
+        typeId = ScoutTrainerId[index];
+    }
+    return typeId;
 }
 
 bool Tutorial::isPlayerTrained(void)
 {
-	bool isTrained = false;
+    bool isTrained = false;
 
-	if (mPlayerObject && mPlayerObject->isConnected())
-	{
-		isTrained = (mPlayerObject->getSkillPointsLeft() < 250);
-	}
-	return isTrained;
+    if (mPlayerObject && mPlayerObject->isConnected())
+    {
+        isTrained = (mPlayerObject->getSkillPointsLeft() < 250);
+    }
+    return isTrained;
 }
 
 void Tutorial::setTutorialRefugeeTaunts(uint64 npcId)
 {
-	// This IS a stretch. We have to make this a more general solution.
-	FillerNPC* npc = dynamic_cast<FillerNPC*>(gWorldManager->getObjectById(npcId));
-	if (npc)
-	{
-		npc->setupTutorialTaunts(mPlayerObject->getId(),
-								 120000,
-								 "They're going to ship us off to the spice mines of Kessel.",
-								 "The Emperor has disbanded the Senate, now the Empire can do whatever it wants.",
-								 "But we're innocent!  We weren't carrying any contraband.  They attacked us for no reason.",
-								 "I never should have left Alderaan... Oh, wait...",
-								 "I told you we couldn't outrun an Imperial Star Destroyer.");
-	}
+    // This IS a stretch. We have to make this a more general solution.
+    FillerNPC* npc = dynamic_cast<FillerNPC*>(gWorldManager->getObjectById(npcId));
+    if (npc)
+    {
+        npc->setupTutorialTaunts(mPlayerObject->getId(),
+                                 120000,
+                                 "@newbie_tutorial/newbie_convo:refugee1",
+                                 "@newbie_tutorial/newbie_convo:refugee2",
+                                 "@newbie_tutorial/newbie_convo:refugee3",
+                                 "@newbie_tutorial/newbie_convo:refugee4",
+                                 "@newbie_tutorial/newbie_convo:refugee5");
+    }
 }
 
 void Tutorial::setTutorialCelebTaunts(uint64 npcId)
 {
-	// This IS a stretch. We have to make this a more general solution.
-	FillerNPC* npc = dynamic_cast<FillerNPC*>(gWorldManager->getObjectById(npcId));
-	if (npc)
-	{
-		npc->setupTutorialTaunts(mPlayerObject->getId(),
-								 90000,
-								 "I can't believe that crazy pirate is dead.",
-								 "That must have been a tough battle.",
-								 "I'm sure glad that's over with.",
-								 "Good thing someone came along to kill that pirate.  We'd have been trapped in here forever.",
-								 "I hate pirates.");
-	}
+    // This IS a stretch. We have to make this a more general solution.
+    FillerNPC* npc = dynamic_cast<FillerNPC*>(gWorldManager->getObjectById(npcId));
+    if (npc)
+    {
+        npc->setupTutorialTaunts(mPlayerObject->getId(),
+                                 90000,
+                                 "@newbie_tutorial/newbie_convo:celeb_guy1",
+                                 "@newbie_tutorial/newbie_convo:celeb_guy2",
+                                 "@newbie_tutorial/newbie_convo:celeb_guy3",
+                                 "@newbie_tutorial/newbie_convo:celeb_guy4",
+                                 "@newbie_tutorial/newbie_convo:celeb_guy5");
+    }
 }
 
 void Tutorial::makeCreatureAttackable(uint64 npcId)
 {
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
-	if (creature)
-	{
-		creature->togglePvPStateOn(CreaturePvPStatus_Attackable);
-		gMessageLib->sendUpdatePvpStatus(creature,mPlayerObject);
-		// gLogger->log(LogManager::DEBUG,"Tutorial::makeCreatureAttackable DONE OK" ,MSG_NORMAL);
-	}
-	else
-	{
-		gLogger->log(LogManager::DEBUG,"Tutorial::makeCreatureAttackable FAILED\n");
-	}
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
+    if (creature)
+    {
+        creature->togglePvPStateOn(CreaturePvPStatus_Attackable);
+        gMessageLib->sendUpdatePvpStatus(creature,mPlayerObject);
+        // gLogger->log(LogManager::DEBUG,"Tutorial::makeCreatureAttackable DONE OK" ,MSG_NORMAL);
+    }
+    else
+    {
+        DLOG(INFO) << "Tutorial::makeCreatureAttackable FAILED";
+    }
 }
 
 
 void Tutorial::npcSendAnimation(uint64 npcId, uint32 animId, uint64 targetId)
 {
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
-	if (creature)
-	{
-		if (targetId != 0)
-		{
-			if (creature->getTargetId() != targetId)
-			{
-				gLogger->log(LogManager::DEBUG,"Tutorial::npcSendAnimation Setting new target for npc\n");
-				creature->setTarget(targetId);
-				gMessageLib->sendTargetUpdateDeltasCreo6(creature);
-			}
-		}
-		gMessageLib->sendCreatureAnimation(creature,gWorldManager->getNpcConverseAnimation(animId), mPlayerObject);
-	}
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
+    if (creature)
+    {
+        if (targetId != 0)
+        {
+            if (creature->getTargetId() != targetId)
+            {
+                creature->setTarget(targetId);
+                gMessageLib->sendTargetUpdateDeltasCreo6(creature);
+            }
+        }
+        gMessageLib->sendCreatureAnimation(creature,gWorldManager->getNpcConverseAnimation(animId), mPlayerObject);
+    }
 }
 
 void Tutorial::sendStartingLocationList(void)
 {
 
-	(void)gMessageLib->sendTutorialServerStatusRequest(mPlayerObject->getClient(), mPlayerObject->getId(), mPlayerObject->getAccountId());
+    (void)gMessageLib->sendTutorialServerStatusRequest(mPlayerObject->getClient(), mPlayerObject->getId(), mPlayerObject->getAccountId());
 
-	// "Select your destination by clicking on one of the planets on the screen.  When you have selected the planet, select which city you wish to travel to by clicking on the picture to the right of the screen.  When you are ready to travel to the city, click on the arrow in the lower right-hand corner of the screen."
-	this->scriptSystemMessage("@newbie_tutorial/system_messages:select_dest");
+    // "Select your destination by clicking on one of the planets on the screen.  When you have selected the planet, select which city you wish to travel to by clicking on the picture to the right of the screen.  When you are ready to travel to the city, click on the arrow in the lower right-hand corner of the screen."
+    this->scriptSystemMessage("@newbie_tutorial/system_messages:select_dest");
 
+}
+
+void Tutorial::sendStartingMails(void)
+{
+    BString startingProfession = mStartingProfession;
+    BString subject = "@newbie_tutorial/newbie_mail:welcome_subject";
+    BString bodyDir = "newbie_tutorial/newbie_mail";
+    BString bodyStr = "welcome_body";
+
+    //sends the starting email
+    SendSystemMailMessage* message = new SendSystemMailMessage();
+    message->SendNewbieMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
+
+    if (strcmp(startingProfession.getAnsi(), "crafting_artisan") == 0)
+    {
+        subject = "@newbie_tutorial/newbie_mail:crafting_artisan_subject";
+        bodyDir = "newbie_tutorial/newbie_mail";
+        bodyStr = "crafting_artisan_body";
+    }
+    else if (strcmp(startingProfession.getAnsi(), "combat_brawler") == 0)
+    {
+        subject = "@newbie_tutorial/newbie_mail:combat_brawler_subject";
+        bodyDir = "newbie_tutorial/newbie_mail";
+        bodyStr = "combat_brawler_body";
+    }
+    else if (strcmp(startingProfession.getAnsi(), "social_entertainer") == 0)
+    {
+        subject = "@newbie_tutorial/newbie_mail:social_entertainer_subject";
+        bodyDir = "newbie_tutorial/newbie_mail";
+        bodyStr = "social_entertainer_body";
+    }
+    else if (strcmp(startingProfession.getAnsi(), "combat_marksman") == 0)
+    {
+        subject = "@newbie_tutorial/newbie_mail:combat_marksman_subject";
+        bodyDir = "newbie_tutorial/newbie_mail";
+        bodyStr = "combat_marksman_body";
+
+    }
+    else if (strcmp(startingProfession.getAnsi(), "science_medic") == 0)
+    {
+        subject = "@newbie_tutorial/newbie_mail:science_medic_subject";
+        bodyDir = "newbie_tutorial/newbie_mail";
+        bodyStr = "science_medic_body";
+    }
+    else if (strcmp(startingProfession.getAnsi(), "outdoors_scout") == 0)
+    {
+        subject = "@newbie_tutorial/newbie_mail:outdoors_scout_subject";
+        bodyDir = "newbie_tutorial/newbie_mail";
+        bodyStr = "outdoors_scout_body";
+    }
+    else
+    {
+        subject = "";
+        bodyDir = "";
+        bodyStr = "";
+    }
+    //sends the starting profession email
+    message->SendNewbieMailMessage(mPlayerObject, subject, bodyDir, bodyStr);
+    message = NULL;
+    delete message;
 }

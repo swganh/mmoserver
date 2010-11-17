@@ -38,13 +38,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 CellObject::CellObject() : StaticObject()
 {
-	mType = ObjType_Cell;
-	mModel = "object/cell/shared_cell.iff";
+    mType = ObjType_Cell;
+    mModel = "object/cell/shared_cell.iff";
 }
 
 //=============================================================================
 
-CellObject::CellObject(uint64 id,uint64 parentId,string model) : StaticObject(id,parentId,model,ObjType_Cell)
+CellObject::CellObject(uint64 id,uint64 parentId,BString model) : StaticObject(id,parentId,model,ObjType_Cell)
 {
 }
 
@@ -52,13 +52,13 @@ CellObject::CellObject(uint64 id,uint64 parentId,string model) : StaticObject(id
 
 CellObject::~CellObject()
 {
-	//see objectcontainer for details
+    //see objectcontainer for details
 }
 
 //=============================================================================
 // the building gets destroyed - thus we nead to clear up our content in world and in db
-//   
-// separate this from the destructor as we do not want players in building on server shutdown 
+//
+// separate this from the destructor as we do not want players in building on server shutdown
 // to be placed in the gameworld
 
 void CellObject::prepareDestruction()

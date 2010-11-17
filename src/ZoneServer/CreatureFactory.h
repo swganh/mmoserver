@@ -45,27 +45,29 @@ class ShuttleFactory;
 
 class CreatureFactory : public FactoryBase
 {
-	public:
+public:
 
-		static CreatureFactory*	getSingletonPtr() { return mSingleton; }
-		static CreatureFactory*	Init(Database* database);
+    static CreatureFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static CreatureFactory*	Init(Database* database);
 
-		~CreatureFactory();
+    ~CreatureFactory();
 
-		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result){}
-		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result) {}
+    void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-		void					releaseAllPoolsMemory();
+    void					releaseAllPoolsMemory();
 
-	private:
+private:
 
-		CreatureFactory(Database* database);
+    CreatureFactory(Database* database);
 
-		static CreatureFactory*		mSingleton;
-		static bool					mInsFlag;
+    static CreatureFactory*		mSingleton;
+    static bool					mInsFlag;
 
-		PersistentNpcFactory*		mPersistentNpcFactory;
-		ShuttleFactory*				mShuttleFactory;
+    PersistentNpcFactory*		mPersistentNpcFactory;
+    ShuttleFactory*				mShuttleFactory;
 
 };
 

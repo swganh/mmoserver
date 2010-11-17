@@ -31,54 +31,54 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void Player::removeFriend(uint32 nameCrc)
 {
-	ContactMap::iterator it = mFriendsList.find(nameCrc);
+    ContactMap::iterator it = mFriendsList.find(nameCrc);
 
-	if(it != mFriendsList.end())
-	{
-		mFriendsList.erase(it);
-		return;
-	}
+    if(it != mFriendsList.end())
+    {
+        mFriendsList.erase(it);
+        return;
+    }
 }
 
 //======================================================================================================================
 
 bool Player::checkFriend(uint32 nameCrc)
 {
-	ContactMap::iterator it = mFriendsList.find(nameCrc);
+    ContactMap::iterator it = mFriendsList.find(nameCrc);
 
-	if(it != mFriendsList.end())
-	{
-		return(true);
-	}
+    if(it != mFriendsList.end())
+    {
+        return(true);
+    }
 
-	return(false);
+    return(false);
 }
 
 //======================================================================================================================
 
 void Player::removeIgnore(uint32 nameCrc)
 {
-	ContactMap::iterator it = mIgnoreList.find(nameCrc);
+    ContactMap::iterator it = mIgnoreList.find(nameCrc);
 
-	if(it != mIgnoreList.end())
-	{
-		mIgnoreList.erase(it);
-		return;
-	}
+    if(it != mIgnoreList.end())
+    {
+        mIgnoreList.erase(it);
+        return;
+    }
 }
 
 //======================================================================================================================
 
 bool Player::checkIgnore(uint32 nameCrc)
 {
-	ContactMap::iterator it = mIgnoreList.find(nameCrc);
+    ContactMap::iterator it = mIgnoreList.find(nameCrc);
 
-	if(it != mIgnoreList.end())
-	{
-		return(true);
-	}
+    if(it != mIgnoreList.end())
+    {
+        return(true);
+    }
 
-	return(false);
+    return(false);
 }
 
 //======================================================================================================================

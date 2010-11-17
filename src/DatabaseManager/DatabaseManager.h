@@ -25,38 +25,47 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_DATABASEMANAGER_DATABASEMANAGER_H
-#define ANH_DATABASEMANAGER_DATABASEMANAGER_H
+#ifndef DATABASE_MANAGER_DATABASE_MANAGER_H_
+#define DATABASE_MANAGER_DATABASE_MANAGER_H_
 
-#include "DatabaseType.h"
+#include <cstdint>
 #include <list>
-#include "Utils/typedefs.h"
+#include <memory>
 
+#include <boost/noncopyable.hpp>
 
-//======================================================================================================================
+#include "DatabaseManager/DatabaseType.h"
+
 class Database;
-enum  DBType;
 
-typedef std::list<Database*>           DatabaseList;
-
-
-//======================================================================================================================
-class DatabaseManager
-{
+/*! Manages multiple database connections.
+*/
+class DatabaseManager : private boost::noncopyable {
 public:
-                                  DatabaseManager(void);
-                                  ~DatabaseManager(void);
+    /*! Processes all current database connections.
+    */
+    void process();
 
-  void                            Process(void);
-
-  Database*                       Connect(DBType type, int8* host, uint16 port, int8* user, int8* pass, int8* dbname);
+    /*! Connects to a specified database.
+    *
+    * \param host The database host to connect to.
+    * \param port The port of the database host to connect to.
+    * \param user The username for accessing the requested schema.
+    * \param pass The password for accessing the requested schema.
+    * \param schema The database to connect to.
+    *
+    * \return The instance of the database created after successful connection.
+    */
+    Database* connect(DBType type, 
+        const std::string& host, 
+        uint16_t port, 
+        const std::string& user, 
+        const std::string& pass, 
+        const std::string& dbname);
 
 private:
-  DatabaseList                    mDatabaseList;
+    typedef std::list<std::shared_ptr<Database>> DatabaseList;
+    DatabaseList database_list_;
 };
 
-
-
-#endif //OOMSERVER_DATABASEMANAGER_DATABASEMANAGER_H
-
-
+#endif  // DATABASE_MANAGER_DATABASE_MANAGER_H_

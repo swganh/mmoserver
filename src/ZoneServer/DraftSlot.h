@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_DRAFTSLOT_H
 #define ANH_ZONESERVER_DRAFTSLOT_H
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 
 
@@ -35,50 +36,76 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum DSType
 {
-	DST_Empty				= 0,	
-	DST_IdentComponent		= 2,
-	DST_Resource			= 4,
-	DST_SimiliarComponent	= 5
+    DST_Empty				= 0,
+    DST_IdentComponent		= 2,
+    DST_Resource			= 4,
+    DST_SimiliarComponent	= 5
 };
 
 class DraftSlot
 {
-	friend class SchematicManager;
+    friend class SchematicManager;
 
-	public:
+public:
 
-		DraftSlot();
-		~DraftSlot();
+    DraftSlot();
+    ~DraftSlot();
 
-		string	getComponentName(){ return mName; }
-		void	setComponentName(string name){ mName = name; }
-		string	getComponentFile(){ return mFile; }
-		void	setComponentFile(string file){ mFile = file; }
-		string	getResourceName(){ return mResourceName; }
-		void	setResourceName(string res){ mResourceName = res; }
-		
-		//the amount necessary to fill the slot
-		uint32	getNecessaryAmount(){ return mAmount; }
-		void	setNecessaryAmount(uint32 amount){ mAmount = amount; }
-		
-		//the type of res / component to fill
-		uint8	getType(){ return mType; }
-		void	setType(uint8 type){ mType = type; }
-		
-		uint8	getOptional(){ return mOptional; }
-		void	setOptional(uint8 optional){ mOptional = optional; }
-		
-		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
-	private:
+    BString	getComponentName() {
+        return mName;
+    }
+    void	setComponentName(BString name) {
+        mName = name;
+    }
+    BString	getComponentFile() {
+        return mFile;
+    }
+    void	setComponentFile(BString file) {
+        mFile = file;
+    }
+    BString	getResourceName() {
+        return mResourceName;
+    }
+    void	setResourceName(BString res) {
+        mResourceName = res;
+    }
 
-		string	mName;
-		string	mFile;
-		string	mResourceName;
-		uint32	mAmount;
-		uint32  mSchemWeightBatch;
+    //the amount necessary to fill the slot
+    uint32	getNecessaryAmount() {
+        return mAmount;
+    }
+    void	setNecessaryAmount(uint32 amount) {
+        mAmount = amount;
+    }
 
-		uint8	mType;
-		uint8	mOptional;
+    //the type of res / component to fill
+    uint8	getType() {
+        return mType;
+    }
+    void	setType(uint8 type) {
+        mType = type;
+    }
+
+    uint8	getOptional() {
+        return mOptional;
+    }
+    void	setOptional(uint8 optional) {
+        mOptional = optional;
+    }
+
+    uint32  getSchemWeightBatch() {
+        return mSchemWeightBatch;
+    }
+private:
+
+    BString	mName;
+    BString	mFile;
+    BString	mResourceName;
+    uint32	mAmount;
+    uint32  mSchemWeightBatch;
+
+    uint8	mType;
+    uint8	mOptional;
 };
 
 #endif

@@ -219,7 +219,7 @@ void zmap::RemoveObject(Object *removeObject)
 
 	if(!GetCellValidFlag(cellId))
 	{
-		gLogger->log(LogManager::DEBUG,"zmap::RemoveObject :: bucket %u NOT valid", cellId);
+		DLOG(INFO) << "zmap::RemoveObject :: bucket " << cellId << " NOT valid";
 		return;
 	}
 
@@ -267,7 +267,7 @@ void zmap::GetCellContents(uint32 CellID, ObjectListType* list, uint32 type)
 {
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
 	{
-		gLogger->log(LogManager::DEBUG,"zmap::GetAllCellContents :: bucket %u out of grid", CellID);
+		DLOG(INFO) << "zmap::GetAllCellContents :: bucket " << CellID << " out of grid";
 		return;
 	}
 
@@ -622,7 +622,7 @@ uint32 zmap::AddObject(Object *newObject)
 	{
 		if((*i)->getId() == newObject->getId())
 		{
-			gLogger->log(LogManager::DEBUG,"zmap::AddObject :: add Object %I64u to bucket %u failed because Object was already in bucket",newObject->getId(), finalBucket);
+			DLOG(INFO) << "zmap::AddObject :: add Object " << newObject->getId() << " to bucket " << finalBucket << " failed because Object was already in bucket";
 			return 0xffffffff;
 		}
 	}

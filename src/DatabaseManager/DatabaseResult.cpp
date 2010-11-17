@@ -25,30 +25,72 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#endif
+
 #include "DatabaseResult.h"
 #include "DatabaseImplementation.h"
-#include "LogManager/LogManager.h"
+
+#include <cppconn/resultset.h>
+#include <cppconn/statement.h>
 
 #include <mysql.h>
 #include <stdlib.h>
 #include <stdio.h>
 
+DatabaseResult::DatabaseResult(const DatabaseImplementation& impl, sql::Statement* statement, sql::ResultSet* result_set, bool multi_result)
+    : result_set_(result_set)
+	, statement_(statement)
+    , impl_(impl)
+    , worker_(nullptr)
+    , multi_result_(multi_result) {}
 
 
-//======================================================================================================================
-void DatabaseResult::GetNextRow(DataBinding* dataBinding, void* object)
-{
-  // Just shunt this method to the actual implementation method.  This might have thread problems right now.
-  mDatabaseImplementation->GetNextRow(this, dataBinding, object);
+DatabaseResult::~DatabaseResult() {}
+
+
+std::unique_ptr<sql::Statement>& DatabaseResult::getStatement() {
+    return statement_;
 }
 
 
-//======================================================================================================================
-void DatabaseResult::ResetRowIndex(int index)
-{
-  mDatabaseImplementation->ResetRowIndex(this,index);
+std::unique_ptr<sql::ResultSet>& DatabaseResult::getResultSet() {
+    return result_set_;
 }
 
-  
+
+void DatabaseResult::getNextRow(DataBinding* dataBinding, void* object) {
+    // Just shunt this method to the actual implementation method.  This might have thread problems right now.
+    impl_.getNextRow(this, dataBinding, object);
+}
 
 
+void DatabaseResult::resetRowIndex(int index) {
+    impl_.resetRowIndex(this,index);
+}
+
+
+void DatabaseResult::setWorkerReference(DatabaseWorkerThread* worker) {
+    worker_ = worker;
+}
+
+
+DatabaseWorkerThread* DatabaseResult::getWorkerReference() {
+    return worker_;
+}
+
+
+bool DatabaseResult::isMultiResult() {
+    return multi_result_;
+}
+
+
+uint64_t DatabaseResult::getRowCount() { 
+    return result_set_ ? result_set_->rowsCount() : 0; 
+}
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif

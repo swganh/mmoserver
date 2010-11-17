@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_ZONESERVER_H
 #define ANH_ZONESERVER_ZONESERVER_H
 
+#include <memory>
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 
 //======================================================================================================================
@@ -41,50 +43,66 @@ class MessageDispatch;
 class CharacterLoginHandler;
 class ObjectControllerDispatch;
 
+// @note: for initial testing the new "Service" classes will be manually set up here
+// in the future we should have a map container of string to services that they are
+// stored in to make it easier to dynamically register services.
+namespace zone {
+class HamService;
+}
+
 //======================================================================================================================
 
 class ProcessAddress
 {
-	public:
+public:
 
-	  uint32	mType;
-	  int8		mAddress[16];
-	  uint16	mPort;
-	  uint32	mStatus;
-	  uint32	mActive;
+    uint32	mType;
+    BString		mAddress;
+    uint16	mPort;
+    uint32	mStatus;
+    uint32	mActive;
 };
 
 //======================================================================================================================
 
 class ZoneServer
 {
-	public:
+public:
 
-		ZoneServer(int8* mapName);
-		~ZoneServer(void);
+    ZoneServer(int8* mapName);
+    ~ZoneServer(void);
 
-		void	Process(void);
+    void	Process(void);
 
-		void	handleWMReady();
+    void	handleWMReady();
 
-		string  getZoneName()  { return mZoneName; }
+    BString  getZoneName()  {
+        return mZoneName;
+    }
 
-	private:
+private:
+    // Disable compiler generated methods.
+    ZoneServer();
+    ZoneServer(const ZoneServer&);
+    const ZoneServer& operator=(const ZoneServer&);
 
-		void	_updateDBServerList(uint32 status);
-		void	_connectToConnectionServer(void);
+    void	_updateDBServerList(uint32 status);
+    void	_connectToConnectionServer(void);
 
-		string                        mZoneName;
+    BString                       mZoneName;
+    uint32						  mLastHeartbeat;
 
-		NetworkManager*               mNetworkManager;
-		DatabaseManager*              mDatabaseManager;
-	
-		Service*                      mRouterService;
-		Database*                     mDatabase;
+    NetworkManager*               mNetworkManager;
+    DatabaseManager*              mDatabaseManager;
 
-		MessageDispatch*              mMessageDispatch;
-		CharacterLoginHandler*        mCharacterLoginHandler;
-		ObjectControllerDispatch*     mObjectControllerDispatch;
+    Service*                      mRouterService;
+    Database*                     mDatabase;
+
+    MessageDispatch*              mMessageDispatch;
+    CharacterLoginHandler*        mCharacterLoginHandler;
+    ObjectControllerDispatch*     mObjectControllerDispatch;
+
+    std::unique_ptr<zone::HamService>   ham_service_;
 };
 
 //======================================================================================================================

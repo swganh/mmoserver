@@ -29,12 +29,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/Message.h"
 
 
 //=============================================================================================================================
@@ -44,7 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleMeditate(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -53,7 +53,7 @@ void ObjectController::_handleMeditate(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handlePowerBoost(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 //
@@ -62,7 +62,7 @@ void ObjectController::_handlePowerBoost(uint64 targetId,Message* message,Object
 
 void ObjectController::_handleForceOfWill(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-} 
+}
 
 //=============================================================================================================================
 

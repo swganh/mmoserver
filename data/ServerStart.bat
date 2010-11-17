@@ -1,3 +1,8 @@
+@echo off
+
+%~d0
+cd %~dp0
+
 start ConnectionServer.exe
 
 start LoginServer.exe

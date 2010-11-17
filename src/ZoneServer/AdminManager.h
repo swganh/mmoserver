@@ -28,66 +28,73 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_ADMIN_MANAGER_H
 #define ANH_ZONESERVER_ADMIN_MANAGER_H
 
-#include "Common/MessageDispatchCallback.h"
 #include <map>
+#include "Utils/bstring.h"
+#include "Utils/typedefs.h"
 //=============================================================================
 
 class AdminRequestObject;
 class MessageDispatch;
+class DispatchClient;
+class Message;
 
 typedef std::map<uint64, AdminRequestObject*> AdminRequests;
 
 enum AdminRequestt
 {
-	AdminScheduledShutdown		= 0,
-	AdminEmergenyShutdown		= 1
+    AdminScheduledShutdown		= 0,
+    AdminEmergenyShutdown		= 1
 };
 
 //=============================================================================
 
-class AdminManager : public MessageDispatchCallback
+class AdminManager
 {
-	public:
+public:
 
-		static AdminManager* Instance(void);
-		static AdminManager* Init(MessageDispatch* messageDispatch);
+    static AdminManager* Instance(void);
+    static AdminManager* Init(MessageDispatch* messageDispatch);
 
-		static inline void deleteManager(void)
-		{
-			if (mInstance)
-			{
-				delete mInstance;
-				mInstance = NULL;
-			}
-		}
-		virtual void handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
-		void registerCallbacks(void);
-		void unregisterCallbacks(void);
-		void _processScheduleShutdown(Message* message, DispatchClient* client);
-		void _processCancelScheduledShutdown(Message* message, DispatchClient* client);
+    static inline void deleteManager(void)
+    {
+        if (mInstance)
+        {
+            delete mInstance;
+            mInstance = nullptr;
+        }
+    }
 
-		uint64 handleAdminRequest(uint64 requestId, uint64 timeOverdue);
-		void addAdminRequest(uint64 type, string message, int32 ttl);
-		void cancelAdminRequest(uint64 type, string message);
+    void registerCallbacks(void);
+    void unregisterCallbacks(void);
+    void _processScheduleShutdown(Message* message, DispatchClient* client);
+    void _processCancelScheduledShutdown(Message* message, DispatchClient* client);
 
-		bool shutdownPending(void) { return mPendingShutdown;}
-		bool shutdownZone(void) { return mTerminateServer;}
+    uint64 handleAdminRequest(uint64 requestId, uint64 timeOverdue);
+    void addAdminRequest(uint64 type, BString message, int32 ttl);
+    void cancelAdminRequest(uint64 type, BString message);
 
-	protected:
-		// AdminManager(AdminRequestObject* adminObject);
-		// AdminManager();
-		AdminManager(MessageDispatch* messageDispatch);
-		~AdminManager();
+    bool shutdownPending(void) {
+        return mPendingShutdown;
+    }
+    bool shutdownZone(void) {
+        return mTerminateServer;
+    }
 
-	private:
-		// This constructor prevents the default constructor to be used, since it is private.
-		AdminManager();
+protected:
+    // AdminManager(AdminRequestObject* adminObject);
+    // AdminManager();
+    AdminManager(MessageDispatch* messageDispatch);
+    ~AdminManager();
 
-		static AdminManager* mInstance;
-		AdminRequests mAdminRequests;
-		MessageDispatch* mMessageDispatch;
-		bool	mPendingShutdown;
-		bool	mTerminateServer;
+private:
+    // This constructor prevents the default constructor to be used, since it is private.
+    AdminManager();
+
+    static AdminManager* mInstance;
+    AdminRequests mAdminRequests;
+    MessageDispatch* mMessageDispatch;
+    bool	mPendingShutdown;
+    bool	mTerminateServer;
 };
 
 //=============================================================================

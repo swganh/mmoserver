@@ -30,16 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class StructureHeightmapAsyncContainer: public HeightmapAsyncContainer
 {
 public:
-	StructureHeightmapAsyncContainer(HeightMapCallBack* callback, HeightmapCallbackTypes type) : HeightmapAsyncContainer(callback, type)
-	{
-	}
-	
-	ObjectFactory*	oCallback;
-	ObjectFactoryCallback* ofCallback;
-	Deed* deed;
-	float x;
-	float z;
-	float dir; 
-	string customName;
-	PlayerObject* player;
+    StructureHeightmapAsyncContainer(HeightMapCallBack* callback, HeightmapCallbackTypes type) : HeightmapAsyncContainer(callback, type)
+    {
+    }
+
+    ObjectFactory*	oCallback;
+    ObjectFactoryCallback* ofCallback;
+    Deed* deed;
+    float x;
+    float z;
+    float dir;
+    BString customName;
+    PlayerObject* player;
 };

@@ -35,7 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #      define ANH_EXPORT __declspec(dllexport)
 #   else
 #      define ANH_EXPORT __declspec(dllimport)
-#   endif 
+#   endif
 #else
 #   define ANH_EXPORT
 #endif

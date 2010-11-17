@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 
-
-
 //======================================================================================================================
 
 class Session;
@@ -61,22 +59,26 @@ class Message;
 
 class NetworkClient
 {
-	public:
+public:
 
-		NetworkClient(void) : mSession(0) {}
+    NetworkClient(void) : mSession(0) {}
 
-		virtual ~NetworkClient(void) {};
+    virtual ~NetworkClient(void) {};
 
-		virtual void	SendChannelA(Message* message, uint8 priority, bool fastpath);
-		virtual void	SendChannelAUnreliable(Message* message, uint8 priority);
-		virtual void	Disconnect(uint8 reason);
+    virtual void	SendChannelA(Message* message, uint8 priority, bool fastpath);
+    virtual void	SendChannelAUnreliable(Message* message, uint8 priority);
+    virtual void	Disconnect(uint8 reason);
 
-		Session*		getSession(void){ return mSession; }
-		void			setSession(Session* session){ mSession = session; }
+    Session*		getSession(void) {
+        return mSession;
+    }
+    void			setSession(Session* session) {
+        mSession = session;
+    }
 
-	protected:
+protected:
 
-	  Session*	mSession;
+    Session*	mSession;
 };
 
 //======================================================================================================================

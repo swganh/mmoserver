@@ -34,10 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 BadgeRegion::BadgeRegion() : RegionObject()
-
 {
-	mActive		= true;
-	mRegionType = Region_Badge;
+    mActive		= true;
+    mRegionType = Region_Badge;
 }
 
 //=============================================================================

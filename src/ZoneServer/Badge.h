@@ -35,31 +35,47 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Badge
 {
-	friend class CharSheetManager;
+    friend class CharSheetManager;
 
-	public:
+public:
 
-		Badge(){}
-		~Badge(){}
+    Badge() {}
+    ~Badge() {}
 
-		uint32	getId(){ return mId; }
-		void	setId(uint32 id){ mId = id; }
+    uint32	getId() {
+        return mId;
+    }
+    void	setId(uint32 id) {
+        mId = id;
+    }
 
-		string	getName(){ return mName; }
-		void	setName(const string name){ mName = name; }
+    BString	getName() {
+        return mName;
+    }
+    void	setName(const BString name) {
+        mName = name;
+    }
 
-		uint32	getSoundId(){ return mSoundId; }
-		void	setSoundId(uint32 sound){ mSoundId = sound; }
+    uint32	getSoundId() {
+        return mSoundId;
+    }
+    void	setSoundId(uint32 sound) {
+        mSoundId = sound;
+    }
 
-		uint8	getCategory(){ return mCategory; }
-		void	setCategory(uint8 category){ mCategory = category; }
+    uint8	getCategory() {
+        return mCategory;
+    }
+    void	setCategory(uint8 category) {
+        mCategory = category;
+    }
 
-	private:
+private:
 
-		uint32	mId;
-		string	mName;
-		uint32	mSoundId;
-		uint8	mCategory;
+    uint32	mId;
+    BString	mName;
+    uint32	mSoundId;
+    uint8	mCategory;
 };
 
 #endif

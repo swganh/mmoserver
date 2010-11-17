@@ -43,6 +43,20 @@ public:
 
     virtual bool validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opcode, ObjectControllerCmdProperties*& cmdProperties) = 0;
 
+    uint32	inline getLowestCommonBit(uint64 playerMask, uint64 cmdPropertiesMask)
+    {
+        // checks each bit and returns the value
+        bool bFound = false;
+        uint32 i = 0;
+        for (; i < 64 && !bFound; ++i) {
+            bFound = (playerMask & (cmdPropertiesMask << i)) != 0;
+        }
+        if (bFound) {
+            return i;
+        }
+        return 0;
+    }
+
 protected:
     ObjectController* mController;
 };

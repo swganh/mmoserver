@@ -30,12 +30,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 
 ObjControllerCommandMessage::ObjControllerCommandMessage(uint32 opcode,const uint64 executionTime,uint64 targetId)
-: mData(NULL)
-, mProperties(NULL)
-, mExecutionTime(executionTime)
-, mTargetId(targetId)
-, mOpcode(opcode)
-, mSequence(0)
+    : mData(NULL)
+    , mProperties(NULL)
+    , mExecutionTime(executionTime)
+    , mTargetId(targetId)
+    , mOpcode(opcode)
+    , mSequence(0)
 {}
 
 

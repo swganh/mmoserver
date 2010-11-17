@@ -28,8 +28,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #pragma once
 
+#include <string>
 #include <vector>
-#include "Common/MessageDispatchCallback.h"
+#include "Utils/typedefs.h"
 
 #define gMedicManager MedicManager::getSingletonPtr()
 
@@ -44,44 +45,46 @@ class PlayerObject;
 class MedicManager
 {
 public:
-	~MedicManager();
+    ~MedicManager();
 
-	static MedicManager*	getSingletonPtr() { return mSingleton; }
-	static MedicManager*	Init(MessageDispatch* dispatch) 
-	{
-		if(!mInsFlag)
-		{
-			mSingleton = new MedicManager(dispatch);
-			mInsFlag = true;
-			return mSingleton;
-		} else {
-			return mSingleton;
-		}
-	}
+    static MedicManager*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static MedicManager*	Init(MessageDispatch* dispatch)
+    {
+        if(!mInsFlag)
+        {
+            mSingleton = new MedicManager(dispatch);
+            mInsFlag = true;
+            return mSingleton;
+        } else {
+            return mSingleton;
+        }
+    }
 
-	bool CheckMedicine(PlayerObject* Medic, PlayerObject* Target, ObjectControllerCmdProperties* cmdProperties, std::string Type);
-	bool CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange);
-	
-	bool HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType);
-	bool HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
-	bool HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 WoundPackobjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType);
+    bool CheckMedicine(PlayerObject* Medic, PlayerObject* Target, ObjectControllerCmdProperties* cmdProperties, std::string Type);
+    bool CheckMedicRange(PlayerObject* Medic, PlayerObject* Target, float healRange);
 
-	void startInjuryTreatmentEvent(PlayerObject* Medic);
-	void startQuickHealInjuryTreatmentEvent(PlayerObject* Medic);
-	void startWoundTreatmentEvent(PlayerObject* Medic);
-	bool Diagnose(PlayerObject* Medic, PlayerObject* Target);
-	void successForage(PlayerObject* player);
-	//helpers
-	std::string handleMessage(Message* message, std::string regexPattern);
-	int32  CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount);
-	int32 CalculateHealWound(PlayerObject* Medic, PlayerObject* Target, int32 woundHealPower, std::string healType);
+    bool HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType);
+    bool HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, uint64 StimPackObjectID, ObjectControllerCmdProperties* cmdProperties);
+    bool HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 WoundPackobjectID, ObjectControllerCmdProperties* cmdProperties, std::string healType);
+
+    void startInjuryTreatmentEvent(PlayerObject* Medic);
+    void startQuickHealInjuryTreatmentEvent(PlayerObject* Medic);
+    void startWoundTreatmentEvent(PlayerObject* Medic);
+    bool Diagnose(PlayerObject* Medic, PlayerObject* Target);
+    void successForage(PlayerObject* player);
+    //helpers
+    std::string handleMessage(Message* message, std::string regexPattern);
+    int32  CalculateBF(PlayerObject* Medic, PlayerObject* Target, int32 maxhealamount);
+    int32 CalculateHealWound(PlayerObject* Medic, PlayerObject* Target, int32 woundHealPower, std::string healType);
 
 
 
 private:
-	static MedicManager*	mSingleton;
-	static bool				mInsFlag;
-	MessageDispatch*		Dispatch;
+    static MedicManager*	mSingleton;
+    static bool				mInsFlag;
+    MessageDispatch*		Dispatch;
 
-	MedicManager(MessageDispatch* dispatch);	
+    MedicManager(MessageDispatch* dispatch);
 };

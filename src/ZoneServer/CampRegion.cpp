@@ -1,4 +1,4 @@
-				  /*
+/*
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -37,25 +37,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 struct CampRegion::campLink
 {
-	uint64 objectID;
-	uint32 tickCount;
-	uint64 lastSeenTime;
+    uint64 objectID;
+    uint32 tickCount;
+    uint64 lastSeenTime;
 };
 
 //=============================================================================
 
 CampRegion::CampRegion() : RegionObject()
 {
-	mActive			= true;
-	mDestroyed		= false;
+    mActive			= true;
+    mDestroyed		= false;
 
-	mRegionType		= Region_Camp;
+    mRegionType		= Region_Camp;
 
-	mAbandoned		= false;
-	mXp				= 0;
+    mAbandoned		= false;
+    mXp				= 0;
 
-	
-	mSetUpTime = gWorldManager->GetCurrentGlobalTick();
+
+    mSetUpTime = gWorldManager->GetCurrentGlobalTick();
 }
 
 //=============================================================================
@@ -91,7 +91,7 @@ void CampRegion::update()
 		return;
 	}
 
-	if(owner->checkState(CreatureState_Combat))
+	if(owner->states.checkState(CreatureState_Combat))
 	{
 		//abandon
 		mAbandoned	= true;
@@ -184,25 +184,23 @@ void CampRegion::onObjectEnter(Object* object)
 			links.push_back(temp);
 		}
 
-		PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+        PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
 
 		if(owner && (owner->getId() != object->getId()))
 		{
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 			int8 text[64];
-			sprintf(text,"You have entered %s's camp",this->getCampOwnerName().getAnsi());
-			string uT = text;
-			uT.convert(BSTRType_Unicode16);
-			gMessageLib->sendSystemMessage(player, uT.getUnicode16());
+			sprintf(text,"You have entered %s's camp",this->getCampOwnerName().c_str());
+            BString uT = text;
+            uT.convert(BSTRType_Unicode16);
+            gMessageLib->SendSystemMessage(uT.getUnicode16(), player);
 		}
 		else
 		{
 			//ensure it's not time to destroy the camp
 			mAbandoned = false;
 		}
-
-	}
-
+    }
 }
 
 //=============================================================================
@@ -226,15 +224,14 @@ void CampRegion::onObjectLeave(Object* object)
 	}
 	else
 	{
-		int8 text[64];
-		sprintf(text,"You have left %s's camp", this->getCampOwnerName().getAnsi());
-		string uT = text;
-		uT.convert(BSTRType_Unicode16);
-		gMessageLib->sendSystemMessage(player, uT.getUnicode16());
+        int8 text[64];
+        sprintf(text,"You have left %s's camp", this->getCampOwnerName().c_str());
+        BString uT = text;
+        uT.convert(BSTRType_Unicode16);
+        gMessageLib->SendSystemMessage(uT.getUnicode16(), player);
 	}
 
 	removeVisitor(object);
-	
 }
 
 //=============================================================================
@@ -242,162 +239,162 @@ void CampRegion::onObjectLeave(Object* object)
 
 void	CampRegion::despawnCamp()
 {
-	mDestroyed	= true;
-	mActive		= false;
+    mDestroyed	= true;
+    mActive		= false;
 
-	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+    PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
 
-	if(owner)
-		owner->setHasCamp(false);
+    if(owner)
+        owner->setHasCamp(false);
 
-	//we need to destroy our camp!!
-	Camp* camp = dynamic_cast<Camp*>(gWorldManager->getObjectById(mCampId));
-	ItemList* iL = camp->getItemList();
+    //we need to destroy our camp!!
+    Camp* camp = dynamic_cast<Camp*>(gWorldManager->getObjectById(mCampId));
+    ItemList* iL = camp->getItemList();
 
-	ItemList::iterator iLiT = iL->begin();
-	while(iLiT != iL->end())
-	{
-		TangibleObject* tangible = (*iLiT);
-		gMessageLib->sendDestroyObject_InRangeofObject(tangible);
-		gWorldManager->destroyObject(tangible);
-		iLiT++;
-	}
+    ItemList::iterator iLiT = iL->begin();
+    while(iLiT != iL->end())
+    {
+        TangibleObject* tangible = (*iLiT);
+        gMessageLib->sendDestroyObject_InRangeofObject(tangible);
+        gWorldManager->destroyObject(tangible);
+        iLiT++;
+    }
 
-	gMessageLib->sendDestroyObject_InRangeofObject(camp);
-	gWorldManager->destroyObject(camp);
+    gMessageLib->sendDestroyObject_InRangeofObject(camp);
+    gWorldManager->destroyObject(camp);
 
-	gWorldManager->addRemoveRegion(this);
+    gWorldManager->addRemoveRegion(this);
 
-	//now grant xp
-	applyXp();
-	if(mXp)
-	{
-		if(mXp > mXpMax)
-			mXp = mXpMax;
+    //now grant xp
+    applyXp();
+    if(mXp)
+    {
+        if(mXp > mXpMax)
+            mXp = mXpMax;
 
-		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
-		if(player)
-			gSkillManager->addExperience(XpType_camp,mXp,player);
-		//still get db side in
-	}
+        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+        if(player)
+            gSkillManager->addExperience(XpType_camp,mXp,player);
+        //still get db side in
+    }
 
-	
+
 }
 
 void	CampRegion::applyWoundHealing(Object* object)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
-	//Make sure it's a player.
-	if(player == NULL)
-		return;
+    //Make sure it's a player.
+    if(player == NULL)
+        return;
 
-	Ham* hamz = player->getHam();
+    Ham* hamz = player->getHam();
 
-	if(hamz->mHealth.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mHealth.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
-	if(hamz->mStrength.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mStrength.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
-	if(hamz->mConstitution.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mConstitution.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
-	if(hamz->mAction.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Action ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mAction.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Action ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
-	if(hamz->mQuickness.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mQuickness.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
-	if(hamz->mStamina.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mStamina.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
-	if(hamz->mMind.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Mind ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mMind.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Mind ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
-	if(hamz->mFocus.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mFocus.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
-	if(hamz->mWillpower.getWounds() > 0)
-	{
-		hamz->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, -1);
-		mHealingDone++;
-	}
+    if(hamz->mWillpower.getWounds() > 0)
+    {
+        hamz->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, -1);
+        mHealingDone++;
+    }
 
 }
 
 void	CampRegion::applyHAMHealing(Object* object)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
-	//Make sure it's a player.
-	if(player == NULL)
-		return;
+    //Make sure it's a player.
+    if(player == NULL)
+        return;
 
-	Ham* hamz = player->getHam();
+    Ham* hamz = player->getHam();
 
-	//Heal the Ham
-	int32 HealthRegenRate = hamz->getHealthRegenRate();
-	int32 ActionRegenRate = hamz->getActionRegenRate();
-	int32 MindRegenRate = hamz->getMindRegenRate();
+    //Heal the Ham
+    int32 HealthRegenRate = hamz->getHealthRegenRate();
+    int32 ActionRegenRate = hamz->getActionRegenRate();
+    int32 MindRegenRate = hamz->getMindRegenRate();
 
-	//Because we tick every 2 seconds, we need to double this.
-	HealthRegenRate += (int32)(HealthRegenRate * mHealingModifier) * 2;
-	ActionRegenRate += (int32)(ActionRegenRate * mHealingModifier) * 2;
-	MindRegenRate	+= (int32)(MindRegenRate * mHealingModifier) * 2;
+    //Because we tick every 2 seconds, we need to double this.
+    HealthRegenRate += (int32)(HealthRegenRate * mHealingModifier) * 2;
+    ActionRegenRate += (int32)(ActionRegenRate * mHealingModifier) * 2;
+    MindRegenRate	+= (int32)(MindRegenRate * mHealingModifier) * 2;
 
-	if(hamz->mHealth.getModifiedHitPoints() - hamz->mHealth.getCurrentHitPoints() > 0)
-	{
-		//Regen Health
-		int32 oldVal = hamz->mHealth.getCurrentHitPoints();
-		hamz->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints, HealthRegenRate);
-		mHealingDone += hamz->mHealth.getCurrentHitPoints() - oldVal;
-	}
-	
-	if(hamz->mAction.getModifiedHitPoints() - hamz->mAction.getCurrentHitPoints() > 0)
-	{
-		//Regen Action
-		int32 oldVal = hamz->mAction.getCurrentHitPoints();
-		hamz->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, ActionRegenRate);
-		mHealingDone += hamz->mAction.getCurrentHitPoints() - oldVal;
-	}
+    if(hamz->mHealth.getModifiedHitPoints() - hamz->mHealth.getCurrentHitPoints() > 0)
+    {
+        //Regen Health
+        int32 oldVal = hamz->mHealth.getCurrentHitPoints();
+        hamz->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints, HealthRegenRate);
+        mHealingDone += hamz->mHealth.getCurrentHitPoints() - oldVal;
+    }
 
-	if(hamz->mMind.getModifiedHitPoints() - hamz->mMind.getCurrentHitPoints() > 0)
-	{
-		//Regen Mind
-		int32 oldVal = hamz->mMind.getCurrentHitPoints();
-		hamz->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, MindRegenRate);
-		mHealingDone += hamz->mMind.getCurrentHitPoints() - oldVal;
-	}
+    if(hamz->mAction.getModifiedHitPoints() - hamz->mAction.getCurrentHitPoints() > 0)
+    {
+        //Regen Action
+        int32 oldVal = hamz->mAction.getCurrentHitPoints();
+        hamz->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, ActionRegenRate);
+        mHealingDone += hamz->mAction.getCurrentHitPoints() - oldVal;
+    }
+
+    if(hamz->mMind.getModifiedHitPoints() - hamz->mMind.getCurrentHitPoints() > 0)
+    {
+        //Regen Mind
+        int32 oldVal = hamz->mMind.getCurrentHitPoints();
+        hamz->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, MindRegenRate);
+        mHealingDone += hamz->mMind.getCurrentHitPoints() - oldVal;
+    }
 
 }
 
 void	CampRegion::applyXp()
 {
-	//mXP = The amount of XP accumulated via vistors in the camp
-	mXp += mHealingDone; //The Amount of Healing Done
+    //mXP = The amount of XP accumulated via vistors in the camp
+    mXp += mHealingDone; //The Amount of Healing Done
 }

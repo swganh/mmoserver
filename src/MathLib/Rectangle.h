@@ -35,26 +35,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace Anh_Math
 {
-	class Rectangle : public Shape
-	{
-		public:
+class Rectangle : public Shape
+{
+public:
 
-			Rectangle() : Shape(),mWidth(0.0f),mHeight(0.0f){}
-            Rectangle(const glm::vec3& lowPosition, float width, float height) : Shape(lowPosition),mWidth(width),mHeight(height){}
-			Rectangle(float lowX, float lowZ, float width, float height) : Shape(lowX,0.0f,lowZ),mWidth(width),mHeight(height){}
-			virtual ~Rectangle() {}
+    Rectangle() : Shape(),mWidth(0.0f),mHeight(0.0f) {}
+    Rectangle(const glm::vec3& lowPosition, float width, float height) : Shape(lowPosition),mWidth(width),mHeight(height) {}
+    Rectangle(float lowX, float lowZ, float width, float height) : Shape(lowX,0.0f,lowZ),mWidth(width),mHeight(height) {}
+    virtual ~Rectangle() {}
 
-			float	getWidth(){ return mWidth; }
-			float	getHeight(){ return mHeight; }
+    float	getWidth() {
+        return mWidth;
+    }
+    float	getHeight() {
+        return mHeight;
+    }
 
-			void	setWidth(float width){ mWidth = width; }
-			void	setHeight(float height){ mHeight = height; }
+    void	setWidth(float width) {
+        mWidth = width;
+    }
+    void	setHeight(float height) {
+        mHeight = height;
+    }
 
-		protected:
+protected:
 
-			float mWidth;
-			float mHeight;
-	};
+    float mWidth;
+    float mHeight;
+};
 }
 
 //=============================================================================

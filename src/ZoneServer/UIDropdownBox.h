@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_UIDROPDOWNBOX_H
 #define ANH_ZONESERVER_UIDROPDOWNBOX_H
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "UIElement.h"
 
@@ -35,33 +36,47 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UIDropdownBox : public UIElement
 {
-	public:
+public:
 
-		UIDropdownBox(){}
-		UIDropdownBox(uint32 id,string name,bool enabled,const BStringVector elements,uint16 maxLength);
-		virtual ~UIDropdownBox();
+    UIDropdownBox() {}
+    UIDropdownBox(uint32 id,BString name,bool enabled,const BStringVector elements,uint16 maxLength);
+    virtual ~UIDropdownBox();
 
-		string			getName(){ return mName; }
-		void			setName(string name){ mName = name; }
+    BString			getName() {
+        return mName;
+    }
+    void			setName(BString name) {
+        mName = name;
+    }
 
-		bool			getEnabled(){ return mEnabled; }
-		void			setEnabled(bool e){ mEnabled = e; }
+    bool			getEnabled() {
+        return mEnabled;
+    }
+    void			setEnabled(bool e) {
+        mEnabled = e;
+    }
 
-		uint16			getMaxLength(){ return mMaxLength; }
-		void			setMaxLength(uint16 maxLength){ mMaxLength = maxLength; }
+    uint16			getMaxLength() {
+        return mMaxLength;
+    }
+    void			setMaxLength(uint16 maxLength) {
+        mMaxLength = maxLength;
+    }
 
-		BStringVector*	getElements(){ return &mElements; }
+    BStringVector*	getElements() {
+        return &mElements;
+    }
 
-		virtual uint32	getPropertyCount();
+    virtual uint32	getPropertyCount();
 
-		virtual void	addMessageData();
+    virtual void	addMessageData();
 
-	private:
+private:
 
-		string			mName;
-		bool			mEnabled;
-		BStringVector	mElements;
-		uint16			mMaxLength;
+    BString			mName;
+    bool			mEnabled;
+    BStringVector	mElements;
+    uint16			mMaxLength;
 };
 
 #endif

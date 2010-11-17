@@ -37,8 +37,8 @@ SpawnRegion::SpawnRegion()
 : RegionObject()
 , mMission(0)
 {
-	mActive		= true;
-	mRegionType = Region_Spawn;
+    mActive		= true;
+    mRegionType = Region_Spawn;
 }
 
 //=============================================================================
@@ -53,9 +53,6 @@ void SpawnRegion::update()
 {
 	// not necessary anymore 
 	//regions get updated by the grid when someone enters
-	//this is very problematic - currently we assume an object entered us when it is in the same qtregion we are in
-
-	
 }
 
 //=============================================================================
@@ -73,8 +70,6 @@ void SpawnRegion::onObjectEnter(Object* object)
 
 void SpawnRegion::onObjectLeave(Object* object)
 {
-	//PlayerObject* player = (PlayerObject*)object;
-	//removeKnownObject(object);
 }
 
 //=============================================================================

@@ -44,36 +44,38 @@ class QTRegion;
 
 enum QTRFQuery
 {
-	QTRFQuery_MainData	= 1
+    QTRFQuery_MainData	= 1
 };
 
 //=============================================================================
 
 class QTRegionFactory : public FactoryBase
 {
-	public:
+public:
 
-		static QTRegionFactory*	getSingletonPtr() { return mSingleton; }
-		static QTRegionFactory*	Init(Database* database);
+    static QTRegionFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static QTRegionFactory*	Init(Database* database);
 
-		~QTRegionFactory();
+    ~QTRegionFactory();
 
-		void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-	private:
+private:
 
-		QTRegionFactory(Database* database);
+    QTRegionFactory(Database* database);
 
-		void				_setupDatabindings();
-		void				_destroyDatabindings();
+    void				_setupDatabindings();
+    void				_destroyDatabindings();
 
-		QTRegion*			_createRegion(DatabaseResult* result);
+    QTRegion*			_createRegion(DatabaseResult* result);
 
-		static QTRegionFactory*	mSingleton;
-		static bool				mInsFlag;
+    static QTRegionFactory*	mSingleton;
+    static bool				mInsFlag;
 
-		DataBinding*			mRegionBinding;
+    DataBinding*			mRegionBinding;
 };
 
 

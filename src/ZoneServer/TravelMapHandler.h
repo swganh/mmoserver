@@ -29,7 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_TRAVELMAPHANDLER_H
 
 #include "UICallback.h"
-#include "Common/MessageDispatchCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 #include <boost/pool/pool.hpp>
 
@@ -46,77 +45,80 @@ class PlayerObject;
 class Shuttle;
 class TravelMapAsyncContainer;
 class TravelTicket;
+class DispatchClient;
 
 //======================================================================================================================
 
 enum TMQueryType
 {
-	TMQuery_PointsInWorld	=	1,
-	TMQuery_PointsInCells	=	2,
-	TMQuery_PlanetRoutes	=	3
+    TMQuery_PointsInWorld	=	1,
+    TMQuery_PointsInCells	=	2,
+    TMQuery_PlanetRoutes	=	3
 };
 
 //======================================================================================================================
 
 class TravelMapAsyncContainer
 {
-	public:
+public:
 
-		TravelMapAsyncContainer(TMQueryType qt){ mQueryType = qt;}
-		~TravelMapAsyncContainer(){}
+    TravelMapAsyncContainer(TMQueryType qt) {
+        mQueryType = qt;
+    }
+    ~TravelMapAsyncContainer() {}
 
-		TMQueryType	mQueryType;
+    TMQueryType	mQueryType;
 };
 
 //======================================================================================================================
 
 class TravelPoint
 {
-	public:
+public:
 
-		TravelPoint(){}
-		~TravelPoint(){}
+    TravelPoint() {}
+    ~TravelPoint() {}
 
-		float	x;
-		float	y;
-		float	z;
-		uint8	portType;
-		uint32	taxes;
-		int8	descriptor[64];
-		uint16	planetId;
-		float	spawnX;
-		float	spawnY;
-		float	spawnZ;
+    float	x;
+    float	y;
+    float	z;
+    uint8	portType;
+    uint32	taxes;
+    int8	descriptor[64];
+    uint16	planetId;
+    float	spawnX;
+    float	spawnY;
+    float	spawnZ;
 };
 
 //======================================================================================================================
 
 class TravelRoute
 {
-	public:
+public:
 
-		TravelRoute(){}
-		~TravelRoute(){}
+    TravelRoute() {}
+    ~TravelRoute() {}
 
-		uint16	srcId;
-		uint16	destId;
-		int32	price;
+    uint16	srcId;
+    uint16	destId;
+    int32	price;
 };
 
 //======================================================================================================================
 
 class TicketProperties
 {
-	public:
+public:
 
-		TicketProperties(){}
-		~TicketProperties(){}
+    TicketProperties() {}
+    ~TicketProperties() {}
 
-		uint16			srcPlanetId;
-		uint16			dstPlanetId;
-		TravelPoint*	srcPoint;
-		TravelPoint*	dstPoint;
-		int32			price;
+    uint16			srcPlanetId;
+    uint16			dstPlanetId;
+    TravelPoint*	srcPoint;
+    TravelPoint*	dstPoint;
+    int32			price;
 };
 
 //======================================================================================================================
@@ -126,49 +128,50 @@ typedef std::vector<std::pair<uint16,int32> > TravelRoutes;
 
 //======================================================================================================================
 
-class TravelMapHandler : public MessageDispatchCallback, public DatabaseCallback, public UICallback
+class TravelMapHandler : public DatabaseCallback, public UICallback
 {
 public:
 
-		static TravelMapHandler*	getSingletonPtr() { return mSingleton; }
-		static TravelMapHandler*	Init(Database* database,MessageDispatch* dispatch,uint32 zoneId);
+    static TravelMapHandler*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static TravelMapHandler*	Init(Database* database,MessageDispatch* dispatch,uint32 zoneId);
 
-		~TravelMapHandler();
+    ~TravelMapHandler();
 
-		void				Shutdown();
+    void				Shutdown();
 
-		void				getTicketInformation(BStringVector vQuery,TicketProperties* ticketProperties);
-		TravelPoint*		getTravelPoint(uint16 planetId,string name);
+    void				getTicketInformation(BStringVector vQuery,TicketProperties* ticketProperties);
+    TravelPoint*		getTravelPoint(uint16 planetId,BString name);
 
-		virtual void		handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
-		virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		bool				findTicket(PlayerObject* player, string port);
-		void				createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, string port);
-		void				useTicket(PlayerObject* player, TravelTicket* ticket,Shuttle* shuttle);
+    virtual void		handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    bool				findTicket(PlayerObject* player, BString port);
+    void				createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, BString port);
+    void				useTicket(PlayerObject* player, TravelTicket* ticket,Shuttle* shuttle);
 
-		virtual void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
+    virtual void		handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
 
-	private:
+private:
 
-		TravelMapHandler(Database* database,MessageDispatch* dispatch,uint32 zoneId);
+    TravelMapHandler(Database* database,MessageDispatch* dispatch,uint32 zoneId);
 
-		void				_processTravelPointListRequest(Message* message,DispatchClient* client);
-		void				_processTutorialTravelList(Message* message, DispatchClient* client);
+    void				_processTravelPointListRequest(Message* message,DispatchClient* client);
+    void				_processTutorialTravelList(Message* message, DispatchClient* client);
 
-		static TravelMapHandler*	mSingleton;
-		static bool					mInsFlag;
+    static TravelMapHandler*	mSingleton;
+    static bool					mInsFlag;
 
-		boost::pool<>					mDBAsyncPool;
-		TravelPointList				mTravelPoints[50];
-		TravelRoutes					mTravelRoutes[50];
-		Database*							mDatabase;
-		MessageDispatch*			mMessageDispatch;
-		uint32								mPointCount;
-		uint32								mRouteCount;
-		uint32								mZoneId;
-		bool									mCellPointsLoaded;
-		bool									mRoutesLoaded;
-		bool									mWorldPointsLoaded;
+    boost::pool<>					mDBAsyncPool;
+    TravelPointList				mTravelPoints[50];
+    TravelRoutes					mTravelRoutes[50];
+    Database*							mDatabase;
+    MessageDispatch*			mMessageDispatch;
+    uint32								mPointCount;
+    uint32								mRouteCount;
+    uint32								mZoneId;
+    bool									mCellPointsLoaded;
+    bool									mRoutesLoaded;
+    bool									mWorldPointsLoaded;
 };
 
 //======================================================================================================================

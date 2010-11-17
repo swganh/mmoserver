@@ -35,45 +35,59 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class HouseObject :	public BuildingObject, public DatabaseCallback
 {
-	friend class HouseFactory;
-	friend class BuildingFactory;
+    friend class HouseFactory;
+    friend class BuildingFactory;
 
-	public:
+public:
 
-		HouseObject();
-		~HouseObject();
+    HouseObject();
+    ~HouseObject();
 
-		virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		
-		virtual void	handleObjectReady(Object* object,DispatchClient* client, uint64 hopper);
+    virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		HouseFamily	getHouseFamily(){ return mHouseFamily; }
-		void			setHouseFamily(HouseFamily ff){ mHouseFamily = ff; }
+    virtual void	handleObjectReady(Object* object,DispatchClient* client, uint64 hopper);
 
-		uint32			getLoadCount(){ return mTotalLoadCount; }
-		uint32			decLoadCount(){ return (mTotalLoadCount-1); }
-		void			setLoadCount(uint32 count){ mTotalLoadCount = count; }
+    HouseFamily	getHouseFamily() {
+        return mHouseFamily;
+    }
+    void			setHouseFamily(HouseFamily ff) {
+        mHouseFamily = ff;
+    }
 
-		void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    uint32			getLoadCount() {
+        return mTotalLoadCount;
+    }
+    uint32			decLoadCount() {
+        return (mTotalLoadCount-1);
+    }
+    void			setLoadCount(uint32 count) {
+        mTotalLoadCount = count;
+    }
 
-		PlayerStructure*	getSign(){ return mSign; }
-		void				setSign(PlayerStructure* sign){ mSign = sign; }
+    void			prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    void			handleObjectMenuSelect(uint8 messageType,Object* srcObject);
 
-		bool			hasAdmin(uint64 id);
+    PlayerStructure*	getSign() {
+        return mSign;
+    }
+    void				setSign(PlayerStructure* sign) {
+        mSign = sign;
+    }
 
-		void			checkCellPermission(PlayerObject* player);
+    bool			hasAdmin(uint64 id);
+
+    void			checkCellPermission(PlayerObject* player);
 
 
-	private:
-		
-		BuildingFamily	mBuildingFamily;
-		HouseFamily		mHouseFamily;
+private:
 
-		uint32			mTotalLoadCount;
+    BuildingFamily	mBuildingFamily;
+    HouseFamily		mHouseFamily;
 
-		PlayerStructure* mSign;
-		
+    uint32			mTotalLoadCount;
+
+    PlayerStructure* mSign;
+
 };
 
 //=============================================================================

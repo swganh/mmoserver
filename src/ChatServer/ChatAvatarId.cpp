@@ -28,7 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ChatManager.h"
 #include "Player.h"
 
-#include "LogManager/LogManager.h"
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 #include "Utils/typedefs.h"
 
@@ -41,51 +46,51 @@ ChatSystemAvatar*	ChatSystemAvatar::mSingleton = NULL;
 
 void ChatAvatarId::setPlayer(Player* player)
 {
-	mPlayer = player;
-	//string lcName = BString(BSTRType_ANSI, player->getName().getLength());
-	//memcpy(lcName.getRawData(), player->getName().getRawData(), lcName.getLength());
-	//lcName.toLower();
-	mName = player->getName();
-	mName.toLower();
-	gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s\n", mName.getAnsi());
+    mPlayer = player;
+    //string lcName = BString(BSTRType_ANSI, player->getName().getLength());
+    //memcpy(lcName.getRawData(), player->getName().getRawData(), lcName.getLength());
+    //lcName.toLower();
+    mName = player->getName();
+    mName.toLower();
+    DLOG(INFO) << "Chatavatar:: setplayer " << mName.getAnsi();
 }
 
 //======================================================================================================================
 
-void ChatAvatarId::setPlayer(const string player)
+void ChatAvatarId::setPlayer(const BString player)
 {
-	gLogger->log(LogManager::DEBUG,"Chatavatar:: setplayer %s string only\n", mName.getAnsi());
-	mPlayer = gChatManager->getPlayerByName(player); 
-	
-	mName = player;
-	mName.toLower();
+	DLOG(INFO) << "Chatavatar:: setplayer " << mName.getAnsi() << " string only";
+    mPlayer = gChatManager->getPlayerByName(player);
+
+    mName = player;
+    mName.toLower();
 }
 
 //======================================================================================================================
 
-string ChatAvatarId::getPath()
+BString ChatAvatarId::getPath()
 {
-	BString path = "SWG.";
-	path << mGalaxy.getAnsi() << ".";
-	path << mName.getAnsi();
-	return path;
+    BString path = "SWG.";
+    path << mGalaxy.getAnsi() << ".";
+    path << mName.getAnsi();
+    return path;
 }
 
 //======================================================================================================================
 
 ChatSystemAvatar* ChatSystemAvatar::GetSingleton()
 {
-	if (!mInsFlag)
-	{
-		mSingleton = new ChatSystemAvatar();
-		mInsFlag = true;
-	}
-	return mSingleton;
+    if (!mInsFlag)
+    {
+        mSingleton = new ChatSystemAvatar();
+        mInsFlag = true;
+    }
+    return mSingleton;
 }
 
 //======================================================================================================================
 
-string ChatSystemAvatar::getLoweredName()
+BString ChatSystemAvatar::getLoweredName()
 {
-	return BString("SYSTEM");
+    return BString("SYSTEM");
 }

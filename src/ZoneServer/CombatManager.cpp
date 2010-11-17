@@ -31,13 +31,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CMWeaponGroup.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
 #include "Weapon.h"
 #include "VehicleController.h"
 #include "WorldManager.h"
 #include "WorldConfig.h"
 
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -51,42 +52,43 @@ CombatManager*	CombatManager::mSingleton	= NULL;
 //=========================================================================================
 
 CombatManager::CombatManager(Database* database) :
-mDatabase(database)
+    mDatabase(database)
 {
-	//gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");	
-	// load default attack animations
-	mDatabase->ExecuteSqlAsync(this,0,"SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
+    //gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");
+    // load default attack animations
+    mDatabase->executeSqlAsync(this, 0, "SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
+    
 }
 
 //=========================================================================================
 
 CombatManager* CombatManager::Init(Database* database)
 {
-	if(mInsFlag == false)
-	{
-		mSingleton = new CombatManager(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(mInsFlag == false)
+    {
+        mSingleton = new CombatManager(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //======================================================================================================================
 
 CombatManager::~CombatManager()
 {
-	WeaponGroups::iterator it = mWeaponGroups.begin();
+    WeaponGroups::iterator it = mWeaponGroups.begin();
 
-	while(it != mWeaponGroups.end())
-	{
-		delete(*it);
+    while(it != mWeaponGroups.end())
+    {
+        delete(*it);
 
-		it = mWeaponGroups.erase(it);
-	}
+        it = mWeaponGroups.erase(it);
+    }
 
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //======================================================================================================================
@@ -96,27 +98,27 @@ CombatManager::~CombatManager()
 
 void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	CMWeaponGroup*	weaponGroup;
-	DataBinding*	binding = mDatabase->CreateDataBinding(3);
+    CMWeaponGroup*	weaponGroup;
+    DataBinding*	binding = mDatabase->createDataBinding(3);
 
-	binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mId),4,0);
-	binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mDefaultAttackAnimationCrc),4,1);
-	binding->addField(DFT_bstring,offsetof(CMWeaponGroup,mDefaultCombatSpam),64,2);
+    binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mId),4,0);
+    binding->addField(DFT_uint32,offsetof(CMWeaponGroup,mDefaultAttackAnimationCrc),4,1);
+    binding->addField(DFT_bstring,offsetof(CMWeaponGroup,mDefaultCombatSpam),64,2);
 
-	uint64 count = result->getRowCount();
-	mWeaponGroups.reserve((uint32)count);
-	
-	for(uint64 i = 0;i < count;i++)
-	{
-		weaponGroup = new CMWeaponGroup();
+    uint64 count = result->getRowCount();
+    mWeaponGroups.reserve((uint32)count);
 
-		result->GetNextRow(binding,weaponGroup);
+    for(uint64 i = 0; i < count; i++)
+    {
+        weaponGroup = new CMWeaponGroup();
 
-		mWeaponGroups.push_back(weaponGroup);
-	}
-	
-	mDatabase->DestroyDataBinding(binding);
-	//gLogger->log(LogManager::NOTICE,"Finished Loading weapon groups.");	
+        result->getNextRow(binding,weaponGroup);
+
+        mWeaponGroups.push_back(weaponGroup);
+    }
+
+    mDatabase->destroyDataBinding(binding);
+    //gLogger->log(LogManager::NOTICE,"Finished Loading weapon groups.");
 }
 
 //=============================================================================================================================
@@ -126,20 +128,20 @@ void CombatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 uint32 CombatManager::getDefaultAttackAnimation(uint32 weaponGroup)
 {
-	WeaponGroups::iterator it = mWeaponGroups.begin();
+    WeaponGroups::iterator it = mWeaponGroups.begin();
 
-	while(it != mWeaponGroups.end())
-	{
-		if((*it)->mId == weaponGroup)
-		{
-			return((*it)->mDefaultAttackAnimationCrc);
-		}
+    while(it != mWeaponGroups.end())
+    {
+        if((*it)->mId == weaponGroup)
+        {
+            return((*it)->mDefaultAttackAnimationCrc);
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	// default unarmed attack to be safe
-	return(1136984016);
+    // default unarmed attack to be safe
+    return(1136984016);
 }
 
 //=============================================================================================================================
@@ -147,22 +149,22 @@ uint32 CombatManager::getDefaultAttackAnimation(uint32 weaponGroup)
 // get the combat spam for the default attack belonging to a weapongroup
 //
 
-string CombatManager::getDefaultSpam(uint32 weaponGroup)
+BString CombatManager::getDefaultSpam(uint32 weaponGroup)
 {
-	WeaponGroups::iterator it = mWeaponGroups.begin();
+    WeaponGroups::iterator it = mWeaponGroups.begin();
 
-	while(it != mWeaponGroups.end())
-	{
-		if((*it)->mId == weaponGroup)
-		{
-			return((*it)->mDefaultCombatSpam.getAnsi());
-		}
+    while(it != mWeaponGroups.end())
+    {
+        if((*it)->mId == weaponGroup)
+        {
+            return((*it)->mDefaultCombatSpam.getAnsi());
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	// default unarmed spam to be safe
-	return("melee");
+    // default unarmed spam to be safe
+    return("melee");
 }
 
 //=============================================================================================================================
@@ -223,18 +225,15 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				return(false);
 			}
 
-			// put us in combat state
-			if (!playerAttacker->checkState(CreatureState_Combat))
-			{
-				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(playerAttacker);
-			}
-
+			// put us in combat state	
+			gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
+            gStateManager.setCurrentActionState(attacker, CreatureState_CombatAttitudeNormal);
 			// put our target in combat state
-			if(!defenderPlayer->checkState(CreatureState_Combat))
+			if(!defenderPlayer->states.checkState(CreatureState_Combat))
 			{
-				defenderPlayer->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(defenderPlayer);
+
+				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
+                gStateManager.setCurrentActionState(defender, CreatureState_CombatAttitudeNormal);
 			}
 
 			// update our defender list
@@ -279,19 +278,18 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 			}
 
 			// put us in combat state
-			// if (!playerAttacker->checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
+			// if (!playerAttacker->states.checkState((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal)))
 			{
 				// playerAttacker->togglePvPStateOn((CreaturePvPStatus)(CreaturePvPStatus_Attackable + CreaturePvPStatus_Aggressive + CreaturePvPStatus_Enemy));
 				gMessageLib->sendUpdatePvpStatus(playerAttacker,playerAttacker, playerAttacker->getPvPStatus() | CreaturePvPStatus_Attackable);
 
-				playerAttacker->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(playerAttacker);
-
-				// playerAttacker->toggleStateOn(CreatureState_Combat);
-				// gMessageLib->sendStateUpdate(playerAttacker);
+				// TEST STATE MANAGER!
+				gStateManager.setCurrentActionState(attacker, CreatureState_Combat);
+                gStateManager.setCurrentActionState(attacker, CreatureState_CombatAttitudeNormal);
+				
 			}
 
-			if (!defender->checkState((CreatureState_Combat)))
+			if (!defender->states.checkState((CreatureState_Combat)))
 			{
 				// Creature was NOT in combat before, and may very well be dormant.
 				// Wake him up.
@@ -299,8 +297,9 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 				gWorldManager->forceHandlingOfReadyNpc(defender->getId());
 
 				// Creature may need some aggro built up before going into combat state??
-				defender->toggleStateOn((CreatureState)(CreatureState_Combat + CreatureState_CombatAttitudeNormal));
-				gMessageLib->sendStateUpdate(defender);
+			
+				gStateManager.setCurrentActionState(defender, CreatureState_Combat);
+                gStateManager.setCurrentActionState(defender, CreatureState_CombatAttitudeNormal);
 			}
 
 			gMessageLib->sendUpdatePvpStatus(defender, playerAttacker, defender->getPvPStatus() | CreaturePvPStatus_Attackable | CreaturePvPStatus_Enemy);
@@ -324,7 +323,7 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 	{
 		return(false);
 	}
-
+	 
 	return(true);
 }
 
@@ -332,70 +331,70 @@ bool CombatManager::_verifyCombatState(CreatureObject* attacker, uint64 defender
 
 bool CombatManager::handleAttack(CreatureObject *attacker, uint64 targetId, ObjectControllerCmdProperties *cmdProperties)
 {
-	CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+    CreatureObject* defender = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
 
-	// get the current weapon
-	Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
-	if (!weapon)
-	{
-		return(false);
-	}
+    // get the current weapon
+    Weapon* weapon = dynamic_cast<Weapon*>(attacker->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left));
+    if (!weapon)
+    {
+        return(false);
+    }
 
-	if (!defender)
-	{
-		return(false);
-	}
+    if (!defender)
+    {
+        return(false);
+    }
 
-	// NOTE: Some weapon data just for tesing and to give the npc a fair chance...
-	uint32 weaponGroup = weapon->getGroup();
-	float weaponRange = 6.0;
+    // NOTE: Some weapon data just for tesing and to give the npc a fair chance...
+    uint32 weaponGroup = weapon->getGroup();
+    float weaponRange = 6.0;
 
-	//if (weaponGroup <= WeaponGroup_Polearm)
-	//{
-	//	weaponRange = 6.0;
-	//}
-	// else
-	if (weaponGroup == WeaponGroup_Rifle)
-	{
-		weaponRange = 64.0;
-	}
-	else if (weaponGroup == WeaponGroup_Pistol)
-	{
-		weaponRange = 35.0;
-	}
-	else if (weaponGroup == WeaponGroup_Carbine)
-	{
-		weaponRange = 50.0;
-	}
-	//else
-	//{
-	//	weaponRange = 6.0;
-	//}
+    //if (weaponGroup <= WeaponGroup_Polearm)
+    //{
+    //	weaponRange = 6.0;
+    //}
+    // else
+    if (weaponGroup == WeaponGroup_Rifle)
+    {
+        weaponRange = 64.0;
+    }
+    else if (weaponGroup == WeaponGroup_Pistol)
+    {
+        weaponRange = 35.0;
+    }
+    else if (weaponGroup == WeaponGroup_Carbine)
+    {
+        weaponRange = 50.0;
+    }
+    //else
+    //{
+    //	weaponRange = 6.0;
+    //}
 
-	// if we are out of range, skip this attack.
+    // if we are out of range, skip this attack.
     if (glm::distance(attacker->mPosition, defender->mPosition) > weaponRange)
-	{
-		// Target out of range.
-		PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-		if (playerAttacker && playerAttacker->isConnected())
-		{
-			gMessageLib->sendSystemMessage(playerAttacker,L"","error_message","target_out_of_range", "", "", L"", 0, "", "");
-		}
-		// It's like you shoot but missed, maintain cooldown.
-		// return true;
-		return false;
-	}
+    {
+        // Target out of range.
+        PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
+        if (playerAttacker && playerAttacker->isConnected())
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "target_out_of_range"), playerAttacker);
+        }
+        // It's like you shoot but missed, maintain cooldown.
+        // return true;
+        return false;
+    }
 
-	if(_verifyCombatState(attacker,defender->getId()))
-	{
+    if(_verifyCombatState(attacker,defender->getId()))
+    {
 
-		// Execute the attack
-		/*uint8 attackResult = */_executeAttack(attacker,defender,cmdProperties,weapon);
+        // Execute the attack
+        /*uint8 attackResult = */_executeAttack(attacker,defender,cmdProperties,weapon);
 
-		return(true);
-	}
+        return(true);
+    }
 
-	return(false);
+    return(false);
 }
 
 //======================================================================================================================
@@ -406,7 +405,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 	//uint8	randomPoolHitChance		= 100;
 	uint8	stateApplied			= 0;
 	int32	multipliedDamage		= 0;
-	string	combatSpam				= "melee";
+	BString	combatSpam				= "melee";
 
 	// first see if we actually hit our target
 	uint8 attackResult = _hitCheck(attacker,defender,cmdProperties,weapon);
@@ -439,7 +438,6 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 
 		if(baseMaxDamage <= baseMinDamage)
 		{
-			gLogger->log(LogManager::DEBUG,"CombatManager::db min max data is NOT sane");
 			baseMaxDamage = baseMinDamage +1;
 		}
 
@@ -469,7 +467,7 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			PlayerObject* player = dynamic_cast<PlayerObject*>(attacker);
 			if (player)
 			{
-                npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->getPosture(), glm::distance(defender->mPosition, player->mPosition));
+                npc->updateDamage(player->getId(), player->getGroupId(), weapon->getGroup(), -multipliedDamage, player->states.getPosture(), glm::distance(defender->mPosition, player->mPosition));
 			}
 		}
 
@@ -523,167 +521,146 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
 			if (playerAttacker && playerAttacker->isConnected())
 			{
-				if (defender->getType() == ObjType_Player)
-				{
-					int8 str[128];
-					if (defender->getLastName().getLength())
-					{
-						sprintf(str,"%s %s", defender->getFirstName().getAnsi(), defender->getLastName().getAnsi());
-					}
-					else
-					{
-						sprintf(str,"%s", defender->getFirstName().getAnsi());
-					}
-					string playerName(str);
-					playerName.convert(BSTRType_Unicode16);
-
-          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, "", "", playerName.getUnicode16());
-				}
-				else
-				{
-          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_incap", "", "", L"", 0, defender->getSpeciesGroup().getAnsi(), defender->getSpeciesString().getAnsi());
-				}
-			}
-		}
-		if (defender->isDead())
-		{
-			PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
-			if (playerAttacker && playerAttacker->isConnected())
-			{
-				if (defender->getType() == ObjType_Player)
-				{
-					int8 str[128];
-					if (defender->getLastName().getLength())
-					{
-						sprintf(str,"%s %s", defender->getFirstName().getAnsi(), defender->getLastName().getAnsi());
-					}
-					else
-					{
-						sprintf(str,"%s", defender->getFirstName().getAnsi());
-					}
-					string playerName(str);
-					playerName.convert(BSTRType_Unicode16);
-          gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, "", "", playerName.getUnicode16());
-				}
-				else
-				{
-					// Disabled Spam when killing creatures.
-					// gMessageLib->sendSystemMessage(playerAttacker,L"","base_player","prose_target_dead", "", "", L"", 0, defender->getSpeciesGroup(), defender->getSpeciesString());
-				}
-			}
-		}
-	}
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_target_incap", 0, defender->getId(), 0), playerAttacker);
+            }
+        }
+        if (defender->isDead())
+        {
+            PlayerObject* playerAttacker = dynamic_cast<PlayerObject*>(attacker);
+            if (playerAttacker && playerAttacker->isConnected())
+            {
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "killer_target_dead"), playerAttacker, true);
+            }
+        }
+    }
 
 
-	// fly text and animations
-	// default attack(s)
-	if(cmdProperties->mCmdCrc == 0xa8fef90a)
-	{
-		uint32 animCrc = getDefaultAttackAnimation(weapon->getGroup());
+    // fly text and animations
+    // default attack(s)
+    if(cmdProperties->mCmdCrc == 0xa8fef90a)
+    {
+        uint32 animCrc = getDefaultAttackAnimation(weapon->getGroup());
 
-		switch(attackResult)
-		{
-			// hit
-			case 0:case 2:case 3:case 4:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,animCrc,0,0,1);
-			}
-			break;
+        switch(attackResult)
+        {
+            // hit
+        case 0:
+        case 2:
+        case 3:
+        case 4:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,animCrc,0,0,1);
+        }
+        break;
 
-			// miss
-			case 1:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,animCrc);
-			}
-			break;
-		}
-	}
-	// special attack
-	else
-	{
-		switch(attackResult)
-		{
-			// hit
-			case 0:case 2:case 3:case 4:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2,1);
-			}
-			break;
+        // miss
+        case 1:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,animCrc);
+        }
+        break;
+        }
+    }
+    // special attack
+    else
+    {
+        switch(attackResult)
+        {
+            // hit
+        case 0:
+        case 2:
+        case 3:
+        case 4:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2,1);
+        }
+        break;
 
-			//miss
-			case 1:
-			{
-				gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2);
-			}
-			break;
-		}
-	}
+        //miss
+        case 1:
+        {
+            gMessageLib->sendCombatAction(attacker,defender,cmdProperties->mAnimationCrc,cmdProperties->mTrail1,cmdProperties->mTrail2);
+        }
+        break;
+        }
+    }
 
-	switch(attackResult)
-	{
-		case 0:
-		{
-			// Defender got hit.
-		}
-		break;
+    switch(attackResult)
+    {
+    case 0:
+    {
+        // Defender got hit.
+    }
+    break;
 
-		case 1:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","miss",255,255,255);
-		}
-		break;
+    case 1:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","miss",255,255,255);
+    }
+    break;
 
-		case 2:
-		// We cant block yet, can we?
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","block",0,255,0);
-			gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);
-		}
-		break;
+    case 2:
+        // We cant block yet, can we?
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","block",0,255,0);
+        gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);
+    }
+    break;
 
-		case 3:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","dodge",0,255,0);
-			gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);	// Dodge
-		}
-		break;
+    case 3:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","dodge",0,255,0);
+        gMessageLib->sendCombatAction(defender,attacker,0xe430ff04);	// Dodge
+    }
+    break;
 
-		case 4:
-		{
-			gMessageLib->sendFlyText(defender,"combat_effects","counterattack",0,255,0);	// I can's see this effect working?
-		}
-		break;
-	}
+    case 4:
+    {
+        gMessageLib->sendFlyText(defender,"combat_effects","counterattack",0,255,0);	// I can's see this effect working?
+    }
+    break;
+    }
 
-	// send combat spam
-	// default attack
-	if(cmdProperties->mCmdCrc == 0xa8fef90a)
-	{
-		combatSpam = getDefaultSpam(weapon->getGroup());
-	}
-	// special attack
-	else
-	{
-		if(cmdProperties->mCbtSpam.getLength())
-		{
-			combatSpam = cmdProperties->mCbtSpam.getAnsi();
-		}
-	}
+    // send combat spam
+    // default attack
+    if(cmdProperties->mCmdCrc == 0xa8fef90a)
+    {
+        combatSpam = getDefaultSpam(weapon->getGroup());
+    }
+    // special attack
+    else
+    {
+        if(cmdProperties->mCbtSpam.getLength())
+        {
+            combatSpam = cmdProperties->mCbtSpam.getAnsi();
+        }
+    }
 
- 	switch(attackResult)
-	{
-		case 0:	combatSpam << "_hit";		break;
-		case 1:	combatSpam << "_miss";		break;
-		case 2:	combatSpam << "_block";		break;
-		case 3:	combatSpam << "_evade";		break;
-		case 4: combatSpam << "_counter";	break;
+    switch(attackResult)
+    {
+    case 0:
+        combatSpam << "_hit";
+        break;
+    case 1:
+        combatSpam << "_miss";
+        break;
+    case 2:
+        combatSpam << "_block";
+        break;
+    case 3:
+        combatSpam << "_evade";
+        break;
+    case 4:
+        combatSpam << "_counter";
+        break;
 
-		default:break;
-	}
-	gMessageLib->sendCombatSpam(attacker,defender,-multipliedDamage,"cbt_spam",combatSpam);
+    default:
+        break;
+    }
+    gMessageLib->sendCombatSpam(attacker,defender,-multipliedDamage,"cbt_spam",combatSpam);
 
 
-	return(0);
+    return(0);
 }
 
 //======================================================================================================================
@@ -693,42 +670,42 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 
 uint8 CombatManager::_hitCheck(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,Weapon* weapon)
 {
-	// TODO
-	// If the defender is a static object, like lair or debis, it can't counterattack, block or evade.
-	uint8 hit = 0;
-	if (defender->getCreoGroup() == CreoGroup_AttackableObject)
-	{
-		// Note that a return of 0 is a hit, return of 1 is a miss.
-		hit = gRandom->getRand()%4;	// 75% chance for a hit, 25% chance for a miss. That sounds fair when hittin a static object,
-		if (hit > 1)
-		{
-			// This is a "hit".
-			hit = 0;
-		}
-	}
-	else
-	{
-		// It's a "normal" npc or player
+    // TODO
+    // If the defender is a static object, like lair or debis, it can't counterattack, block or evade.
+    uint8 hit = 0;
+    if (defender->getCreoGroup() == CreoGroup_AttackableObject)
+    {
+        // Note that a return of 0 is a hit, return of 1 is a miss.
+        hit = gRandom->getRand()%4;	// 75% chance for a hit, 25% chance for a miss. That sounds fair when hittin a static object,
+        if (hit > 1)
+        {
+            // This is a "hit".
+            hit = 0;
+        }
+    }
+    else
+    {
+        // It's a "normal" npc or player
 
-		// return(gRandom->getRand()%5);
-		// Adjusting the hit chance, when testing.
-		// hit = gRandom->getRand()%9;	// 66% chance for a hit, 33% chance for the rest (miss, block, counterattck and evade)
-		hit = gRandom->getRand()%12;	// 75% chance for a hit, 25% chance for the rest (miss, block, counterattck and evade)
-		if (hit > 4)
-		{
-			// This is a "hit".
-			hit = 0;
-		}
-	}
-	return(hit);
+        // return(gRandom->getRand()%5);
+        // Adjusting the hit chance, when testing.
+        // hit = gRandom->getRand()%9;	// 66% chance for a hit, 33% chance for the rest (miss, block, counterattck and evade)
+        hit = gRandom->getRand()%12;	// 75% chance for a hit, 25% chance for the rest (miss, block, counterattck and evade)
+        if (hit > 4)
+        {
+            // This is a "hit".
+            hit = 0;
+        }
+    }
+    return(hit);
 }
 
 //======================================================================================================================
 
 int32 CombatManager::_mitigateDamage(CreatureObject* attacker,CreatureObject* defender,ObjectControllerCmdProperties *cmdProperties,int32 oldDamage,Weapon* weapon)
 {
-	// TODO
-	return(oldDamage);
+    // TODO
+    return(oldDamage);
 }
 
 //======================================================================================================================
@@ -737,12 +714,9 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 {
 	if(cmdProperties->mKnockdownChance)
 	{
-		defender->toggleStateOff(CreatureState_SittingOnChair);
-		defender->setPosture(CreaturePosture_KnockedDown);
-		defender->updateMovementProperties();
-		defender->getHam()->updateRegenRates();
+        gStateManager.setCurrentPostureState(defender, CreaturePosture_KnockedDown);
+        gStateManager.setCurrentLocomotionState(defender, CreatureLocomotion_KnockedDown);
 
-		gMessageLib->sendPostureAndStateUpdate(defender);
 		if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
 		{
 			//See if our player is mounted -- if so dismount him 
@@ -755,53 +729,32 @@ uint8 CombatManager::_tryStateEffects(CreatureObject* attacker,CreatureObject* d
 					vehicle->DismountPlayer();
 				}
 			}
-
-			gMessageLib->sendUpdateMovementProperties(player);
-			gMessageLib->sendSelfPostureUpdate(player);
 		}
 	}
 
 	if(cmdProperties->mDizzyChance)
 	{
-		defender->toggleStateOn(CreatureState_Dizzy);
-
-		gMessageLib->sendStateUpdate(defender);
-	}
+		gStateManager.setCurrentActionState(defender, CreatureState_Dizzy);
+    }
 
 	if(cmdProperties->mBlindChance)
 	{
-		defender->toggleStateOn(CreatureState_Blinded);
-
-		gMessageLib->sendStateUpdate(defender);
+        gStateManager.setCurrentActionState(defender, CreatureState_Blinded);
 	}
 
 	if(cmdProperties->mStunChance)
 	{
-		defender->toggleStateOn(CreatureState_Stunned);
-
-		gMessageLib->sendStateUpdate(defender);
+		gStateManager.setCurrentActionState(defender, CreatureState_Stunned);
 	}
 
 	if(cmdProperties->mIntimidateChance)
 	{
-		defender->toggleStateOn(CreatureState_Intimidated);
-
-		gMessageLib->sendStateUpdate(defender);
+        gStateManager.setCurrentActionState(defender, CreatureState_Intimidated);
 	}
 
 	if(cmdProperties->mPostureDownChance)
 	{
-		defender->toggleStateOff(CreatureState_SittingOnChair);
-		defender->setPosture(CreaturePosture_Crouched);
-		defender->updateMovementProperties();
-		defender->getHam()->updateRegenRates();
-
-		gMessageLib->sendPostureAndStateUpdate(defender);
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(defender))
-		{
-			gMessageLib->sendUpdateMovementProperties(player);
-			gMessageLib->sendSelfPostureUpdate(player);
-		}
+		gStateManager.setCurrentPostureState(defender, CreaturePosture_Crouched);
 	}
 
 	return(0);

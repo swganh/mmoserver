@@ -36,25 +36,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class FireworkEvent : public Anh_Utils::Event
 {
-	public:
+public:
 
-		FireworkEvent(uint32 _typeId,PlayerObject* _playerObject, const glm::vec3&	_position)
-		{
-			this->typeId = _typeId;
-			this->playerObject=_playerObject;
-			this->mPosition = _position;
-			this->mPosition.x +=static_cast<float>((gRandom->getRand()%5)-2.5);
-			this->mPosition.z +=static_cast<float>((gRandom->getRand()%5)-2.5);
-		}
+    FireworkEvent(uint32 _typeId,PlayerObject* _playerObject, const glm::vec3&	_position)
+    {
+        this->typeId = _typeId;
+        this->playerObject=_playerObject;
+        this->mPosition = _position;
+        this->mPosition.x +=static_cast<float>((gRandom->getRand()%5)-2.5);
+        this->mPosition.z +=static_cast<float>((gRandom->getRand()%5)-2.5);
+    }
 
-		PlayerObject*		getPlayerObject() const { return playerObject; }
-		uint32				getType() const { return typeId; }
-		const glm::vec3&	getPosition() const { return mPosition; }
+    PlayerObject*		getPlayerObject() const {
+        return playerObject;
+    }
+    uint32				getType() const {
+        return typeId;
+    }
+    const glm::vec3&	getPosition() const {
+        return mPosition;
+    }
 
-	private:
-		PlayerObject* playerObject;
-		uint32	typeId;
-        glm::vec3 mPosition;
+private:
+    PlayerObject* playerObject;
+    uint32	typeId;
+    glm::vec3 mPosition;
 };
 
 

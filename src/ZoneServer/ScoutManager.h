@@ -44,53 +44,55 @@ class ZoneTree;
 
 enum HarvestSelection
 {
-	HARVEST_ANY = 0,
-	HARVEST_MEAT,
-	HARVEST_HIDE,
-	HARVEST_BONE
+    HARVEST_ANY = 0,
+    HARVEST_MEAT,
+    HARVEST_HIDE,
+    HARVEST_BONE
 };
 
 
 class ScoutManager
 {
 public:
-	static ScoutManager*	getSingletonPtr() { return mSingleton; }
-	
-	static ScoutManager*	Instance()
-	{
-		if (!mSingleton)
-		{
-			mSingleton = new ScoutManager();
+    static ScoutManager*	getSingletonPtr() {
+        return mSingleton;
+    }
 
-		}
-		return mSingleton;
-	}
+    static ScoutManager*	Instance()
+    {
+        if (!mSingleton)
+        {
+            mSingleton = new ScoutManager();
 
-	static inline void deleteManager(void)    
-	{ 
-		if (mSingleton)
-		{
-			delete mSingleton;
-			mSingleton = 0;
-		}
-	}
+        }
+        return mSingleton;
+    }
 
-	//camps
-	bool createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player);
+    static inline void deleteManager(void)
+    {
+        if (mSingleton)
+        {
+            delete mSingleton;
+            mSingleton = 0;
+        }
+    }
 
-	//foraging
-	static void successForage(PlayerObject* player);
+    //camps
+    bool createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player);
 
-	//harvesting
-	void handleHarvestCorpse(PlayerObject* player, CreatureObject* target, HarvestSelection harvest);
-	uint32 getHarvestSkillFactor(CreatureObject* object);
-	uint32 getCreatureFactor(CreatureObject* object);
+    //foraging
+    static void successForage(PlayerObject* player);
+
+    //harvesting
+    void handleHarvestCorpse(PlayerObject* player, CreatureObject* target, HarvestSelection harvest);
+    uint32 getHarvestSkillFactor(CreatureObject* object);
+    uint32 getCreatureFactor(CreatureObject* object);
 
 protected:
-	ScoutManager::ScoutManager();
-	~ScoutManager(void);
+    ScoutManager();
+    ~ScoutManager(void);
 
 private:
-	static ScoutManager*	mSingleton;
+    static ScoutManager*	mSingleton;
 
 };

@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "CraftingTool.h"
+#include "BuildingObject.h"
 #include "Datapad.h"
 #include "Inventory.h"
 #include "Item.h"
@@ -46,9 +47,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
 
 
 //======================================================================================================================
@@ -86,8 +86,7 @@ void ObjectController::destroyObject(uint64 objectId)
 	// or something else
 	if(object == NULL)
 	{
-		gLogger->log(LogManager::DEBUG,"ObjController::destroyObject: could not find object %"PRIu64"",objectId);
-
+		DLOG(INFO) << "ObjController::destroyObject: could not find object " << objectId;
 		return;
 	}
 
@@ -155,11 +154,11 @@ void ObjectController::destroyObject(uint64 objectId)
 
 void ObjectController::_handleServerDestroyObject(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	string volume;
+    BString volume;
 
-	message->getStringUnicode16(volume);
+    message->getStringUnicode16(volume);
 
-	destroyObject(targetId);
+    destroyObject(targetId);
 }
 
 //========================================================================================
@@ -169,17 +168,17 @@ void ObjectController::_handleServerDestroyObject(uint64 targetId,Message* messa
 
 void ObjectController::_handleDestroyCraftingTool(CraftingTool* tool)
 {
-	// if the tool is currently busy, remove it from the processlist
-	// and delete the item it contains
-	// keeping items in tools, when logging out, is currently not supported
+    // if the tool is currently busy, remove it from the processlist
+    // and delete the item it contains
+    // keeping items in tools, when logging out, is currently not supported
 
-	if(Item* currentToolItem = tool->getCurrentItem())
-	{
-		gWorldManager->removeBusyCraftTool(tool);
+    if(Item* currentToolItem = tool->getCurrentItem())
+    {
+        gWorldManager->removeBusyCraftTool(tool);
 
-		gMessageLib->sendDestroyObject(currentToolItem->getId(),dynamic_cast<PlayerObject*>(mObject));
-		gObjectFactory->deleteObjectFromDB(currentToolItem);
-	}
+        gMessageLib->sendDestroyObject(currentToolItem->getId(),dynamic_cast<PlayerObject*>(mObject));
+        gObjectFactory->deleteObjectFromDB(currentToolItem);
+    }
 }
 
 //========================================================================================
@@ -189,55 +188,53 @@ void ObjectController::_handleDestroyCraftingTool(CraftingTool* tool)
 
 void ObjectController::_handleDestroyInstrument(Item* item)
 {
-	PlayerObject*	playerObject		= dynamic_cast<PlayerObject*>(mObject);
-	Item*			tempInstrument		= NULL;
-	Item*			permanentInstrument	= NULL;
+    PlayerObject*	playerObject		= dynamic_cast<PlayerObject*>(mObject);
+    Item*			tempInstrument		= NULL;
+    Item*			permanentInstrument	= NULL;
 
-	// first, stop playing, if its currently in use
-	if(playerObject->getPerformingState() == PlayerPerformance_Music)
-	{
-		// equipped instrument
-		if(item == dynamic_cast<Item*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
-		|| playerObject->getPlacedInstrumentId())
-		{
-			gEntertainerManager->stopEntertaining(playerObject);
-		}
-	}
+    // first, stop playing, if its currently in use
+    if(playerObject->getPerformingState() == PlayerPerformance_Music)
+    {
+        // equipped instrument
+        if(item == dynamic_cast<Item*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hold_Left))
+                || playerObject->getPlacedInstrumentId())
+        {
+            gEntertainerManager->stopEntertaining(playerObject);
+        }
+    }
 
-	// handle destruction of instanced instruments, placed in world
-	if(playerObject->getPlacedInstrumentId())
-	{
-		// get the instruments
-		tempInstrument = dynamic_cast<Item*>(gWorldManager->getObjectById(playerObject->getPlacedInstrumentId()));
+    // handle destruction of instanced instruments, placed in world
+    if(playerObject->getPlacedInstrumentId())
+    {
+        // get the instruments
+        tempInstrument = dynamic_cast<Item*>(gWorldManager->getObjectById(playerObject->getPlacedInstrumentId()));
 
-		if(!tempInstrument)
-		{
-			gLogger->log(LogManager::DEBUG,"ObjectController::handleDestroyInstrument : no temporary Instrument");
-			return;
-		}
+        if(!tempInstrument)
+        {
+            return;
+        }
 
-		permanentInstrument = dynamic_cast<Item*>(gWorldManager->getObjectById(tempInstrument->getPersistantCopy()));
+        permanentInstrument = dynamic_cast<Item*>(gWorldManager->getObjectById(tempInstrument->getPersistantCopy()));
 
-		if(!permanentInstrument)
-		{
-			gLogger->log(LogManager::DEBUG,"ObjectController::handleDestroyInstrument : no parent Instrument");
-			return;
-		}
+        if(!permanentInstrument)
+        {
+            return;
+        }
 
-		// the temporary gets ALWAYS deleted
-		// update the attributes of the permanent Instrument
-		if(tempInstrument == item)
-		{
-			permanentInstrument->setPlaced(false);
-			permanentInstrument->setNonPersistantCopy(0);
-			playerObject->setPlacedInstrumentId(0);
-		}
-		// it is the permanent Instrument delete the temporary copy too
-		else if(permanentInstrument == item)
-		{
-			destroyObject(tempInstrument->getId());
-		}
-	}
+        // the temporary gets ALWAYS deleted
+        // update the attributes of the permanent Instrument
+        if(tempInstrument == item)
+        {
+            permanentInstrument->setPlaced(false);
+            permanentInstrument->setNonPersistantCopy(0);
+            playerObject->setPlacedInstrumentId(0);
+        }
+        // it is the permanent Instrument delete the temporary copy too
+        else if(permanentInstrument == item)
+        {
+            destroyObject(tempInstrument->getId());
+        }
+    }
 }
 
 //========================================================================================

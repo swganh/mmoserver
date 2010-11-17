@@ -28,23 +28,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager.h"
 #include "NetConfig.h"
 #include "Service.h"
-#include "LogManager/LogManager.h"
+
 
 #include "Utils/typedefs.h"
 
 #if defined(_MSC_VER)
-	#ifndef _WINSOCK2API_
+#ifndef _WINSOCK2API_
 #include <WINSOCK2.h>
-	#endif
+#endif
 #endif
 
 //======================================================================================================================
 
 NetworkManager::NetworkManager(void) :
-mServiceIdIndex(1)
+    mServiceIdIndex(1)
 {
-	// for safety, in case someone forgot to init previously
-	NetConfig::Init();
+    // for safety, in case someone forgot to init previously
+    NetConfig::Init();
 }
 
 //======================================================================================================================
@@ -57,25 +57,25 @@ NetworkManager::~NetworkManager(void)
 
 void NetworkManager::Process(void)
 {
-	// Get the current count of Services to be processed.  We can't just check to see if the queue is empty, since
-	// the other threads could keep placing more Service objects in the queue, and this could cause a stall in the
-	// main thread.
-   
-	Service*	service = 0;
-	uint32		serviceCount = mServiceProcessQueue.size();
+    // Get the current count of Services to be processed.  We can't just check to see if the queue is empty, since
+    // the other threads could keep placing more Service objects in the queue, and this could cause a stall in the
+    // main thread.
 
-	for(uint32 i = 0; i < serviceCount; i++)
-	{
-		// Grab our next Service to process
-		service = mServiceProcessQueue.pop();
-	
-		if(service)
-		{
-			service->Process();
-			service->setQueued(false);
-		}
-	}
-	
+    Service*	service = 0;
+    uint32		serviceCount = mServiceProcessQueue.size();
+
+    for(uint32 i = 0; i < serviceCount; i++)
+    {
+        // Grab our next Service to process
+        service = mServiceProcessQueue.pop();
+
+        if(service)
+        {
+            service->Process();
+            service->setQueued(false);
+        }
+    }
+
 }
 
 
@@ -83,27 +83,27 @@ void NetworkManager::Process(void)
 
 Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHeapSize,  bool serverservice)
 {
-	Service* newService = 0;
+    Service* newService = 0;
 
-	newService = new Service(this, serverservice, mServiceIdIndex++, address, port,mfHeapSize);
-	
-	return newService;
+    newService = new Service(this, serverservice, mServiceIdIndex++, address, port,mfHeapSize);
+
+    return newService;
 }
 
 //======================================================================================================================
 
 void NetworkManager::DestroyService(Service* service)
 {
-	delete(service);
+    delete(service);
 }
 
 //======================================================================================================================
 
 Client* NetworkManager::Connect(void)
 {
-	Client* newClient = 0;
+    Client* newClient = 0;
 
-	return newClient;
+    return newClient;
 }
 
 //======================================================================================================================

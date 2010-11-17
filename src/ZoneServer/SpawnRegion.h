@@ -44,26 +44,26 @@ class SpawnRegion : public RegionObject
 	friend class SpawnRegionFactory;
 	friend class MissionSpawnRegionFactory;
 
-	public:
+public:
 
-		SpawnRegion();
-		virtual ~SpawnRegion();
+	SpawnRegion();
+	virtual ~SpawnRegion();
 
-		uint32			getSpawnType(){ return mSpawnType; }
-		void			setSpawnType(uint32 type){ mSpawnType = type; }
-		bool			isMission(){return (mMission != 0);}
+	uint32			getSpawnType(){ return mSpawnType; }
+	void			setSpawnType(uint32 type){ mSpawnType = type; }
+	bool			isMission(){return (mMission != 0);}
 
-		virtual void	update();
-		virtual void	onObjectEnter(Object* object);
-		virtual void	onObjectLeave(Object* object);
+	virtual void	update();
+	virtual void	onObjectEnter(Object* object);
+	virtual void	onObjectLeave(Object* object);
 
-	protected:
+protected:
 
-		Anh_Math::Rectangle mQueryRect;
+	Anh_Math::Rectangle mQueryRect;
 
-		SpatialIndexManager*	mSIM;
-		uint32					mMission;
-		uint32					mSpawnType;
+	SpatialIndexManager*	mSIM;
+	uint32					mMission;
+	uint32					mSpawnType;
 };
 
 

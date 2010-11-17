@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_SKILL_H
 #define ANH_ZONESERVER_SKILL_H
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include <vector>
 
@@ -47,33 +48,33 @@ typedef std::vector<uint32>						SkillXpTypesList;
 
 class Skill
 {
-	friend class SkillManager;
+    friend class SkillManager;
 
-	public:
+public:
 
-		Skill();
-		~Skill();
+    Skill();
+    ~Skill();
 
-		uint32					mId;
-		string					mName;
-		uint8					mGodOnly;
-		uint8					mIsSearchable;
-		uint8					mIsTitle;
-		uint8					mIsProfession;
-		int32					mMoneyRequired;
-		uint8					mSkillPointsRequired;
-		uint8					mJediStateRequired;
-		uint8					mXpType;
-		int32					mXpCost;
-		int32					mXpCap;
-		int32					mBadgeId;
-		SpeciesList				mSpeciesRequired;
-		SkillCommandList		mCommands;
-		SkillModsList			mSkillMods;
-		SchematicGroupsList		mSchematics;
-		SkillsPreclusionsList	mSkillPrecusions;
-		SkillsRequiredList		mSkillsRequired;
-		SkillXpTypesList		mSkillXpTypesList;
+    uint32					mId;
+    BString					mName;
+    uint8					mGodOnly;
+    uint8					mIsSearchable;
+    uint8					mIsTitle;
+    uint8					mIsProfession;
+    int32					mMoneyRequired;
+    uint8					mSkillPointsRequired;
+    uint8					mJediStateRequired;
+    uint8					mXpType;
+    int32					mXpCost;
+    int32					mXpCap;
+    int32					mBadgeId;
+    SpeciesList				mSpeciesRequired;
+    SkillCommandList		mCommands;
+    SkillModsList			mSkillMods;
+    SchematicGroupsList		mSchematics;
+    SkillsPreclusionsList	mSkillPrecusions;
+    SkillsRequiredList		mSkillsRequired;
+    SkillXpTypesList		mSkillXpTypesList;
 };
 
 //======================================================================

@@ -32,70 +32,76 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "Object.h"
 #include "Weapon.h"
-#include "LogManager/LogManager.h"
 #include "WorldManager.h"
+
+// Fix for issues with glog redefining this constant
+#ifdef _WIN32
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
 
 //=============================================================================
 
 EquipManager::EquipManager() :
-mDefaultWeapon(NULL)
+    mDefaultWeapon(NULL)
 {
-	mEquipSlots = 0;
+    mEquipSlots = 0;
 }
 
 //=============================================================================
 
 EquipManager::~EquipManager()
 {
-	ObjectList* objList = getEquippedObjects();
-	ObjectList::iterator it = objList->begin();
+    ObjectList* objList = getEquippedObjects();
+    ObjectList::iterator it = objList->begin();
 
-	while(it != objList->end())
-	{
-		if(gWorldManager->existObject((*it)))
-		{
-			gWorldManager->destroyObject((*it));
-		}
-		else
-		{
-			delete (*it);
-		}
-		it++;
-	}
+    while(it != objList->end())
+    {
+        if(gWorldManager->existObject((*it)))
+        {
+            gWorldManager->destroyObject((*it));
+        }
+        else
+        {
+            SAFE_DELETE(*it);
+        }
+        it++;
+    }
 
-	delete objList;
+    delete objList;
 
-	mSlotMap.clear();
-	mObjectMap.clear();
+    mSlotMap.clear();
+    mObjectMap.clear();
 }
 
 ObjectList* EquipManager::getEquippedObjects()
 {
-	ObjectList* result = new ObjectList();
-	ObjectSlotMap::iterator it = mObjectMap.begin();
+    ObjectList* result = new ObjectList();
+    ObjectSlotMap::iterator it = mObjectMap.begin();
 
-	while(it != mObjectMap.end())
-	{
-		ObjectList::iterator ot = result->begin();
+    while(it != mObjectMap.end())
+    {
+        ObjectList::iterator ot = result->begin();
 
-		bool hasObject = false;
-		while(ot != result->end())
-		{
-			if((*ot) == (*it).first)
-			{
-				hasObject = true;
-			}
-			ot++;
-		}
+        bool hasObject = false;
+        while(ot != result->end())
+        {
+            if((*ot) == (*it).first)
+            {
+                hasObject = true;
+            }
+            ot++;
+        }
 
-		if(!hasObject)
-			result->push_front(it->first);
+        if(!hasObject)
+            result->push_front(it->first);
 
 
-		it++;
-	}
+        it++;
+    }
 
-	return result;
+    return result;
 }
 
 
@@ -108,7 +114,7 @@ ObjectList* EquipManager::getEquippedObjects()
 
 uint8 EquipManager::removeEquippedObject(Object* object)
 {
-	return removeEquippedObject(object->getEquipSlotMask());
+    return removeEquippedObject(object->getEquipSlotMask());
 }
 
 //=============================================================================
@@ -118,33 +124,33 @@ uint8 EquipManager::removeEquippedObject(Object* object)
 
 uint8 EquipManager::removeEquippedObject(uint64 slotMask)
 {
-	uint8 occurance = 0;
+    uint8 occurance = 0;
 
-	for(uint64 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
-	{
-		if((slotMask & slot) == slot)
-		{
-			SlotMap::iterator	it = mSlotMap.find((CreatureEquipSlot)slot);
+    for(uint64 slot = 1; slot < CREATURE_MAX_SLOT; slot = slot << 1)
+    {
+        if((slotMask & slot) == slot)
+        {
+            SlotMap::iterator	it = mSlotMap.find((CreatureEquipSlot)slot);
 
-			if(it != mSlotMap.end())
-			{
-				Object*	object = (*it).second;
+            if(it != mSlotMap.end())
+            {
+                Object*	object = (*it).second;
 
-				freeEquipSlot((CreatureEquipSlot)slot);
+                freeEquipSlot((CreatureEquipSlot)slot);
 
-				mSlotMap.erase(it);
+                mSlotMap.erase(it);
 
-				ObjectSlotMap::iterator ot = mObjectMap.find(object);
-				if(ot != mObjectMap.end())
-					mObjectMap.erase(ot);
+                ObjectSlotMap::iterator ot = mObjectMap.find(object);
+                if(ot != mObjectMap.end())
+                    mObjectMap.erase(ot);
 
-				++occurance;
-			}
+                ++occurance;
+            }
 
-		}
-	}
+        }
+    }
 
-	return(occurance);
+    return(occurance);
 }
 
 //=============================================================================
@@ -154,14 +160,19 @@ uint8 EquipManager::removeEquippedObject(uint64 slotMask)
 
 Object* EquipManager::getEquippedObject(CreatureEquipSlot slot)
 {
-	SlotMap::iterator it = mSlotMap.find(slot);
+    if(!slot || mSlotMap.empty()) { //Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627004133-026ea7b07136cfad7a5463216da5ab96
+        //gLogger->log(LogManager::WARNING,"EquipManager::getEquippedObject could not locate slot given(%u), or the SlotMap was empty.",slot);
+        //slotmap is regularly empty when we test for the left hand slot in the playerobjectfactory
+        return(NULL);
+    }
+    SlotMap::iterator it = mSlotMap.find(slot);
 
-	if(it != mSlotMap.end())
-	{
-		return((*it).second);
-	}
+    if(it != mSlotMap.end())
+    {
+        return((*it).second);
+    }
 
-	return(NULL);
+    return(NULL);
 }
 
 /*
@@ -181,12 +192,12 @@ bool EquipManager::checkEquipObject(Object* object)
 //=============================================================================
 //
 // add an object according to its slot definitions, remove objects with slot conflicts
-// the return is irrelevant as it does permanent changes anyway
+// the return is NOT irrelevant as it might not have a valid slot attached
 
 bool EquipManager::addEquippedObject(Object* object)
 {
-	addEquippedObject(object->getEquipSlotMask(), object);
-	return(true);
+    int8 result = addEquippedObject(object->getEquipSlotMask(), object);
+    return(result != 0);
 }
 
 //=============================================================================
@@ -196,100 +207,98 @@ bool EquipManager::addEquippedObject(Object* object)
 
 uint8 EquipManager::addEquippedObject(uint64 slotMask,Object* object)
 {
-	SlotMap::iterator	it;
-	ObjectSlotMap::iterator ot;
-	uint8			occurance = 0;
+    SlotMap::iterator	it;
+    ObjectSlotMap::iterator ot;
+    uint8			occurance = 0;
 
-	for(uint64 slot = 1; slot < CREATURE_MAX_SLOT;slot = slot << 1)
-	{
-		if((slotMask & slot) == slot)
-		{
-			// free the occupied slot(s)
-			it = mSlotMap.find((CreatureEquipSlot)slot);
-			if(it != mSlotMap.end())
-			{
-				ot = mObjectMap.find(it->second);
+    for(uint64 slot = 1; slot < CREATURE_MAX_SLOT; slot = slot << 1)
+    {
+        if((slotMask & slot) == slot)
+        {
+            // free the occupied slot(s)
+            it = mSlotMap.find((CreatureEquipSlot)slot);
+            if(it != mSlotMap.end())
+            {
+                ot = mObjectMap.find(it->second);
 
-				//Correct the First Map
-				it->second = object;
+                //Correct the First Map
+                it->second = object;
 
-				//Correct th Second Map
-				mObjectMap.erase(ot);
-				mObjectMap.insert(std::make_pair(object, (CreatureEquipSlot)slot));
+                //Correct th Second Map
+                mObjectMap.erase(ot);
+                mObjectMap.insert(std::make_pair(object, (CreatureEquipSlot)slot));
 
-				++occurance;
-			}
-			else
-			{
-				mSlotMap.insert(std::make_pair((CreatureEquipSlot)slot, object));
-				mObjectMap.insert(std::make_pair(object, (CreatureEquipSlot)slot));
-			}
-		}
-	}
+                ++occurance;
+            }
+            else
+            {
+                mSlotMap.insert(std::make_pair((CreatureEquipSlot)slot, object));
+                mObjectMap.insert(std::make_pair(object, (CreatureEquipSlot)slot));
+            }
+        }
+    }
 
-	return(occurance);
+    return(occurance);
 }
 
 //=============================================================================
 bool EquipManager::equipDefaultWeapon()
 {
-	// make sure slot is empty
-	if(getEquippedObject(CreatureEquipSlot_Hold_Left))
-	{
-		return(false);
-		//removeEquippedObject(CreatureEquipSlot_Weapon);
-	}
+    // make sure slot is empty
+    if(getEquippedObject(CreatureEquipSlot_Hold_Left))
+    {
+        return(false);
+        //removeEquippedObject(CreatureEquipSlot_Weapon);
+    }
 
-	// equip the default weapon
-	addEquippedObject(CreatureEquipSlot_Hold_Left,mDefaultWeapon);
-	return(true);
+    // equip the default weapon
+    addEquippedObject(CreatureEquipSlot_Hold_Left,mDefaultWeapon);
+    return(true);
 }
 
 //=============================================================================
 
 bool EquipManager::EquipItem(Object* object)
 {
-	if(!CheckEquipable(object))
-		return false;
-	
-	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (getParent());
-	Item* item = dynamic_cast<Item*>(object);
+    if(!CheckEquipable(object))
+        return false;
 
-	if(!item || !owner)
-		return false;
+    PlayerObject*	owner		= dynamic_cast<PlayerObject*> (getParent());
+    Item* item = dynamic_cast<Item*>(object);
 
-	addEquippedObject(object);
+    if(!item || !owner)
+        return false;
 
-	//equipped objects are always contained by the Player
-	//unequipped ones by the inventory!
+    addEquippedObject(object);
 
 	//Update the Equipped List
 	gMessageLib->sendEquippedListUpdate_InRange(owner);
 
-	// weapon update
-	if(item->getItemFamily() == ItemFamily_Weapon)
-	{
-		gMessageLib->sendWeaponIdUpdate(owner);
-	}
+    // weapon update
+    if(item->getItemFamily() == ItemFamily_Weapon)
+    {
+        gMessageLib->sendWeaponIdUpdate(owner);
+    }
 
-	return true;
+    return true;
 }
 
 //=============================================================================
 
 bool EquipManager::unEquipItem(Object* object)
 {
+
 	Item* item = dynamic_cast<Item*>(object);
 	if(!item)
 	{
-		gLogger->log(LogManager::DEBUG,"Inventory::unEquipItem : No Item object ID : %"PRIu64"",object->getId());
+		DLOG(WARNING) << "Inventory::unEquipItem : No Item object ID : " << object->getId();
 		return false;
 	}
 
 	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (this->getParent());
 	if(!owner)
 	{
-		gLogger->log(LogManager::DEBUG,"Inventory::unEquipItem : No one has it equipped");
+		DLOG(WARNING) << "Inventory::unEquipItem : No one has it equipped";
 		return false;
 	}
 
@@ -337,63 +346,61 @@ bool EquipManager::unEquipItem(Object* object)
 
 bool EquipManager::CheckEquipable(Object* object)
 {
-	Item* item = dynamic_cast<Item*>(object);
-	PlayerObject*	owner		= dynamic_cast<PlayerObject*> (getParent());
+    Item* item = dynamic_cast<Item*>(object);
+    PlayerObject*	owner		= dynamic_cast<PlayerObject*> (getParent());
 
-	if(!item)
-	{
-		gLogger->log(LogManager::DEBUG,"Inventory::EquipItem : No Item object ID : %I64u",object->getId());
-		return(false);
-	}
-	
-	if(!owner)
-	{
-		gLogger->log(LogManager::DEBUG,"Inventory::EquipItem : No owner");
-		return(false);
-	}
-	
-	// don't equip music instruments or weapons while performing
+    if(!item)
+    {
+        return(false);
+    }
 
-	if((owner->getPerformingState())&&((item->getItemFamily() == ItemFamily_Instrument) || (item->getItemFamily() == ItemFamily_Weapon)))
-	{
-		return(false);
-	}
+    if(!owner)
+    {
+        return(false);
+    }
 
-	// check items equip restrictions, first check race and gender
-	uint64 filter1 = item->getEquipRestrictions() & 0xFFF;
-	uint64 filter2 = owner->getRaceGenderMask() & 0xFFF;
+    // don't equip music instruments or weapons while performing
 
-	if((filter1 & filter2) != filter2)
-	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
-		return(false);
-	}
+    if((owner->getPerformingState())&&((item->getItemFamily() == ItemFamily_Instrument) || (item->getItemFamily() == ItemFamily_Weapon)))
+    {
+        return(false);
+    }
 
-	// then check, if we need to be jedi
-	filter1 = item->getEquipRestrictions() & 0xF000;
-	filter2 = owner->getRaceGenderMask() & 0xF000;
+    // check items equip restrictions, first check race and gender
+    uint64 filter1 = item->getEquipRestrictions() & 0xFFF;
+    uint64 filter2 = owner->getRaceGenderMask() & 0xFFF;
 
-	if(filter1 && !filter2)
-	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
-		return(false);
-	}
+    if((filter1 & filter2) != filter2)
+    {
+        gMessageLib->SendSystemMessage(L"You can't equip this item.", owner);
+        return(false);
+    }
 
-	// then faction
-	filter1 = item->getEquipRestrictions() & 0xF0000;
+    // then check, if we need to be jedi
+    filter1 = item->getEquipRestrictions() & 0xF000;
+    filter2 = owner->getRaceGenderMask() & 0xF000;
 
-	if((filter1 == 0x10000 && strcmp(owner->getFaction().getAnsi(),"rebel") != 0)
-	|| (filter1 == 0x20000 && strcmp(owner->getFaction().getAnsi(),"imperial") != 0))
-	{
-		gMessageLib->sendSystemMessage(owner,L"You can't equip this item.");
-		return(false);
-	}
+    if(filter1 && !filter2)
+    {
+        gMessageLib->SendSystemMessage(L"You can't equip this item.", owner);
+        return(false);
+    }
 
-	uint64 filter3 = CreatureEquipSlot_Datapad & CreatureEquipSlot_Bank & CreatureEquipSlot_Inventory & CreatureEquipSlot_Mission;
-	if(filter3 && item->getEquipSlotMask())
-	{
-		gMessageLib->sendSystemMessage(owner,L"Attention!!! the Equip - BitMask is messedup.");
-		return(false);
-	}
-	return true;
+    // then faction
+    filter1 = item->getEquipRestrictions() & 0xF0000;
+
+    if((filter1 == 0x10000 && strcmp(owner->getFaction().getAnsi(),"rebel") != 0)
+            || (filter1 == 0x20000 && strcmp(owner->getFaction().getAnsi(),"imperial") != 0))
+    {
+        gMessageLib->SendSystemMessage(L"You can't equip this item.", owner);
+        return(false);
+    }
+
+    uint64 filter3 = CreatureEquipSlot_Datapad & CreatureEquipSlot_Bank & CreatureEquipSlot_Inventory & CreatureEquipSlot_Mission;
+    if(filter3 && item->getEquipSlotMask())
+    {
+        gMessageLib->SendSystemMessage(L"Attention!!! the Equip - BitMask is messedup.", owner);
+        return(false);
+    }
+    return true;
 }

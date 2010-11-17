@@ -41,18 +41,20 @@ typedef std::vector<BuildingObject*> BuildingList;
 
 class UICloneSelectListBox : public UIListBox
 {
-	public:
+public:
 
-		UICloneSelectListBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,BuildingList buildingList,PlayerObject* playerObject,uint8 lbType)
-			: UIListBox(callback,id,SUI_Window_CloneSelect_ListBox,eventStr,caption,prompt,dataItems,playerObject,lbType), mBuildingList(buildingList) {}
+    UICloneSelectListBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,BuildingList buildingList,PlayerObject* playerObject,uint8 lbType)
+        : UIListBox(callback,id,SUI_Window_CloneSelect_ListBox,eventStr,caption,prompt,dataItems,playerObject,lbType), mBuildingList(buildingList) {}
 
-		virtual			~UICloneSelectListBox(){}
+    virtual			~UICloneSelectListBox() {}
 
-		BuildingList*	getBuildingList(){ return &mBuildingList; }
+    BuildingList*	getBuildingList() {
+        return &mBuildingList;
+    }
 
-	private:
+private:
 
-		BuildingList	mBuildingList;
+    BuildingList	mBuildingList;
 };
 
 

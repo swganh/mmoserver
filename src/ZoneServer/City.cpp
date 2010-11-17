@@ -33,8 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 City::City() : RegionObject()
 {
-	mActive		= false;
-	mRegionType = Region_City;
+    mActive		= false;
+    mRegionType = Region_City;
 }
 
 //=============================================================================
@@ -47,26 +47,25 @@ City::~City()
 
 void City::update()
 {
-
 }
 
 //=============================================================================
 
 void City::onObjectEnter(Object* object)
 {
-	PlayerObject* player = (PlayerObject*)object;
-	//player->setCityRegionId(this->getId());
+    PlayerObject* player = (PlayerObject*)object;
+    //player->setCityRegionId(this->getId());
 
 	addVisitor(object);
 
-	gLogger->log(LogManager::INFORMATION,"%s entered %s (%u players in city)",player->getFirstName().getAnsi(),mCityName.getAnsi(),mVisitingPlayers.size());
+	DLOG(INFO) << player->getFirstName().getAnsi() << " entered " 
+        << mCityName.getAnsi() << " (" << mVisitingPlayers.size() << " players in city)";
 }
 
 //=============================================================================
 
 void City::onObjectLeave(Object* object)
 {
-
 	PlayerObject* player = (PlayerObject*)object;
 
 	//if(player->getCityRegionId() == this->getId())
@@ -74,8 +73,7 @@ void City::onObjectLeave(Object* object)
 
 	removeVisitor(object);
 
-	gLogger->log(LogManager::DEBUG,"%s left %s (%u players in city)",player->getFirstName().getAnsi(),mCityName.getAnsi(),mVisitingPlayers.size());
+	DLOG(INFO) << player->getFirstName().getAnsi() << " left " 
+        << mCityName.getAnsi() << " (" << mVisitingPlayers.size() << " players in city)";
 }
-
-//=============================================================================
 

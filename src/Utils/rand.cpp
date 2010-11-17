@@ -60,6 +60,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  and is highly recommended for speed and simplicity.
  */
 
+#include <stdlib.h>
+#include <assert.h>
+
+#include "rand.h"
+#include "clock.h"
+
 static unsigned int mwc1616_x = 1;
 static unsigned int mwc1616_y = 2;
 
@@ -74,12 +80,6 @@ unsigned int rand_mwc1616(void) {
     return (mwc1616_x<<16)+(mwc1616_y&0xffff);
 }
 
-#include <stdlib.h>
-#include <assert.h>
-
-#include "rand.h"
-#include "clock.h"
-
 //======================================================================================================================
 
 Anh_Utils::Random*	Anh_Utils::Random::mSingleton = NULL;
@@ -88,12 +88,12 @@ Anh_Utils::Random*	Anh_Utils::Random::mSingleton = NULL;
 
 Anh_Utils::Random* Anh_Utils::Random::getSingleton()
 {
-	if (!mSingleton)
-	{
-		mSingleton = new Anh_Utils::Random();
-		srand((uint32)(Anh_Utils::Clock::getSingleton()->getLocalTime()));
-	}
-	return mSingleton;
+    if (!mSingleton)
+    {
+        mSingleton = new Anh_Utils::Random();
+        srand((uint32)(Anh_Utils::Clock::getSingleton()->getLocalTime()));
+    }
+    return mSingleton;
 }
 
 //==============================================================================================================================
@@ -111,7 +111,7 @@ Anh_Utils::Random::~Random()
 
 void Anh_Utils::Random::seedRand(const uint32 seed) const
 {
-	srand(seed);
+    srand(seed);
 }
 
 //======================================================================================================================

@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <vector>
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "Conversation.h"
 
@@ -42,55 +43,79 @@ class PlayerObject;
 
 class ActiveConversation
 {
-	public:
+public:
 
-		ActiveConversation(Conversation* baseConv,PlayerObject* player,NPCObject* npc);
-		~ActiveConversation();
+    ActiveConversation(Conversation* baseConv,PlayerObject* player,NPCObject* npc);
+    ~ActiveConversation();
 
-		ConversationPage*		getCurrentPage(){ return mCurrentPage; }
-		void					setCurrentPage(uint32 pageLink);
-		void					prepareFilteredOptions();
+    ConversationPage*		getCurrentPage() {
+        return mCurrentPage;
+    }
+    void					setCurrentPage(uint32 pageLink);
+    void					prepareFilteredOptions();
 
-		void					updateCurrentPage(uint32 selectId);
-		bool					preProcessConversation();
-		void					postProcessCurrentPage();
-		
+    void					updateCurrentPage(uint32 selectId);
+    bool					preProcessConversation();
+    void					postProcessCurrentPage();
 
-		ConversationOptions*	getFilteredOptions(){ return &mSelectOptionMap; }
 
-		NPCObject*				getNpc(){ return mNpc; }
+    ConversationOptions*	getFilteredOptions() {
+        return &mSelectOptionMap;
+    }
 
-		int32					getDI(){ return mDI; }
-		string					getTTStfFile(){ return mTTStfFile; }
-		string					getTTStfVariable(){ return mTTStfVariable; }
-		string					getTTCustom(){ return mTTCustom; }
-		uint64					getTTId(){ return mTTId; }
-		string					getTOStfFile(){ return mTOStfFile; }
-		string					getTOStfVariable(){ return mTOStfVariable; }
-		string					getTOCustom(){ return mTOCustom; }
-		uint64					getTOId(){ return mTOId; }
-		
-	private:
+    NPCObject*				getNpc() {
+        return mNpc;
+    }
 
-		// void				_prepareFilteredOptions();
+    int32					getDI() {
+        return mDI;
+    }
+    BString					getTTStfFile() {
+        return mTTStfFile;
+    }
+    BString					getTTStfVariable() {
+        return mTTStfVariable;
+    }
+    BString					getTTCustom() {
+        return mTTCustom;
+    }
+    uint64					getTTId() {
+        return mTTId;
+    }
+    BString					getTOStfFile() {
+        return mTOStfFile;
+    }
+    BString					getTOStfVariable() {
+        return mTOStfVariable;
+    }
+    BString					getTOCustom() {
+        return mTOCustom;
+    }
+    uint64					getTOId() {
+        return mTOId;
+    }
 
-		Conversation*		mBaseConversation;
-		PlayerObject*		mPlayer;
-		NPCObject*			mNpc;
+private:
 
-		ConversationPage*	mCurrentPage;
+    // void				_prepareFilteredOptions();
 
-		ConversationOptions	mSelectOptionMap;
+    Conversation*		mBaseConversation;
+    PlayerObject*		mPlayer;
+    NPCObject*			mNpc;
 
-		int32				mDI;
-		string				mTTStfFile;
-		string				mTTStfVariable;
-		string				mTTCustom;
-		uint64				mTTId;
-		string				mTOStfFile;
-		string				mTOStfVariable;
-		string				mTOCustom;
-		uint64				mTOId;
+    ConversationPage*	mCurrentPage;
+
+    ConversationOptions	mSelectOptionMap;
+
+    int32				mDI;
+    BString				mTTStfFile;
+    BString				mTTStfVariable;
+    BString				mTTCustom;
+    uint64				mTTId;
+    BString				mTOStfFile;
+    BString				mTOStfVariable;
+    BString				mTOCustom;
+    uint64				mTOId;
 };
 
 //=============================================================================

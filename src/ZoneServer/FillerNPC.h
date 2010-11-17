@@ -38,41 +38,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class	TutorialTauntConfigData
 {
-	public:
-		int64		when;
-		uint64		tauntBasePeriodTime;
-		string		taunts[5];
+public:
+    int64		when;
+    uint64		tauntBasePeriodTime;
+    BString		taunts[5];
 };
 
 typedef std::map<uint64, TutorialTauntConfigData*>	TutorialPlayers;
 
 class FillerNPC : public NPCObject
 {
-	friend class PersistentNpcFactory;
-	friend class NonPersistentNpcFactory;
+    friend class PersistentNpcFactory;
+    friend class NonPersistentNpcFactory;
 
-	public:
+public:
 
-		FillerNPC();
-		~FillerNPC();
+    FillerNPC();
+    ~FillerNPC();
 
-		void	filterConversationOptions(ConversationPage* page,std::vector<ConversationOption*>* filteredOptions,PlayerObject* player);
-		bool	preProcessfilterConversation(ActiveConversation* av, Conversation* conversation, PlayerObject* player);
-		void	postProcessfilterConversation(ActiveConversation* av, ConversationPage* page, PlayerObject* player);
+    void	filterConversationOptions(ConversationPage* page,std::vector<ConversationOption*>* filteredOptions,PlayerObject* player);
+    bool	preProcessfilterConversation(ActiveConversation* av, Conversation* conversation, PlayerObject* player);
+    void	postProcessfilterConversation(ActiveConversation* av, ConversationPage* page, PlayerObject* player);
 
-		virtual void	handleEvents(void);
-		virtual uint64	handleState(uint64 timeOverdue);
+    virtual void	handleEvents(void);
+    virtual uint64	handleState(uint64 timeOverdue);
 
 
 
-		void	removeTutorialPlayer(uint64 playerId);
-		void	setupTutorialTaunts(uint64 playerId, uint64 baseTauntPeriod, string taunt1, string taunt2, string taunt3, string taunt4, string taunt5);
+    void	removeTutorialPlayer(uint64 playerId);
+    void	setupTutorialTaunts(uint64 playerId, uint64 baseTauntPeriod, BString taunt1, BString taunt2, BString taunt3, BString taunt4, BString taunt5);
 
-	private:
-		void	addTutorialPlayer(uint64 playerId, TutorialTauntConfigData* configData);
-		void	randomChatWithPlayer(PlayerObject* player, TutorialTauntConfigData* configData);
-		
-		TutorialPlayers		mTutorialPlayers;
+private:
+    void	addTutorialPlayer(uint64 playerId, TutorialTauntConfigData* configData);
+    void	randomChatWithPlayer(PlayerObject* player, TutorialTauntConfigData* configData);
+
+    TutorialPlayers		mTutorialPlayers;
 
 };
 

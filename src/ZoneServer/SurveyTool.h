@@ -34,24 +34,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class SurveyTool : public Item
 {
-	friend class SurveyToolObjectFactory;
+    friend class SurveyToolObjectFactory;
 
-	public:
+public:
 
-		SurveyTool();
-		virtual ~SurveyTool();
+    SurveyTool();
+    virtual ~SurveyTool();
 
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void	handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
-		void	StartUsing(PlayerObject* player);
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void	handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+    void	StartUsing(PlayerObject* player);
 
 
-	private:
+private:
 
-		void	_createRangeMenu(PlayerObject* playerObject, bool sample = false);
+    void	_createRangeMenu(PlayerObject* playerObject, bool sample = false);
 
-		bool	mSampleAfterSet;
+    bool	mSampleAfterSet;
 };
 
 //=============================================================================

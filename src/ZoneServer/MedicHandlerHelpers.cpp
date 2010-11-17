@@ -41,13 +41,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/MessageFactory.h"
-#include "Common/Message.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/Message.h"
 #include "ForageManager.h"
+
+#include "Utils/bstring.h"
 
 #ifdef WIN32
 using ::std::regex;
@@ -55,10 +56,10 @@ using ::std::smatch;
 using ::std::regex_search;
 using ::std::sregex_token_iterator;
 #else
-using ::boost::regex;
-using ::boost::smatch;
-using ::boost::regex_search;
-using ::boost::sregex_token_iterator;
+using boost::regex;
+using boost::smatch;
+using boost::regex_search;
+using boost::sregex_token_iterator;
 #endif
 
 bool			MedicHandlerHelpers::mInsFlag = false;
@@ -74,29 +75,29 @@ MedicHandlerHelpers::~MedicHandlerHelpers()
 
 std::string MedicHandlerHelpers::handleMessage(Message* message, std::string regexPattern)
 {
-	// Read the message out of the packet.
-	string tmp;
-	message->getStringUnicode16(tmp);
+    // Read the message out of the packet.
+    BString tmp;
+    message->getStringUnicode16(tmp);
 
-	// If the string has no length the message is ill-formatted, send the
-	// proper format to the client.
-	if (!tmp.getLength())
-		return "";
+    // If the string has no length the message is ill-formatted, send the
+    // proper format to the client.
+    if (!tmp.getLength())
+        return "";
 
-	// Convert the string to an ansi string for ease with the regex.
-	tmp.convert(BSTRType_ANSI);
-	std::string input_string(tmp.getAnsi());
+    // Convert the string to an ansi string for ease with the regex.
+    tmp.convert(BSTRType_ANSI);
+    std::string input_string(tmp.getAnsi());
 
-	static const regex pattern(regexPattern);
-	smatch result;
+    static const regex pattern(regexPattern);
+    smatch result;
 
-	regex_search(input_string, result, pattern);
-  
-	// Gather the results of the pattern for validation and use.
-	std::string messageType(result[1]);
-	if (messageType.length() > 0)
-	{
-		return messageType;
-	}
-	return "";
+    regex_search(input_string, result, pattern);
+
+    // Gather the results of the pattern for validation and use.
+    std::string messageType(result[1]);
+    if (messageType.length() > 0)
+    {
+        return messageType;
+    }
+    return "";
 }

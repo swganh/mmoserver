@@ -26,13 +26,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "RegionFactory.h"
+
+#ifdef _WIN32
+#undef ERROR
+#endif
+#include <glog/logging.h>
+
 #include "BadgeRegionFactory.h"
 #include "CityFactory.h"
 #include "ObjectFactoryCallback.h"
 #include "RegionObject.h"
 #include "SpawnRegionFactory.h"
 
-#include "LogManager/LogManager.h"
 #include "Utils/utils.h"
 
 #include <assert.h>
@@ -46,14 +51,14 @@ RegionFactory*		RegionFactory::mSingleton  = NULL;
 
 RegionFactory*	RegionFactory::Init(Database* database)
 {
-	if(!mInsFlag)
-	{
-		mSingleton = new RegionFactory(database);
-		mInsFlag = true;
-		return mSingleton;
-	}
-	else
-		return mSingleton;
+    if(!mInsFlag)
+    {
+        mSingleton = new RegionFactory(database);
+        mInsFlag = true;
+        return mSingleton;
+    }
+    else
+        return mSingleton;
 }
 
 //=============================================================================
@@ -69,8 +74,8 @@ RegionFactory::RegionFactory(Database* database) : FactoryBase(database)
 
 RegionFactory::~RegionFactory()
 {
-	mInsFlag = false;
-	delete(mSingleton);
+    mInsFlag = false;
+    delete(mSingleton);
 }
 
 //=============================================================================
@@ -85,7 +90,7 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
 		
 	
 		default:
-			gLogger->log(LogManager::DEBUG,"RegionFactory::requestObject Unknown Group\n");
+			DLOG(INFO) << "RegionFactory::requestObject Unknown Group\n";
 		break;
 	}
 }
@@ -97,7 +102,6 @@ void RegionFactory::releaseAllPoolsMemory()
 	mCityFactory->releaseQueryContainerPoolMemory();
 	mBadgeRegionFactory->releaseQueryContainerPoolMemory();
 	mSpawnRegionFactory->releaseQueryContainerPoolMemory();
-	
 }
 
 //=============================================================================

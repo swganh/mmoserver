@@ -82,7 +82,7 @@ ContainerManager::ContainerManager()
 // the container itself might (but must not necessarily) still be known afterwards
 // we will only destroy the contents for the client however, not the container and unregister the player
 // unRegisterPlayerFromContainer *invalidates* the knownObject / knownPlayer iterator
-void ContainerManager::unRegisterPlayerFromContainer(Object* container,PlayerObject* player)
+void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const
 {
 	//are we sure the player doesnt know the container already ???
 	if(!container->checkRegisteredWatchers(player))
@@ -151,11 +151,11 @@ void ContainerManager::SendDestroyEquippedObject(Object *removeObject)
 	CreatureObject* owner = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(removeObject->getParentId()));
 	if(!owner)
 	{
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::SendDestroyEquippedObject :: cannot find %I64u owner (%I64u)",removeObject->getId(),removeObject->getParentId());
+		DLOG(INFO) << "SpatialIndexManager::SendDestroyEquippedObject :: cannot find " << removeObject->getId() <<" owner :" << removeObject->getParentId();
 		return;
 	}
 		
-	sendToRegisteredPlayers(owner,[removeObject](PlayerObject* player)
+	sendToRegisteredPlayers(owner,[removeObject](PlayerObject* const player)
 	{
 		gMessageLib->sendDestroyObject(removeObject->getId(),player);
 	}
@@ -172,21 +172,21 @@ void ContainerManager::SendDestroyEquippedObject(Object *removeObject)
 // and containers we register to when we look inside them (containers in the maincell)
 // to register to a container we need to have the proper permissions
 
-void ContainerManager::registerPlayerToContainer(Object* container,PlayerObject* player)
+void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject* const player) const
 {
 
 	//are we sure the player doesnt know the container already ???
 	if(container->checkRegisteredWatchers(player))
 	{
 
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: Container %I64u already known to player %I64u",container->getId(),player->getId());
+		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
 		return;	
 								
 	}
 
 	if(PlayerObject* tO = dynamic_cast<PlayerObject*>(container))
 	{
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: registered player (container) %I64u to player %I64u",container->getId(),player->getId());
+		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: registered player (container) " << container->getId() <<" to player %I64u" << player->getId();
 	}
 
 	container->registerWatcher(player);
@@ -210,21 +210,21 @@ void ContainerManager::registerPlayerToContainer(Object* container,PlayerObject*
 	
 }
 
-void ContainerManager::registerPlayerToStaticContainer(Object* container,PlayerObject* player)
+void ContainerManager::registerPlayerToStaticContainer(Object* container, PlayerObject* const player) const
 {
 
 	//are we sure the player doesnt know the container already ???
 	if(container->checkRegisteredWatchers(player))
 	{
 
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: Container %I64u already known to player %I64u",container->getId(),player->getId());
+		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
 		return;	
 								
 	}
 
 	if(PlayerObject* tO = dynamic_cast<PlayerObject*>(container))
 	{
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::registerPlayerToContainer :: registered player (container) %I64u to player %I64u",container->getId(),player->getId());
+		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: registered player (container) " << container->getId() <<" to player %I64u" << player->getId();
 	}
 
 	container->registerStatic(player);
@@ -327,7 +327,7 @@ void ContainerManager::createObjectToRegisteredPlayers(Object* container,Object*
 		return;
 	}
 
-	sendToRegisteredPlayers(container,[object, this] (PlayerObject* recipient) 
+	sendToRegisteredPlayers(container,[object, this] (PlayerObject* const recipient) 
 		{
 			gSpatialIndexManager->sendCreateObject(object,recipient,false);
 		
@@ -340,10 +340,10 @@ void ContainerManager::createObjectToRegisteredPlayers(Object* container,Object*
 
 //=======================================================================
 // player / creature equipped something - update all registered listeners with the changed equiplist
-void ContainerManager::updateEquipListToRegisteredPlayers(PlayerObject* player)
+void ContainerManager::updateEquipListToRegisteredPlayers(PlayerObject* const player)
 {
 
-	sendToRegisteredPlayers(player,[player](PlayerObject* recepient)
+	sendToRegisteredPlayers(player,[player](PlayerObject* const recepient)
 		{
 			gMessageLib->sendEquippedListUpdate(player, recepient);
 		}
@@ -352,16 +352,15 @@ void ContainerManager::updateEquipListToRegisteredPlayers(PlayerObject* player)
 
 
 // sends given function to all of the containers registered watchers
-void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* player)> callback)
+void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* const player)> callback)
 {
-
-	PlayerObjectSet* knownPlayers = container->getRegisteredWatchers();
-	PlayerObjectSet::iterator it = knownPlayers->begin();
+	PlayerObjectSet registered_watchers = container->getRegisteredWatchers();
+	PlayerObjectSet::const_iterator end = registered_watchers.end();
 		
-	while(it != knownPlayers->end())
+	for(auto it = registered_watchers.begin(); it != end; ++it)
 	{
 		//create it for the registered Players
-		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
+		PlayerObject* const player = *it;
 		if(player)
 		{
 			callback(player);
@@ -370,13 +369,13 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
 		it++;
 	}
 
-	knownPlayers = container->getRegisteredStaticWatchers();
-	it = knownPlayers->begin();
-
-	while(it != knownPlayers->end())
+	registered_watchers = container->getRegisteredStaticWatchers();
+	PlayerObjectSet::const_iterator end_it = registered_watchers.end();
+		
+	for(auto it = registered_watchers.begin(); it != end_it; ++it)
 	{
 		//create it for the registered Players
-		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
+		PlayerObject* const player = *it;
 		if(player)
 		{
 			callback(player);
@@ -387,26 +386,24 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
 }
 
 // sends given function to all of the containers registered watchers
-void ContainerManager::sendToGroupedRegisteredPlayers(CreatureObject* container, std::function<void (PlayerObject* player)> callback, bool self)
+void ContainerManager::sendToGroupedRegisteredPlayers(PlayerObject* const container, std::function<void ( PlayerObject* const player)> callback, bool self)
 {
-	PlayerObject* ourSelve;
-	if(self && (ourSelve = dynamic_cast<PlayerObject*>(container)))
+	if(self && (container))
 	{
-		callback(ourSelve);
+		callback(container);
 	}
 
 	if(container->getGroupId() == 0)
 	{
 		return;
 	}
-
-	PlayerObjectSet* knownPlayers = container->getRegisteredWatchers();
-	PlayerObjectSet::iterator it = knownPlayers->begin();
+	PlayerObjectSet in_range_players = container->getRegisteredWatchers();
+	PlayerObjectSet::const_iterator end = in_range_players.end();
 		
-	while(it != knownPlayers->end())
+	for (auto it = in_range_players.begin(); it != end; ++it)
 	{
+        PlayerObject* const player = *it;
 		//create it for the registered Players
-		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
 		if(player && (player->getGroupId() == container->getGroupId()))
 		{
 			callback(player);
@@ -422,7 +419,7 @@ void ContainerManager::sendToGroupedRegisteredPlayers(CreatureObject* container,
 //
 void ContainerManager::destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf)
 {
-	sendToRegisteredPlayers(container,[container, object, this, destroyForSelf] (PlayerObject* recipient) 
+	sendToRegisteredPlayers(container,[container, object, this, destroyForSelf] (PlayerObject* const recipient) 
 		{
 			if((recipient->getId() != container->getId()) || (destroyForSelf == true))
 			{
@@ -448,19 +445,19 @@ void ContainerManager::destroyObjectToRegisteredPlayers(Object* container,uint64
 void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment)
 {
 
-	gLogger->log(LogManager::DEBUG,"SpatialIndexManager::updateObjectPlayerRegistrations :: newContainer %I64u oldContainer %I64u - update old player set",newContainer->getId(),oldContainer->getId());
+	DLOG(INFO) << "SpatialIndexManager::updateObjectPlayerRegistrations :: newContainer " <<newContainer->getId()<< " oldContainer " << oldContainer->getId() << " - update old player set";
 	//destroy for old Players that are NOT on the new list
-	sendToRegisteredPlayers(oldContainer,[oldContainer, object, this, newContainer, containment] (PlayerObject* recipient) 
+	sendToRegisteredPlayers(oldContainer,[oldContainer, object, this, newContainer, containment] (PlayerObject* const recipient) 
 		{
 			//if the watcher is still known just update the contaiment
 			if(newContainer->checkRegisteredWatchers(recipient))
 			{
-				gLogger->log(LogManager::DEBUG,"SpatialIndexManager::updateObjectPlayerRegistrations :: player %I64u still known - update containment",recipient->getId());
+				DLOG(INFO) << "SpatialIndexManager::updateObjectPlayerRegistrations :: player "<<recipient->getId()<< " still known - update containment";
 				gMessageLib->sendContainmentMessage(object->getId(),newContainer->getId(),containment,recipient);
 			}
 			else//if the watcher is not known anymore destroy us and our content
 			{
-				gLogger->log(LogManager::DEBUG,"SpatialIndexManager::updateObjectPlayerRegistrations :: player %I64u will be unknown - remove",recipient->getId());
+				DLOG(INFO) << "SpatialIndexManager::updateObjectPlayerRegistrations :: player "<<recipient->getId()<< " will be unknown - remove";
 				this->unRegisterPlayerFromContainer(object,recipient);
 
 				//destroy it for the registered Players
@@ -470,11 +467,11 @@ void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Obj
 	);
 
 	//create for all players on the new list who are NOT on the old list
-	sendToRegisteredPlayers(newContainer,[object, this, oldContainer] (PlayerObject* recipient) 
+	sendToRegisteredPlayers(newContainer,[object, this, oldContainer] (PlayerObject* const recipient) 
 		{
 			if(!oldContainer->checkRegisteredWatchers(recipient))
 			{
-				gLogger->log(LogManager::DEBUG,"SpatialIndexManager::updateObjectPlayerRegistrations :: player %I64u added - create",recipient->getId());
+				DLOG(INFO) << "SpatialIndexManager::updateObjectPlayerRegistrations :: player" <<recipient->getId()<< " added - create";
 				gSpatialIndexManager->sendCreateObject(object,recipient,false);
 		
 				//the registered object likely is a container in itself

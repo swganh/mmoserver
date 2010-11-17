@@ -37,21 +37,22 @@ class CreatureObject;
 
 class Container : public TangibleObject
 {
-	friend class ContainerObjectFactory;
+    friend class ContainerObjectFactory;
 
-	public:
+public:
 
-		Container();
-		~Container();
+    Container();
+    ~Container();
 
-		CreatureObject* getParent(){ return mParent; }
-		void		setParent(CreatureObject* creature){ mParent = creature; }
+    CreatureObject* getParent() {
+        return mParent;
+    }
+    void		setParent(CreatureObject* creature) {
+        mParent = creature;
+    }
 
-
-	private:
-		
-		CreatureObject*		mParent;
-		
+private:
+    CreatureObject*		mParent;
 };
 
 //=============================================================================

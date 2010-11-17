@@ -1,0 +1,25 @@
+FIND_PATH(GLM_INCLUDE_DIR glm/glm.hpp
+    PATH
+        $ENV{GLM_ROOT}
+        ${GLM_ROOT}
+    HINTS
+        $ENV{GLM_ROOT}
+        ${GLM_ROOT}
+        $ENV{GLM_ROOT}/include
+        ${GLM_ROOT}/include
+)
+MARK_AS_ADVANCED(GLM_INCLUDE_DIR)
+
+IF(GLM_INCLUDE_DIR)
+    SET(GLM_FOUND TRUE)
+ENDIF()
+
+IF(GLM_FOUND)
+    IF (NOT GLM_FIND_QUIETLY)
+        MESSAGE(STATUS "Found GLM")
+    ENDIF()
+ELSE()
+    IF (GLM_FIND_REQUIRED)
+        MESSAGE(FATAL_ERROR "Could not find GLM")
+    ENDIF()
+ENDIF()

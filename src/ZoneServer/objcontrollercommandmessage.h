@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_OBJCONTROLLER_COMMAND_MESSAGE_H
 
 #include "Utils/typedefs.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/MessageFactory.h"
 
 class Message;
 class ObjectControllerCmdProperties;
@@ -38,39 +38,39 @@ class ObjectControllerCmdProperties;
 
 class ObjControllerCommandMessage
 {
-	public:
+public:
 
-		ObjControllerCommandMessage(uint32 opcode,const uint64 executionTime,uint64 targetId);
+    ObjControllerCommandMessage(uint32 opcode,const uint64 executionTime,uint64 targetId);
 
-		virtual ~ObjControllerCommandMessage();
-		virtual uint32 getOpcode() const;
-		virtual void setOpcode(uint32 opcode);
-		virtual uint64 getTargetId() const;
-		virtual void setTargetId(uint32 targetId);
+    virtual ~ObjControllerCommandMessage();
+    virtual uint32 getOpcode() const;
+    virtual void setOpcode(uint32 opcode);
+    virtual uint64 getTargetId() const;
+    virtual void setTargetId(uint32 targetId);
 
-		virtual uint32	getSequence() const;
-		virtual void		setSequence(uint32 sequence);
+    virtual uint32	getSequence() const;
+    virtual void		setSequence(uint32 sequence);
 
-		virtual Message*	getData();
-		virtual void		setData(Message* message);
+    virtual Message*	getData();
+    virtual void		setData(Message* message);
 
-		virtual uint64	getExecutionTime() const;
-		virtual void		setExecutionTime(uint64 time);
+    virtual uint64	getExecutionTime() const;
+    virtual void		setExecutionTime(uint64 time);
 
-		// virtual inline uint64	getQueuesTime() const { return mQueuedTime; }
-		// virtual inline void		setQueuedTime(uint64 time){ mQueuedTime = time; }
+    // virtual inline uint64	getQueuesTime() const { return mQueuedTime; }
+    // virtual inline void		setQueuedTime(uint64 time){ mQueuedTime = time; }
 
-		virtual ObjectControllerCmdProperties*	getCmdProperties();
-		virtual void	setCmdProperties(ObjectControllerCmdProperties*	properties);
+    virtual ObjectControllerCmdProperties*	getCmdProperties();
+    virtual void	setCmdProperties(ObjectControllerCmdProperties*	properties);
 
-	protected:
-		Message*	mData;
-		ObjectControllerCmdProperties*	mProperties;
-		uint64		mExecutionTime;
-		uint64		mQueuedTime;
-		uint64		mTargetId;
-		uint32		mOpcode;
-		uint32		mSequence;
+protected:
+    Message*	mData;
+    ObjectControllerCmdProperties*	mProperties;
+    uint64		mExecutionTime;
+    uint64		mQueuedTime;
+    uint64		mTargetId;
+    uint32		mOpcode;
+    uint32		mSequence;
 };
 
 //===============================================================================================================

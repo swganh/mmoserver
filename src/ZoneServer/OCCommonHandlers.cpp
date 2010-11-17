@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#include "OCCommonHandlers.h"
 #include "Bank.h"
 #include "BankTerminal.h"
 #include "CellObject.h"
@@ -62,73 +63,82 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/clock.h"
 
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
+#include "Common/EventDispatcher.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
 #include "CraftingSession.h"
 
+#include "SwgProtocol/BurstRunEvents.h"
+#include "SwgProtocol/ObjectControllerEvents.h"
+
 #include <cassert>
+
+using ::common::IEventPtr;
+using ::common::OutOfBand;
+using ::swg_protocol::BurstRunEndEvent;
+using ::swg_protocol::BurstRunCooldownEndEvent;
+using ::swg_protocol::object_controller::PreCommandExecuteEvent;
 
 //=============================================================================
 
 void ObjectController::_handleBoardTransport(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 
-	ObjectSet		inRangeObjects;
-	float			boardingRange	= 25.0;
+    ObjectSet		inRangeObjects;
+    float			boardingRange	= 25.0;
 
-	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
-		return;
-	}
+    if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating)
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
+        return;
+    }
 
-	string str;
-	message->getStringUnicode16(str);
-	str.convert(BSTRType_ANSI);
-	str.toLower();
+    BString str;
+    message->getStringUnicode16(str);
+    str.convert(BSTRType_ANSI);
+    str.toLower();
 
-	if((str.getCrc() != BString("transport").getCrc()))
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_what_shuttle");
-		return;
-	}
+    if((str.getCrc() != BString("transport").getCrc()))
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_what_shuttle"), playerObject);
+        return;
+    }
 
-	gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC, boardingRange, true);
+    gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,ObjType_Creature | ObjType_NPC, boardingRange, true);
 
 	// iterate through the results
 	ObjectSet::iterator it = inRangeObjects.begin();
 
 	while(it != inRangeObjects.end())
 	{
-		if(Shuttle* shuttle = dynamic_cast<Shuttle*>(*it))
-		{
-			// in range check
-			if(playerObject->getParentId() !=  shuttle->getParentId())
-			{
-				gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
-				return;
-			}
+        if(Shuttle* shuttle = dynamic_cast<Shuttle*>(*it))
+        {
+            // in range check
+            if(playerObject->getParentId() !=  shuttle->getParentId())
+            {
+                gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
+                return;
+            }
 
-			if (!shuttle->availableInPort())
-			{
-				gMessageLib->sendSystemMessage(playerObject,L"","travel","shuttle_not_available");
-				return;
-			}
+            if (!shuttle->availableInPort())
+            {
+                gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "shuttle_not_available"), playerObject);
+                return;
+            }
 
-			shuttle->useShuttle(playerObject);
+            shuttle->useShuttle(playerObject);
 
-			return;
-		}
+            return;
+        }
 
-		++it;
-	}
+        ++it;
+    }
 
-	gMessageLib->sendSystemMessage(playerObject,L"","structure/structure_messages","boarding_what_shuttle");
+    gMessageLib->SendSystemMessage(::common::OutOfBand("structure/structure_messages", "boarding_what_shuttle"), playerObject);
 }
 
 //=============================================================================
@@ -145,7 +155,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 	{
 		if(glm::distance(playerObject->getWorldPosition(), itemObject->getWorldPosition()) > 10)
 		{
-			gMessageLib->sendSystemMessage(playerObject, L"", "system_msg", "out_of_range");
+			gMessageLib->SendSystemMessage(L"", playerObject, "system_msg", "out_of_range");
 			return;
 		}
 
@@ -184,30 +194,29 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 		if (!aContainer)
 		{
 			// STF: container_error_message Key: container8 does not seem to be working, using this custom string temperary.
-			gMessageLib->sendSystemMessage(playerObject, L"You do not have permission to access that container.");
+			gMessageLib->SendSystemMessage(L"You do not have permission to access that container.", playerObject);
 		}
 		else
 		{
             gMessageLib->sendOpenedContainer(targetId, playerObject);
-		}
-	}
-	else
-	{
-		gLogger->log(LogManager::NOTICE,"ObjectController::_handleOpenContainer: INVALID Object id %"PRIu64"",targetId);
-	}
+        }
+    }
+    else
+    {
+    }
 }
 
 void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	//Object*			itemObject		= gWorldManager->getObjectById(targetId);
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    //Object*			itemObject		= gWorldManager->getObjectById(targetId);
 
-	if (gWorldConfig->isTutorial())
-	{
-		playerObject->getTutorial()->containerClose(targetId);
-	}
+    if (gWorldConfig->isTutorial())
+    {
+        playerObject->getTutorial()->containerClose(targetId);
+    }
 
-	// gMessageLib->sendOpenedContainer(targetId, playerObject);
+    // gMessageLib->sendOpenedContainer(targetId, playerObject);
 }
 
 
@@ -358,7 +367,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			targetContainer = dynamic_cast<TangibleObject*>(inventory);
 		else
 		{
-			gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: TargetContainer is NULL and not an inventory :(");
+			DLOG(INFO) << "ObjController::_handleTransferItemMisc: TargetContainer is NULL and not an inventory :(";
 			return false;
 		}
 		
@@ -380,7 +389,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		{
 			// We don't allow users to place item in the container.
 			// gMessageLib->sendSystemMessage(playerObject,L"","event_perk","chest_can_not_add");
-			gMessageLib->sendSystemMessage(playerObject,L"","error_message","remove_only");
+			gMessageLib->SendSystemMessage(L"",playerObject,"error_message","remove_only");
 			return false;
 		}
 	}
@@ -427,7 +436,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 			else
 			{
 				//This container is full. 
-				gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container03");
+				gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container03");
 				return false;
 			}
 			
@@ -435,7 +444,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		else
 		{
 			//You do not have permission to access that container. 
-			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container08");
+			gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container08");
 			return false;
 		}
 
@@ -452,7 +461,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(!access)
 		{
 			//You do not have permission to access that container. 
-			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container08");
+			gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container08");
 			return false;
 		}
 		
@@ -461,7 +470,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(!fit)
 		{
 			//This container is full. 
-			gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container03");
+			gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container03");
 			return false;
 		}
 	}	
@@ -485,13 +494,12 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	if(containedContainersize >= containingContainersize)
 	{
 		//This item is too bulky to fit inside this container.
-		gMessageLib->sendSystemMessage(playerObject,L"","container_error_message","container12");
+		gMessageLib->SendSystemMessage(L"",playerObject,"container_error_message","container12");
 		return false;
 	}
 
 
 	return true;
-
 }
 
 //=============================================================================
@@ -526,7 +534,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		
 		if(!inventory->removeObject(itemObject))
 		{
-			gLogger->log(LogManager::DEBUG,"ObjectController::removeFromContainer: Internal Error could not remove  %"PRIu64" from %I64u", itemObject->getId(),inventory->getId());
+			LOG(WARNING) << "ObjectController::removeFromContainer: Internal Error could not remove  " << itemObject->getId() << " from " << inventory->getId();
 			return false;
 		}
 		
@@ -562,11 +570,10 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		(creatureInventory = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))) &&
 		(creatureInventory->getId() == itemObject->getParentId()))
 	{
-		gLogger->log(LogManager::DEBUG,"Transfer item from creature inventory to player inventory (looting)");
 		
 		if(!creatureInventory->removeObject(itemObject))
 		{
-			gLogger->log(LogManager::DEBUG,"ObjectController::removeFromContainer: Internal Error could not remove  %"PRIu64" from creature inventory %I64u", itemObject->getId(),creatureInventory->getId());
+			LOG(WARNING) << "ObjectController::removeFromContainer: Internal Error could not remove  " <<  itemObject->getId() << " from creature inventory "  << creatureInventory->getId();
 			return false;
 		}
 
@@ -592,8 +599,6 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	CellObject* cell;
 	if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(itemObject->getParentId())))
 	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: pick up from cell %"PRIu64"", itemObject->getParentId());
-		
 		// Stop playing if we pick up the (permanently placed) instrument we are playing
 		if (item && (item->getItemFamily() == ItemFamily_Instrument))
 		{
@@ -629,7 +634,6 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	}
 	
 	return false;
-
 }
 
 //	Transfer items between player inventories, containers and cells. Also handles transfer from  creature inventories (looting).
@@ -646,13 +650,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	Object*			itemObject		=	gWorldManager->getObjectById(targetId);
 	Inventory*		inventory		=	dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	string			dataStr;
+	BString			dataStr;
 	uint64			targetContainerId;
 	uint32			linkType;
 	float			x,y,z;
 	CellObject*		cell;
-
-	gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: Entered");
 
 	//gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
 
@@ -660,13 +662,13 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: Error in parameters");
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
 		return;
 	}
 
 	if (!itemObject)
 	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No Object to transfer :(");
+		DLOG(WARNING) << "ObjController::_handleTransferItemMisc: No Object to transfer :(";
 		return;
 	}
 
@@ -674,7 +676,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if(!tangible)
 	{
 		//no tagible - get out of here
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc: No tangible to transfer :(");
+		DLOG(WARNING) << "ObjController::_handleTransferItemMisc: No tangible to transfer :(";
 		return;
 	}
 
@@ -714,7 +716,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if (!targetContainerId)
 	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is 0 :(");
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is 0 :(";
 		//return;
 
 	}
@@ -727,13 +729,13 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	if(!checkTargetContainer(targetContainerId,itemObject))
 	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:TargetContainer is not valid :(");
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:TargetContainer is not valid :(";
 		return;
 	}
 
 	if(!checkContainingContainer(tangible->getParentId(), playerObject->getId()))
 	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(");
+		DLOG(INFO) << "ObjController::_handleTransferItemMisc:ContainingContainer is not allowing the transfer :(";
 		return;
 
 	}
@@ -741,7 +743,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	// Remove the object from whatever contains it.
 	if(!removeFromContainer(targetContainerId, targetId))
 	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: removeFromContainer failed :( this might be caused by looting a corpse though");
+		DLOG(INFO) << "ObjectController::_handleTransferItemMisc: removeFromContainer failed :( this might be caused by looting a corpse though";
 		return;
 	}
 
@@ -759,8 +761,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	if (cell)
 	{
 		// drop in a cell
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Drop into cell %"PRIu64"",  targetContainerId);
-		
 
 		//special case temp instrument
 		if (item&&item->getItemFamily() == ItemFamily_Instrument)
@@ -786,9 +786,9 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		
 		ResourceContainer* rc = dynamic_cast<ResourceContainer*>(itemObject);
 		if(rc)
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
+			mDatabase->executeSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
 		else
-			mDatabase->ExecuteSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
+			mDatabase->executeSqlAsync(0,0,"UPDATE items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",itemObject->getParentId(), itemObject->mDirection.x, itemObject->mDirection.y, itemObject->mDirection.z, itemObject->mDirection.w, itemObject->mPosition.x, itemObject->mPosition.y, itemObject->mPosition.z, itemObject->getId());
 
 		//take wm function at one point
 		cell->addObjectSecure(itemObject);
@@ -802,7 +802,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		//equip / unequip handles the db side, too
 		if(!player->getEquipManager()->EquipItem(item))
 		{
-			gLogger->log(LogManager::DEBUG,"ObjectController::_handleTransferItemMisc: Error equipping  %"PRIu64"",  item->getId());
+			LOG(WARNING) << "ObjectController::_handleTransferItemMisc: Error equipping  " << item->getId();
 			//panik!!!!!!
 		}
 		
@@ -821,7 +821,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 		itemObject->setParentIdIncDB(newContainer->getId());
 		return;
 	}	
-
 }
 
 
@@ -832,120 +831,120 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
-	string			dataStr;
-	BStringVector	dataElements;
-	uint16			elements;
-
-	
-	float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
-
-	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
-		return;
-	}
-	
-
-	//however we are able to use the purchaseticket command in starports
-	//without having to use a ticketvendor by just giving commandline parameters
-	//when we are *near* a ticket vendor
-
-	TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (gWorldManager->getNearestTerminal(playerObject,TanType_TravelTerminal));
-	// iterate through the results
-	
-	if((!terminal)|| (glm::distance(terminal->getWorldPosition(), playerObject->getWorldPosition()) > purchaseRange))
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","too_far");
-		return;
-	}
-
-	playerObject->setTravelPoint(terminal);
-
-	message->getStringUnicode16(dataStr);
-
-	// Have to convert BEFORE using split, since the conversion done there is removed It will assert().. evil grin...
-	// Either do the conversion HERE, or better fix the split so it handles unicoe also.
-	dataStr.convert(BSTRType_ANSI);
-
-	elements = dataStr.split(dataElements,' ');
-
-	if(elements < 4)
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","route_not_available");
-		return;
-	}
-
-	// get price and planet ids
-	TicketProperties ticketProperties;
-	gTravelMapHandler->getTicketInformation(dataElements,&ticketProperties);
-
-	if(!ticketProperties.dstPoint)
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","travel","route_not_available");
-		return;
-	}
-
-	uint8 roundTrip = 0;
-
-	if(elements > 4)
-		roundTrip = atoi(dataElements[4].getAnsi());
-
-	if(dataElements[4].getCrc() == BString("single").getCrc())
-		roundTrip = 0;
+    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    BString			dataStr;
+    BStringVector	dataElements;
+    uint16			elements;
 
 
-	//how many tickets will it be?
-	uint32 amount = 1;
-	if(roundTrip)
-		amount = 2;
+    float		purchaseRange = gWorldConfig->getConfiguration<float>("Player_TicketTerminalAccess_Distance",(float)10.0);
 
-	Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-	Bank*		bank		= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+    if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating)
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
+        return;
+    }
 
-	if(!inventory->checkSlots(static_cast<uint8>(amount)))
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","error_message","inv_full");
-		return;
-	}
 
-	if(roundTrip == 1)
-	{
-		ticketProperties.price *= 2;
-	}
+    //however we are able to use the purchaseticket command in starports
+    //without having to use a ticketvendor by just giving commandline parameters
+    //when we are *near* a ticket vendor
 
-	// update bank or inventory credits
-	if(!(inventory->updateCredits(-ticketProperties.price)))
-	{
-		if(!(bank->updateCredits(-ticketProperties.price)))
-		{
-			//gMessageLib->sendSystemMessage(entertainer,L"","travel","route_not_available");
-			gUIManager->createNewMessageBox(NULL,"ticketPurchaseFailed","The Galactic Travel Commission","You do not have enough money to complete the ticket purchase.",playerObject);
-			return;
-		}
-	}
+    TravelTerminal* terminal = dynamic_cast<TravelTerminal*> (gWorldManager->getNearestTerminal(playerObject,TanType_TravelTerminal));
+    // iterate through the results
 
-	if(playerObject->isConnected())
-	{
-		gMessageLib->sendSystemMessage(playerObject,L"","base_player","prose_pay_acct_success","money/acct_n","travelsystem",L"",ticketProperties.price);
+    if((!terminal)|| (glm::distance(terminal->mPosition, playerObject->mPosition) > purchaseRange))
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "too_far"), playerObject);
+        return;
+    }
 
-		gObjectFactory->requestNewTravelTicket(inventory,ticketProperties,inventory->getId(),99);
+    playerObject->setTravelPoint(terminal);
 
-		if(roundTrip == 1)
-		{
-			uint32 tmpId = ticketProperties.srcPlanetId;
-			TravelPoint* tmpPoint = ticketProperties.srcPoint;
+    message->getStringUnicode16(dataStr);
 
-			ticketProperties.srcPlanetId = ticketProperties.dstPlanetId;
-			ticketProperties.srcPoint = ticketProperties.dstPoint;
-			ticketProperties.dstPlanetId = static_cast<uint16>(tmpId);
-			ticketProperties.dstPoint = tmpPoint;
+    // Have to convert BEFORE using split, since the conversion done there is removed It will assert().. evil grin...
+    // Either do the conversion HERE, or better fix the split so it handles unicoe also.
+    dataStr.convert(BSTRType_ANSI);
 
-			gObjectFactory->requestNewTravelTicket(inventory,ticketProperties,inventory->getId(),99);
-		}
+    elements = dataStr.split(dataElements,' ');
 
-		gUIManager->createNewMessageBox(NULL,"handleSUI","The Galactic Travel Commission","@travel:ticket_purchase_complete",playerObject);
-	}
+    if(elements < 4)
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "route_not_available"), playerObject);
+        return;
+    }
+
+    // get price and planet ids
+    TicketProperties ticketProperties;
+    gTravelMapHandler->getTicketInformation(dataElements,&ticketProperties);
+
+    if(!ticketProperties.dstPoint)
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "route_not_available"), playerObject);
+        return;
+    }
+
+    uint8 roundTrip = 0;
+
+    if(elements > 4)
+        roundTrip = atoi(dataElements[4].getAnsi());
+
+    if(dataElements[4].getCrc() == BString("single").getCrc())
+        roundTrip = 0;
+
+
+    //how many tickets will it be?
+    uint32 amount = 1;
+    if(roundTrip)
+        amount = 2;
+
+    Inventory*	inventory	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    Bank*		bank		= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+
+    if(!inventory->checkSlots(static_cast<uint8>(amount)))
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "inv_full"), playerObject);
+        return;
+    }
+
+    if(roundTrip == 1)
+    {
+        ticketProperties.price *= 2;
+    }
+
+    // update bank or inventory credits
+    if(!(inventory->updateCredits(-ticketProperties.price)))
+    {
+        if(!(bank->updateCredits(-ticketProperties.price)))
+        {
+            //gMessageLib->sendSystemMessage(entertainer,L"","travel","route_not_available");
+            gUIManager->createNewMessageBox(NULL,"ticketPurchaseFailed","The Galactic Travel Commission","You do not have enough money to complete the ticket purchase.",playerObject);
+            return;
+        }
+    }
+
+    if(playerObject->isConnected())
+    {
+        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_pay_acct_success", "", "", "", "", "money/acct_n", "travelsystem", ticketProperties.price), playerObject);
+
+        gObjectFactory->requestNewTravelTicket(inventory,ticketProperties,inventory->getId(),99);
+
+        if(roundTrip == 1)
+        {
+            uint32 tmpId = ticketProperties.srcPlanetId;
+            TravelPoint* tmpPoint = ticketProperties.srcPoint;
+
+            ticketProperties.srcPlanetId = ticketProperties.dstPlanetId;
+            ticketProperties.srcPoint = ticketProperties.dstPoint;
+            ticketProperties.dstPlanetId = static_cast<uint16>(tmpId);
+            ticketProperties.dstPoint = tmpPoint;
+
+            gObjectFactory->requestNewTravelTicket(inventory,ticketProperties,inventory->getId(),99);
+        }
+
+        gUIManager->createNewMessageBox(NULL,"handleSUI","The Galactic Travel Commission","@travel:ticket_purchase_complete",playerObject);
+    }
 }
 
 //======================================================================================================================
@@ -955,121 +954,119 @@ void ObjectController::_handlePurchaseTicket(uint64 targetId,Message* message,Ob
 
 void ObjectController::_handleGetAttributesBatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			requestStr;
-	BStringVector	dataElements;
-	BStringVector	dataElements2;
-	uint16			elementCount;
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    BString			requestStr;
+    BStringVector	dataElements;
+    BStringVector	dataElements2;
+    uint16			elementCount;
 
 
-	message->getStringUnicode16(requestStr);
-	requestStr.convert(BSTRType_ANSI);
-	requestStr.getRawData()[requestStr.getLength()] = 0;
+    message->getStringUnicode16(requestStr);
+    requestStr.convert(BSTRType_ANSI);
+    requestStr.getRawData()[requestStr.getLength()] = 0;
 
-	elementCount = requestStr.split(dataElements,' ');
+    elementCount = requestStr.split(dataElements,' ');
 
-	if(!elementCount)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_handleAttributesBatch: Error in requestStr");
-		return;
-	}
+    if(!elementCount)
+    {
+        return;
+    }
 
-	Message* newMessage;
+    Message* newMessage;
 
-	for(uint16 i = 0;i < elementCount;i++)
-	{
+    for(uint16 i = 0; i < elementCount; i++)
+    {
 
-		uint64 itemId	= boost::lexical_cast<uint64>(dataElements[i].getAnsi());
-		Object* object	= gWorldManager->getObjectById(itemId);
+        uint64 itemId	= boost::lexical_cast<uint64>(dataElements[i].getAnsi());
+        Object* object	= gWorldManager->getObjectById(itemId);
 
-		if(object == NULL)
-		{
-			// could be a resource
-			Resource* resource = gResourceManager->getResourceById(itemId);
+        if(object == NULL)
+        {
+            // could be a resource
+            Resource* resource = gResourceManager->getResourceById(itemId);
 
-			if(resource != NULL)
-			{
-				resource->sendAttributes(playerObject);
-				continue;
-			}
+            if(resource != NULL)
+            {
+                resource->sendAttributes(playerObject);
+                continue;
+            }
 
-			//could be a schematic!
-			Datapad* datapad			= playerObject->getDataPad();
-			ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(itemId);
+            //could be a schematic!
+            Datapad* datapad			= playerObject->getDataPad();
+            ManufacturingSchematic* schem	= datapad->getManufacturingSchematicById(itemId);
 
-			if(schem != NULL)
-			{
-				schem->sendAttributes(playerObject);
-				continue;
-			}
+            if(schem != NULL)
+            {
+                schem->sendAttributes(playerObject);
+                continue;
+            }
 
-			MissionObject* mission			= datapad->getMissionById(itemId);
-			if(mission != NULL)
-			{
-				mission->sendAttributes(playerObject);
-				continue;
-			}
+            MissionObject* mission			= datapad->getMissionById(itemId);
+            if(mission != NULL)
+            {
+                mission->sendAttributes(playerObject);
+                continue;
+            }
 
-			IntangibleObject* data = datapad->getDataById(itemId);
-			if(data != NULL)
-			{
-				data->sendAttributes(playerObject);
-				continue;
-			}
+            IntangibleObject* data = datapad->getDataById(itemId);
+            if(data != NULL)
+            {
+                data->sendAttributes(playerObject);
+                continue;
+            }
 
-			// TODO: check our datapad items
-			if(playerObject->isConnected())
-			{
-				// default reply for schematics
-				gMessageFactory->StartMessage();
-				gMessageFactory->addUint32(opAttributeListMessage);
-				gMessageFactory->addUint64(itemId);
-				gMessageFactory->addUint32(0);
-				//gMessageFactory->addUint16(0);
-				//gMessageFactory->addUint32(40);
+            // TODO: check our datapad items
+            if(playerObject->isConnected())
+            {
+                // default reply for schematics
+                gMessageFactory->StartMessage();
+                gMessageFactory->addUint32(opAttributeListMessage);
+                gMessageFactory->addUint64(itemId);
+                gMessageFactory->addUint32(0);
+                //gMessageFactory->addUint16(0);
+                //gMessageFactory->addUint32(40);
 
-				newMessage = gMessageFactory->EndMessage();
+                newMessage = gMessageFactory->EndMessage();
 
-				(playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 8);
-			}
+                (playerObject->getClient())->SendChannelAUnreliable(newMessage, playerObject->getAccountId(),  CR_Client, 8);
+            }
 
-			//finally, when we are crafting this could be the new item, not yet added to the worldmanager??
-			if(playerObject->getCraftingSession())
-			{
-				if(playerObject->getCraftingSession()->getItem()&&playerObject->getCraftingSession()->getItem()->getId() == itemId)
-				{
-					gLogger->log(LogManager::DEBUG,"ObjectController::_handleAttributesBatch for crafted Item: ID %I64u",itemId);
-					playerObject->getCraftingSession()->getItem()->sendAttributes(playerObject);
-				}
-			}
-		}
-		else
-		{
-			// Tutorial: I (Eru) have to do some hacks here, since I don't know how to get the info of what object the client has selected (by single click) in the Inventory.
-			if (gWorldConfig->isTutorial())
-			{
-				// Let's see if the actual object is the food item "Melon" in our inventory.
-				if (dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId() == object->getParentId())
-				{
-					//uint64 id = object->getId();
+            //finally, when we are crafting this could be the new item, not yet added to the worldmanager??
+            if(playerObject->getCraftingSession())
+            {
+                if(playerObject->getCraftingSession()->getItem()&&playerObject->getCraftingSession()->getItem()->getId() == itemId)
+                {
+                    playerObject->getCraftingSession()->getItem()->sendAttributes(playerObject);
+                }
+            }
+        }
+        else
+        {
+            // Tutorial: I (Eru) have to do some hacks here, since I don't know how to get the info of what object the client has selected (by single click) in the Inventory.
+            if (gWorldConfig->isTutorial())
+            {
+                // Let's see if the actual object is the food item "Melon" in our inventory.
+                if (dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getId() == object->getParentId())
+                {
+                    //uint64 id = object->getId();
 
-					// Is it an Item?
-					Item* item = dynamic_cast<Item*>(object);
+                    // Is it an Item?
+                    Item* item = dynamic_cast<Item*>(object);
 
-					// Check if this item is a food item.
-					if (item)
-					{
-						if (item->getItemFamily() == ItemFamily_Foods)
-						{
-							playerObject->getTutorial()->tutorialResponse("foodSelected");
-						}
-					}
-				}
-			}
+                    // Check if this item is a food item.
+                    if (item)
+                    {
+                        if (item->getItemFamily() == ItemFamily_Foods)
+                        {
+                            playerObject->getTutorial()->tutorialResponse("foodSelected");
+                        }
+                    }
+                }
+            }
 
-			object->sendAttributes(playerObject);
-		}
-	}
+            object->sendAttributes(playerObject);
+        }
+    }
 }
 
 //=============================================================================
@@ -1089,7 +1086,7 @@ void ObjectController::_handleRequestQuestTimersAndCounters(uint64 targetId,Mess
 
 void ObjectController::_handleTarget(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject* playerObject = (PlayerObject*)mObject;
+    //PlayerObject* playerObject = (PlayerObject*)mObject;
 }
 //======================================================================================================================
 //
@@ -1098,7 +1095,9 @@ void ObjectController::_handleTarget(uint64 targetId,Message* message,ObjectCont
 
 void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-
+    // set locomotion
+    PlayerObject* playerObject = (PlayerObject*)mObject;
+    playerObject->states.setLocomotion(CreatureLocomotion_Standing);
 }
 
 //======================================================================================================================
@@ -1108,27 +1107,27 @@ void ObjectController::_endBurstRun(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
-	string			skillStr;
+    PlayerObject*	player		= dynamic_cast<PlayerObject*>(mObject);
+    BString			skillStr;
 
-	message->getStringUnicode16(skillStr);
-	skillStr.convert(BSTRType_ANSI);
+    message->getStringUnicode16(skillStr);
+    skillStr.convert(BSTRType_ANSI);
 
-	if(!(skillStr.getLength()))
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::handleSurrenderSkill: no skillname\n");
-		return;
-	}
+    if(!(skillStr.getLength()))
+    {
+        DLOG(INFO) << "ObjectController::handleSurrenderSkill: no skillname";
+        return;
+    }
 
-	Skill* skill = gSkillManager->getSkillByName(skillStr.getAnsi());
+    Skill* skill = gSkillManager->getSkillByName(skillStr.getAnsi());
 
-	if(skill == NULL)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::handleSurrenderSkill: could not find skill %s",skillStr.getAnsi());
-		return;
-	}
+    if(skill == NULL)
+    {
+        DLOG(INFO)<<"ObjectController::handleSurrenderSkill: could not find skill " << skillStr.getAnsi();
+        return;
+    }
 
-	gSkillManager->dropSkill(skill->mId,player);
+    gSkillManager->dropSkill(skill->mId,player);
 }
 
 //======================================================================================================================
@@ -1138,7 +1137,7 @@ void ObjectController::_handleSurrenderSkill(uint64 targetId,Message* message,Ob
 
 void ObjectController::_handleClientQualifiedForSkill(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//gLogger->hexDump(message->getData(),message->getSize());
+    //gLogger->hexDump(message->getData(),message->getSize());
 }
 
 
@@ -1149,117 +1148,124 @@ void ObjectController::_handleClientQualifiedForSkill(uint64 targetId,Message* m
 
 void ObjectController::handleObjectMenuRequest(Message* message)
 {
-	//for ever item where we request a radial the client starts by displaying a radial on his own and additionally sends a
-	//objectMenuRequest to the server
-	//The server then either just resends the radial as send by the client or adds / modifies options on his own
-	//this is why sometimes when lag is involved it takes some time for all options to display
+    //for ever item where we request a radial the client starts by displaying a radial on his own and additionally sends a
+    //objectMenuRequest to the server
+    //The server then either just resends the radial as send by the client or adds / modifies options on his own
+    //this is why sometimes when lag is involved it takes some time for all options to display
 
 
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	message->getUint32(); // unknown
-	uint64 requestedObjectId = message->getUint64();
-	message->getUint64(); // player id again ?
+    message->getUint32(); // unknown
+    uint64 requestedObjectId = message->getUint64();
+    message->getUint64(); // player id again ?
 
-	Object* requestedObject = gWorldManager->getObjectById(requestedObjectId);
+    Object* requestedObject = gWorldManager->getObjectById(requestedObjectId);
 
-	uint32 itemCount = message->getUint32();
+    uint32 itemCount = message->getUint32();
 
-	string extendedDescription;
-	MenuItemList menuItemList;
+    BString extendedDescription;
+    MenuItemList menuItemList;
 
-	MenuItem* menuItem;
-	for(uint32 i = 0; i < itemCount;i++)
-	{
-		menuItem = new(MenuItem);
+    MenuItem* menuItem;
+    for(uint32 i = 0; i < itemCount; i++)
+    {
+        menuItem = new(MenuItem);
 
-		menuItem->sItem			= message->getUint8();   // item nr
-		menuItem->sSubMenu		= message->getUint8();   // submenu flag
-		menuItem->sIdentifier	= message->getUint8();   // item identifier
-		menuItem->sOption		= message->getUint8();   // extended option
-		message->getStringUnicode16(extendedDescription);
-		menuItemList.push_back(menuItem);
-	}
+        menuItem->sItem			= message->getUint8();   // item nr
+        menuItem->sSubMenu		= message->getUint8();   // submenu flag
+        menuItem->sIdentifier	= message->getUint8();   // item identifier
+        menuItem->sOption		= message->getUint8();   // extended option
+        message->getStringUnicode16(extendedDescription);
+        menuItemList.push_back(menuItem);
+    }
 
-	uint8 responseNr = message->getUint8();
+    uint8 responseNr = message->getUint8();
 
-	if(!requestedObject)
-	{
-		if(playerObject->isConnected())
-			gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
+    if(!requestedObject)
+    {
+        if(playerObject->isConnected())
+            gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
 
-		//the list is cleared and items are destroyed in the message lib
-		//for the default response
-		gLogger->log(LogManager::DEBUG,"ObjController::handleObjectMenuRequest: Couldn't find object %"PRIu64"",requestedObjectId);
-		return;
-	}
+        //the list is cleared and items are destroyed in the message lib
+        //for the default response
+        return;
+    }
 
-	requestedObject->setMenuList(&menuItemList);
-
+    requestedObject->setMenuList(&menuItemList);
 
 
-	//are we an item dropped in a structure awaiting to be moved or picked u`p?
+
+    //are we an item dropped in a structure awaiting to be moved or picked u`p?
     //just implement this virtual function for items as we need just one central point instead
-	//of the same code over and over for all items
+    //of the same code over and over for all items
 
-	Item* item = dynamic_cast<Item*>(requestedObject);
-	ResourceContainer* rc = dynamic_cast<ResourceContainer*>(requestedObject);
-	if(item && requestedObject->getParentId())
-	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
-		{
-			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
-		}
-	}
+    CellObject* itemCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId()));
 
-	if(rc && requestedObject->getParentId())
-	{
-		if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
-		{
-			requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
-		}
-	}
+    Item* item = dynamic_cast<Item*>(requestedObject);
+    ResourceContainer* rC = dynamic_cast<ResourceContainer*>(requestedObject);
+    TangibleObject* tO = dynamic_cast<TangibleObject*>(requestedObject);
 
-	//delete the radials after every use or provide every object with set rules when to delete it ?
+    //only display that menu when *we* and the item are in the same structure
+    if((rC || item) && itemCell && (!tO->getStatic()))
+    {
+        CellObject* playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
+        if(playerCell && (playerCell->getParentId() == itemCell->getParentId()))
+        {
+            PlayerStructure* pS = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(playerCell->getParentId()));
+            if(pS)
+                requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
+        }
+    }
+    /*
+    if(rc && requestedObject->getParentId())
+    {
+        if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(requestedObject->getParentId())))
+        {
+            requestedObject->prepareCustomRadialMenuInCell(playerObject,static_cast<uint8>(itemCount));
+        }
+    }
+    */
+    //delete the radials after every use or provide every object with set rules when to delete it ?
 
-	if(!requestedObject->getRadialMenu())
-		requestedObject->prepareCustomRadialMenu(playerObject,static_cast<uint8>(itemCount));
+    if(!requestedObject->getRadialMenu())
+        requestedObject->prepareCustomRadialMenu(playerObject,static_cast<uint8>(itemCount));
 
-	if (requestedObject->getRadialMenu())
-	{
-		if(playerObject->isConnected())
-		{
-			gMessageLib->sendObjectMenuResponse(requestedObject,playerObject,responseNr);
-		}
-		//they only reset if the objects virtual function does it
-		//by default it stays
-		requestedObject->ResetRadialMenu();
-		//the radial menu is supposed to be an intelligent pointer deleting itself when no reference is left
-		//however during runtime the item always references the radialmenu that was generated for it on the first call.
-		//when the circumstances of the item change we need to delete the pointer and thus force it to generate a new radial
-	}
-	else
-	{
-		// putting this for static objects/objects that are not known by the server yet
-		// send a default menu,so client stops flooding us with requests
+    if (requestedObject->getRadialMenu())
+    {
+        if(playerObject->isConnected())
+        {
+            gMessageLib->sendObjectMenuResponse(requestedObject,playerObject,responseNr);
+        }
+        //they only reset if the objects virtual function does it
+        //by default it stays
+        requestedObject->ResetRadialMenu();
+        //the radial menu is supposed to be an intelligent pointer deleting itself when no reference is left
+        //however during runtime the item always references the radialmenu that was generated for it on the first call.
+        //when the circumstances of the item change we need to delete the pointer and thus force it to generate a new radial
+    }
+    else
+    {
+        // putting this for static objects/objects that are not known by the server yet
+        // send a default menu,so client stops flooding us with requests
 
-		//empty might just mean that the clients radial is sufficient
+        //empty might just mean that the clients radial is sufficient
 
-		if(playerObject->isConnected())
-		 	gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
+        if(playerObject->isConnected())
+            gMessageLib->sendEmptyObjectMenuResponse(requestedObjectId,playerObject,responseNr,menuItemList);
 
-		//the list is cleared and items are destroyes in the message lib
-		//for the default response
-	}
+        //the list is cleared and items are destroyes in the message lib
+        //for the default response
+    }
 
 
-	//we need to clear that if the messagelib wont clear it
-	//still want to use it for the player radials at some point
-	for(MenuItemList::iterator it=menuItemList.begin(); it != menuItemList.end();it++)
-			delete (*it);
+    //we need to clear that if the messagelib wont clear it
+    //still want to use it for the player radials at some point
+    for(MenuItemList::iterator it=menuItemList.begin(); it != menuItemList.end(); it++)
+        delete (*it);
 
-	menuItemList.clear();
-	
+    menuItemList.clear();
+
 }
 
 //=============================================================================================================================
@@ -1321,22 +1327,22 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 
 void ObjectController::_handleNewbieSelectStartingLocation(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-	// gLogger->hexDump(message->getData(),message->getSize());
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    // gLogger->hexDump(message->getData(),message->getSize());
 
-	// Find the planet and position.
-	if (gWorldConfig->isTutorial())
-	{
-		string name;
-		message->getStringUnicode16(name);
+    // Find the planet and position.
+    if (gWorldConfig->isTutorial())
+    {
+        BString name;
+        message->getStringUnicode16(name);
 
-		if (!(name.getLength()))
-		{
-			return;
-		}
-		name.convert(BSTRType_ANSI);
-		player->getTutorial()->warpToStartingLocation(name);
-	}
+        if (!(name.getLength()))
+        {
+            return;
+        }
+        name.convert(BSTRType_ANSI);
+        player->getTutorial()->warpToStartingLocation(name);
+    }
 }
 
 
@@ -1348,39 +1354,37 @@ void ObjectController::_handleNewbieSelectStartingLocation(uint64 targetId,Messa
 //
 void ObjectController::_handleClientLogout(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
-	// gLogger->hexDump(message->getData(),message->getSize());
-	
-	player->togglePlayerCustomFlagOn(PlayerCustomFlag_LogOut);	
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    // gLogger->hexDump(message->getData(),message->getSize());
 
-	//// we need to kneel
-	//player->setPosture(CreaturePosture_Crouched);
-	//player->getHam()->updateRegenRates();
-	//player->toggleStateOff(CreatureState_SittingOnChair);
-	//player->updateMovementProperties();
+    //make sure we cannot use the /logout multiple times
+    //as this will invalidate our disconnect lists
+    if(player->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+    {
 
-	//gMessageLib->sendUpdateMovementProperties(player);
-	//gMessageLib->sendPostureAndStateUpdate(player);
-	//gMessageLib->sendSelfPostureUpdate(player);
+        return;
+    }
 
-	uint32 logout		= gWorldConfig->getConfiguration<uint32>("Player_LogOut_Time",(uint32)30);
-	uint32 logoutSpacer = gWorldConfig->getConfiguration<uint32>("Player_LogOut_Spacer",(uint32)5);
+    player->togglePlayerCustomFlagOn(PlayerCustomFlag_LogOut);
 
-	if(logoutSpacer > logout)
-		logoutSpacer = logout;
-	
-	if(logoutSpacer < 1)
-		logoutSpacer = 1;
+    uint32 logout		= gWorldConfig->getConfiguration<uint32>("Player_LogOut_Time",(uint32)30);
+    uint32 logoutSpacer = gWorldConfig->getConfiguration<uint32>("Player_LogOut_Spacer",(uint32)5);
 
-	if(logout < logoutSpacer)
-		logout = logoutSpacer;
+    if(logoutSpacer > logout)
+        logoutSpacer = logout;
 
-	if(logout > 300)
-		logout = 300;
+    if(logoutSpacer < 1)
+        logoutSpacer = 1;
 
-	// schedule execution
-	addEvent(new LogOutEvent(Anh_Utils::Clock::getSingleton()->getLocalTime()+((logout-logoutSpacer)*1000),logoutSpacer*1000),logoutSpacer*1000);
-	gMessageLib->sendSystemMessage(player,L"","logout","time_left","","",L"",logout);
+    if(logout < logoutSpacer)
+        logout = logoutSpacer;
+
+    if(logout > 300)
+        logout = 300;
+
+    // schedule execution
+    addEvent(new LogOutEvent(Anh_Utils::Clock::getSingleton()->getLocalTime()+((logout-logoutSpacer)*1000),logoutSpacer*1000),logoutSpacer*1000);
+    gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "time_left", 0, 0, 0, logout), player);
 
 }
 
@@ -1390,62 +1394,91 @@ void ObjectController::_handleClientLogout(uint64 targetId,Message* message,Obje
 // start burst run
 //
 
-void ObjectController::_BurstRun(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-	
-	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectControllerCmdProperties* cmd_properties) {
+    PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+    if (!player) {
+        return false;
+    }
 
-	//can we burstrun right now ??
-	if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun))
-	{
-		gMessageLib->sendSystemMessage(player,L"You are already running as hard as you can.");
-		return;
-	}
+    //can we burst run right now ??
+    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun)) {
+        gMessageLib->SendSystemMessage(L"You are already running as hard as you can.", player);
+        return false;
+    }
 
-	if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD))
-	{
-		gMessageLib->sendSystemMessage(player,L"","combat_effects","burst_run_wait");
-		return;
-	}
+    if(player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD)) {
+        gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_wait"), player);
+        return false;
+    }
 
-	uint32 actioncost = gWorldConfig->getConfiguration<uint32>("Player_BurstRun_Action",(uint32)300);
-	uint32 healthcost = gWorldConfig->getConfiguration<uint32>("Player_BurstRun_Health",(uint32)300);
-	uint32 mindcost	  = gWorldConfig->getConfiguration<uint32>("Player_BurstRun_Mind",(uint32)0);
+    // Create a pre-command processing event.
+    auto pre_execute_event = std::make_shared<PreCommandExecuteEvent>(object->getId());
+    pre_execute_event->target_id(0); // This command never has a target.
+    pre_execute_event->command_crc(cmd_properties->mCmdCrc);
 
-	if(!player->getHam()->checkMainPools(healthcost,actioncost,mindcost))
-	{
-		gMessageLib->sendSystemMessage(player,L"You cannot burst run right now."); // the stf doesn't work!
-		return;
-	}
+    // Trigger a pre-command execute event and get the result. This allows
+    // any listeners a last chance to veto the processing of the command.
+    if (!gEventDispatcher.Deliver(pre_execute_event).get()) {
+        return false;
+    }
 
-	player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(int32)actioncost,true);
-	player->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-(int32)healthcost,true);
-	player->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(int32)mindcost,true);
+    // Update the player's speed modifier.
+    player->setCurrentSpeedModifier(player->getCurrentSpeedModifier()*2);
+    gMessageLib->sendUpdateMovementProperties(player);
 
-	player->setCurrentSpeedModifier(player->getCurrentSpeedModifier()*2);
-	gMessageLib->sendUpdateMovementProperties(player);
+    // Update the player's locomotion to a running state.
+    player->states.setLocomotion(CreatureLocomotion_Running);
+    // Toggle the flags for the burst run effect and the cool-down timer on the corresponding command.
+    player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRunCD);
+    player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRun);
 
-	uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    //Send the burst run system message to the player
+    gMessageLib->SendSystemMessage(L"You run as hard as you can!", player);
 
-	uint32 br_length		= gWorldConfig->getConfiguration<uint32>("Player_BurstRun_Time",(uint32)60);
-	uint32 br_coolD			= gWorldConfig->getConfiguration<uint32>("Player_BurstRun_CoolDown",(uint32)600);
+    //Now send the burst run combat spam message to InRange
+    gMessageLib->sendCombatSpam(player, player, 0, "cbt_spam", "burstrun_start");
 
-	uint32 t = std::min<uint32>(br_length,  br_coolD);
+    // Duration of the burst run effect in seconds.
+    uint32_t effect_duration_sec = gWorldConfig->getConfiguration<uint32_t>("Player_BurstRun_Time", 60);
 
-	player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRunCD);	
-	player->togglePlayerCustomFlagOn(PlayerCustomFlag_BurstRun);	
+    // Create a delayed event for the end of the burst run and attach a custom
+    // callback to be executed 60 seconds after being triggered.
+    auto burst_end_event = std::make_shared<BurstRunEndEvent>(object->getId(), effect_duration_sec * 1000, [player] {
+        // Make sure the target for the event is still valid and that their burst run flag is still set.
+        if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRun)) {
+            // Return the player to normal movement.
+            player->setCurrentSpeedModifier(player->getBaseSpeedModifier());
+            gMessageLib->sendUpdateMovementProperties(player);
 
-	// schedule execution
-	addEvent(new BurstRunEvent(now+(br_length*1000),now+(br_coolD*1000)),t*1000);
-	
-	//Send the burst run system message to the player
-	gMessageLib->sendSystemMessage(player,L"You run as hard as you can!");
-	
-	//Now send the burst run combat spam message to InRange
-	int8 s[256];
-	sprintf(s,"%s %s puts on a sudden burst of speed.",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
-	BString bs(s);
-	bs.convert(BSTRType_Unicode16);
-	gMessageLib->sendCombatSpam(player,player,0,"","",0,0,bs.getUnicode16());
+            // Update the player's locomotion to a walking state.
+            player->states.setLocomotion(CreatureLocomotion_Walking);
+            
+            // Remove the burst run flag.
+            player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRun);
 
+            // Alert the player the burst run has ended and that they are now tired.
+            gMessageLib->SendSystemMessage(OutOfBand("cbt_spam", "burstrun_stop_single"), player);
+            gMessageLib->sendCombatSpam(player, player, 0, "cbt_spam", "burstrun_stop");
+            gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_tired"), player);
+        }
+    });
+
+    // Create a delayed event for the end of the burst run cool-down timer and attach
+    // a custom callback to be executed 6 minutes after being triggered.
+    auto burst_cooldown_end_event = std::make_shared<BurstRunCooldownEndEvent>(object->getId(), static_cast<uint64_t>(cmd_properties->mDelayMultiplier) * 1000, [player] {
+        // Make sure the target for the event is still valid and that their burst run cool-down flag is still set.
+        if(player && player->checkPlayerCustomFlag(PlayerCustomFlag_BurstRunCD)) {
+            // Turn off the burst run cool-down flag and alert the player.
+            player->togglePlayerCustomFlagOff(PlayerCustomFlag_BurstRunCD);
+            gMessageLib->SendSystemMessage(OutOfBand("combat_effects", "burst_run_not_tired"), player);
+        }
+    });
+
+    // Chain the two events together so that they are called in the appropriate order.
+    burst_end_event->next(burst_cooldown_end_event);
+
+    // Notify any curious listeners of the event.
+    gEventDispatcher.Notify(burst_end_event);
+
+    return true;
 }

@@ -29,59 +29,98 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_CHATSERVER_MAIL_H
 
 #include "Utils/typedefs.h"
+#include "Utils/bstring.h"
 
 
 //======================================================================================================================
 
 class Mail
 {
-	friend class ChatManager;
-	friend class ChatMessageLib;
+    friend class ChatManager;
+    friend class ChatMessageLib;
 
-	public:
+public:
 
-		Mail(){ mAttachments = string(BSTRType_Unicode16,2048); }
-		~Mail(){}
+    Mail() {
+        mAttachments = BString(BSTRType_Unicode16,2048);
+    }
+    ~Mail() {}
 
-		uint32	getId(){ return mId; }
-		void	setId(uint32 id){mId = id; }
+    uint32	getId() {
+        return mId;
+    }
+    void	setId(uint32 id) {
+        mId = id;
+    }
 
-		string	getSender(){ return mSender; }
-		void	setSender(const string sender){ mSender = sender; }
+    BString	getSender() {
+        return mSender;
+    }
+    void	setSender(const BString sender) {
+        mSender = sender;
+    }
 
-		string	getReceiver(){ return mReceiver; }
-		void	setReceiver(const string receiver){ mReceiver = receiver; }
+    BString	getReceiver() {
+        return mReceiver;
+    }
+    void	setReceiver(const BString receiver) {
+        mReceiver = receiver;
+    }
 
-		string	getSubject(){ return mSubject; }
-		void	setSubject(const string subject){ mSubject = subject; }
+    BString	getSubject() {
+        return mSubject;
+    }
+    void	setSubject(const BString subject) {
+        mSubject = subject;
+    }
 
-		string	getText(){ return mText; }
-		void	setText(const string text){ mText = text; }
+    BString	getText() {
+        return mText;
+    }
+    void	setText(const BString text) {
+        mText = text;
+    }
 
-		uint32	getTime(){ return mTime; }
-		void	setTime(uint32 time){ mTime = time; }
+    uint32	getTime() {
+        return mTime;
+    }
+    void	setTime(uint32 time) {
+        mTime = time;
+    }
 
-		uint8	getStatus(){ return mStatus; }
-		void	setStatus(uint8 status){ mStatus = status; }
+    uint8	getStatus() {
+        return mStatus;
+    }
+    void	setStatus(uint8 status) {
+        mStatus = status;
+    }
 
-		string	getAttachments(){ return mAttachments; }
-		void	setAttachments(const string attachments){ mAttachments = attachments; }
+    BString	getAttachments() {
+        return mAttachments;
+    }
+    void	setAttachments(const BString attachments) {
+        mAttachments = attachments;
+    }
 
-		uint32	getAttachmentSize(){ return mAttachmentSize; }
-		void	setAttachmentSize(uint32 size){ mAttachmentSize = size; }
+    uint32	getAttachmentSize() {
+        return mAttachmentSize;
+    }
+    void	setAttachmentSize(uint32 size) {
+        mAttachmentSize = size;
+    }
 
-	private:
+private:
 
-		uint32	mId;
-		string	mSender;
-		string	mReceiver;
-		string	mSubject;
-		string	mText;
-		string	mAttachments;
-		uint32	mAttachmentSize;
-		uint32	mTime;
-		uint8	mStatus;
-		char	mAttachmentRaw[2048];
+    uint32	mId;
+    BString	mSender;
+    BString	mReceiver;
+    BString	mSubject;
+    BString	mText;
+    BString	mAttachments;
+    uint32	mAttachmentSize;
+    uint32	mTime;
+    uint8	mStatus;
+    char	mAttachmentRaw[2048];
 };
 
 #endif

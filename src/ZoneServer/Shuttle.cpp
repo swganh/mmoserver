@@ -35,19 +35,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 Shuttle::Shuttle()
-: CreatureObject()
-, mAwayTime(0)
-, mInPortTime(0)
-, mLandingTime(0)
-, mTicketCollectorEnabled(false)
+    : CreatureObject()
+    , mAwayTime(0)
+    , mInPortTime(0)
+    , mLandingTime(0)
+    , mTicketCollectorEnabled(false)
 {
-	mCreoGroup		= CreoGroup_Shuttle;
-	mState			= 0;
-	mMoodId			= 0;
-	mCL				= 0;
-	mShuttleState	= ShuttleState_InPort;
-	mPvPStatus		= CreaturePvPStatus_None;
-	mFactionRank	= 0;
+    mCreoGroup		= CreoGroup_Shuttle;
+    mState			= 0;
+    mMoodId			= 0;
+    mCL				= 0;
+    mShuttleState	= ShuttleState_InPort;
+    mPvPStatus		= CreaturePvPStatus_None;
+    mFactionRank	= 0;
 }
 
 //=============================================================================
@@ -62,7 +62,7 @@ Shuttle::~Shuttle()
 //
 ShuttleState Shuttle::getShuttleState()
 {
-	return mShuttleState;
+    return mShuttleState;
 }
 
 //=============================================================================
@@ -71,120 +71,119 @@ ShuttleState Shuttle::getShuttleState()
 //
 bool Shuttle::availableInPort(void)
 {
-	string port("");
+    BString port("");
 
-	// Some shuttles are not linked to any collectors.
-	if (TicketCollector* collector = dynamic_cast<TicketCollector*>(gWorldManager->getObjectById(mTicketCollectorId)))
-	{
-		port = collector->getPortDescriptor();
-	}
-
-	return ((mShuttleState == ShuttleState_InPort) || (port.getCrc() == BString("Theed Spaceport").getCrc()));
+    // Some shuttles are not linked to any collectors.
+    if (TicketCollector* collector = dynamic_cast<TicketCollector*>(gWorldManager->getObjectById(mTicketCollectorId)))
+    {
+        port = collector->getPortDescriptor();
+    }
+    return ((mShuttleState == ShuttleState_InPort) || (port.getCrc() == BString("Theed Spaceport").getCrc()));
 }
 
 //=============================================================================
 
 void Shuttle::useShuttle(PlayerObject* playerObject)
 {
-	if(playerObject->getPosture() == CreaturePosture_SkillAnimating)
+	if(playerObject->states.getPosture() == CreaturePosture_SkillAnimating)
 	{
-		gMessageLib->sendSystemMessage(playerObject,L"", "error_message", "wrong_state");
-		return;
-	}
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
+        return;
+    }
 
-	TicketCollector* collector = dynamic_cast<TicketCollector*>(gWorldManager->getObjectById(getCollectorId()));
+    TicketCollector* collector = dynamic_cast<TicketCollector*>(gWorldManager->getObjectById(getCollectorId()));
 
-	if(!collector)
-	{
-		int8 sql[128];
-		sprintf(sql,"No ticket collector on duty error : %"PRIu64,mTicketCollectorId);
-		string u = BString(sql);
-		u.convert(BSTRType_Unicode16);
+    if(!collector)
+    {
+        int8 errmsg[128];
+        sprintf(errmsg, "No ticket collector on duty error : %"PRIu64, mTicketCollectorId);
+        BString u = BString(errmsg);
+        u.convert(BSTRType_Unicode16);
 
-		gMessageLib->sendSystemMessage(playerObject,u.getUnicode16());
+        gMessageLib->SendSystemMessage(u.getUnicode16(), playerObject);
 
-		gLogger->log(LogManager::DEBUG,sql);
+        LOG(WARNING) <<  errmsg;
 
-		return;
-	}
+        return;
+    }
 
-	ShuttleState shuttleState = mShuttleState;
+    ShuttleState shuttleState = mShuttleState;
 
-	if (availableInPort())
-	{
-		// Override Theed shuttles.
-		shuttleState = ShuttleState_InPort;
-	}
+    if (availableInPort())
+    {
+        // Override Theed shuttles.
+        shuttleState = ShuttleState_InPort;
+    }
 
-	switch(shuttleState)
-	{
-		case ShuttleState_InPort:
-		{
-			string port = collector->getPortDescriptor();
+    switch(shuttleState)
+    {
+    case ShuttleState_InPort:
+    {
+        BString port = collector->getPortDescriptor();
 
-			bool noTicket = gTravelMapHandler->findTicket(playerObject,port);
+        bool noTicket = gTravelMapHandler->findTicket(playerObject,port);
 
-			// in range check
-            if(playerObject->getParentId() != getParentId() || (glm::distance(playerObject->mPosition, mPosition) > 25.0f))
-			{
-				gMessageLib->sendSystemMessage(playerObject,L"","travel","boarding_too_far");
-				return;
-			}
+        // in range check
+        if(playerObject->getParentId() != getParentId() || (glm::distance(playerObject->mPosition, mPosition) > 25.0f))
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "boarding_too_far"), playerObject);
+            return;
+        }
 
-			if(noTicket)
-				gMessageLib->sendSystemMessage(playerObject,L"","travel","no_ticket");
-			else
-				gTravelMapHandler->createTicketSelectMenu(playerObject,this,port);
+        if(noTicket)
+            gMessageLib->SendSystemMessage(::common::OutOfBand("travel", "no_ticket"), playerObject);
+        else
+            gTravelMapHandler->createTicketSelectMenu(playerObject,this,port);
 
-		}
-		break;
+    }
+    break;
 
-		case ShuttleState_Away:
-		{
-			string	awayMsg = string(BSTRType_Unicode16,256);
-			uint32	minutes = (mAwayInterval - mAwayTime) / 60000;
-			uint32	seconds = (60000 - (mAwayTime%60000)) / 1000;
+    case ShuttleState_Away:
+    {
+        BString	awayMsg = BString(BSTRType_Unicode16,256);
+        uint32	minutes = (mAwayInterval - mAwayTime) / 60000;
+        uint32	seconds = (60000 - (mAwayTime%60000)) / 1000;
 
-			if(seconds == 60)
-				seconds = 0;
+        if(seconds == 60)
+            seconds = 0;
 
-			if(minutes > 0)
-			{
-				awayMsg.setLength(swprintf(awayMsg.getUnicode16(),80,L"The next shuttle will be ready to board in %u minutes %u seconds.",minutes,seconds));
-			}
-			else
-				awayMsg.setLength(swprintf(awayMsg.getUnicode16(),80,L"The next shuttle will be ready to board in %u seconds.",seconds));
+        if(minutes > 0)
+        {
+            awayMsg.setLength(swprintf(awayMsg.getUnicode16(),80,L"The next shuttle will be ready to board in %u minutes %u seconds.",minutes,seconds));
+        }
+        else
+            awayMsg.setLength(swprintf(awayMsg.getUnicode16(),80,L"The next shuttle will be ready to board in %u seconds.",seconds));
 
-      gMessageLib->sendSystemMessage(playerObject,awayMsg.getUnicode16());
-		}
-		break;
+        gMessageLib->SendSystemMessage(awayMsg.getUnicode16(), playerObject);
+    }
+    break;
 
-		case ShuttleState_Landing:
-		{
-			gMessageLib->sendSystemMessage(playerObject,L"The next shuttle is about to begin boarding.");
-		}
-		break;
+    case ShuttleState_Landing:
+    {
+        gMessageLib->SendSystemMessage(L"The next shuttle is about to begin boarding.", playerObject);
+    }
+    break;
 
-		case ShuttleState_AboutBoarding:
-		{
-			gMessageLib->sendSystemMessage(playerObject,L"The next shuttle is about to begin boarding.");
-		}
+    case ShuttleState_AboutBoarding:
+    {
+        gMessageLib->SendSystemMessage(L"The next shuttle is about to begin boarding.", playerObject);
+    }
 
-		default:break;
-	}
+    default:
+        break;
+    }
 }
 
 //=============================================================================
 
 bool Shuttle::ticketCollectorEnabled() const
 {
-	return mTicketCollectorEnabled;
+    return mTicketCollectorEnabled;
 }
 
 //=============================================================================
 
 void Shuttle::ticketCollectorEnable()
 {
-	mTicketCollectorEnabled = true;
+    mTicketCollectorEnabled = true;
 }
-

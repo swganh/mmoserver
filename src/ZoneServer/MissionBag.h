@@ -39,30 +39,39 @@ typedef std::list<MissionObject*>		MissionList;
 
 class MissionBag : public TangibleObject
 {
-	friend class ObjectFactory;
-	friend class PlayerObjectFactory;
+    friend class ObjectFactory;
+    friend class PlayerObjectFactory;
 
-	public:
+public:
 
-		MissionBag();
-		MissionBag(uint64 id,PlayerObject* parent,const string model,const string name = "",const string file = "");
-		~MissionBag();
+    MissionBag();
+    MissionBag(uint64 id,PlayerObject* parent,const BString model,const BString name = "",const BString file = "");
+    ~MissionBag();
 
-		void		  setParent(PlayerObject* player){ mParent = player; }
-		PlayerObject* getParent() { return mParent; }
+    void		  setParent(PlayerObject* player) {
+        mParent = player;
+    }
+    PlayerObject* getParent() {
+        return mParent;
+    }
 
-		MissionList*   getMissions(){ return &mMissions; }
-		MissionObject* getMissionById(uint64 id);
-		void		   addMission(MissionObject* mission) { mMissions.push_back(mission); mCapacity--; }
-		void		   spawnNAdd();
-		bool		   removeMission(uint64 id);
-		bool		   removeMission(MissionObject* mission);
+    MissionList*   getMissions() {
+        return &mMissions;
+    }
+    MissionObject* getMissionById(uint64 id);
+    void		   addMission(MissionObject* mission) {
+        mMissions.push_back(mission);
+        mCapacity--;
+    }
+    void		   spawnNAdd();
+    bool		   removeMission(uint64 id);
+    bool		   removeMission(MissionObject* mission);
 
-	private:
+private:
 
-		PlayerObject*	mParent;
-		MissionList		mMissions;
-		uint8			mCapacity;
+    PlayerObject*	mParent;
+    MissionList		mMissions;
+    uint8			mCapacity;
 
 };
 

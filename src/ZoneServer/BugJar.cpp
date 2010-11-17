@@ -50,7 +50,7 @@ void BugJar::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 void BugJar::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-	mRadialMenu = RadialMenuPtr(new RadialMenu());
-	mRadialMenu->addItem(1,0,radId_examine,radAction_ObjCallback,"");
-	mRadialMenu->addItem(2,0,radId_itemDestroy,radAction_ObjCallback,"");
+    mRadialMenu = RadialMenuPtr(new RadialMenu());
+    mRadialMenu->addItem(1, 0, radId_examine, radAction_ObjCallback,"");
+    mRadialMenu->addItem(2, 0, radId_itemDestroy, radAction_ObjCallback,"");
 }

@@ -45,12 +45,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "zmap.h"
 
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
 #include "Utils/clock.h"
 
 #include <cassert>
@@ -62,13 +61,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 {
-	PlayerObject*			player = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*			player = dynamic_cast<PlayerObject*>(mObject);
 
-	if (!player)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::handleDataTransform Object is NOT A PLAYER, id = %"PRIu64"", mObject->getId());
-		return;
-	}
+    if (!player)
+    {
+        return;
+    }
 
     glm::vec3		pos;
     glm::quat       dir;
@@ -107,7 +105,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	// stop entertaining ???
 	// important is, that if we move we change our posture to NOT skill animating anymore!
 	// so only stop entertaining when we are performing and NOT skillanimationg
-	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
+	if(player->getPerformingState() != PlayerPerformance_None && player->states.getPosture() != CreaturePosture_SkillAnimating)
 	{
 		gEntertainerManager->stopEntertaining(player);
 	}
@@ -129,7 +127,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		}
 		else
 		{
-			gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell(%"PRIu64")",player->getId(),player->getParentId());
 			assert(false && "cell not found");
 		}
 
@@ -147,7 +144,6 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 	}
 	
-
 	player->mDirection = dir;
 	player->setCurrentSpeed(speed);
 	player->mPosition = pos;
@@ -174,7 +170,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 		if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
 		{
 			// Terminate conversation, since we are out of range.
-			gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
+			gMessageLib->SendSystemMessage(L"",player,"system_msg","out_of_range");
 			gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
 		}
 	}
@@ -218,8 +214,8 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
 void ObjectController::handleDataTransformWithParent(Message* message,bool inRangeUpdate)
 {
-	// FIXME: for now assume we only get messages from players
-	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
+    // FIXME: for now assume we only get messages from players
+    PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
     glm::vec3       pos;
     glm::quat       dir;
 	uint32          inMoveCount;
@@ -256,7 +252,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	speed  = message->getFloat();
 
 	// stop entertaining, if we were
-	if(player->getPerformingState() != PlayerPerformance_None && player->getPosture() != CreaturePosture_SkillAnimating)
+	if(player->getPerformingState() != PlayerPerformance_None && player->states.getPosture() != CreaturePosture_SkillAnimating)
 	{
 		gEntertainerManager->stopEntertaining(player);
 	}
@@ -277,7 +273,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			}
 			else
 			{
-				gLogger->log(LogManager::DEBUG,"Error removing %"PRIu64" from cell(%"PRIu64")",player->getId(),oldParentId);
+				DLOG(INFO) << "Error removing  " << player->getId() << " from cell " << oldParentId;
 			}
 		}
 		else
@@ -288,7 +284,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
 			if (!newCell)
 			{
-				gLogger->log(LogManager::NOTICE,"Player %"PRIu64" error casting new cell cell(%"PRIu64")",player->getId(),parentId);
+				DLOG(INFO) << "Player " << player->getId() << " error casting new cell cell " << parentId;
 				assert(false);
 				return;
 			}
@@ -328,7 +324,6 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		}
 		else
 		{
-			gLogger->log(LogManager::DEBUG,"Error adding %"PRIu64" to cell(%"PRIu64")",player->getId(),parentId);
 			assert(false && "handleDataTransformWithParent::cell cannot be found");
 		}
 	}
@@ -361,7 +356,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
 		{
 			// Terminate conversation, since we are out of range.
-			gMessageLib->sendSystemMessage(player,L"","system_msg","out_of_range");
+			gMessageLib->SendSystemMessage(L"",player,"system_msg","out_of_range");
 			gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
 		}
 	}
@@ -385,37 +380,32 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 
 float ObjectController::_GetMessageHeapLoadViewingRange()
 {
-	uint32 heapWarningLevel = gMessageFactory->HeapWarningLevel();
+    uint32 heapWarningLevel = gMessageFactory->HeapWarningLevel();
 
-	if(gMessageFactory->getHeapsize() > 99.0)
-		return 16.0;
+    if(gMessageFactory->getHeapsize() > 99.0)
+        return 16.0;
 
-	//just send everything we have
-	if(heapWarningLevel < 3)
-		return (float)gWorldConfig->getPlayerViewingRange();
-	else
-	if(heapWarningLevel < 4)
-		return 96.0;
-	else
-	if (heapWarningLevel < 5)
-	{
-		return 64.0;
-	}
-	else
-	if (heapWarningLevel < 8)
-	{
-		return 32.0;
-	}
-	else
-	if (heapWarningLevel <= 10)
-	{
-		return 16.0;
-	}
-	else
-	if (heapWarningLevel > 10)
-		return 8.0;
+    //just send everything we have
+    if(heapWarningLevel < 3)
+        return (float)gWorldConfig->getPlayerViewingRange();
+    else if(heapWarningLevel < 4)
+        return 96.0;
+    else if (heapWarningLevel < 5)
+    {
+        return 64.0;
+    }
+    else if (heapWarningLevel < 8)
+    {
+        return 32.0;
+    }
+    else if (heapWarningLevel <= 10)
+    {
+        return 16.0;
+    }
+    else if (heapWarningLevel > 10)
+        return 8.0;
 
-	return (float)gWorldConfig->getPlayerViewingRange();
+    return (float)gWorldConfig->getPlayerViewingRange();
 }
 
 //=========================================================================================
@@ -424,43 +414,41 @@ float ObjectController::_GetMessageHeapLoadViewingRange()
 
 void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 {
-	/*
-	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
+    /*
+    //scale down viewing range when busy
+    float			viewingRange	= _GetMessageHeapLoadViewingRange();
 
-	//scale down viewing range when busy
-	float			viewingRange	= _GetMessageHeapLoadViewingRange();
+    // query the rtree for non moving objects/objects in buildings
+    // ObjectSet		inRangeObjects;
 
-	// query the rtree for non moving objects/objects in buildings
-	// ObjectSet		inRangeObjects;
+    // mSI->getObjectsInRange(player,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_Creature | ObjType_NPC | ObjType_Building),viewingRange);
+    // Using intersectsWithQuery(..)
+    // NOTE: THIS USEAGE OF intersectsWithQuery(..) MUST BE CHECKED, SINCE IT SEEMS THAT WE GET TO MUCH / TO MANY OBJECTS !!!
+    // mSI->getObjectsInRangeEx(player,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_Creature | ObjType_NPC | ObjType_Building),viewingRange);
 
-	// mSI->getObjectsInRange(player,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_Creature | ObjType_NPC | ObjType_Building),viewingRange);
-	// Using intersectsWithQuery(..)
-	// NOTE: THIS USEAGE OF intersectsWithQuery(..) MUST BE CHECKED, SINCE IT SEEMS THAT WE GET TO MUCH / TO MANY OBJECTS !!!
-	// mSI->getObjectsInRangeEx(player,&inRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_Creature | ObjType_NPC | ObjType_Building),viewingRange);
+    // Make Set ready,
+    mInRangeObjects.clear();
+    mObjectSetIt = mInRangeObjects.begin();	// Will point to end of Set
 
-	// Make Set ready,
-	mInRangeObjects.clear();
-	mObjectSetIt = mInRangeObjects.begin();	// Will point to end of Set
+    if(player->getSubZoneId())
+    {
+        if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
+        {
+            Anh_Math::Rectangle qRect = Anh_Math::Rectangle(player->mPosition.x - viewingRange,player->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 
-	if(player->getSubZoneId())
-	{
-		if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
-		{
-			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(player->mPosition.x - viewingRange,player->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
+            // We need to find moving creatures also...
+            region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature | ObjType_Lair , &qRect);
+        }
+    }
 
-			// We need to find moving creatures also...
-			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature | ObjType_Lair , &qRect);
-		}
-	}
+    if (updateAll)
+    {
 
-	if (updateAll)
-	{
+        // Doing this because we need the players from inside buildings too.
+        mSI->getObjectsInRangeEx(player,&mInRangeObjects,(ObjType_Player | ObjType_NPC | ObjType_Creature), viewingRange);
 
-		// Doing this because we need the players from inside buildings too.
-		mSI->getObjectsInRangeEx(player,&mInRangeObjects,(ObjType_Player | ObjType_NPC | ObjType_Creature), viewingRange);
-
-		// This may be good when we standstill.
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Building | ObjType_Lair | ObjType_Structure), viewingRange);
+        // This may be good when we standstill.
+        mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Building | ObjType_Lair | ObjType_Structure), viewingRange);
 
 	}
 
@@ -497,9 +485,9 @@ bool ObjectController::_updateInRangeObjectsOutside()
 		{
 			// send the according create for the type of object
 #if defined(_MSC_VER)
-			if (object->getId() > 0x0000000100000000)
+            if (object->getId() > 0x0000000100000000)
 #else
-			if (object->getId() > 0x0000000100000000LLU)
+            if (object->getId() > 0x0000000100000000LLU)
 #endif
 			{
 				if (object->getPrivateOwner())
@@ -692,9 +680,9 @@ bool ObjectController::_updateInRangeObjectsInside()
 			{
 				// send the according create for the type of object
 #if defined(_MSC_VER)
-				if (object->getId() > 0x0000000100000000)
+                if (object->getId() > 0x0000000100000000)
 #else
-				if (object->getId() > 0x0000000100000000LLU)
+                if (object->getId() > 0x0000000100000000LLU)
 #endif
 				{
 					//if its an instance and per chance *our* instance
@@ -895,165 +883,165 @@ bool ObjectController::_destroyOutOfRangeObjects(ObjectSet *inRangeObjects)
 //
 //	This code fulfills 2 purposes
 //	1st we do full updates of our world around us when prompted
-//	2nd when the amount of update Objects is to big (>50) this function gets revisited 
+//	2nd when the amount of update Objects is to big (>50) this function gets revisited
 //		and _updateInRangeObjectsInside updates the remaining objects
 //		UNLESS we need to force another update
 /*
 uint64 ObjectController::playerWorldUpdate(bool forcedUpdate)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(mObject);
 
-	// If we already are busy, don't start another update.
-	// ie if this is called by the worldmanager timer because we still have unupdated objects
-	// in our resultmap
-	if (!(mUpdatingObjects || mDestroyOutOfRangeObjects || forcedUpdate))
-	{
-		// If we have been inactive for too long, let's update the world.
-		if (player->getCurrentSpeed() == 0.0)
-		{
-			//is  this the amount of full updates already running ?
-			if (++mFullUpdateTrigger >= 15)		// We only check this when we are running idle with low frequency
-			{
-				// Let's update the world
-				forcedUpdate = true;
-				mFullUpdateTrigger = 0;
-			}
-		}
-		else
-		{
-			mFullUpdateTrigger = 0;
-		}
-	}
+    // If we already are busy, don't start another update.
+    // ie if this is called by the worldmanager timer because we still have unupdated objects
+    // in our resultmap
+    if (!(mUpdatingObjects || mDestroyOutOfRangeObjects || forcedUpdate))
+    {
+        // If we have been inactive for too long, let's update the world.
+        if (player->getCurrentSpeed() == 0.0)
+        {
+            //is  this the amount of full updates already running ?
+            if (++mFullUpdateTrigger >= 15)		// We only check this when we are running idle with low frequency
+            {
+                // Let's update the world
+                forcedUpdate = true;
+                mFullUpdateTrigger = 0;
+            }
+        }
+        else
+        {
+            mFullUpdateTrigger = 0;
+        }
+    }
 
-	// Are we inside or outside?
-	if (player->getParentId() != 0)
-	{
-		// We are inside.
-		if (mUpdatingObjects || forcedUpdate)
-		{
-			// Just entered the building?
-			// if (!mUpdatingObjects)
-			// We need to abort any pending operation if we get a forcedUpdate (meaning entered, changed or left a cell or subzone).
-			if (forcedUpdate)
-			{
-				// Update all.
-				_findInRangeObjectsInside(true);
-			}
-		}
-		else
-		{
-			// This is the faster update, stil based on SI though.
-			_findInRangeObjectsInside(false);
-		}
-		// Update some of the objects we found.
-		mUpdatingObjects = !_updateInRangeObjectsInside();
+    // Are we inside or outside?
+    if (player->getParentId() != 0)
+    {
+        // We are inside.
+        if (mUpdatingObjects || forcedUpdate)
+        {
+            // Just entered the building?
+            // if (!mUpdatingObjects)
+            // We need to abort any pending operation if we get a forcedUpdate (meaning entered, changed or left a cell or subzone).
+            if (forcedUpdate)
+            {
+                // Update all.
+                _findInRangeObjectsInside(true);
+            }
+        }
+        else
+        {
+            // This is the faster update, stil based on SI though.
+            _findInRangeObjectsInside(false);
+        }
+        // Update some of the objects we found.
+        mUpdatingObjects = !_updateInRangeObjectsInside();
 
-	}
-	else
-	{
-		// We are outside.
-		bool OutOfUpdateRange = false;
+    }
+    else
+    {
+        // We are outside.
+        bool OutOfUpdateRange = false;
 
-		// If we "just stopped" and not busy with updating, make a full update.
-		if (!mUpdatingObjects && !mDestroyOutOfRangeObjects)
-		{
-			// We are not "busy" processing anything from previous sessions.
-			if (player->getCurrentSpeed() == 0.0)
-			{
-				if (mMovementInactivityTrigger > 0)
-				{
-					if (--mMovementInactivityTrigger == 0)
-					{
-						// We are not moving, but how far are we from last full update pos?
+        // If we "just stopped" and not busy with updating, make a full update.
+        if (!mUpdatingObjects && !mDestroyOutOfRangeObjects)
+        {
+            // We are not "busy" processing anything from previous sessions.
+            if (player->getCurrentSpeed() == 0.0)
+            {
+                if (mMovementInactivityTrigger > 0)
+                {
+                    if (--mMovementInactivityTrigger == 0)
+                    {
+                        // We are not moving, but how far are we from last full update pos?
                         if (glm::distance(player->mPosition, player->getLastUpdatePosition()) < 16)
-						{
-							// Force a full update, inclusive of saving current "update pos".
-							OutOfUpdateRange = true;
-						}
-					}
-				}
-			}
-			else
-			{
-				mMovementInactivityTrigger = 2;		// We only check this when we are running idle with slow frequency
-													// Need to be standstill for this amount of seconds * 5 (or whatever time we use for slow updates) before we update.
-			}
-		}
+                        {
+                            // Force a full update, inclusive of saving current "update pos".
+                            OutOfUpdateRange = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                mMovementInactivityTrigger = 2;		// We only check this when we are running idle with slow frequency
+                // Need to be standstill for this amount of seconds * 5 (or whatever time we use for slow updates) before we update.
+            }
+        }
 
-		// Position check for SI-update.
+        // Position check for SI-update.
         OutOfUpdateRange |= !(glm::distance(player->mPosition, player->getLastUpdatePosition()) < 64.0f);
-		//OutOfUpdateRange |= !(player->mPosition.inRange2D(player->getLastUpdatePosition(),64.0f));
+        //OutOfUpdateRange |= !(player->mPosition.inRange2D(player->getLastUpdatePosition(),64.0f));
 
-		if (mUpdatingObjects || forcedUpdate || OutOfUpdateRange)
-		{
-			// More than 64 m from where we loaded SI, reload it.
-			// We need to abort any pending operation if we get a forcedUpdate (meaning entered, changed or left a cell or subzone).
-			if ((forcedUpdate) || OutOfUpdateRange)
-			{
-				// Save these coordinates
+        if (mUpdatingObjects || forcedUpdate || OutOfUpdateRange)
+        {
+            // More than 64 m from where we loaded SI, reload it.
+            // We need to abort any pending operation if we get a forcedUpdate (meaning entered, changed or left a cell or subzone).
+            if ((forcedUpdate) || OutOfUpdateRange)
+            {
+                // Save these coordinates
 
-				mDestroyOutOfRangeObjects = false;	// Stop the destroy-messages, in case we already have started to send them.
-				if (OutOfUpdateRange)
-				{
-					player->setLastUpdatePosition(player->mPosition);
+                mDestroyOutOfRangeObjects = false;	// Stop the destroy-messages, in case we already have started to send them.
+                if (OutOfUpdateRange)
+                {
+                    player->setLastUpdatePosition(player->mPosition);
 
-					//If our player is mounted let's update his mount
-					if(player->checkIfMounted() && player->getMount())
-					{
-						player->getMount()->setLastUpdatePosition(player->mPosition);
-					}
+                    //If our player is mounted let's update his mount
+                    if(player->checkIfMounted() && player->getMount())
+                    {
+                        player->getMount()->setLastUpdatePosition(player->mPosition);
+                    }
 
-					// We shall destroy out of range objects when we are done with the update of known objects.
-					mDestroyOutOfRangeObjects = true;
-				}
-				_findInRangeObjectsOutside(true);
-			}
-		}
-		else if (!mDestroyOutOfRangeObjects)
-		{
-			// This is the fast update, based on qt.
-			_findInRangeObjectsOutside(false);
-		}
+                    // We shall destroy out of range objects when we are done with the update of known objects.
+                    mDestroyOutOfRangeObjects = true;
+                }
+                _findInRangeObjectsOutside(true);
+            }
+        }
+        else if (!mDestroyOutOfRangeObjects)
+        {
+            // This is the fast update, based on qt.
+            _findInRangeObjectsOutside(false);
+        }
 
-		// Update some of the objects we found.
-		mUpdatingObjects = !_updateInRangeObjectsOutside();
+        // Update some of the objects we found.
+        mUpdatingObjects = !_updateInRangeObjectsOutside();
 
-		if (!mUpdatingObjects)
-		{
-			// We are not updating new objects.
-			if (mDestroyOutOfRangeObjects)
-			{
-				// We are ready to destroy objects out of range.
-				if (_destroyOutOfRangeObjects(&mInRangeObjects))
-				{
-					// All objects are now destroyed.
-					mDestroyOutOfRangeObjects = false;
+        if (!mUpdatingObjects)
+        {
+            // We are not updating new objects.
+            if (mDestroyOutOfRangeObjects)
+            {
+                // We are ready to destroy objects out of range.
+                if (_destroyOutOfRangeObjects(&mInRangeObjects))
+                {
+                    // All objects are now destroyed.
+                    mDestroyOutOfRangeObjects = false;
 
-					// If active target out of range, clear.
-					if (player->getTargetId())
-					{
-						Object* target = player->getTarget();
+                    // If active target out of range, clear.
+                    if (player->getTargetId())
+                    {
+                        Object* target = player->getTarget();
 
-						if (target && (!(player->checkKnownObjects(target))))
-						{
-							player->setTarget(0);
-							gMessageLib->sendTargetUpdateDeltasCreo6(player);
-						}
-						
-					}
-				}
-			}
-		}
+                        if (target && (!(player->checkKnownObjects(target))))
+                        {
+                            player->setTarget(0);
+                            gMessageLib->sendTargetUpdateDeltasCreo6(player);
+                        }
 
-	}
+                    }
+                }
+            }
+        }
 
-	uint64 msToWait = 4900;		// Will give 5 sec.
+    }
 
-	if (mUpdatingObjects || mDestroyOutOfRangeObjects)
-	{
-		// We are busy, need to continue processing asap.
-		msToWait = 900;		// This should make us tick every second, since that's the base time for the timer we use.
-	}
-	return msToWait;
+    uint64 msToWait = 4900;		// Will give 5 sec.
+
+    if (mUpdatingObjects || mDestroyOutOfRangeObjects)
+    {
+        // We are busy, need to continue processing asap.
+        msToWait = 900;		// This should make us tick every second, since that's the base time for the timer we use.
+    }
+    return msToWait;
 }
 */

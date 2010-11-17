@@ -28,6 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
+#include "StateManager.h"
+#include "CellObject.h"
+#include "WorldManager.h"
+#include "QuadTree.h"
+#include "ZoneTree.h"
+#include "NetworkManager/Message.h"
 
 
 //=============================================================================
@@ -36,12 +42,66 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
-{
-	
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+{    
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 
-	if(playerObject)
-		playerObject->setSitting(message);
+    if(playerObject)
+    {
+        BString			data;
+        glm::vec3       chair_position;
+        uint64			chairCell		= 0;
+        uint32			elementCount	= 0;
+
+        if(playerObject->checkPlayerCustomFlag(PlayerCustomFlag_LogOut))
+        {
+            playerObject->togglePlayerFlagOff(PlayerCustomFlag_LogOut);	
+            gMessageLib->SendSystemMessage(::common::OutOfBand("logout", "aborted"), playerObject);
+        }
+
+        // see if we need to get out of sampling mode
+        if(playerObject->getSamplingState())
+        {
+            gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), playerObject);
+            playerObject->setSamplingState(false);
+        }
+        
+        message->getStringUnicode16(data); //Should be okay even if data is null! (I hope)  
+
+        // sitting on chair
+        if(data.getLength())
+        {
+            elementCount = swscanf(data.getUnicode16(), L"%f,%f,%f,%"WidePRIu64, &chair_position.x, &chair_position.y, &chair_position.z, &chairCell);
+
+            if(elementCount == 4)
+            {
+                // outside
+                playerObject->updatePosition(chairCell,chair_position);
+			
+			//this->mDirection = Anh_Math::Quaternion();
+
+			if(chairCell)
+			{
+				gMessageLib->sendDataTransformWithParent053(playerObject);
+			}
+			else
+			{
+				gMessageLib->sendDataTransform053(playerObject);
+			}
+
+			//gMessageLib->sendUpdateMovementProperties(playerObject);
+			//gMessageLib->sendPostureAndStateUpdate(playerObject);
+
+			gMessageLib->sendSitOnObject(playerObject);
+            }
+        }
+        // sitting on ground
+        else
+        {
+            //gMessageLib->sendPostureUpdate(playerObject);
+            //gMessageLib->sendSelfPostureUpdate(playerObject);
+        }
+        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Sitting);
+    }
 }
 
 //=============================================================================
@@ -51,12 +111,10 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	// FIXME: for now assume only players send chat
-	//???LOL WUT???
-	PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	if(playerObject)
-		playerObject->setUpright();
+    if(playerObject)
+        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Upright);
 }
 
 //=============================================================================
@@ -66,10 +124,10 @@ void ObjectController::_handleStand(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
 
-	if(playerObject)
-		playerObject->setProne();
+    if(playerObject)
+        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Prone);
 }
 
 //=============================================================================
@@ -79,10 +137,10 @@ void ObjectController::_handleProne(uint64 targetId,Message* message,ObjectContr
 
 void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	if(playerObject) 
-		playerObject->setCrouched();
+    if(playerObject) 
+        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Crouched);
 }
 
 //=============================================================================

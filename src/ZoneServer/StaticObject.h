@@ -35,15 +35,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class StaticObject : public Object
 {
-	friend class ObjectFactory;
+    friend class ObjectFactory;
 
-	public:
+public:
 
-		StaticObject();
-		StaticObject(uint64 id,uint64 parentId,const string model,ObjectType type);
-		virtual ~StaticObject();
+    StaticObject();
+    StaticObject(uint64 id,uint64 parentId,const BString model,ObjectType type);
+    virtual ~StaticObject();
 
-	protected:
+protected:
 
 };
 

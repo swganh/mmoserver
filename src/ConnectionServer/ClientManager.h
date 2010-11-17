@@ -53,44 +53,44 @@ typedef std::map<uint32,ConnectionClient*>    PlayerClientMap;
 
 class ClientManager : public NetworkCallback, public ConnectionDispatchCallback, public DatabaseCallback
 {
-	public:
+public:
 
-		ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* connectionDispatch);
-		~ClientManager(void);
+    ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* connectionDispatch);
+    ~ClientManager(void);
 
-		void                        Process(void);
+    void                        Process(void);
 
-		void                        SendMessageToClient(Message* message);
+    void                        SendMessageToClient(Message* message);
 
-		// Inherited NetworkCallback
-		virtual NetworkClient*	    handleSessionConnect(Session* session, Service* service);
-		virtual void          	    handleSessionDisconnect(NetworkClient* client);
-		virtual void				handleSessionMessage(NetworkClient* client, Message* message);
+    // Inherited NetworkCallback
+    virtual NetworkClient*	    handleSessionConnect(Session* session, Service* service);
+    virtual void          	    handleSessionDisconnect(NetworkClient* client);
+    virtual void				handleSessionMessage(NetworkClient* client, Message* message);
 
-		// Inherited ConnectionDispatchCallback
-		virtual void                handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client);
+    // Inherited ConnectionDispatchCallback
+    virtual void                handleDispatchMessage(uint32 opcode, Message* message, ConnectionClient* client);
 
-		// Inherited DatabaseCallback
-		virtual void                handleDatabaseJobComplete(void* ref, DatabaseResult* result);
+    // Inherited DatabaseCallback
+    virtual void                handleDatabaseJobComplete(void* ref, DatabaseResult* result);
 
-		// handle server down
-		void						handleServerDown(uint32 serverId);
+    // handle server down
+    void						handleServerDown(uint32 serverId);
 
-		private:
-		void						_processClientIdMsg(ConnectionClient* client, Message* message);
-		void                        _processSelectCharacter(ConnectionClient* client, Message* message);
-		void                        _processClusterZoneTransferCharacter(ConnectionClient* client, Message* message);
+private:
+    void						_processClientIdMsg(ConnectionClient* client, Message* message);
+    void                        _processSelectCharacter(ConnectionClient* client, Message* message);
+    void                        _processClusterZoneTransferCharacter(ConnectionClient* client, Message* message);
 
-		void                        _handleQueryAuth(ConnectionClient* client, DatabaseResult* result);
+    void                        _handleQueryAuth(ConnectionClient* client, DatabaseResult* result);
+    void                        _processAllowedChars(DatabaseCallback* callback,ConnectionClient* client);
 
+    Service*                    mClientService;
+    Database*                   mDatabase;
+    MessageRouter*              mMessageRouter;
+    ConnectionDispatch*         mConnectionDispatch;
 
-		Service*                    mClientService;
-		Database*                   mDatabase;
-		MessageRouter*              mMessageRouter;
-		ConnectionDispatch*         mConnectionDispatch;
-
-        boost::recursive_mutex		mServiceMutex;
-		PlayerClientMap             mPlayerClientMap;
+    boost::recursive_mutex		mServiceMutex;
+    PlayerClientMap             mPlayerClientMap;
 };
 
 //======================================================================================================================

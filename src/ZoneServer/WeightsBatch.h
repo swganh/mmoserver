@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_WEIGHTSBATCH_H
 #define ANH_ZONESERVER_WEIGHTSBATCH_H
 
+#include <vector>
 #include "Utils/typedefs.h"
 
 class DraftWeight;
@@ -38,23 +39,31 @@ typedef std::vector<DraftWeight*>	DraftWeights;
 
 class WeightsBatch
 {
-	friend class SchematicManager;
+    friend class SchematicManager;
 
-	public:
+public:
 
-		WeightsBatch();
-		~WeightsBatch();
+    WeightsBatch();
+    ~WeightsBatch();
 
-		uint32			getId(){ return mId; }
-		uint32			getListId(){ return mListId; }
-		DraftWeights*	getWeights(){ return &mWeights; }
-		uint32  getSchemWeightBatch(){return mSchemWeightBatch;}
-	private:
+    uint32			getId() {
+        return mId;
+    }
+    uint32			getListId() {
+        return mListId;
+    }
+    DraftWeights*	getWeights() {
+        return &mWeights;
+    }
+    uint32  getSchemWeightBatch() {
+        return mSchemWeightBatch;
+    }
+private:
 
-		uint32			mId;
-		uint32			mListId;
-		DraftWeights	mWeights;
-		uint32  mSchemWeightBatch;
+    uint32			mId;
+    uint32			mListId;
+    DraftWeights	mWeights;
+    uint32  mSchemWeightBatch;
 };
 
 #endif

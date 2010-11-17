@@ -34,63 +34,63 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum RegionType
 {
-	Region_City				= 1,
-	Region_Spawn			= 2,
-	Region_Badge			= 3,
-	Region_Mission			= 4,
-	Region_Zone				= 5,
-	Region_Camp				= 6,
-	Region_MissionSpawn		= 7
+    Region_City				= 1,
+    Region_Spawn			= 2,
+    Region_Badge			= 3,
+    Region_Mission			= 4,
+    Region_Zone				= 5,
+    Region_Camp				= 6,
+    Region_MissionSpawn		= 7
 };
 
 //=============================================================================
 
 class RegionObject : public Object
 {
-	public:
+public:
 
-		RegionObject();
-		virtual ~RegionObject();
+	RegionObject();
+	virtual ~RegionObject();
 
-		string				getRegionName(){ return mRegionName; }
-		void				setRegionName(const string name){ mRegionName = name; }
+	BString				getRegionName(){ return mRegionName; }
+	void				setRegionName(const BString name){ mRegionName = name; }
 
-		string				getNameFile(){ return mNameFile; }
-		void				setNameFile(const string namefile){ mNameFile = namefile; }
+	BString				getNameFile(){ return mNameFile; }
+	void				setNameFile(const BString namefile){ mNameFile = namefile; }
 
-		RegionType			getRegionType(){ return mRegionType; }
-		void				setType(RegionType rType){ mRegionType = rType; }
+	RegionType			getRegionType(){ return mRegionType; }
+	void				setType(RegionType rType){ mRegionType = rType; }
 
-		float				getWidth(){ return mWidth; }
-		void				setWidth(float width){ mWidth = width; }
+	float				getWidth(){ return mWidth; }
+	void				setWidth(float width){ mWidth = width; }
 
-		float				getHeight(){ return mHeight; }
-		void				setHeight(float height){ mHeight = height; }
+	float				getHeight(){ return mHeight; }
+	void				setHeight(float height){ mHeight = height; }
 
-		bool				getActive(){ return mActive; }
-		void				setActive(bool a){ mActive = a; }
+	bool				getActive(){ return mActive; }
+	void				setActive(bool a){ mActive = a; }
 
-		virtual void		update(){}
-		virtual void		onObjectEnter(Object* object){}
-		virtual void		onObjectLeave(Object* object){}
+	virtual void		update(){}
+	virtual void		onObjectEnter(Object* object){}
+	virtual void		onObjectLeave(Object* object){}
 
-		bool				addVisitor(Object* visitor);
-		void				removeVisitor(Object* visitor);
+	bool				addVisitor(Object* visitor);
+	void				removeVisitor(Object* visitor);
 		
-		bool				checkVisitor(Object* object);
+	bool				checkVisitor(Object* object);
 
-		uint32				subCellId;
+	uint32				subCellId;
 
-	protected:
+protected:
 
-		ObjectIDSet			mVisitingPlayers;
+	ObjectIDSet			mVisitingPlayers;
 
-		RegionType			mRegionType;
-		float				mWidth;
-		float				mHeight;
-		string				mRegionName;
-		string				mNameFile;
-		bool				mActive;
+	RegionType			mRegionType;
+	float				mWidth;
+	float				mHeight;
+	BString				mRegionName;
+	BString				mNameFile;
+	bool				mActive;
 };
 
 

@@ -42,12 +42,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/Message.h"
-#include "Common/MessageFactory.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageFactory.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -58,26 +57,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			newTitle;
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    BString			newTitle;
 
-	message->getStringUnicode16(newTitle);
-	newTitle.convert(BSTRType_ANSI);
+    message->getStringUnicode16(newTitle);
+    newTitle.convert(BSTRType_ANSI);
 
-	SkillList* sList = playerObject->getSkills();
-	SkillList::iterator sEnd = sList->end();
-	for(SkillList::iterator it=sList->begin(); it != sEnd; ++it)
-	{
-		if((*it)->mIsTitle)
-		{
-			if(strcmp((*it)->mName.getAnsi(),newTitle.getAnsi()) == 0)
-			{
-				playerObject->setTitle(newTitle.getAnsi());
-				gMessageLib->sendTitleUpdate(playerObject);
-				break;
-			}
-		}
-	}
+    SkillList* sList = playerObject->getSkills();
+    SkillList::iterator sEnd = sList->end();
+    for(SkillList::iterator it=sList->begin(); it != sEnd; ++it)
+    {
+        if((*it)->mIsTitle)
+        {
+            if(strcmp((*it)->mName.getAnsi(),newTitle.getAnsi()) == 0)
+            {
+                playerObject->setTitle(newTitle.getAnsi());
+                gMessageLib->sendTitleUpdate(playerObject);
+                break;
+            }
+        }
+    }
 }
 
 //======================================================================================================================
@@ -87,15 +86,15 @@ void ObjectController::_handleSetCurrentSkillTitle(uint64 targetId,Message* mess
 
 void ObjectController::_handleSetSpokenLanguage(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			tmpStr;
+    PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
+    BString			tmpStr;
 
-	message->getStringUnicode16(tmpStr);
-	tmpStr.convert(BSTRType_ANSI);
+    message->getStringUnicode16(tmpStr);
+    tmpStr.convert(BSTRType_ANSI);
 
-	uint32 languageId = boost::lexical_cast<uint32>(tmpStr.getAnsi());
-	playerObject->setLanguage(languageId);
-	gMessageLib->sendLanguagePlay9(playerObject);
+    uint32 languageId = boost::lexical_cast<uint32>(tmpStr.getAnsi());
+    playerObject->setLanguage(languageId);
+    gMessageLib->sendLanguagePlay9(playerObject);
 }
 
 //======================================================================================================================
@@ -105,11 +104,11 @@ void ObjectController::_handleSetSpokenLanguage(uint64 targetId,Message* message
 
 void ObjectController::_handleLfg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	playerObject->togglePlayerFlag(PlayerFlag_Lfg);
+    playerObject->togglePlayerFlag(PlayerFlag_Lfg);
 
-	gMessageLib->sendUpdatePlayerFlags(playerObject);
+    gMessageLib->sendUpdatePlayerFlags(playerObject);
 }
 
 //======================================================================================================================
@@ -119,11 +118,11 @@ void ObjectController::_handleLfg(uint64 targetId,Message* message,ObjectControl
 
 void ObjectController::_handleNewbieHelper(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	playerObject->togglePlayerFlag(PlayerFlag_NoobHelper);
+    playerObject->togglePlayerFlag(PlayerFlag_NoobHelper);
 
-	gMessageLib->sendUpdatePlayerFlags(playerObject);
+    gMessageLib->sendUpdatePlayerFlags(playerObject);
 }
 
 //======================================================================================================================
@@ -133,11 +132,11 @@ void ObjectController::_handleNewbieHelper(uint64 targetId,Message* message,Obje
 
 void ObjectController::_handleRolePlay(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	playerObject->togglePlayerFlag(PlayerFlag_RolePlayer);
+    playerObject->togglePlayerFlag(PlayerFlag_RolePlayer);
 
-	gMessageLib->sendUpdatePlayerFlags(playerObject);
+    gMessageLib->sendUpdatePlayerFlags(playerObject);
 }
 
 //======================================================================================================================
@@ -147,11 +146,11 @@ void ObjectController::_handleRolePlay(uint64 targetId,Message* message,ObjectCo
 
 void ObjectController::_handleToggleAFK(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	playerObject->togglePlayerFlag(PlayerFlag_Afk);
+    playerObject->togglePlayerFlag(PlayerFlag_Afk);
 
-	gMessageLib->sendUpdatePlayerFlags(playerObject);
+    gMessageLib->sendUpdatePlayerFlags(playerObject);
 }
 
 //======================================================================================================================
@@ -161,11 +160,11 @@ void ObjectController::_handleToggleAFK(uint64 targetId,Message* message,ObjectC
 
 void ObjectController::_handleToggleDisplayFactionRank(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	playerObject->togglePlayerFlag(PlayerFlag_FactionRank);
+    playerObject->togglePlayerFlag(PlayerFlag_FactionRank);
 
-	gMessageLib->sendUpdatePlayerFlags(playerObject);
+    gMessageLib->sendUpdatePlayerFlags(playerObject);
 }
 
 //======================================================================================================================
@@ -175,9 +174,9 @@ void ObjectController::_handleToggleDisplayFactionRank(uint64 targetId,Message* 
 
 void ObjectController::_handleAnon(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	//PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    //PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	// simple toggle, TODO: delta updates, figure and bitmask to playerobject, store to db
+    // simple toggle, TODO: delta updates, figure and bitmask to playerobject, store to db
 }
 
 //======================================================================================================================
@@ -187,16 +186,15 @@ void ObjectController::_handleAnon(uint64 targetId,Message* message,ObjectContro
 
 void ObjectController::_handleRequestBadges(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
-	PlayerObject* targetObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* targetObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 
-	if(targetObject == NULL)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestbages: could not find %"PRIu64"",targetId);
-		return;
-	}
+    if(targetObject == NULL)
+    {
+        return;
+    }
 
-	gMessageLib->sendBadges(targetObject,playerObject);
+    gMessageLib->sendBadges(targetObject,playerObject);
 }
 
 //======================================================================================================================
@@ -206,9 +204,9 @@ void ObjectController::_handleRequestBadges(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleRequestCharacterSheetInfo(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-	gMessageLib->sendCharacterSheetResponse(playerObject);
+    gMessageLib->sendCharacterSheetResponse(playerObject);
 }
 
 //======================================================================================================================
@@ -218,16 +216,15 @@ void ObjectController::_handleRequestCharacterSheetInfo(uint64 targetId,Message*
 
 void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
-	PlayerObject* targetObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
+    PlayerObject* targetObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
 
-	if(targetObject == NULL)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestBiography: could not find %"PRIu64"",targetId);
-		return;
-	}
+    if(targetObject == NULL)
+    {
+        return;
+    }
 
-	gMessageLib->sendBiography(playerObject,targetObject);
+    gMessageLib->sendBiography(playerObject,targetObject);
 }
 
 //======================================================================================================================
@@ -237,22 +234,23 @@ void ObjectController::_handleRequestBiography(uint64 targetId,Message* message,
 
 void ObjectController::_handleSetBiography(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-	string			bio;
-	int8			sql[5000],end[64],*sqlPointer;
+    PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
+    BString			bio;
+    int8			sql[5000],end[64],*sqlPointer;
 
-	message->getStringUnicode16(bio);
+    message->getStringUnicode16(bio);
 
-	player->setBiography(bio);
+    player->setBiography(bio);
 
-	bio.convert(BSTRType_ANSI);
-	sprintf(sql,"UPDATE character_biography SET biography ='");
-	sprintf(end,"' WHERE character_id = %"PRIu64"",player->getId());
-	sqlPointer = sql + strlen(sql);
-	sqlPointer += mDatabase->Escape_String(sqlPointer,bio.getAnsi(),bio.getLength());
-	strcat(sql,end);
+    bio.convert(BSTRType_ANSI);
+    sprintf(sql,"UPDATE character_biography SET biography ='");
+    sprintf(end,"' WHERE character_id = %"PRIu64"",player->getId());
+    sqlPointer = sql + strlen(sql);
+    sqlPointer += mDatabase->escapeString(sqlPointer,bio.getAnsi(),bio.getLength());
+    strcat(sql,end);
 
-	mDatabase->ExecuteSqlAsync(0,0,sql);
+    mDatabase->executeSqlAsync(0,0,sql);
+    
 }
 
 //======================================================================================================================
@@ -271,8 +269,8 @@ void ObjectController::_handleEditBiography(uint64 targetId,Message* message,Obj
 
 void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
-	string			dataStr;
+    PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
+	BString			dataStr;
 	PlayerList		playersMatched;
 	PlayerList*		matchReference;
 	uint32			masksCount		= 0;
@@ -289,36 +287,34 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 	int8*			pTitle;
 	pTitle = titleStr;
 
-	matchReference = &playersMatched;
+    message->getStringUnicode16(dataStr);
 
-	message->getStringUnicode16(dataStr);
+    if(dataStr.getLength())
+        elementCount = swscanf(dataStr.getUnicode16(),L"%u %u %u %u %u %u %i %s %s",&masksCount,&playerFlags,&mask2,&mask3,&mask4,&factionCrc,&raceId,titleStr,unknown);
 
-	if(dataStr.getLength())
-		elementCount = swscanf(dataStr.getUnicode16(),L"%u %u %u %u %u %u %i %s %s",&masksCount,&playerFlags,&mask2,&mask3,&mask4,&factionCrc,&raceId,titleStr,unknown);
+    if(elementCount != 9)
+    {
+        DLOG(INFO) << "ObjController::_handleRequestCharacterMatch: argument mismatch " << player->getId();
+        return;
+    }
 
-	if(elementCount != 9)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestCharacterMatch: argument mismatch %"PRIu64"",player->getId());
-		return;
-	}
+    if(strcmp(titleStr,"\"\"") != 0)
+    {
+        skill = gSkillManager->getSkillByName(titleStr);
 
-	if(strcmp(titleStr,"\"\"") != 0)
-	{
-		skill = gSkillManager->getSkillByName(titleStr);
+        if(skill == NULL)
+        {
+            DLOG(INFO) << "ObjController::_handleRequestCharacterMatch: could not find matching skill for " << titleStr;
+            return;
+        }
+    }
 
-		if(skill == NULL)
-		{
-			gLogger->log(LogManager::DEBUG,"ObjController::_handleRequestCharacterMatch: could not find matching skill for %s",titleStr);
-			return;
-		}
-	}
-
-	// for now check players in viewing range
+    // for now check players in viewing range
 	// and ourselves =)
 	playersMatched.push_back(player);
 	
 	//for our practical purpose were not sending to them but merely iterating through them
-	gContainerManager->sendToRegisteredPlayers(player,[playerFlags, raceId, factionCrc, skill, pTitle, matchReference, this] ( PlayerObject* inRangePlayer) 
+	gContainerManager->sendToRegisteredPlayers(player,[playerFlags, raceId, factionCrc, skill, pTitle, matchReference, this] ( PlayerObject* const inRangePlayer) 
 		{
 			
 			if(((playerFlags & inRangePlayer->getPlayerFlags()) == playerFlags)
@@ -351,26 +347,25 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
 
 void ObjectController::_handleMatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*	matchObject	= dynamic_cast<PlayerObject*>(mObject);
-	string			matchfield;
-	uint32			i1,i2,i3,i4,i5;
+    PlayerObject*	matchObject	= dynamic_cast<PlayerObject*>(mObject);
+    BString			matchfield;
+    uint32			i1,i2,i3,i4,i5;
 
-	message->getStringUnicode16(matchfield);
+    message->getStringUnicode16(matchfield);
 
-	swscanf(matchfield.getUnicode16(),L"%u %u %u %u %u",&i1,&i2,&i3,&i4,&i5);
+    swscanf(matchfield.getUnicode16(),L"%u %u %u %u %u",&i1,&i2,&i3,&i4,&i5);
 
-	mDatabase->ExecuteSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope),
-								"update character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %I64u",
-								i2,i3,i4,i5,matchObject->getId());
+    mDatabase->executeSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope), "UPDATE character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %"PRIu64"", i2, i3, i4, i5, matchObject->getId());
+    
 
-	// update the players Object
-	matchObject->setPlayerMatch(0,i2);
-	matchObject->setPlayerMatch(1,i3);
-	matchObject->setPlayerMatch(2,i4);
-	matchObject->setPlayerMatch(3,i5);
+    // update the players Object
+    matchObject->setPlayerMatch(0,i2);
+    matchObject->setPlayerMatch(1,i3);
+    matchObject->setPlayerMatch(2,i4);
+    matchObject->setPlayerMatch(3,i5);
 
-	// now send the delta
-	gMessageLib->sendMatchPlay3(matchObject);
+    // now send the delta
+    gMessageLib->sendMatchPlay3(matchObject);
 }
 
 //======================================================================================================================

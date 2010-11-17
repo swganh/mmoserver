@@ -45,58 +45,60 @@ class ObjectFactoryCallback;
 
 enum ItemFactoryQuery
 {
-	ItemFactoryQuery_MainData				= 1,
-	ItemFactoryQuery_Attributes				= 2,
-	NonPersistantItemFactoryQuery_MainData	= 3,
-	ItemFactoryQuery_Items					= 4
+    ItemFactoryQuery_MainData				= 1,
+    ItemFactoryQuery_Attributes				= 2,
+    NonPersistantItemFactoryQuery_MainData	= 3,
+    ItemFactoryQuery_Items					= 4
 };
 
 //=============================================================================
 
 class ItemFactory : public FactoryBase, public ObjectFactoryCallback
 {
-	public:
+public:
 
-		static	ItemFactory*	getSingletonPtr() { return mSingleton; }
-		static	ItemFactory*	Init(Database* database);
+    static	ItemFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static	ItemFactory*	Init(Database* database);
 
-		virtual ~ItemFactory();
+    virtual ~ItemFactory();
 
-		virtual void			handleObjectReady(Object* object,DispatchClient* client);
+    virtual void			handleObjectReady(Object* object,DispatchClient* client);
 
-		void					handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-		void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void					requestContainerContent(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client, uint32 depth = 0);
+    void					handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void					requestContainerContent(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client, uint32 depth = 0);
 
-	private:
+private:
 
-		ItemFactory(Database* database);
+    ItemFactory(Database* database);
 
-		void					_postProcessAttributes(Object* object);
+    void					_postProcessAttributes(Object* object);
 
-		void					_setupDatabindings();
-		void					_destroyDatabindings();
+    void					_setupDatabindings();
+    void					_destroyDatabindings();
 
-		Item*					_createItem(DatabaseResult* result);
+    Item*					_createItem(DatabaseResult* result);
 
-		static ItemFactory*		mSingleton;
-		static bool				mInsFlag;
+    static ItemFactory*		mSingleton;
+    static bool				mInsFlag;
 
-		DataBinding*			mItemIdentifierBinding;
-		DataBinding*			mItemBinding;
+    DataBinding*			mItemIdentifierBinding;
+    DataBinding*			mItemBinding;
 };
 
 //=============================================================================
 
 class ItemIdentifier
 {
-	public:
+public:
 
-		ItemIdentifier(){}
-		~ItemIdentifier(){}
+    ItemIdentifier() {}
+    ~ItemIdentifier() {}
 
-		uint32	mFamilyId;
-		uint32	mTypeId;
+    uint32	mFamilyId;
+    uint32	mTypeId;
 };
 
 //=============================================================================

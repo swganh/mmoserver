@@ -38,22 +38,30 @@ class Skill;
 
 class UIOfferTeachBox : public UIMessageBox
 {
-	public:
+public:
 
-		UIOfferTeachBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill)
-			: UIMessageBox(callback,id,SUI_Window_Teach_OfferSkill_MsgBox,eventStr,caption,text,playerObject,mbType),mPupil(pupil),mSkill(skill){}
+    UIOfferTeachBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType,PlayerObject* pupil,Skill* skill)
+        : UIMessageBox(callback,id,SUI_Window_Teach_OfferSkill_MsgBox,eventStr,caption,text,playerObject,mbType),mPupil(pupil),mSkill(skill) {}
 
-		virtual ~UIOfferTeachBox(){}
+    virtual ~UIOfferTeachBox() {}
 
-		PlayerObject*		getPupil(){ return mPupil; }
-		void				setPupil(PlayerObject* pupil){ mPupil = pupil; }
-		Skill*				getSkill(){ return mSkill; }
-		void				setSkill(Skill* skill){ mSkill = skill; }
+    PlayerObject*		getPupil() {
+        return mPupil;
+    }
+    void				setPupil(PlayerObject* pupil) {
+        mPupil = pupil;
+    }
+    Skill*				getSkill() {
+        return mSkill;
+    }
+    void				setSkill(Skill* skill) {
+        mSkill = skill;
+    }
 
-	private:
+private:
 
-		PlayerObject*		mPupil;
-		Skill*				mSkill;
+    PlayerObject*		mPupil;
+    Skill*				mSkill;
 
 };
 

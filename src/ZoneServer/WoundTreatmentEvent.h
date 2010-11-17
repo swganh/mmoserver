@@ -18,16 +18,18 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 class WoundTreatmentEvent : public Anh_Utils::Event
 {
-	public:
+public:
 
-		WoundTreatmentEvent(uint64 time) : mWoundTreatmentTime(time){}
-		
-		uint64 getWoundTreatmentTime() const {return  mWoundTreatmentTime;}
+    WoundTreatmentEvent(uint64 time) : mWoundTreatmentTime(time) {}
+
+    uint64 getWoundTreatmentTime() const {
+        return  mWoundTreatmentTime;
+    }
 
 
-	private:
+private:
 
-		uint64				mWoundTreatmentTime;
+    uint64				mWoundTreatmentTime;
 };
 
 

@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	gSchematicManager	SchematicManager::getSingletonPtr()
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include <map>
 #include "DatabaseManager/DatabaseCallback.h"
@@ -48,89 +49,105 @@ class ScMAsyncContainer;
 
 typedef std::vector<SchematicGroup*>			SchematicGroupList;
 typedef std::map<uint32,DraftSchematic*>		SchematicMap;
-//typedef std::vector<DraftSchematic*>            
+//typedef std::vector<DraftSchematic*>
 typedef boost::unordered_map<uint32, DraftSchematic*> SchematicList;
 
 //======================================================================================================================
 
 enum ScMQueryType
 {
-	ScMQuery_SchematicGroups				= 1,
-	ScMQuery_GroupSchematics				= 2,
-	ScMQuery_DraftSchematic					= 3,
-	ScMQuery_SchematicSlots					= 4,
-	ScMQuery_SchematicAssemblyBatches		= 5,
-	ScMQuery_SchematicExperimentBatches		= 6,
-	ScMQuery_SchematicAssemblyWeights		= 7,
-	ScMQuery_SchematicExperimentWeights		= 8,
-	ScMQuery_ExperimentationGroups			= 9,
-	ScMQuery_SchematicCraftBatches			= 10,
-	ScMQuery_SchematicCraftWeights			= 11,
-	ScMQuery_SchematicCraftAttributeLinks	= 12,
-	ScMQuery_SchematicCraftAttributeWeights	= 13
+    ScMQuery_SchematicGroups				= 1,
+    ScMQuery_GroupSchematics				= 2,
+    ScMQuery_DraftSchematic					= 3,
+    ScMQuery_SchematicSlots					= 4,
+    ScMQuery_SchematicAssemblyBatches		= 5,
+    ScMQuery_SchematicExperimentBatches		= 6,
+    ScMQuery_SchematicAssemblyWeights		= 7,
+    ScMQuery_SchematicExperimentWeights		= 8,
+    ScMQuery_ExperimentationGroups			= 9,
+    ScMQuery_SchematicCraftBatches			= 10,
+    ScMQuery_SchematicCraftWeights			= 11,
+    ScMQuery_SchematicCraftAttributeLinks	= 12,
+    ScMQuery_SchematicCraftAttributeWeights	= 13
 };
 
 //======================================================================================================================
 
 class ScMAsyncContainer
 {
-	public:
+public:
 
-		ScMAsyncContainer(ScMQueryType qt){ mQueryType = qt;}
-		~ScMAsyncContainer(){}
+    ScMAsyncContainer(ScMQueryType qt) {
+        mQueryType = qt;
+    }
+    ~ScMAsyncContainer() {}
 
-		ScMQueryType	mQueryType;
-		uint32			mGroupId;
-		DraftSchematic*	mSchematic;
-		uint32			mBatchId;
+    ScMQueryType	mQueryType;
+    uint32			mGroupId;
+    DraftSchematic*	mSchematic;
+    uint32			mBatchId;
 };
 
 //======================================================================================================================
 
 class SchematicManager : public DatabaseCallback
 {
-	public:
+public:
 
-		~SchematicManager();
-		static SchematicManager*	Init(Database* database);
-		static SchematicManager*	getSingletonPtr() { return mSingleton; }
+    ~SchematicManager();
+    static SchematicManager*	Init(Database* database);
+    static SchematicManager*	getSingletonPtr() {
+        return mSingleton;
+    }
 
-		SchematicGroupList*			getSkillSchematicGroupList(){ return &mSchematicGroupList; }
+    SchematicGroupList*			getSkillSchematicGroupList() {
+        return &mSchematicGroupList;
+    }
 
-		virtual void				handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    virtual void				handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		SchematicGroup*				getSchematicGroupById(uint32 id){ return mSchematicGroupList[id-1]; }
-		SchematicMap*				getSlotMap(){ return &mSchematicSlotMap; }
-		SchematicMap*				getWeightMap(){ return &mSchematicWeightMap; }
-		DraftSchematic*				getSchematicBySlotId(uint32 slotId);
-		DraftSchematic*				getSchematicByWeightId(uint32 weightId);
-		//DraftSchematic*				getSchematicByID(uint64 schematicId);
-		//DraftSchematic*				getSchematicByID(uint64 schematicId, uint32 groupid);
-		DraftSchematic*				getSchematicByWeightID(uint32 weightsbatch_Id);
-		string						getExpGroup(uint32 groupId){ return mvExpGroups[groupId - 1]; }
+    SchematicGroup*				getSchematicGroupById(uint32 id) {
+        return mSchematicGroupList[id-1];
+    }
+    SchematicMap*				getSlotMap() {
+        return &mSchematicSlotMap;
+    }
+    SchematicMap*				getWeightMap() {
+        return &mSchematicWeightMap;
+    }
+    DraftSchematic*				getSchematicBySlotId(uint32 slotId);
+    DraftSchematic*				getSchematicByWeightId(uint32 weightId);
+    //DraftSchematic*				getSchematicByID(uint64 schematicId);
+    //DraftSchematic*				getSchematicByID(uint64 schematicId, uint32 groupid);
+    DraftSchematic*				getSchematicByWeightID(uint32 weightsbatch_Id);
+    BString						getExpGroup(uint32 groupId) {
+        return mvExpGroups[groupId - 1];
+    }
 
-		void						releaseAllPoolsMemory(){ mDBAsyncPool.release_memory(); }
+    void						releaseAllPoolsMemory() {
+        mDBAsyncPool.release_memory();
+    }
 
-	private:
+private:
 
-		SchematicManager(Database* database);
+    SchematicManager(Database* database);
 
-		static bool					mInsFlag;
-		static SchematicManager*	mSingleton;
+    static bool					mInsFlag;
+    static SchematicManager*	mSingleton;
 
 
-		boost::pool<boost::default_user_allocator_malloc_free>				mDBAsyncPool;
-		BStringVector				mvExpGroups;
-		Database*					mDatabase;
+    boost::pool<boost::default_user_allocator_malloc_free>				mDBAsyncPool;
+    BStringVector				mvExpGroups;
+    Database*					mDatabase;
 
-		SchematicGroupList			mSchematicGroupList;
-		SchematicMap				mSchematicSlotMap;
-		SchematicMap				mSchematicWeightMap;
-		SchematicList				mSchematicList;
+    SchematicGroupList			mSchematicGroupList;
+    SchematicMap				mSchematicSlotMap;
+    SchematicMap				mSchematicWeightMap;
+    SchematicList				mSchematicList;
 
-		uint32						mGroupCount;
-		uint32						mGroupLoadCount;
-		uint32						mSchematicCount;
+    uint32						mGroupCount;
+    uint32						mGroupLoadCount;
+    uint32						mSchematicCount;
 };
 
 #endif

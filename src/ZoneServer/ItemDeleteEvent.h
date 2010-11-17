@@ -37,20 +37,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class ItemDeleteEvent : public Anh_Utils::Event
 {
-	public:
+public:
 
-		ItemDeleteEvent(uint64 time, uint64 item, bool db = true) : mExecuteTime(time), mItem(item), mDB(db){}
-		
-		uint64	getExecuteTime()	const {return  mExecuteTime;}
-		uint64	getItem()			const {return  mItem;}
-		bool	geDB()				const {return  mDB;}
+    ItemDeleteEvent(uint64 time, uint64 item, bool db = true) : mExecuteTime(time), mItem(item), mDB(db) {}
+
+    uint64	getExecuteTime()	const {
+        return  mExecuteTime;
+    }
+    uint64	getItem()			const {
+        return  mItem;
+    }
+    bool	geDB()				const {
+        return  mDB;
+    }
 
 
-	private:
+private:
 
-		uint64				mExecuteTime;
-		uint64				mItem;
-		bool				mDB;
+    uint64				mExecuteTime;
+    uint64				mItem;
+    bool				mDB;
 };
 
 

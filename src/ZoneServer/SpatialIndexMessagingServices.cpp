@@ -53,7 +53,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer.h"
 #include "ZoneTree.h"
 
-#include "Common/MessageFactory.h"
+#include "NetworkManager/MessageFactory.h"
 
 #include <cassert>
 
@@ -61,11 +61,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // send the matching object creates
 //
-bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget)
+bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, bool sendSelftoTarget)
 {
 	if(!object)
 	{
-		gLogger->log(LogManager::DEBUG,"Attempting sendCreateObject on an invalid object instance");
+		DLOG(INFO) << "Attempting sendCreateObject on an invalid object instance";
 		return false;
 	}
 
@@ -190,7 +190,7 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player,b
 		// unknown types
 		default:
 		{
-			gLogger->log(LogManager::DEBUG,"MessageLib::createObject: Unhandled object type: %i",object->getType());
+			DLOG(INFO) << "MessageLib::createObject: Unhandled object type: " << object->getType();
 		}
 		break;
 	}
@@ -232,7 +232,7 @@ bool SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject,Play
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
+			DLOG(INFO) << "Unable to find object with ID " << (*it);
 			it++;
 			continue;
 		}
@@ -487,7 +487,7 @@ bool SpatialIndexManager::sendEquippedItems(PlayerObject* srcObject,PlayerObject
 			}
 			else
 			{
-				gLogger->log(LogManager::DEBUG,"MessageLib send equipped objects: Its not equipped ... %I64u",item->getId());
+				DLOG(INFO) << "MessageLib send equipped objects: Its not equipped ... " << item->getId();
 			}
 		}
 
@@ -526,7 +526,7 @@ bool SpatialIndexManager::sendCreateFactoryCrate(FactoryCrate* crate,PlayerObjec
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(!tO)
 		{
-			gLogger->log(LogManager::DEBUG,"Unable to find object with ID %PRIu64", (*it));
+			DLOG(INFO) << "Unable to find object with ID " <<  (*it);
 			continue;
 		}
 

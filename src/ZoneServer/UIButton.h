@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_UIBUTTON_H
 #define ANH_ZONESERVER_UIBUTTON_H
 
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "UIElement.h"
 
@@ -35,31 +36,43 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class UIButton : public UIElement
 {
-	public:
+public:
 
-		UIButton(){}
-		UIButton(uint32 id,string name,bool enabled = true,string text = "", bool three = false);
-		virtual ~UIButton();
+    UIButton() {}
+    UIButton(uint32 id,BString name,bool enabled = true,BString text = "", bool three = false);
+    virtual ~UIButton();
 
-		string			getName(){ return mName; }
-		void			setName(string name){ mName = name; }
+    BString			getName() {
+        return mName;
+    }
+    void			setName(BString name) {
+        mName = name;
+    }
 
-		string			getText(){ return mText; }
-		void			setText(string text){ mText = text; }
-		
-		bool			getEnabled(){ return mEnabled; }
-		void			setEnabled(bool e){ mEnabled = e; }
+    BString			getText() {
+        return mText;
+    }
+    void			setText(BString text) {
+        mText = text;
+    }
 
-		virtual uint32	getPropertyCount();
+    bool			getEnabled() {
+        return mEnabled;
+    }
+    void			setEnabled(bool e) {
+        mEnabled = e;
+    }
 
-		virtual void	addMessageData();
+    virtual uint32	getPropertyCount();
 
-	private:
+    virtual void	addMessageData();
 
-		string	mName;
-		string	mText;
-		bool	mEnabled;
-		bool	m3B;
+private:
+
+    BString	mName;
+    BString	mText;
+    bool	mEnabled;
+    bool	m3B;
 };
 
 #endif

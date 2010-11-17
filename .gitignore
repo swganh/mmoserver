@@ -1,9 +1,17 @@
 # These files should be ignored
 bin/
-build-aux/
 deps/
+build/
+Debug/
+Release/
 data/heightmaps/
+docs/latex/
+docs/html/
 ipch/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
 *.cache
 *.zip
 *.7z
@@ -14,4 +22,20 @@ ipch/
 *.sdf
 *.opensdf
 *.lnk
+*.orig
+*.gz
+*.bz2
+*.zip
+.cproject
+.project
+mmoserverdb/
+CMakeFiles/
+Testing/
+CMakeCache.txt
+CTestTestfile.cmake
+cmake_install.cmake
+install_manifest.txt
+
+# ignore OS generated files
 .DS_Store
+

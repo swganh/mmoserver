@@ -35,32 +35,60 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 enum ConnectionClientState
 {
-	CCSTATE_QueryAuth,
-	CCState_End
+    CCSTATE_QueryAuth,
+    CCSTATE_QueryChars,
+    CCSTATE_AllowedChars,
+    CCState_End
 };
 
 //======================================================================================================================
 
 class ConnectionClient : public NetworkClient
 {
-	public:
+public:
 
-		ConnectionClient(void) : mAccountId(0), mServerId(0) {};
-		~ConnectionClient(void) {};
+    ConnectionClient(void) : mAccountId(0), mServerId(0) {};
+    ~ConnectionClient(void) {};
 
-		ConnectionClientState         getState(void)                            { return mState; }
-		uint32                        getAccountId(void)                        { return mAccountId; }
-		uint32                        getServerId(void)                         { return mServerId; }
+    ConnectionClientState         getState(void)                            {
+        return mState;
+    }
+    uint32                        getAccountId(void)                        {
+        return mAccountId;
+    }
+    uint32                        getServerId(void)                         {
+        return mServerId;
+    }
+    uint32						  getCharsAllowed(void)						{
+        return mCharsAllowed;
+    }
+    uint32						  getCurrentChars(void)						{
+        return mCurrentChars;
+    }
 
-		void                          setState(ConnectionClientState state)     { mState = state; }
-		void                          setAccountId(uint32 id)                   { mAccountId = id; }
-		void                          setServerId(uint32 id)                    { mServerId = id; }
+    void                          setState(ConnectionClientState state)     {
+        mState = state;
+    }
+    void                          setAccountId(uint32 id)                   {
+        mAccountId = id;
+    }
+    void                          setServerId(uint32 id)                    {
+        mServerId = id;
+    }
+    void                          setCharsAllowed(uint32 chars)				{
+        mCharsAllowed = chars;
+    }
+    void                          setCurrentChars(uint32 currentChars)      {
+        mCurrentChars = currentChars;
+    }
 
-	private:
+private:
 
-		ConnectionClientState	mState;
-		uint32                  mAccountId;
-		uint32                  mServerId;
+    ConnectionClientState	mState;
+    uint32					mCharsAllowed;
+    uint32					mCurrentChars;
+    uint32                  mAccountId;
+    uint32                  mServerId;
 };
 
 //======================================================================================================================

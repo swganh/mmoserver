@@ -46,80 +46,104 @@ typedef std::list<MissionObject*>				MissionList;
 typedef std::list<IntangibleObject*>			DataList;
 
 //=============================================================================
+enum WaypointStatus
+{
+    WAYPOINT_INACTIVE		= 0,
+    WAYPOINT_ACTIVE			= 1
 
+};
 class Datapad : public TangibleObject
 {
-	friend class DatapadFactory;
 
-	public:
+    friend class DatapadFactory;
 
-		Datapad();
-		~Datapad();
+public:
+    Datapad();
+    ~Datapad();
 
-		// inherited callback
-		virtual void	handleObjectReady(Object* object,DispatchClient* client);
+    // inherited callback
+    virtual void	handleObjectReady(Object* object,DispatchClient* client);
 
-		// player reference
-		void			setOwner(PlayerObject* player){ mOwner = player; }
+    // player reference
+    void			setOwner(PlayerObject* player) {
+        mOwner = player;
+    }
 
-		// waypoints
-		WaypointList*	getWaypoints(){ return &mWaypoints; }
-		WaypointObject*	getWaypointById(uint64 id);
-		WaypointObject*	getWaypointByName(string name);
-		bool			addWaypoint(WaypointObject* waypoint);
-		bool			removeWaypoint(uint64 id);
-		bool			removeWaypoint(WaypointObject* waypoint);
-		void			setObjectLoadCounter(uint32 count){ mObjectLoadCounter = count; }
-		void			requestNewWaypoint(string name, const glm::vec3& coords, uint16 planetId, uint8 wpType);
+    // waypoints
+    WaypointList*	getWaypoints() {
+        return &mWaypoints;
+    }
+    WaypointObject*	getWaypointById(uint64 id);
+    WaypointObject*	getWaypointByName(BString name);
+    bool			addWaypoint(WaypointObject* waypoint);
+    bool			removeWaypoint(uint64 id);
+    bool			removeWaypoint(WaypointObject* waypoint);
+    void			setObjectLoadCounter(uint32 count) {
+        mObjectLoadCounter = count;
+    }
+    void			requestNewWaypoint(BString name, const glm::vec3& coords, uint16 planetId, uint8 wpType);
+    void			updateWaypoint(uint64 wpId, BString name, const glm::vec3& coords, uint16 planetId, uint64 owner, uint8 activeStatus);
 
-		//missions
-		MissionList*   getMissions() { return &mMissions; }
-		MissionObject* getMissionById(uint64 id);
-		bool		   addMission(MissionObject* mission);
-		bool		   removeMission(uint64 id);
-		bool		   removeMission(MissionObject* mission);
-		bool		   hasMission(){return( mMissions.size()>0);}
-		
-		MissionList::iterator removeMission(MissionList::iterator it);
+    //missions
+    MissionList*   getMissions() {
+        return &mMissions;
+    }
+    MissionObject* getMissionById(uint64 id);
+    bool		   addMission(MissionObject* mission);
+    bool		   removeMission(uint64 id);
+    bool		   removeMission(MissionObject* mission);
+    bool		   hasMission() {
+        return( mMissions.size()>0);
+    }
 
-		//data -- aka mounts,pets,vehicles, etc
-		DataList*		   getData() { return &mData; }
-		IntangibleObject*  getDataById(uint64 id);
-		bool		       addData(IntangibleObject* Data);
-		bool		       removeData(uint64 id);
-		bool		       removeData(IntangibleObject* Data);
-		DataList::iterator removeData(DataList::iterator it);
+    MissionList::iterator removeMission(MissionList::iterator it);
 
-		// ManufacturingSchematics
-		ManufacturingSchematicList*		getManufacturingSchematics(){ return &mManufacturingSchematics; }
-		ManufacturingSchematic*			getManufacturingSchematicById(uint64 id);
+    //data -- aka mounts,pets,vehicles, etc
+    DataList*		   getData() {
+        return &mData;
+    }
+    IntangibleObject*  getDataById(uint64 id);
+    bool		       addData(IntangibleObject* Data);
+    bool		       removeData(uint64 id);
+    bool		       removeData(IntangibleObject* Data);
+    DataList::iterator removeData(DataList::iterator it);
 
-		
-		bool							addManufacturingSchematic(ManufacturingSchematic* ms);
-		bool							removeManufacturingSchematic(uint64 id);
-		bool							removeManufacturingSchematic(ManufacturingSchematic* ms);
+    // ManufacturingSchematics
+    ManufacturingSchematicList*		getManufacturingSchematics() {
+        return &mManufacturingSchematics;
+    }
+    ManufacturingSchematic*			getManufacturingSchematicById(uint64 id);
 
 
-		// capacity
-		uint8			getCapacity(){ return mCapacity; }
-		uint8			getMissionCapacity() { return mMissionCapacity; }
-		
-		uint32			mWaypointUpdateCounter;
-		uint32			mManSUpdateCounter;
-		uint32			mSchematicUpdateCounter;
-		uint32			mMissionUpdateCounter;
+    bool							addManufacturingSchematic(ManufacturingSchematic* ms);
+    bool							removeManufacturingSchematic(uint64 id);
+    bool							removeManufacturingSchematic(ManufacturingSchematic* ms);
 
-	private:
 
-		uint8						mCapacity;
-		uint8						mWayPointCapacity;
-		uint8						mMissionCapacity;
-		WaypointList				mWaypoints;
-		ManufacturingSchematicList	mManufacturingSchematics;
-		MissionList					mMissions;
-		DataList					mData;
-		PlayerObject*				mOwner;
-		uint32						mObjectLoadCounter;
+    // capacity
+    uint8			getCapacity() {
+        return mCapacity;
+    }
+    uint8			getMissionCapacity() {
+        return mMissionCapacity;
+    }
+
+    uint32			mWaypointUpdateCounter;
+    uint32			mManSUpdateCounter;
+    uint32			mSchematicUpdateCounter;
+    uint32			mMissionUpdateCounter;
+
+private:
+
+    uint8						mCapacity;
+    uint8						mWayPointCapacity;
+    uint8						mMissionCapacity;
+    WaypointList				mWaypoints;
+    ManufacturingSchematicList	mManufacturingSchematics;
+    MissionList					mMissions;
+    DataList					mData;
+    PlayerObject*				mOwner;
+    uint32						mObjectLoadCounter;
 };
 
 //=============================================================================

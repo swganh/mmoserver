@@ -49,77 +49,110 @@ class Weapon;
 
 class EquipManager
 {
-	public:
+public:
 
-		EquipManager();
-		~EquipManager();
+    EquipManager();
+    ~EquipManager();
 
-		ObjectList*			EquipManager::getEquippedObjects();
+    ObjectList* getEquippedObjects();
 
-		// the slot map
-		SlotMap*			getSlotMap(){ return &mSlotMap; }
+    // the slot map
+    SlotMap* getSlotMap() {
+        return &mSlotMap;
+    }
 
-		// creature parent reference
-		CreatureObject*		getParent(){ return mParent; }
-		void				setParent(CreatureObject* creature){ mParent = creature; }
+    // creature parent reference
+    CreatureObject*		getParent() {
+        return mParent;
+    }
+    void				setParent(CreatureObject* creature) {
+        mParent = creature;
+    }
 
-		// get an object by a slot given
-		Object*				getEquippedObject(CreatureEquipSlot slot);
+    // get an object by a slot given
+    Object*				getEquippedObject(CreatureEquipSlot slot);
 
-		// handle equipping by items equip mask
-		bool				addEquippedObject(Object* object);
-		uint8				removeEquippedObject(Object* object);
+    // handle equipping by items equip mask
+    bool				addEquippedObject(Object* object);
+    uint8				removeEquippedObject(Object* object);
 
-		// manually equip by slots given
-		uint8				addEquippedObject(uint64 slotMask,Object* object);
-		uint8				removeEquippedObject(uint64 slotMask);
+    // manually equip by slots given
+    uint8				addEquippedObject(uint64 slotMask,Object* object);
+    uint8				removeEquippedObject(uint64 slotMask);
 
-		bool				addtoEquipList(Object* object);
+    bool				addtoEquipList(Object* object);
 
-		// clear the map
-		void				clearSlotMap(){ mSlotMap.clear(); }
+    // clear the map
+    void				clearSlotMap() {
+        mSlotMap.clear();
+    }
 
-		// flow control
-		uint32				getEquippedObjectsUpdateCounter(){ return mEquippedObjectsUpdateCounter; }
-		uint32				advanceEquippedObjectsUpdateCounter(uint32 c){ mEquippedObjectsUpdateCounter += c; return mEquippedObjectsUpdateCounter; }
-		void				setEquippedObjectsUpdateCounter(uint32 c){ mEquippedObjectsUpdateCounter = c;}
+    // flow control
+    uint32				getEquippedObjectsUpdateCounter() {
+        return mEquippedObjectsUpdateCounter;
+    }
+    uint32				advanceEquippedObjectsUpdateCounter(uint32 c) {
+        mEquippedObjectsUpdateCounter += c;
+        return mEquippedObjectsUpdateCounter;
+    }
+    void				setEquippedObjectsUpdateCounter(uint32 c) {
+        mEquippedObjectsUpdateCounter = c;
+    }
 
-		// default weapon handling
-		Weapon*				getDefaultWeapon(){ return mDefaultWeapon; }
-		void				setDefaultWeapon(Weapon* weapon){ mDefaultWeapon = weapon; }
-		bool				equipDefaultWeapon();
+    // default weapon handling
+    Weapon*				getDefaultWeapon() {
+        return mDefaultWeapon;
+    }
+    void				setDefaultWeapon(Weapon* weapon) {
+        mDefaultWeapon = weapon;
+    }
+    bool				equipDefaultWeapon();
 
-		// quick slot checks
-		uint64				getEquipSlots(){ return mEquipSlots; }
-		void				setEquipSlots(uint64 slots){ mEquipSlots = slots; }
-		void				occupyEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots | slot; }
-		void				freeEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots & ~slot; }
-		void				toggleEquipSlot(CreatureEquipSlot slot){ mEquipSlots = mEquipSlots ^ slot; }
-		bool				checkEquipSlot(CreatureEquipSlot slot){ return((mEquipSlots & slot) == static_cast<uint32>(slot)); }
-		bool				checkEquipSlots(uint64 slots){ return((mEquipSlots & slots) == slots); }
+    // quick slot checks
+    uint64				getEquipSlots() {
+        return mEquipSlots;
+    }
+    void				setEquipSlots(uint64 slots) {
+        mEquipSlots = slots;
+    }
+    void				occupyEquipSlot(CreatureEquipSlot slot) {
+        mEquipSlots = mEquipSlots | slot;
+    }
+    void				freeEquipSlot(CreatureEquipSlot slot) {
+        mEquipSlots = mEquipSlots & ~slot;
+    }
+    void				toggleEquipSlot(CreatureEquipSlot slot) {
+        mEquipSlots = mEquipSlots ^ slot;
+    }
+    bool				checkEquipSlot(CreatureEquipSlot slot) {
+        return((mEquipSlots & slot) == static_cast<uint32>(slot));
+    }
+    bool				checkEquipSlots(uint64 slots) {
+        return((mEquipSlots & slots) == slots);
+    }
 
-		bool				EquipItem(Object* object);
-		bool				unEquipItem(Object* object);
-		bool				CheckEquipable(Object* object);
+    bool				EquipItem(Object* object);
+    bool				unEquipItem(Object* object);
+    bool				CheckEquipable(Object* object);
 
-	private:
+private:
 
-		// slot / object references
-		SlotMap					mSlotMap;
-		ObjectSlotMap			mObjectMap;
-		//ObjectList			mEquippedObjects;
+    // slot / object references
+    SlotMap					mSlotMap;
+    ObjectSlotMap			mObjectMap;
+    //ObjectList			mEquippedObjects;
 
-		// reference for checking race/gender restrictions
-		CreatureObject*		mParent; //- we have 35 Slots
+    // reference for checking race/gender restrictions
+    CreatureObject*		mParent; //- we have 35 Slots
 
-		// slot bitmask for fast checks
-		uint64				mEquipSlots;
+    // slot bitmask for fast checks
+    uint64				mEquipSlots;
 
-		// flow control
-		uint32				mEquippedObjectsUpdateCounter;
+    // flow control
+    uint32				mEquippedObjectsUpdateCounter;
 
-		// default weapon
-		Weapon*				mDefaultWeapon;
+    // default weapon
+    Weapon*				mDefaultWeapon;
 };
 
 //=============================================================================

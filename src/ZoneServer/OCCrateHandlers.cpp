@@ -41,8 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
-#include "Common/Message.h"
+#include "NetworkManager/Message.h"
 #include <boost/lexical_cast.hpp>
 
 #include <cassert>
@@ -59,61 +58,53 @@ void	ObjectController::_handleFactoryCrateSplit(uint64 targetId,Message* message
 
 void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
-	PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
-	FactoryCrate*		crate				= dynamic_cast<FactoryCrate*>(gWorldManager->getObjectById(targetId));
+    PlayerObject*		playerObject		= dynamic_cast<PlayerObject*>(mObject);
+    FactoryCrate*		crate				= dynamic_cast<FactoryCrate*>(gWorldManager->getObjectById(targetId));
 
-	Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    if(!crate)
+    {
+        DLOG(INFO) << "ObjectController::_ExtractObject: Crate does not exist!";
+        return;
+    }
 
-	if(!crate)
-	{
-		gLogger->log(LogManager::DEBUG,"ObjectController::_ExtractObject: Crate does not exist!");
-		return;
-	}
+    //get the crates containing container  we can use the unified interface thks to virtual functions :)
+    TangibleObject* tO = dynamic_cast<TangibleObject* >(gWorldManager->getObjectById(crate->getParentId()));
+    if(!tO)
+    {
+        assert(false && "ObjectController::_ExtractObject inventory must be a tangible object");
+        return;
+    }
 
-	//get the crates containing container - inventory is a tangible, too - we can use the unified interface thks to virtual functions :)
-	//add inventories to worldmanager ?
-	TangibleObject* tO = dynamic_cast<TangibleObject* >(gWorldManager->getObjectById(crate->getParentId()));
-	if(!tO)
-	{
-		tO = dynamic_cast<TangibleObject* >(inventory);
-		if(!tO)
-		{
-			gLogger->log(LogManager::CRITICAL,"ObjectController::_ExtractObject: Crates parent does not exist!");
-			assert(false && "ObjectController::_ExtractObject inventory must be a tangible object");
-			return;
-		}
-	}
-	
-	if(!tO->checkCapacity())
-	{
-		//check if we can fit an additional item in our inventory
-		
-		return;
-	}
+    if(!tO->checkCapacity())
+    {
+        //check if we can fit an additional item in our inventory
+        //TODO: say something
+        return;
+    }
 
-	//create the new item
-	gObjectFactory->requestNewClonedItem(tO,crate->getLinkedObject()->getId(),tO->getId());
+    //create the new item
+    gObjectFactory->requestNewClonedItem(tO,crate->getLinkedObject()->getId(),tO->getId());
 
-	//decrease crate content
-	int32 content = crate->decreaseContent(1);
-	if(!content)
-	{
-		gMessageLib->sendDestroyObject(crate->getId(),playerObject);
-		gObjectFactory->deleteObjectFromDB(crate->getId());
-		inventory->deleteObject(crate);
-		return;
-	}
-	
-	if(content < 0)
-	{
-		gLogger->log(LogManager::CRITICAL,"ObjectController::_ExtractObject: the crate now has negative content!");
-		assert(false && "ObjectController::_ExtractObject crate must not have negative content");
-		return;
-	}
+    //decrease crate content
+    int32 content = crate->decreaseContent(1);
+    if(!content)
+    {
+        gMessageLib->sendDestroyObject(crate->getId(),playerObject);
+        gObjectFactory->deleteObjectFromDB(crate->getId());
+        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(crate->getParentId()));
+        tO->deleteObject(crate);
+        return;
+    }
 
-	gMessageLib->sendUpdateCrateContent(crate,playerObject);
+    if(content < 0)
+    {
+        assert(false && "ObjectController::_ExtractObject crate must not have negative content");
+        return;
+    }
 
-	return;
+    gMessageLib->sendUpdateCrateContent(crate,playerObject);
 
-	
+    return;
+
+
 }

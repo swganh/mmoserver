@@ -28,9 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_UTILS_TIMER_H
 #define ANH_UTILS_TIMER_H
 
-#include "typedefs.h"
-#include "clock.h"
 #include <boost/thread/thread.hpp>
+
+#include "Utils/clock.h"
+#include "Utils/typedefs.h"
 
 class TimerCallback;
 
@@ -44,10 +45,13 @@ public:
 
     virtual	void	Run();
 
-    uint32			getId(){ return mId; }
+    uint32			getId() {
+        return mId;
+    }
 
 private:
     boost::thread   mThread;
+
     void*						mContainer;
     TimerCallback*	mCallback;
     uint32					mId;

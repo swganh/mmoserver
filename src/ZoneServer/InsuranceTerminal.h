@@ -35,26 +35,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class InsuranceTerminal : public Terminal
 {
-	friend class TerminalFactory;
+    friend class TerminalFactory;
 
-	public:
+public:
 
-		InsuranceTerminal();
-		~InsuranceTerminal();
+    InsuranceTerminal();
+    ~InsuranceTerminal();
 
-		void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void		handleUIEvent(uint32 action,int32 element,string inputStr,UIWindow* window);
-		virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void		handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+    virtual void prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
 
-	private:
-		void		getUninsuredItems(PlayerObject* playerObject, BStringVector* insuranceList);
-		void		getInsuredItems(PlayerObject* playerObject, BStringVector* insuranceList);
+private:
+    void		getUninsuredItems(PlayerObject* playerObject, BStringVector* insuranceList);
+    void		getInsuredItems(PlayerObject* playerObject, BStringVector* insuranceList);
 
-		SortedInventoryItemList mSortedInsuranceList;
+    SortedInventoryItemList mSortedInsuranceList;
 
-	
-		
-		int32 mInsuranceFee;
+
+
+    int32 mInsuranceFee;
 
 };
 

@@ -44,33 +44,35 @@ class PlayerObject;
 
 namespace Anh_Utils
 {
-    class Clock;
+class Clock;
 }
 
 //=============================================================================
 
 class CraftingSessionFactory
 {
-	public:
+public:
 
-		static CraftingSessionFactory*	getSingletonPtr() { return mSingleton; }
-		static CraftingSessionFactory*	Init(Database* database);
+    static CraftingSessionFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static CraftingSessionFactory*	Init(Database* database);
 
-		~CraftingSessionFactory();
+    ~CraftingSessionFactory();
 
-		CraftingSession*		createSession(Anh_Utils::Clock* clock,PlayerObject* player,CraftingTool* tool,CraftingStation* station,uint32 expFlag);
-		void					destroySession(CraftingSession* session);
+    CraftingSession*		createSession(Anh_Utils::Clock* clock,PlayerObject* player,CraftingTool* tool,CraftingStation* station,uint32 expFlag);
+    void					destroySession(CraftingSession* session);
 
-	private:
+private:
 
-		CraftingSessionFactory(Database* database);
+    CraftingSessionFactory(Database* database);
 
-		static CraftingSessionFactory*	mSingleton;
-		static bool						mInsFlag;
+    static CraftingSessionFactory*	mSingleton;
+    static bool						mInsFlag;
 
-		Database*						mDatabase;
+    Database*						mDatabase;
 
-		boost::pool<boost::default_user_allocator_malloc_free>	mSessionPool;
+    boost::pool<boost::default_user_allocator_malloc_free>	mSessionPool;
 };
 
 //=============================================================================

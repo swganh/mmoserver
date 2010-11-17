@@ -30,13 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define gCharSheetManager	CharSheetManager::getSingletonPtr()
 
+#include <map>
+#include <vector>
+#include <boost/pool/pool.hpp>
 
 #include "DatabaseManager/DatabaseCallback.h"
-#include "Common/MessageDispatchCallback.h"
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
-
-#include <map>
-#include <boost/pool/pool.hpp>
 
 //=========================================================================================#
 
@@ -52,73 +52,78 @@ class MessageDispatch;
 //=========================================================================================
 
 typedef std::vector<Badge*>			BadgeList;
-typedef void						(CharSheetManager::*CSFunction)(Message*,DispatchClient*);
-typedef std::map<uint32,CSFunction>	CSCommandMap;
 
 //=========================================================================================
 
 enum CharSheetQuery
 {
-	CharSheetQuery_Factions			=	1,
-	CharSheetQuery_BadgeCategories	=	2,
-	CharSheetQuery_Badges			=	3
+    CharSheetQuery_Factions			=	1,
+    CharSheetQuery_BadgeCategories	=	2,
+    CharSheetQuery_Badges			=	3
 };
 
 //=========================================================================================
 
 class CSAsyncContainer
 {
-	public:
+public:
 
-		CSAsyncContainer(CharSheetQuery query){ mQuery = query; }
-		~CSAsyncContainer(){}
+    CSAsyncContainer(CharSheetQuery query) {
+        mQuery = query;
+    }
+    ~CSAsyncContainer() {}
 
-		CharSheetQuery	mQuery;
+    CharSheetQuery	mQuery;
 };
 
 //=========================================================================================
 
-class CharSheetManager : public DatabaseCallback, public MessageDispatchCallback
+class CharSheetManager : public DatabaseCallback
 {
-	public:
+public:
 
-		static CharSheetManager*	Init(Database* database,MessageDispatch* dispatch);
-		static CharSheetManager*	getSingletonPtr() { return mSingleton; }
+    static CharSheetManager*	Init(Database* database,MessageDispatch* dispatch);
+    static CharSheetManager*	getSingletonPtr() {
+        return mSingleton;
+    }
 
-		~CharSheetManager();
+    ~CharSheetManager();
 
-		virtual void			handleDatabaseJobComplete(void* ref, DatabaseResult* result);
-		virtual void			handleDispatchMessage(uint32 opcode,Message* message,DispatchClient* client);
+    virtual void			handleDatabaseJobComplete(void* ref, DatabaseResult* result);
 
-		string					getFactionById(uint32 id){ return mvFactions[id - 1]; }
+    BString					getFactionById(uint32 id) {
+        return mvFactions[id - 1];
+    }
 
-		string					getBadgeCategory(uint8 id){ return mvBadgeCategories[id - 1]; }
-		Badge*					getBadgeById(uint32 id){ return mvBadges[id]; }
+    BString					getBadgeCategory(uint8 id) {
+        return mvBadgeCategories[id - 1];
+    }
+    Badge*					getBadgeById(uint32 id) {
+        return mvBadges[id];
+    }
 
-	private:
+private:
 
-		CharSheetManager(Database* database,MessageDispatch* dispatch);
+    CharSheetManager(Database* database,MessageDispatch* dispatch);
 
-		void					_processFactionRequest(Message* message,DispatchClient* client);
-		void					_processPlayerMoneyRequest(Message* message,DispatchClient* client);
-		void					_processStomachRequest(Message* message,DispatchClient* client);
-		void					_processGuildRequest(Message* message,DispatchClient* client);
+    void					_processFactionRequest(Message* message,DispatchClient* client);
+    void					_processPlayerMoneyRequest(Message* message,DispatchClient* client);
+    void					_processStomachRequest(Message* message,DispatchClient* client);
+    void					_processGuildRequest(Message* message,DispatchClient* client);
 
-		void					_loadCommandMap();
-		void					_registerCallbacks();
-		void					_unregisterCallbacks();
+    void					_registerCallbacks();
+    void					_unregisterCallbacks();
 
-		static bool					mInsFlag;
-		static CharSheetManager*	mSingleton;
-		CSCommandMap				mCommandMap;
-		Database*					mDatabase;
-		MessageDispatch*			mMessageDispatch;
+    static bool					mInsFlag;
+    static CharSheetManager*	mSingleton;
+    Database*					mDatabase;
+    MessageDispatch*			mMessageDispatch;
 
-		BStringVector				mvFactions;
-		BStringVector				mvBadgeCategories;
-		BadgeList					mvBadges;
+    BStringVector				mvFactions;
+    BStringVector				mvBadgeCategories;
+    BadgeList					mvBadges;
 
-		boost::pool<boost::default_user_allocator_malloc_free>		mDBAsyncPool;
+    boost::pool<boost::default_user_allocator_malloc_free>		mDBAsyncPool;
 };
 
 #endif

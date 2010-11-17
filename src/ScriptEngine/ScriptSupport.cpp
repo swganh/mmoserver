@@ -40,6 +40,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
 
 // const uint64 wompratTemplateId = 47513085687;
 // const uint64 rillTemplateId = 47513085693;
@@ -56,22 +63,22 @@ ScriptSupport::ScriptSupport()
 
 ScriptSupport::~ScriptSupport()
 {
-	// All references that are owned by WorldManager will be deleted by WorldManager.
-	/*
-	ScriptSupportObjectMap::iterator objMapIt = mObjectMap.begin();
-	while (objMapIt != mObjectMap.end())
-	{
-		objMapIt = mObjectMap.erase(objMapIt);
-	}
-	*/
-	mObjectMap.clear();
+    // All references that are owned by WorldManager will be deleted by WorldManager.
+    /*
+    ScriptSupportObjectMap::iterator objMapIt = mObjectMap.begin();
+    while (objMapIt != mObjectMap.end())
+    {
+    	objMapIt = mObjectMap.erase(objMapIt);
+    }
+    */
+    mObjectMap.clear();
 }
 
 //======================================================================================================================
 void ScriptSupport::destroyInstance(void)
 {
-  delete mInstance;
-  mInstance = NULL;
+    delete mInstance;
+    mInstance = NULL;
 }
 
 
@@ -81,51 +88,52 @@ void ScriptSupport::destroyInstance(void)
 //
 ScriptSupport* ScriptSupport::Instance()
 {
-	if (!mInstance)
-	{
-		mInstance = new ScriptSupport();
-	}
-	return mInstance;
+    if (!mInstance)
+    {
+        mInstance = new ScriptSupport();
+    }
+    return mInstance;
 }
 
 
 //======================================================================================================================
 //
 //	General purpose
-// will this only get called on start up ???
-// if no why dont get the objects created for surrounding players ??
+// this will add an object to the worldmanager
+// NOT to the spatial index
+// they will be added later by hand
 
 void ScriptSupport::handleObjectReady(Object* object)
 {
-	if (object)
-	{
-		// Save this object internally with it's id.
-		mObjectMap.insert(std::make_pair(object->getId(), object));
+    if (object)
+    {
+        // Save this object internally with it's id.
+        mObjectMap.insert(std::make_pair(object->getId(), object));
 
-		// Creatures are added to WorldManager list when they have been fully initilaized (spawned) successfully.
-		// when we re-spawn them.
-		
-		if (object->getType() == ObjType_Tangible)
-		{
-			gWorldManager->addObject(object,true);
-		}
-	}
+        // Creatures are added to WorldManager list when they have been fully initilaized (spawned) successfully.
+        // when we re-spawn them.
+
+        if (object->getType() == ObjType_Tangible)
+        {
+            gWorldManager->addObject(object,true);
+        }
+    }
 }
 
 bool ScriptSupport::objectIsReady(uint64 objectId)
 {
-	return (getObject(objectId) != NULL);
+    return (getObject(objectId) != NULL);
 }
 
 Object* ScriptSupport::getObject(uint64 id)
 {
-	ScriptSupportObjectMap::iterator it = mObjectMap.find(id);
+    ScriptSupportObjectMap::iterator it = mObjectMap.find(id);
 
-	if (it != mObjectMap.end())
-	{
-		return((*it).second);
-	}
-	return (NULL);
+    if (it != mObjectMap.end())
+    {
+        return((*it).second);
+    }
+    return (NULL);
 }
 
 //======================================================================================================================
@@ -134,41 +142,41 @@ Object* ScriptSupport::getObject(uint64 id)
 //
 uint64 ScriptSupport::getObjectOwnedBy(uint64 theOwner)
 {
-	ScriptSupportObjectMap::iterator it = mObjectMap.begin();
-	uint64 ownerId = 0;
+    ScriptSupportObjectMap::iterator it = mObjectMap.begin();
+    uint64 ownerId = 0;
 
-	while (it != mObjectMap.end())
-	{
-		if ( ((*it).second)->getPrivateOwner() == theOwner)
-		{
-			ownerId = (*it).first;
-			break;
-		}
-		it++;
-	}
-	return ownerId;
+    while (it != mObjectMap.end())
+    {
+        if ( ((*it).second)->getPrivateOwner() == theOwner)
+        {
+            ownerId = (*it).first;
+            break;
+        }
+        it++;
+    }
+    return ownerId;
 }
 
 void ScriptSupport::eraseObject(uint64 id)
 {
-	ScriptSupportObjectMap::iterator it = mObjectMap.find(id);
-	if (it != mObjectMap.end())
-	{
-		mObjectMap.erase(it);
-	}
+    ScriptSupportObjectMap::iterator it = mObjectMap.find(id);
+    if (it != mObjectMap.end())
+    {
+        mObjectMap.erase(it);
+    }
 }
 
 
 // Used when testing instances, normally we start up disabled (except Tutorial).
 void ScriptSupport::enableInstance()
 {
-	gWorldConfig->enableInstance();
+    gWorldConfig->enableInstance();
 }
 
 
 bool ScriptSupport::isInstance()
 {
-	return gWorldConfig->isInstance();
+    return gWorldConfig->isInstance();
 }
 
 
@@ -179,50 +187,52 @@ bool ScriptSupport::isInstance()
 
 NPCObject* ScriptSupport::npcGetObject(uint64 id)
 {
-	return dynamic_cast<NPCObject*>(getObject(id));
+    return dynamic_cast<NPCObject*>(getObject(id));
 }
 
 uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay)
 {
-	uint64 npcId = gWorldManager->getRandomNpNpcIdSequence();
-	if (npcId != 0)
-	{
-		// Let's create a npc.
+    DLOG(INFO) << "ScriptSupport::npcCreate template id " << templateId;
+
+    uint64 npcId = gWorldManager->getRandomNpNpcIdSequence();
+    if (npcId != 0)
+    {
+        // Let's create a npc.
         NonPersistentNpcFactory::Instance()->requestNpcObject(this, templateId, npcId, 0, glm::vec3(), glm::quat(), 0);
-	}
-	else
-	{
-		// @TODO: WorldManager::getRandomNpNpcIdSequence must return a valid value.
-		assert(false);
-	}
-	return npcId;
+    }
+    else
+    {
+        // @TODO: WorldManager::getRandomNpNpcIdSequence must return a valid value.
+        assert(false);
+    }
+    return npcId;
 }
 
 
 void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ,
-									   uint64 respawnPeriod, uint64 templateId)
+                                       uint64 respawnPeriod, uint64 templateId)
 {
-	// Do not allow any spwans if not heightmap avaliable.
-	if (gHeightmap->Open())
-	{
-		// Test
-		// respawnPeriod = 15000;
-		npcSpawnGeneral(npcId, 0, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, respawnPeriod);
-	}
-	else
-	{
-		gLogger->log(LogManager::NOTICE, "ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.");
-	}
+    // Do not allow any spwans if not heightmap avaliable.
+    if (gHeightmap->Open())
+    {
+        // Test
+        // respawnPeriod = 15000;
+        npcSpawnGeneral(npcId, 0, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, respawnPeriod);
+    }
+    else
+    {
+        LOG(WARNING) << "ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.";
+    }
 }
 
 void ScriptSupport::npcSpawn(NPCObject* npc, uint64 npcId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ)
 {
-	npcSpawnGeneral(npcId, 0, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, 0);
+    npcSpawnGeneral(npcId, 0, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, 0);
 }
 
 void ScriptSupport::npcSpawnPrivate(NPCObject* npc, uint64 npcId, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ)
 {
-	npcSpawnGeneral(npcId, npcPrivateOwnerId, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, 0);
+    npcSpawnGeneral(npcId, npcPrivateOwnerId, cellForSpawn, firstname, lastname, dirY, dirW, posX, posY, posZ, 0);
 }
 
 void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay) // , uint64 templateId)
@@ -230,187 +240,189 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
     glm::quat direction;
     glm::vec3 position;
 
-	direction.x = 0.0;
-	direction.y = dirY;
-	direction.z = 0.0;
-	direction.w = dirW;
+    direction.x = 0.0;
+    direction.y = dirY;
+    direction.z = 0.0;
+    direction.w = dirW;
 
-	position.x = posX;
-	position.y = posY;
-	position.z = posZ;
+    position.x = posX;
+    position.y = posY;
+    position.z = posZ;
 
-	NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(npcId));
-	assert(npc);
-	if (!npc)
-	{
-		// Fallback for running in release mode.
-		gLogger->log(LogManager::WARNING, "ScriptSupport::npcSpawnGeneral: Failed to access NPC id %"PRIu64"", npcId);
-		return;
-	}
+    NPCObject* npc = dynamic_cast<NPCObject*>(gWorldManager->getObjectById(npcId));
+    assert(npc);
+    if (!npc)
+    {
+        // Fallback for running in release mode.
+        LOG(WARNING) << "ScriptSupport::npcSpawnGeneral: Failed to access NPC id " << npcId;
+        return;
+    }
 
-	// npc->setId(npcId);
-	npc->setParentId(cellForSpawn);	// The cell we will spawn in.
-	npc->setCellIdForSpawn(cellForSpawn);
-
-
-
-	// THESE TWO ARE NOT GENERALLY FIXED YET.
-	npc->setFirstName((int8*)firstname.c_str());
-	npc->setLastName((int8*)lastname.c_str());
-
-	// THIS ONE IS NOT GENERALLY FIXED YET.
-	// If used for re-spawning npc's, add this id as an internal attribute.
-	npc->setPrivateOwner(npcPrivateOwnerId);
+    // npc->setId(npcId);
+    npc->setParentId(cellForSpawn);	// The cell we will spawn in.
+    npc->setCellIdForSpawn(cellForSpawn);
 
 
-	npc->mPosition = position;
-	npc->setSpawnPosition(position);
 
-	npc->mDirection = direction;
-	npc->setSpawnDirection(direction);
-	npc->setRespawnDelay(respawnDelay);
+    // THESE TWO ARE NOT GENERALLY FIXED YET.
+    npc->setFirstName((int8*)firstname.c_str());
+    npc->setLastName((int8*)lastname.c_str());
 
-	// Register object with WorldManager.
-	// gWorldManager->addObject(npc, true);
+    // THIS ONE IS NOT GENERALLY FIXED YET.
+    // If used for re-spawning npc's, add this id as an internal attribute.
+    npc->setPrivateOwner(npcPrivateOwnerId);
 
-	// Update the world about my presence.
-	/*
-	if (npc->getParentId())
-	{
-		// insert into cell
-		npc->setSubZoneId(0);
 
-		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(npc->getParentId())))
-		{
-			cell->addChild(npc);
-		}
-		else
-		{
-		}
-	}
-	else
-	{
-		if (QTRegion* region = gWorldManager->getSI()->getQTRegion(npc->mPosition.x,npc->mPosition.z))
-		{
-			npc->setSubZoneId((uint32)region->getId());
-			region->mTree->addObject(npc);
-		}
-	}
-	*/
+    npc->mPosition = position;
+    npc->setSpawnPosition(position);
 
-	//Inventory* inventory = dynamic_cast<Inventory*>(npc->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+    npc->mDirection = direction;
+    npc->setSpawnDirection(direction);
+    npc->setRespawnDelay(respawnDelay);
 
-	// Register the NPC with the NPC AI-manager.
-	if (npc->getTemplateId() == 0)
-	{
-		// Just to make sure we do not have any old scripts running.
-		assert(false);
-	}
-	npc->respawn();
+    // Register object with WorldManager.
+    // gWorldManager->addObject(npc, true);
 
-	// Now we can remove this object from our internal list. WorldManager will handle the destruction.
-	// Except for the npc's used in tutorial, they are spawned-despawned with the player.
-	if (!gWorldConfig->isTutorial())
-	{
-		this->eraseObject(npcId);
-	}
-/*
-	// The dynamic spawned private owned npc MUST register with their owner.
-	// It's not always the case that the player have had time to track this newly spawned objects,
+    // Update the world about my presence.
+    /*
+    if (npc->getParentId())
+    {
+    	// insert into cell
+    	npc->setSubZoneId(0);
 
-	// Private owned objects are invisible to most players and using getKnownPlayers()->empty() to try and save the
-	// sendDataTransformWithParent
-	// and
-	// sendUpdateTransformMessageWithParent
-	// from being called is just ridicules, it's not like we going to spwan a npc from script every second or so.
+    	if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(npc->getParentId())))
+    	{
+    		cell->addChild(npc);
+    	}
+    	else
+    	{
+    	}
+    }
+    else
+    {
+    	if (QTRegion* region = gWorldManager->getSI()->getQTRegion(npc->mPosition.x,npc->mPosition.z))
+    	{
+    		npc->setSubZoneId((uint32)region->getId());
+    		region->mTree->addObject(npc);
+    	}
+    }
+    */
 
-	// So please stop messing with this code!!!
+    //Inventory* inventory = dynamic_cast<Inventory*>(npc->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
-	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(npc->getId(),npc->getParentId(),-1,npc);
+    // Register the NPC with the NPC AI-manager.
+    if (npc->getTemplateId() == 0)
+    {
+        // Just to make sure we do not have any old scripts running.
+        assert(false);
+    }
+    npc->respawn();
 
-	// send out position updates to known players
-	npc->setInMoveCount(npc->getInMoveCount() + 1);
-	if (gWorldConfig->isTutorial())
-	{
-		// We need to get the player object that is the owner of this npc.
-		if (npcPrivateOwnerId != 0)
-		{
-			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(npcPrivateOwnerId));
-			if (playerObject)
-			{
+    // Now we can remove this object from our internal list. WorldManager will handle the destruction.
+    // Except for the npc's used in tutorial, they are spawned-despawned with the player.
+    if (!gWorldConfig->isTutorial())
+    {
+        this->eraseObject(npcId);
+    }
+    /*
+    	// The dynamic spawned private owned npc MUST register with their owner.
+    	// It's not always the case that the player have had time to track this newly spawned objects,
 
-				if (npc->getParentId())
-				{
-					// We are inside a cell.
-					gMessageLib->sendDataTransformWithParent(npc, playerObject);
-					gMessageLib->sendUpdateTransformMessageWithParent(npc, playerObject);
-				}
-				else
-				{
-					gMessageLib->sendDataTransform(npc, playerObject);
-					gMessageLib->sendUpdateTransformMessage(npc, playerObject);
-				}
-				return;
-			}
-		}
-	}
-	else
-	{
-		if (npc->getParentId())
-		{
-			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent(npc);
-			gMessageLib->sendUpdateTransformMessageWithParent(npc);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform(npc);
-			gMessageLib->sendUpdateTransformMessage(npc);
-		}
-	}
-	*/
+    	// Private owned objects are invisible to most players and using getKnownPlayers()->empty() to try and save the
+    	// sendDataTransformWithParent
+    	// and
+    	// sendUpdateTransformMessageWithParent
+    	// from being called is just ridicules, it's not like we going to spwan a npc from script every second or so.
+
+    	// So please stop messing with this code!!!
+
+    	// Add us to the world.
+    	gMessageLib->broadcastContainmentMessage(npc->getId(),npc->getParentId(),-1,npc);
+
+    	// send out position updates to known players
+    	npc->setInMoveCount(npc->getInMoveCount() + 1);
+    	if (gWorldConfig->isTutorial())
+    	{
+    		// We need to get the player object that is the owner of this npc.
+    		if (npcPrivateOwnerId != 0)
+    		{
+    			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(npcPrivateOwnerId));
+    			if (playerObject)
+    			{
+
+    				if (npc->getParentId())
+    				{
+    					// We are inside a cell.
+    					gMessageLib->sendDataTransformWithParent(npc, playerObject);
+    					gMessageLib->sendUpdateTransformMessageWithParent(npc, playerObject);
+    				}
+    				else
+    				{
+    					gMessageLib->sendDataTransform(npc, playerObject);
+    					gMessageLib->sendUpdateTransformMessage(npc, playerObject);
+    				}
+    				return;
+    			}
+    		}
+    	}
+    	else
+    	{
+    		if (npc->getParentId())
+    		{
+    			// We are inside a cell.
+    			gMessageLib->sendDataTransformWithParent(npc);
+    			gMessageLib->sendUpdateTransformMessageWithParent(npc);
+    		}
+    		else
+    		{
+    			gMessageLib->sendDataTransform(npc);
+    			gMessageLib->sendUpdateTransformMessage(npc);
+    		}
+    	}
+    	*/
 }
 
 void ScriptSupport::npcMove(NPCObject* npc, float posX, float posY, float posZ)
 {
-	// send out position updates to known players
+    // send out position updates to known players
     npc->updatePosition(npc->getParentId(), glm::vec3(posX, posY, posZ));
 }
 
 void ScriptSupport::npcMoveToZone(NPCObject* npc, uint64 zoneId, float posX, float posY, float posZ)
 {
-	// send out position updates to known players
-	npc->updatePosition(zoneId, glm::vec3(posX, posY, posZ));
+    // send out position updates to known players
+    npc->updatePosition(zoneId, glm::vec3(posX, posY, posZ));
 }
 
 
 uint32 ScriptSupport::getZoneId()
 {
-	return gWorldManager->getZoneId();
+    return gWorldManager->getZoneId();
 }
 
 
 void ScriptSupport::npcTestDir(NPCObject* npc, float dirX, float dirZ)
 {
-	npc->mDirection.x = dirX;
-	npc->mDirection.x = dirZ;
+    npc->mDirection.x = dirX;
+    npc->mDirection.x = dirZ;
 }
 
 void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ) {
     // Turn to the direction heading.
     npc->facePosition(glm::vec3(deltaX, 0.0f, deltaZ));
 
-	// send out position updates to known players
-	
+    // send out position updates to known players
+    // updateNpcPosition(npc);
+    if(npc->getParentId()) {
+        return;
+    }
+
     // Send out the appropriate data transform depending if the npc is in a cell or not.
-	if (npc->getParentId())	
-	{
-		gMessageLib->sendDataTransformWithParent053(npc);
-	} else 
-	{
-		gMessageLib->sendDataTransform053(npc);
-	}
+    if (npc->getParentId())	{
+        gMessageLib->sendDataTransformWithParent053(npc);
+    } else {
+        gMessageLib->sendDataTransform053(npc);
+    }
 }
 
 
@@ -420,93 +432,89 @@ void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ) {
 
 void ScriptSupport::npcFormationPosition(NPCObject* npcMember, float xOffset, float zOffset)
 {
-	// Update formation members direction.
-	// npcMember->mDirection = npcLeader->mDirection;
+    // Update formation members direction.
+    // npcMember->mDirection = npcLeader->mDirection;
 
-	// Get offset to leader so we can stay in formation.
-	float length = sqrt((xOffset * xOffset) + (zOffset * zOffset));
-	float alpha = atan(xOffset/zOffset);
+    // Get offset to leader so we can stay in formation.
+    float length = sqrt((xOffset * xOffset) + (zOffset * zOffset));
+    float alpha = atan(xOffset/zOffset);
 
-	float w = npcMember->mDirection.w;
-	float y = 1.0;
+    float w = npcMember->mDirection.w;
 
-	if (w > 0.0)
-	{
-		if (npcMember->mDirection.y < 0.0)
-		{
-			w *= -1;
-			y = -1.0;
-		}
-	}
-	float angle = 2.0f*acos(w);
+    if (w > 0.0)
+    {
+        if (npcMember->mDirection.y < 0.0)
+        {
+            w *= -1;
+        }
+    }
+    float angle = 2.0f*acos(w);
 
-	// We assume all formation is following the leader, ie. located behind him.
-	angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
+    // We assume all formation is following the leader, ie. located behind him.
+    angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
 
     glm::vec3 positionOffset;
 
-	positionOffset.x = (sin(angle) * length);
-	positionOffset.y = 0;
-	positionOffset.z = (cos(angle) * length);
+    positionOffset.x = (sin(angle) * length);
+    positionOffset.y = 0;
+    positionOffset.z = (cos(angle) * length);
 
-	npcMember->setPositionOffset(positionOffset);
+    npcMember->setPositionOffset(positionOffset);
 
-	// send out position updates to known players
-	// updateNpcPosition(npcMember);
+    // send out position updates to known players
+    // updateNpcPosition(npcMember);
 }
 
 
 void ScriptSupport::npcFormationMoveEx(NPCObject* npc, float posX, float posY, float posZ , float xOffset, float zOffset)
 {
-	float length = sqrt((xOffset * xOffset) + (zOffset * zOffset));
+    float length = sqrt((xOffset * xOffset) + (zOffset * zOffset));
 
-	float alpha = atan(xOffset/zOffset);
+    float alpha = atan(xOffset/zOffset);
 
-	float w = npc->mDirection.w;
-	float y = 1.0;
+    float w = npc->mDirection.w;
 
-	if (w > 0.0)
-	{
-		if (npc->mDirection.y < 0.0)
-		{
-			w *= -1;
-			y = -1.0;
-		}
-	}
-	float angle = 2.0f*acos(w);
+    if (w > 0.0)
+    {
+        if (npc->mDirection.y < 0.0)
+        {
+            w *= -1;
+        }
+    }
+    float angle = 2.0f*acos(w);
 
-	// We assume all formation is following the leader, ie. located behind him.
-	angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
+    // We assume all formation is following the leader, ie. located behind him.
+    angle += static_cast<float>(alpha + 3.1415936539);	// alpha + 180
 
-	// npc->mPosition.x = posX + (sin(angle) * length);
-	// npc->mPosition.y = posY;
-	// npc->mPosition.z = posZ + (cos(angle) * length);
+    // npc->mPosition.x = posX + (sin(angle) * length);
+    // npc->mPosition.y = posY;
+    // npc->mPosition.z = posZ + (cos(angle) * length);
 
-	posX += (sin(angle) * length);
-	posZ += (cos(angle) * length);
+    posX += (sin(angle) * length);
+    posZ += (cos(angle) * length);
 
-	// send out position updates to known players
+    // send out position updates to known players
     npc->updatePosition(npc->getParentId(), glm::vec3(posX, posY, posZ));
 }
 
 // To be used with "ScriptSupport::npcFormationDirection".
 void ScriptSupport::npcFormationMove(NPCObject* npc, float posX, float posY, float posZ)
 {
-	// New destination, and take care of any offset from formation leader.
-	// npc->mPosition = npc->getPositionOffset();
+    // New destination, and take care of any offset from formation leader.
+    // npc->mPosition = npc->getPositionOffset();
 
-	// send out position updates to known players
+    // send out position updates to known players
     npc->updatePosition(npc->getParentId(), glm::vec3(posX, posY, posZ) + npc->getPositionOffset());
 }
 
 void ScriptSupport::npcClonePosition(NPCObject* npcDest, NPCObject* npcSrc)
 {
-	// New destination, and take care of any offset from formation leader.
-	// npcDest->mPosition = npcSrc->mPosition;
-	npcDest->mDirection = npcSrc->mDirection;
+    // New destination, and take care of any offset from formation leader.
+    // npcDest->mPosition = npcSrc->mPosition;
+    npcDest->mDirection = npcSrc->mDirection;
 
-	// send out position updates to known players
-	npcDest->updatePosition(npcDest->getParentId(), npcSrc->mPosition);
+    // send out position updates to known players
+    npcDest->updatePosition(npcDest->getParentId(), npcSrc->mPosition);
 }
 
 
@@ -514,8 +522,8 @@ void ScriptSupport::npcClonePosition(NPCObject* npcDest, NPCObject* npcSrc)
 // void ScriptSupport::scriptPlayMusic(uint32 soundId, Object* creatureObject)
 void ScriptSupport::scriptPlayMusic(uint32 soundId, NPCObject* creatureObject)
 {
-	Object* object = dynamic_cast<Object*>(creatureObject);
-	gMessageLib->sendPlayMusicMessage(soundId, object);
+    Object* object = dynamic_cast<Object*>(creatureObject);
+    gMessageLib->sendPlayMusicMessage(soundId, object);
 }
 
 //======================================================================================================================
@@ -645,41 +653,41 @@ void ScriptSupport::containerSpawn(Container* container,
 }
 */
 
-						// We need an id.
+// We need an id.
 
 
 uint64 ScriptSupport::itemCreate(uint64 itemTypesId)
 {
-	// We need a new id to our new item.
-	uint64 itemNewId = gWorldManager->getRandomNpId();
-	if (itemNewId != 0)
-	{
-		// Let us get an object from/via the WRONG database (the Persistent... one).
-		NonPersistentItemFactory::Instance()->requestObject(this, itemTypesId, itemNewId);
-	}
-	return itemNewId;
+    // We need a new id to our new item.
+    uint64 itemNewId = gWorldManager->getRandomNpId();
+    if (itemNewId != 0)
+    {
+        // Let us get an object from/via the WRONG database (the Persistent... one).
+        NonPersistentItemFactory::Instance()->requestObject(this, itemTypesId, itemNewId);
+    }
+    return itemNewId;
 }
 
 // TODO: Fix this
 void ScriptSupport::itemPopulateInventory(uint64 itemId, uint64 npcId, uint64 playerId)
 {
-	// NOTE: For now we only check and validates TangibleObject.
+    // NOTE: For now we only check and validates TangibleObject.
 
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
-	Object* itemObject = gWorldManager->getObjectById(itemId);
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
+    Object* itemObject = gWorldManager->getObjectById(itemId);
 
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 
-	if (creature && itemObject && playerObject)
-	{
-		Inventory* inventory = dynamic_cast<Inventory*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		if (inventory)
-		{
-			//  and (tutorial:getRoom() < 7)
-			inventory->addObjectSecure(itemObject);
-			itemObject->setParentId(npcId+1);
-		}
-	}
+    if (creature && itemObject && playerObject)
+    {
+        Inventory* inventory = dynamic_cast<Inventory*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        if (inventory)
+        {
+            //  and (tutorial:getRoom() < 7)
+            inventory->addObjectSecure(itemObject);
+            itemObject->setParentId(npcId+1);
+        }
+    }
 }
 
 
@@ -744,13 +752,13 @@ void ScriptSupport::itemSpawn(Item* item,
 
 uint64 ScriptSupport::getTarget(uint64 playerId)
 {
-	uint64 targetId = 0;
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-	if (playerObject)
-	{
-		targetId = playerObject->getTargetId();
-	}
-	return targetId;
+    uint64 targetId = 0;
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    if (playerObject)
+    {
+        targetId = playerObject->getTargetId();
+    }
+    return targetId;
 }
 
 //======================================================================================================================
@@ -760,18 +768,18 @@ uint64 ScriptSupport::getTarget(uint64 playerId)
 
 uint64 ScriptSupport::getParentOfTarget(uint64 playerId)
 {
-	uint64 parentId = 0;
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-	if (playerObject)
-	{
-		uint64 targetId = playerObject->getTargetId();
-		Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(targetId));
-		if (object)
-		{
-			parentId = object->getParentId();
-		}
-	}
-	return parentId;
+    uint64 parentId = 0;
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    if (playerObject)
+    {
+        uint64 targetId = playerObject->getTargetId();
+        Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById(targetId));
+        if (object)
+        {
+            parentId = object->getParentId();
+        }
+    }
+    return parentId;
 }
 
 //======================================================================================================================
@@ -780,18 +788,18 @@ uint64 ScriptSupport::getParentOfTarget(uint64 playerId)
 //
 void ScriptSupport::sendFlyText(uint64 targetId, uint64 playerId, std::string stfFile, std::string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
 {
-	Object* object = gWorldManager->getObjectById(targetId);
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-	if (object && playerObject)
-	{
-		gMessageLib->sendFlyText(object,playerObject, (int8*)(stfFile.c_str()),(int8*)(stfVar.c_str()),red,green,blue, display);
-	}
+    Object* object = gWorldManager->getObjectById(targetId);
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    if (object && playerObject)
+    {
+        gMessageLib->sendFlyText(object,playerObject, (int8*)(stfFile.c_str()),(int8*)(stfVar.c_str()),red,green,blue, display);
+    }
 }
 
 /*
 void Tutorial::scriptSystemMessage(std::string message)
 {
-	string msg = (int8*)message.c_str();
+	BString msg = (int8*)message.c_str();
 
 	msg.convert(BSTRType_Unicode16);
 
@@ -804,16 +812,16 @@ void Tutorial::scriptSystemMessage(std::string message)
 
 void ScriptSupport::scriptSystemMessage(uint64 playerId, uint64 targetId, std::string message)
 {
-	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-	Object* object = gWorldManager->getObjectById(targetId);
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
-	if (object && creature && playerObject && playerObject->isConnected())
-	{
-		string msg = (int8*)message.c_str();
-		// gMessageLib->sendPlayClientEffectLocMessage(msg, object->mPosition, playerObject);
-		gMessageLib->sendPlayClientEffectObjectMessage(msg,"",creature,playerObject);
-		// "clienteffect/combat_explosion_lair_large.cef"
-	}
+    PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    Object* object = gWorldManager->getObjectById(targetId);
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
+    if (object && creature && playerObject && playerObject->isConnected())
+    {
+        BString msg = (int8*)message.c_str();
+        // gMessageLib->sendPlayClientEffectLocMessage(msg, object->mPosition, playerObject);
+        gMessageLib->sendPlayClientEffectObjectMessage(msg,"",creature,playerObject);
+        // "clienteffect/combat_explosion_lair_large.cef"
+    }
 }
 
 bool ScriptSupport::npcInCombat(uint64 npcId)
@@ -822,30 +830,30 @@ bool ScriptSupport::npcInCombat(uint64 npcId)
 	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
 	if (creature)
 	{
-		inCombat = creature->checkState(CreatureState_Combat);
+		inCombat = creature->states.checkState(CreatureState_Combat);
 	}
 	return inCombat;
 }
 
 bool ScriptSupport::npcIsDead(uint64 npcId)
 {
-	bool isDead = true;
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
-	if (creature)
-	{
-		isDead = creature->isDead();
-	}
-	return isDead;
+    bool isDead = true;
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
+    if (creature)
+    {
+        isDead = creature->isDead();
+    }
+    return isDead;
 }
 
 void ScriptSupport::npcKill(uint64 npcId)
 {
-	CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
-	if (creature)
-	{
-		// Kill him!
-		creature->die();
-	}
+    CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(npcId));
+    if (creature)
+    {
+        // Kill him!
+        creature->die();
+    }
 }
 
 //======================================================================================================================
@@ -858,45 +866,45 @@ void ScriptSupport::npcKill(uint64 npcId)
 
 void ScriptSupport::setPlayerPosition(uint64 playerId, uint64 cellId, float posX, float posY, float posZ)
 {
-	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-	if (player)
-	{
-		// Anh_Math::Quaternion	direction;
+    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    if (player)
+    {
+        // Anh_Math::Quaternion	direction;
         glm::vec3 position;
-		position.x = posX;
-		position.y = posY;
-		position.z = posZ;
+        position.x = posX;
+        position.y = posY;
+        position.z = posZ;
 
-		player->mPosition = position;
-		player->setParentId(cellId);
+        player->mPosition = position;
+        player->setParentId(cellId);
 
-		if (cellId)
-		{
-			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent053(player);
-			gMessageLib->sendUpdateTransformMessageWithParent(player);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform053(player);
-			gMessageLib->sendUpdateTransformMessage(player);
-			//If our player is mounted move his mount aswell
-			if(player->checkIfMounted() && player->getMount())
-			{
-				player->getMount()->mPosition = position;
-				gMessageLib->sendDataTransform053(player->getMount());
-				gMessageLib->sendUpdateTransformMessage(player->getMount());
-			}
-		}
-	}
+        if (cellId)
+        {
+            // We are inside a cell.
+            gMessageLib->sendDataTransformWithParent053(player);
+            gMessageLib->sendUpdateTransformMessageWithParent(player);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform053(player);
+            gMessageLib->sendUpdateTransformMessage(player);
+            //If our player is mounted move his mount aswell
+            if(player->checkIfMounted() && player->getMount())
+            {
+                player->getMount()->mPosition = position;
+                gMessageLib->sendDataTransform053(player->getMount());
+                gMessageLib->sendUpdateTransformMessage(player->getMount());
+            }
+        }
+    }
 }
 
 void ScriptSupport::lairSpawn(uint64 lairTypeId)
 {
-	uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
-	if (npcNewId != 0)
-	{
-		// Let's put this sucker into play again.
-		NonPersistentNpcFactory::Instance()->requestLairObject(NpcManager::Instance(), lairTypeId, npcNewId);
-	}
+    uint64 npcNewId = gWorldManager->getRandomNpNpcIdSequence();
+    if (npcNewId != 0)
+    {
+        // Let's put this sucker into play again.
+        NonPersistentNpcFactory::Instance()->requestLairObject(NpcManager::Instance(), lairTypeId, npcNewId);
+    }
 }

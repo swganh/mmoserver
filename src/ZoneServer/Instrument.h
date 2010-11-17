@@ -34,19 +34,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class Instrument : public Item
 {
-	friend class ItemFactory;
+    friend class ItemFactory;
 
-	public:
+public:
 
-		Instrument();
-		virtual ~Instrument();
-		
+    Instrument();
+    virtual ~Instrument();
 
-		virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-		virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-		void			sendAttributes(PlayerObject* playerObject);
 
-	private:
+    virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void			sendAttributes(PlayerObject* playerObject);
+
+private:
 };
 
 //=============================================================================

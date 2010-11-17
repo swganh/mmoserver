@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Resource.h"
 #include "ZoneServer/noiseutils.h"
-#include <noise.h>
+#include <noise/noise.h>
 #include <string>
 
 
@@ -39,33 +39,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class CurrentResource : public Resource
 {
-	friend class ResourceManager;
+    friend class ResourceManager;
 
-	public:
+public:
 
-		CurrentResource();
-		~CurrentResource();
+    CurrentResource();
+    ~CurrentResource();
 
-		void	buildDistributionMap();
+    void	buildDistributionMap();
 
-		float	getDistribution(int x,int z);
+    float	getDistribution(int x,int z);
 
-	private:
+private:
 
-		void	_verifyNoiseSettings();
+    void	_verifyNoiseSettings();
 
-		double	mNoiseMapBoundsX1,mNoiseMapBoundsX2;
-		double	mNoiseMapBoundsY1,mNoiseMapBoundsY2;
-		uint8	mNoiseMapOctaves;
-		double	mNoiseMapFrequency;
-		double	mNoiseMapPersistence;
-		double	mNoiseMapScale;
-		double	mNoiseMapBias;
-		uint64	mUnitsTotal;
-		uint64	mUnitsLeft;
+    double	mNoiseMapBoundsX1,mNoiseMapBoundsX2;
+    double	mNoiseMapBoundsY1,mNoiseMapBoundsY2;
+    uint8	mNoiseMapOctaves;
+    double	mNoiseMapFrequency;
+    double	mNoiseMapPersistence;
+    double	mNoiseMapScale;
+    double	mNoiseMapBias;
+    uint64	mUnitsTotal;
+    uint64	mUnitsLeft;
 
-		noise::module::Perlin	mNoiseModule;
-		noise::utils::NoiseMap	mResourceDistributionMap;
+    noise::module::Perlin	mNoiseModule;
+    noise::utils::NoiseMap	mResourceDistributionMap;
 };
 
 #endif

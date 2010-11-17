@@ -89,12 +89,12 @@ bool SpatialIndexManager::AddObject(Object *newObject)
 
 	//get the cell
 	uint32 finalBucket = getGrid()->AddObject(newObject);
-	gLogger->log(LogManager::DEBUG,"SpatialIndexManager::AddObject :: Object %I64u added to bucket %u",newObject->getId(), finalBucket);
+	DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " added to bucket " <<  finalBucket;
 	
 	//any errors ?
 	if(finalBucket == 0xffffffff)
 	{
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::AddObject :: add Object %I64u to bucket %u failed because the bucket was invalid",newObject->getId(), finalBucket);
+		DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
 		return false;
 	}
 
@@ -266,7 +266,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 	}
 	else
 	{
-		gLogger->log(LogManager::DEBUG,"SpatialIndexManager::RemovePlayerFromWorld: couldn't find cell %"PRIu64"",removePlayer->getParentId());
+		DLOG(INFO) << "SpatialIndexManager::RemovePlayerFromWorld: couldn't find cell " << removePlayer->getParentId();
 	}
 
 
@@ -332,14 +332,14 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 		}
 	}
 
-	PlayerObjectSet* knownPlayers = removeObject->getRegisteredWatchers();
-	PlayerObjectSet::iterator it = knownPlayers->begin();
+	PlayerObjectSet knownPlayers = removeObject->getRegisteredWatchers();
+	PlayerObjectSet::iterator it = knownPlayers.begin();
 		
-	while(it != knownPlayers->end())
+	while(it != knownPlayers.end())
 	{
 		
 		//the only registration a player is still supposed to have at this point is himself and his inventory
-		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
+		PlayerObject* const player = dynamic_cast<PlayerObject*>(*it);
 		if(player->getId() != removeObject->getId())
 		{
 			//we shouldnt get here
@@ -347,7 +347,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
 			gContainerManager->unRegisterPlayerFromContainer(removeObject, player);	
 			gMessageLib->sendDestroyObject(removeObject->getId(),player);
-			it = knownPlayers->begin();
+			it = knownPlayers.begin();
 		}
 		else
 			it++;
@@ -362,7 +362,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 	}
 
 	//create a copy of the list and iterate through it
-	ObjectSet knownObjects = *removeObject->getRegisteredContainers();
+	ObjectSet knownObjects = removeObject->getRegisteredContainers();
 	ObjectSet::iterator objectIt = knownObjects.begin();
 	
 	//the only registration a player is still supposed to have at this point is himself and his inventory and equipped stuff

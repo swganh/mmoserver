@@ -28,11 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_FACTORY_BASE_H
 #define ANH_ZONESERVER_FACTORY_BASE_H
 
+#include <map>
+#include <boost/pool/pool.hpp>
+
+#include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
-#include <boost/pool/pool.hpp>
-#include <map>
-
 
 //=============================================================================
 
@@ -55,109 +56,115 @@ typedef std::map<uint64,InLoadingContainer*>	ObjectLoadMap;
 
 class FactoryBase : public DatabaseCallback
 {
-	public:
+public:
 
-		FactoryBase(Database* database);
+    FactoryBase(Database* database);
 
-		virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result) = 0;
-		virtual void	requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client) = 0;
+    virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result) = 0;
+    virtual void	requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client) = 0;
 
-		virtual			~FactoryBase();
+    virtual			~FactoryBase();
 
-		bool			releaseQueryContainerPoolMemory(){ return(mQueryContainerPool.release_memory()); }
-		bool			releaseILCPoolMemory(){ return(mILCPool.release_memory()); }
+    bool			releaseQueryContainerPoolMemory() {
+        return(mQueryContainerPool.release_memory());
+    }
+    bool			releaseILCPoolMemory() {
+        return(mILCPool.release_memory());
+    }
 
-	protected:
+protected:
 
-		void				_buildAttributeMap(Object* object,DatabaseResult* result);
+    void				_buildAttributeMap(Object* object,DatabaseResult* result);
 
-		InLoadingContainer* _getObject(uint64 id);
-		bool				_removeFromObjectLoadMap(uint64 id);
+    InLoadingContainer* _getObject(uint64 id);
+    bool				_removeFromObjectLoadMap(uint64 id);
 
-		boost::pool<boost::default_user_allocator_malloc_free>		mILCPool;
-		boost::pool<boost::default_user_allocator_malloc_free>		mQueryContainerPool;
+    boost::pool<boost::default_user_allocator_malloc_free>		mILCPool;
+    boost::pool<boost::default_user_allocator_malloc_free>		mQueryContainerPool;
 
-		ObjectLoadMap			mObjectLoadMap;
+    ObjectLoadMap			mObjectLoadMap;
 
-		DataBinding*			mAttributeBinding;
-		Database*				mDatabase;
+    DataBinding*			mAttributeBinding;
+    Database*				mDatabase;
 };
 
 //=============================================================================
 
 class NonPersistantQueryContainerBase
 {
-	public:
+public:
 
-		NonPersistantQueryContainerBase(ObjectFactoryCallback* ofCallback,uint32 queryType,DispatchClient* client,Item* newItem) :
-				mClient(client),mOfCallback(ofCallback),mQueryType(queryType),mItem(newItem){}
+    NonPersistantQueryContainerBase(ObjectFactoryCallback* ofCallback,uint32 queryType,DispatchClient* client,Item* newItem) :
+        mClient(client),mOfCallback(ofCallback),mQueryType(queryType),mItem(newItem) {}
 
-		DispatchClient*			mClient;
-		ObjectFactoryCallback*	mOfCallback;
-		Object*					mObject;
-		uint32					mQueryType;
-		Item*					mItem;
+    DispatchClient*			mClient;
+    ObjectFactoryCallback*	mOfCallback;
+    Object*					mObject;
+    uint32					mQueryType;
+    Item*					mItem;
 };
 
 //=============================================================================
 
 class QueryNonPersistentItemFactory
 {
-	public:
+public:
 
-		QueryNonPersistentItemFactory(ObjectFactoryCallback* ofCallback,uint32 queryType, uint64 id = 0) :
-		  mOfCallback(ofCallback),mQueryType(queryType),mId(id) {}
+    QueryNonPersistentItemFactory(ObjectFactoryCallback* ofCallback,uint32 queryType, uint64 id = 0) :
+        mOfCallback(ofCallback),mQueryType(queryType),mId(id) {}
 
-		ObjectFactoryCallback*	mOfCallback;
-		Object*					mObject;
-		uint32					mQueryType;
-		uint64					mId;
+    ObjectFactoryCallback*	mOfCallback;
+    Object*					mObject;
+    uint32					mQueryType;
+    uint64					mId;
 };
 
 //=============================================================================
 
 class QueryContainerBase
 {
-	public:
+public:
 
-		QueryContainerBase(ObjectFactoryCallback* ofCallback,uint32 queryType,DispatchClient* client, uint64 id = 0) :
-			mClient(client),mOfCallback(ofCallback),mQueryType(queryType),mId(id){}
+    QueryContainerBase(ObjectFactoryCallback* ofCallback,uint32 queryType,DispatchClient* client, uint64 id = 0) :
+        mClient(client),mOfCallback(ofCallback),mQueryType(queryType),mId(id) {}
 
-		DispatchClient*			mClient;
-		ObjectFactoryCallback*	mOfCallback;
-		Object*					mObject;
-		uint32					mQueryType;
-		uint64					mId;
-		uint64					mHopper;
-		uint32					mDepth;
+    DispatchClient*			mClient;
+    ObjectFactoryCallback*	mOfCallback;
+    Object*					mObject;
+    uint32					mQueryType;
+    uint64					mId;
+    uint64					mHopper;
+    uint32					mDepth;
 };
 
 //=============================================================================
 
 class InLoadingContainer
 {
-	public:
+public:
 
-		InLoadingContainer(Object* object,ObjectFactoryCallback* ofCallback,DispatchClient* client,uint32 loadCounter = 1)
-						  : mObject(object),mOfCallback(ofCallback),mClient(client),mLoadCounter(loadCounter), mManSchem(false){}
+    InLoadingContainer(Object* object,ObjectFactoryCallback* ofCallback,DispatchClient* client,uint32 loadCounter = 1)
+        : mObject(object),mOfCallback(ofCallback),mClient(client),mLoadCounter(loadCounter), mManSchem(false) {}
 
-		Object*					mObject;
-		ObjectFactoryCallback*	mOfCallback;
-		DispatchClient*			mClient;
-		uint32					mLoadCounter;
-		bool					mManSchem;
+    Object*					mObject;
+    ObjectFactoryCallback*	mOfCallback;
+    DispatchClient*			mClient;
+    uint32					mLoadCounter;
+    bool					mManSchem;
+    bool					mDPad;
+    bool					mInventory;
 };
 
 //=============================================================================
 
 class Type1_QueryContainer
 {
-	public:
+public:
 
-		Type1_QueryContainer(){}
-		uint32	mVolume;
-		uint64	mId;
-		string	mString;
+    Type1_QueryContainer() {}
+    uint32	mVolume;
+    uint64	mId;
+    BString	mString;
 
 };
 
@@ -165,21 +172,21 @@ class Type1_QueryContainer
 
 class Attribute_QueryContainer
 {
-	public:
+public:
 
-		Attribute_QueryContainer(){}
+    Attribute_QueryContainer() {}
 
-		string	mKey;
-		string	mValue;
-		uint8	mInternal;
+    BString	mKey;
+    BString	mValue;
+    uint8	mInternal;
 };
 
 //=============================================================================
 
 enum NonPersistentQuery
 {
-	NPQuery_MainData	= 1,
-	NPQuery_Attributes	= 2
+    NPQuery_MainData	= 1,
+    NPQuery_Attributes	= 2
 };
 
 //=============================================================================

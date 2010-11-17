@@ -40,18 +40,20 @@ typedef std::vector<uint64>	ResourceIdList;
 
 class UIResourceSelectListBox : public UIListBox
 {
-	public:
+public:
 
-		UIResourceSelectListBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,ResourceIdList resourceIdList,PlayerObject* playerObject,uint8 windowType,uint8 lbType)
-			: UIListBox(callback,id,windowType,eventStr,caption,prompt,dataItems,playerObject,lbType), mResourceIdList(resourceIdList) {}
+    UIResourceSelectListBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,ResourceIdList resourceIdList,PlayerObject* playerObject,uint8 windowType,uint8 lbType)
+        : UIListBox(callback,id,windowType,eventStr,caption,prompt,dataItems,playerObject,lbType), mResourceIdList(resourceIdList) {}
 
-		virtual			~UIResourceSelectListBox(){}
+    virtual			~UIResourceSelectListBox() {}
 
-		ResourceIdList	getResourceIdList(){ return mResourceIdList; }
+    ResourceIdList	getResourceIdList() {
+        return mResourceIdList;
+    }
 
-	private:
+private:
 
-		ResourceIdList	mResourceIdList;
+    ResourceIdList	mResourceIdList;
 };
 
 

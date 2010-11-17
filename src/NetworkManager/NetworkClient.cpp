@@ -27,34 +27,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkClient.h"
 #include "Session.h"
-#include "LogManager/LogManager.h"
-#include "Common/Message.h"
+
+#include "NetworkManager/Message.h"
 
 
 
 //======================================================================================================================
 void NetworkClient::SendChannelA(Message* message, uint8 priority, bool fastpath)
-{ 
-  message->setPriority(priority);
-  message->setFastpath(fastpath);
-  message->mSession = mSession;
+{
+    message->setPriority(priority);
+    message->setFastpath(fastpath);
+    message->mSession = mSession;
 
- 
-  return mSession->SendChannelA(message);
+
+    return mSession->SendChannelA(message);
 }
 
 void NetworkClient::SendChannelAUnreliable(Message* message, uint8 priority)
-{ 
-  message->setPriority(priority);
-  message->setFastpath(true);
+{
+    message->setPriority(priority);
+    message->setFastpath(true);
 
-  return mSession->SendChannelAUnreliable(message);
+    return mSession->SendChannelAUnreliable(message);
 }
 
 
 //======================================================================================================================
 void NetworkClient::Disconnect(uint8 reason)
 {
-  mSession->setCommand(SCOM_Disconnect);
+    mSession->setCommand(SCOM_Disconnect);
 }
 

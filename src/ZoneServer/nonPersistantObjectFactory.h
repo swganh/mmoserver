@@ -52,54 +52,56 @@ struct StructureItemTemplate;
 
 class NonPersistantObjectFactory : public FactoryBase
 {
-	public:
+public:
 
-		static NonPersistantObjectFactory*	getSingletonPtr() { return mSingleton; }
-		static NonPersistantObjectFactory*	Instance();
+    static NonPersistantObjectFactory*	getSingletonPtr() {
+        return mSingleton;
+    }
+    static NonPersistantObjectFactory*	Instance();
 
-		static inline void deleteFactory(void)    
-		{ 
-			if (mSingleton)
-			{
-				delete mSingleton;
-				mSingleton = 0;
-			}
-		}
+    static inline void deleteFactory(void)
+    {
+        if (mSingleton)
+        {
+            delete mSingleton;
+            mSingleton = 0;
+        }
+    }
 
-		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-		virtual void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-		void					createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId, uint32 typeId, uint64 parentId, const glm::vec3& position, string customName, DispatchClient* client);
+    virtual void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
+    void					createTangible(ObjectFactoryCallback* ofCallback, uint32 familyId, uint32 typeId, uint64 parentId, const glm::vec3& position, BString customName, DispatchClient* client);
 
-		PlayerStructure*		requestBuildingFenceObject(float x, float y, float z, PlayerObject* player);
-		PlayerStructure*		requestBuildingSignObject(float x, float y, float z, PlayerObject* player, string name, string namefile, string custom);
+    PlayerStructure*		requestBuildingFenceObject(float x, float y, float z, PlayerObject* player);
+    PlayerStructure*		requestBuildingSignObject(float x, float y, float z, PlayerObject* player, BString name, BString namefile, BString custom);
 
-		//spawns temporary objects for camps
-		TangibleObject*			spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player);
-		CampTerminal*			spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const string& customName, PlayerObject* player, StructureDeedLink*	deedData);
+    //spawns temporary objects for camps
+    TangibleObject*			spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player);
+    CampTerminal*			spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player, StructureDeedLink*	deedData);
 
-		void					_createItem(DatabaseResult* result,Item* item);
+    void					_createItem(DatabaseResult* result,Item* item);
 
-		TangibleObject*			NonPersistantObjectFactory::cloneTangible(TangibleObject* theTemplate);
+    TangibleObject*			cloneTangible(TangibleObject* theTemplate);
 
-	protected:
-		NonPersistantObjectFactory(Database* database);
-		~NonPersistantObjectFactory();
+protected:
+    NonPersistantObjectFactory(Database* database);
+    ~NonPersistantObjectFactory();
 
-	private:
+private:
 
-		// This constructor prevents the default constructor to be used, since it is private.
-		NonPersistantObjectFactory();
+    // This constructor prevents the default constructor to be used, since it is private.
+    NonPersistantObjectFactory();
 
-		static NonPersistantObjectFactory*	mSingleton;
+    static NonPersistantObjectFactory*	mSingleton;
 
-		void					_setupDatabindings();
-		void					_destroyDatabindings();
+    void					_setupDatabindings();
+    void					_destroyDatabindings();
 
-		Database*				mDatabase;
-		DataBinding*			mItemBinding;
-		DataBinding*			mItemIdentifierBinding;
-		uint64					mId;
+    Database*				mDatabase;
+    DataBinding*			mItemBinding;
+    DataBinding*			mItemIdentifierBinding;
+    uint64					mId;
 };
 
 //=============================================================================

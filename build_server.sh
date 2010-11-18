@@ -15,7 +15,12 @@ do case "$OPTION" in
         ;;
     t)  tflag=1
         ;;
-    ?)  printf "Usage: %s: [-r] [-t]\n" $(basename $0) >&2
+    ?)  printf "Builds the MMOServer project and dependencies from source\n"
+        printf ""
+        printf "\nUsage: %s [-r] [-t]\n" $(basename $0) >&2
+        printf "\n"
+        printf "    -r  Rebuild dependencies and source\n"
+        printf "    -t  Run the project test suite\n\n"
         exit 2
         ;;
 esac

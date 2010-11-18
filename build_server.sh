@@ -5,12 +5,15 @@ basedir=$(cd $(dirname $0) && pwd)
 
 # Configuration and options
 version=0.4.1       # mmoserver project version
+cflag=              # clean build - removes the build dir before building
 rflag=              # rebuild - rebuilds the dependencies and source
 tflag=              # test - runs all project tests after building
 
 # parse the command line parameters
-while getopts 'rt' OPTION 
+while getopts 'crt' OPTION 
 do case "$OPTION" in
+    c)  cflag=1
+        ;;
     r)  rflag=1
         ;;
     t)  tflag=1
@@ -47,15 +50,15 @@ if [ ! -d $basedir/deps ]; then
     $basedir/deps/build_deps.sh
 fi
 
-# Check to see if the build directory should be cleaned
-if [[ -d $basedir/build && "$rflag" ]]; then
-    printf "Rebuilding source\n"
-    rm -rf $basedir/build
-fi
-
-# Remove any tests from a previous run
 if [ -d $basedir/build ]; then
+    # Remove any tests from a previous run
     rm -f $basedir/build/*Tests.xml
+    
+    # Check to see if the build directory should be cleaned
+    if [[ "$rflag" || "$cflag" ]]; then        
+        printf "Rebuilding source\n"
+        rm -rf $basedir/build
+    fi
 fi
 
 # If no build directory exists create it

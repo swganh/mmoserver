@@ -60,8 +60,8 @@ public:
 
     FactoryBase(Database* database);
 
-    virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result) = 0;
-    virtual void	requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client) = 0;
+    virtual void	handleDatabaseJobComplete(void* ref,DatabaseResult* result) {};
+    virtual void	requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint16 subGroup,uint16 subType,DispatchClient* client) = 0;
 
     virtual			~FactoryBase();
 

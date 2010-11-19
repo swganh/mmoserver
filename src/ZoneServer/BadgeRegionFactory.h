@@ -36,9 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 class BadgeRegion;
 class Database;
-class DataBinding;
 class DispatchClient;
-class ObjectFactoryCallback;
 
 //=============================================================================
 
@@ -49,7 +47,7 @@ enum BadgeFQuery
 
 //=============================================================================
 
-class BadgeRegionFactory : public FactoryBase
+class BadgeRegionFactory
 {
 public:
 
@@ -60,22 +58,14 @@ public:
 
     ~BadgeRegionFactory();
 
-    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
     void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
 private:
-
     BadgeRegionFactory(Database* database);
-
-    void				_setupDatabindings();
-    void				_destroyDatabindings();
-
-    BadgeRegion*		_createBadgeRegion(DatabaseResult* result);
+    Database*				database_;
 
     static BadgeRegionFactory*		mSingleton;
     static bool						mInsFlag;
-
-    DataBinding*					mBadgeRegionBinding;
 };
 
 //=============================================================================

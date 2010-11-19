@@ -156,9 +156,6 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         uint64 count = result->getRowCount();
 
-        //InLoadingContainer* ilc = new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient);
-        //ilc->mLoadCounter = count;
-
         mObjectLoadMap.insert(std::make_pair(inventory->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint8>(count))));
 
         for(uint32 i = 0; i < count; i++)
@@ -171,9 +168,6 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 mTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Item,0,asyncContainer->mClient);
             else if(strcmp(queryContainer.mString.getAnsi(),"resource_containers") == 0)
                 mTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer,0,asyncContainer->mClient);
-
-
-
         }
 
         mDatabase->destroyDataBinding(binding);

@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
-#include "ObjectContainer.h"
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "ScoutManager.h"
@@ -75,22 +74,13 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
                 if(datapad->getCapacity())
                 {
-                    gVehicleControllerFactory->createVehicle(this->getItemType(),player);
+                    	gVehicleControllerFactory->createVehicle(this->getItemType(),player);
 
-                    //parent container can be every backpack / inventory / cell // chest
-                    //cave - we shouldnt be able to use it in a cell otherwise we need to think about sending updates to all players watching
-
-                    ObjectContainer* parentContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(this->getParentId()));
-                    if(!parentContainer)
-                    {
-                        return;
-                    }
-                    parentContainer->removeObject(this);
-
-                    //cave if were in a cell or it is an opened container we need to identify all onlookers and update them
-                    gMessageLib->sendDestroyObject(this->getId(),player);
-                    gObjectFactory->deleteObjectFromDB(this);
-                    gWorldManager->destroyObject(this);
+						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+						inventory->removeObject(this);
+						gMessageLib->sendDestroyObject(this->getId(),player);
+						gObjectFactory->deleteObjectFromDB(this);
+						gWorldManager->destroyObject(this);
                 }
                 else
                 {

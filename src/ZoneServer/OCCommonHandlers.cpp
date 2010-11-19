@@ -203,20 +203,18 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
     }
     else
     {
+        DLOG(INFO) <<  "ObjectController::_handleOpenContainer: INVALID Object id " << targetId;
     }
 }
 
 void ObjectController::_handleCloseContainer(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-    //Object*			itemObject		= gWorldManager->getObjectById(targetId);
 
     if (gWorldConfig->isTutorial())
     {
         playerObject->getTutorial()->containerClose(targetId);
     }
-
-    // gMessageLib->sendOpenedContainer(targetId, playerObject);
 }
 
 
@@ -243,7 +241,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 	{
 		//it might be our inventory or the inventory of a creature were looting
 		//PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
-		if(containingContainer == (playerId+1))
+		if(containingContainer == (playerId + INVENTORY_OFFSET))
 		{
 			//its our inventory ... - return true
 			return true;
@@ -267,7 +265,7 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 	if(!object)
 	{
 		//Hack ourselves an inventory .... - its not part of the world ObjectMap
-		if((ownerId-1) == playerId)
+        if((ownerId - INVENTORY_OFFSET) == playerId)
 		{
 			object = gWorldManager->getObjectById(playerId);
 		}
@@ -457,7 +455,7 @@ bool ObjectController::checkTargetContainer(uint64 targetContainerId, Object* ob
 	if(inventory&& (inventory->getId() == ownerId))
 	{
 		//make sure its our inventory!!!!!!
-		access = ((inventory->getId()-1) == playerObject->getId());
+		access = ((inventory->getId()- INVENTORY_OFFSET) == playerObject->getId());
 		if(!access)
 		{
 			//You do not have permission to access that container. 
@@ -566,7 +564,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	Inventory*		creatureInventory;
 
 	if (itemObject->getParentId() &&
-		(unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(itemObject->getParentId() - 1))) &&
+		(unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(itemObject->getParentId() - INVENTORY_OFFSET))) &&
 		(creatureInventory = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))) &&
 		(creatureInventory->getId() == itemObject->getParentId()))
 	{
@@ -655,8 +653,6 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	uint32			linkType;
 	float			x,y,z;
 	CellObject*		cell;
-
-	//gMessageLib->sendSystemMessage(playerObject,L"","error_message","insufficient_permissions");
 
 	message->getStringUnicode16(dataStr);
 
@@ -1280,47 +1276,6 @@ void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 	assert(false);
 
 	gSpatialIndexManager->createInWorld(object);
-
-	/*
-	Container* container = dynamic_cast<Container*>(object);
-	if (container)
-	{
-		gSpatialIndexManager->createObjectToRegisteredPlayers(container,);
-		// uint32 counter = container->getObjectLoadCounter();
-
-		ObjectList*	objList = container->getObjects();
-		ObjectList::iterator containerObjectIt = objList->begin();
-
-		while(containerObjectIt != objList->end())
-		{
-			Object* object = (*containerObjectIt);
-
-			if (TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object))
-			{
-				// reminder: objects are owned by the global map, containers only keeps references
-				// send the creates, if we are not owned by any player OR by exactly this player.
-				if (playerObject)
-				{
-					if (!object->getPrivateOwner() || (object->isOwnedBy(playerObject)))
-					{
-						// could be a resource container, need to check this first, since it inherits from tangible
-						if (ResourceContainer* resCont = dynamic_cast<ResourceContainer*>(object))
-						{
-							gMessageLib->sendCreateResourceContainer(resCont,playerObject);
-						}
-						// or a tangible
-						else
-						{
-							gMessageLib->sendCreateTano(tangibleObject,playerObject);
-						}
-					}
-				}
-			}
-			++containerObjectIt;
-		}
-		gMessageLib->sendOpenedContainer(object->getId(), player);
-	}
-	*/
 }
 
 //======================================================================================================================

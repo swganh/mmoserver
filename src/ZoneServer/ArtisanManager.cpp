@@ -36,7 +36,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "MissionManager.h"
 #include "ContainerManager.h"
-#include "ObjectContainer.h"
 #include "ObjectFactory.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"

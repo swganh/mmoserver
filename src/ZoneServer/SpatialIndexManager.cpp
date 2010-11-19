@@ -948,8 +948,6 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
 
 void SpatialIndexManager::createInWorld(Object* object)
 {
-
-
 	uint32 baseCell = 0xffffffff;
 
 	//get parent object determine who to send creates for

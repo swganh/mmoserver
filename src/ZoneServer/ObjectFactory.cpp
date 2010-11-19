@@ -45,7 +45,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "IntangibleObject.h"
 #include "IntangibleFactory.h"
 #include "ManufacturingSchematic.h"
-#include "ObjectContainer.h"
 #include "ObjectFactoryCallback.h"
 #include "PlayerObject.h"
 #include "Inventory.h"
@@ -143,17 +142,17 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(player)
         {
             gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-            Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
-
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-            //destroy it in the client
-            gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-
-            //delete it out of the inventory
-            tO->deleteObject(deed);
-
-            Datapad* datapad			= player->getDataPad();
-            datapad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+			Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+			Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
+				
+			//destroy it in the client
+			gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
+	
+			//delete it out of the inventory
+			inventory->deleteObject(deed);
+				
+			Datapad* datapad			= player->getDataPad();
+			datapad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
         }
 
@@ -192,17 +191,17 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(player)
         {
             gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-            Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
+			Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+			Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
+				
+			//destroy it in the client
+			gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
+	
+			//delete it out of the inventory
+			inventory->deleteObject(deed);
 
-            //destroy it in the client
-            gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-
-            //delete it out of the container
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-            tO->deleteObject(deed);
-
-            Datapad* datapad			= player->getDataPad();
-            datapad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+			Datapad* datapad			= player->getDataPad();
+			datapad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
@@ -235,22 +234,21 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             //now we need to update the Owners Lots
             PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
 
-            //cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+            //case he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
             if(player)
             {
                 gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
+				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+				Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
+					
+				//destroy it in the client
+				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
+		
+				//delete it out of the inventory
+				inventory->deleteObject(deed);
 
-                Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
-
-                //destroy it in the client
-                gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-
-                //delete it out of the inventory
-                ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-                tO->deleteObject(deed);
-
-                Datapad* datapad			= player->getDataPad();
-                datapad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+				Datapad* datapad			= player->getDataPad();
+				datapad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
 
             }
 

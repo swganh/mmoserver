@@ -110,7 +110,6 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
 void RegionFactory::releaseAllPoolsMemory()
 {
     mCityFactory->releaseQueryContainerPoolMemory();
-    mBadgeRegionFactory->releaseQueryContainerPoolMemory();
     mSpawnRegionFactory->releaseQueryContainerPoolMemory();
     mQTRegionFactory->releaseQueryContainerPoolMemory();
 }

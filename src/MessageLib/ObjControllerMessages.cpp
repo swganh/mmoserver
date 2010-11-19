@@ -1078,9 +1078,9 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayer
             if(region->getRegionType() == Region_City)
             {
                 regionName = "@";
-                regionName << region->getNameFile().getAnsi();
+                regionName << region->getNameFile().c_str();
                 regionName << ":";
-                regionName << region->getRegionName().getAnsi();
+                regionName << region->getRegionName().c_str();
 
                 break;
             }

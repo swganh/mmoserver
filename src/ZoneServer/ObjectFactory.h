@@ -135,11 +135,8 @@ private:
     FactoryFactory*			mFactoryFactory;
     HouseFactory*			mHouseFactory;
 
-
     boost::pool<boost::default_user_allocator_malloc_free>	mDbAsyncPool;
 };
-
-//=============================================================================
 
 class OFAsyncContainer
 {
@@ -162,5 +159,6 @@ public:
 
     glm::vec3		coords;
 };
+
 
 #endif

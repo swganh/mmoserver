@@ -54,6 +54,7 @@ public:
     virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result) {}
     void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
     
+    void					releaseAllPoolsMemory();
 private:
 
     std::shared_ptr<CityFactory>            mCityFactory;

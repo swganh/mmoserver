@@ -47,10 +47,10 @@ using namespace std;
 
 RegionFactory::RegionFactory(Database* database) : FactoryBase(database)
 {
-    mCityFactory = make_shared<CityFactory>(CityFactory(mDatabase));
-    mBadgeRegionFactory = make_shared<BadgeRegionFactory>(BadgeRegionFactory(mDatabase));
-    mSpawnRegionFactory = make_shared<SpawnRegionFactory>(SpawnRegionFactory(mDatabase));
-    mQTRegionFactory = make_shared<QTRegionFactory>(QTRegionFactory(mDatabase));
+    mCityFactory = make_shared<CityFactory>(mDatabase);
+    mBadgeRegionFactory = make_shared<BadgeRegionFactory>(mDatabase);
+    mSpawnRegionFactory = make_shared<SpawnRegionFactory>(mDatabase);
+    mQTRegionFactory = make_shared<QTRegionFactory>(mDatabase);
 }
 
 //=============================================================================

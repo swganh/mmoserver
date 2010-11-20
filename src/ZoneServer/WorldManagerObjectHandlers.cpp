@@ -308,11 +308,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
     case ObjType_Region:
     {
-        //RegionObject* reg = dynamic_cast<RegionObject*>(object);
-        //auto region = make_shared<RegionObject>(reg);
-        //auto region = make_shared<RegionObject>(dynamic_cast<RegionObject*>(object));
-        auto obj = make_shared<Object>(*object);
-        auto region = dynamic_pointer_cast<RegionObject>(obj);
+        auto region = shared_ptr<RegionObject>(dynamic_cast<RegionObject*>(object));
 
         mRegionMap.insert(std::make_pair<uint32, shared_ptr<RegionObject>>(key,region));
 

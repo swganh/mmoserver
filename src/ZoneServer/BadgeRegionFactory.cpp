@@ -30,62 +30,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
 #include <cppconn/resultset.h>
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 #include "Utils/utils.h"
 
-//=============================================================================
-
-bool				BadgeRegionFactory::mInsFlag    = false;
-BadgeRegionFactory*	BadgeRegionFactory::mSingleton  = NULL;
-
-//======================================================================================================================
-
-BadgeRegionFactory*	BadgeRegionFactory::Init(Database* database)
-{
-    if(!mInsFlag)
-    {
-        mSingleton = new BadgeRegionFactory(database);
-        mInsFlag = true;
-        return mSingleton;
-    }
-    else
-        return mSingleton;
-}
-
-//=============================================================================
-
-BadgeRegionFactory::BadgeRegionFactory(Database* database)
-{
-    database_ = database;
-}
+BadgeRegionFactory::BadgeRegionFactory(Database* database) : FactoryBase(database)
+{}
 
 //=============================================================================
 
 BadgeRegionFactory::~BadgeRegionFactory()
-{
-    mInsFlag = false;
-    delete(mSingleton);
-}
+{}
 
 //=============================================================================
 
 void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
 {
     // Setup our statement
-    int8 sql[4096];
+    int8 sql[128];
     sprintf(sql,"CALL sp_BadgeGetByRegion(%"PRIu64");", id);
 
-    database_->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
+    mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (! client || !result)
+        if ( !result)
         {
             return;
         }
@@ -94,8 +61,8 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
             LOG(WARNING) << "Unable to load badges with region id: " << id;
             return;
         }
-        BadgeRegion* badge_region = new BadgeRegion(); 
-        
+        std::shared_ptr<BadgeRegion> badge_region (new BadgeRegion());
+
         badge_region->setId(result_set->getUInt64(1));
         badge_region->setBadgeId(result_set->getUInt(2));
         badge_region->setRegionName(result_set->getString(3));
@@ -107,8 +74,7 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
         badge_region->setParentId(result_set->getUInt64(9));
         badge_region->setLoadState(LoadState_Loaded);
 
-        ofCallback->handleObjectReady(badge_region, client);
-        
+        ofCallback->handleObjectReady(badge_region);
     });  
 
 }

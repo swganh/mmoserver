@@ -32,130 +32,60 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+#include <cppconn/resultset.h>
+
 #include "Utils/utils.h"
 
 //=============================================================================
 
-bool				SpawnRegionFactory::mInsFlag    = false;
-SpawnRegionFactory*	SpawnRegionFactory::mSingleton  = NULL;
-
-//======================================================================================================================
-
-SpawnRegionFactory*	SpawnRegionFactory::Init(Database* database)
-{
-    if(!mInsFlag)
-    {
-        mSingleton = new SpawnRegionFactory(database);
-        mInsFlag = true;
-        return mSingleton;
-    }
-    else
-        return mSingleton;
-}
+SpawnRegionFactory::SpawnRegionFactory(Database* database) : FactoryBase(database){}
 
 //=============================================================================
 
-SpawnRegionFactory::SpawnRegionFactory(Database* database) : FactoryBase(database)
-{
-    _setupDatabindings();
-}
+SpawnRegionFactory::~SpawnRegionFactory(){}
 
 //=============================================================================
 
-SpawnRegionFactory::~SpawnRegionFactory()
-{
-    _destroyDatabindings();
-
-    mInsFlag = false;
-    delete(mSingleton);
-}
-
-//=============================================================================
-
-void SpawnRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
-{
-    QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
-
-    switch(asyncContainer->mQueryType)
-    {
-    case SpawnFQuery_MainData:
-    {
-        SpawnRegion* spawnRegion = _createSpawnRegion(result);
-
-        if(spawnRegion->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-            asyncContainer->mOfCallback->handleObjectReady(spawnRegion,asyncContainer->mClient);
-        else
-        {
-
-        }
-    }
-    break;
-
-    default:
-        break;
-    }
-
-    mQueryContainerPool.free(asyncContainer);
-}
+void SpawnRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result){}
 
 //=============================================================================
 
 void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,SpawnFQuery_MainData,client),
-                               "SELECT spawn_regions.id,spawn_regions.spawn_type,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-                               "planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
-                               " FROM spawn_regions"
-                               " INNER JOIN planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
-                               " WHERE (spawn_regions.id = %"PRIu64")",id);
-   
+    // setup our statement
+    int8 sql[128];
+    sprintf(sql,"SELECT spawn_regions.id,spawn_regions.spawn_type,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+                "planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
+                " FROM spawn_regions"
+                " INNER JOIN planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
+                " WHERE (spawn_regions.id = %"PRIu64")",id);
+
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+        if (!result)
+        {
+            return;
+        }
+
+        if (!result_set->next()) { 
+            LOG(WARNING) << "Unable to load SpawnRegion with region id: " << id;
+            return;
+        }
+        std::shared_ptr<SpawnRegion> spawn (new SpawnRegion());    
+        spawn->setId(result_set->getUInt64(1));
+        spawn->setSpawnType(result_set->getUInt(2));
+        spawn->setRegionName(result_set->getString(3));
+        spawn->setNameFile(result_set->getString(4));
+        spawn->mPosition.x = result_set->getDouble(5);
+        spawn->mPosition.z = result_set->getDouble(6);
+        spawn->setWidth(result_set->getDouble(7));
+        spawn->setHeight(result_set->getDouble(8));
+        spawn->setMission(result_set->getUInt(9));
+        spawn->setLoadState(LoadState_Loaded);
+
+        ofCallback->handleObjectReady(spawn);
+
+    });  
 }
-
-//=============================================================================
-
-SpawnRegion* SpawnRegionFactory::_createSpawnRegion(DatabaseResult* result)
-{
-    if (!result->getRowCount()) {
-    	return nullptr;
-    }
-
-    SpawnRegion*	spawnRegion = new SpawnRegion();
-
-    result->getNextRow(mSpawnRegionBinding,spawnRegion);
-
-    if(spawnRegion->isMission())
-    {
-        spawnRegion->setType(Region_MissionSpawn);
-    }
-
-    spawnRegion->setLoadState(LoadState_Loaded);
-
-    return spawnRegion;
-}
-
-//=============================================================================
-
-void SpawnRegionFactory::_setupDatabindings()
-{
-    mSpawnRegionBinding = mDatabase->createDataBinding(10);
-    mSpawnRegionBinding->addField(DFT_uint64,offsetof(SpawnRegion,mId),8,0);
-    mSpawnRegionBinding->addField(DFT_uint32,offsetof(SpawnRegion,mSpawnType),4,1);
-    mSpawnRegionBinding->addField(DFT_bstring,offsetof(SpawnRegion,mRegionName),64,2);
-    mSpawnRegionBinding->addField(DFT_bstring,offsetof(SpawnRegion,mNameFile),64,3);
-    mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mPosition.x),4,4);
-    mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mPosition.z),4,5);
-    mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mWidth),4,6);
-    mSpawnRegionBinding->addField(DFT_float,offsetof(SpawnRegion,mHeight),4,7);
-    mSpawnRegionBinding->addField(DFT_uint64,offsetof(SpawnRegion,mParentId),8,8);
-    mSpawnRegionBinding->addField(DFT_uint32,offsetof(SpawnRegion,mMission),4,9);
-}
-
-//=============================================================================
-
-void SpawnRegionFactory::_destroyDatabindings()
-{
-    mDatabase->destroyDataBinding(mSpawnRegionBinding);
-}
-
-//=============================================================================
 

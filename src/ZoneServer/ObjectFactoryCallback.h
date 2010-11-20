@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_OBJECTFACTORYCALLBACK_H
 
 #include "Utils/typedefs.h"
+#include <memory>
 
 class Object;
 class DispatchClient;
@@ -44,6 +45,10 @@ public:
     virtual void	handleObjectReady(Object* object,DispatchClient* client, uint64 hopper) {};
     virtual void	handleObjectReady(Object* object,DispatchClient* client) {};
     virtual void	handleObjectReady(Object* object) {};
+
+    virtual void    handleObjectReady(std::shared_ptr<Object>, std::shared_ptr<DispatchClient>, uint64 hopper) {};
+    virtual void    handleObjectReady(std::shared_ptr<Object>, std::shared_ptr<DispatchClient>) {};
+    virtual void    handleObjectReady(std::shared_ptr<Object>) {};
 };
 
 #endif

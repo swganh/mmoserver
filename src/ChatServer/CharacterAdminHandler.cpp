@@ -47,14 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #include <glog/logging.h>
 
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
 #include <cppconn/resultset.h>
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 
 #include "Utils/utils.h"
 

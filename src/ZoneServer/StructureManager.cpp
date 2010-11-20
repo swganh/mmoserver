@@ -314,7 +314,7 @@ StructureDeedLink* StructureManager::getDeedData(uint32 type)
 
 bool StructureManager::checkCampRadius(PlayerObject* player)
 {
-    QTRegion*			mQTRegion = NULL;
+    std::shared_ptr<QTRegion> mQTRegion;
     uint32				subZoneId = player->getSubZoneId();
     float				width  = 25.0;
     float				height = 25.0;
@@ -361,7 +361,7 @@ bool StructureManager::checkCampRadius(PlayerObject* player)
 
 bool StructureManager::checkCityRadius(PlayerObject* player)
 {
-    QTRegion*			mQTRegion = NULL;
+    std::shared_ptr<QTRegion> mQTRegion;
     uint32				subZoneId = player->getSubZoneId();
     float				width  = 5.0;
     float				height = 5.0;
@@ -408,7 +408,7 @@ bool StructureManager::checkCityRadius(PlayerObject* player)
 
 bool StructureManager::checkinCamp(PlayerObject* player)
 {
-    QTRegion*			mQTRegion = NULL;
+    std::shared_ptr<QTRegion> mQTRegion;
     uint32				subZoneId = player->getSubZoneId();
     float				width  = 1.0;
     float				height = 1.0;

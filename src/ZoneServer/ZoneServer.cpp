@@ -188,7 +188,6 @@ ZoneServer::ZoneServer(int8* zoneName)
     //ArtisanManager callback
     CraftingManager::Init(mDatabase);
     gStateManager;
-    gStateManager.loadStateMaps();
 
     UIManager::Init(mDatabase,mMessageDispatch);
     CombatManager::Init(mDatabase);

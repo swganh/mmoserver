@@ -49,10 +49,10 @@ public:
     City();
     virtual ~City();
 
-    BString			getCityName() {
+    std::string			getCityName() {
         return mCityName;
     }
-    void			setCityName(const BString cityName) {
+    void			setCityName(const std::string cityName) {
         mCityName = cityName;
     }
 
@@ -62,9 +62,9 @@ public:
 
 protected:
 
-    BString				mCityName;
+    std::string			mCityName;
     ZoneTree*			mSI;
-    QTRegion*			mQTRegion;
+    std::shared_ptr<QTRegion>   mQTRegion;
     Anh_Math::Rectangle mQueryRect;
 };
 

@@ -30,9 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "FactoryBase.h"
 
-#define	 gBadgeRegionFactory	BadgeRegionFactory::getSingletonPtr()
-
-//=============================================================================
 
 class BadgeRegion;
 class Database;
@@ -47,25 +44,13 @@ enum BadgeFQuery
 
 //=============================================================================
 
-class BadgeRegionFactory
+class BadgeRegionFactory : public FactoryBase
 {
 public:
-
-    static BadgeRegionFactory*	getSingletonPtr() {
-        return mSingleton;
-    }
-    static BadgeRegionFactory*	Init(Database* database);
-
-    ~BadgeRegionFactory();
-
-    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-
-private:
     BadgeRegionFactory(Database* database);
-    Database*				database_;
-
-    static BadgeRegionFactory*		mSingleton;
-    static bool						mInsFlag;
+    ~BadgeRegionFactory();
+    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);  
 };
 
 //=============================================================================

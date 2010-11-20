@@ -462,7 +462,7 @@ void LairObject::spawn(void)
     }
     else
     {
-        if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
+        if (std::shared_ptr<QTRegion> region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
         {
             this->setSubZoneId((uint32)region->getId());
             region->mTree->addObject(this);
@@ -539,7 +539,7 @@ bool LairObject::playerInRange(float range)
     // Make Set ready,
     // inRangeObjects.clear();
     // objectSetIt = mInRangeObjects.begin();	// Will point to end of Set
-    if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
+    if (std::shared_ptr<QTRegion> region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
     {
         Anh_Math::Rectangle qRect = Anh_Math::Rectangle(this->mPosition.x - range, this->mPosition.z - range, range * 2, range * 2);
         region->mTree->getObjectsInRange(this, &inRangeObjects, ObjType_Player, &qRect);

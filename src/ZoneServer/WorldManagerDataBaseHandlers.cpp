@@ -43,6 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Heightmap.h"
 #include "Common/ConfigManager.h"
 
+#include <cppconn/resultset.h>
+
 
 //======================================================================================================================
 
@@ -67,8 +69,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             binding->addField(DFT_uint32,0,4);
             result->getNextRow(binding,&mTotalObjectCount);
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loading objects...";
+            LOG(INFO) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
 
             if(mTotalObjectCount > 0)
             {
@@ -81,7 +82,25 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     _loadAllObjects(0);
 
                     // load zone regions
-                    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ZoneRegions),"SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+                    int8 sql[128] ;
+                    sprintf(sql, "SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+
+                        if (!result_set->next()) { 
+                            LOG(WARNING) << "Unable to load zone regions with region id: " << mZoneId;
+                            return;
+                        }
+                        while(!result_set->last())
+                        {
+                            gObjectFactory->requestObject(ObjType_Region, Region_Zone, 0, this, result_set->getUInt64(1));
+                        }
+                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Zone Regions";
+                    });
                     
                 }
                 // load client effects
@@ -97,7 +116,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 // load moods
                 mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Moods),"SELECT * FROM moods ORDER BY id;");
                 
-
                 // load npc converse animations
                 
                 mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcConverseAnimations),"SELECT * FROM conversation_animations ORDER BY id;");
@@ -109,23 +127,97 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 if(mZoneId != 41)
                 {
                     // load cities
-                    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Cities),"SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    
+                    int8 sql[128];
+                    sprintf(sql, "SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
+                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+
+                        if (!result_set->next()) { 
+                            LOG(WARNING) << "Unable to load cities with region id: " << mZoneId;
+                            return;
+                        }
+                        while(!result_set->last())
+                        {
+                            gObjectFactory->requestObject(ObjType_Region, Region_City, 0, this, result_set->getUInt64(1));
+                        }
+                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " City Regions";
+                    });
 
                     // load badge regions
-                    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_BadgeRegions),"SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    
+                    sql[0] = 0;
+                    sprintf(sql, "SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        if (!result_set->next()) { 
+                            LOG(WARNING) << "Unable to load badges with region id: " << mZoneId;
+                            return;
+                        }
+                        while(!result_set->last())
+                        {
+                            gObjectFactory->requestObject(ObjType_Region, Region_Badge, 0, this, result_set->getUInt64(1));
+                        }
+                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Badge Regions";
+                    });
 
                     //load spawn regions
-                    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SpawnRegions),"SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    
+                    sql[0] = 0;
+                    sprintf(sql, "SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        if (!result_set->next()) { 
+                            LOG(WARNING) << "Unable to load spawn regions with id: " << mZoneId;
+                            return;
+                        }
+                        while(!result_set->last())
+                        {
+                            gObjectFactory->requestObject(ObjType_Region, Region_Spawn, 0, this, result_set->getUInt64(1));
+                        }
+                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
+                    });
 
                     // load world scripts
                     mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_WorldScripts),"SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
                     
 
                     //load creature spawn regions, and optionally heightmaps cache.
-                    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_CreatureSpawnRegions),"SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
+                    sql[0] = 0;
+                    sprintf(sql, "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
+                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        if (!result_set->next()) { 
+                            LOG(WARNING) << "Unable to load creature spawn regions with id: " << mZoneId;
+                            return;
+                        }
+                        while(!result_set->last())
+                        {
+                            std::shared_ptr<CreatureSpawnRegion> creatureSpawnRegion(new CreatureSpawnRegion());
+                            creatureSpawnRegion->mId = result_set->getInt64(1);
+                            creatureSpawnRegion->mPosX = result_set->getDouble(2);
+                            creatureSpawnRegion->mPosZ = result_set->getDouble(3);
+                            creatureSpawnRegion->mWidth =  result_set->getDouble(4);
+                            creatureSpawnRegion->mLength  = result_set->getDouble(5);
+
+                            mCreatureSpawnRegionMap.insert(std::make_pair<uint64_t, std::shared_ptr<CreatureSpawnRegion>>
+                                (creatureSpawnRegion->mId, creatureSpawnRegion));
+                        }
+                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
+                    });
                     
                 }
 
@@ -140,8 +232,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 // load playerhouses
                 mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Houses),"SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
                 
-
-
             }
             // no objects to load, so we are done
             else
@@ -169,8 +259,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 gHarvesterFactory->requestObject(this,harvesterId,0,0,asyncContainer->mClient);
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded harvesters.";
+            LOG_IF(INFO, count) << "Loaded " << count << " Harvesters";
 
             mDatabase->destroyDataBinding(harvesterBinding);
 
@@ -194,8 +283,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 gHouseFactory->requestObject(this,houseId,0,0,asyncContainer->mClient);
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded playerhouses.";
+            LOG_IF(INFO, count) << "Loaded " << count << " Player Houses";
 
             mDatabase->destroyDataBinding(houseBinding);
         }
@@ -216,8 +304,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 gFactoryFactory->requestObject(this,factoryId,0,0,asyncContainer->mClient);
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded factories.";
+            LOG_IF(INFO, count) << "Loaded " << count << " Factories";
 
             mDatabase->destroyDataBinding(factoryBinding);
         }
@@ -227,24 +314,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         // zone regions
         case WMQuery_ZoneRegions:
         {
-
-            DataBinding* regionBinding = mDatabase->createDataBinding(1);
-            regionBinding->addField(DFT_int64,0,8);
-
-            uint64 regionId;
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0; i < count; i++)
-            {
-                result->getNextRow(regionBinding,&regionId);
-
-                gObjectFactory->requestObject(ObjType_Region,Region_Zone,0,this,regionId,asyncContainer->mClient);
-            }
-
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded zone regions.";
-
-            mDatabase->destroyDataBinding(regionBinding);
+            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_ZoneRegions";
         }
         break;
 
@@ -315,8 +385,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 mObjectAttributeIDMap.insert(std::make_pair(tmp.attribute.getCrc(), tmp.id));
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded attribute keys.";
+            LOG_IF(INFO, attributeCount) << "Loaded " << attributeCount << " Attributes";
 
             mDatabase->destroyDataBinding(binding);
         }
@@ -338,8 +407,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 mvClientEffects.push_back(BString(tmp.getAnsi()));
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded Client Effects.";
+            LOG_IF(INFO, effectCount) << "Loaded " << effectCount << " Client Effects";
 
 
             mDatabase->destroyDataBinding(binding);
@@ -362,8 +430,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 mvSounds.push_back(BString(tmp.getAnsi()));
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded sound effects.";
+            LOG_IF(INFO, effectCount) << "Loaded " << effectCount << " Sounds";
 
             mDatabase->destroyDataBinding(binding);
         }
@@ -385,8 +452,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 mvMoods.push_back(BString(tmp.getAnsi()));
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded moods.";
+            LOG_IF(INFO, effectCount) << "Loaded " << effectCount << " Moods";
 
 
             mDatabase->destroyDataBinding(binding);
@@ -409,8 +475,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 mvNpcConverseAnimations.push_back(BString(tmp.getAnsi()));
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded NPC conversational animations.";
+            LOG_IF(INFO, animCount) << "Loaded " << animCount << " NPC Converse Animations";
 
             mDatabase->destroyDataBinding(binding);
         }
@@ -440,8 +505,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 mvNpcChatter.push_back(std::make_pair(std::wstring(tmp.getUnicode16()),animId));
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded NPC phrases.";
+            LOG_IF(INFO, phraseCount) << "Loaded " << phraseCount << " NPC Phrases";
 
             mDatabase->destroyDataBinding(binding);
             mDatabase->destroyDataBinding(animbinding);
@@ -466,8 +530,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 mWorldScripts.push_back(script);
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded world scripts.";
+            LOG_IF(INFO, scriptCount) << "Loaded " << scriptCount << " World Scripts";
 
             mDatabase->destroyDataBinding(scriptBinding);
         }
@@ -491,8 +554,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 gObjectFactory->requestObject(ObjType_Building,0,0,this,buildingId,asyncContainer->mClient);
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded buildings";
+            LOG_IF(INFO, buildingCount) << "Loaded " << buildingCount << " Buildings";
 
             mDatabase->destroyDataBinding(buildingBinding);
         }
@@ -501,100 +563,28 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         // city regions
         case WMQuery_Cities:
         {
-            DataBinding*	cityBinding = mDatabase->createDataBinding(1);
-            cityBinding->addField(DFT_int64,0,8);
-
-            uint64 cityId;
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0; i < count; i++)
-            {
-                result->getNextRow(cityBinding,&cityId);
-
-                gObjectFactory->requestObject(ObjType_Region,Region_City,0,this,cityId,asyncContainer->mClient);
-            }
-
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded city regions.";
-
-
-
-            mDatabase->destroyDataBinding(cityBinding);
+            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_Cities";
         }
         break;
 
         // badge regions
         case WMQuery_BadgeRegions:
         {
-            DataBinding*	badgeBinding = mDatabase->createDataBinding(1);
-            badgeBinding->addField(DFT_int64,0,8);
-
-            uint64 badgeId;
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0; i < count; i++)
-            {
-                result->getNextRow(badgeBinding,&badgeId);
-
-                gObjectFactory->requestObject(ObjType_Region,Region_Badge,0,this,badgeId,asyncContainer->mClient);
-            }
-
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded badge regions.";
-
-
-            mDatabase->destroyDataBinding(badgeBinding);
+            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_BadgeRegions";
         }
         break;
 
         // spawn regions
         case WMQuery_SpawnRegions:
         {
-            DataBinding*	spawnBinding = mDatabase->createDataBinding(1);
-            spawnBinding->addField(DFT_int64,0,8);
-
-            uint64 regionId;
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0; i < count; i++)
-            {
-                result->getNextRow(spawnBinding,&regionId);
-
-                gObjectFactory->requestObject(ObjType_Region,Region_Spawn,0,this,regionId,asyncContainer->mClient);
-            }
-
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded spawn regions.";
-
-
-            mDatabase->destroyDataBinding(spawnBinding);
+            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_SpawnRegions";
         }
         break;
 
         // Creature spawn regions
         case WMQuery_CreatureSpawnRegions:
         {
-            DataBinding*	creatureSpawnBinding = mDatabase->createDataBinding(5);
-            creatureSpawnBinding->addField(DFT_int64,offsetof(CreatureSpawnRegion,mId),8,0);
-            creatureSpawnBinding->addField(DFT_float,offsetof(CreatureSpawnRegion,mPosX),4,1);
-            creatureSpawnBinding->addField(DFT_float,offsetof(CreatureSpawnRegion,mPosZ),4,2);
-            creatureSpawnBinding->addField(DFT_float,offsetof(CreatureSpawnRegion,mWidth),4,3);
-            creatureSpawnBinding->addField(DFT_float,offsetof(CreatureSpawnRegion,mLength),4,4);
-
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0; i < count; i++)
-            {
-                CreatureSpawnRegion *creatureSpawnRegion = new CreatureSpawnRegion();
-                result->getNextRow(creatureSpawnBinding,creatureSpawnRegion);
-                mCreatureSpawnRegionMap.insert(std::make_pair(creatureSpawnRegion->mId,creatureSpawnRegion));
-            }
-
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded creature spawn regions.";
-
-
-            mDatabase->destroyDataBinding(creatureSpawnBinding);
+            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_CreatureSpawnRegions";
         }
         break;
 
@@ -634,8 +624,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,queryContainer.mId,asyncContainer->mClient);
             }
 
-            if(result->getRowCount())
-                LOG(INFO) << "Loaded cell children...";
+            LOG_IF(INFO, count) << "Loaded " << count << " Cell Children";
 
             mDatabase->destroyDataBinding(binding);
         }

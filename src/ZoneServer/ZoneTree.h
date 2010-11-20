@@ -89,7 +89,7 @@ public:
     void			getObjectsInRange(const Object* const object, ObjectSet* resultSet, uint32 objTypes, float range, bool cellContent = false);
     void			getObjectsInRangeIntersection(Object* object, ObjectSet* resultSet, uint32 objTypes, float range);
     void			getObjectsInRangeEx(Object* object, ObjectSet* resultSet, uint32 objTypes, float range);
-    QTRegion*		getQTRegion(double x, double z);
+    std::shared_ptr<QTRegion>	getQTRegion(double x, double z);
 
 private:
 

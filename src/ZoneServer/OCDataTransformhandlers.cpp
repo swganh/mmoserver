@@ -139,7 +139,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 
         // add us to the qtree
 
-        if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
+        if(std::shared_ptr<QTRegion>newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
         {
             player->setSubZoneId((uint32)newRegion->getId());
             player->setSubZone(newRegion);
@@ -185,12 +185,12 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
             //do an intersectsWithQuery of objects in the si to find our new region -
             //CAVE shouldnt it be a contains query ?
             //what do we do if several regions overlap ?
-            if(QTRegion* newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
+            if(std::shared_ptr<QTRegion> newRegion = mSI->getQTRegion((double)pos.x,(double)pos.z))
             {
                 updateAll = true;
 
                 // remove from old
-                if(QTRegion* oldRegion = player->getSubZone())
+                if(std::shared_ptr<QTRegion> oldRegion = player->getSubZone())
                 {
                     oldRegion->mTree->removeObject(player);
                     //If our player is mounted lets update his mount aswell
@@ -389,7 +389,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
                 // remove us from qt
                 if(player->getSubZoneId())
                 {
-                    if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
+                    if(std::shared_ptr<QTRegion> region = gWorldManager->getQTRegion(player->getSubZoneId()))
                     {
                         player->setSubZone(NULL);
                         player->setSubZoneId(0);
@@ -548,7 +548,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 
     if(player->getSubZoneId())
     {
-        if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
+        if(std::shared_ptr<QTRegion>region = gWorldManager->getQTRegion(player->getSubZoneId()))
         {
             Anh_Math::Rectangle qRect = Anh_Math::Rectangle(player->mPosition.x - viewingRange,player->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 
@@ -712,7 +712,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
         mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure),viewingRange);
 
         // query the qtree based on the buildings world position
-        if (QTRegion* region = mSI->getQTRegion(building->mPosition.x,building->mPosition.z))
+        if (std::shared_ptr<QTRegion> region = mSI->getQTRegion(building->mPosition.x,building->mPosition.z))
         {
             Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 
@@ -731,7 +731,7 @@ void ObjectController::_findInRangeObjectsInside(bool updateAll)
         mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Player | ObjType_Creature | ObjType_NPC),viewingRange);
 
         // query the qtree based on the buildings world position
-        if (QTRegion* region = mSI->getQTRegion(building->mPosition.x,building->mPosition.z))
+        if (std::shared_ptr<QTRegion>region = mSI->getQTRegion(building->mPosition.x,building->mPosition.z))
         {
             Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 

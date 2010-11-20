@@ -43,42 +43,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <assert.h>
 
-//=============================================================================
-
-bool				RegionFactory::mInsFlag    = false;
-RegionFactory*		RegionFactory::mSingleton  = NULL;
-
-//======================================================================================================================
-
-RegionFactory*	RegionFactory::Init(Database* database)
-{
-    if(!mInsFlag)
-    {
-        mSingleton = new RegionFactory(database);
-        mInsFlag = true;
-        return mSingleton;
-    }
-    else
-        return mSingleton;
-}
-
-//=============================================================================
+using namespace std;
 
 RegionFactory::RegionFactory(Database* database) : FactoryBase(database)
 {
-    mCityFactory			= CityFactory::Init(mDatabase);
-    mBadgeRegionFactory		= BadgeRegionFactory::Init(mDatabase);
-    mSpawnRegionFactory		= SpawnRegionFactory::Init(mDatabase);
-    mQTRegionFactory		= QTRegionFactory::Init(mDatabase);
+    mCityFactory = make_shared<CityFactory>(CityFactory(mDatabase));
+    mBadgeRegionFactory = make_shared<BadgeRegionFactory>(BadgeRegionFactory(mDatabase));
+    mSpawnRegionFactory = make_shared<SpawnRegionFactory>(SpawnRegionFactory(mDatabase));
+    mQTRegionFactory = make_shared<QTRegionFactory>(QTRegionFactory(mDatabase));
 }
 
 //=============================================================================
 
 RegionFactory::~RegionFactory()
-{
-    mInsFlag = false;
-    delete(mSingleton);
-}
+{}
 
 //=============================================================================
 
@@ -104,15 +82,3 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
         break;
     }
 }
-
-//=============================================================================
-
-void RegionFactory::releaseAllPoolsMemory()
-{
-    mCityFactory->releaseQueryContainerPoolMemory();
-    mSpawnRegionFactory->releaseQueryContainerPoolMemory();
-    mQTRegionFactory->releaseQueryContainerPoolMemory();
-}
-
-//=============================================================================
-

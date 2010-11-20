@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
 
+#include <cppconn/resultset.h>
 
 //=============================================================================
 
@@ -41,10 +42,6 @@ FactoryBase::FactoryBase(Database* database)
     , mQueryContainerPool(sizeof(QueryContainerBase))
     , mDatabase(database)
 {
-    mAttributeBinding = mDatabase->createDataBinding(3);
-    mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mKey),64,0);
-    mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mValue),128,1);
-    mAttributeBinding->addField(DFT_uint8,offsetof(Attribute_QueryContainer,mInternal),1,2);
 }
 
 //=============================================================================
@@ -86,6 +83,8 @@ bool FactoryBase::_removeFromObjectLoadMap(uint64 id)
 // this should always be last in load order
 void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
 {
+    std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
     Attribute_QueryContainer	attribute;
     uint64						count = result->getRowCount();
     int8						str[256];
@@ -93,7 +92,13 @@ void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
 
     for(uint64 i = 0; i < count; i++)
     {
-        result->getNextRow(mAttributeBinding,(void*)&attribute);
+        if (result_set->next())
+        {            
+            attribute.mKey = result_set->getString(1).c_str();
+            attribute.mValue = result_set->getString(2).c_str();
+            attribute.mInternal = result_set->getUInt(3);
+            
+        //result->getNextRow(mAttributeBinding,(void*)&attribute);
         if(attribute.mKey.getCrc() == BString("cat_manf_schem_ing_resource").getCrc())
         {
             attribute.mValue.split(dataElements,' ');
@@ -114,10 +119,10 @@ void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
             object->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
         else
             object->addAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
+        }
     }
 
     object->setLoadState(LoadState_Loaded);
 }
 
 //=============================================================================
-

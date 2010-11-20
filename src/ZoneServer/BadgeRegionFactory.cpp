@@ -42,6 +42,9 @@ BadgeRegionFactory::BadgeRegionFactory(Database* database) : FactoryBase(databas
 BadgeRegionFactory::~BadgeRegionFactory()
 {}
 
+void BadgeRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
+{ 
+}
 //=============================================================================
 
 void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)

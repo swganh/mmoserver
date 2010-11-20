@@ -419,7 +419,7 @@ void FactoryFactory::_setupDatabindings()
 void FactoryFactory::_destroyDatabindings()
 {
     mDatabase->destroyDataBinding(mFactoryBinding);
-
+    mDatabase->destroyDataBinding(mAttributeBinding);
 }
 
 //=============================================================================

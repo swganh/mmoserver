@@ -869,7 +869,7 @@ void WorldManager::_handleLoadComplete()
     mDatabase->releaseJobPoolMemory();
     mDatabase->releaseBindingPoolMemory();
     mWM_DB_AsyncPool.release_memory();
-    gObjectFactory->releaseAllPoolsMemory();
+    //gObjectFactory->releaseAllPoolsMemory();
     if(mZoneId != 41)
         gResourceManager->releaseAllPoolsMemory();
     gSchematicManager->releaseAllPoolsMemory();

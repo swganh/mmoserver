@@ -91,11 +91,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                             return;
                         }
 
-                        if (!result_set->next()) { 
-                            LOG(WARNING) << "Unable to load zone regions with region id: " << mZoneId;
-                            return;
-                        }
-                        while(!result_set->last())
+                        while(result_set->next())
                         {
                             gObjectFactory->requestObject(ObjType_Region, Region_Zone, 0, this, result_set->getUInt64(1));
                         }
@@ -135,16 +131,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                         {
                             return;
                         }
-
-                        if (!result_set->next()) { 
-                            LOG(WARNING) << "Unable to load cities with region id: " << mZoneId;
-                            return;
-                        }
-                        while(!result_set->last())
+                        while(result_set->next())
                         {
                             gObjectFactory->requestObject(ObjType_Region, Region_City, 0, this, result_set->getUInt64(1));
                         }
                         LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " City Regions";
+                        LOG_IF(INFO, !result_set->rowsCount()) <<"Unable to load cities with region id: " << mZoneId;
                     });
 
                     // load badge regions
@@ -156,15 +148,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                         {
                             return;
                         }
-                        if (!result_set->next()) { 
-                            LOG(WARNING) << "Unable to load badges with region id: " << mZoneId;
-                            return;
-                        }
-                        while(!result_set->last())
+                        while(result_set->next())
                         {
                             gObjectFactory->requestObject(ObjType_Region, Region_Badge, 0, this, result_set->getUInt64(1));
                         }
                         LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Badge Regions";
+                        LOG_IF(INFO, !result_set->rowsCount()) << "Unable to load badges with region id: " << mZoneId;
                     });
 
                     //load spawn regions
@@ -176,15 +165,12 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                         {
                             return;
                         }
-                        if (!result_set->next()) { 
-                            LOG(WARNING) << "Unable to load spawn regions with id: " << mZoneId;
-                            return;
-                        }
-                        while(!result_set->last())
+                        while(result_set->next())
                         {
                             gObjectFactory->requestObject(ObjType_Region, Region_Spawn, 0, this, result_set->getUInt64(1));
                         }
                         LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
+                         LOG_IF(INFO, !result_set->rowsCount())  << "Unable to load spawn regions with id: " << mZoneId;
                     });
 
                     // load world scripts
@@ -200,11 +186,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                         {
                             return;
                         }
-                        if (!result_set->next()) { 
-                            LOG(WARNING) << "Unable to load creature spawn regions with id: " << mZoneId;
-                            return;
-                        }
-                        while(!result_set->last())
+
+                        while(result_set->next())
                         {
                             std::shared_ptr<CreatureSpawnRegion> creatureSpawnRegion(new CreatureSpawnRegion());
                             creatureSpawnRegion->mId = result_set->getInt64(1);
@@ -216,7 +199,8 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                             mCreatureSpawnRegionMap.insert(std::make_pair<uint64_t, std::shared_ptr<CreatureSpawnRegion>>
                                 (creatureSpawnRegion->mId, creatureSpawnRegion));
                         }
-                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
+                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
+                        LOG_IF(INFO, !result_set->rowsCount()) << "No Creature Spawn Regions Loaded with ID: " << mZoneId;
                     });
                     
                 }

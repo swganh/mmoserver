@@ -325,7 +325,7 @@ void	CampRegion::despawnCamp()
     gMessageLib->sendDestroyObject_InRangeofObject(camp);
     gWorldManager->destroyObject(camp);
 
-    gWorldManager->addRemoveRegion(this);
+    gWorldManager->addRemoveRegion(std::shared_ptr<CampRegion>(this));
 
     //now grant xp
     applyXp();

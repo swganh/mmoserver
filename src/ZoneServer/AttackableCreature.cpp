@@ -1520,7 +1520,7 @@ void AttackableCreature::spawn(void)
     }
     else
     {
-        if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
+        if (std::shared_ptr<QTRegion> region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
         {
             this->setSubZoneId((uint32)region->getId());
             region->mTree->addObject(this);

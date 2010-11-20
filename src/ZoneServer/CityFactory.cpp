@@ -32,122 +32,63 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
 
+#include <cppconn/resultset.h>
+
 #include "Utils/utils.h"
 
-//=============================================================================
-
-bool			CityFactory::mInsFlag    = false;
-CityFactory*	CityFactory::mSingleton  = NULL;
-
-//======================================================================================================================
-
-CityFactory*	CityFactory::Init(Database* database)
-{
-    if(!mInsFlag)
-    {
-        mSingleton = new CityFactory(database);
-        mInsFlag = true;
-        return mSingleton;
-    }
-    else
-        return mSingleton;
-}
-
-//=============================================================================
-
 CityFactory::CityFactory(Database* database) : FactoryBase(database)
-{
-    _setupDatabindings();
-}
+{}
 
 //=============================================================================
 
 CityFactory::~CityFactory()
-{
-    _destroyDatabindings();
-
-    mInsFlag = false;
-    delete(mSingleton);
-}
+{}
 
 //=============================================================================
 
 void CityFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-    QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
-
-    switch(asyncContainer->mQueryType)
-    {
-    case CityFQuery_MainData:
-    {
-        City* city = _createCity(result);
-
-        if(city->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-            asyncContainer->mOfCallback->handleObjectReady(city,asyncContainer->mClient);
-        else
-        {
-
-        }
-    }
-    break;
-
-    default:
-        break;
-    }
-
-    mQueryContainerPool.free(asyncContainer);
 }
 
 //=============================================================================
 
 void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CityFQuery_MainData,client),
-                               "SELECT cities.id,cities.city_name,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-                               "planet_regions.width,planet_regions.height"
-                               " FROM cities"
-                               " INNER JOIN planet_regions ON (cities.city_region = planet_regions.region_id)"
-                               " WHERE (cities.id = %"PRIu64")",id);
+    // setup our statement
+    int8 sql[4096];
+    sprintf(sql,"SELECT cities.id,cities.city_name,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
+                "planet_regions.width,planet_regions.height"
+                " FROM cities"
+                " INNER JOIN planet_regions ON (cities.city_region = planet_regions.region_id)"
+                " WHERE (cities.id = %"PRIu64")",id);
+
+
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+        if (!result)
+        {
+            return;
+        }
+
+        if (!result_set->next()) { 
+            LOG(WARNING) << "Unable to load city with region id: " << id;
+            return;
+        }
+        std::shared_ptr<City> city (new City());    
+        city->setId(result_set->getUInt64(1));
+        city->setCityName(result_set->getString(2));
+        city->setRegionName(result_set->getString(3));
+        city->setNameFile(result_set->getString(4));
+        city->mPosition.x = result_set->getDouble(5);
+        city->mPosition.z = result_set->getDouble(6);
+        city->setWidth(result_set->getDouble(7));
+        city->setHeight(result_set->getDouble(8));
+
+        city->setLoadState(LoadState_Loaded);
+
+        ofCallback->handleObjectReady(city);
+
+    });
+
 }
-
-//=============================================================================
-
-City* CityFactory::_createCity(DatabaseResult* result)
-{
-    if (!result->getRowCount()) {
-    	return nullptr;
-    }
-
-    City*	city = new City();
-
-    result->getNextRow(mCityBinding,(void*)city);
-
-    city->setLoadState(LoadState_Loaded);
-
-    return city;
-}
-
-//=============================================================================
-
-void CityFactory::_setupDatabindings()
-{
-    mCityBinding = mDatabase->createDataBinding(8);
-    mCityBinding->addField(DFT_uint64,offsetof(City,mId),8,0);
-    mCityBinding->addField(DFT_bstring,offsetof(City,mCityName),64,1);
-    mCityBinding->addField(DFT_bstring,offsetof(City,mRegionName),64,2);
-    mCityBinding->addField(DFT_bstring,offsetof(City,mNameFile),64,3);
-    mCityBinding->addField(DFT_float,offsetof(City,mPosition.x),4,4);
-    mCityBinding->addField(DFT_float,offsetof(City,mPosition.z),4,5);
-    mCityBinding->addField(DFT_float,offsetof(City,mWidth),4,6);
-    mCityBinding->addField(DFT_float,offsetof(City,mHeight),4,7);
-}
-
-//=============================================================================
-
-void CityFactory::_destroyDatabindings()
-{
-    mDatabase->destroyDataBinding(mCityBinding);
-}
-
-//=============================================================================
-

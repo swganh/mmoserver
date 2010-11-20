@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <list>
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 #include <boost/ptr_container/ptr_unordered_map.hpp>
@@ -82,17 +83,17 @@ class VariableTimeScheduler;
 typedef boost::ptr_unordered_map<uint64,Object>			ObjectMap;
 
 // seperate map for qt regions, since ids may match object ids
-typedef boost::ptr_unordered_map<uint32,QTRegion>		QTRegionMap;
+typedef std::unordered_map<uint32,std::shared_ptr<QTRegion>>	QTRegionMap;
 
 // Maps for objects in world
-typedef std::map<uint32,const PlayerObject*>	PlayerAccMap;
-typedef std::map<uint64,RegionObject*>			RegionMap;
-typedef std::vector<RegionObject*>				RegionDeleteList;
+typedef std::map<uint32,const PlayerObject*>	        PlayerAccMap;
+typedef std::map<uint64,std::shared_ptr<RegionObject>>	RegionMap;
+typedef std::vector<std::shared_ptr<RegionObject>> RegionDeleteList;
 
 // Lists for objects in world
 typedef std::list<PlayerObject*>				PlayerList;
 typedef std::vector<Shuttle*>					ShuttleList;
-typedef std::vector<RegionObject*>				ActiveRegions;
+typedef std::vector<std::shared_ptr<RegionObject>>  ActiveRegions;
 typedef std::list<CreatureObject*>				CreatureQueue;
 typedef std::vector<std::pair<uint64, NpcConversionTime*> >	NpcConversionTimers;
 typedef std::map<uint64, uint64>				PlayerMovementUpdateMap;
@@ -103,7 +104,7 @@ typedef std::map<uint64, uint64>				PlayerObjectReviveMap;
 typedef std::vector<uint64>						CraftTools;
 
 // Creature spawn regions.
-typedef std::map<uint64, const CreatureSpawnRegion*>	CreatureSpawnRegionMap;
+typedef std::map<uint64, const std::shared_ptr<CreatureSpawnRegion>>	CreatureSpawnRegionMap;
 
 // Containers with handlers to Npc-objects handled by the NpcManager (or what we are going to call it its final version).
 // The active container will be the most often checked, and the Dormant the less checked container.
@@ -194,6 +195,8 @@ public:
     // ObjectFactoryCallback
     virtual void			handleObjectReady(Object* object,DispatchClient* client);
 
+    virtual void            handleObjectReady(std::shared_ptr<Object>);
+
     // TimerCallback
     virtual void			handleTimer(uint32 id, void* container);
 
@@ -201,6 +204,10 @@ public:
     float					_GetMessageHeapLoadViewingRange();
     bool					existObject(Object* object);	// Returns true if object does exist.
     bool					addObject(Object* object,bool manual = false);
+
+    // new object handling system
+    bool                    addObject(std::shared_ptr<Object> object, bool manual = false);
+
     void					destroyObject(Object* object);
     void					destroyObjectForKnownPlayers(Object* object);
     void					createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object);
@@ -399,24 +406,32 @@ public:
     uint32					getPlanetCount() {
         return mvPlanetNames.size();
     }
-
+    /*  Region Methods
+    *
+    */
     // region methods
-    void					addRemoveRegion(RegionObject* region) {
+    void					addRemoveRegion(std::shared_ptr<RegionObject> region) {
         mRegionDeleteList.push_back(region);   //we store here regions that are due to be deleted after every iteration through active regions the list is iterated and its contents removed and destroyed
     }
-    RegionObject*			getRegionById(uint64 regionId);
-    void					addActiveRegion(RegionObject* regionObject) {
+
+    std::shared_ptr<RegionObject> getRegionById(uint64 regionId);
+
+    RegionMap getRegionMap() {
+        return mRegionMap;
+    }
+    //
+    void					addActiveRegion(std::shared_ptr<RegionObject> regionObject) {
         mActiveRegions.push_back(regionObject);
     }
-    void					removeActiveRegion(RegionObject* regionObject);
-    QTRegion*				getQTRegion(uint32 id);
-    QTRegionMap*			getQTRegionMap() {
-        return &mQTRegionMap;
-    }
-    RegionMap*				getRegionMap() {
-        return &mRegionMap;
-    }
+    void					removeActiveRegion(std::shared_ptr<RegionObject> regionObject);
+    std::shared_ptr<QTRegion>	getQTRegion(uint32 id);
 
+    QTRegionMap			getQTRegionMap() {
+        return mQTRegionMap;
+    }
+    /*  End Region Methods
+    *
+    */
     Anh_Utils::Scheduler*	getPlayerScheduler() {
         return mPlayerScheduler;
     }
@@ -521,7 +536,7 @@ private:
     PlayerMovementUpdateMap		mPlayerMovementUpdateMap;
     PlayerObjectReviveMap		mPlayerObjectReviveMap;
     QTRegionMap					mQTRegionMap;
-    RegionMap					mRegionMap;
+    RegionMap                   mRegionMap;
     NpIdSet						mUsedTmpIds;
     BStringVector				mvClientEffects;
     BStringVector				mvMoods;

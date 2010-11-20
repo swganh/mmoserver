@@ -89,7 +89,7 @@ void  WorldManager::initPlayersInRange(Object* object,PlayerObject* player)
     // query the according qtree, if we are in one
     if(object->getSubZoneId())
     {
-        if(QTRegion* region = getQTRegion(object->getSubZoneId()))
+        if(std::shared_ptr<QTRegion>region = getQTRegion(object->getSubZoneId()))
         {
             float				viewingRange	= _GetMessageHeapLoadViewingRange();
             //float				viewingRange	= (float)gWorldConfig->getPlayerViewingRange();
@@ -406,7 +406,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
     {
         if(playerObject->getSubZoneId())
         {
-            if(QTRegion* region = getQTRegion(playerObject->getSubZoneId()))
+            if(std::shared_ptr<QTRegion> region = getQTRegion(playerObject->getSubZoneId()))
             {
                 playerObject->setSubZoneId(0);
                 region->mTree->removeObject(playerObject);
@@ -452,7 +452,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
     }
     else
     {
-        if(QTRegion* region = mSpatialIndex->getQTRegion(playerObject->mPosition.x,playerObject->mPosition.z))
+        if(std::shared_ptr<QTRegion> region = mSpatialIndex->getQTRegion(playerObject->mPosition.x,playerObject->mPosition.z))
         {
             playerObject->setSubZoneId((uint32)region->getId());
             region->mTree->addObject(playerObject);

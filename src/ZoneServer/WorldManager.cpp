@@ -85,6 +85,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cassert>
 
+using namespace std;
 //======================================================================================================================
 
 bool			WorldManager::mInsFlag    = false;
@@ -221,7 +222,7 @@ void WorldManager::Shutdown()
 
     mPlayersToRemove.clear();
     mRegionMap.clear();
-
+    
     // Npc conversation timers.
     mNpcConversionTimers.clear();
 
@@ -238,11 +239,10 @@ void WorldManager::Shutdown()
 
     // Handle creature spawn regions. These objects are not registred in the normal object map.
     CreatureSpawnRegionMap::iterator it = mCreatureSpawnRegionMap.begin();
-    while (it != mCreatureSpawnRegionMap.end())
+    /*while (it != mCreatureSpawnRegionMap.end())
     {
-        delete (*it).second;
         mCreatureSpawnRegionMap.erase(it++);
-    }
+    }*/
     mCreatureSpawnRegionMap.clear();
 
     NpcManager::deleteManager();
@@ -319,19 +319,8 @@ void WorldManager::_loadBuildings()
 
 void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 {
-    if(QTRegion* region = dynamic_cast<QTRegion*>(object))
-    {
-        uint32 key = (uint32)region->getId();
-
-        mQTRegionMap.insert(key,region);
-
-        mSpatialIndex->insertQTRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
-    }
-    else
-    {
-        addObject(object);
-    }
-
+    addObject(object);
+    
     // check if we done loading
     if ((mState == WMState_StartUp) && (mObjectMap.size() + mQTRegionMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
     {
@@ -339,21 +328,35 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
     }
 }
 
+void WorldManager::handleObjectReady(shared_ptr<Object> object)
+{
+    if(auto region = dynamic_pointer_cast<QTRegion>(object))
+    {
+        uint32 key = (uint32)region->getId();
+        
+        mQTRegionMap.insert(std::make_pair<uint32, shared_ptr<QTRegion>>(key, region));
+
+        mSpatialIndex->insertQTRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
+    }
+    else
+    {
+        addObject(object);
+    }
+}
+
 //======================================================================================================================
 
-RegionObject* WorldManager::getRegionById(uint64 regionId)
+std::shared_ptr<RegionObject> WorldManager::getRegionById(uint64 regionId)
 {
     RegionMap::iterator it = mRegionMap.find(regionId);
 
-    if(it != mRegionMap.end()) {
-        return((*it).second);
+    if( it != mRegionMap.end()) {
+        return (it->second);
     } else {
-        LOG(WARNING) << "Could not find region [" << regionId << "]";
+        LOG(WARNING) << "Could not find Region : " << regionId;
     }
-
-    return nullptr;
+    return shared_ptr<RegionObject>();
 }
-
 
 //======================================================================================================================
 //get the current tick
@@ -925,13 +928,13 @@ void WorldManager::_handleLoadComplete()
 
 //======================================================================================================================
 
-void WorldManager::removeActiveRegion(RegionObject* regionObject)
+void WorldManager::removeActiveRegion(shared_ptr<RegionObject> regionObject)
 {
     ActiveRegions::iterator it = mActiveRegions.begin();
 
     while(it != mActiveRegions.end())
     {
-        if((*it) == regionObject)
+        if(*it == regionObject)
         {
             mActiveRegions.erase(it);
             break;
@@ -954,16 +957,14 @@ bool WorldManager::_handleRegionUpdate(uint64 callTime,void* ref)
     }
 
     //now delete any camp regions that are due
-    RegionDeleteList::iterator itR = mRegionDeleteList.begin();
-    while(itR != mRegionDeleteList.end())
-    {
-        removeActiveRegion((*itR));
-        //now remove region entries
-
-        destroyObject(*itR);
-        //delete(*itR);
-        itR++;
-    }
+    //RegionDeleteList::iterator itR = mRegionDeleteList.begin();
+    
+    //while(itR != mRegionDeleteList.end())
+    //{
+    //    removeActiveRegion((*itR));
+    //    //now remove region entries
+    //    itR++;
+    //}
 
     mRegionDeleteList.clear();
     return(true);
@@ -1175,16 +1176,16 @@ bool WorldManager::existObject(Object* object)
 // returns a qtregion
 //
 
-QTRegion* WorldManager::getQTRegion(uint32 id)
+shared_ptr<QTRegion> WorldManager::getQTRegion(uint32 id)
 {
     QTRegionMap::iterator it = mQTRegionMap.find(id);
 
     if(it != mQTRegionMap.end())
     {
-        return((*it).second);
+        return(it->second);
     }
 
-    return(NULL);
+    return shared_ptr<QTRegion>();
 }
 
 
@@ -1443,7 +1444,7 @@ const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
     CreatureSpawnRegionMap::iterator it = mCreatureSpawnRegionMap.find(spawnRegionId);
     if (it != mCreatureSpawnRegionMap.end())
     {
-        const CreatureSpawnRegion *creatureSpawnRegion = (*it).second;
+        const auto creatureSpawnRegion = dynamic_pointer_cast<CreatureSpawnRegion> (it->second);
         Anh_Math::Rectangle sa(creatureSpawnRegion->mPosX, creatureSpawnRegion->mPosZ, creatureSpawnRegion->mWidth ,creatureSpawnRegion->mLength);
         spawnArea = sa;
     }

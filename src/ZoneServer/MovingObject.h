@@ -147,10 +147,10 @@ public:
     virtual void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount) {}
 
 
-    QTRegion*					getSubZone() const {
+    std::shared_ptr<QTRegion>   getSubZone() const {
         return mSubZone;
     }
-    void						setSubZone(QTRegion* zone) {
+    void						setSubZone(std::shared_ptr<QTRegion>  zone) {
         mSubZone = zone;
     }
 
@@ -170,7 +170,7 @@ protected:
     float		mBaseSpeedMod;
 
 
-    QTRegion*	mSubZone;
+    std::shared_ptr<QTRegion>   mSubZone;
 };
 
 //=============================================================================

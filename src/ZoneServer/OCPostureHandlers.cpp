@@ -78,7 +78,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
                 // outside
                 if(!chairCell)
                 {
-                    if(QTRegion* newRegion = gWorldManager->getSI()->getQTRegion(chair_position.x, chair_position.z))
+                    if(std::shared_ptr<QTRegion> newRegion = gWorldManager->getSI()->getQTRegion(chair_position.x, chair_position.z))
                     {
                         // we didnt change so update the old one
                         if((uint32)newRegion->getId() == playerObject->getSubZoneId())
@@ -89,7 +89,7 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
                         else
                         {
                             // remove from old
-                            if(QTRegion* oldRegion = gWorldManager->getQTRegion(playerObject->getSubZoneId()))
+                            if(std::shared_ptr<QTRegion>oldRegion = gWorldManager->getQTRegion(playerObject->getSubZoneId()))
                             {
                                 oldRegion->mTree->removeObject(playerObject);
                             }

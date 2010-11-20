@@ -30,10 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "FactoryBase.h"
 
-#define 	gCityFactory	CityFactory::getSingletonPtr()
-
-//=============================================================================
-
 class City;
 class Database;
 class DataBinding;
@@ -52,30 +48,11 @@ enum CityFQuery
 class CityFactory : public FactoryBase
 {
 public:
-
-    static CityFactory*	getSingletonPtr() {
-        return mSingleton;
-    }
-    static CityFactory*	Init(Database* database);
-
+     CityFactory(Database* database);
     ~CityFactory();
 
     void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
     void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-
-private:
-
-    CityFactory(Database* database);
-
-    void				_setupDatabindings();
-    void				_destroyDatabindings();
-
-    City*				_createCity(DatabaseResult* result);
-
-    static CityFactory*		mSingleton;
-    static bool				mInsFlag;
-
-    DataBinding*			mCityBinding;
 };
 
 

@@ -93,7 +93,7 @@ ObjectFactory::ObjectFactory(Database* database) :
     mIntangibleFactory		= IntangibleFactory::Init(mDatabase);
     mCreatureFactory		= CreatureFactory::Init(mDatabase);
     mBuildingFactory		= BuildingFactory::Init(mDatabase);
-    mRegionFactory			= RegionFactory::Init(mDatabase);
+    mRegionFactory			= new RegionFactory(mDatabase);
     mWaypointFactory		= WaypointFactory::Init(mDatabase);
     mHarvesterFactory		= HarvesterFactory::Init(mDatabase);
     mFactoryFactory			= FactoryFactory::Init(mDatabase);
@@ -1037,7 +1037,7 @@ void ObjectFactory::releaseAllPoolsMemory()
     mIntangibleFactory->releaseAllPoolsMemory();
     mCreatureFactory->releaseAllPoolsMemory();
     mBuildingFactory->releaseAllPoolsMemory();
-    mRegionFactory->releaseAllPoolsMemory();
+    //mRegionFactory->releaseAllPoolsMemory();
     mWaypointFactory->releaseQueryContainerPoolMemory();
     mHarvesterFactory->releaseAllPoolsMemory();
     mFactoryFactory->releaseAllPoolsMemory();

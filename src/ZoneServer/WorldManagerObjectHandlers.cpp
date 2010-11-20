@@ -81,6 +81,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cassert>
 
+using namespace std;
 //======================================================================================================================
 //
 // returns the id of the first object that has a private owner that match the requested one.
@@ -177,7 +178,7 @@ bool WorldManager::addObject(Object* object,bool manual)
         // query the rtree for the qt region we are in
         else
         {
-            if(QTRegion* region = mSpatialIndex->getQTRegion(player->mPosition.x,player->mPosition.z))
+            if(std::shared_ptr<QTRegion> region = mSpatialIndex->getQTRegion(player->mPosition.x,player->mPosition.z))
             {
                 player->setSubZone(region);
                 player->setSubZoneId((uint32)region->getId());
@@ -279,7 +280,7 @@ bool WorldManager::addObject(Object* object,bool manual)
                 // moving creature, add to QT
             case CreoGroup_Vehicle :
             {
-                if(QTRegion* region = mSpatialIndex->getQTRegion(creature->mPosition.x,creature->mPosition.z))
+                if(std::shared_ptr<QTRegion> region = mSpatialIndex->getQTRegion(creature->mPosition.x,creature->mPosition.z))
                 {
                     creature->setSubZoneId((uint32)region->getId());
                     region->mTree->addObject(creature);
@@ -307,9 +308,13 @@ bool WorldManager::addObject(Object* object,bool manual)
 
     case ObjType_Region:
     {
-        RegionObject* region = dynamic_cast<RegionObject*>(object);
+        //RegionObject* reg = dynamic_cast<RegionObject*>(object);
+        //auto region = make_shared<RegionObject>(reg);
+        //auto region = make_shared<RegionObject>(dynamic_cast<RegionObject*>(object));
+        auto obj = make_shared<Object>(*object);
+        auto region = dynamic_pointer_cast<RegionObject>(obj);
 
-        mRegionMap.insert(std::make_pair(key,region));
+        mRegionMap.insert(std::make_pair<uint32, shared_ptr<RegionObject>>(key,region));
 
         mSpatialIndex->InsertRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
 
@@ -334,7 +339,20 @@ bool WorldManager::addObject(Object* object,bool manual)
     }
     return true;
 }
+bool WorldManager::addObject(std::shared_ptr<Object> object, bool manual)
+{
+    uint64 key = object->getId();
 
+    mObjectMap.insert(key,object.get());
+
+    shared_ptr<RegionObject> region = dynamic_pointer_cast<RegionObject>(object);
+    
+    mRegionMap.insert(std::make_pair<uint64 ,shared_ptr<RegionObject>>(key,region));
+    
+    mSpatialIndex->InsertRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
+
+    return true;
+}
 
 //======================================================================================================================
 //
@@ -421,7 +439,7 @@ void WorldManager::createObjectinWorld(Object* object)
     // query the according qtree, if we are in one
     if(object->getSubZoneId())
     {
-        if(QTRegion* region = getQTRegion(object->getSubZoneId()))
+        if(std::shared_ptr<QTRegion> region = getQTRegion(object->getSubZoneId()))
         {
 
             Anh_Math::Rectangle qRect;
@@ -618,7 +636,7 @@ void WorldManager::destroyObject(Object* object)
         }
         else if(player->getSubZoneId())
         {
-            if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
+            if(std::shared_ptr<QTRegion> region = gWorldManager->getQTRegion(player->getSubZoneId()))
             {
                 player->setSubZoneId(0);
 
@@ -645,7 +663,7 @@ void WorldManager::destroyObject(Object* object)
             // Not all objects-creatures of this type are points.
             if(creature->getSubZoneId())
             {
-                if(QTRegion* region = getQTRegion(creature->getSubZoneId()))
+                if(std::shared_ptr<QTRegion>region = getQTRegion(creature->getSubZoneId()))
                 {
                     creature->setSubZoneId(0);
                     region->mTree->removeObject(creature);
@@ -697,7 +715,7 @@ void WorldManager::destroyObject(Object* object)
 
         if(object->getSubZoneId())
         {
-            if(QTRegion* region = getQTRegion(object->getSubZoneId()))
+            if(std::shared_ptr<QTRegion> region = getQTRegion(object->getSubZoneId()))
             {
                 object->setSubZoneId(0);
                 region->mTree->removeObject(object);
@@ -732,7 +750,7 @@ void WorldManager::destroyObject(Object* object)
         {
             if(object->getSubZoneId())
             {
-                if(QTRegion* region = getQTRegion(object->getSubZoneId()))
+                if(std::shared_ptr<QTRegion> region = getQTRegion(object->getSubZoneId()))
                 {
                     object->setSubZoneId(0);
                     region->mTree->removeObject(object);
@@ -930,7 +948,7 @@ void WorldManager::initObjectsInRange(PlayerObject* playerObject)
     // query the according qtree, if we are in one
     if(playerObject->getSubZoneId())
     {
-        if(QTRegion* region = getQTRegion(playerObject->getSubZoneId()))
+        if(std::shared_ptr<QTRegion> region = getQTRegion(playerObject->getSubZoneId()))
         {
             Anh_Math::Rectangle qRect;
 

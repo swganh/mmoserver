@@ -118,7 +118,7 @@ public:
 protected:
 
     ZoneTree*			mSI;
-    QTRegion*			mQTRegion;
+    std::shared_ptr<QTRegion>   mQTRegion;
     Anh_Math::Rectangle mQueryRect;
     uint64				mCampId;
     uint64				mOwnerId;

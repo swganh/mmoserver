@@ -62,7 +62,7 @@ protected:
 
     uint32				mBadgeId;
     ZoneTree*			mSI;
-    QTRegion*			mQTRegion;
+    std::shared_ptr<QTRegion>   mQTRegion;
     Anh_Math::Rectangle mQueryRect;
 };
 

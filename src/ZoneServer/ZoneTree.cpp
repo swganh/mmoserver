@@ -136,7 +136,7 @@ void ZoneTree::insertQTRegion(int64 objId,double x,double z,double width,double 
 // also query based on world coordinates only
 //
 
-QTRegion* ZoneTree::getQTRegion(double x,double z)
+std::shared_ptr<QTRegion> ZoneTree::getQTRegion(double x,double z)
 {
     ObjectIdList	resultIdList;
     MyVisitor		vis(&resultIdList);
@@ -156,7 +156,7 @@ QTRegion* ZoneTree::getQTRegion(double x,double z)
     ObjectIdList::iterator it = resultIdList.begin();
     while(it != resultIdList.end())
     {
-        if(QTRegion* region = gWorldManager->getQTRegion(static_cast<uint32>(*it)))
+        if(std::shared_ptr<QTRegion> region = gWorldManager->getQTRegion(static_cast<uint32>(*it)))
         {
             return(region);
         }

@@ -56,7 +56,7 @@ void QTRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 void QTRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
    // setup our statement
-    int8 sql[128];
+    int8 sql[1024];
     sprintf(sql,"SELECT zone_regions.id,zone_regions.qtdepth,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
                 "planet_regions.width,planet_regions.height"
                 " FROM zone_regions"

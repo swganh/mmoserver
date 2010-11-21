@@ -42,6 +42,10 @@ FactoryBase::FactoryBase(Database* database)
     , mQueryContainerPool(sizeof(QueryContainerBase))
     , mDatabase(database)
 {
+    mAttributeBinding = mDatabase->createDataBinding(3);
+    mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mKey),64,0);
+    mAttributeBinding->addField(DFT_bstring,offsetof(Attribute_QueryContainer,mValue),128,1);
+    mAttributeBinding->addField(DFT_uint8,offsetof(Attribute_QueryContainer,mInternal),1,2);
 }
 
 //=============================================================================

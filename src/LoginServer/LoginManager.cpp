@@ -102,20 +102,6 @@ NetworkClient* LoginManager::handleSessionConnect(Session* session, Service* ser
     newClient->setSession(session);
     newClient->setState(LCSTATE_ServerHelloSent);
 
-	//We need to send this or a bad login will give the wrong message
-	gMessageFactory->StartMessage();
-	gMessageFactory->addInt16(2);
-	gMessageFactory->addInt32(0x0E20D7E9);
-	gMessageFactory->addString("LoginServer:29411");
-	newClient->SendChannelA(gMessageFactory->EndMessage(), 0, false);
-	
-	//We also need to send this.
-	gMessageFactory->StartMessage();
-	gMessageFactory->addInt16(2);
-	gMessageFactory->addInt32(0x58C07F21);
-	gMessageFactory->addInt16(29411);
-	newClient->SendChannelA(gMessageFactory->EndMessage(), 0, false);
-
     mLoginClientList.push_back(newClient);
     mNumClientsProcessed++;
 

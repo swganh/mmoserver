@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "QuadTree.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
 
 #include "MessageLib/MessageLib.h"
 //=============================================================================

@@ -34,7 +34,6 @@ class Database;
 class Object;
 class Message;
 class ObjectControllerCmdProperties;
-class ZoneTree;
 class CraftingStation;
 class CraftingTool;
 class PlayerObject;

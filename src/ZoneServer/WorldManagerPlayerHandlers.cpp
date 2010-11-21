@@ -56,7 +56,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
-#include "ZoneTree.h"
 #include "HarvesterFactory.h"
 #include "HarvesterObject.h"
 #include "FactoryFactory.h"

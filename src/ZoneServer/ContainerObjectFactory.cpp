@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <glog/logging.h>
 
 #include "Container.h"
+#include "ContainerManager.h"
 #include "CreatureObject.h"
 #include "ObjectFactoryCallback.h"
 #include "PlayerObject.h"
@@ -287,8 +288,14 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
     // If object with same key already exist in world map, this object will be invalid.
     if (!gWorldManager->existObject(object))
     {
+
+		container->addObject(object);
+
         gWorldManager->addObject(object,true);
-        container->addObject(object);
+		
+		//update watchers
+		gContainerManager->createObjectToRegisteredPlayers(container, object);
+
     }
 
     // if (container->getObjectLoadCounter() == (container->getObjects())->size())

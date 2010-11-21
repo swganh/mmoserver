@@ -354,6 +354,10 @@ public:
 
     // get sound string by its id
     BString					getSound(uint32 soundId) {
+		if((soundId-1) > mvSounds.size())
+		{
+			return("");
+		}
         return mvSounds[soundId - 1];
     }
     // get a mood string by its id

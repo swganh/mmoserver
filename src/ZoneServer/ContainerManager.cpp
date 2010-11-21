@@ -416,11 +416,12 @@ void ContainerManager::sendToGroupedRegisteredPlayers(PlayerObject* const contai
 //
 void ContainerManager::destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf)
 {
-	sendToRegisteredPlayers(container,[container, object, this, destroyForSelf] (PlayerObject* const recipient) 
+	Object* destroyObject = gWorldManager->getObjectById(object);
+
+	sendToRegisteredPlayers(container,[container, object, this, destroyForSelf, destroyObject] (PlayerObject* const recipient) 
 		{
 			if((recipient->getId() != container->getId()) || (destroyForSelf == true))
 			{
-				Object* destroyObject = gWorldManager->getObjectById(object);
 				if(destroyObject)
 					this->unRegisterPlayerFromContainer(destroyObject,recipient);
 

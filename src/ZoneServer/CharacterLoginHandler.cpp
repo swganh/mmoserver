@@ -129,14 +129,16 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
         gMessageLib->sendWeatherUpdate(weather->mClouds,weather->mWeather,playerObject);
 
-		//create ourselves for us
-		gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
-			
+		//initialize us for the world
+		gWorldManager->addObject(playerObject);
+
 		//create us for others
 		gSpatialIndexManager->createInWorld(playerObject);
 
-		//initialize us for the world
-		gWorldManager->addObject(playerObject);
+		//create ourselves for us
+		gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
+
+		
 
         playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
         gMessageLib->sendUpdatePlayerFlags(playerObject);
@@ -324,14 +326,16 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
 			gMessageLib->sendStartScene(mZoneId,player);
 			gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
 
-			//create ourselves for us
-			gSpatialIndexManager->sendCreatePlayer(player,player);
-			
-			//create us for others
-			gSpatialIndexManager->createInWorld(player);
-
 			//initialize us in the world
 			gWorldManager->addObject(player);
+
+			//create us for others
+			gSpatialIndexManager->createInWorld(player);
+			
+			//create ourselves for us
+			gSpatialIndexManager->sendCreatePlayer(player,player);
+
+			
 		}
 		break;
 

@@ -312,13 +312,14 @@ public:
 	Object*				getObjectById(uint64 id);
 		
 	/// =====================================================
-	/// adds an Object to the cObjectContainer
+	/// adds an Object to the ObjectContainer
 	///	returns false if the container was full and the item not added
 		
 	bool				addObject(Object* data);
 	bool				addObjectSecure(Object* data);
 		
 	bool				checkForObject(Object* object);
+	bool				hasObject(uint64 id);
 		
 	bool				deleteObject(Object* data);
 	bool				removeObject(uint64 id);

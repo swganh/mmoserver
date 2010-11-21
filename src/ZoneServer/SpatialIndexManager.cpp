@@ -112,13 +112,13 @@ bool SpatialIndexManager::AddObject(Object *newObject)
 			if(((*i)->getId() != player->getId()))
 			{
 				sendCreateObject((*i),player, false);
-				gContainerManager->registerPlayerToContainer((*i), player);
 
 				if(((*i)->getType() == ObjType_Player) )
 				{
 					PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
 					
 					sendCreateObject(player,otherPlayer, false);
+					gContainerManager->registerPlayerToContainer(otherPlayer, player);
 					gContainerManager->registerPlayerToContainer(player, otherPlayer);
 				}
 			}
@@ -218,19 +218,21 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 				gMessageLib->sendEquippedListUpdate_InRange(owner);				
 
 				//destroy for players in the grid
-				gContainerManager->SendDestroyEquippedObject(removeObject);
+				//gContainerManager->SendDestroyEquippedObject(removeObject);
+
+				//gContainerManager->destroyObjectToRegisteredPlayers(container, removeObject);
 				
-				//Bailout - the reson we use SendDestroyEquippedObject(object); instead of the (faster) destroyObjectToRegisteredPlayers
+				//Bailout - the reason we use SendDestroyEquippedObject(object); instead of the (faster) destroyObjectToRegisteredPlayers
 				//is that creatures do not get registered to players as containers (yet) - that might be an idea to change
-				return;
+				//return;
 
 			}
 
 			gContainerManager->destroyObjectToRegisteredPlayers(container,removeObject->getId());
-		}
-		
-		//remove the object out of the container
-		container->removeObject(removeObject);
+
+			//remove the object out of the container
+			container->removeObject(removeObject);
+		}	
 		
 		//no need to remove a tangible(!) from the grid if it was in a cell
 		return;
@@ -353,34 +355,8 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 			it++;
 	}
 
-	PlayerObject* player = dynamic_cast<PlayerObject*> (removeObject);
-
-	// no need to unregister stuff from stuff
-	if(!player)
-	{
-		return;
-	}
-
-	//create a copy of the list and iterate through it
-	ObjectSet knownObjects = removeObject->getRegisteredContainers();
-	ObjectSet::iterator objectIt = knownObjects.begin();
+	// no need to unregister the content of knownObjects, as thats (hopefully) just the content of our inventory
 	
-	//the only registration a player is still supposed to have at this point is himself and his inventory and equipped stuff
-	while(objectIt != knownObjects.end())
-	{
-		
-		//create it for the registered Players
-		
-		Object* object = dynamic_cast<Object*>(*objectIt);
-		if(object)
-		{
-			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
-			gContainerManager->unRegisterPlayerFromContainer(object, player);	
-			gMessageLib->sendDestroyObject(object->getId(),player);
-		}
-		
-		objectIt++;
-	}
 }
 
 // when a player leaves a structure we need to either delete all items in the structure directly
@@ -902,40 +878,44 @@ void SpatialIndexManager::createInWorld(CreatureObject* creature)
 
 void SpatialIndexManager::createInWorld(PlayerObject* player)
 {
+	//just create in the SI - it will keep track of nearby players
+	this->AddObject(player);
 
-	//are we in the SI ???
+	//are we in a cell? otherwise bail out
 	if(player->getParentId() == 0)
 	{
-		//just create in the SI - it will keep track of nearby players
-		this->AddObject(player);
 		return;
 	}
 
-	//then very likely in a cell
 	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
-	if(cell)
+	if(!cell)
 	{
-		BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-		
-		if(building)
-		{
-			//add the Creature to the cell
-			cell->addObjectSecure(player);
-
-			//add it to the world
-			this->AddObject(player);
-				
-			//iterate through all the cells and add the player as listener
-			
-			CellObjectList::iterator cellIt = building->getCellList()->begin();
-
-			while(cellIt != building->getCellList()->end())
-			{
-				gContainerManager->registerPlayerToContainer((*cellIt),player);
-				++cellIt;
-			}			
-		}
+		assert(false && "cannot cast cell ???? ");
+		return;
 	}
+	
+	BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));	
+	if(!building)
+	{
+		assert(false && "cannot cast building ???? ");
+		return;
+	}
+
+	//add the Creature to the cell
+	cell->addObjectSecure(player);
+
+	//add it to the world
+	this->AddObject(player);
+				
+	//iterate through all the cells and add the player as listener
+	CellObjectList::iterator cellIt = building->getCellList()->begin();
+
+	while(cellIt != building->getCellList()->end())
+	{
+		gContainerManager->registerPlayerToContainer((*cellIt),player);
+		++cellIt;
+	}			
+	
 }
 
 

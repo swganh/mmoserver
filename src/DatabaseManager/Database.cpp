@@ -181,7 +181,7 @@ DatabaseResult* Database::executeSynchSql(const char* sql, ...) {
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
 
-    DLOG(INFO) << "SYNCHRONOUS SQL: " << localSql;
+    //DLOG(INFO) << "SYNCHRONOUS SQL: " << localSql;
        
     return executeSql(localSql);
 }
@@ -211,7 +211,7 @@ void Database::executeSqlAsync(DatabaseCallback* callback,
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
     
-    DLOG(INFO) << "sql: " << localSql;
+    //DLOG(INFO) << "sql: " << localSql;
 
     // Setup our job.
     DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
@@ -238,7 +238,7 @@ void Database::executeSqlAsyncNoArguments(DatabaseCallback* callback,
     char localSql[20192];
     sprintf(localSql, "%s", sql);
     
-    DLOG(INFO) << "sql: " << localSql;
+    //DLOG(INFO) << "sql: " << localSql;
 
     // Setup our job.
     DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
@@ -276,7 +276,7 @@ void Database::executeProcedureAsync(DatabaseCallback* callback,
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
     
-    DLOG(INFO) << "sql: " << localSql;
+    //DLOG(INFO) << "sql: " << localSql;
 
     // Setup our job.
     DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();

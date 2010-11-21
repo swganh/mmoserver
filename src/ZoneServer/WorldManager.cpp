@@ -244,6 +244,7 @@ void WorldManager::Shutdown()
     // as we cannot keep the content out of the worldmanagers mainobjectlist - we might just store references in the container object ?
     // the point is that we then have to delete all containers first - so register them seperately?
     //
+	/*
 #if defined(_MSC_VER)
     if (getObjectById((uint64)(2533274790395904)))
 #else
@@ -260,6 +261,7 @@ void WorldManager::Shutdown()
             this->destroyObject(container);
         }
     }
+	*/
 
 	mCreatureObjectDeletionMap.clear();
 	mPlayerObjectReviveMap.clear();

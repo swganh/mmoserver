@@ -787,6 +787,12 @@ bool Object::checkContainerKnownObjects(Object* object) const
 bool Object::addObjectSecure(Object* data) 
 { 
 	
+	if(hasObject(data->getId()))
+	{
+		assert(false);
+		return false;
+	}
+
 	mData.push_back(data->getId()); 
 
 	if(mCapacity)
@@ -961,6 +967,20 @@ bool Object::checkCapacity(uint8 amount, PlayerObject* player)
 }
 
 
+bool Object::hasObject(uint64 id)
+{
+	ObjectIDList::iterator it = mData.begin();
+	while(it != mData.end())
+	{
+		if((*it) == id)
+		{
+			return(true);
+		}
+		++it;
+	}
+	return(false);
+
+}
 
 bool Object::checkForObject(Object* object)
 {

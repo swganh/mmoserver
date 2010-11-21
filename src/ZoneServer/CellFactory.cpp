@@ -224,6 +224,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     gWorldManager->addObject(object,true);
 
+
     switch(object->getType())
     {
     case ObjType_NPC:

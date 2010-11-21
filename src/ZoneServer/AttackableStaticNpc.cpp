@@ -282,29 +282,18 @@ void AttackableStaticNpc::respawn(void)
 //
 
 //where the %*@ did he put the methods for creation ??
-//this code requires that the object creates are already send .... grml .. what mess
+//this code requires that the object creates are already send .... grml .. what a mess
 void AttackableStaticNpc::spawn(void)
 {
 	// Update the world about my presence.
 	
-	if (this->getParentId())
-	{
-		// insert into cell
-		this->setSubZoneId(0);
+	gSpatialIndexManager->AddObject(this);
 
-		if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-		{
-			cell->addObjectSecure(this);
-		}
-		else
-		{
-			DLOG(INFO) << "AttackableStaticNpc::spawn: couldn't find cell " << this->getParentId();
-			
-			// It's a serious isse that we need to investigate.
-			assert(cell);
-		}
+	Object* object = gWorldManager->getObjectById(this->getId());
+	if(!object)
+	{
+		assert(false);
 	}
-	else
 
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);

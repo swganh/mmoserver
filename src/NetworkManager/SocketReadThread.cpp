@@ -190,7 +190,7 @@ void SocketReadThread::run(void)
 
         if(count && FD_ISSET(mSocket, &socketSet))
         {
-            LOG(INFO) << "Message received on port " << port;
+            //LOG(INFO) << "Message received on port " << port;
             // Read any incoming packets.
             recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen));
 

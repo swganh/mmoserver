@@ -369,7 +369,7 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
 	}
 
 	registered_watchers = container->getRegisteredStaticWatchers();
-	PlayerObjectSet::const_iterator const_it = registered_watchers.end();
+	PlayerObjectSet::const_iterator const_it = registered_watchers.begin();
 		
 	while(const_it != registered_watchers.end())
 	{

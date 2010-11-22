@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ScriptEngine/ScriptSupport.h"
 #include "Heightmap.h"
 #include "Common/ConfigManager.h"
+#include "Common/Crc.h"
 
 #include <cppconn/resultset.h>
 
@@ -100,11 +101,42 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     
                 }
                 // load client effects
-                   mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ClientEffects),"SELECT * FROM clienteffects ORDER BY id;");
-                
+                int8 sql[128] ;
+                sprintf(sql, "SELECT * FROM clienteffects ORDER BY id;");
+                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        // tell vector how much space we need to stop unecessary allocation.
+                        mvClientEffects.reserve(result_set->rowsCount());
+                        while(result_set->next())
+                        {
+                            mvClientEffects.push_back(result_set->getString("effect"));
+                        }
+                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Client Effects";
+                    });
 
                 // load attribute keys
-                mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_AttributeKeys),"SELECT id, name FROM attributes ORDER BY id;");
+                sql[0] = 0 ;
+                sprintf(sql, "SELECT id, name FROM attributes ORDER BY id;");
+                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        
+                        while(result_set->next())
+                        {
+                            std::string name = result_set->getString("name");
+                            uint32_t crc = common::memcrc(name);
+                            mObjectAttributeKeyMap.insert(std::make_pair(crc, name));
+                            mObjectAttributeIDMap.insert(std::make_pair(crc, result_set->getInt("id")));
+                        }
+                        LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Client Effects";
+                    });
 
                 // load sounds
                 mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Sounds),"SELECT * FROM sounds ORDER BY id;");
@@ -342,59 +374,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 if (!Heightmap::Instance(resolution))
                     assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
             }
-        }
-        break;
-
-        // global attribute lookup map
-        case WMQuery_AttributeKeys:
-        {
-            struct loadstruct
-            {
-                uint32 id;
-                BString attribute;
-            };
-
-            loadstruct	tmp;
-            DataBinding* binding = mDatabase->createDataBinding(2);
-            binding->addField(DFT_uint32,offsetof(loadstruct,id),4,0);
-            binding->addField(DFT_bstring,offsetof(loadstruct,attribute),128,1);
-
-            uint64 attributeCount = result->getRowCount();
-
-            for(uint64 i = 0; i < attributeCount; i++)
-            {
-                result->getNextRow(binding,&tmp);
-
-                mObjectAttributeKeyMap.insert(std::make_pair(tmp.attribute.getCrc(),BString(tmp.attribute.getAnsi())));
-                mObjectAttributeIDMap.insert(std::make_pair(tmp.attribute.getCrc(), tmp.id));
-            }
-
-            LOG_IF(INFO, attributeCount) << "Loaded " << attributeCount << " Attributes";
-
-            mDatabase->destroyDataBinding(binding);
-        }
-        break;
-
-        // global client effects map
-        case WMQuery_ClientEffects:
-        {
-            BString			tmp;
-            DataBinding*	binding = mDatabase->createDataBinding(1);
-            binding->addField(DFT_bstring,0,255,1);
-
-            uint64 effectCount = result->getRowCount();
-            mvClientEffects.reserve((uint32)effectCount);
-            for(uint64 i = 0; i < effectCount; i++)
-            {
-                result->getNextRow(binding,&tmp);
-
-                mvClientEffects.push_back(BString(tmp.getAnsi()));
-            }
-
-            LOG_IF(INFO, effectCount) << "Loaded " << effectCount << " Client Effects";
-
-
-            mDatabase->destroyDataBinding(binding);
         }
         break;
 

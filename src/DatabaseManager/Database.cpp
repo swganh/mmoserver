@@ -186,6 +186,7 @@ void Database::process() {
             if (boost::optional<AsyncDatabaseCallback> c = job->callback) {
                 (*c)(job->result);
             }
+
             //DLOG(INFO) << job->query;
             // Free the result and the job
             destroyResult(job->result);

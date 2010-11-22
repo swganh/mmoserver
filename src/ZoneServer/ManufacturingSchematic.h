@@ -42,7 +42,7 @@ class CraftAttributeWeight;
 
 struct CustomizationOption
 {
-    BString		attribute;
+    std::string	attribute;
     uint16		cutomizationIndex;
     uint32		paletteSize;
     uint32		defaultValue;
@@ -92,7 +92,7 @@ public:
         mSlotsFilled--;
     }
 
-    BString	getItemModel() {
+    std::string	getItemModel() {
         return mItemModel;
     }
     void	setItemModel(const int8* model) {
@@ -151,12 +151,12 @@ public:
     AttributeMap*				getPPAttributeMap() {
         return &mPPAttributeMap;
     }
-    template<typename T> T		getPPAttribute(BString key) const;
+    template<typename T> T		getPPAttribute(std::string key) const;
     template<typename T> T		getPPAttribute(uint32 keyCrc) const;
-    void						setPPAttribute(BString key,std::string value);
-    void						addPPAttribute(BString key,std::string value);
-    bool						hasPPAttribute(BString key) const;
-    void						removePPAttribute(BString key);
+    void						setPPAttribute(std::string key,std::string value);
+    void						addPPAttribute(std::string key,std::string value);
+    bool						hasPPAttribute(std::string key) const;
+    void						removePPAttribute(std::string key);
 
     CustomizationList*			getCustomizationList() {
         return &mCustomizationList;
@@ -182,7 +182,7 @@ public:
 
 private:
 
-    BString						mItemModel;
+    std::string					mItemModel;
     uint8						mSlotsFilled;
     ManufactureSlots			mManufactureSlots;
     ExperimentationProperties	mExperimentationProperties;
@@ -190,7 +190,7 @@ private:
     uint8						mCounter;
     float						mExpFailureChance;
     Item*						mItem;
-    BString						mSerial;
+    std::string					mSerial;
 
     AttributeMap				mPPAttributeMap;
 };
@@ -234,10 +234,10 @@ public:
         mResourceId = id;
     }
 
-    BString	getSerial() {
+    std::string	getSerial() {
         return mSerial;
     }
-    void	setSerial(BString s) {
+    void	setSerial(std::string s) {
         mSerial= s;
     }
 
@@ -257,7 +257,7 @@ public:
 
     //id of the resource filled or the serial
     uint64	mResourceId;
-    BString  mSerial;
+    std::string  mSerial;
 
     //amount we have filled in the slot
     uint32			mFilled;
@@ -296,7 +296,7 @@ public:
 
     virtual ~ExperimentationProperty() {}
 
-    BString						mExpAttributeName;
+    std::string					mExpAttributeName;
     CraftWeights*			mWeights;
     CraftAttributes*	mAttributes;
     float							mBlueBarSize;
@@ -317,7 +317,7 @@ public:
 //=============================================================================
 
 template<typename T>
-T	ManufacturingSchematic::getPPAttribute(BString key) const
+T	ManufacturingSchematic::getPPAttribute(std::string key) const
 {
     AttributeMap::const_iterator it = mPPAttributeMap.find(key.getCrc());
 

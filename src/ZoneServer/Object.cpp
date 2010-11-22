@@ -430,7 +430,7 @@ void Object::setAttributeIncDB(BString key,std::string value)
 //=============================================================================
 //adds the attribute to the objects attribute list
 
-void Object::addAttribute(BString key,std::string value)
+void Object::addAttribute(std::string key,std::string value)
 {
     mAttributeMap.insert(std::make_pair(key.getCrc(),value));
     mAttributeOrderList.push_back(key.getCrc());
@@ -439,7 +439,7 @@ void Object::addAttribute(BString key,std::string value)
 //=============================================================================
 //adds the attribute to the objects attribute list AND to the db - it needs a valid entry in the attribute table for that
 
-void Object::addAttributeIncDB(BString key,std::string value)
+void Object::addAttributeIncDB(std::string key,std::string value)
 {
     if(hasAttribute(key))
     {

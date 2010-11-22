@@ -43,33 +43,33 @@ class TangibleObject :	public ObjectContainer
 public:
 
     TangibleObject();
-    TangibleObject(uint64 id,uint64 parentId,const BString model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const BString name = "",const BString nameFile = "",const BString detailFile = "");
+    TangibleObject(uint64 id,uint64 parentId,const std::string model,TangibleGroup tanGroup = TanGroup_None,TangibleType tanType = TanType_None,const std::string name = "",const std::string nameFile = "",const std::string detailFile = "");
     virtual ~TangibleObject();
 
     virtual void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 
-    virtual void		upDateFactoryVolume(BString amount) {
+    virtual void		upDateFactoryVolume(std::string amount) {
         ;
     }
-    BString				getName() const {
+    std::string				getName() const {
         return mName;
     }
     void				setName(const int8* name) {
         mName = name;
     }
-    BString				getNameFile() const {
+    std::string				getNameFile() const {
         return mNameFile;
     }
     void				setNameFile(const int8* file) {
         mNameFile = file;
     }
-    BString				getDetailFile() {
+    std::string				getDetailFile() {
         return mDetailFile;
     }
     void				setDetailFile(const int8* file) {
         mDetailFile = file;
     }
-    BString				getColorStr() {
+    std::string				getColorStr() {
         return mColorStr;
     }
     void				setColorStr(const int8* coloStr) {
@@ -80,7 +80,7 @@ public:
     //sets ParentId - for item table objects in the db and Object
     virtual void		setParentIdIncDB(uint64 parentId);
 
-    BString				getCustomizationStr() const {
+    std::string				getCustomizationStr() const {
         return mCustomizationStr;
     }
     void				setCustomizationStr(const uint8* custStr) {
@@ -98,20 +98,20 @@ public:
     }
     void				buildTanoCustomization(uint8 len);
 
-    BString				getUnknownStr1() const {
+    std::string				getUnknownStr1() const {
         return mUnknownStr1;
     }
     void				setUnknownStr1(const int8* unknownStr) {
         mUnknownStr1 = unknownStr;
     }
-    BString				getUnknownStr2() const {
+    std::string				getUnknownStr2() const {
         return mUnknownStr2;
     }
     void				setUnknownStr2(const int8* unknownStr) {
         mUnknownStr2 = unknownStr;
     }
 
-    BString				getCustomName() const {
+    std::string				getCustomName() const {
         return mCustomName;
     }
     void				setCustomName(const int8* name) {
@@ -148,7 +148,7 @@ public:
     virtual uint32		getCategoryBazaar() {
         return 0;
     }
-    BString				getBazaarTang() {
+    std::string				getBazaarTang() {
         return getModelString();
     }
 
@@ -176,14 +176,14 @@ public:
     }
 protected:
 
-    BString				mCustomizationStr;
-    BString				mCustomName;
-    BString				mName;
-    BString				mNameFile;
-    BString				mColorStr;
-    BString				mDetailFile;
-    BString				mUnknownStr1;
-    BString				mUnknownStr2;
+    std::string				mCustomizationStr;
+    std::string				mCustomName;
+    std::string				mName;
+    std::string				mNameFile;
+    std::string				mColorStr;
+    std::string				mDetailFile;
+    std::string				mUnknownStr1;
+    std::string				mUnknownStr2;
     uint16				mCustomization[256];
     TangibleGroup		mTanGroup;
     TangibleType		mTanType;

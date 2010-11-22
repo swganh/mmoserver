@@ -184,8 +184,8 @@ public:
     bool				sendDisableHudElement(PlayerObject* playerObject, BString hudElement);
 
     // client effects
-    bool				sendPlayClientEffectObjectMessage(BString effect,BString location,Object* effectObject,PlayerObject* playerObject = NULL);
-    bool				sendPlayClientEffectLocMessage(BString effect, const glm::vec3& pos, PlayerObject* targetObject);
+    bool				sendPlayClientEffectObjectMessage(std::string effect,BString location,Object* effectObject,PlayerObject* playerObject = NULL);
+    bool				sendPlayClientEffectLocMessage(std::string effect, const glm::vec3& pos, PlayerObject* targetObject);
 
     // position updates
     void				sendUpdateTransformMessage(MovingObject* object);

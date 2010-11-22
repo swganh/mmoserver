@@ -59,7 +59,7 @@ void AttackableStaticNpc::playDeathAnimation(void)
 {
     if (mDeathEffectId != 0)
     {
-        BString effect = gWorldManager->getClientEffect(mDeathEffectId);
+        std::string effect = gWorldManager->getClientEffect(mDeathEffectId);
         gMessageLib->sendPlayClientEffectObjectMessage(effect,"",this);
     }
 }

@@ -729,7 +729,7 @@ bool MessageLib::sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 pe
 //
 // play a clienteffect, if a player is given it will be sent to him only, otherwise to everyone in range of the effectObject
 //
-bool MessageLib::sendPlayClientEffectObjectMessage(BString effect,BString location,Object* effectObject,PlayerObject* playerObject)
+bool MessageLib::sendPlayClientEffectObjectMessage(std::string effect, BString location,Object* effectObject,PlayerObject* playerObject)
 {
     if((playerObject && !playerObject->isConnected()) || !effectObject)
     {
@@ -766,14 +766,14 @@ bool MessageLib::sendPlayClientEffectObjectMessage(BString effect,BString locati
 //
 // play a clienteffect at location
 //
-bool MessageLib::sendPlayClientEffectLocMessage(BString effect, const glm::vec3& pos, PlayerObject* targetObject)
+bool MessageLib::sendPlayClientEffectLocMessage(std::string effect, const glm::vec3& pos, PlayerObject* targetObject)
 {
     if(!targetObject || !targetObject->isConnected())
     {
         return(false);
     }
 
-    BString		planet = gWorldManager->getPlanetNameThis();
+    std::string		planet = gWorldManager->getPlanetNameThis();
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opPlayClientEffectLocMessage);

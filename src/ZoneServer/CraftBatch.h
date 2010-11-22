@@ -125,7 +125,7 @@ public:
     uint32	getAttributeId() {
         return mAttributeId;
     }
-    BString	getAttributeKey() {
+    std::string	getAttributeKey() {
         return mAttributeKey;
     }
     float	getMin() {
@@ -148,7 +148,7 @@ private:
     uint32  mSchemWeightBatch;
     uint32  mListId;
     uint32	mAttributeId;
-    BString	mAttributeKey;
+    std::string	mAttributeKey;
     uint8	mType;
     float	mMin;
     float	mMax;
@@ -172,14 +172,14 @@ public:
     uint32	getAttributeId() {
         return mAttributeId;
     }
-    BString	getAttributeKey() {
+    std::string	getAttributeKey() {
         return mAttributeKey;
     }
 
     uint32	getAffectedAttributeId() {
         return mAffectedAttributeId;
     }
-    BString	getAffectedAttributeKey() {
+    std::string	getAffectedAttributeKey() {
         return mAffectedAttributeKey;
     }
 
@@ -193,10 +193,10 @@ public:
 private:
     uint32  mSchemWeightBatch;
     uint32	mAttributeId;
-    BString	mAttributeKey;
+    std::string	mAttributeKey;
 
     uint32	mAffectedAttributeId;
-    BString	mAffectedAttributeKey;
+    std::string	mAffectedAttributeKey;
 
     AttributePPME_Enum	mManipulation;
     uint8	mType;

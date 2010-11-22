@@ -50,7 +50,7 @@ TangibleObject::TangibleObject()
     mColorStr			= "";
     mUnknownStr1		= "";
     mUnknownStr2		= "";
-    mCustomName			= L"";
+    mCustomName			= "";
     mCustomizationStr	= "";
 
     //uint64 l = 0;
@@ -60,13 +60,13 @@ TangibleObject::TangibleObject()
 
 //=============================================================================
 
-TangibleObject::TangibleObject(uint64 id,uint64 parentId,BString model,TangibleGroup tanGroup,TangibleType tanType,BString name,BString nameFile,BString detailFile)
+TangibleObject::TangibleObject(uint64 id,uint64 parentId,std::string model,TangibleGroup tanGroup,TangibleType tanType,std::string name,std::string nameFile,std::string detailFile)
     : ObjectContainer(id,parentId,model,ObjType_Tangible),mName(name),mNameFile(nameFile),mDetailFile(detailFile),mTanGroup(tanGroup),mTanType(tanType)
 {
     mColorStr			= "";
     mUnknownStr1		= "";
     mUnknownStr2		= "";
-    mCustomName			= L"";
+    mCustomName			= "";
     mCustomizationStr	= "";
 }
 

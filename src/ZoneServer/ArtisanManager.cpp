@@ -122,7 +122,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         player->setSurveyState(true);
 
         // play effect
-        BString effect = gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("survey_effect"));
+        std::string effect = gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("survey_effect"));
         gMessageLib->sendPlayClientEffectLocMessage(effect,player->mPosition,player);
 
         PlayerObjectSet*			playerList	= player->getKnownPlayers();
@@ -340,7 +340,7 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     //if we're not kneeling do so now
     gStateManager.setCurrentPostureState(player, CreaturePosture_Crouched);
 
-    BString					effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
+    std::string				effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
     float					ratio			= (resource->getDistribution((int)player->mPosition.x + 8192,(int)player->mPosition.z + 8192));
     int32					surveyMod		= player->getSkillModValue(SMod_surveying);
     uint32					sampleAmount	= 0;

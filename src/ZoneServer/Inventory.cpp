@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "ResourceContainer.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "Utils/utils.h"
@@ -104,8 +105,11 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	// reminder: objects are owned by the global map, inventory only keeps references
 	addObjectSecure(object);
 
-	//let the spatialIndexManager take care of creation
+	//initialize the Object and add it to the main Object map
 	gWorldManager->addObject(object);
+
+	//let the containermanager take care of creation
+	gContainerManager->createObjectToRegisteredPlayers(this, object);
 }
 
 //=============================================================================

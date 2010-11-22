@@ -46,7 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 
 #include "DatabaseManager/Database.h"

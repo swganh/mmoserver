@@ -34,7 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-class ZoneTree;
 class PlayerObject;
 class QTRegion;
 
@@ -63,7 +62,6 @@ public:
 protected:
 
     BString				mCityName;
-    ZoneTree*			mSI;
     QTRegion*			mQTRegion;
     Anh_Math::Rectangle mQueryRect;
 };

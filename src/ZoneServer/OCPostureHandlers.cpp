@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CellObject.h"
 #include "WorldManager.h"
 #include "QuadTree.h"
-#include "ZoneTree.h"
 #include "NetworkManager/Message.h"
 
 

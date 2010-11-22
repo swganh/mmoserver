@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "SpatialIndexManager.h"
 #include "WorldConfig.h"
-#include "ZoneTree.h"
 #include "ZoneServer/Tutorial.h"
 #include "MessageLib/MessageLib.h"
 // events

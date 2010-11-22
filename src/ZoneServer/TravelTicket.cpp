@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TravelMapHandler.h"
 #include "SpatialIndexManager.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
 #include "ZoneServer/ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
 

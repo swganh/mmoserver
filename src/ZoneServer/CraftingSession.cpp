@@ -687,7 +687,7 @@ void CraftingSession::addComponentAttribute()
             while(cAPPiT != cAPP->end())
             {
                 // see whether our filled component has the relevant attribute
-                if(!filledComponent->hasAttribute( (*cAPPiT)->getAttributeKey() ))
+                if(!filledComponent->hasAttribute( (*cAPPiT)->getAttributeKey().getAnsi() ))
                 {
 					cAPPiT++;
                     continue;
@@ -699,7 +699,7 @@ void CraftingSession::addComponentAttribute()
                 {
                     // just add our value to the items attribute in case the attribute on the item exists
                     // do NOT add the attribute in case it wont exist
-                    if(mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
+                    if(mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey().getAnsi() ))
                     {
                         // add the attribute (to the schematic) if it doesnt exist already to the relevant list for storage
                         // on sending the msco deltas respective producing the final items the values will be added to the attributes
@@ -770,9 +770,9 @@ void CraftingSession::assemble(uint32 counter)
     mCounter = counter;
 
     // get the items serial
-    std::string serial;
+    BString serial;
     serial = getSerial();
-    mItem->addAttributeIncDB("serial_number",serial);
+    mItem->addAttributeIncDB("serial_number",serial.getAnsi());
 
     //add creator
     mItem->addAttributeIncDB("crafter",mOwner->getFirstName().getAnsi());

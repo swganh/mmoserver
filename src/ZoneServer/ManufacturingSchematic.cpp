@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "SchematicManager.h"
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
-#include "Common/Crc.h"
 
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
@@ -288,40 +287,40 @@ bool	ManufacturingSchematic::expPropStorefind(uint32 crc)
 // and can not be experimented on
 
 
-void ManufacturingSchematic::setPPAttribute(std::string key,std::string value)
+void ManufacturingSchematic::setPPAttribute(BString key,std::string value)
 {
-    AttributeMap::iterator it = mPPAttributeMap.find(common::memcrc(key));
+    AttributeMap::iterator it = mPPAttributeMap.find(key.getCrc());
 
     if(it == mPPAttributeMap.end())
     {
-        DLOG(WARNING) << "ManufacturingSchematic::setPPAttribute: could not find " << key;
+        DLOG(WARNING) << "ManufacturingSchematic::setPPAttribute: could not find " << key.getAnsi();
         return;
     }
 
     (*it).second = value;
 }
 
-bool ManufacturingSchematic::hasPPAttribute(std::string key) const
+bool ManufacturingSchematic::hasPPAttribute(BString key) const
 {
-    if(mPPAttributeMap.find(common::memcrc(key)) != mPPAttributeMap.end())
+    if(mPPAttributeMap.find(key.getCrc()) != mPPAttributeMap.end())
         return(true);
 
     return(false);
 }
 
-void ManufacturingSchematic::addPPAttribute(std::string key,std::string value)
+void ManufacturingSchematic::addPPAttribute(BString key,std::string value)
 {
-    mPPAttributeMap.insert(std::make_pair(common::memcrc(key),value));
+    mPPAttributeMap.insert(std::make_pair(key.getCrc(),value));
 }
 
-void ManufacturingSchematic::removePPAttribute(std::string key)
+void ManufacturingSchematic::removePPAttribute(BString key)
 {
-    AttributeMap::iterator it = mPPAttributeMap.find(common::memcrc(key));
+    AttributeMap::iterator it = mPPAttributeMap.find(key.getCrc());
 
     if(it != mPPAttributeMap.end())
         mPPAttributeMap.erase(it);
     else
-        DLOG(WARNING) << "ManufacturingSchematic::removePostProcessAttribute: could not find " << key;
+        DLOG(WARNING) << "ManufacturingSchematic::removePostProcessAttribute: could not find " << key.getAnsi();
 }
 
 //===============================================================

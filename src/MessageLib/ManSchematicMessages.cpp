@@ -80,7 +80,7 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
     {
         while(it != attributes->end())
         {
-            attByteCount += 21 + gWorldManager->getAttributeKey((*it).first).length();
+            attByteCount += 21 + gWorldManager->getAttributeKey((*it).first).getLength();
             ++it;
         }
     }
@@ -142,7 +142,7 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
                 float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
                 float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));
                 DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 Attribute Add Value";
-                DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 we will add " << attributeAddValue << " to " << gWorldManager->getAttributeKey((*it).first);
+                DLOG(INFO) << "MessageLib::sendBaselinesMSCO_3 we will add " << attributeAddValue << " to " << gWorldManager->getAttributeKey((*it).first).getAnsi();
                 mMessageFactory->addFloat(attributeValue+attributeAddValue);
             }
             else
@@ -1135,7 +1135,7 @@ bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject*
     // attributes we update here are the attrivutes the final object will have on completion
     while(it != attributes->end())
     {
-        attByteCount += 21 + gWorldManager->getAttributeKey((*it).first).length();
+        attByteCount += 21 + gWorldManager->getAttributeKey((*it).first).getLength();
         ++it;
     }
 
@@ -1163,7 +1163,7 @@ bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject*
 
         mMessageFactory->addString(gWorldManager->getAttributeKey((*it).first));
 
-        if(manSchem->hasPPAttribute(gWorldManager->getAttributeKey((*it).first)))
+        if(manSchem->hasPPAttribute(gWorldManager->getAttributeKey((*it).first).getAnsi()))
         {
             float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
             float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));

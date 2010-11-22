@@ -115,7 +115,7 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                         {
                             mvClientEffects.push_back(result_set->getString("effect"));
                         }
-                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Client Effects";
+                        LOG_IF(INFO, mvClientEffects.size()) << "Loaded " << mvClientEffects.size() << " Client Effects";
                     });
 
                 // load attribute keys
@@ -134,22 +134,82 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                             mObjectAttributeKeyMap.insert(std::make_pair(name.getCrc(), name));
                             mObjectAttributeIDMap.insert(std::make_pair(name.getCrc(), result_set->getInt("id")));
                         }
-                        LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Client Effects";
+                        LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
                     });
 
                 // load sounds
-                mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Sounds),"SELECT * FROM sounds ORDER BY id;");
+                sql[0] = 0 ;
+                sprintf(sql, "SELECT * FROM sounds ORDER BY id;");
+                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        
+                        while(result_set->next())
+                        {
+                            mvSounds.push_back(result_set->getString("name"));
+                        }
+                        
+                        LOG_IF(INFO, mvSounds.size()) << "Loaded " << mvSounds.size() << " Sounds";
+                    });
 
                 // load moods
-                mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Moods),"SELECT * FROM moods ORDER BY id;");
-                
+                sql[0] = 0 ;
+                sprintf(sql, "SELECT * FROM moods ORDER BY id;");
+                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        mvMoods.reserve(result_set->rowsCount());
+                        while(result_set->next())
+                        {
+                            mvMoods.push_back(result_set->getString("name"));
+                        }
+                        LOG_IF(INFO, mvMoods.size()) << "Loaded " << mvMoods.size() << " Moods";
+                    });
+
                 // load npc converse animations
-                
-                mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcConverseAnimations),"SELECT * FROM conversation_animations ORDER BY id;");
-                
+                sql[0] = 0 ;
+                sprintf(sql, "SELECT * FROM conversation_animations ORDER BY id;");
+                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        mvNpcConverseAnimations.reserve(result_set->rowsCount());
+                        while(result_set->next())
+                        {
+                            mvNpcConverseAnimations.push_back(result_set->getString("name"));
+                        }
+                        LOG_IF(INFO, mvNpcConverseAnimations.size()) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
+                    });
                 // load npc chatter
-                mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_NpcChatter),"SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;",mZoneId);
-                
+                sql[0] = 0 ;
+                sprintf(sql, "SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;", mZoneId);
+                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        mvNpcChatter.reserve(result_set->rowsCount());
+                        while(result_set->next())
+                        {
+                            std::string phrase(result_set->getString("phrase"));
+                            uint32 anim = result_set->getUInt("animation");
+                            // convert from std::string to wstring
+                            std::wstring ws;
+                            ws.assign(phrase.begin(), phrase.end());
+
+                            mvNpcChatter.push_back(std::make_pair(ws, anim));
+                        }
+                        LOG_IF(INFO, mvNpcChatter.size()) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
+                    });
 
                 if(mZoneId != 41)
                 {
@@ -205,8 +265,23 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     });
 
                     // load world scripts
-                    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_WorldScripts),"SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    
+                    sql[0] = 0;
+                    sprintf(sql, "SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
+                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                        if (! result)
+                        {
+                            return;
+                        }
+                        while(result_set->next())
+                        {
+                            Script* script = gScriptEngine->createScript();
+                            script->setPriority(result_set->getUInt("priority"));
+                            script->setFileName(result_set->getString("file").c_str());
+                            mWorldScripts.push_back(script);
+                        }
+                        LOG_IF(INFO, mWorldScripts.size()) << "Loaded " << mWorldScripts.size() << " World Scripts";
+                    });
 
                     //load creature spawn regions, and optionally heightmaps cache.
                     sql[0] = 0;
@@ -373,128 +448,6 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                 if (!Heightmap::Instance(resolution))
                     assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
             }
-        }
-        break;
-
-        // global sounds map
-        case WMQuery_Sounds:
-        {
-            BString			tmp;
-            DataBinding*	binding = mDatabase->createDataBinding(1);
-            binding->addField(DFT_bstring,0,255,1);
-
-            uint64 effectCount = result->getRowCount();
-            mvSounds.reserve((uint32)effectCount);
-            for(uint64 i = 0; i < effectCount; i++)
-            {
-                result->getNextRow(binding,&tmp);
-
-                mvSounds.push_back(BString(tmp.getAnsi()));
-            }
-
-            LOG_IF(INFO, effectCount) << "Loaded " << effectCount << " Sounds";
-
-            mDatabase->destroyDataBinding(binding);
-        }
-        break;
-
-        // global moods map
-        case WMQuery_Moods:
-        {
-            BString			tmp;
-            DataBinding*	binding = mDatabase->createDataBinding(1);
-            binding->addField(DFT_bstring,0,255,1);
-
-            uint64 effectCount = result->getRowCount();
-            mvMoods.reserve((uint32)effectCount);
-            for(uint64 i = 0; i < effectCount; i++)
-            {
-                result->getNextRow(binding,&tmp);
-
-                mvMoods.push_back(BString(tmp.getAnsi()));
-            }
-
-            LOG_IF(INFO, effectCount) << "Loaded " << effectCount << " Moods";
-
-
-            mDatabase->destroyDataBinding(binding);
-        }
-        break;
-
-        // global npc animations map
-        case WMQuery_NpcConverseAnimations:
-        {
-            BString			tmp;
-            DataBinding*	binding = mDatabase->createDataBinding(1);
-            binding->addField(DFT_bstring,0,255,1);
-
-            uint64 animCount = result->getRowCount();
-            mvNpcConverseAnimations.reserve((uint32)animCount);
-            for(uint64 i = 0; i < animCount; i++)
-            {
-                result->getNextRow(binding,&tmp);
-
-                mvNpcConverseAnimations.push_back(BString(tmp.getAnsi()));
-            }
-
-            LOG_IF(INFO, animCount) << "Loaded " << animCount << " NPC Converse Animations";
-
-            mDatabase->destroyDataBinding(binding);
-        }
-        break;
-
-        // random npc phrases/animations map
-        case WMQuery_NpcChatter:
-        {
-            BString			tmp;
-            DataBinding*	binding = mDatabase->createDataBinding(1);
-            binding->addField(DFT_bstring,0,255,1);
-
-            uint32			animId;
-            DataBinding*	animbinding = mDatabase->createDataBinding(1);
-            animbinding->addField(DFT_uint32,0,4,2);
-
-            uint64 phraseCount = result->getRowCount();
-            mvNpcChatter.reserve((uint32)phraseCount);
-            for(uint64 i = 0; i < phraseCount; i++)
-            {
-                result->getNextRow(binding,&tmp);
-                result->resetRowIndex(static_cast<int>(i));
-                result->getNextRow(animbinding,&animId);
-
-                tmp.convert(BSTRType_Unicode16);
-
-                mvNpcChatter.push_back(std::make_pair(std::wstring(tmp.getUnicode16()),animId));
-            }
-
-            LOG_IF(INFO, phraseCount) << "Loaded " << phraseCount << " NPC Phrases";
-
-            mDatabase->destroyDataBinding(binding);
-            mDatabase->destroyDataBinding(animbinding);
-        }
-        break;
-
-        // world scripts
-        case WMQuery_WorldScripts:
-        {
-            DataBinding*	scriptBinding = mDatabase->createDataBinding(2);
-            scriptBinding->addField(DFT_uint32,offsetof(Script,mPriority),4,0);
-            scriptBinding->addField(DFT_string,offsetof(Script,mFile),255,1);
-
-            uint64 scriptCount = result->getRowCount();
-
-            for(uint64 i = 0; i < scriptCount; i++)
-            {
-                Script* script = gScriptEngine->createScript();
-
-                result->getNextRow(scriptBinding,script);
-
-                mWorldScripts.push_back(script);
-            }
-
-            LOG_IF(INFO, scriptCount) << "Loaded " << scriptCount << " World Scripts";
-
-            mDatabase->destroyDataBinding(scriptBinding);
         }
         break;
 

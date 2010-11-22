@@ -266,7 +266,7 @@ public:
     void                sendCreatureAnimation(CreatureObject* srcObject, const std::string& animation);
 	void                sendCreatureAnimation(CreatureObject* srcObject, BString animation);
     // spatial for tutorial
-    void				sendCreatureAnimation(CreatureObject* srcObject,BString animation, PlayerObject* player);
+    void				sendCreatureAnimation(CreatureObject* srcObject, const std::string &animation, PlayerObject* player);
 
     // npc conversations
     bool				sendStartNPCConversation(NPCObject* srcObject,PlayerObject* targetObject);

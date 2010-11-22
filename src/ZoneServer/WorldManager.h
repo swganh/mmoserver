@@ -355,16 +355,16 @@ public:
     void					warpPlanet(PlayerObject* playerObject, const glm::vec3& destination,uint64 parentId, const glm::quat& direction = glm::quat());
 
     // get a client effect string by its id
-    BString					getClientEffect(uint32 effectId) {
+    std::string				getClientEffect(uint32 effectId) {
         return mvClientEffects[effectId - 1];
     }
 
     // get sound string by its id
-    BString					getSound(uint32 soundId) {
+    std::string 			getSound(uint32 soundId) {
         return mvSounds[soundId - 1];
     }
     // get a mood string by its id
-    BString					getMood(uint32 moodId) {
+    std::string					getMood(uint32 moodId) {
         return mvMoods[moodId];
     }
     // get an attribute key
@@ -372,7 +372,7 @@ public:
     // get an attribute ID
     uint32					getAttributeId(uint32 keyId);
     // get a npc animation
-    BString					getNpcConverseAnimation(uint32 animId) {
+    std::string					getNpcConverseAnimation(uint32 animId) {
         return mvNpcConverseAnimations[animId - 1];
     }
     // get a random chat phrase
@@ -538,11 +538,11 @@ private:
     QTRegionMap					mQTRegionMap;
     RegionMap                   mRegionMap;
     NpIdSet						mUsedTmpIds;
-    BStringVector				mvClientEffects;
-    BStringVector				mvMoods;
-    BStringVector				mvNpcConverseAnimations;
+    std::vector<std::string>	mvClientEffects;
+    std::vector<std::string>    mvMoods;
+    std::vector<std::string>	mvNpcConverseAnimations;
     BStringVector				mvPlanetNames;
-    BStringVector				mvSounds;
+    std::vector<std::string>    mvSounds;
     BStringVector				mvTrnFileNames;
     ActiveRegions				mActiveRegions;
     CraftTools					mBusyCraftTools;
@@ -553,7 +553,7 @@ private:
     ShuttleList					mShuttleList;
     ScriptList					mWorldScripts;
     CreatureQueue				mObjControllersToProcess;
-    Weather									mCurrentWeather;
+    Weather						mCurrentWeather;
     ScriptEventListener			mWorldScriptsListener;
     Anh_Utils::Scheduler*		mAdminScheduler;
     Anh_Utils::VariableTimeScheduler* mBuffScheduler;

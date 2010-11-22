@@ -276,7 +276,7 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject, BString animat
 // animate a creature, used by tutorial
 //
 
-void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,BString animation, PlayerObject* player)
+void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,const std::string &animation, PlayerObject* player)
 {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opObjControllerMessage);

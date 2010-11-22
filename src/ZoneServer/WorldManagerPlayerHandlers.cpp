@@ -505,7 +505,7 @@ bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
 
         ++playerIt;
     }
-    LOG(WARNING) << "Periodic Save of "<< playerSaveCount <<"Players";
+    LOG(WARNING) << "Periodic Save of "<< playerSaveCount <<" Players";
     //setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 60000, NULL));
     return true;
 }

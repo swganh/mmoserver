@@ -70,7 +70,7 @@ public:
     void			setId(uint64 id) {
         mId = id;
     }
-    std::string			getName() {
+    BString			getName() {
         return mName;
     }
     void			setName(const BString name) {
@@ -102,7 +102,7 @@ public:
 protected:
 
     uint64			mId;
-    std::string			mName;
+    BString			mName;
     uint32			mTypeId;
     uint16			mAttributes[11];
     uint8			mCurrent;

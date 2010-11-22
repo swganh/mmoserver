@@ -983,7 +983,7 @@ void CraftingSession::emptySlot(uint32 slotId,ManufactureSlot* manSlot,uint64 co
 
 //=============================================================================
 //this creates the serial for a crafted item
-std::string CraftingSession::getSerial()
+BString CraftingSession::getSerial()
 {
     int8	serial[12],chance[9];
     bool	found = false;
@@ -1011,7 +1011,7 @@ std::string CraftingSession::getSerial()
 
     sprintf(serial,"(%s)",chance);
 
-    return(serial);
+    return(BString(serial));
 }
 
 //=============================================================================
@@ -1223,7 +1223,7 @@ void CraftingSession::collectResources()
     int8			attr[64];
 
     CheckResources::iterator checkResIt = mCheckRes.begin();
-    std::string			name;
+    BString			name;
     while(manIt != mManufacturingSchematic->getManufactureSlots()->end())
     {
 
@@ -1262,13 +1262,13 @@ void CraftingSession::collectResources()
     {
         //build these attributes by hand the attribute wont be found in the attributes table its custom made
         name = gResourceManager->getResourceById((*checkResIt).first)->getName();
-        sprintf(attr,"cat_manf_schem_ing_resource.\"%s",name);
-        std::string attrName = attr;
+        sprintf(attr,"cat_manf_schem_ing_resource.\"%s",name .getAnsi());
+        BString attrName = BString(attr);
 
         sprintf(str,"%u",(*checkResIt).second);
 
         //add to the public attribute list
-        mManufacturingSchematic->addAttribute(attrName,str);
+        mManufacturingSchematic->addAttribute(attrName.getAnsi(),str);
 
         //now add to the db
         sprintf(str,"%s %u",name.getAnsi(),(*checkResIt).second);
@@ -1299,7 +1299,7 @@ void CraftingSession::collectComponents()
     int8			attr[64];
 
     CheckResources::iterator checkResIt = mCheckRes.begin();
-    std::string			name;
+    BString			name;
     while(manIt != mManufacturingSchematic->getManufactureSlots()->end())
     {
 
@@ -1324,7 +1324,7 @@ void CraftingSession::collectComponents()
                 assert(false && "CraftingSession::collectComponents No tangible object found in world manager");
             }
 
-            std::string componentSerial = "";
+            BString componentSerial = "";
 
             if(tO->hasAttribute("serial"))
                 componentSerial = tO->getAttribute<std::string>("serial").c_str();
@@ -1358,7 +1358,7 @@ void CraftingSession::collectComponents()
         {
             continue;
         }
-        std::string componentSerial = "";
+        BString componentSerial = "";
         if(tO->hasAttribute("serial"))
             componentSerial = tO->getAttribute<std::string>("serial").c_str();
 

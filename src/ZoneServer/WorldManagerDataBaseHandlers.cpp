@@ -130,10 +130,9 @@ void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                         
                         while(result_set->next())
                         {
-                            std::string name = result_set->getString("name");
-                            uint32_t crc = common::memcrc(name);
-                            mObjectAttributeKeyMap.insert(std::make_pair(crc, name));
-                            mObjectAttributeIDMap.insert(std::make_pair(crc, result_set->getInt("id")));
+                            BString name = result_set->getString("name").c_str();
+                            mObjectAttributeKeyMap.insert(std::make_pair(name.getCrc(), name));
+                            mObjectAttributeIDMap.insert(std::make_pair(name.getCrc(), result_set->getInt("id")));
                         }
                         LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Client Effects";
                     });

@@ -116,7 +116,7 @@ typedef std::map<uint64, uint64>				NpcActiveHandlers;
 typedef std::map<uint64, uint64>				AdminRequestHandlers;
 
 // AttributeKey map
-typedef std::map<uint32,std::string>			AttributeKeyMap;
+typedef std::map<uint32,BString>					AttributeKeyMap;
 typedef std::map<uint32,uint32>					AttributeIDMap;
 
 // non-persistent id set
@@ -355,7 +355,7 @@ public:
     void					warpPlanet(PlayerObject* playerObject, const glm::vec3& destination,uint64 parentId, const glm::quat& direction = glm::quat());
 
     // get a client effect string by its id
-    std::string					getClientEffect(uint32 effectId) {
+    BString					getClientEffect(uint32 effectId) {
         return mvClientEffects[effectId - 1];
     }
 
@@ -368,7 +368,7 @@ public:
         return mvMoods[moodId];
     }
     // get an attribute key
-    std::string 			getAttributeKey(uint32 keyId);
+    BString					getAttributeKey(uint32 keyId);
     // get an attribute ID
     uint32					getAttributeId(uint32 keyId);
     // get a npc animation
@@ -538,7 +538,7 @@ private:
     QTRegionMap					mQTRegionMap;
     RegionMap                   mRegionMap;
     NpIdSet						mUsedTmpIds;
-    std::vector<std::string>    mvClientEffects;
+    BStringVector				mvClientEffects;
     BStringVector				mvMoods;
     BStringVector				mvNpcConverseAnimations;
     BStringVector				mvPlanetNames;

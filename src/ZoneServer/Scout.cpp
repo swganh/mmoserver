@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ScoutManager.h"
 #include "StructureManager.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -76,10 +77,7 @@ void Scout::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 if(gScoutManager->createCamp(this->getItemType(),0,player->mPosition,"",player))
                 {
                     TangibleObject* parentContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
-                    parentContainer->removeObject(this);
-                    gMessageLib->sendDestroyObject(this->getId(),player);
-                    gObjectFactory->deleteObjectFromDB(this);
-                    gWorldManager->destroyObject(this);
+                    gContainerManager->deleteObject(this, parentContainer);
                 }
             }
 

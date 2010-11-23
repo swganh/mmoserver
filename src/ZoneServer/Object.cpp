@@ -96,8 +96,7 @@ Object::~Object()
 		{
 			DLOG(INFO) << "ObjectContainer::remove Object : No Object!!!!";
 			assert(false && "ObjectContainer::~ObjectContainer WorldManager unable to find object instance");
-			objectIt = removeObject(objectIt);
-			
+			objectIt = removeObject(objectIt);			
 			continue;
 		}
 
@@ -865,26 +864,6 @@ bool Object::removeObject(Object* data)
 }
 
 //=============================================================================
-// removes it out of the container and destroys it in the worldmanager
-//
-bool Object::deleteObject(Object* data)
-{
-	ObjectIDList::iterator it = mData.begin();
-	while(it != mData.end())
-	{
-		if((*it) == data->getId())
-		{
-			gWorldManager->destroyObject(data);
-			return true;
-		}
-		++it;
-	}
-	DLOG(INFO) << "Object*::removeDataByPointer Data "<< data->getId() << " not found";
-	return false;
-}
-
-
-//=============================================================================
 
 bool Object::removeObject(uint64 id)
 {
@@ -893,7 +872,6 @@ bool Object::removeObject(uint64 id)
 	{
 		if((*it) == id)
 		{
-			gContainerManager->destroyObjectToRegisteredPlayers(this,id);
 			it = mData.erase(it);
 			return true;
 		}
@@ -907,9 +885,8 @@ bool Object::removeObject(uint64 id)
 
 ObjectIDList::iterator Object::removeObject(ObjectIDList::iterator it)
 {
-	gContainerManager->destroyObjectToRegisteredPlayers(this,(*it));
 	it = mData.erase(it);
-return it;
+	return it;
 }
 
 //=============================================================================

@@ -524,27 +524,12 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		
 	}
 	
-	
-	//its our inventory
-	if (tangible->getParentId() == inventory->getId())
-	{
-		//gMessageLib->sendDestroyObject(targetId,playerObject);
-		
-		if(!inventory->removeObject(itemObject))
-		{
-			LOG(WARNING) << "ObjectController::removeFromContainer: Internal Error could not remove  " << itemObject->getId() << " from " << inventory->getId();
-			return false;
-		}
-		
-		return true;
-
-	}
-	
 	//the containerObject is the container used in the tutorial or some random dungeon container
 	Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(tangible->getParentId()));
 	if (container)
 	{
 		container->removeObject(itemObject);
+		gContainerManager->destroyObjectToRegisteredPlayers(container, tangible->getId());
 		if (gWorldConfig->isTutorial())
 		{
 			playerObject->getTutorial()->transferedItemFromContainer(targetId, tangible->getParentId());
@@ -574,6 +559,8 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			LOG(WARNING) << "ObjectController::removeFromContainer: Internal Error could not remove  " <<  itemObject->getId() << " from creature inventory "  << creatureInventory->getId();
 			return false;
 		}
+
+		gContainerManager->destroyObjectToRegisteredPlayers(creatureInventory, tangible->getId());
 
 		ObjectIDList* invObjList = creatureInventory->getObjects();
 		if (invObjList->size() == 0)
@@ -620,14 +607,15 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 
 		// Remove object from cell.
 		cell->removeObject(itemObject);
-
+		
+		gContainerManager->destroyObjectToRegisteredPlayers(cell, tangible->getId());
 	}
 
 	//some other container ... hopper backpack chest etc
 	TangibleObject* containingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
-	
 	if(containingContainer && containingContainer->removeObject(itemObject))
 	{
+		gContainerManager->destroyObjectToRegisteredPlayers(containingContainer, tangible->getId());
 		return true;
 	}
 	

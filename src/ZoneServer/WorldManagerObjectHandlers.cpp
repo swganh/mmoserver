@@ -179,13 +179,6 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params);
 
-			//******************************************************************
-			//just do this once when the player is created the first time!!!
-			//the spatialIndexhandler will be called whenever we teleport or change planet!
-			//these functions will be moved to a containerhandler at some point
-			gContainerManager->registerPlayerToStaticContainer(player,player);
-			gContainerManager->registerPlayerToStaticContainer(player->getInventory(),player);
-
 		}
 		break;
 

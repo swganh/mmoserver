@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TangibleEnums.h"
 #include "Wearable.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 #include "Utils/Scheduler.h"
 
@@ -294,22 +295,19 @@ void  Trade::processTradeListPostTransaction()
         uint64 itemId = (*it)->getObject()->getId();
         TangibleGroup tanGroup = (*it)->getObject()->getTangibleGroup();
 
-        //delete out of our inventory / backpack
-        gMessageLib->sendDestroyObject(itemId,getPlayerObject());
-
         //assign the Bazaar as the new owner to the item
         gObjectFactory->GiveNewOwnerInDB((*it)->getObject(),partnerInventory->getId());
 
-        //the item could be in a backpack or in a different container - get it out
+		(*it)->getObject()->setParentId(partnerInventory->getId());
+
+        //get it out of its container
         TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)->getObject()->getParentId()));
-
-        container->deleteObject((*it)->getObject());
-
-        (*it)->getObject()->setParentId(partnerInventory->getId());
+		gContainerManager->removeObject((*it)->getObject(), container);
 
         //create in our tradepartners Inventory
         if((*it)->getNewOwner() && (*it)->getNewOwner()->isConnected())
         {
+			//gContainerManager->createObjectToRegisteredPlayers(partnerInventory, (*it)->getObject());
             gObjectFactory->createIteminInventory(partnerInventory,itemId,tanGroup);
         }
 

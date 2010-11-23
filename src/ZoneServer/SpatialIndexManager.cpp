@@ -901,11 +901,8 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
 		return;
 	}
 
-	//add the Creature to the cell
+	//add the Creature to the cell wea re in
 	cell->addObjectSecure(player);
-
-	//add it to the world
-	this->AddObject(player);
 				
 	//iterate through all the cells and add the player as listener
 	CellObjectList::iterator cellIt = building->getCellList()->begin();

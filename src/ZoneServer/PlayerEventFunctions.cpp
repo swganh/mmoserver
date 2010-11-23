@@ -97,8 +97,8 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
         return;
     }
 
-    TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
-    tO->deleteObject(item);
+    TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
+	gContainerManager->deleteObject(item, container);
 
 }
 

@@ -30,12 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
-#include "ObjectFactory.h"
+//#include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "ScoutManager.h"
 #include "StructureManager.h"
 #include "VehicleControllerFactory.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -76,11 +77,8 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 {
                     	gVehicleControllerFactory->createVehicle(this->getItemType(),player);
 
-						Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-						inventory->removeObject(this);
-						gMessageLib->sendDestroyObject(this->getId(),player);
-						gObjectFactory->deleteObjectFromDB(this);
-						gWorldManager->destroyObject(this);
+						Inventory* inventory = player->getInventory();
+						gContainerManager->deleteObject(this,inventory);						
                 }
                 else
                 {

@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldConfig.h"
 #include "BuildingObject.h"
 #include "CellObject.h"
+#include "ContainerManager.h"
 #include "Datapad.h"
 #include "HouseObject.h"
 #include "Inventory.h"
@@ -104,10 +105,10 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
 				{
 					if(sendSelftoTarget)
 					{
-						gMessageLib->sendCreatePlayer(player,targetPlayer);
+						sendCreatePlayer(player,targetPlayer);
 					}
 
-					gMessageLib->sendCreatePlayer(targetPlayer,player);
+					sendCreatePlayer(targetPlayer,player);
 				}
 			}
 			else
@@ -121,9 +122,9 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
 						{
 							if(sendSelftoTarget)
 							{
-								gMessageLib->sendCreatePlayer(player,targetPlayer);
+								sendCreatePlayer(player,targetPlayer);
 							}
-							gMessageLib->sendCreatePlayer(targetPlayer,player);
+							sendCreatePlayer(targetPlayer,player);
 						}
 					}
 				}
@@ -271,6 +272,7 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
 {
 	
 	gMessageLib->sendCreatePlayer(playerObject, targetObject);
+	playerObject->registerStatic(playerObject);
 
 	// tangible objects
 	if(TangibleObject* hair = dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair)))
@@ -286,9 +288,10 @@ bool SpatialIndexManager::sendCreatePlayer(PlayerObject* playerObject,PlayerObje
 	{
 		
 		// create inventory and contents
-		if(dynamic_cast<TangibleObject*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
+		Inventory* inventory = playerObject->getInventory();
+		if(inventory)
 		{
-			sendInventory(playerObject);
+			sendInventory(playerObject);			
 		}
 
 		// mission bag
@@ -433,22 +436,32 @@ void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
 	gMessageLib->sendContainmentMessage(inventory->getId(),inventory->getParentId(),4,playerObject);
 	gMessageLib->sendBaselinesTANO_3(inventory,playerObject);
 	gMessageLib->sendBaselinesTANO_6(inventory,playerObject);
+	
+	gMessageLib->sendEndBaselines(inventory->getId(),playerObject);
 
-	// create objects contained
+	// create objects contained *always* even if already registered
+	// register them as necessary 
+	// please note that they need to be created even if already registered (client requirement)
+	inventory->registerStatic(playerObject);
+	playerObject-> registerStatic(inventory);
+
 	ObjectIDList* invObjects		= inventory->getObjects();
 	ObjectIDList::iterator objIt	= invObjects->begin();
 
 	while(objIt != invObjects->end())
 	{
 		Object* object = gWorldManager->getObjectById((*objIt));
-		
-		sendCreateObject(object,playerObject,false);
+		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
+		{
+			sendCreateTangible(tangible,playerObject);
+			gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory as we dont want to iterate through that needlessly
+		}
+
+		//sendCreateObject(object,playerObject,false);
 		++objIt;
 	}
 
-	gMessageLib->sendEndBaselines(inventory->getId(),playerObject);
-
-	
+	//creating the equipped Objects isnt technically part of the inventory ...
 	ObjectList* invEquippedObjects		= playerObject->getEquipManager()->getEquippedObjects();
 	ObjectList::iterator objEIt			= invEquippedObjects->begin();
 

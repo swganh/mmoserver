@@ -85,7 +85,11 @@ class ContainerManager :  public TimerCallback
 		
 
 		//sends the destroys for an object equipped by a creature / player that gets unequipped
-		void					SendDestroyEquippedObject(Object *removeObject);		
+		void					SendDestroyEquippedObject(Object *removeObject);	
+
+		//deletes an object out of a container
+		void					deleteObject(Object* data, TangibleObject* parent);
+		void					removeObject(Object* data, TangibleObject* parent);
 
 		void					removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building);
 		
@@ -95,7 +99,7 @@ class ContainerManager :  public TimerCallback
 		//registers player as watcher to a container based on si
 		void					registerPlayerToContainer(Object* container, PlayerObject* const player) const;
 		//static containers are not affected by si updates
-		void					registerPlayerToStaticContainer(Object* container, PlayerObject* const player) const;
+		void					registerPlayerToStaticContainer(Object* container, PlayerObject* const player, bool playerCreate = false) const;
 
 		void					unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const;
 		void					createObjectToRegisteredPlayers(Object* container,Object* object);

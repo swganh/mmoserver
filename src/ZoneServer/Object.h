@@ -321,7 +321,6 @@ public:
 	bool				checkForObject(Object* object);
 	bool				hasObject(uint64 id);
 		
-	bool				deleteObject(Object* data);
 	bool				removeObject(uint64 id);
 	bool				removeObject(Object* Data);
 	ObjectIDList::iterator removeObject(ObjectIDList::iterator it);

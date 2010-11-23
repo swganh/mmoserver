@@ -57,6 +57,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TravelMapHandler.h"
 #include "WaypointFactory.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
@@ -142,14 +143,12 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(player)
         {
             gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-			Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+			
+			Inventory* inventory = player->getInventory();
 			Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 				
-			//destroy it in the client
-			gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-	
-			//delete it out of the inventory
-			inventory->deleteObject(deed);
+			gContainerManager->removeObject(deed, inventory);
+		
 				
 			Datapad* datapad			= player->getDataPad();
 			datapad->requestNewWaypoint("Player House",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
@@ -191,15 +190,12 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(player)
         {
             gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-			Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+
+			Inventory* inventory = player->getInventory();
 			Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 				
-			//destroy it in the client
-			gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-	
-			//delete it out of the inventory
-			inventory->deleteObject(deed);
-
+			gContainerManager->removeObject(deed, inventory);
+			
 			Datapad* datapad			= player->getDataPad();
 			datapad->requestNewWaypoint("Player Factory",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
@@ -238,14 +234,12 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             if(player)
             {
                 gStructureManager->UpdateCharacterLots(asyncContainer->PlayerId);
-				Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-				Deed* deed = dynamic_cast<Deed*>(inventory->getObjectById(asyncContainer->DeedId));
-					
-				//destroy it in the client
-				gMessageLib->sendDestroyObject(asyncContainer->DeedId,player);
-		
-				//delete it out of the inventory
-				inventory->deleteObject(deed);
+				
+				Inventory* inventory = player->getInventory();
+				Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
+				
+				gContainerManager->removeObject(deed, inventory);
+			
 
 				Datapad* datapad			= player->getDataPad();
 				datapad->requestNewWaypoint("Harvester",asyncContainer->coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);

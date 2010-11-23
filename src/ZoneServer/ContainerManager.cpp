@@ -210,11 +210,11 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
 	
 }
 
-void ContainerManager::registerPlayerToStaticContainer(Object* container, PlayerObject* const player) const
+void ContainerManager::registerPlayerToStaticContainer(Object* container, PlayerObject* const player, bool playerCreate) const
 {
 
 	//are we sure the player doesnt know the container already ???
-	if(container->checkRegisteredWatchers(player))
+	if(container->checkStatics(player) && (playerCreate = false))
 	{
 
 		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
@@ -239,7 +239,7 @@ void ContainerManager::registerPlayerToStaticContainer(Object* container, Player
 		TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
 		if(tO)
 		{
-			gSpatialIndexManager->sendCreateObject(tO,player,false);
+			gSpatialIndexManager->sendCreateTangible(tO, player);
 			registerPlayerToContainer(tO,player);
 		}
 		
@@ -479,4 +479,19 @@ void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Obj
 	);
 	
 	
+}
+
+void ContainerManager::deleteObject(Object* object, TangibleObject* parent)
+{
+	destroyObjectToRegisteredPlayers(parent,object->getId());
+	parent->removeObject(object);
+	gWorldManager->destroyObject(object);
+
+	gObjectFactory->deleteObjectFromDB(object);
+}
+
+void ContainerManager::removeObject(Object* object, TangibleObject* parent)
+{
+	destroyObjectToRegisteredPlayers(parent,object->getId());
+	parent->removeObject(object);
 }

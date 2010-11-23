@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceContainer.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "NetworkManager/Message.h"
@@ -92,14 +93,9 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
                 mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,targetContainer->getId());
 
                 // delete old container
-                gMessageLib->sendDestroyObject(selectedContainer->getId(),playerObject);
-
-                gObjectFactory->deleteObjectFromDB(selectedContainer);
-                TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(selectedContainer->getParentId()));
-                tO->deleteObject(selectedContainer);
-
-
-
+				TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(selectedContainer->getParentId()));
+				gContainerManager->deleteObject(selectedContainer, container);
+                
             }
             // target container full, update both contents
             else if(newAmount > maxAmount)

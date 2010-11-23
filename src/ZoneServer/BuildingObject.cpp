@@ -233,6 +233,8 @@ void BuildingObject::prepareDestruction()
 			
 			CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById((*It)->getParentId()));
 			cell->removeObject(player);
+			gMessageLib->broadcastContainmentMessage(player,0,0xffffffff);
+
 		}
 		
 		It++;

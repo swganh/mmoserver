@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
@@ -312,14 +313,10 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         //assign the Bazaar as the new owner to the item
         gObjectFactory->GiveNewOwnerInDB(asynContainer->tangible,asynContainer->BazaarID);
 
-
-        //remove the item from the world and destroy it for the player
-        gMessageLib->sendDestroyObject(itemId,asynContainer->player1);
-
         TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asynContainer->tangible->getParentId()));
         if(container)
         {
-            container->deleteObject(asynContainer->tangible);
+            gContainerManager->removeObject(asynContainer->tangible,container);
         }
 
         gMessageFactory->StartMessage();

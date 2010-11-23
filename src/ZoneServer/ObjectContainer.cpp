@@ -199,7 +199,6 @@ bool ObjectContainer::removeObject(uint64 id)
 	{
 		if((*it) == id)
 		{
-			gContainerManager->destroyObjectToRegisteredPlayers(this,id);
 			it = mData.erase(it);
 			return true;
 		}
@@ -213,7 +212,6 @@ bool ObjectContainer::removeObject(uint64 id)
 
 ObjectIDList::iterator ObjectContainer::removeObject(ObjectIDList::iterator it)
 {
-	gContainerManager->destroyObjectToRegisteredPlayers(this,(*it));
 	it = mData.erase(it);
 return it;
 }

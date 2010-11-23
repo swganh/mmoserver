@@ -334,7 +334,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	gSpatialIndexManager->createInWorld(playerObject);
 
 	// initialize at new position
-	gMessageLib->sendCreatePlayer(playerObject,playerObject);
+	gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
 
 	// initialize ham regeneration
 	playerObject->getHam()->checkForRegen();

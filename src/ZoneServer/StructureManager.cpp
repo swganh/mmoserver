@@ -1396,10 +1396,9 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
                 if (resCont->getAmount() == 0)
                 {
                     // delete container at 0 amount
-                    gMessageLib->sendDestroyObject(resCont->getId(),player);
+					TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resCont->getParentId()));
+					gContainerManager->deleteObject(resCont, container);
 
-                    gObjectFactory->deleteObjectFromDB(resCont);
-                    dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->deleteObject(resCont);
                     amount -= tdAmount;
                     break;
                 }

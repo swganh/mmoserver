@@ -40,8 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseManager/DatabaseCallback.h"
 
-#include "cppconn/resultset.h"
-
 #include "MathLib/Rectangle.h"
 
 #include "ScriptEngine/ScriptEventListener.h"
@@ -526,6 +524,9 @@ private:
 
     // loads all child objects of the given parent
     void	_loadAllObjects(uint64 parentId);
+
+    // planet names and neceessary terrain file names
+    void    _loadPlanetNamesAndFiles();
 
     // load our script hooks
     void	_registerScriptHooks();

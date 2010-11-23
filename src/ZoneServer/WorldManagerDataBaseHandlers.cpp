@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Heightmap.h"
 #include "Common/ConfigManager.h"
 #include "Common/Crc.h"
-
+#include "cppconn/resultset.h"
 
 //======================================================================================================================
 
@@ -191,7 +191,7 @@ void WorldManager::_loadWorldObjects()
         if(mZoneId != 41)
         {
             // load cities
-            int8 sql[128];
+            int8 sql[512];
             sprintf(sql, "SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
                 std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
@@ -287,7 +287,7 @@ void WorldManager::_loadWorldObjects()
             });
                     
         // load harvesters
-        int8 sql[255];
+        sql[0] = 0;
         sprintf(sql, "SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
             std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
@@ -443,12 +443,12 @@ void    WorldManager::_updatePlayerPositionToDB(uint32 accId)
         return;
     }
 
-    int8 sql[256];
+    int8 sql[512];
     sprintf(sql, "UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
                 ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
                 ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
                 ,mZoneId,playerObject->getJediState(),playerObject->getId());
-    mDatabase->executeAsyncSql(sql, [=] {
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result){
         
         _updatePlayerAttributesToDB(accId);
     } ) ;
@@ -475,6 +475,38 @@ void    WorldManager::_updatePlayerLogoutToDB(uint32 accId, CharacterLoadingCont
     }
 
     destroyObject(playerObject);
+}
+
+void    WorldManager::_loadPlanetNamesAndFiles()
+{
+    int8 sql[512];
+    sprintf(sql, "SELECT * FROM planet ORDER BY planet_id;");
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result){
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        if (! result)
+        {
+            return;
+        }
+        uint32_t count = result_set->rowsCount();
+        mvPlanetNames.reserve(count);
+        mvTrnFileNames.reserve(count);
+        while(result_set->next())
+        {
+            mvPlanetNames.push_back(BString(result_set->getString("name").c_str()));
+            mvTrnFileNames.push_back(BString(result_set->getString("terrain_file").c_str()));
+        }
+
+        //start loading heightmap
+        if(mZoneId != 41)
+        {
+            int16 resolution = 0;
+            if (gConfig->keyExists("heightMapResolution"))
+                resolution = gConfig->read<int>("heightMapResolution");
+
+            if (!Heightmap::Instance(resolution))
+                assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
+        }
+    } ) ;
 }
 void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {}

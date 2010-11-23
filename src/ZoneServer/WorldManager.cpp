@@ -82,7 +82,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/Scheduler.h"
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
-
+#include "cppconn/resultset.h"
 #include "Common/Crc.h"
 
 #include <cassert>
@@ -116,8 +116,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 
     // load planet names and terrain files so we can start heightmap loading
-    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
-
+    _loadPlanetNamesAndFiles();
 
     // create schedulers
     mSubsystemScheduler		= new Anh_Utils::Scheduler();
@@ -161,6 +160,10 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     sprintf(sql, "SELECT sf_getZoneObjectCount(%i);",mZoneId);
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        if (!result_set->next())
+        {
+            return;
+        }
         // we got the total objectCount we need to load
         mTotalObjectCount = result_set->getUInt(1);
         LOG(INFO) << "Loading " << mTotalObjectCount << " World Manager Objects... ";

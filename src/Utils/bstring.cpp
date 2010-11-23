@@ -429,15 +429,6 @@ BString& BString::operator <<(char* data)
     return *this;
 }
 
-char* BString::getAnsi()
-{
-    if (mType == BSTRType_ANSI) {
-        return mString;
-    } else {
-        return 0;
-    }
-}
-
 //======================================================================================================================
 
 const char* BString::getAnsi() const
@@ -445,33 +436,12 @@ const char* BString::getAnsi() const
     if (mType == BSTRType_ANSI) {
         return mString;
     } else {
-        return 0;
+		std::wstring temp(reinterpret_cast<wchar_t*>(mString));
+		return std::string(temp.begin(), temp.end()).c_str();
     }
 }
 
 //======================================================================================================================
-/*
-uint16_t* BString::getUnicode16()
-{
-    if (mType == BSTRType_Unicode16)
-    {
-        return (uint16_t*)mString;
-    } else {
-        return 0;
-    }
-}
- */
-//======================================================================================================================
-
-wchar_t* BString::getUnicode16()
-{
-    if (mType == BSTRType_Unicode16)
-    {
-        return reinterpret_cast<wchar_t*>(mString);
-    } else {
-        return 0;
-    }
-}
 
 const wchar_t* BString::getUnicode16() const
 {
@@ -479,19 +449,8 @@ const wchar_t* BString::getUnicode16() const
     {
         return reinterpret_cast<wchar_t*>(mString);
     } else {
-        return 0;
-    }
-}
-
-//======================================================================================================================
-
-char* BString::getUTF8()
-{
-    if (mType == BSTRType_UTF8)
-    {
-        return mString;
-    } else {
-        return 0;
+        std::string temp(mString);
+		return std::wstring(temp.begin(), temp.end()).c_str();
     }
 }
 

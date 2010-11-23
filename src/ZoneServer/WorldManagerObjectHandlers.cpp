@@ -201,8 +201,8 @@ bool WorldManager::addObject(Object* object,bool manual)
         player->getStomach()->checkForRegen();
 
         // onPlayerEntered event, notify scripts
-        BString params;
-        params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),static_cast<uint32>(mPlayerAccMap.size())));
+        char params[128];
+        sprintf(params,"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),static_cast<uint32>(mPlayerAccMap.size()));
 
         mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params);
 
@@ -594,8 +594,8 @@ void WorldManager::destroyObject(Object* object)
 
 
         // onPlayerLeft event, notify scripts
-        BString params;
-        params.setLength(sprintf(params.getAnsi(),"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),static_cast<uint32>(mPlayerAccMap.size())));
+        char params[128];
+        sprintf(params,"%s %s %u",getPlanetNameThis(),player->getFirstName().getAnsi(),static_cast<uint32>(mPlayerAccMap.size()));
 
         mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params);
         // gLogger->log(LogManager::DEBUG,"WorldManager::destroyObject: Player Client set to NULL");

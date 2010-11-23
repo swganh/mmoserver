@@ -197,20 +197,20 @@ void UIListBox::sendCreate()
     while(it != mDataItems.end())
     {
         count ++;
-        BString indexStr;
-        indexStr.setLength(sprintf(indexStr.getAnsi(),"%u",index));
+        char indexStr[64];
+        sprintf(indexStr,"%u",index);
+		std::string indexString(indexStr);
+		std::wstring windexStr(indexString.begin(), indexString.end());
 
-        BString itemName = "List.dataList.";
-        itemName << indexStr.getAnsi();
-
-        indexStr.convert(BSTRType_Unicode16);
+        std::string itemName("List.dataList.");
+        itemName.append(indexStr);
 
         BString item = (*it).getAnsi();
         item.convert(BSTRType_Unicode16);
 
         gMessageFactory->addUint8(4);
         gMessageFactory->addUint32(1);
-        gMessageFactory->addString(indexStr);
+        gMessageFactory->addString(windexStr);
         gMessageFactory->addUint32(2);
         gMessageFactory->addString(BString("List.dataList"));
         gMessageFactory->addString(BString("Name"));

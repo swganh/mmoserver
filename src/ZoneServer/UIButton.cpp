@@ -100,7 +100,7 @@ void UIButton::addMessageData()
             gMessageFactory->addString(BString("Text"));
 
 
-            if(m3B)
+            if(m3B) // I wish I knew what 3B is.
             {
 
                 gMessageFactory->addUint8(3);
@@ -119,55 +119,32 @@ void UIButton::addMessageData()
 
                 if(mId)
                 {
-                    if(mId == 3)
+                    if(mId >= 1 && mId <= 3)
                     {
                         //<Button IsDefaultButton='true' LocalText='[@ui_mission:details]'
                         //Location='233,267' Name='buttonDetails' PackLocation='npn,fff' PackLocationProp='0233/0449,-010/0001' PackSize='p,f' PackSizeProp='0090/0449,0002/0003' ScrollExtent='90,17' Size='90,17' Style='/Styles.New.buttons.hud.style' TextColor='#000000'>@ui_mission:details</Button>
                         gMessageFactory->addUint8(3);
                         gMessageFactory->addUint32(1);
-                        gMessageFactory->addString(BString(L"205,262")); //vertical, horizontal
 
-
-                        gMessageFactory->addUint32(2);
-                        gMessageFactory->addString(mName);
-                        gMessageFactory->addString(BString("Location"));
-
-
-                    }
-                    if(mId == 2)
-                    {
-                        gMessageFactory->addUint8(3);
-                        gMessageFactory->addUint32(1);
-                        gMessageFactory->addString(BString(L"110,262")); //vertical, horizontal
-
+						if(mId == 3)
+							gMessageFactory->addString(BString(L"205,262")); //vertical, horizontal
+						if(mId == 2)
+							gMessageFactory->addString(BString(L"110,262")); //vertical, horizontal
+						if(mId == 1)
+							gMessageFactory->addString(BString(L"13,262")); //vertical, horizontal
 
                         gMessageFactory->addUint32(2);
                         gMessageFactory->addString(mName);
                         gMessageFactory->addString(BString("Location"));
 
-                    }
-
-                    if(mId == 1)
-                    {
-                        gMessageFactory->addUint8(3);
-                        gMessageFactory->addUint32(1);
-                        gMessageFactory->addString(BString(L"13,262")); //vertical, horizontal
-
-
-                        gMessageFactory->addUint32(2);
-                        gMessageFactory->addString(mName);
-                        gMessageFactory->addString(BString("Location"));
 
                     }
 
                     gMessageFactory->addUint8(3);
                     gMessageFactory->addUint32(1);
-                    if(mId == 1)
-                        gMessageFactory->addString(BString(L"p,f"));
-                    if(mId == 2)
-                        gMessageFactory->addString(BString(L"p,f"));
-                    if(mId == 3)
-                        gMessageFactory->addString(BString(L"p,f"));
+                    
+					for(unsigned short i=0; i < mId; i++)
+						gMessageFactory->addString(BString(L"p,f"));
 
                     gMessageFactory->addUint32(2);
                     gMessageFactory->addString(mName);
@@ -176,12 +153,9 @@ void UIButton::addMessageData()
 
                     gMessageFactory->addUint8(3);
                     gMessageFactory->addUint32(1);
-                    if(mId == 1)
-                        gMessageFactory->addString(BString(L"fpf,fff"));
-                    if(mId == 2)
-                        gMessageFactory->addString(BString(L"fpf,fff"));
-                    if(mId == 3)
-                        gMessageFactory->addString(BString(L"fpf,fff"));
+
+					for(unsigned short i = 0; i < mId; i++)
+						gMessageFactory->addString(BString(L"fpf,fff"));
 
                     gMessageFactory->addUint32(2);
                     gMessageFactory->addString(mName);

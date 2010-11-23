@@ -205,14 +205,16 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
                 dataStr.substring(ansiData,static_cast<uint16>(index), dataStr.getLength());
 
                 // Now ADD a proper spelled command. It HAS to match the crc.
-                BString newCommandString;
-                newCommandString.setLength(adminCommands[commandIndex].command.getLength() + ansiData.getLength() + 1);
-                sprintf(newCommandString.getAnsi(),"%s %s", adminCommands[commandIndex].command.getAnsi(), ansiData.getAnsi());
+                char* newCommandString = new char[adminCommands[commandIndex].command.getLength() + ansiData.getLength() + 1];
+                sprintf(newCommandString,"%s %s", adminCommands[commandIndex].command.getAnsi(), ansiData.getAnsi());
 
                 // Execute the command.
                 BString opcodeStr(adminCommands[commandIndex].command);
                 opcodeStr.toLower();
-                newCommandString.convert(BSTRType_Unicode16);
+
+				std::string stdnewCommandString(newCommandString);
+				std::wstring wstdnewCommandString(stdnewCommandString.begin(), stdnewCommandString.end());
+				delete[] newCommandString;
 
                 // Now let's parse it BACK to objectcontroller, so we can continue to maintain access rights control as initial designed.
                 gMessageFactory->StartMessage();
@@ -220,7 +222,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
                 gMessageFactory->addUint32(0);						// sequence number, we really need this
                 gMessageFactory->addUint32(opcodeStr.getCrc());		// opCode for new command.
                 gMessageFactory->addUint64(targetId);
-                gMessageFactory->addString(newCommandString);
+                gMessageFactory->addString(wstdnewCommandString);
                 Message* newMessage = gMessageFactory->EndMessage();
                 newMessage->ResetIndex();
                 this->enqueueCommandMessage(newMessage);

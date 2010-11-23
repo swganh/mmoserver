@@ -1153,8 +1153,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     BString title;
 
     Player* player = getPlayerByAccId(client->getAccountId());
-    BString* playername = new BString(BSTRType_ANSI, player->getName().getLength());
-    strcpy(playername->getAnsi(), player->getName().getAnsi());
+    BString playername = player->getName();
 
     uint8 publicFlag = message->getUint8();
     uint8 moderatedFlag = message->getUint8();
@@ -1177,14 +1176,13 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
         if (Anh_Utils::cmpistr((*iter)->getName().getAnsi(), modpath.getAnsi()) == 0)
         {
             DLOG(INFO) << "Channel " << modpath.getAnsi() << " already exist";
-            delete playername;
             return;
         }
         iter++;
     }
 
     // Lowercase...
-    playername->toLower();
+    playername.toLower();
 
     Channel* channel = new Channel();
     channel->setName(modpath);
@@ -1204,9 +1202,9 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     channel->setOwner(avatar);
 
     channel->setGalaxy(mGalaxyName);
-    channel->addModerator(playername);
+    channel->addModerator(&playername);
     if (channel->isPrivate())
-        channel->addInvitedUser(playername);
+        channel->addInvitedUser(&playername);
 
     ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_AddChannel);
     asyncContainer->mClient = client;
@@ -1214,7 +1212,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     asyncContainer->mChannel = channel;
     // Lowercase mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT sf_CreateChannel('%s', %u, %u, '%s', '%s');", modpath.getAnsi(), channel->isPrivate(), moderatedFlag, player->getName().getAnsi(), title.getAnsi());
     int8 sql[128];
-    mDatabase->escapeString(sql, playername->getAnsi(), playername->getLength());
+    mDatabase->escapeString(sql, playername.getAnsi(), playername.getLength());
 
     int8 sql_2[128];
     mDatabase->escapeString(sql_2, title.getAnsi(), title.getLength());
@@ -1223,8 +1221,6 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 
     // TEST
     DLOG(INFO) << "Channel " <<title.getAnsi()<<" created at " << modpath.getAnsi();
-
-    delete playername;
 }
 
 //======================================================================================================================

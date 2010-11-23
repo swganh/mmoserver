@@ -158,13 +158,13 @@ void Instrument::sendAttributes(PlayerObject* playerObject)
 
     gMessageFactory->addUint32(1 + mAttributeMap.size());
 
-    BString	tmpValueStr = BString(BSTRType_Unicode16,64);
     BString	value;
 
-    tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
+	wchar_t temp[64];
+    swprintf(temp,50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition);
 
     gMessageFactory->addString(BString("condition"));
-    gMessageFactory->addString(tmpValueStr);
+    gMessageFactory->addString(temp);
 
     AttributeMap::iterator			mapIt;
     AttributeOrderList::iterator	orderIt = mAttributeOrderList.begin();

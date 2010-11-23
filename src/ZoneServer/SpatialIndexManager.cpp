@@ -111,16 +111,21 @@ bool SpatialIndexManager::AddObject(Object *newObject)
 		{
 			if(((*i)->getId() != player->getId()))
 			{
-				sendCreateObject((*i),player, false);
+				sendCreateObject((*i), player, false);
 
-				if(((*i)->getType() == ObjType_Player) )
+				if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))
 				{
-					PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
-					
-					sendCreateObject(player,otherPlayer, false);
-					gContainerManager->registerPlayerToContainer(otherPlayer, player);
-					gContainerManager->registerPlayerToContainer(player, otherPlayer);
+					gContainerManager->registerPlayerToContainer((*i), player);
 				}
+				if((*i)->getType() == ObjType_Player) 
+				{
+					PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>(*i);
+					sendCreateObject(player, otherPlayer, false);
+
+					gContainerManager->registerPlayerToContainer(otherPlayer, player);
+				}
+
+				
 			}
 		}
 	}
@@ -132,6 +137,12 @@ bool SpatialIndexManager::AddObject(Object *newObject)
 		{
 			PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
 			sendCreateObject(newObject,otherPlayer, false);
+			
+			if((newObject->getType() == ObjType_Creature) || (newObject->getType() == ObjType_NPC))
+			{
+				
+				gContainerManager->registerPlayerToContainer(newObject, otherPlayer);
+			}
 		}
 	}
 
@@ -149,8 +160,10 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 	if(updateObject->getGridBucket() != oldBucket)
 	{
 		//test how much we moved if only one grid proceed normally
-		if((updateObject->getGridBucket() == (oldBucket +1))||(updateObject->getGridBucket() == (oldBucket -1))
-			||(updateObject->getGridBucket() == (oldBucket + GRIDWIDTH))	||(updateObject->getGridBucket() == (oldBucket - GRIDWIDTH))	
+		if(	(updateObject->getGridBucket() == (oldBucket +1))			  || (updateObject->getGridBucket() == (oldBucket -1))				||
+			(updateObject->getGridBucket() == (oldBucket + GRIDWIDTH))	  || (updateObject->getGridBucket() == (oldBucket - GRIDWIDTH))		||
+			(updateObject->getGridBucket() == (oldBucket + GRIDWIDTH +1)) || (updateObject->getGridBucket() == (oldBucket + GRIDWIDTH -1))	||
+			(updateObject->getGridBucket() == (oldBucket - GRIDWIDTH +1)) || (updateObject->getGridBucket() == (oldBucket - GRIDWIDTH -1))
 			)
 		{
 	
@@ -462,13 +475,14 @@ void SpatialIndexManager::removeObjectFromBuilding(Object* object, BuildingObjec
 
 //============================================================================
 //destroy an object if its not us
+// unregister containers
 void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated)
 {
 	PlayerObject* updatedPlayer = dynamic_cast<PlayerObject*>(toBeUpdated);
 
-	if(updatedPlayer && (toBeTested->getId() != updatedPlayer->getId()))
+	if(updatedPlayer )
 	{
-		if(toBeTested->checkRegisteredWatchers(updatedPlayer))
+		if((toBeTested->getType() == ObjType_Player || toBeTested->getType() == ObjType_Creature || toBeTested->getType() == ObjType_NPC) && toBeTested->checkRegisteredWatchers(updatedPlayer))
 		{
 			gContainerManager->unRegisterPlayerFromContainer(toBeTested,updatedPlayer);	
 		}
@@ -481,13 +495,8 @@ void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested,
 	//if its a player, destroy us for him
 	PlayerObject* them = dynamic_cast<PlayerObject*> (toBeTested);
 	if(them)
-	{
-		
-		gContainerManager->unRegisterPlayerFromContainer(toBeUpdated,them);	
-		
-
-		gMessageLib->sendDestroyObject(toBeUpdated->getId(),them);
-			
+	{	
+		gMessageLib->sendDestroyObject(toBeUpdated->getId(),them);		
 	}
 }
 
@@ -794,10 +803,10 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 	}
 }
 
+//======================================================================================================
+// iterate through all Objects and create them and register them as necessary
 void SpatialIndexManager::ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject)
 {
-	//at some point we need to throttle ObjectCreates!!!
-	//one possibility would be to only send one grid at a time and keep track of up / unup dated Grids
 
 	for(std::list<Object*>::iterator i = FinalList->begin(); i != FinalList->end(); i++)
 	{
@@ -805,6 +814,9 @@ void SpatialIndexManager::ObjectCreationIteration(std::list<Object*>* FinalList,
 	}
 }
 
+//================================================================================================
+// this is called for players and creatures / NPCs alike
+//
 void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Object* updatedObject)
 {
 	PlayerObject* updatedPlayer = dynamic_cast<PlayerObject*>(updatedObject);
@@ -815,22 +827,26 @@ void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Ob
 		if(updatedPlayer)
 		{
 			sendCreateObject(toBeTested,updatedPlayer,false);
-			gContainerManager->registerPlayerToContainer(toBeTested, updatedPlayer);
 			
-			//if it is a house we need to register the cells for watching *only* when we enter
+			if(toBeTested->getType() == ObjType_NPC || toBeTested->getType() == ObjType_Creature)
+			{
+				gContainerManager->registerPlayerToContainer(toBeTested, updatedPlayer);
+			}
+			if(toBeTested->getType() == ObjType_Player )
+			{
+				PlayerObject* testedPlayer = dynamic_cast<PlayerObject*> (toBeTested);
+				gContainerManager->registerPlayerToContainer(updatedObject, testedPlayer);
+
+				sendCreateObject(updatedObject,testedPlayer,false);
+			}
+			return;
 		}
 				
 		PlayerObject* testedPlayer = dynamic_cast<PlayerObject*> (toBeTested);
 		if(testedPlayer)
 		{
 			sendCreateObject(updatedObject,testedPlayer,false);
-
-			//if we and it are players we need to register each other for watching our equipment
-			if(updatedPlayer)
-			{
-				gContainerManager->registerPlayerToContainer(testedPlayer, updatedPlayer);
-				gContainerManager->registerPlayerToContainer(updatedPlayer, testedPlayer);
-			}
+			gContainerManager->registerPlayerToContainer(updatedObject, testedPlayer);
 		}
 
 		//is it a player register him so we get to see his equipment

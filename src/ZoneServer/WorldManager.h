@@ -40,6 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "DatabaseManager/DatabaseCallback.h"
 
+#include "cppconn/resultset.h"
+
 #include "MathLib/Rectangle.h"
 
 #include "ScriptEngine/ScriptEventListener.h"
@@ -491,6 +493,12 @@ private:
     bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
     bool	_handleVariousUpdates(uint64 callTime, void* ref);
 
+    //      Save to DB
+    void    _updatePlayerAttributesToDB(uint32 accId);
+    void    _updatePlayerPositionToDB(uint32 accId);
+    void    _updatePlayerBuffsToDB(uint32 accId);
+    void    _updatePlayerLogoutToDB(uint32 accId, CharacterLoadingContainer* clContainer);
+
     //		Save players, who haven't saved in x minutes
     bool	_handlePlayerSaveTimers(uint64 callTime, void* ref);
 
@@ -509,6 +517,9 @@ private:
 
     // process schedulers
     void	_processSchedulers();
+
+    // New Method of Loading objects from DB.
+    void    _loadWorldObjects();
 
     // load buildings and their contents
     void	_loadBuildings();

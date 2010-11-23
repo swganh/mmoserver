@@ -44,625 +44,437 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/ConfigManager.h"
 #include "Common/Crc.h"
 
-#include <cppconn/resultset.h>
-
 
 //======================================================================================================================
 
-
-void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
+void WorldManager::_loadWorldObjects()
 {
-    WMAsyncContainer* asyncContainer = reinterpret_cast<WMAsyncContainer*>(ref);
-
-    switch(mState)
+    if(mTotalObjectCount > 0)
     {
-        //
-        // startup queries
-        //
-    case WMState_StartUp:
-    {
-        switch(asyncContainer->mQuery)
+        // this loads all buildings with cells and objects they contain
+        _loadBuildings();	 //NOT PlayerStructures!!!!!!!!!!!!!!!!!!!!!!!!!! they are handled seperately further down
+
+        if(mZoneId!=41)
         {
-        case WMQuery_ObjectCount:
-        {
-            // we got the total objectCount we need to load
-            DataBinding*	binding = mDatabase->createDataBinding(1);
-            binding->addField(DFT_uint32,0,4);
-            result->getNextRow(binding,&mTotalObjectCount);
+            // load objects in world
+            _loadAllObjects(0);
 
-            LOG(INFO) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
-
-            if(mTotalObjectCount > 0)
-            {
-                // this loads all buildings with cells and objects they contain
-                _loadBuildings();	 //NOT PlayerStructures!!!!!!!!!!!!!!!!!!!!!!!!!! they are handled seperately further down
-
-                if(mZoneId!=41)
+            // load zone regions
+            int8 sql[128] ;
+            sprintf(sql, "SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
                 {
-                    // load objects in world
-                    _loadAllObjects(0);
+                    return;
+                }
 
-                    // load zone regions
-                    int8 sql[128] ;
-                    sprintf(sql, "SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-
-                        while(result_set->next())
-                        {
-                            gObjectFactory->requestObject(ObjType_Region, Region_Zone, 0, this, result_set->getUInt64(1));
-                        }
-                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Zone Regions";
-                    });
+                while(result_set->next())
+                {
+                    gObjectFactory->requestObject(ObjType_Region, Region_Zone, 0, this, result_set->getUInt64(1));
+                }
+                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Zone Regions";
+            });
                     
-                }
-                // load client effects
-                int8 sql[128] ;
-                sprintf(sql, "SELECT * FROM clienteffects ORDER BY id;");
-                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        // tell vector how much space we need to stop unecessary allocation.
-                        mvClientEffects.reserve(result_set->rowsCount());
-                        while(result_set->next())
-                        {
-                            mvClientEffects.push_back(result_set->getString("effect"));
-                        }
-                        LOG_IF(INFO, mvClientEffects.size()) << "Loaded " << mvClientEffects.size() << " Client Effects";
-                    });
-
-                // load attribute keys
-                sql[0] = 0 ;
-                sprintf(sql, "SELECT id, name FROM attributes ORDER BY id;");
-                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        
-                        while(result_set->next())
-                        {
-                            BString name = result_set->getString("name").c_str();
-                            mObjectAttributeKeyMap.insert(std::make_pair(name.getCrc(), name));
-                            mObjectAttributeIDMap.insert(std::make_pair(name.getCrc(), result_set->getInt("id")));
-                        }
-                        LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
-                    });
-
-                // load sounds
-                sql[0] = 0 ;
-                sprintf(sql, "SELECT * FROM sounds ORDER BY id;");
-                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        
-                        while(result_set->next())
-                        {
-                            mvSounds.push_back(result_set->getString("name"));
-                        }
-                        
-                        LOG_IF(INFO, mvSounds.size()) << "Loaded " << mvSounds.size() << " Sounds";
-                    });
-
-                // load moods
-                sql[0] = 0 ;
-                sprintf(sql, "SELECT * FROM moods ORDER BY id;");
-                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        mvMoods.reserve(result_set->rowsCount());
-                        while(result_set->next())
-                        {
-                            mvMoods.push_back(result_set->getString("name"));
-                        }
-                        LOG_IF(INFO, mvMoods.size()) << "Loaded " << mvMoods.size() << " Moods";
-                    });
-
-                // load npc converse animations
-                sql[0] = 0 ;
-                sprintf(sql, "SELECT * FROM conversation_animations ORDER BY id;");
-                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        mvNpcConverseAnimations.reserve(result_set->rowsCount());
-                        while(result_set->next())
-                        {
-                            mvNpcConverseAnimations.push_back(result_set->getString("name"));
-                        }
-                        LOG_IF(INFO, mvNpcConverseAnimations.size()) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
-                    });
-                // load npc chatter
-                sql[0] = 0 ;
-                sprintf(sql, "SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;", mZoneId);
-                mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        mvNpcChatter.reserve(result_set->rowsCount());
-                        while(result_set->next())
-                        {
-                            std::string phrase(result_set->getString("phrase"));
-                            uint32 anim = result_set->getUInt("animation");
-                            // convert from std::string to wstring
-                            std::wstring ws;
-                            ws.assign(phrase.begin(), phrase.end());
-
-                            mvNpcChatter.push_back(std::make_pair(ws, anim));
-                        }
-                        LOG_IF(INFO, mvNpcChatter.size()) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
-                    });
-
-                if(mZoneId != 41)
+        }
+        // load client effects
+        int8 sql[128] ;
+        sprintf(sql, "SELECT * FROM clienteffects ORDER BY id;");
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
                 {
-                    // load cities
-                    int8 sql[128];
-                    sprintf(sql, "SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        while(result_set->next())
-                        {
-                            gObjectFactory->requestObject(ObjType_Region, Region_City, 0, this, result_set->getUInt64(1));
-                        }
-                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " City Regions";
-                        LOG_IF(INFO, !result_set->rowsCount()) <<"Unable to load cities with region id: " << mZoneId;
-                    });
+                    return;
+                }
+                // tell vector how much space we need to stop unecessary allocation.
+                mvClientEffects.reserve(result_set->rowsCount());
+                while(result_set->next())
+                {
+                    mvClientEffects.push_back(result_set->getString("effect"));
+                }
+                LOG_IF(INFO, mvClientEffects.size()) << "Loaded " << mvClientEffects.size() << " Client Effects";
+            });
 
-                    // load badge regions
-                    sql[0] = 0;
-                    sprintf(sql, "SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        while(result_set->next())
-                        {
-                            gObjectFactory->requestObject(ObjType_Region, Region_Badge, 0, this, result_set->getUInt64(1));
-                        }
-                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Badge Regions";
-                        LOG_IF(INFO, !result_set->rowsCount()) << "Unable to load badges with region id: " << mZoneId;
-                    });
+        // load attribute keys
+        sql[0] = 0 ;
+        sprintf(sql, "SELECT id, name FROM attributes ORDER BY id;");
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                        
+                while(result_set->next())
+                {
+                    BString name = result_set->getString("name").c_str();
+                    mObjectAttributeKeyMap.insert(std::make_pair(name.getCrc(), name));
+                    mObjectAttributeIDMap.insert(std::make_pair(name.getCrc(), result_set->getInt("id")));
+                }
+                LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
+            });
 
-                    //load spawn regions
-                    sql[0] = 0;
-                    sprintf(sql, "SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        while(result_set->next())
-                        {
-                            gObjectFactory->requestObject(ObjType_Region, Region_Spawn, 0, this, result_set->getUInt64(1));
-                        }
-                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
-                         LOG_IF(INFO, !result_set->rowsCount())  << "Unable to load spawn regions with id: " << mZoneId;
-                    });
+        // load sounds
+        sql[0] = 0 ;
+        sprintf(sql, "SELECT * FROM sounds ORDER BY id;");
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                        
+                while(result_set->next())
+                {
+                    mvSounds.push_back(result_set->getString("name"));
+                }
+                        
+                LOG_IF(INFO, mvSounds.size()) << "Loaded " << mvSounds.size() << " Sounds";
+            });
 
-                    // load world scripts
-                    sql[0] = 0;
-                    sprintf(sql, "SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
-                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
-                        while(result_set->next())
-                        {
-                            Script* script = gScriptEngine->createScript();
-                            script->setPriority(result_set->getUInt("priority"));
-                            script->setFileName(result_set->getString("file").c_str());
-                            mWorldScripts.push_back(script);
-                        }
-                        LOG_IF(INFO, mWorldScripts.size()) << "Loaded " << mWorldScripts.size() << " World Scripts";
-                    });
+        // load moods
+        sql[0] = 0 ;
+        sprintf(sql, "SELECT * FROM moods ORDER BY id;");
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                mvMoods.reserve(result_set->rowsCount());
+                while(result_set->next())
+                {
+                    mvMoods.push_back(result_set->getString("name"));
+                }
+                LOG_IF(INFO, mvMoods.size()) << "Loaded " << mvMoods.size() << " Moods";
+            });
 
-                    //load creature spawn regions, and optionally heightmaps cache.
-                    sql[0] = 0;
-                    sprintf(sql, "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
-                    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                        if (! result)
-                        {
-                            return;
-                        }
+        // load npc converse animations
+        sql[0] = 0 ;
+        sprintf(sql, "SELECT * FROM conversation_animations ORDER BY id;");
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                mvNpcConverseAnimations.reserve(result_set->rowsCount());
+                while(result_set->next())
+                {
+                    mvNpcConverseAnimations.push_back(result_set->getString("name"));
+                }
+                LOG_IF(INFO, mvNpcConverseAnimations.size()) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
+            });
+        // load npc chatter
+        sql[0] = 0 ;
+        sprintf(sql, "SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;", mZoneId);
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                mvNpcChatter.reserve(result_set->rowsCount());
+                while(result_set->next())
+                {
+                    std::string phrase(result_set->getString("phrase"));
+                    uint32 anim = result_set->getUInt("animation");
+                    // convert from std::string to wstring
+                    std::wstring ws;
+                    ws.assign(phrase.begin(), phrase.end());
 
-                        while(result_set->next())
-                        {
-                            std::shared_ptr<CreatureSpawnRegion> creatureSpawnRegion(new CreatureSpawnRegion());
-                            creatureSpawnRegion->mId = result_set->getInt64(1);
-                            creatureSpawnRegion->mPosX = result_set->getDouble(2);
-                            creatureSpawnRegion->mPosZ = result_set->getDouble(3);
-                            creatureSpawnRegion->mWidth =  result_set->getDouble(4);
-                            creatureSpawnRegion->mLength  = result_set->getDouble(5);
+                    mvNpcChatter.push_back(std::make_pair(ws, anim));
+                }
+                LOG_IF(INFO, mvNpcChatter.size()) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
+            });
 
-                            mCreatureSpawnRegionMap.insert(std::make_pair<uint64_t, std::shared_ptr<CreatureSpawnRegion>>
-                                (creatureSpawnRegion->mId, creatureSpawnRegion));
-                        }
-                        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
-                        LOG_IF(INFO, !result_set->rowsCount()) << "No Creature Spawn Regions Loaded with ID: " << mZoneId;
-                    });
+        if(mZoneId != 41)
+        {
+            // load cities
+            int8 sql[128];
+            sprintf(sql, "SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                while(result_set->next())
+                {
+                    gObjectFactory->requestObject(ObjType_Region, Region_City, 0, this, result_set->getUInt64(1));
+                }
+                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " City Regions";
+                LOG_IF(INFO, !result_set->rowsCount()) <<"Unable to load cities with region id: " << mZoneId;
+            });
+
+            // load badge regions
+            sql[0] = 0;
+            sprintf(sql, "SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                while(result_set->next())
+                {
+                    gObjectFactory->requestObject(ObjType_Region, Region_Badge, 0, this, result_set->getUInt64(1));
+                }
+                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Badge Regions";
+                LOG_IF(INFO, !result_set->rowsCount()) << "Unable to load badges with region id: " << mZoneId;
+            });
+
+            //load spawn regions
+            sql[0] = 0;
+            sprintf(sql, "SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                while(result_set->next())
+                {
+                    gObjectFactory->requestObject(ObjType_Region, Region_Spawn, 0, this, result_set->getUInt64(1));
+                }
+                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
+                    LOG_IF(INFO, !result_set->rowsCount())  << "Unable to load spawn regions with id: " << mZoneId;
+            });
+
+            // load world scripts
+            sql[0] = 0;
+            sprintf(sql, "SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                while(result_set->next())
+                {
+                    Script* script = gScriptEngine->createScript();
+                    script->setPriority(result_set->getUInt("priority"));
+                    script->setFileName(result_set->getString("file").c_str());
+                    mWorldScripts.push_back(script);
+                }
+                LOG_IF(INFO, mWorldScripts.size()) << "Loaded " << mWorldScripts.size() << " World Scripts";
+            });
+
+            //load creature spawn regions, and optionally heightmaps cache.
+            sql[0] = 0;
+            sprintf(sql, "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+
+                while(result_set->next())
+                {
+                    std::shared_ptr<CreatureSpawnRegion> creatureSpawnRegion(new CreatureSpawnRegion());
+                    creatureSpawnRegion->mId = result_set->getInt64(1);
+                    creatureSpawnRegion->mPosX = result_set->getDouble(2);
+                    creatureSpawnRegion->mPosZ = result_set->getDouble(3);
+                    creatureSpawnRegion->mWidth =  result_set->getDouble(4);
+                    creatureSpawnRegion->mLength  = result_set->getDouble(5);
+
+                    mCreatureSpawnRegionMap.insert(std::make_pair<uint64_t, std::shared_ptr<CreatureSpawnRegion>>
+                        (creatureSpawnRegion->mId, creatureSpawnRegion));
+                }
+                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
+                LOG_IF(INFO, !result_set->rowsCount()) << "No Creature Spawn Regions Loaded with ID: " << mZoneId;
+            });
                     
-                }
-
-                // load harvesters
-                mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Harvesters),"SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
-                
-
-                // load factories
-                mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Factories),"SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
-                
-
-                // load playerhouses
-                mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_Houses),"SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
-                
-            }
-            // no objects to load, so we are done
-            else
+        // load harvesters
+        int8 sql[255];
+        sprintf(sql, "SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
             {
-                _handleLoadComplete();
+                return;
             }
-
-            mDatabase->destroyDataBinding(binding);
-        }
-        break;
-
-        //load harvesters
-        case WMQuery_Harvesters:
-        {
-            DataBinding* harvesterBinding = mDatabase->createDataBinding(1);
-            harvesterBinding->addField(DFT_int64,0,8);
-
-            uint64 harvesterId;
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0; i < count; i++)
+            while(result_set->next())
             {
-                result->getNextRow(harvesterBinding,&harvesterId);
-
-                gHarvesterFactory->requestObject(this,harvesterId,0,0,asyncContainer->mClient);
+                gHarvesterFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
             }
+            LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Harvesters";
+            LOG_IF(INFO, !result_set->rowsCount()) << "No Harvesters to Load in Zone: " << mZoneId;
+        });
 
-            LOG_IF(INFO, count) << "Loaded " << count << " Harvesters";
-
-            mDatabase->destroyDataBinding(harvesterBinding);
-
-
-        }
-        break;
-
-        case WMQuery_Houses:
-        {
-            DataBinding* houseBinding = mDatabase->createDataBinding(1);
-            houseBinding->addField(DFT_int64,0,8);
-
-            uint64 houseId;
-            uint64 count = result->getRowCount();
-
-
-            for(uint64 i = 0; i < count; i++)
+        // load factories
+        sql[0] = 0;
+        sprintf(sql, "SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
             {
-                result->getNextRow(houseBinding,&houseId);
-
-                gHouseFactory->requestObject(this,houseId,0,0,asyncContainer->mClient);
+                return;
             }
-
-            LOG_IF(INFO, count) << "Loaded " << count << " Player Houses";
-
-            mDatabase->destroyDataBinding(houseBinding);
-        }
-        break;
-
-        //load harvesters
-        case WMQuery_Factories:
-        {
-            DataBinding* factoryBinding = mDatabase->createDataBinding(1);
-            factoryBinding->addField(DFT_int64,0,8);
-
-            uint64 factoryId;
-            uint64 count = result->getRowCount();
-
-            for(uint64 i = 0; i < count; i++)
+            while(result_set->next())
             {
-                result->getNextRow(factoryBinding,&factoryId);
-                gFactoryFactory->requestObject(this,factoryId,0,0,asyncContainer->mClient);
+                gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
             }
+            LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Factories";
+            LOG_IF(INFO, !result_set->rowsCount()) << "No Player Factories to Load in Zone: " << mZoneId;
+        });
 
-            LOG_IF(INFO, count) << "Loaded " << count << " Factories";
-
-            mDatabase->destroyDataBinding(factoryBinding);
-        }
-        break;
-
-
-        // zone regions
-        case WMQuery_ZoneRegions:
-        {
-            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_ZoneRegions";
-        }
-        break;
-
-        // planet names and according terrain file names
-        case WMQuery_PlanetNamesAndFiles:
-        {
-            BString			tmp;
-            DataBinding*	nameBinding = mDatabase->createDataBinding(1);
-            nameBinding->addField(DFT_bstring,0,255,1);
-
-            uint64 rowCount = result->getRowCount();
-            mvPlanetNames.reserve((uint32)rowCount);
-            for(uint64 i = 0; i < rowCount; i++)
+        // load playerhouses
+        sql[0] = 0;
+        sprintf(sql, "SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
+        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
             {
-                result->getNextRow(nameBinding,&tmp);
-                mvPlanetNames.push_back(BString(tmp.getAnsi()));
+                return;
             }
-
-            mDatabase->destroyDataBinding(nameBinding);
-
-            result->resetRowIndex();
-
-            DataBinding*	fileBinding = mDatabase->createDataBinding(1);
-            fileBinding->addField(DFT_bstring,0,255,2);
-            mvTrnFileNames.reserve((uint32)rowCount);
-            for(uint64 i = 0; i < rowCount; i++)
+            while(result_set->next())
             {
-                result->getNextRow(fileBinding,&tmp);
-                mvTrnFileNames.push_back(BString(tmp.getAnsi()));
+                gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
             }
-
-            mDatabase->destroyDataBinding(fileBinding);
-
-            //start loading heightmap
-            if(mZoneId != 41)
-            {
-                int16 resolution = 0;
-                if (gConfig->keyExists("heightMapResolution"))
-                    resolution = gConfig->read<int>("heightMapResolution");
-
-                if (!Heightmap::Instance(resolution))
-                    assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
-            }
-        }
-        break;
-
-        // buildings
-        case WMQuery_All_Buildings:
-        {
-
-            uint64			buildingCount;
-            uint64			buildingId;
-            DataBinding*	buildingBinding = mDatabase->createDataBinding(1);
-            buildingBinding->addField(DFT_int64,0,8);
-
-            buildingCount = result->getRowCount();
-
-            for(uint64 i = 0; i < buildingCount; i++)
-            {
-                result->getNextRow(buildingBinding,&buildingId);
-
-                gObjectFactory->requestObject(ObjType_Building,0,0,this,buildingId,asyncContainer->mClient);
-            }
-
-            LOG_IF(INFO, buildingCount) << "Loaded " << buildingCount << " Buildings";
-
-            mDatabase->destroyDataBinding(buildingBinding);
-        }
-        break;
-
-        // city regions
-        case WMQuery_Cities:
-        {
-            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_Cities";
-        }
-        break;
-
-        // badge regions
-        case WMQuery_BadgeRegions:
-        {
-            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_BadgeRegions";
-        }
-        break;
-
-        // spawn regions
-        case WMQuery_SpawnRegions:
-        {
-            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_SpawnRegions";
-        }
-        break;
-
-        // Creature spawn regions
-        case WMQuery_CreatureSpawnRegions:
-        {
-            LOG(INFO) << "Entered handleDatabaseJobComplete :: WMQuery_CreatureSpawnRegions";
-        }
-        break;
-
-        // container->child objects
-        case WMQuery_AllObjectsChildObjects:
-        {
-            WMQueryContainer queryContainer;
-
-            DataBinding*	binding = mDatabase->createDataBinding(2);
-            binding->addField(DFT_bstring,offsetof(WMQueryContainer,mString),64,0);
-            binding->addField(DFT_uint64,offsetof(WMQueryContainer,mId),8,1);
-
-            uint64 count = result->getRowCount();
-
-
-            for(uint32 i = 0; i < count; i++)
-            {
-                result->getNextRow(binding,&queryContainer);
-
-                if(strcmp(queryContainer.mString.getAnsi(),"terminals") == 0)
-                    gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Terminal,0,this,queryContainer.mId,asyncContainer->mClient);
-                else if(strcmp(queryContainer.mString.getAnsi(),"ticket_collectors") == 0)
-                    gObjectFactory->requestObject(ObjType_Tangible,TanGroup_TicketCollector,0,this,queryContainer.mId,asyncContainer->mClient);
-                else if(strcmp(queryContainer.mString.getAnsi(),"shuttles") == 0)
-                    gObjectFactory->requestObject(ObjType_Creature,CreoGroup_Shuttle,0,this,queryContainer.mId,asyncContainer->mClient);
-
-             
-                // now to the ugly part
-
-                if(strcmp(queryContainer.mString.getAnsi(),"containers") == 0)
-                    gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Container,0,this,queryContainer.mId,asyncContainer->mClient);
-                else if(strcmp(queryContainer.mString.getAnsi(),"persistent_npcs") == 0)
-                    gObjectFactory->requestObject(ObjType_NPC,CreoGroup_PersistentNpc,0,this,queryContainer.mId,asyncContainer->mClient);
-                else if(strcmp(queryContainer.mString.getAnsi(),"items") == 0)
-                    gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Item,0,this,queryContainer.mId,asyncContainer->mClient);
-                else if(strcmp(queryContainer.mString.getAnsi(),"resource_containers") == 0)
-                    gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,queryContainer.mId,asyncContainer->mClient);
-            }
-
-            LOG_IF(INFO, count) << "Loaded " << count << " Cell Children";
-
-            mDatabase->destroyDataBinding(binding);
-        }
-        break;
-
-        default:
-            break;
+            LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Houses";
+            LOG_IF(INFO, !result_set->rowsCount()) << "No Player Houses to Load in Zone: " << mZoneId;
+            });
         }
     }
-    break;
-
-    //
-    // Queries in running state
-    //
-    case WMState_Running:
+    // no objects to load, so we are done
+    else
     {
-        switch(asyncContainer->mQuery)
-        {
-
-            // TODO: make stored function for saving
-        case WMQuery_SavePlayer_Position:
-        {
-
-            PlayerObject* playerObject			= dynamic_cast<PlayerObject*>(asyncContainer->mObject);
-            //saving ourselves async might see us deleted before finish
-            if(!playerObject)
-            {
-                break;
-            }
-
-            WMAsyncContainer* asyncContainer2	= new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SavePlayer_Attributes);
-
-            Ham* ham							= playerObject->getHam();
-
-            if(asyncContainer->mBool)
-            {
-                asyncContainer2->mBool = true;
-            }
-
-            asyncContainer2->mObject		= asyncContainer->mObject;
-            asyncContainer2->clContainer	= asyncContainer->clContainer;
-            asyncContainer2->mLogout		= asyncContainer->mLogout;
-
-            mDatabase->executeSqlAsync(this,asyncContainer2,"UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
-                                       ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
-                                       ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
-                                       ",character_flags=%u,states=%"PRIu64",language=%u,new_player_exemptions=%u WHERE character_id=%"PRIu64""
-                                       ,ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(),
-                                       ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(),
-                                       ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()
-                                       ,ham->mHealth.getWounds(),ham->mStrength.getWounds()
-                                       ,ham->mConstitution.getWounds(),ham->mAction.getWounds(),ham->mQuickness.getWounds(),ham->mStamina.getWounds(),ham->mMind.getWounds()
-                                       ,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->states.getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()
-                                       ,playerObject->getPlayerFlags(),playerObject->states.getAction(),playerObject->getLanguage(),playerObject->getNewPlayerExemptions(),playerObject->getId());
-            
-        }
-        break;
-
-        case WMQuery_SavePlayer_Attributes:
-        {
-            if(asyncContainer->mBool)
-            {
-                PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
-
-                //saving ourselves async might see us deleted before finish
-                if(!playerObject)
-                {
-                    SAFE_DELETE(asyncContainer->clContainer);
-                    break;
-                }
-                //delete the old char
-
-                //remove the player out of his group - if any
-                GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
-                if(group)
-                {
-                    group->removePlayer(playerObject->getId());
-                }
-
-                destroyObject(playerObject);
-
-                //are we to load a new character???
-                if(asyncContainer->mLogout == WMLogOut_Char_Load)
-                {
-                    gObjectFactory->requestObject(ObjType_Player,0,0,asyncContainer->clContainer->ofCallback,asyncContainer->clContainer->mPlayerId,asyncContainer->clContainer->mClient);
-
-                    //now destroy the asyncContainer->clContainer
-                    SAFE_DELETE(asyncContainer->clContainer);
-
-                }
-
-            }
-            if(asyncContainer->mLogout == WMLogOut_Zone_Transfer)
-            {
-                //update the position to the new planets position
-                const glm::vec3& destination = asyncContainer->clContainer->destination;
-
-                //in this case we retain the asynccontainer and let it be destroyed by the clientlogin handler
-                mDatabase->executeSqlAsync(asyncContainer->clContainer->dbCallback,asyncContainer->clContainer,"UPDATE characters SET parent_id=0,x='%f', y='%f', z='%f', planet_id='%u' WHERE id='%"PRIu64"';", destination.x, destination.y, destination.z, asyncContainer->clContainer->planet, asyncContainer->clContainer->player->getId());
-                
-            }
-        }
-        break;
-
-        default:
-            break;
-        }
+        _handleLoadComplete();
     }
-    break;
-
-    //
-    // queries when shutting down
-    //
-    case WMState_ShutDown:
-    {
-
-    }
-    break;
-
-    default:
-        LOG(FATAL)<<"World Manager Database Callback: unknown state: " << mState;
-        break;
-    }
-
-    mWM_DB_AsyncPool.ordered_free(asyncContainer);
 }
+void WorldManager::_loadBuildings()
+{
+    int8 sql[128] ;
+    sprintf(sql, "SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        if (! result)
+        {
+            return;
+        }
+
+        while(result_set->next())
+        {
+            gObjectFactory->requestObject(ObjType_Building,0,0,this,result_set->getUInt64(1));
+        }
+        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Buildings";
+         });
+}
+
+void WorldManager::_loadAllObjects(uint64 parentId)
+{
+    int8	sql[2048];
+    sprintf(sql,"(SELECT \'terminals\',terminals.id FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
+            " WHERE (terminal_types.name NOT LIKE 'unknown') AND (terminals.parent_id = %"PRIu64") AND (terminals.planet_id = %"PRIu32"))"
+            " UNION (SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
+            " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64") AND (containers.planet_id = %u))"
+            " UNION (SELECT \'ticket_collectors\',ticket_collectors.id FROM ticket_collectors WHERE (parent_id=%"PRIu64") AND (planet_id=%u))"
+            " UNION (SELECT \'persistent_npcs\',persistent_npcs.id FROM persistent_npcs WHERE (parentId=%"PRIu64") AND (planet_id = %"PRIu32"))"
+            " UNION (SELECT \'shuttles\',shuttles.id FROM shuttles WHERE (parentId=%"PRIu64") AND (planet_id = %"PRIu32"))"
+            " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64") AND (planet_id = %"PRIu32"))"
+            " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64") AND (planet_id = %"PRIu32"))",
+            parentId,mZoneId,parentId,mZoneId,parentId,mZoneId,parentId,mZoneId,parentId
+            ,mZoneId,parentId,mZoneId,parentId,mZoneId);
+
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        if (! result)
+        {
+            return;
+        }
+        while(result_set->next())
+        {
+            std::string str = result_set->getString(1);
+            uint64_t id = result_set->getUInt64(2);
+            if(strcmp(str.c_str(),"terminals") == 0)
+                gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Terminal,0,this,id);
+            else if(strcmp(str.c_str(),"ticket_collectors") == 0)
+                gObjectFactory->requestObject(ObjType_Tangible,TanGroup_TicketCollector,0,this,id);
+            else if(strcmp(str.c_str(),"shuttles") == 0)
+                gObjectFactory->requestObject(ObjType_Creature,CreoGroup_Shuttle,0,this,id);
+
+            if(strcmp(str.c_str(),"containers") == 0)
+                gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Container,0,this,id);
+            else if(strcmp(str.c_str(),"persistent_npcs") == 0)
+                gObjectFactory->requestObject(ObjType_NPC,CreoGroup_PersistentNpc,0,this,id);
+            else if(strcmp(str.c_str(),"items") == 0)
+                gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Item,0,this,id);
+            else if(strcmp(str.c_str(),"resource_containers") == 0)
+                gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,id);
+        }
+        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Buildings";
+        });
+}
+void    WorldManager::_updatePlayerAttributesToDB(uint32 accId)
+{
+    PlayerObject* playerObject			= getPlayerByAccId(accId);
+    if(!playerObject) {
+        DLOG(INFO) << "Could not find player with AccId:" <<accId<<", save aborted.";
+        return;
+    }
+    Ham* ham = playerObject->getHam();
+    if (!ham)
+    {
+        DLOG(INFO) << "Could not get Ham object from player id: " << playerObject->getId();
+    }
+    int8 sql[2048];
+    sprintf(sql, "UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
+                ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
+                ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
+                ",character_flags=%u,states=%"PRIu64",language=%u,new_player_exemptions=%u WHERE character_id=%"PRIu64""
+                ,ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(),
+                ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(),
+                ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()
+                ,ham->mHealth.getWounds(),ham->mStrength.getWounds()
+                ,ham->mConstitution.getWounds(),ham->mAction.getWounds(),ham->mQuickness.getWounds(),ham->mStamina.getWounds(),ham->mMind.getWounds()
+                ,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->states.getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()
+                ,playerObject->getPlayerFlags(),playerObject->states.getAction(),playerObject->getLanguage(),playerObject->getNewPlayerExemptions(),playerObject->getId());
+    
+    mDatabase->executeAsyncSql(sql, 0);
+}
+
+void    WorldManager::_updatePlayerPositionToDB(uint32 accId)
+{
+    PlayerObject* playerObject			= getPlayerByAccId(accId);
+    if(!playerObject) {
+        DLOG(INFO) << "Could not find player with AccId:" <<accId<<", save aborted.";
+        return;
+    }
+
+    int8 sql[256];
+    sprintf(sql, "UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+                ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+                ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+                ,mZoneId,playerObject->getJediState(),playerObject->getId());
+    mDatabase->executeAsyncSql(sql, [=] {
+        
+        _updatePlayerAttributesToDB(accId);
+    } ) ;
+}
+
+void    WorldManager::_updatePlayerBuffsToDB(uint32 accId)
+{
+    // TO BE IMPLEMENTED
+    // BUFF Manager is currently in control of this.
+}
+
+void    WorldManager::_updatePlayerLogoutToDB(uint32 accId, CharacterLoadingContainer* clContainer)
+{
+    PlayerObject* playerObject			= getPlayerByAccId(accId);
+    if(!playerObject) {
+        DLOG(INFO) << "Could not find player with AccId:" <<accId<<", save aborted.";
+        return;
+    }    
+    //remove the player out of his group - if any
+    GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
+    if(group)
+    {
+        group->removePlayer(playerObject->getId());
+    }
+
+    destroyObject(playerObject);
+}
+void WorldManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
+{}

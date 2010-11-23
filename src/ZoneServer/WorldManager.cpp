@@ -157,7 +157,16 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     _registerScriptHooks();
 
     // initiate loading of objects
-    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    int8 sql[128];
+    sprintf(sql, "SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        // we got the total objectCount we need to load
+        mTotalObjectCount = result_set->getUInt(1);
+        LOG(INFO) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
+        
+        _loadWorldObjects();
+    } ) ;
     
 
 #if defined(_MSC_VER)
@@ -306,16 +315,6 @@ WorldManager::~WorldManager()
     mInsFlag = false;
     delete(mSingleton);
 }
-
-
-//======================================================================================================================
-
-void WorldManager::_loadBuildings()
-{
-    WMAsyncContainer* asynContainer = new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_All_Buildings);
-    mDatabase->executeSqlAsync(this,asynContainer,"SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
-}
-
 
 //======================================================================================================================
 

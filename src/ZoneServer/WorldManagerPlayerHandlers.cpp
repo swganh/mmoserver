@@ -145,29 +145,15 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
         return;
     }
 
-    // WMQuery_SavePlayer_Position is the query handler called by the buffmanager when all the buffcallbacks are finished
-    // we prepare the asynccontainer here already
-    WMAsyncContainer* asyncContainer	= new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SavePlayer_Position);
-
-    if(remove)
-    {
-        asyncContainer->mBool = true;
-    }
-
-    //clarify what handler we have to call after saving - if any
-    asyncContainer->mObject			= playerObject;
-    asyncContainer->mLogout			=   mLogout;
-    asyncContainer->clContainer		=	clContainer;
-
     switch (mLogout)
     {
     case WMLogOut_LogOut:
     case WMLogOut_Char_Load:
-        mDatabase->executeSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-                                   ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-                                   ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-                                   ,mZoneId,playerObject->getJediState(),playerObject->getId());
-       
+        {
+            // update PlayerAttributes
+            _updatePlayerAttributesToDB(accId);
+            _updatePlayerLogoutToDB(accId, clContainer);
+        }
         break;
 
     case WMLogOut_No_LogOut:
@@ -175,22 +161,14 @@ void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, Charac
         //start by saving the buffs the buffmanager will deal with the buffspecific db callbacks and start the position safe at their end
         //which will return its callback to the worldmanager
         //if no buff was there to be saved we will continue directly
-        if(playerObject && playerObject->isConnected() && !playerObject->isBeingDestroyed())
-        {
-            if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
-            {
-                // position save will be called by the buff callback if there is any buff
-                mDatabase->executeSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-                                           ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-                                           ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-                                           ,mZoneId,playerObject->getJediState(),playerObject->getId());
-              
-
-            }
-        }
+        gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
+        _updatePlayerAttributesToDB(accId);
+        gObjectFactory->requestObject(ObjType_Player,0,0,clContainer->ofCallback,clContainer->mPlayerId,clContainer->mClient);
+        //now destroy the clContainer
+        SAFE_DELETE(clContainer);
+        
+        _updatePlayerPositionToDB(accId);
         break;
-    default:
-        DLOG(INFO) << "We should never get in here, make sure to call savePlayer with the enum WMLogOut";
     }
 }
 

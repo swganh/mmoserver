@@ -308,7 +308,7 @@ void ResourceContainer::upDateFactoryVolume(BString amount)
 
 	TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
 
-	gContainerManager->sendToRegisteredPlayers(hopper,[this] (PlayerObject* const player)
+	gContainerManager->sendToRegisteredWatchers(hopper,[this] (PlayerObject* const player)
 	{
 		gMessageLib->sendResourceContainerUpdateAmount(this,player);
 	});

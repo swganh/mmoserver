@@ -51,7 +51,6 @@ MovingObject::MovingObject()
     , mCurrentTurnRate(1.0f)
     , mCurrentSpeedMod(1.0f)
     , mBaseSpeedMod(1.0f)
-    , mSubZone(NULL)
 {
 }
 
@@ -224,7 +223,7 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 	}
 
 	//check whether updates are necessary before building the packet and then destroying it
-	if ((!isPlayer) && this->getRegisteredWatchers().empty())
+	if ((!isPlayer) && this->getRegisteredWatchers()->empty())
 	{
 		return;
 	}

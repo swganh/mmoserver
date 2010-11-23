@@ -122,7 +122,6 @@ public:
 private:
     std::list<ForageAttempt*> attempts;
 
-	QTRegion* region;
 	Anh_Math::Rectangle innerRect;
 };
 

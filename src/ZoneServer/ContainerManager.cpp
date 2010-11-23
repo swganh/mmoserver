@@ -155,7 +155,7 @@ void ContainerManager::SendDestroyEquippedObject(Object *removeObject)
 		return;
 	}
 		
-	sendToRegisteredPlayers(owner,[removeObject](PlayerObject* const player)
+	sendToRegisteredWatchers(owner,[removeObject](PlayerObject* const player)
 	{
 		gMessageLib->sendDestroyObject(removeObject->getId(),player);
 	}
@@ -327,7 +327,7 @@ void ContainerManager::createObjectToRegisteredPlayers(Object* container,Object*
 		return;
 	}
 
-	sendToRegisteredPlayers(container,[object, this] (PlayerObject* const recipient) 
+	sendToRegisteredWatchers(container,[object, this] (PlayerObject* const recipient) 
 		{
 			gSpatialIndexManager->sendCreateObject(object,recipient,false);
 		
@@ -343,21 +343,43 @@ void ContainerManager::createObjectToRegisteredPlayers(Object* container,Object*
 void ContainerManager::updateEquipListToRegisteredPlayers(PlayerObject* const player)
 {
 
-	sendToRegisteredPlayers(player,[player](PlayerObject* const recepient)
+	sendToRegisteredWatchers(player,[player](PlayerObject* const recepient)
 		{
 			gMessageLib->sendEquippedListUpdate(player, recepient);
 		}
 	);
 }
 
-
+//===========================================================================
 // sends given function to all of the containers registered watchers
+// we need to be very fast here as this is needed for movement
+// its called a few hundred to thousand times a second
+//
 void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* const player)> callback)
 {
-	PlayerObjectSet registered_watchers = container->getRegisteredWatchers();
-	PlayerObjectSet::const_iterator it = registered_watchers.begin();
+	PlayerObjectSet* registered_watchers	= container->getRegisteredWatchers();
+	PlayerObjectSet::const_iterator it		= registered_watchers->begin();
 		
-	while(it != registered_watchers.end())
+	while(it != registered_watchers->end())
+	{
+		//create it for the registered Players
+		PlayerObject* const player = *it;
+		if(player)
+		{
+			callback(player);
+		}
+        it++;
+	}
+
+}
+
+// sends given function to all of the containers registered watchers
+void ContainerManager::sendToRegisteredWatchers(Object* container, std::function<void (PlayerObject* const player)> callback)
+{
+	PlayerObjectSet* registered_watchers	= container->getRegisteredWatchers();
+	PlayerObjectSet::const_iterator it		= registered_watchers->begin();
+		
+	while(it != registered_watchers->end())
 	{
 		//create it for the registered Players
 		PlayerObject* const player = *it;
@@ -369,9 +391,9 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
 	}
 
 	registered_watchers = container->getRegisteredStaticWatchers();
-	PlayerObjectSet::const_iterator const_it = registered_watchers.begin();
+	PlayerObjectSet::const_iterator const_it = registered_watchers->begin();
 		
-	while(const_it != registered_watchers.end())
+	while(const_it != registered_watchers->end())
 	{
 		//create it for the registered Players
 		PlayerObject* const player = *const_it;
@@ -382,7 +404,6 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
         const_it++;
 	}
 }
-
 // sends given function to all of the containers registered watchers
 void ContainerManager::sendToGroupedRegisteredPlayers(PlayerObject* const container, std::function<void ( PlayerObject* const player)> callback, bool self)
 {
@@ -395,10 +416,10 @@ void ContainerManager::sendToGroupedRegisteredPlayers(PlayerObject* const contai
 	{
 		return;
 	}
-	PlayerObjectSet in_range_players = container->getRegisteredWatchers();
-	PlayerObjectSet::const_iterator it = in_range_players.end();
+	PlayerObjectSet* in_range_players = container->getRegisteredWatchers();
+	PlayerObjectSet::const_iterator it = in_range_players->end();
 		
-	while (it != in_range_players.end())
+	while (it != in_range_players->end())
 	{
         PlayerObject* const player = *it;
 		//create it for the registered Players
@@ -418,7 +439,7 @@ void ContainerManager::destroyObjectToRegisteredPlayers(Object* container,uint64
 {
 	Object* destroyObject = gWorldManager->getObjectById(object);
 
-	sendToRegisteredPlayers(container,[container, object, this, destroyForSelf, destroyObject] (PlayerObject* const recipient) 
+	sendToRegisteredWatchers(container,[container, object, this, destroyForSelf, destroyObject] (PlayerObject* const recipient) 
 		{
 			if((recipient->getId() != container->getId()) || (destroyForSelf == true))
 			{
@@ -438,14 +459,15 @@ void ContainerManager::destroyObjectToRegisteredPlayers(Object* container,uint64
 
 //=======================================================================
 // we remove an Object for all the players registered to *container*
-// if destroyForSelf is false we will not destroy it for the player who is the recipient (used for transfers when the player remains registered: ie in the inventory)
+// and create it for those in the new container
+// those watching both will receive a containment update
 //
 void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment)
 {
 
 	DLOG(INFO) << "SpatialIndexManager::updateObjectPlayerRegistrations :: newContainer " <<newContainer->getId()<< " oldContainer " << oldContainer->getId() << " - update old player set";
 	//destroy for old Players that are NOT on the new list
-	sendToRegisteredPlayers(oldContainer,[oldContainer, object, this, newContainer, containment] (PlayerObject* const recipient) 
+	sendToRegisteredWatchers(oldContainer,[oldContainer, object, this, newContainer, containment] (PlayerObject* const recipient) 
 		{
 			//if the watcher is still known just update the contaiment
 			if(newContainer->checkRegisteredWatchers(recipient))
@@ -465,7 +487,7 @@ void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Obj
 	);
 
 	//create for all players on the new list who are NOT on the old list
-	sendToRegisteredPlayers(newContainer,[object, this, oldContainer] (PlayerObject* const recipient) 
+	sendToRegisteredWatchers(newContainer,[object, this, oldContainer] (PlayerObject* const recipient) 
 		{
 			if(!oldContainer->checkRegisteredWatchers(recipient))
 			{

@@ -278,7 +278,10 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
 }
 
 //=============================================================================
-
+//the trade has been approved and we iterate now through the items to be traded.
+//they get removed out of their old owners inventory
+//and will be created newly (via db) in the receivers inventory
+//
 void  Trade::processTradeListPostTransaction()
 {
     //only process our list this will be called by both trade partners
@@ -308,7 +311,9 @@ void  Trade::processTradeListPostTransaction()
         if((*it)->getNewOwner() && (*it)->getNewOwner()->isConnected())
         {
 			//gContainerManager->createObjectToRegisteredPlayers(partnerInventory, (*it)->getObject());
-            gObjectFactory->createIteminInventory(partnerInventory,itemId,tanGroup);
+         
+			//this currently creates the item newly from db
+			gObjectFactory->createIteminInventory(partnerInventory,itemId,tanGroup);
         }
 
         it = mItemTradeList.erase(it);

@@ -126,7 +126,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         BString effect = gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("survey_effect"));
         gMessageLib->sendPlayClientEffectLocMessage(effect,player->mPosition,player);
 
-        gContainerManager->sendToRegisteredPlayers(player,[effect, player] (PlayerObject* const recipient) 
+        gContainerManager->sendToRegisteredWatchers(player,[effect, player] (PlayerObject* const recipient) 
  		{
  			gMessageLib->sendPlayClientEffectLocMessage(effect, player->mPosition, recipient);
  		});
@@ -470,10 +470,9 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
         player->setSamplingState(false);
         return;
     }
-    // show the effects always
-    gMessageLib->sendPlayClientEffectLocMessage(effect, player->mPosition, player);
-        
-    gContainerManager->sendToRegisteredPlayers(player,[effect, player] (PlayerObject* const recipient) 
+    
+	// show the effects always        
+    gContainerManager->sendToRegisteredWatchers(player,[effect, player] (PlayerObject* const recipient) 
  	{
  		gMessageLib->sendPlayClientEffectLocMessage(effect, player->mPosition,recipient);
  	});

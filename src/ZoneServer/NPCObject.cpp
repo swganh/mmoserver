@@ -174,7 +174,7 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
 
     
 	// send out position updates to known players
-	if (this->getRegisteredWatchers().empty())
+	if (this->getRegisteredWatchers()->empty())
 	{
 		return;
 	}

@@ -189,14 +189,15 @@ public:
 
 	//===========================================================================
 	//Known Watchers to keep track of players watching container content
-	PlayerObjectSet			    getRegisteredWatchers() const { return mKnownPlayers; }
-	PlayerObjectSet			    getRegisteredStaticWatchers() const { return mKnownStaticPlayers; }
-	ObjectSet				    getRegisteredContainers()  const { return mKnownObjects; }
+	PlayerObjectSet*		    getRegisteredWatchers() { return &mKnownPlayers; }
+	
+	ObjectSet*				    getRegisteredContainers()  { return &mKnownObjects; }
 
 	void						UnregisterAllWatchers();
 	bool						checkRegisteredWatchers(PlayerObject* const player) const;
 	bool						registerWatcher(Object* object);
 	bool						unRegisterWatcher(Object* object);
+	
 	virtual void				addContainerKnownObject(Object* object);
 	bool						checkContainerKnownObjects(Object* object) const;
 
@@ -204,6 +205,7 @@ public:
 	//===========================================================================
 	//static knownObject is the inventory, the hair, etc - these dont need to be altered by the SI
 	bool						checkStatics(Object* object) const;
+	PlayerObjectSet*		    getRegisteredStaticWatchers() { return &mKnownStaticPlayers; }
 	ObjectSet*					getStatitcs() { return &mKnownStatics; }
 	bool						registerStatic(Object* object);
 		

@@ -334,10 +334,10 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 		}
 	}
 
-	PlayerObjectSet knownPlayers = removeObject->getRegisteredWatchers();
-	PlayerObjectSet::iterator it = knownPlayers.begin();
+	PlayerObjectSet* knownPlayers	= removeObject->getRegisteredWatchers();
+	PlayerObjectSet::iterator it	= knownPlayers->begin();
 		
-	while(it != knownPlayers.end())
+	while(it != knownPlayers->end())
 	{
 		
 		//the only registration a player is still supposed to have at this point is himself and his inventory
@@ -349,7 +349,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell)
 			//unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
 			gContainerManager->unRegisterPlayerFromContainer(removeObject, player);	
 			gMessageLib->sendDestroyObject(removeObject->getId(),player);
-			it = knownPlayers.begin();
+			it = knownPlayers->begin();
 		}
 		else
 			it++;

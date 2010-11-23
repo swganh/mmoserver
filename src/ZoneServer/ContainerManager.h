@@ -93,7 +93,12 @@ class ContainerManager :  public TimerCallback
 
 		void					removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building);
 		
+		//to other players only - use for movement
 		void					sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* const player)> callback);
+
+		//to all registered watchers including ourselves
+		void					sendToRegisteredWatchers(Object* container, std::function<void (PlayerObject* const player)> callback);
+
 		void					sendToGroupedRegisteredPlayers(PlayerObject* const player, std::function<void (PlayerObject*  const player)> callback, bool self);
 
 		//registers player as watcher to a container based on si

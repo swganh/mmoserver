@@ -1547,81 +1547,61 @@ uint64 AttackableCreature::handleState(uint64 timeOverdue)
 
 void AttackableCreature::spawn(void)
 {
-//    gCreatureSpawnCounter++;
-//
-//    // Update the world about my presence.
-//
-//    this->setSpawned();
-//    if (this->getParentId())
-//    {
-//        // insert into cell
-//        this->setSubZoneId(0);
-//
-//        if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-//        {
-//            cell->addObjectSecure(this);
-//        }
-//        else
-//        {
-//            assert(false && "Unable to locate cell");
-//            return;
-//        }
-//    }
-//    else
-//    {
-//        if (QTRegion* region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-//        {
-//            this->setSubZoneId((uint32)region->getId());
-//            region->mTree->addObject(this);
-//        }
-//    }
-//    // Sleeping NPC's should be put in lower prio queue.
-//
-//    if (this->getKnownPlayers()->empty())
-//        return;
-//
-//    // Add us to the world.
-//    gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
-//
-//    // send out position updates to known players
-//    this->setInMoveCount(this->getInMoveCount() + 1);
-//
-//    if (gWorldConfig->isTutorial())
-//    {
-//        // We need to get the player object that is the owner of this npc.
-//        if (this->getPrivateOwner() != 0)
-//        {
-//            PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
-//            if (playerObject)
-//            {
-//                if (this->getParentId())
-//                {
-//                    // We are inside a cell.
-//                    gMessageLib->sendDataTransformWithParent(this, playerObject);
-//                    gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
-//                }
-//                else
-//                {
-//                    gMessageLib->sendDataTransform(this, playerObject);
-//                    gMessageLib->sendUpdateTransformMessage(this, playerObject);
-//                }
-//            }
-//        }
-//    }
-//    else
-//    {
-//        if (this->getParentId())
-//        {
-//            // We are inside a cell.
-//            gMessageLib->sendDataTransformWithParent053(this);
-//            gMessageLib->sendUpdateTransformMessageWithParent(this);
-//        }
-//        else
-//        {
-//            gMessageLib->sendDataTransform053(this);
-//            gMessageLib->sendUpdateTransformMessage(this);
-//        }
-//    }
+    gCreatureSpawnCounter++;
+
+    // Update the world about my presence.
+
+    this->setSpawned();
+
+	//add to spatialIndex
+	gSpatialIndexManager->AddObject(this);
+
+    // Sleeping NPC's should be put in lower prio queue.
+	if (this->getRegisteredWatchers()->empty())
+        return;
+
+    // Add us to the world.
+    gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
+
+    // send out position updates to known players
+    this->setInMoveCount(this->getInMoveCount() + 1);
+
+    if (gWorldConfig->isTutorial())
+    {
+        // We need to get the player object that is the owner of this npc.
+        if (this->getPrivateOwner() != 0)
+        {
+            PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
+            if (playerObject)
+            {
+                if (this->getParentId())
+               {
+                    // We are inside a cell.
+                    gMessageLib->sendDataTransformWithParent(this, playerObject);
+                    gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
+                }
+                else
+                {
+                    gMessageLib->sendDataTransform(this, playerObject);
+                    gMessageLib->sendUpdateTransformMessage(this, playerObject);
+                }
+           }
+        }
+    }
+    else
+    {
+        if (this->getParentId())
+        {
+            // We are inside a cell.
+            gMessageLib->sendDataTransformWithParent053(this);
+            gMessageLib->sendUpdateTransformMessageWithParent(this);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform053(this);
+            gMessageLib->sendUpdateTransformMessage(this);
+        }
+    }
 }
 
 //=============================================================================

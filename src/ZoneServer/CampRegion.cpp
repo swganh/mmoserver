@@ -28,10 +28,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CampRegion.h"
 #include "Camp.h"
 #include "PlayerObject.h"
-#include "QTRegion.h"
-#include "QuadTree.h"
+
 #include "WorldManager.h"
 #include "MessageLib/MessageLib.h"
+
 
 //=============================================================================
 struct CampRegion::campLink

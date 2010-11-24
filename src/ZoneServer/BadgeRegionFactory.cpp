@@ -64,7 +64,7 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
             LOG(WARNING) << "Unable to load badges with region id: " << id;
             return;
         }
-        std::shared_ptr<BadgeRegion> badge_region (new BadgeRegion());
+        std::shared_ptr<BadgeRegion> badge_region = std::make_shared<BadgeRegion>();
 
         badge_region->setId(result_set->getUInt64(1));
         badge_region->setBadgeId(result_set->getUInt(2));

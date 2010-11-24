@@ -25,15 +25,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "FactoryBase.h"
-#include "Object.h"
-#include "WorldManager.h"
+
+#include <cppconn/resultset.h>
+
+#include "Utils/utils.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Utils/utils.h"
 
-#include <cppconn/resultset.h>
+#include "Object.h"
+#include "WorldManager.h"
 
 //=============================================================================
 
@@ -97,32 +99,32 @@ void FactoryBase::_buildAttributeMap(Object* object,DatabaseResult* result)
     for(uint64 i = 0; i < count; i++)
     {
         if (result_set->next())
-        {            
+        {
             attribute.mKey = result_set->getString(1).c_str();
             attribute.mValue = result_set->getString(2).c_str();
             attribute.mInternal = result_set->getUInt(3);
-            
-        //result->getNextRow(mAttributeBinding,(void*)&attribute);
-        if(attribute.mKey.getCrc() == BString("cat_manf_schem_ing_resource").getCrc())
-        {
-            attribute.mValue.split(dataElements,' ');
-            sprintf(str,"cat_manf_schem_ing_resource.\"%s",dataElements[0].getAnsi());
 
-            attribute.mKey		= BString(str);
-            attribute.mValue	= dataElements[1].getAnsi();
-
-            //add key to the worldmanager
-            if(gWorldManager->getAttributeKey(attribute.mKey.getCrc()) == "")
+            //result->getNextRow(mAttributeBinding,(void*)&attribute);
+            if(attribute.mKey.getCrc() == BString("cat_manf_schem_ing_resource").getCrc())
             {
-                gWorldManager->mObjectAttributeKeyMap.insert(std::make_pair(attribute.mKey.getCrc(),attribute.mKey));
+                attribute.mValue.split(dataElements,' ');
+                sprintf(str,"cat_manf_schem_ing_resource.\"%s",dataElements[0].getAnsi());
+
+                attribute.mKey		= BString(str);
+                attribute.mValue	= dataElements[1].getAnsi();
+
+                //add key to the worldmanager
+                if(gWorldManager->getAttributeKey(attribute.mKey.getCrc()) == "")
+                {
+                    gWorldManager->mObjectAttributeKeyMap.insert(std::make_pair(attribute.mKey.getCrc(),attribute.mKey));
+                }
+
             }
 
-        }
-
-        if(attribute.mInternal)
-            object->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
-        else
-            object->addAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
+            if(attribute.mInternal)
+                object->addInternalAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
+            else
+                object->addAttribute(attribute.mKey,std::string(attribute.mValue.getAnsi()));
         }
     }
 

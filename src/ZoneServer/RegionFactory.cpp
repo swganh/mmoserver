@@ -78,7 +78,7 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
         break;
 
     default:
-    	LOG(ERROR) << "Unknown group [" << subGroup << "]";
+        LOG(ERROR) << "Unknown group [" << subGroup << "]";
         break;
     }
 }

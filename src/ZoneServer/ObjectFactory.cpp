@@ -36,6 +36,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #include <glog/logging.h>
 
+#include "Utils/utils.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+
+#include "MessageLib/MessageLib.h"
+
 #include "BuildingFactory.h"
 #include "CreatureFactory.h"
 #include "Deed.h"
@@ -53,7 +60,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "Inventory.h"
 #include "PlayerObjectFactory.h"
-#include "MessageLib/MessageLib.h"
 #include "RegionFactory.h"
 #include "ResourceManager.h"
 #include "StructureManager.h"
@@ -61,9 +67,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TravelMapHandler.h"
 #include "WaypointFactory.h"
 #include "WorldManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "Utils/utils.h"
 
 //=============================================================================
 
@@ -124,16 +127,17 @@ void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback*
     int8 sql [512];
     sprintf(sql,"SELECT sf_DefaultManufactureSchematicCreate(%u,%"PRIu64")",schemCrc,parentId);
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
+
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
     });
 }
@@ -147,16 +151,17 @@ void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint6
     int8 sql [512];
     sprintf(sql,"SELECT sf_DefaultItemCreateByTangibleTemplate(%"PRIu64",%"PRIu64")",parentId,templateId);
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
+
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
     });
 }
@@ -170,16 +175,17 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uin
     int8 sql [512];
     sprintf(sql,"SELECT sf_DefaultItemCreateBySchematic(%u,%"PRIu64",%u,%f,%f,%f,'%s')",schemCrc,parentId,planetId,position.x,position.y,position.z,customName.getAnsi());
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
+
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
     });
 }
@@ -193,19 +199,19 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint
     int8 sql [512];
     sprintf(sql,"SELECT sf_DefaultItemCreate(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s')",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi());
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
+
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
     });
-
 }
 
 //=============================================================================
@@ -217,11 +223,11 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
     int8 sql [512];
     sprintf(sql,"CALL sp_CreateForagedItem(%u,%u,%"PRIu64",%"PRIu64",%u,%f,%f,%f,'%s',%d)",familyId,typeId,parentId,(uint64) 0,planetId,position.x,position.y,position.z,customName.getAnsi(), useCount);
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
@@ -253,19 +259,19 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
     strcat(sql,restStr);
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
+
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
     });
-
 }
 
 //=============================================================================
@@ -277,16 +283,17 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
     int8 sql[512];
     sprintf(sql,"SELECT sf_ResourceContainerCreate(%"PRIu64",%"PRIu64",0,0,0,%u,%u)",resourceId,parentId,planetId,amount);
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
+
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1), TanGroup_ResourceContainer , 0, 0);
     });
 }
@@ -336,11 +343,11 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
     int8 sql [512];
     sprintf(sql,"SELECT sf_DefaultHarvesterCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Unable to create new default harvester, no result" ;
@@ -426,11 +433,11 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
     int8 sql [512];
     sprintf(sql,"SELECT sf_DefaultFactoryCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Unable to create new default factory, no result" ;
@@ -514,11 +521,11 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 
     sprintf(sql,"SELECT sf_DefaultHouseCreate(%u,0,%"PRIu64",%u,%f,%f,%f,%f,%f,%f,%f,'%s',%"PRIu64")",deedLink->structure_type, player->getId(), gWorldManager->getZoneId(),oX,oY,oZ,oW,x,y,z,customName.getAnsi(),deed->getId());
     mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (! client || !result)
-        {
+        if (! client || !result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Unable to create new default house, no result" ;
@@ -581,11 +588,11 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
     strcat(sql,restStr);
 
     mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Unable to create waypoint ";
@@ -593,7 +600,6 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
         }
 
         mWaypointFactory->requestObject(ofCallback, result_set->getUInt64(1) ,0,0,0);
-
     });
 }
 //=============================================================================
@@ -614,11 +620,11 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
     strcat(sql,restStr);
 
     mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Unable to update waypoint ";
@@ -662,13 +668,14 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
         return;
         break;
     }
+    }
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (!result)
-        {
+        if (!result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
@@ -676,7 +683,6 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1), Group, 0, 0);
     });
-    }
 }
 
 void ObjectFactory::createIteminInventory(ObjectFactoryCallback* ofCallback,uint64 ObjectId, TangibleGroup Group)

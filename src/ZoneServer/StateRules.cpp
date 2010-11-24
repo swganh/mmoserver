@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "StateRules.h"
-#include "Common/ConfigManager.h"
 #include <cstdlib>
 #include <iostream>
 
@@ -40,6 +39,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cppconn/prepared_statement.h>
 
 #include "Utils/typedefs.h"
+#include "Common/ConfigManager.h"
+
+#include "StateManager.h"
 
 StateRules::StateRules()
 {
@@ -47,7 +49,7 @@ StateRules::StateRules()
     sql::Driver* driver = sql::mysql::get_driver_instance();
     sql_connection_.reset(driver->connect(gConfig->read<std::string>("DBServer"), gConfig->read<std::string>("DBUser"), gConfig->read<std::string>("DBPass")));
     sql_connection_->setSchema(gConfig->read<std::string>("DBName"));
-    
+
     std::unique_ptr<sql::Statement> statement(sql_connection_->createStatement());
     sql::ResultSet* res;
     res = statement->executeQuery("select statetype, stateclass, validstates from staterules");
@@ -60,19 +62,19 @@ StateRules::StateRules()
 
         switch(types)
         {
-            case State_Action:
-                loadActionStateRules();
-                break;
-            case State_Posture:
-                loadPostureStateRules();
-                break;
-            case State_Locomotion:
-                loadLocomotionStateRules();
-                break;
+        case State_Action:
+            loadActionStateRules();
+            break;
+        case State_Posture:
+            loadPostureStateRules();
+            break;
+        case State_Locomotion:
+            loadLocomotionStateRules();
+            break;
         }
     }
     res = statement->executeQuery("select state_class,state_to_remove from staterules_removalstates");
-    
+
     while (res->next())
     {
         removal_state_class = res->getInt64("state_class");
@@ -95,9 +97,9 @@ void StateRules::loadActionStateRules()
     if (iter != gStateManager.mActionStateMap.end())
     {
         gStateManager.mActionStateMap[stateClass]->insertIntoTransitionList(
-           std::make_pair(State_Action, validStates));
+            std::make_pair(State_Action, validStates));
     }
-   
+
 }
 void StateRules::loadPostureStateRules()
 {
@@ -114,7 +116,7 @@ void StateRules::loadLocomotionStateRules()
     if (iter != gStateManager.mLocomotionStateMap.end())
     {
         gStateManager.mLocomotionStateMap[stateClass]->insertIntoTransitionList(
-            std::make_pair(State_Locomotion, validStates));   
+            std::make_pair(State_Locomotion, validStates));
     }
 }
 void StateRules::loadActionStatesToRemove()
@@ -122,6 +124,6 @@ void StateRules::loadActionStatesToRemove()
     ActionStateMap::iterator iter = gStateManager.mActionStateMap.find(stateClass);
     if (iter != gStateManager.mActionStateMap.end())
     {
-       gStateManager.mActionStateMap[stateClass]->insertIntoStateRemovalList(state_to_remove);
+        gStateManager.mActionStateMap[stateClass]->insertIntoStateRemovalList(state_to_remove);
     }
 }

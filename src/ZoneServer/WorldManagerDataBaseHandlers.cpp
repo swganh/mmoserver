@@ -26,24 +26,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "WorldManager.h"
-#include "PlayerObject.h"
-#include "CharacterLoginHandler.h"
-#include "CreatureSpawnRegion.h"
-#include "HarvesterFactory.h"
-#include "FactoryFactory.h"
-#include "GroupObject.h"
-#include "GroupManager.h"
-#include "HouseFactory.h"
-#include "ObjectFactory.h"
+
+#include <cppconn/resultset.h>
+
+#include "Common/ConfigManager.h"
+#include "Common/Crc.h"
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DatabaseResult.h"
+
 #include "ScriptEngine/ScriptEngine.h"
 #include "ScriptEngine/ScriptSupport.h"
+
+#include "CharacterLoginHandler.h"
+#include "CreatureSpawnRegion.h"
+#include "FactoryFactory.h"
+#include "GroupObject.h"
+#include "GroupManager.h"
+#include "HarvesterFactory.h"
 #include "Heightmap.h"
-#include "Common/ConfigManager.h"
-#include "Common/Crc.h"
-#include "cppconn/resultset.h"
+#include "HouseFactory.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
 
 //======================================================================================================================
 
@@ -75,118 +80,118 @@ void WorldManager::_loadWorldObjects()
                 }
                 LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Zone Regions";
             });
-                    
+
         }
         // load client effects
         int8 sql[128] ;
         sprintf(sql, "SELECT * FROM clienteffects ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
-                    return;
-                }
-                // tell vector how much space we need to stop unecessary allocation.
-                mvClientEffects.reserve(result_set->rowsCount());
-                while(result_set->next())
-                {
-                    mvClientEffects.push_back(result_set->getString("effect"));
-                }
-                LOG_IF(INFO, mvClientEffects.size()) << "Loaded " << mvClientEffects.size() << " Client Effects";
-            });
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
+            {
+                return;
+            }
+            // tell vector how much space we need to stop unecessary allocation.
+            mvClientEffects.reserve(result_set->rowsCount());
+            while(result_set->next())
+            {
+                mvClientEffects.push_back(result_set->getString("effect"));
+            }
+            LOG_IF(INFO, mvClientEffects.size()) << "Loaded " << mvClientEffects.size() << " Client Effects";
+        });
 
         // load attribute keys
         sql[0] = 0 ;
         sprintf(sql, "SELECT id, name FROM attributes ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
-                    return;
-                }
-                        
-                while(result_set->next())
-                {
-                    BString name = result_set->getString("name").c_str();
-                    mObjectAttributeKeyMap.insert(std::make_pair(name.getCrc(), name));
-                    mObjectAttributeIDMap.insert(std::make_pair(name.getCrc(), result_set->getInt("id")));
-                }
-                LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
-            });
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
+            {
+                return;
+            }
+
+            while(result_set->next())
+            {
+                BString name = result_set->getString("name").c_str();
+                mObjectAttributeKeyMap.insert(std::make_pair(name.getCrc(), name));
+                mObjectAttributeIDMap.insert(std::make_pair(name.getCrc(), result_set->getInt("id")));
+            }
+            LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
+        });
 
         // load sounds
         sql[0] = 0 ;
         sprintf(sql, "SELECT * FROM sounds ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
-                    return;
-                }
-                        
-                while(result_set->next())
-                {
-                    mvSounds.push_back(result_set->getString("name"));
-                }
-                        
-                LOG_IF(INFO, mvSounds.size()) << "Loaded " << mvSounds.size() << " Sounds";
-            });
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
+            {
+                return;
+            }
+
+            while(result_set->next())
+            {
+                mvSounds.push_back(result_set->getString("name"));
+            }
+
+            LOG_IF(INFO, mvSounds.size()) << "Loaded " << mvSounds.size() << " Sounds";
+        });
 
         // load moods
         sql[0] = 0 ;
         sprintf(sql, "SELECT * FROM moods ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
-                    return;
-                }
-                mvMoods.reserve(result_set->rowsCount());
-                while(result_set->next())
-                {
-                    mvMoods.push_back(result_set->getString("name"));
-                }
-                LOG_IF(INFO, mvMoods.size()) << "Loaded " << mvMoods.size() << " Moods";
-            });
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
+            {
+                return;
+            }
+            mvMoods.reserve(result_set->rowsCount());
+            while(result_set->next())
+            {
+                mvMoods.push_back(result_set->getString("name"));
+            }
+            LOG_IF(INFO, mvMoods.size()) << "Loaded " << mvMoods.size() << " Moods";
+        });
 
         // load npc converse animations
         sql[0] = 0 ;
         sprintf(sql, "SELECT * FROM conversation_animations ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
-                    return;
-                }
-                mvNpcConverseAnimations.reserve(result_set->rowsCount());
-                while(result_set->next())
-                {
-                    mvNpcConverseAnimations.push_back(result_set->getString("name"));
-                }
-                LOG_IF(INFO, mvNpcConverseAnimations.size()) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
-            });
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
+            {
+                return;
+            }
+            mvNpcConverseAnimations.reserve(result_set->rowsCount());
+            while(result_set->next())
+            {
+                mvNpcConverseAnimations.push_back(result_set->getString("name"));
+            }
+            LOG_IF(INFO, mvNpcConverseAnimations.size()) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
+        });
         // load npc chatter
         sql[0] = 0 ;
         sprintf(sql, "SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;", mZoneId);
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
-                    return;
-                }
-                mvNpcChatter.reserve(result_set->rowsCount());
-                while(result_set->next())
-                {
-                    std::string phrase(result_set->getString("phrase"));
-                    uint32 anim = result_set->getUInt("animation");
-                    // convert from std::string to wstring
-                    std::wstring ws;
-                    ws.assign(phrase.begin(), phrase.end());
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+            if (! result)
+            {
+                return;
+            }
+            mvNpcChatter.reserve(result_set->rowsCount());
+            while(result_set->next())
+            {
+                std::string phrase(result_set->getString("phrase"));
+                uint32 anim = result_set->getUInt("animation");
+                // convert from std::string to wstring
+                std::wstring ws;
+                ws.assign(phrase.begin(), phrase.end());
 
-                    mvNpcChatter.push_back(std::make_pair(ws, anim));
-                }
-                LOG_IF(INFO, mvNpcChatter.size()) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
-            });
+                mvNpcChatter.push_back(std::make_pair(ws, anim));
+            }
+            LOG_IF(INFO, mvNpcChatter.size()) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
+        });
 
         if(mZoneId != 41)
         {
@@ -238,7 +243,7 @@ void WorldManager::_loadWorldObjects()
                     gObjectFactory->requestObject(ObjType_Region, Region_Spawn, 0, this, result_set->getUInt64(1));
                 }
                 LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
-                    LOG_IF(INFO, !result_set->rowsCount())  << "Unable to load spawn regions with id: " << mZoneId;
+                LOG_IF(INFO, !result_set->rowsCount())  << "Unable to load spawn regions with id: " << mZoneId;
             });
 
             // load world scripts
@@ -280,61 +285,61 @@ void WorldManager::_loadWorldObjects()
                     creatureSpawnRegion->mLength  = result_set->getDouble(5);
 
                     mCreatureSpawnRegionMap.insert(std::make_pair<uint64_t, std::shared_ptr<CreatureSpawnRegion>>
-                        (creatureSpawnRegion->mId, creatureSpawnRegion));
+                                                   (creatureSpawnRegion->mId, creatureSpawnRegion));
                 }
                 LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
                 LOG_IF(INFO, !result_set->rowsCount()) << "No Creature Spawn Regions Loaded with ID: " << mZoneId;
             });
-                    
-        // load harvesters
-        sql[0] = 0;
-        sprintf(sql, "SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
-                return;
-            }
-            while(result_set->next())
-            {
-                gHarvesterFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
-            }
-            LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Harvesters";
-            LOG_IF(INFO, !result_set->rowsCount()) << "No Harvesters to Load in Zone: " << mZoneId;
-        });
 
-        // load factories
-        sql[0] = 0;
-        sprintf(sql, "SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
-                return;
-            }
-            while(result_set->next())
-            {
-                gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
-            }
-            LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Factories";
-            LOG_IF(INFO, !result_set->rowsCount()) << "No Player Factories to Load in Zone: " << mZoneId;
-        });
+            // load harvesters
+            sql[0] = 0;
+            sprintf(sql, "SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                while(result_set->next())
+                {
+                    gHarvesterFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
+                }
+                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Harvesters";
+                LOG_IF(INFO, !result_set->rowsCount()) << "No Harvesters to Load in Zone: " << mZoneId;
+            });
 
-        // load playerhouses
-        sql[0] = 0;
-        sprintf(sql, "SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
-                return;
-            }
-            while(result_set->next())
-            {
-                gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
-            }
-            LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Houses";
-            LOG_IF(INFO, !result_set->rowsCount()) << "No Player Houses to Load in Zone: " << mZoneId;
+            // load factories
+            sql[0] = 0;
+            sprintf(sql, "SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                while(result_set->next())
+                {
+                    gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
+                }
+                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Factories";
+                LOG_IF(INFO, !result_set->rowsCount()) << "No Player Factories to Load in Zone: " << mZoneId;
+            });
+
+            // load playerhouses
+            sql[0] = 0;
+            sprintf(sql, "SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
+            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+                if (! result)
+                {
+                    return;
+                }
+                while(result_set->next())
+                {
+                    gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
+                }
+                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Houses";
+                LOG_IF(INFO, !result_set->rowsCount()) << "No Player Houses to Load in Zone: " << mZoneId;
             });
         }
     }
@@ -360,7 +365,7 @@ void WorldManager::_loadBuildings()
             gObjectFactory->requestObject(ObjType_Building,0,0,this,result_set->getUInt64(1));
         }
         LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Buildings";
-         });
+    });
 }
 
 void WorldManager::_loadAllObjects(uint64 parentId)
@@ -405,7 +410,7 @@ void WorldManager::_loadAllObjects(uint64 parentId)
                 gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,id);
         }
         LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Buildings";
-        });
+    });
 }
 void    WorldManager::_updatePlayerAttributesToDB(uint32 accId)
 {
@@ -421,17 +426,17 @@ void    WorldManager::_updatePlayerAttributesToDB(uint32 accId)
     }
     int8 sql[2048];
     sprintf(sql, "UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
-                ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
-                ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
-                ",character_flags=%u,states=%"PRIu64",language=%u,new_player_exemptions=%u WHERE character_id=%"PRIu64""
-                ,ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(),
-                ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(),
-                ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()
-                ,ham->mHealth.getWounds(),ham->mStrength.getWounds()
-                ,ham->mConstitution.getWounds(),ham->mAction.getWounds(),ham->mQuickness.getWounds(),ham->mStamina.getWounds(),ham->mMind.getWounds()
-                ,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->states.getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()
-                ,playerObject->getPlayerFlags(),playerObject->states.getAction(),playerObject->getLanguage(),playerObject->getNewPlayerExemptions(),playerObject->getId());
-    
+            ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
+            ",stamina_wounds=%u,mind_wounds=%u,focus_wounds=%u,willpower_wounds=%u,battlefatigue=%u,posture=%u,moodId=%u,title=\'%s\'"
+            ",character_flags=%u,states=%"PRIu64",language=%u,new_player_exemptions=%u WHERE character_id=%"PRIu64""
+            ,ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier(),
+            ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier(),
+            ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()
+            ,ham->mHealth.getWounds(),ham->mStrength.getWounds()
+            ,ham->mConstitution.getWounds(),ham->mAction.getWounds(),ham->mQuickness.getWounds(),ham->mStamina.getWounds(),ham->mMind.getWounds()
+            ,ham->mFocus.getWounds(),ham->mWillpower.getWounds(),ham->getBattleFatigue(),playerObject->states.getPosture(),playerObject->getMoodId(),playerObject->getTitle().getAnsi()
+            ,playerObject->getPlayerFlags(),playerObject->states.getAction(),playerObject->getLanguage(),playerObject->getNewPlayerExemptions(),playerObject->getId());
+
     mDatabase->executeAsyncSql(sql, 0);
 }
 
@@ -445,11 +450,11 @@ void    WorldManager::_updatePlayerPositionToDB(uint32 accId)
 
     int8 sql[512];
     sprintf(sql, "UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-                ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-                ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-                ,mZoneId,playerObject->getJediState(),playerObject->getId());
-    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result){
-        
+            ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
+            ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
+            ,mZoneId,playerObject->getJediState(),playerObject->getId());
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+
         _updatePlayerAttributesToDB(accId);
     } ) ;
 }
@@ -466,7 +471,7 @@ void    WorldManager::_updatePlayerLogoutToDB(uint32 accId, CharacterLoadingCont
     if(!playerObject) {
         DLOG(INFO) << "Could not find player with AccId:" <<accId<<", save aborted.";
         return;
-    }    
+    }
     //remove the player out of his group - if any
     GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
     if(group)
@@ -481,7 +486,7 @@ void    WorldManager::_loadPlanetNamesAndFiles()
 {
     int8 sql[512];
     sprintf(sql, "SELECT * FROM planet ORDER BY planet_id;");
-    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result){
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
         if (! result)
         {

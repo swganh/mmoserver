@@ -27,6 +27,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ObjectFactory.h"
 
+#include <assert.h>
+
+#include <cppconn/resultset.h>
+
 #ifdef _WIN32
 #undef ERROR
 #endif
@@ -60,9 +64,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "Utils/utils.h"
-#include <assert.h>
-
-#include "cppconn\resultset.h"
 
 //=============================================================================
 
@@ -129,12 +130,12 @@ void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback*
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
-    });    
+    });
 }
 
 //=============================================================================
@@ -152,12 +153,12 @@ void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint6
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
-    });      
+    });
 }
 
 //=============================================================================
@@ -175,7 +176,7 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uin
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
@@ -198,13 +199,13 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
     });
-    
+
 }
 
 //=============================================================================
@@ -222,13 +223,13 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
     });
-    
+
 }
 
 
@@ -258,13 +259,13 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
     });
-    
+
 }
 
 //=============================================================================
@@ -282,7 +283,7 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
@@ -341,11 +342,11 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Unable to create new default harvester, no result" ;
             return;
         }
-       
+
         uint64 requestId = result_set->getUInt64(1);
         mHarvesterFactory->requestObject(ofCallback,requestId,0,0,client);
 
@@ -368,14 +369,14 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
             coords.y = y;
             coords.z = z;
             Datapad* datapad			= player->getDataPad();
-            datapad->requestNewWaypoint("Harvester",coords, gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);  
+            datapad->requestNewWaypoint("Harvester",coords, gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         int8 sql[128];
         sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, deed->getId());
         mDatabase->executeAsyncSql(sql, NULL);
-    });   
+    });
 }
 
 //=============================================================================
@@ -431,40 +432,40 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Unable to create new default factory, no result" ;
             return;
         }
-       
+
         uint64 requestId = result_set->getUInt64(1);
         mFactoryFactory->requestObject(ofCallback,requestId,0,0,client);
 
-            //now we need to update the Owners Lots
-            //case he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
-            if(player)
-            {
-                gStructureManager->UpdateCharacterLots(player->getId());
+        //now we need to update the Owners Lots
+        //case he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+        if(player)
+        {
+            gStructureManager->UpdateCharacterLots(player->getId());
 
-                //destroy it in the client
-                gMessageLib->sendDestroyObject(deed->getId(),player);
+            //destroy it in the client
+            gMessageLib->sendDestroyObject(deed->getId(),player);
 
-                //delete it out of the inventory
-                ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-                tO->deleteObject(deed);
+            //delete it out of the inventory
+            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
+            tO->deleteObject(deed);
 
-                glm::vec3 coords;
-                coords.x = x;
-                coords.y = y;
-                coords.z = z;
-                Datapad* datapad			= player->getDataPad();
-                datapad->requestNewWaypoint("Player Factory",coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
+            glm::vec3 coords;
+            coords.x = x;
+            coords.y = y;
+            coords.z = z;
+            Datapad* datapad			= player->getDataPad();
+            datapad->requestNewWaypoint("Player Factory",coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         int8 sql[128];
         sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, deed->getId());
         mDatabase->executeAsyncSql(sql, NULL);
-    });   
+    });
 }
 
 void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player)
@@ -519,7 +520,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Unable to create new default house, no result" ;
             return;
         }
@@ -538,7 +539,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
         if(player)
         {
             gStructureManager->UpdateCharacterLots(player->getId());
-            
+
             ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
             //destroy it in the client
             gMessageLib->sendDestroyObject(deed->getId(),player);
@@ -560,7 +561,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
         int8 sql[128];
         sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, deed->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-    });   
+    });
 }
 
 //=============================================================================
@@ -586,14 +587,14 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Unable to create waypoint ";
             return;
         }
-       
+
         mWaypointFactory->requestObject(ofCallback, result_set->getUInt64(1) ,0,0,0);
-        
-    });  
+
+    });
 }
 //=============================================================================
 //
@@ -619,17 +620,17 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Unable to update waypoint ";
             return;
         }
-       if (result_set->rowUpdated())
-       {
+        if (result_set->rowUpdated())
+        {
             mWaypointFactory->requestObject(ofCallback,result_set->getUInt64(1),0,0,0);
-       }
-       else
-           LOG(WARNING) << "unable to update waypoint";
-    }); 
+        }
+        else
+            LOG(WARNING) << "unable to update waypoint";
+    });
 }
 //=============================================================================
 
@@ -660,7 +661,7 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
         LOG(WARNING) << "No Object could be created of type: " << Group;
         return;
         break;
-    }    
+    }
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
@@ -669,12 +670,12 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
             return;
         }
 
-        if (!result_set->next()) { 
+        if (!result_set->next()) {
             LOG(WARNING) << "Create item failed";
             return;
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1), Group, 0, 0);
-        });
+    });
     }
 }
 
@@ -726,7 +727,7 @@ void ObjectFactory::GiveNewOwnerInDB(Object* object, uint64 ID)
         break;
     }
     mDatabase->executeSqlAsync(NULL,NULL,sql);
- 
+
 }
 
 //=============================================================================
@@ -760,10 +761,10 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
                     //first associated item
                     sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",schem->getItem()->getId());
                     mDatabase->executeSqlAsync(NULL,NULL,sql);
-                    
+
                     sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",schem->getItem()->getId());
                     mDatabase->executeSqlAsync(NULL,NULL,sql);
-                    
+
                 }
 
             }
@@ -781,11 +782,11 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
             sprintf(sql,"DELETE FROM items WHERE id = %"PRIu64"",object->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
-            
+
 
             sprintf(sql,"DELETE FROM item_attributes WHERE item_id = %"PRIu64"",object->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
-            
+
         }
         break;
 
@@ -793,7 +794,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
         {
             sprintf(sql,"DELETE FROM resource_containers WHERE id = %"PRIu64"",object->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
-            
+
         }
         break;
 
@@ -801,7 +802,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
         {
             sprintf(sql,"DELETE FROM terminals WHERE id = %"PRIu64"",object->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
-            
+
 
         }
         break;
@@ -822,13 +823,13 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
         {
             sprintf(sql,"DELETE FROM vehicle_cutomization WHERE vehicles_id = %"PRIu64"",object->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
-            
+
             sprintf(sql,"DELETE FROM vehicle_attributes WHERE vehicles_id = %"PRIu64"",object->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
-            
+
             sprintf(sql,"DELETE FROM vehicles WHERE id = %"PRIu64"",object->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
-            
+
         }
         break;
 
@@ -858,10 +859,10 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
         sprintf(sql,"DELETE FROM cells WHERE id = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
         sprintf(sql,"DELETE FROM structure_cells WHERE id = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
     }
     break;
 
@@ -889,26 +890,26 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
         sprintf(sql,"DELETE FROM houses WHERE ID = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
 
-		//thats suposedly done by the db now?
+
+        //thats suposedly done by the db now?
         //sprintf(sql,"DELETE FROM terminals WHERE ID = %"PRIu64"",object->getId());
         //mDatabase->ExecuteSqlAsync(NULL,NULL,sql);
         //gLogger->log(LogManager::DEBUG, "SQL :: %s", sql); // SQL Debug Log
 
         sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
         //Admin / Hopper Lists
         sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
         //update attributes cave redeed vs destroy
         sprintf(sql,"DELETE FROM structure_attributes WHERE Structure_id = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
     }
     break;
@@ -918,30 +919,30 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
         //Harvester
         sprintf(sql,"DELETE FROM structures WHERE ID = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
         sprintf(sql,"DELETE FROM harvesters WHERE ID = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
         sprintf(sql,"DELETE FROM factories WHERE ID = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
         //Admin / Hopper Lists
         sprintf(sql,"DELETE FROM structure_admin_data WHERE StructureID = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
         //update attributes cave redeed vs destroy
         sprintf(sql,"DELETE FROM structure_attributes WHERE Structure_id = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
         //update hopper contents
         sprintf(sql,"DELETE FROM harvester_resources WHERE ID = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
 
     }
     break;
@@ -950,7 +951,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
     {
         sprintf(sql,"DELETE FROM waypoints WHERE waypoint_id = %"PRIu64"",object->getId());
         mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+
     }
     break;
 

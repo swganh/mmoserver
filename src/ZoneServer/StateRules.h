@@ -24,9 +24,12 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+
+#ifndef ZONESERVER_ABSTRACT_STATE_H_
+#define ZONESERVER_ABSTRACT_STATE_H_
+
 #include "AbstractState.h"
-#include "StateManager.h"
-#pragma once
+
 class StateRules
 {
 public:
@@ -49,3 +52,4 @@ private:
 
 };
 
+#endif  // ZONESERVER_ABSTRACT_STATE_H_

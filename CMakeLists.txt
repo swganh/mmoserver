@@ -68,7 +68,7 @@ ELSE()
         MESSAGE(STATUS "- MSVC: Disabled NON-SECURE warnings")
         
         IF(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4251")
           MESSAGE(STATUS "- MSVC: Disabled generic compiletime warnings")
         ENDIF()
     ENDIF()

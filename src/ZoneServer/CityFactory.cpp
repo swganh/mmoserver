@@ -26,14 +26,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "CityFactory.h"
-#include "City.h"
-#include "ObjectFactoryCallback.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseResult.h"
 
 #include <cppconn/resultset.h>
 
 #include "Utils/utils.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DatabaseResult.h"
+
+#include "City.h"
+#include "ObjectFactoryCallback.h"
+
 
 CityFactory::CityFactory(Database* database) : FactoryBase(database)
 {}
@@ -56,25 +59,25 @@ void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
     // setup our statement
     int8 sql[4096];
     sprintf(sql,"SELECT cities.id,cities.city_name,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-                "planet_regions.width,planet_regions.height"
-                " FROM cities"
-                " INNER JOIN planet_regions ON (cities.city_region = planet_regions.region_id)"
-                " WHERE (cities.id = %"PRIu64")",id);
+            "planet_regions.width,planet_regions.height"
+            " FROM cities"
+            " INNER JOIN planet_regions ON (cities.city_region = planet_regions.region_id)"
+            " WHERE (cities.id = %"PRIu64")",id);
 
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-
-        if (!result)
-        {
+        if (!result) {
             return;
         }
 
-        if (!result_set->next()) { 
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+        if (!result_set->next()) {
             LOG(WARNING) << "Unable to load city with region id: " << id;
             return;
         }
-        std::shared_ptr<City> city (new City());    
+
+        std::shared_ptr<City> city = std::make_shared<City>();
         city->setId(result_set->getUInt64(1));
         city->setCityName(result_set->getString(2));
         city->setRegionName(result_set->getString(3));
@@ -87,7 +90,5 @@ void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
         city->setLoadState(LoadState_Loaded);
 
         ofCallback->handleObjectReady(city);
-
     });
-
 }

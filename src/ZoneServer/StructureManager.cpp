@@ -1111,7 +1111,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         asyncContainer->mStructureId	= command.StructureId;
         asyncContainer->mPlayerId		= command.PlayerId;
         asyncContainer->command			= command;
-        //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->executeSqlAsync(this,asyncContainer,
                                    "		(SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %"PRIu64")"
                                    "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %"PRIu64")"
@@ -1164,7 +1163,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         asyncContainer->mStructureId	= command.StructureId;
         asyncContainer->mPlayerId		= command.PlayerId;
         asyncContainer->command			= command;
-        //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->executeSqlAsync(this,asyncContainer,
                                    "(SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
                                    ,structure->getId());
@@ -1180,7 +1178,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         asyncContainer->mStructureId	= command.StructureId;
         asyncContainer->mPlayerId		= command.PlayerId;
         asyncContainer->command			= command;
-        //mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->executeSqlAsync(this,asyncContainer,"(SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
                                    " UNION (SELECT \'condition\', s.condition FROM structures s WHERE s.id = %"PRIu64")",structure->getId(),structure->getId());
     }
@@ -1196,7 +1193,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         asyncContainer->mPlayerId		= command.PlayerId;
         asyncContainer->command 		= command;
 
-        //mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->executeSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
 
 
@@ -1213,7 +1209,6 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
         asyncContainer->mPlayerId		= command.PlayerId;
         asyncContainer->command 		= command;
 
-        //mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
         mDatabase->executeSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
 
 

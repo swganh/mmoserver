@@ -86,6 +86,8 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const char* sql, bool pr
     DatabaseResult* result = nullptr;
 
     try {
+        DLOG(INFO) << sql;
+
         sql::Statement* statement = connection_->createStatement();    
         statement->execute(sql);
         

@@ -359,8 +359,8 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 
         //now we need to update the Owners Lots
 
-        //cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
-        if(player)
+        //csve he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+        if(player || !player->isLinkDead())
         {
             gStructureManager->UpdateCharacterLots(player->getId());
 
@@ -379,10 +379,10 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
             datapad->requestNewWaypoint("Harvester",coords, gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
 
-        // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
+        // now we need to link the deed to the harvester in the db and remove it out of the inventory in the db
         int8 sql[128];
         sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, deed->getId());
-        mDatabase->executeAsyncSql(sql, NULL);
+        mDatabase->executeSqlAsync(0, 0, sql);
     });
 }
 
@@ -471,7 +471,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         int8 sql[128];
         sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, deed->getId());
-        mDatabase->executeAsyncSql(sql, NULL);
+        mDatabase->executeSqlAsync(0, 0, sql);
     });
 }
 
@@ -567,7 +567,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         int8 sql[128];
         sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",requestId, deed->getId());
-        mDatabase->executeSqlAsync(NULL,NULL,sql);
+        mDatabase->executeSqlAsync(0, 0, sql);
     });
 }
 

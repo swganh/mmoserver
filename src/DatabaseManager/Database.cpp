@@ -187,7 +187,6 @@ void Database::process() {
                 (*c)(job->result);
             }
 
-            //DLOG(INFO) << job->query;
             // Free the result and the job
             destroyResult(job->result);
             job_pool_.ordered_free(job);

@@ -43,7 +43,7 @@ BadgeRegionFactory::~BadgeRegionFactory()
 {}
 
 void BadgeRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
-{ 
+{
 }
 //=============================================================================
 
@@ -54,13 +54,13 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
     sprintf(sql,"CALL sp_BadgeGetByRegion(%"PRIu64");", id);
 
     mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if ( !result)
-        {
+        if(!result) {
             return;
         }
 
-        if (!result_set->next()) { 
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+        if (!result_set->next()) {
             LOG(WARNING) << "Unable to load badges with region id: " << id;
             return;
         }
@@ -78,7 +78,7 @@ void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
         badge_region->setLoadState(LoadState_Loaded);
 
         ofCallback->handleObjectReady(badge_region);
-    });  
+    });
 
 }
 

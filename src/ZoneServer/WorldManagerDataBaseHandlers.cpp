@@ -68,11 +68,11 @@ void WorldManager::_loadWorldObjects()
             int8 sql[128] ;
             sprintf(sql, "SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
                 while(result_set->next())
                 {
@@ -86,11 +86,12 @@ void WorldManager::_loadWorldObjects()
         int8 sql[128] ;
         sprintf(sql, "SELECT * FROM clienteffects ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
+            if (! result) {
                 return;
             }
+
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
             // tell vector how much space we need to stop unecessary allocation.
             mvClientEffects.reserve(result_set->rowsCount());
             while(result_set->next())
@@ -104,11 +105,11 @@ void WorldManager::_loadWorldObjects()
         sql[0] = 0 ;
         sprintf(sql, "SELECT id, name FROM attributes ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
+            if (! result) {
                 return;
             }
+
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
             while(result_set->next())
             {
@@ -123,11 +124,11 @@ void WorldManager::_loadWorldObjects()
         sql[0] = 0 ;
         sprintf(sql, "SELECT * FROM sounds ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
+            if (! result) {
                 return;
             }
+
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
             while(result_set->next())
             {
@@ -141,11 +142,12 @@ void WorldManager::_loadWorldObjects()
         sql[0] = 0 ;
         sprintf(sql, "SELECT * FROM moods ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
+            if (! result) {
                 return;
             }
+
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
             mvMoods.reserve(result_set->rowsCount());
             while(result_set->next())
             {
@@ -158,11 +160,12 @@ void WorldManager::_loadWorldObjects()
         sql[0] = 0 ;
         sprintf(sql, "SELECT * FROM conversation_animations ORDER BY id;");
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
+            if (! result) {
                 return;
             }
+
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
             mvNpcConverseAnimations.reserve(result_set->rowsCount());
             while(result_set->next())
             {
@@ -174,11 +177,12 @@ void WorldManager::_loadWorldObjects()
         sql[0] = 0 ;
         sprintf(sql, "SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;", mZoneId);
         mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-            if (! result)
-            {
+            if (! result) {
                 return;
             }
+
+            std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
             mvNpcChatter.reserve(result_set->rowsCount());
             while(result_set->next())
             {
@@ -199,11 +203,12 @@ void WorldManager::_loadWorldObjects()
             int8 sql[512];
             sprintf(sql, "SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
                 while(result_set->next())
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_City, 0, this, result_set->getUInt64(1));
@@ -216,11 +221,12 @@ void WorldManager::_loadWorldObjects()
             sql[0] = 0;
             sprintf(sql, "SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
                 while(result_set->next())
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_Badge, 0, this, result_set->getUInt64(1));
@@ -233,11 +239,12 @@ void WorldManager::_loadWorldObjects()
             sql[0] = 0;
             sprintf(sql, "SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
                 while(result_set->next())
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_Spawn, 0, this, result_set->getUInt64(1));
@@ -250,11 +257,12 @@ void WorldManager::_loadWorldObjects()
             sql[0] = 0;
             sprintf(sql, "SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
                 while(result_set->next())
                 {
                     Script* script = gScriptEngine->createScript();
@@ -269,15 +277,15 @@ void WorldManager::_loadWorldObjects()
             sql[0] = 0;
             sprintf(sql, "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
 
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
                 while(result_set->next())
                 {
-                    std::shared_ptr<CreatureSpawnRegion> creatureSpawnRegion(new CreatureSpawnRegion());
+                    std::shared_ptr<CreatureSpawnRegion> creatureSpawnRegion = std::make_shared<CreatureSpawnRegion>();
                     creatureSpawnRegion->mId = result_set->getInt64(1);
                     creatureSpawnRegion->mPosX = result_set->getDouble(2);
                     creatureSpawnRegion->mPosZ = result_set->getDouble(3);
@@ -295,11 +303,12 @@ void WorldManager::_loadWorldObjects()
             sql[0] = 0;
             sprintf(sql, "SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
                 while(result_set->next())
                 {
                     gHarvesterFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
@@ -312,11 +321,12 @@ void WorldManager::_loadWorldObjects()
             sql[0] = 0;
             sprintf(sql, "SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
                 while(result_set->next())
                 {
                     gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
@@ -329,11 +339,12 @@ void WorldManager::_loadWorldObjects()
             sql[0] = 0;
             sprintf(sql, "SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
             mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-                if (! result)
-                {
+                if (! result) {
                     return;
                 }
+
+                std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
                 while(result_set->next())
                 {
                     gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
@@ -354,11 +365,11 @@ void WorldManager::_loadBuildings()
     int8 sql[128] ;
     sprintf(sql, "SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (! result)
-        {
+        if (! result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         while(result_set->next())
         {
@@ -384,11 +395,12 @@ void WorldManager::_loadAllObjects(uint64 parentId)
             ,mZoneId,parentId,mZoneId,parentId,mZoneId);
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (! result)
-        {
+        if (! result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
         while(result_set->next())
         {
             std::string str = result_set->getString(1);
@@ -487,11 +499,12 @@ void    WorldManager::_loadPlanetNamesAndFiles()
     int8 sql[512];
     sprintf(sql, "SELECT * FROM planet ORDER BY planet_id;");
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-        if (! result)
-        {
+        if (! result) {
             return;
         }
+
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
         uint32_t count = result_set->rowsCount();
         mvPlanetNames.reserve(count);
         mvTrnFileNames.reserve(count);

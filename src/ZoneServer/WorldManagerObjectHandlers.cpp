@@ -26,6 +26,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "WorldManager.h"
+
+#include <cassert>
+
+#include "Common/ConfigManager.h"
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DatabaseResult.h"
+#include "MessageLib/MessageLib.h"
+#include "ScriptEngine/ScriptEngine.h"
+#include "ScriptEngine/ScriptSupport.h"
+#include "Utils/Scheduler.h"
+#include "Utils/VariableTimeScheduler.h"
+#include "Utils/utils.h"
+#include "NetworkManager/MessageFactory.h"
+
 #include "AdminManager.h"
 #include "Buff.h"
 #include "BuffEvent.h"
@@ -40,48 +55,37 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CraftingSessionFactory.h"
 #include "CraftingTool.h"
 #include "CreatureSpawnRegion.h"
+#include "FactoryFactory.h"
+#include "FactoryObject.h"
 #include "GroupManager.h"
 #include "GroupObject.h"
+#include "HarvesterFactory.h"
+#include "HarvesterObject.h"
 #include "Heightmap.h"
+#include "Inventory.h"
 #include "MissionManager.h"
+#include "MissionObject.h"
 #include "MountObject.h"
 #include "NpcManager.h"
 #include "NPCObject.h"
+#include "ObjectFactory.h"
 #include "PlayerStructure.h"
+#include "QuadTree.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
+#include "Shuttle.h"
 #include "SpawnPoint.h"
-#include "TreasuryManager.h"
 #include "Terminal.h"
+#include "TicketCollector.h"
+#include "TreasuryManager.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
 #include "ZoneTree.h"
-#include "HarvesterFactory.h"
-#include "HarvesterObject.h"
-#include "FactoryFactory.h"
-#include "FactoryObject.h"
-#include "Inventory.h"
-#include "MissionObject.h"
-#include "ObjectFactory.h"
-#include "QuadTree.h"
-#include "Shuttle.h"
-#include "TicketCollector.h"
-#include "Common/ConfigManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "MessageLib/MessageLib.h"
-#include "ScriptEngine/ScriptEngine.h"
-#include "ScriptEngine/ScriptSupport.h"
-#include "Utils/Scheduler.h"
-#include "Utils/VariableTimeScheduler.h"
-#include "Utils/utils.h"
-#include "NetworkManager/MessageFactory.h"
 
-#include <cassert>
+using std::dynamic_pointer_cast;
+using std::shared_ptr;
 
-using namespace std;
 //======================================================================================================================
 //
 // returns the id of the first object that has a private owner that match the requested one.
@@ -157,7 +161,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
         PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 
-		LOG(WARNING) << "New Player: "<<player->getId() <<", Total Players on zone : "<<(getPlayerAccMap())->size() + 1;
+        LOG(WARNING) << "New Player: "<<player->getId() <<", Total Players on zone : "<<(getPlayerAccMap())->size() + 1;
         // insert into the player map
         mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));
 
@@ -308,7 +312,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
     case ObjType_Region:
     {
-        auto region = shared_ptr<RegionObject>(dynamic_cast<RegionObject*>(object));
+        auto region = dynamic_pointer_cast<RegionObject>(object->shared_from_this());
 
         mRegionMap.insert(std::make_pair<uint32, shared_ptr<RegionObject>>(key,region));
 
@@ -342,9 +346,9 @@ bool WorldManager::addObject(std::shared_ptr<Object> object, bool manual)
     mObjectMap.insert(key,object.get());
 
     shared_ptr<RegionObject> region = dynamic_pointer_cast<RegionObject>(object);
-    
+
     mRegionMap.insert(std::make_pair<uint64 ,shared_ptr<RegionObject>>(key,region));
-    
+
     mSpatialIndex->InsertRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
 
     return true;
@@ -560,15 +564,15 @@ void WorldManager::destroyObject(Object* object)
         gWorldManager->removeCreatureStomachToProcess(player->getStomach()->mDrinkTaskId);
         gWorldManager->removeCreatureStomachToProcess(player->getStomach()->mFoodTaskId);
 
-            // move to the nearest cloning center, if we are incapped or dead
-            if(player->states.getPosture() == CreaturePosture_Incapacitated
-            || player->states.getPosture() == CreaturePosture_Dead)
-            {
-                // bring up the clone selection window
-                ObjectSet						inRangeBuildings;
-                BStringVector					buildingNames;
-                std::vector<BuildingObject*>	buildings;
-                BuildingObject*					nearestBuilding = NULL;
+        // move to the nearest cloning center, if we are incapped or dead
+        if(player->states.getPosture() == CreaturePosture_Incapacitated
+                || player->states.getPosture() == CreaturePosture_Dead)
+        {
+            // bring up the clone selection window
+            ObjectSet						inRangeBuildings;
+            BStringVector					buildingNames;
+            std::vector<BuildingObject*>	buildings;
+            BuildingObject*					nearestBuilding = NULL;
 
             gWorldManager->getSI()->getObjectsInRange(player,&inRangeBuildings,ObjType_Building,8192);
 
@@ -599,7 +603,7 @@ void WorldManager::destroyObject(Object* object)
                                 ,sp->mDirection.x,sp->mDirection.y,sp->mDirection.z,sp->mDirection.w
                                 ,sp->mPosition.x,sp->mPosition.y,sp->mPosition.z
                                 ,player->getId());
-                        
+
                     }
                 }
             }
@@ -770,7 +774,7 @@ void WorldManager::destroyObject(Object* object)
 
         }
         else
-			DLOG(INFO) << "WorldManager::destroyObject: nearly did not remove: "<<object->getId() << " knownObjectList";
+            DLOG(INFO) << "WorldManager::destroyObject: nearly did not remove: "<<object->getId() << " knownObjectList";
 
 
         object->destroyKnownObjects();

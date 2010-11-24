@@ -47,7 +47,7 @@ enum BucketType
 {
 	Bucket_Creatures = 1,
 	Bucket_Objects	 = 2,
-	Bucket_Players	 = 3
+	Bucket_Players	 = 4
 };
 
 struct ObjectStruct

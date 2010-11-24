@@ -84,11 +84,15 @@ ContainerManager::ContainerManager()
 // unRegisterPlayerFromContainer *invalidates* the knownObject / knownPlayer iterator
 void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const
 {
+	DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId();
+
 	//are we sure the player doesnt know the container already ???
 	if(!container->checkRegisteredWatchers(player))
 	{
+		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: player " << player->getId() << " not registered for" << container->getId();
+		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: player bucket " << player->getGridBucket() << " container bucketr" << container->getGridBucket();
+		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: container type : " << container->getType();
 
-		//gLogger->log(LogManager::DEBUG,"SpatialIndexManager::UnRegisterPlayerToContainer :: Container %I64u not known to player %I64u",container->getId(),player->getId());
 		return;	
 								
 	}
@@ -188,6 +192,8 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
 	{
 		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: registered player (container) " << container->getId() <<" to player %I64u" << player->getId();
 	}
+	
+	DLOG(INFO) << "SpatialIndexManager::AddObject :: register : " << container->getId() << " for "  << player->getId();
 
 	container->registerWatcher(player);
 	player-> registerWatcher(container);

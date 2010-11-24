@@ -195,6 +195,7 @@ public:
 
 	void						UnregisterAllWatchers();
 	bool						checkRegisteredWatchers(PlayerObject* const player) const;
+	bool						checkRegisteredWatchers(Object* const object) const;
 	bool						registerWatcher(Object* object);
 	bool						unRegisterWatcher(Object* object);
 	

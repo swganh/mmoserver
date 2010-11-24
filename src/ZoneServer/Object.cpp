@@ -686,6 +686,8 @@ void Object::UnregisterAllWatchers()
 
 bool Object::unRegisterWatcher(Object* object)
 {
+	DLOG(INFO) << "Object::unRegisterWatcher :: unregister " << object->getId() << " for " << this->getId();
+
 	PlayerObject* player = dynamic_cast<PlayerObject*>(this);
 	if(player)
 	{
@@ -706,6 +708,8 @@ bool Object::unRegisterWatcher(Object* object)
 
 			mKnownPlayers.erase(it);
 
+			DLOG(INFO) << "Object::unRegisterWatcher :: " << object->getId() << " was successfully unregistered for " << this->getId();
+
 			return(true);
 		}
 	}
@@ -717,6 +721,7 @@ bool Object::unRegisterWatcher(Object* object)
 		{
 			mKnownObjects.erase(it);
 
+			DLOG(INFO) << "Object::unRegisterWatcher :: " << object->getId() << " was successfully unregistered for " << this->getId();
 			return(true);
 		}
 	}
@@ -734,6 +739,17 @@ bool Object::checkRegisteredWatchers(PlayerObject* const player) const
 		return (it != mKnownStaticPlayers.end());
 	}
 	return (it != mKnownPlayers.end());
+}
+
+bool Object::checkRegisteredWatchers(Object* const object) const
+{
+	ObjectSet::const_iterator it = mKnownObjects.find(object);
+	if(it == mKnownObjects.end())
+	{
+		it = mKnownStatics.find(object);
+		return (it != mKnownStatics.end());
+	}
+	return (it != mKnownObjects.end());
 }
 
 

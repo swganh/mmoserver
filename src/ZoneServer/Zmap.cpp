@@ -267,9 +267,10 @@ void zmap::GetCellContents(uint32 CellID, ObjectListType* list, uint32 type)
 {
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
 	{
-		DLOG(INFO) << "zmap::GetAllCellContents :: bucket " << CellID << " out of grid";
+		DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " out of grid";
 		return;
 	}
+	DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " type : " << type;
 
 	//gLogger->log(LogManager::DEBUG,"zmap::GetAllCellContents :: bucket %u", CellID);
 	
@@ -449,7 +450,7 @@ void	zmap::GetGridContentsListRowLeft(uint32 CellID, ObjectListType* list, uint3
 
 	GetCellContents(CellID, list, type);
 
-	for(int i = 1; i < ((viewRange*2)-1); i++)
+	for(int i = 1; i <= ((viewRange*2)-1); i++)
 	{
 		GetCellContents(CellID - i, list, type);
 	}
@@ -461,7 +462,7 @@ void	zmap::GetPlayerGridContentsListRowLeft(uint32 CellID, ObjectListType* list)
 	
 	GetPlayerCellContents(CellID, list);
 
-	for(int i = 1; i < ((viewRange*2)-1); i++)
+	for(int i = 1; i <= ((viewRange*2)-1); i++)
 	{
 		GetPlayerCellContents(CellID - i, list);
 	}
@@ -474,7 +475,7 @@ void	zmap::GetGridContentsListRowRight(uint32 CellID, ObjectListType* list, uint
 
 	GetCellContents(CellID, list, type);
 
-	for(int i = 1; i < ((viewRange*2)-1); i++)
+	for(int i = 1; i <= ((viewRange*2)-1); i++)
 	{
 		GetCellContents(CellID + i, list, type);
 	}
@@ -486,7 +487,7 @@ void	zmap::GetPlayerGridContentsListRowRight(uint32 CellID, ObjectListType* list
 	
 	GetPlayerCellContents(CellID, list);
 
-	for(int i = 1; i < ((viewRange*2)-1); i++)
+	for(int i = 1; i <= ((viewRange*2)-1); i++)
 	{
 		GetPlayerCellContents(CellID + i, list);
 	}

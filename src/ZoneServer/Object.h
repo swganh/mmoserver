@@ -75,7 +75,7 @@ typedef std::list<uint32>				AttributeOrderList;
  - Base class for all gameobjects
  */
 
-class Object : public UICallback, public Anh_Utils::EventHandler
+class Object : public UICallback, public Anh_Utils::EventHandler, public std::enable_shared_from_this<Object>
 {
     friend class PlayerObjectFactory;
     friend class InventoryFactory;

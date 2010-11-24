@@ -258,6 +258,10 @@ void zmap::RemoveObject(Object *removeObject)
 			break;
 		}
 	}
+	
+	//make sure we can use the mGridBucket to determine what bucket we *are* in
+	//so we do not have to search the list on insert
+	removeObject->setGridBucket(0xffffffff);
 
 	return;
 }
@@ -589,6 +593,11 @@ uint32 zmap::AddObject(Object *newObject)
 		return 0xffffffff;
 	}
 	
+	if(newObject->getGridBucket() == finalBucket)
+	{
+		return 0xffffffff;
+	}
+
 	newObject->setGridBucket(finalBucket);
 	
 	ObjectListType* list;
@@ -619,6 +628,7 @@ uint32 zmap::AddObject(Object *newObject)
 
 	//this *is* certainly stupid, *but*
 	//the most important thing, is that the reads are fast, thus, a list
+	/*
 	for(ObjectListType::iterator i = list->begin(); i != list->end(); i++)
 	{
 		if((*i)->getId() == newObject->getId())
@@ -627,7 +637,7 @@ uint32 zmap::AddObject(Object *newObject)
 			return 0xffffffff;
 		}
 	}
-	
+	*/
 	list->push_back(newObject);
 
 	//have we just entered a region ???

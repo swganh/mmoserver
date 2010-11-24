@@ -51,6 +51,7 @@ Object::Object()
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
+	, zmapCellID(0xffffffff)
 {
     mDirection = glm::quat();
     mPosition  = glm::vec3();
@@ -72,6 +73,7 @@ Object::Object(uint64 id,uint64 parentId,BString model,ObjectType type)
     , mSubZoneId(0)
     , mTypeOptions(0)
     , mDataTransformCounter(0)
+	, zmapCellID(0xffffffff)
 {
     mObjectController.setObject(this);
 
@@ -686,7 +688,7 @@ void Object::UnregisterAllWatchers()
 
 bool Object::unRegisterWatcher(Object* object)
 {
-	DLOG(INFO) << "Object::unRegisterWatcher :: unregister " << object->getId() << " for " << this->getId();
+	//DLOG(INFO) << "Object::unRegisterWatcher :: unregister " << object->getId() << " for " << this->getId();
 
 	PlayerObject* player = dynamic_cast<PlayerObject*>(this);
 	if(player)

@@ -84,7 +84,7 @@ ContainerManager::ContainerManager()
 // unRegisterPlayerFromContainer *invalidates* the knownObject / knownPlayer iterator
 void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const
 {
-	DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId();
+	//DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId();
 
 	//are we sure the player doesnt know the container already ???
 	if(!container->checkRegisteredWatchers(player))
@@ -193,7 +193,7 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
 		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: registered player (container) " << container->getId() <<" to player %I64u" << player->getId();
 	}
 	
-	DLOG(INFO) << "SpatialIndexManager::AddObject :: register : " << container->getId() << " for "  << player->getId();
+	//DLOG(INFO) << "SpatialIndexManager::AddObject :: register : " << container->getId() << " for "  << player->getId();
 
 	container->registerWatcher(player);
 	player-> registerWatcher(container);

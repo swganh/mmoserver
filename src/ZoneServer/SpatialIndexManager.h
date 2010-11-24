@@ -94,6 +94,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		
 		// Add an object to zmap
 		bool					AddObject(Object* newObject, bool updateGrid = true);
+		bool					AddObject(PlayerObject *newObject, bool updateGrid = true);
 
 		void					UpdateObject(Object *updateObject);
 
@@ -114,6 +115,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					UpdateBackCells(Object* updateObject,uint32);
 		void					UpdateFrontCells(Object* updateObject, uint32);
 		void					CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
+		void					CheckObjectIterationForDestruction(Object* toBeTested, PlayerObject* updatedPlayer);
 		void					ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
 		void					CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
 

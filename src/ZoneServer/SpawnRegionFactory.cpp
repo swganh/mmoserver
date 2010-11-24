@@ -37,15 +37,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-SpawnRegionFactory::SpawnRegionFactory(Database* database) : FactoryBase(database){}
+SpawnRegionFactory::SpawnRegionFactory(Database* database) : FactoryBase(database) {}
 
 //=============================================================================
 
-SpawnRegionFactory::~SpawnRegionFactory(){}
+SpawnRegionFactory::~SpawnRegionFactory() {}
 
 //=============================================================================
 
-void SpawnRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result){}
+void SpawnRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result) {}
 
 //=============================================================================
 
@@ -54,24 +54,23 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
     // setup our statement
     int8 sql[128];
     sprintf(sql,"SELECT spawn_regions.id,spawn_regions.spawn_type,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
-                "planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
-                " FROM spawn_regions"
-                " INNER JOIN planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
-                " WHERE (spawn_regions.id = %"PRIu64")",id);
+            "planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
+            " FROM spawn_regions"
+            " INNER JOIN planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
+            " WHERE (spawn_regions.id = %"PRIu64")",id);
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
-        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
-
-        if (!result)
-        {
+        if (!result) {
             return;
         }
 
-        if (!result_set->next()) { 
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+        if (!result_set->next()) {
             LOG(WARNING) << "Unable to load SpawnRegion with region id: " << id;
             return;
         }
-        std::shared_ptr<SpawnRegion> spawn (new SpawnRegion());    
+        std::shared_ptr<SpawnRegion> spawn = std::make_shared<SpawnRegion>();
         spawn->setId(result_set->getUInt64(1));
         spawn->setSpawnType(result_set->getUInt(2));
         spawn->setRegionName(result_set->getString(3));
@@ -85,6 +84,6 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
 
         ofCallback->handleObjectReady(spawn);
 
-    });  
+    });
 }
 

@@ -75,7 +75,8 @@ void QTRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
             LOG(WARNING) << "Unable to load city with region id: " << id;
             return;
         }
-        std::shared_ptr<QTRegion> region (new QTRegion());
+
+        std::shared_ptr<QTRegion> region = std::make_shared<QTRegion>();
         region->setId(result_set->getUInt64(1));
         region->setQTDepth(result_set->getUInt(2));
         region->setRegionName(result_set->getString(3));

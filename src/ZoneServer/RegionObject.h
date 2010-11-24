@@ -97,11 +97,11 @@ public:
     virtual void		update() {}
     virtual void		onObjectEnter(Object* object) {}
     virtual void		onObjectLeave(Object* object) {}
+    
+    std::shared_ptr<RegionObject> getSharedFromThis();
 
 protected:
-
-    std::shared_ptr<RegionObject> getSharedFromThis_();
-
+    
     RegionType			mRegionType;
     float				mWidth;
     float				mHeight;

@@ -36,3 +36,8 @@ RegionObject::RegionObject() : Object()
 RegionObject::~RegionObject()
 {
 }
+
+std::shared_ptr<RegionObject> RegionObject::getSharedFromThis_() {
+    return std::static_pointer_cast<RegionObject>(Object::shared_from_this());
+}
+

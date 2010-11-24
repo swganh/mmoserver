@@ -100,6 +100,8 @@ public:
 
 protected:
 
+    std::shared_ptr<RegionObject> getSharedFromThis_();
+
     RegionType			mRegionType;
     float				mWidth;
     float				mHeight;

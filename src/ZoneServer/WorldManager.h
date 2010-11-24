@@ -531,6 +531,29 @@ private:
     // load our script hooks
     void	_registerScriptHooks();
 
+
+    /** Stores the characters position in the database asynchronously.
+    *
+    * \param player_object The Player object to save.
+    * \param logout_type The type of logout. This is somewhat ambiguously named for the time being.
+    * \param clContainer Another legacy data variable. This will go away in future commit.
+    */
+    void storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
+    
+    /** Stores the characters attributes in the database asynchronously.
+    *
+    * Has a side effect that after a successful update if the player is logging
+    * out their player object is deleted. This will go away when we switch to
+    * using a logout event that services listen to and respond by doing the actions
+    * currently handled within this member function.
+    *
+    * \param player_object The Player object to save.
+    * \param remove Whether or not to remove the player.
+    * \param logout_type The type of logout. This is somewhat ambiguously named for the time being.
+    * \param clContainer Another legacy data variable. This will go away in future commit.
+    */
+    void storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
+
     static WorldManager*		mSingleton;
     static bool					mInsFlag;
 

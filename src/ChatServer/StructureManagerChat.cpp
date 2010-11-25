@@ -211,7 +211,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         // Now update the time of the last EMail
         sprintf(sql,"UPDATE structures SET structures.lastMail = %"PRIu64" WHERE ID = %"PRIu64"", gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
 
-        mDatabase->executeSqlAsync(0,0,sql);
+        mDatabase->executeAsyncSql(sql);
 
     }
     break;
@@ -280,7 +280,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         // Now update the time of the last EMail
         sprintf(sql,"UPDATE structures SET structures.lastMail = %"PRIu64" WHERE ID = %"PRIu64"", gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
 
-        mDatabase->executeSqlAsync(0,0,sql);
+        mDatabase->executeAsyncSql(sql);
 
     }
     break;

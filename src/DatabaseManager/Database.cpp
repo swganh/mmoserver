@@ -92,6 +92,10 @@ Database::~Database() {
     }
 }
 
+void Database::executeAsyncSql(const std::stringstream& sql) {    
+    // just pass the stringstream string
+    executeAsyncSql(sql.str());
+}
 
 void Database::executeAsyncSql(const std::string& sql) {    
     // Setup our job.
@@ -102,7 +106,10 @@ void Database::executeAsyncSql(const std::string& sql) {
     // Add the job to our processList;
     job_pending_queue_.push(job);
 }
-
+void Database::executeAsyncSql(const std::stringstream& sql, AsyncDatabaseCallback callback) {    
+    // just pass the stringstream string
+    executeAsyncSql(sql.str(), callback);
+}
 
 void Database::executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback) {    
     // Setup our job.
@@ -115,6 +122,9 @@ void Database::executeAsyncSql(const std::string& sql, AsyncDatabaseCallback cal
     job_pending_queue_.push(job);
 }
 
+void Database::executeAsyncProcedure(const std::stringstream& sql) {    
+    executeAsyncProcedure(sql.str());
+}
 
 void Database::executeAsyncProcedure(const std::string& sql) {    
     // Setup our job.
@@ -126,6 +136,9 @@ void Database::executeAsyncProcedure(const std::string& sql) {
     job_pending_queue_.push(job);
 }
 
+void Database::executeAsyncProcedure(const std::stringstream& sql, AsyncDatabaseCallback callback) {    
+    executeAsyncProcedure(sql.str(), callback);
+}
 
 void Database::executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback) {    
     // Setup our job.

@@ -187,7 +187,7 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut
                  << "jedistate=" << player_object->getJediState() << " "
                  << "WHERE id=" << player_object->getId();
 
-    mDatabase->executeSqlAsyncNoArguments(nullptr, nullptr, query_stream.str().c_str());
+    mDatabase->executeAsyncSql(query_stream.str());
 }
 
 void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {

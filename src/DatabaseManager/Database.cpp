@@ -93,12 +93,34 @@ Database::~Database() {
 }
 
 
+void Database::executeAsyncSql(const std::string& sql) {    
+    // Setup our job.
+    DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
+    job->query = sql;
+    job->multi_job = false;
+
+    // Add the job to our processList;
+    job_pending_queue_.push(job);
+}
+
+
 void Database::executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback) {    
     // Setup our job.
     DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
     job->callback = callback;
     job->query = sql;
     job->multi_job = false;
+
+    // Add the job to our processList;
+    job_pending_queue_.push(job);
+}
+
+
+void Database::executeAsyncProcedure(const std::string& sql) {    
+    // Setup our job.
+    DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
+    job->query = sql;
+    job->multi_job = true;
 
     // Add the job to our processList;
     job_pending_queue_.push(job);

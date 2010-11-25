@@ -491,13 +491,7 @@ private:
     bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
     bool	_handleVariousUpdates(uint64 callTime, void* ref);
 
-    //      Save to DB
-    void    _updatePlayerAttributesToDB(uint32 accId);
-    void    _updatePlayerPositionToDB(uint32 accId);
-    void    _updatePlayerBuffsToDB(uint32 accId);
-    void    _updatePlayerLogoutToDB(uint32 accId, CharacterLoadingContainer* clContainer);
-
-    //		Save players, who haven't saved in x minutes
+//		Save players, who haven't saved in x minutes
     bool	_handlePlayerSaveTimers(uint64 callTime, void* ref);
 
     bool	_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref);

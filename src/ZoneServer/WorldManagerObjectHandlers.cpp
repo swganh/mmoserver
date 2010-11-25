@@ -345,7 +345,7 @@ bool WorldManager::addObject(std::shared_ptr<Object> object, bool manual)
 
     mObjectMap.insert(key,object.get());
 
-    shared_ptr<RegionObject> region = dynamic_pointer_cast<RegionObject>(object);
+    auto region = dynamic_pointer_cast<RegionObject>(object);
 
     mRegionMap.insert(std::make_pair<uint64 ,shared_ptr<RegionObject>>(key,region));
 

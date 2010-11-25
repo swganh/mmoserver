@@ -764,10 +764,9 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for (uint i = 0; i < count; i++)
         {
-            BString* name = new BString();
-            result->getNextRow(binding, name);
+            BString name;
+            result->getNextRow(binding, &name);
             asyncContainer->mChannel->addModerator(name);
-            delete name;
         }
 
         mDatabase->destroyDataBinding(binding);
@@ -783,10 +782,9 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for (uint i = 0; i < count; i++)
         {
-            BString* name = new BString();
-            result->getNextRow(binding, name);
+            BString name;
+            result->getNextRow(binding, &name);
             asyncContainer->mChannel->banUser(name);
-            delete name;
         }
         mDatabase->destroyDataBinding(binding);
     }
@@ -800,10 +798,9 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for (uint i = 0; i < count; i++)
         {
-            BString* name = new BString();
-            result->getNextRow(binding, name);
+            BString name;
+            result->getNextRow(binding, &name);
             asyncContainer->mChannel->addInvitedUser(name);
-            delete name;
         }
 
         mDatabase->destroyDataBinding(binding);
@@ -1202,9 +1199,9 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     channel->setOwner(avatar);
 
     channel->setGalaxy(mGalaxyName);
-    channel->addModerator(&playername);
+    channel->addModerator(playername);
     if (channel->isPrivate())
-        channel->addInvitedUser(&playername);
+        channel->addInvitedUser(playername);
 
     ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_AddChannel);
     asyncContainer->mClient = client;
@@ -1640,7 +1637,7 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
     }
     else
     {
-        channel->addModerator(&playerName);
+        channel->addModerator(playerName);
         int8 sql[128];
         mDatabase->escapeString(sql, realPlayerName.getAnsi(), realPlayerName.getLength());
 
@@ -1746,7 +1743,7 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
     }
     else
     {
-        channel->addInvitedUser(&playerName);
+        channel->addInvitedUser(playerName);
         int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
@@ -2145,7 +2142,7 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
         }
 
         // Get the ban-stick in ready position
-        channel->banUser(&playerName);
+        channel->banUser(playerName);
         // int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
         // mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_banned VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi()*/);

@@ -42,8 +42,8 @@ class Player;
 
 typedef std::map<uint32,ChatAvatarId*>  AvatarNameMap;
 typedef std::vector<ChatAvatarId*>      ChatAvatarIdList;
-typedef std::pair<uint32, BString*>     CrcStringPair;
-typedef std::map<uint32, BString*>      NameByCrcMap;
+typedef std::pair<uint32, BString>     CrcStringPair;
+typedef std::map<uint32, BString>      NameByCrcMap;
 
 //======================================================================================================================
 
@@ -104,18 +104,18 @@ public:
     ChatAvatarId*	findUser(BString name);
     ChatAvatarId*	findUser(Player* player);
 
-    void addInvitedUser(BString* name);
+    void addInvitedUser(BString name);
 
-    BString* removeInvitedUser(BString name);
+    BString removeInvitedUser(BString name);
     bool isInvited(BString name) const;
 
-    void addModerator(BString* name);
-    BString* removeModerator(BString name);
+    void addModerator(BString name);
+    BString removeModerator(BString name);
     bool isModerator(BString name) const;
     bool isOwner(BString name) const;
 
-    void banUser(BString* name);
-    BString* unBanUser(BString name);
+    void banUser(BString name);
+    BString unBanUser(BString name);
     bool isBanned(BString name) const;
 
     void clearChannel();

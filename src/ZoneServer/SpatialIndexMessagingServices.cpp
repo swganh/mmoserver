@@ -63,7 +63,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, bool sendSelftoTarget)
 {
-	DLOG(INFO) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
+	//DLOG(INFO) << "SpatialIndexManager::sendCreateObject: create :" << object->getId() << "for :" << player->getId();
 
 	if(!object)
 	{

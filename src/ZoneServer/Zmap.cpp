@@ -223,6 +223,8 @@ void zmap::RemoveObject(Object *removeObject)
 		return;
 	}
 
+	//DLOG(INFO) << "zmap::RemoveObject :: " << removeObject->getId() << " bucket " << cellId << " ";
+
 	ObjectListType *list;
 
 	std::map<uint32, ObjectStruct*>::iterator it = ZMapCells.find(cellId);
@@ -269,14 +271,17 @@ void zmap::RemoveObject(Object *removeObject)
 
 void zmap::GetCellContents(uint32 CellID, ObjectListType* list, uint32 type)
 {
+	if(type == 0)
+	{
+		assert(false && "zmap::GetCellContents QueryType must NOT be 0");
+	}
 	if(CellID > (GRIDWIDTH*GRIDHEIGHT))
 	{
 		DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " out of grid";
 		return;
 	}
-	DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " type : " << type;
-
-	//gLogger->log(LogManager::DEBUG,"zmap::GetAllCellContents :: bucket %u", CellID);
+	
+	//DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " type : " << type;
 	
 	ObjectListType::iterator it = list->begin();
 
@@ -586,6 +591,8 @@ uint32 zmap::AddObject(Object *newObject)
 	
 	uint32 finalBucket = _getCellId(newObject->getWorldPosition().x, newObject->getWorldPosition().z);
 
+	//DLOG(INFO) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " ";
+
 	if(!GetCellValidFlag(finalBucket))
 	{
 		//something fishy here
@@ -593,9 +600,10 @@ uint32 zmap::AddObject(Object *newObject)
 		return 0xffffffff;
 	}
 	
+	//already in there
 	if(newObject->getGridBucket() == finalBucket)
 	{
-		return 0xffffffff;
+		return finalBucket;
 	}
 
 	newObject->setGridBucket(finalBucket);
@@ -676,7 +684,7 @@ void zmap::UpdateObject(Object *updateObject)
 	}
 	
 	uint32 newBucket	= getCellId(position.x, position.z);
-	uint32 oldBucket		= updateObject->getGridBucket();
+	uint32 oldBucket	= updateObject->getGridBucket();
 
 	//no need for an update
 	if(newBucket == oldBucket)
@@ -694,16 +702,31 @@ void zmap::UpdateObject(Object *updateObject)
 
 	std::map<uint32, ObjectStruct*>::iterator mapIt = ZMapCells.find(newBucket);
 
-	if(updateObject->getType() == ObjType_Player)
+	switch(updateObject->getType())
 	{
-		list = &(*mapIt).second->Players;
-	}
-	else
-	{
-		list = &(*mapIt).second->Objects;
+		case ObjType_Player:
+		{
+			list = &(*mapIt).second->Players;
+		}
+		break;
+
+		case ObjType_Creature:
+		case ObjType_NPC:
+		{
+			list = &(*mapIt).second->Creatures;
+		}
+		break;
+
+		default:
+		{
+			list = &(*mapIt).second->Objects;
+		}
+		break;
 	}
 
-	
+	list->push_back(updateObject);
+
+	/*
 	//this *is* certainly stupid, *but*
 	//the most important thing, is that the reads are fast, thus, a list
 	for(ObjectListType::iterator i = list->begin(); i != list->end(); i++)
@@ -713,11 +736,11 @@ void zmap::UpdateObject(Object *updateObject)
 			return;
 		}
 	}
+	*/
 	
-	list->push_back(updateObject);
 
 	
-	//update sucells (regions)
+	//update subcells (regions)
 	std::multimap<uint32, SubCell*>::iterator it;
 
 	//remove any old subcells that are not in the new cell

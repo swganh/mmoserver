@@ -92,9 +92,7 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: player " << player->getId() << " not registered for" << container->getId();
 		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: player bucket " << player->getGridBucket() << " container bucketr" << container->getGridBucket();
 		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: container type : " << container->getType();
-
-		return;	
-								
+		return;							
 	}
 
 	//buildings are a different kind of animal all together

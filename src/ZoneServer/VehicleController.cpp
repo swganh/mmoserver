@@ -185,6 +185,8 @@ void VehicleController::Call() {
         return;
     }
 
+	gSpatialIndexManager->createInWorld(body_);
+
     //gWorldManager->createObjectinWorld(owner_, body_);
 
     gMessageLib->sendUpdateTransformMessage(body_);

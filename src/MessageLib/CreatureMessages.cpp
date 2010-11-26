@@ -671,6 +671,10 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
         // Reset all
         // Not suported yet
         DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
+
+		//NEVER EVER BAIL OUT WITHOUT closing the message and deleting it
+		Message* message = mMessageFactory->EndMessage();
+		message->setPendingDelete(true);
         return;
     }
 

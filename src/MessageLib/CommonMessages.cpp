@@ -691,16 +691,22 @@ void MessageLib::sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType
     mMessageFactory->addFloat(cloudVec.y);
     mMessageFactory->addFloat(cloudVec.z);
 
+	Message* message = mMessageFactory->EndMessage();
     if(player)
     {
         if(player->isConnected())
         {
-            (player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,3);
+            (player->getClient())->SendChannelA(message,player->getAccountId(),CR_Client,3);
         }
+		else
+		{
+			//never ever leave a message either undestroyed or unfinished!!!!
+			message->setPendingDelete(true);
+		}
     }
     else
     {
-        _sendToAll(mMessageFactory->EndMessage(),3);
+        _sendToAll(message,3);
     }
 }
 

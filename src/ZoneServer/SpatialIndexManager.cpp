@@ -95,7 +95,7 @@ bool SpatialIndexManager::AddObject(Object *newObject, bool updateGrid)
 		finalBucket = getGrid()->AddObject(newObject);
 	}
 
-	DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " added to bucket " <<  finalBucket;
+	//DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " added to bucket " <<  finalBucket;
 	
 	//any errors ?
 	if(finalBucket == 0xffffffff)
@@ -109,6 +109,7 @@ bool SpatialIndexManager::AddObject(Object *newObject, bool updateGrid)
 	
 	ObjectListType playerList;
 	getGrid()->GetPlayerViewingRangeCellContents(finalBucket, &playerList);
+	
 	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
 	{
 		PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
@@ -116,6 +117,7 @@ bool SpatialIndexManager::AddObject(Object *newObject, bool updateGrid)
 			
 		if((newObject->getType() == ObjType_Creature) || (newObject->getType() == ObjType_NPC))
 		{			
+			DLOG(INFO) << "SpatialIndexManager::AddObject:: register : " << newObject->getId() << " to player ; " << otherPlayer->getId();
 			gContainerManager->registerPlayerToContainer(newObject, otherPlayer);
 		}
 	}
@@ -165,6 +167,7 @@ bool SpatialIndexManager::AddObject(PlayerObject *player, bool updateGrid)
 		if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))
 		{
 			gContainerManager->registerPlayerToContainer((*i), player);
+			continue;
 		}
 		if((*i)->getType() == ObjType_Player) 
 		{
@@ -189,6 +192,8 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 	//now  process the spatial index update
 	if(updateObject->getGridBucket() != oldBucket)
 	{
+		//DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
+		
 		//test how much we moved if only one grid proceed normally
 		if(	(updateObject->getGridBucket() == (oldBucket +1))			  || (updateObject->getGridBucket() == (oldBucket -1))				||
 			(updateObject->getGridBucket() == (oldBucket + GRIDWIDTH))	  || (updateObject->getGridBucket() == (oldBucket - GRIDWIDTH))		||
@@ -196,13 +201,13 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 			(updateObject->getGridBucket() == (oldBucket - GRIDWIDTH +1)) || (updateObject->getGridBucket() == (oldBucket - GRIDWIDTH -1))
 			)
 		{
-
+			/*
 			PlayerObject* player = dynamic_cast<PlayerObject*>(updateObject);
 			if(player)
 			{
 				DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"moved from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
 			}
-	
+	*/
 			//remove us from the row we left
 			UpdateBackCells(updateObject,oldBucket);
 			
@@ -211,6 +216,8 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 		}
 		else //we teleported destroy all and create everything new
 		{
+			//DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"teleportation from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
+
 			//remove us from everything
 			RemoveObject(updateObject, oldBucket, false);
 			
@@ -379,7 +386,10 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell, bo
 		if(removePlayer)
 		{
 			if((*i)->getId() != removePlayer->getId())
+			{
 				gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);	
+				gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
+			}
 		}
 		else
 
@@ -387,9 +397,16 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell, bo
 		//just dont unregister us for ourselves or our equipment - we likely only travel
 		if(otherPlayer)
 		{
+			DLOG(INFO) << "SpatialIndexManager::RemoveObject:: try unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId();
+			
 			if(removeObject->checkRegisteredWatchers(otherPlayer) )
 			{
+				DLOG(INFO) << "SpatialIndexManager::RemoveObject:: unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId();
 				gContainerManager->unRegisterPlayerFromContainer(removeObject, otherPlayer);	
+			}
+			else
+			{
+				DLOG(INFO) << "SpatialIndexManager::RemoveObject:: failed unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId() << " not registered";
 			}
 
 			gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
@@ -851,7 +868,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 		ObjectListType FinalList;
 		ObjectListType::iterator it;
 
-		getGrid()->GetCellContents((updateObject->getGridBucket() - (GRIDWIDTH+1)*VIEWRANGE) , &FinalList, queryType);
+		getGrid()->GetCellContents((updateObject->getGridBucket() - ((GRIDWIDTH+1)*VIEWRANGE)) , &FinalList, queryType);
 
 		getGrid()->GetGridContentsListColumnUp((updateObject->getGridBucket() - ((GRIDWIDTH+1)*VIEWRANGE))  + GRIDWIDTH, &FinalList, queryType);
 
@@ -944,30 +961,30 @@ void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Ob
 
 void SpatialIndexManager::createInWorld(CreatureObject* creature)
 {
-	//are we in the SI ???
+	this->AddObject(creature);
+
+	//are we in a cell? otherwise bail out
 	if(creature->getParentId() == 0)
-	{
-		//just create in the SI - it will keep track of nearby players
-		this->AddObject(creature);
+	{		
 		return;
 	}
 
-	//then very likely in a cell
 	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(creature->getParentId()));
-	if(cell)
+	if(!cell)
 	{
-		BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-		
-		if(building)
-		{
-			//add the Creature to the cell
-			cell->addObjectSecure(creature);
-
-			//add it to the world
-			this->AddObject(creature);
-			
-		}
+		assert(false && "SpatialIndexManager::createInWorld cannot cast cell ???? ");
+		return;
 	}
+	
+	BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));	
+	if(!building)
+	{
+		assert(false && "SpatialIndexManager::createInWorld cannot cast building ???? ");
+		return;
+	}
+
+	//add the Creature to the cell we are in
+	cell->addObjectSecure(creature);
 }
 
 
@@ -1038,9 +1055,10 @@ void SpatialIndexManager::createInWorld(Object* object)
 	if(player)
 	{
 		//add to equiplist manually yet we dont use the objectcontainer for equipped items yet
-		player->getEquipManager()->addEquippedObject(object);
-		//createObjectToRegisteredPlayers(player, object);// no ... ! create it only for the owner
-		sendCreateObject(object,player,false);
+		player->getEquipManager()->addEquippedObject(object);//veeeeery debateable .. - probably shouldnt be done here
+		gContainerManager->createObjectToRegisteredPlayers(parent, object);
+
+		//sendCreateObject(object,player,false);
 		gContainerManager->updateEquipListToRegisteredPlayers(player);
 		return;
 	}
@@ -1061,7 +1079,6 @@ void SpatialIndexManager::createInWorld(Object* object)
 		return;
 	}	
 
-	//need to implement container watch list in containerObject
 }
 
 //======================================================================================================================

@@ -188,6 +188,9 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
     } else { //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627075254-3882bd68067f13266819ae6d0c4428e4
         LOG(WARNING) << "MessageLib::sendBaselinesPLAY_8: Failed to find datapad for playerId: " <<  playerObject->getId() << ". Did not initialize waypList(s).";
         gWorldManager->addDisconnectedPlayer(playerObject);
+
+		Message* message = mMessageFactory->EndMessage();
+		message->setPendingDelete(true);
         return false;
     }
 

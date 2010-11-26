@@ -276,8 +276,58 @@ void WorldManager::destroyObject(Object* object)
 		//players are always in the grid
 		case ObjType_Player:
 		{
-			
 			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+
+			// remove us from the player map
+			gWorldManager->removePlayerfromAccountMap(player->getId());
+			
+			// move to the nearest cloning center, if we are incapped or dead
+			if(player->states.checkPosture(CreaturePosture_Incapacitated)
+			|| player->states.checkPosture(CreaturePosture_Dead))
+			{
+				// bring up the clone selection window
+				ObjectSet						inRangeBuildings;
+				BStringVector					buildingNames;
+				std::vector<BuildingObject*>	buildings;
+				BuildingObject*					nearestBuilding = NULL;
+
+				gSpatialIndexManager->getObjectsInRange(object,&inRangeBuildings,ObjType_Building,8192,false);
+
+				ObjectSet::iterator buildingIt = inRangeBuildings.begin();
+
+				while(buildingIt != inRangeBuildings.end())
+				{
+					BuildingObject* building = dynamic_cast<BuildingObject*>(*buildingIt);
+
+					// TODO: This code is not working as intended if player dies inside, since buildings use world coordinates and players inside have cell coordinates.
+					// Tranformation is needed before the correct distance can be calculated.
+					if(building && building->getBuildingFamily() == BuildingFamily_Cloning_Facility)
+					{
+						if(!nearestBuilding
+							|| (nearestBuilding != building && (glm::distance(player->getWorldPosition(), building->mPosition) < glm::distance(player->getWorldPosition(), nearestBuilding->mPosition))))
+						{
+							nearestBuilding = building;
+						}
+					}
+
+					++buildingIt;
+				}
+
+				if(nearestBuilding)
+				{
+					if(nearestBuilding->getSpawnPoints()->size())
+					{
+						if(SpawnPoint* sp = nearestBuilding->getRandomSpawnPoint())
+						{
+							// update the database with the new values
+							gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f WHERE id=%"PRIu64"",sp->mCellId
+								,sp->mDirection.x,sp->mDirection.y,sp->mDirection.z,sp->mDirection.w
+								,sp->mPosition.x,sp->mPosition.y,sp->mPosition.z
+								,player->getId());
+						}
+					}
+				}
+			}
 
 			gSpatialIndexManager->RemoveObjectFromWorld(player);
 

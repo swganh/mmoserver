@@ -95,9 +95,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 
 		// now set our new ParentId
 		this->setParentId(0);
-		//and update the position
-		this->mPosition = newPosition;
-
+	
 		gMessageLib->broadcastContainmentMessage(this,0,4);
 
 	}
@@ -127,9 +125,6 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 				assert(false);
 				return;
 			}
-			
-			// update grid with world position
-			gSpatialIndexManager->UpdateObject(this);
 
 			//Did we change the building ??? (teleport moving to cloning center etc)
 			if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
@@ -195,6 +190,9 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 	}
 
 	this->mPosition = newPosition;
+
+	// update grid with world position
+	gSpatialIndexManager->UpdateObject(this);
 
 	//TODO do we need to update our known Objects ???
 	//answer YES if we are a player 

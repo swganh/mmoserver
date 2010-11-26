@@ -86,20 +86,20 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 {
 	//DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId();
 
-	//are we sure the player doesnt know the container already ???
-	if(!container->checkRegisteredWatchers(player))
-	{
-		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: player " << player->getId() << " not registered for" << container->getId();
-		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: player bucket " << player->getGridBucket() << " container bucketr" << container->getGridBucket();
-		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: container type : " << container->getType();
-		return;							
-	}
-
 	//buildings are a different kind of animal all together
 	//as cells need to be handled in a different way
-	if(BuildingObject* building = dynamic_cast<BuildingObject*>(container))
+	if(container->getType() == ObjType_Building )
 	{
-		container->unRegisterWatcher(player);
+		BuildingObject* building = dynamic_cast<BuildingObject*>(container);
+		if(!building)
+			return;
+
+		//bail out in case were no registerted
+		if(!container->unRegisterWatcher(player))
+		{
+			return;
+		}
+
 		player->unRegisterWatcher(container);
 
 		CellObjectList::iterator cellIt = building->getCellList()->begin();
@@ -124,7 +124,12 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 		return;
 	}
 
-	container->unRegisterWatcher(player);
+	//bail out in case were no registerted
+	if(!container->unRegisterWatcher(player))
+	{
+		return;
+	}
+
 	player->unRegisterWatcher(container);
 
 	gMessageLib->sendDestroyObject(container->getId(),player);
@@ -380,6 +385,7 @@ void ContainerManager::sendToRegisteredPlayers(Object* container, std::function<
 	}
 
 }
+
 
 // sends given function to all of the containers registered watchers
 void ContainerManager::sendToRegisteredWatchers(Object* container, std::function<void (PlayerObject* const player)> callback)

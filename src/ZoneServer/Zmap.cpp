@@ -30,6 +30,7 @@ zmap::zmap()
 	ZMAP = this;
 
 	viewRange = VIEWRANGE;
+	chatRange = CHATRANGE;
 
 	uint32 x = 0, i = 0, j = 0;
 
@@ -348,26 +349,14 @@ bool zmap::GetCellValidFlag(uint32 CellID)
 
 void	zmap::GetChatRangeCellContents(uint32 CellID, ObjectListType* list)
 {
-	//Pesudo
-	// 1. Combine the lists of Neighboring cells to 1
+	GetPlayerGridContentsListRow(CellID, list);
 
-	GetPlayerCellContents(CellID, list);
-
-	GetPlayerCellContents(CellID + GRIDWIDTH, list);
-
-	GetPlayerCellContents(CellID - GRIDWIDTH, list);
+	for(int i = 1; i <= chatRange; i++)
+	{
+		GetPlayerGridContentsListRow(CellID + (i*GRIDWIDTH), list);
 	
-	GetPlayerCellContents(CellID + 1, list);
-
-	GetPlayerCellContents(CellID - 1, list);
-
-	GetPlayerCellContents(CellID + GRIDWIDTH-1, list);
-
-	GetPlayerCellContents(CellID + GRIDWIDTH+1, list);
-
-	GetPlayerCellContents(CellID - GRIDWIDTH+1, list);
-
-	GetPlayerCellContents(CellID - GRIDWIDTH-1, list);
+		GetPlayerGridContentsListRow(CellID - (i*GRIDWIDTH), list);
+	}
 
 }
 

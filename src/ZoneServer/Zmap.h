@@ -30,7 +30,7 @@ class PlayerObject;
 #define MAPHEIGHT 16400
 
 #define VIEWRANGE 3
-#define CHATRANGE 3
+#define CHATRANGE 1
 
 enum qtype
 {
@@ -162,6 +162,7 @@ private:
 
 	uint32		mCurrentSubCellID;
 	int32		viewRange;
+	int32		chatRange;
 
 protected:
 

@@ -182,6 +182,55 @@ bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uin
 // we use our registered playerlist here so it will be pretty fast :)
 void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf)
 {
+	if(toSelf)
+	{
+		gContainerManager->sendToRegisteredWatchers(object, [this, priority, message, object, toSelf] (PlayerObject* const recipient)
+		{
+		
+			bool failed = false;
+
+			//save us some cycles if traffic is low
+
+			if(mMessageFactory->HeapWarningLevel() <= 4)
+			{
+				//thats something for debugmode only
+				if(!_checkPlayer(recipient))
+				{
+					//an invalid player at this point is like armageddon and Ultymas birthday combined at one time
+					//if this happens we need to know about it
+					assert(false && "Invalid Player in sendtoInrange");
+					failed = true;
+				}
+
+ 				// clone our message
+ 				mMessageFactory->StartMessage();
+ 				mMessageFactory->addData(message->getData(),message->getSize());
+ 
+ 				(recipient->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),recipient->getAccountId(),CR_Client,static_cast<uint8>(priority));	
+	
+			}
+			else
+			{	
+				if(!_checkPlayer(recipient))
+				{
+						assert(false && "Invalid Player in sendtoInrange");
+				}
+				bool yn = _checkDistance(recipient->mPosition,object,mMessageFactory->HeapWarningLevel());
+				if(yn)
+				{
+					// clone our message
+					mMessageFactory->StartMessage();
+					mMessageFactory->addData(message->getData(),message->getSize());
+	
+					(recipient->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),recipient->getAccountId(),CR_Client,static_cast<uint8>(priority));
+				}
+			}
+		}
+		);
+		
+		mMessageFactory->DestroyMessage(message);
+		return;
+	}
 	
 	gContainerManager->sendToRegisteredPlayers(object, [this, priority, message, object, toSelf] (PlayerObject* const recipient)
 		{
@@ -230,22 +279,9 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 	mMessageFactory->DestroyMessage(message);
 }
 void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object,uint16 priority, uint32 crc)
-{
-	
-	glm::vec3   position;
-	
-	//cater for players in cells
-	if (object->getParentId())
-	{
-		position = object->getWorldPosition(); 
-	}
-	else
-	{
-		position = object->mPosition;
-	}
-	
+{	
 	ObjectListType		inRangePlayers;
-	mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z), &inRangePlayers);
+	mGrid->GetChatRangeCellContents(object->getGridBucket(), &inRangePlayers);
 
 	Message* clonedMessage;
 	bool failed = false;
@@ -309,12 +345,15 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
     // needs to be redone and when it does it will simplify these types of functions.
     if (!player_object) {
         // Loop through the in range players and send them the message.
-		gContainerManager->sendToRegisteredWatchers(object,[object, message, senders_name_crc, this, &cloned_message ] (PlayerObject* const recipient) 
+		//TODO use chatrange players at some point
+		gSpatialIndexManager->sendToChatRange(object,[object, message, senders_name_crc, this, &cloned_message ] (PlayerObject* const recipient)
+		//gContainerManager->sendToRegisteredWatchers(object,[object, message, senders_name_crc, this, &cloned_message ] (PlayerObject* const recipient) 
 		{
 			// If the player is not online, or if the sender is in the player's ignore list
 			// then pass over this iteration.
 			if (!_checkPlayer(recipient) || (senders_name_crc && recipient->checkIgnoreList(senders_name_crc))) 
 			{
+				mMessageFactory->DestroyMessage(message);
 				return;
 			}
 
@@ -336,7 +375,8 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
 			// If the player is not online, or if the sender is in the player's ignore list
 			// then pass over this iteration.
 			if (!_checkPlayer(recipient) || (senders_name_crc && recipient->checkIgnoreList(senders_name_crc))) {
-				return;;
+				mMessageFactory->DestroyMessage(message);
+				return;
 			}
 
 			// Clone the message and send it out to this player.
@@ -358,12 +398,14 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
     }
     // If the sender isn't a player or the player isn't still connected we need to destroy the message
     // and exit out at this point, otherwise send the message to the source player.
-    if (!source_player || !_checkPlayer(source_player)) {
-        mMessageFactory->DestroyMessage(message);
-        return;
-    }
+    // this shouldnt be necessary anymore
+	//if (!source_player || !_checkPlayer(source_player)) {
+    
+	mMessageFactory->DestroyMessage(message);
+    //    return;
+    //}
 
-    source_player->getClient()->SendChannelAUnreliable(message, source_player->getAccountId(), CR_Client, 5);
+    //source_player->getClient()->SendChannelAUnreliable(message, source_player->getAccountId(), CR_Client, 5);
 }
 void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object,uint16 priority, uint32 crc)
 {

@@ -397,7 +397,7 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell, bo
 		//just dont unregister us for ourselves or our equipment - we likely only travel
 		if(otherPlayer)
 		{
-			DLOG(INFO) << "SpatialIndexManager::RemoveObject:: try unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId();
+			//DLOG(INFO) << "SpatialIndexManager::RemoveObject:: try unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId();
 			
 			if(removeObject->checkRegisteredWatchers(otherPlayer) )
 			{
@@ -1352,4 +1352,25 @@ uint64 SpatialIndexManager::getObjectMainParent(Object* object)
 	}
 
 	return parentID;
+}
+
+//====================================================================================================================
+//
+// send to all players in chatrange
+void SpatialIndexManager::sendToChatRange(Object* container, std::function<void (PlayerObject* const player)> callback)
+{
+
+	//get the Objects and unregister as necessary
+	ObjectListType playerList;
+	//getGrid()->GetPlayerViewingRangeCellContents(gridCell, &playerList);//cell means gridcell here
+	getGrid()->GetChatRangeCellContents(container->getGridBucket(), &playerList);
+
+	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
+	{
+		PlayerObject* player = dynamic_cast<PlayerObject*>((*i));
+
+		callback(player);
+		
+	}
+
 }

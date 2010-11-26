@@ -117,7 +117,7 @@ bool SpatialIndexManager::AddObject(Object *newObject, bool updateGrid)
 			
 		if((newObject->getType() == ObjType_Creature) || (newObject->getType() == ObjType_NPC))
 		{			
-			DLOG(INFO) << "SpatialIndexManager::AddObject:: register : " << newObject->getId() << " to player ; " << otherPlayer->getId();
+			//DLOG(INFO) << "SpatialIndexManager::AddObject:: register : " << newObject->getId() << " to player ; " << otherPlayer->getId();
 			gContainerManager->registerPlayerToContainer(newObject, otherPlayer);
 		}
 	}

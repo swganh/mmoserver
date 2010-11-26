@@ -178,22 +178,26 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
 {
 
 	//are we sure the player doesnt know the container already ???
-	if(container->checkRegisteredWatchers(player))
-	{
+	//if(container->checkRegisteredWatchers(player))
+	//{
 
-		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
-		return;	
+	//	DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
+	//	return;	
 								
-	}
+	//}
 
-	if(PlayerObject* tO = dynamic_cast<PlayerObject*>(container))
-	{
-		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: registered player (container) " << container->getId() <<" to player %I64u" << player->getId();
-	}
+	//if(PlayerObject* tO = dynamic_cast<PlayerObject*>(container))
+//	{
+	//	DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: registered player (container) " << container->getId() <<" to player %I64u" << player->getId();
+	//}
 	
 	//DLOG(INFO) << "SpatialIndexManager::AddObject :: register : " << container->getId() << " for "  << player->getId();
 
-	container->registerWatcher(player);
+	if(!container->registerWatcher(player))
+	{
+		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
+		return;
+	}
 	player-> registerWatcher(container);
 
 

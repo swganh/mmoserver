@@ -210,7 +210,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
 			}
 			else
 			{	
-				if(_checkPlayer(recipient))
+				if(!_checkPlayer(recipient))
 				{
 						assert(false && "Invalid Player in sendtoInrange");
 				}

@@ -617,11 +617,11 @@ bool Object::registerStatic(Object* object)
 void Object::addContainerKnownObject(Object* object)
 {
 	
-	if(checkContainerKnownObjects(object))
-	{
-		DLOG(INFO) << "Object::addKnownObject " << object->getId() << " couldnt be added to " <<this->getId()<< " - already in it";
-		return;
-	}
+	//if(checkContainerKnownObjects(object))
+	//{
+	//	DLOG(INFO) << "Object::addKnownObject " << object->getId() << " couldnt be added to " <<this->getId()<< " - already in it";
+	//	return;
+	//}
 
 	if(object->getType() == ObjType_Player)
 	{

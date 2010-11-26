@@ -214,8 +214,9 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         //client->Disconnect(0); darn it this disconects the only zone session!!!!
     }
     // player logged in with another char, while still in ld
-    else if((playerObject->getId() == gWorldManager->getPlayerByAccId(client->getAccountId())->getId()))
+    else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
     {
+
         LOG(WARNING) << "same account : new player ";
         // remove old char immidiately
         gWorldManager->removePlayerFromDisconnectedList(playerObject);

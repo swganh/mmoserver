@@ -240,7 +240,7 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
             destroyObject(player_object);
         }
 
-        if(logout_type == WMLogOut_Char_Load && clContainer) {
+        if(logout_type == WMLogOut_Char_Load && clContainer != 0) {
             gObjectFactory->requestObject(ObjType_Player, 0, 0, clContainer->ofCallback, clContainer->mPlayerId, clContainer->mClient);
             SAFE_DELETE(clContainer);
         }

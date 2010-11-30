@@ -82,7 +82,7 @@ DatabaseImplementationMySql::~DatabaseImplementationMySql() {
 }
 
 
-DatabaseResult* DatabaseImplementationMySql::executeSql(const char* sql, bool procedure) {
+DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, bool procedure) {
     DatabaseResult* result = nullptr;
 
     try {

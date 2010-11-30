@@ -177,7 +177,9 @@ void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint6
 //
 void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uint32 schemCrc, uint64 parentId, uint16 planetId, const glm::vec3& position, const BString& customName)
 {
-    std::string name(mDatabase->escapeString(customName.getAnsi()));
+    BString newBStr(customName);
+    newBStr.convert(BSTRType_ANSI);
+    std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
     query_stream << "SELECT sf_DefaultItemCreateBySchematic(" 
                  << schemCrc << "," << parentId << "," << planetId << "," 
@@ -205,7 +207,9 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uin
 //
 void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId, const glm::vec3& position, const BString& customName)
 {
-    std::string name(mDatabase->escapeString(customName.getAnsi()));
+    BString newBStr(customName);
+    newBStr.convert(BSTRType_ANSI);
+    std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
     query_stream << "SELECT sf_DefaultItemCreate(" 
                  << familyId << "," << typeId << "," << parentId << "," 
@@ -234,9 +238,11 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint
 //
 void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId, const glm::vec3& position, const BString& customName, int useCount)
 {
-    std::string name(mDatabase->escapeString(customName.getAnsi()));
+    BString newBStr(customName);
+    newBStr.convert(BSTRType_ANSI);
+    std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sp_CreateForagedItem(" 
+    query_stream << "CALL sp_CreateForagedItem(" 
                  << familyId << "," << typeId << "," << parentId << "," 
                  << (uint64) 0 << "," << planetId << "," << position.x << ","
                  << position.y << "," << position.z << ",'" << name 
@@ -298,9 +304,9 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
 void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount)
 {
     stringstream query_stream;
-    query_stream << "sf_ResourceContainerCreate("
+    query_stream << "SELECT sf_ResourceContainerCreate("
                  << resourceId << "," << parentId << ","
-                 << 0 << "," << 0 << "," << 0 << ","
+                 << 0.0f << "," << 0.0f << "," << 0.0f << ","
                  << planetId << "," << amount << ")";
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
@@ -360,7 +366,9 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
         oZ = 0;
         oW = static_cast<float>(0.71);
     }
-    std::string name(mDatabase->escapeString(customName.getAnsi()));
+    BString newBStr(customName);
+    newBStr.convert(BSTRType_ANSI);
+    std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
     query_stream << "SELECT sf_DefaultHarvesterCreate("
                  << deedLink->structure_type << "," << 0 << ","
@@ -456,7 +464,9 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
 
     DLOG(INFO) << "New Factory dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
 
-    std::string name(mDatabase->escapeString(customName.getAnsi()));
+    BString newBStr(customName);
+    newBStr.convert(BSTRType_ANSI);
+    std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
     query_stream << "SELECT sf_DefaultFactoryCreate("
                  << deedLink->structure_type << "," << 0 << ","
@@ -548,8 +558,10 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 
 
     DLOG(INFO) << "New House dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
-
-    std::string name(mDatabase->escapeString(customName.getAnsi()));
+    
+    BString newBStr(customName);
+    newBStr.convert(BSTRType_ANSI);
+    std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
     query_stream << "SELECT sf_DefaultHouseCreate("
                  << deedLink->structure_type << "," << 0 << ","
@@ -615,7 +627,10 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 //
 void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 wpType)
 {
-    std::string strName(mDatabase->escapeString(name.getAnsi()));
+    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
+    BString newBStr(name);
+    newBStr.convert(BSTRType_ANSI);
+    std::string strName(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
     query_stream << "SELECT sf_WaypointCreate('" << strName << "',"
                  << ownerId << "," << coords.x << "," << coords.y << ","
@@ -632,7 +647,7 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
             return;
         }
 
-        mWaypointFactory->requestObject(ofCallback, result_set->getUInt64(1) ,0,0,0);
+        mWaypointFactory->requestObject(ofCallback, result_set->getUInt64(1) ,0,0, player->getClient());
     });
 }
 //=============================================================================
@@ -640,12 +655,14 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
 // update existing waypoint
 // never call this directly - always go over the datapad!!!!!
 //
-void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uint64 wpId,BString name,
-        const glm::vec3& coords,uint16 planetId,uint64 ownerId, uint8 activeStatus)
+void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uint64_t wpId,BString name, 
+    const glm::vec3& coords,uint16_t planetId,uint64_t ownerId,uint16_t activeStatus)
 {
+    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(ownerId));
+    name.convert(BSTRType_ANSI);
     std::string strName(mDatabase->escapeString(name.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sp_WaypointUpdate('" << strName << "',"
+    query_stream << "CALL sp_WaypointUpdate('" << strName << "',"
                  << wpId << "," << coords.x << "," << coords.y << ","
                  << coords.z << "," << planetId << "," << activeStatus << ")";
     mDatabase->executeAsyncProcedure(query_stream, [=](DatabaseResult* result) {
@@ -659,21 +676,22 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
             LOG(WARNING) << "Unable to update waypoint ";
             return;
         }
-        if (result_set->rowUpdated())
+        if (result_set->getInt(1) != 0)
         {
-            mWaypointFactory->requestObject(ofCallback,result_set->getUInt64(1),0,0,0);
+            LOG(WARNING) << "Unable to update waypoint, sql failed with error: " << result_set->getInt(1);
         }
         else
-            LOG(WARNING) << "unable to update waypoint";
+        {
+            mWaypointFactory->requestObject(ofCallback,wpId,0,0,player->getClient());
+        }
     });
 }
 //=============================================================================
 
-void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentID, TangibleGroup Group)
+void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint64 ObjectId,uint64 parentId, TangibleGroup Group)
 {
     //this is used to create an item after an auction and to load a Manufacturing schematic into the DataPad after it was removed from the factory
     //After the owner ID was changed the item is requested through the OFQuery_Default request
-
     stringstream query_stream;
     
     switch(Group)
@@ -681,14 +699,14 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
     case TanGroup_ManufacturingSchematic:
     case TanGroup_Item:
     {
-        query_stream << "UPDATE items SET parent_id = " << parentID 
+        query_stream << "UPDATE items SET parent_id = " << parentId 
                      << " WHERE id = " << ObjectId;
     }
     break;
 
     case TanGroup_ResourceContainer:
     {
-        query_stream << "UPDATE resource_containers SET parent_id = " << parentID 
+        query_stream << "UPDATE resource_containers SET parent_id = " << parentId 
                      << " WHERE id = " << ObjectId;
     }
     break;
@@ -718,7 +736,7 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
 
 void ObjectFactory::createIteminInventory(ObjectFactoryCallback* ofCallback,uint64 ObjectId, TangibleGroup Group)
 {
-    mTangibleFactory->requestObject(ofCallback,ObjectId,Group,0,NULL);
+    mTangibleFactory->requestObject(ofCallback,ObjectId,Group,0,0);
 }
 
 
@@ -868,7 +886,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
             mDatabase->executeAsyncSql(query_stream);
 
             query_stream.str(std::string());
-            query_stream << "DELETE FROM vehicles WHERE vehicles_id = " <<  object->getId();
+            query_stream << "DELETE FROM vehicles WHERE id = " <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
 
         }

@@ -367,10 +367,11 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
         // remove the old one
         if(waypoint)
         {
-            gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateAdd,player);
+            
             // now update the DB
             datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), mission->getDestination().Coordinates,
                                     static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
+            gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateChange,player);
             gMessageLib->SendSystemMessage(::common::OutOfBand("group","groupwaypoint"), player);
         }
         else

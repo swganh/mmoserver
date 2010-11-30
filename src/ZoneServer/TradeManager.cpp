@@ -444,8 +444,8 @@ void TradeManager::_processFindFriendCreateWaypointMessage(Message* message,Disp
     {
         //update instead of deleting and re-creating...
 
-        gMessageLib->sendUpdateWaypoint(wp, ObjectUpdateAdd, playerObject);
         datapad->updateWaypoint(wp->getId(), playerFriendName.getAnsi(), position, static_cast<uint16>(planet), playerObject->getId(), WAYPOINT_ACTIVE);
+        gMessageLib->sendUpdateWaypoint(wp,ObjectUpdateChange,playerObject);
     }
     else
     {

@@ -766,9 +766,9 @@ void ArtisanManager::surveyEvent(PlayerObject* player, CurrentResource* resource
             // remove the old one
             if(waypoint)
             {
-                gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateDelete,player);
                 datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),
                                         static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
+                gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateChange,player);
             }
             else
             {

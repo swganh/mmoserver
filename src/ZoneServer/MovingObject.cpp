@@ -71,9 +71,7 @@ MovingObject::~MovingObject()
 
 void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPosition)
 {
-	this->mPosition = newPosition;
-	gSpatialIndexManager->UpdateObject(this);
-	
+	this->mPosition = newPosition;	
 	
 	//we have been inside - move us outside
 	if (this->getParentId() != 0)
@@ -104,6 +102,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
 void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPosition)
 {
 	uint64 oldParentId = this->getParentId();
+	
 	if (oldParentId != parentId)
 	{
 		// We changed cell
@@ -135,6 +134,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 				newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
 				if (!newCell)
 				{
+					this->setParentId(parentId);
 					LOG(WARNING) << this->getId() << " Error casting new cell " << this->getParentId();
 					assert(false);
 					return;
@@ -164,6 +164,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
 		cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
 		if (!cell)
 		{
+			this->setParentId(parentId);
 			LOG(WARNING) << "Error adding " << this->getId() << " from cell " << this->getParentId();
 			assert(false);
 			return;
@@ -190,6 +191,7 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 	}
 
 	this->mPosition = newPosition;
+	this->setParentId(parentId);
 
 	// update grid with world position
 	gSpatialIndexManager->UpdateObject(this);

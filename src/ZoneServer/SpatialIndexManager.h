@@ -93,8 +93,8 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		float					_GetMessageHeapLoadViewingRange();
 		
 		// Add an object to zmap
-		bool					AddObject(Object* newObject, bool updateGrid = true);
-		bool					AddObject(PlayerObject *newObject, bool updateGrid = true);
+		bool					AddObject(Object* newObject);
+		bool					AddObject(PlayerObject *newObject);
 
 		void					UpdateObject(Object *updateObject);
 
@@ -104,7 +104,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					RemoveObjectFromWorld(CreatureObject *removeCreature);
 		
 		//used by above routines to access the grid
-		void					RemoveObject(Object *removeObject, uint32 gridCell, bool updateGrid = true);
+		void					RemoveObject(Object *removeObject);
 
 		void					RemoveRegion(RegionObject *removeObject);
 		void					addRegion(RegionObject *region);

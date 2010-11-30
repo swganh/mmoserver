@@ -80,20 +80,14 @@ SpatialIndexManager::SpatialIndexManager()
 //creates the object for all players in range
 //if object is a player all objects in range will be created
 
-bool SpatialIndexManager::AddObject(Object *newObject, bool updateGrid)
+bool SpatialIndexManager::AddObject(Object *newObject)
 {
 	//Pesudo
 	// 1. Calculate CellID
 	// 2. Set CellID
 	// 3. Insert object into the cell in the hash table
-
-	//get the cell in case we are new
-	//skip in case of teleportation
-	uint32 finalBucket = newObject->getGridBucket();
-	if(updateGrid)
-	{
-		finalBucket = getGrid()->AddObject(newObject);
-	}
+	
+	uint32 finalBucket = getGrid()->AddObject(newObject);
 
 	//DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " added to bucket " <<  finalBucket;
 	
@@ -125,21 +119,15 @@ bool SpatialIndexManager::AddObject(Object *newObject, bool updateGrid)
 	return true;
 }
 
-bool SpatialIndexManager::AddObject(PlayerObject *player, bool updateGrid)
+bool SpatialIndexManager::AddObject(PlayerObject *player)
 {
 	//Pesudo
 	// 1. Calculate CellID
 	// 2. Set CellID
 	// 3. Insert object into the cell in the hash table
 
-	//get the cell in case we are new
-	//skip in case of teleportation
-	uint32 finalBucket = player->getGridBucket();
-	if(updateGrid)
-	{
-		finalBucket = getGrid()->AddObject(player);
-	}
-
+	uint32 finalBucket = getGrid()->AddObject(player);
+	
 	DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << player->getId() << " added to bucket " <<  finalBucket;
 	
 	//any errors ?
@@ -186,19 +174,18 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 
 	uint32 oldBucket = updateObject->getGridBucket();
 	
-	//sets the new gridcell, updates subcells
-	getGrid()->UpdateObject(updateObject);
+	uint32 newBucket = getGrid()->getCellId(updateObject->getWorldPosition().x, updateObject->getWorldPosition().z);
 	
 	//now  process the spatial index update
-	if(updateObject->getGridBucket() != oldBucket)
+	if(newBucket != oldBucket)
 	{
 		//DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
 		
 		//test how much we moved if only one grid proceed normally
-		if(	(updateObject->getGridBucket() == (oldBucket +1))			  || (updateObject->getGridBucket() == (oldBucket -1))				||
-			(updateObject->getGridBucket() == (oldBucket + GRIDWIDTH))	  || (updateObject->getGridBucket() == (oldBucket - GRIDWIDTH))		||
-			(updateObject->getGridBucket() == (oldBucket + GRIDWIDTH +1)) || (updateObject->getGridBucket() == (oldBucket + GRIDWIDTH -1))	||
-			(updateObject->getGridBucket() == (oldBucket - GRIDWIDTH +1)) || (updateObject->getGridBucket() == (oldBucket - GRIDWIDTH -1))
+		if(	(newBucket == (oldBucket +1))			  || (newBucket == (oldBucket -1))				||
+			(newBucket == (oldBucket + GRIDWIDTH))	  || (newBucket == (oldBucket - GRIDWIDTH))		||
+			(newBucket == (oldBucket + GRIDWIDTH +1)) || (newBucket == (oldBucket + GRIDWIDTH -1))	||
+			(newBucket == (oldBucket - GRIDWIDTH +1)) || (newBucket == (oldBucket - GRIDWIDTH -1))
 			)
 		{
 			/*
@@ -208,6 +195,10 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 				DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"moved from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
 			}
 	*/
+
+			//sets the new gridcell, updates subcells
+			getGrid()->UpdateObject(updateObject);
+
 			//remove us from the row we left
 			UpdateBackCells(updateObject,oldBucket);
 			
@@ -219,7 +210,11 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 			//DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"teleportation from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
 
 			//remove us from everything
-			RemoveObject(updateObject, oldBucket, false);
+			RemoveObject(updateObject);
+
+			//sets the new gridcell, updates subcells
+			//getGrid()->UpdateObject(updateObject);
+			getGrid()->AddObject(updateObject);
 			
 			//and add us freshly to the world
 			AddObject(updateObject);
@@ -295,17 +290,17 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 	}
 
 	//remove it out of the grid
-	RemoveObject(removeObject, removeObject->getGridBucket());
+	RemoveObject(removeObject);
 }
  
 //*********************************************************************
 //a Player or creature is ALWAYS in the grid and possibly in a cell
 void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 {
-	DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removePlayer->getId();
+	//DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removePlayer->getId();
 
 	//remove us from the grid
-	RemoveObject(removePlayer, removePlayer->getGridBucket());
+	RemoveObject(removePlayer);
 
 	//remove us out of the cell
 	if(removePlayer->getParentId() == 0)
@@ -334,10 +329,10 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 
 void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
 {
-	DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeCreature->getId();
+	//DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeCreature->getId();
 
 	//remove us from the grid
-	RemoveObject(removeCreature, removeCreature->getGridBucket());
+	RemoveObject(removeCreature);
 
 	//remove us out of the cell
 	Object* container = gWorldManager->getObjectById(removeCreature->getParentId());
@@ -358,23 +353,20 @@ void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
 // if the object is a container with listeners, the listeners will be unregistered
 // SpatialIndexManager::UpdateObject calls us with updateGrid = false in case we teleported
 // we have updated the grid in that case already
-void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell, bool updateGrid)
+void SpatialIndexManager::RemoveObject(Object *removeObject)
 {
-	DLOG(INFO) << "SpatialIndexManager::RemoveObject:: : " << removeObject->getId();
 
+	uint32 bucket = removeObject->getGridBucket();
 
-	//when we remove the object due to teleportation, the grid has already been updated
-	//
-	if(updateGrid)
-	{
-		getGrid()->RemoveObject(removeObject);
-	}
+	DLOG(INFO) << "SpatialIndexManager::RemoveObject:: : " << removeObject->getId() << "out of Bucket : " << bucket;
 
+	//remove out of grid lists
+	getGrid()->RemoveObject(removeObject);
 	
 	//get the Objects and unregister as necessary
 	ObjectListType playerList;
 	//getGrid()->GetPlayerViewingRangeCellContents(gridCell, &playerList);//cell means gridcell here
-	getGrid()->GetViewingRangeCellContents(gridCell, &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
+	getGrid()->GetViewingRangeCellContents(bucket, &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
 	
 	PlayerObject* removePlayer = dynamic_cast<PlayerObject*>(removeObject);
 
@@ -388,7 +380,13 @@ void SpatialIndexManager::RemoveObject(Object *removeObject, uint32 gridCell, bo
 			if((*i)->getId() != removePlayer->getId())
 			{
 				gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);	
-				gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
+				gMessageLib->sendDestroyObject((*i)->getId(), removePlayer);
+
+				if(otherPlayer)
+				{
+					gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
+				}
+
 			}
 		}
 		else

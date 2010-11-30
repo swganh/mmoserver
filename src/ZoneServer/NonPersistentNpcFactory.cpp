@@ -179,7 +179,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         }
         else
         {
-        	LOG(ERROR) << "Object cannot be found";
+        	LOG(ERROR) << "NonPersistentNpcFactory::handleDatabaseJobComplete Object cannot be found";
         }
     }
     break;

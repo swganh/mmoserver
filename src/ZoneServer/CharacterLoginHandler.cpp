@@ -158,15 +158,27 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
         //client->Disconnect(0); darn it this disconects the only zone session!!!!
     }
-    // player logged in with another char, while still in ld
-    else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
+    
+	// account already logged in with a character - we need to unload that character before loading a new one
+	//make sure that char finished loading before trying to get rid of it
+	else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
     {
 
         LOG(WARNING) << "same account : new player ";
         // remove old char immidiately
-        gWorldManager->removePlayerFromDisconnectedList(playerObject);
+		if(playerObject->getId() == playerId)
+		{
+			//we need to bail out. If a bot tries to rapidly login it can happen that we get here again even before the character 
+			//did finish loading
+			//loading this player a second time and logging it out at the same time will lead to desaster
+			LOG(WARNING) << "CharacterLoginHandler::_processSelectCharacter account " << client->getAccountId() << " is spamming logins";
+			return;
+		}
 
-        // need to make sure char is saved and removed, before requesting the new one
+		//the old character mustnt be necessarily on the disconnect list
+		gWorldManager->removePlayerFromDisconnectedList(playerObject);
+
+        // need to make sure the char is saved and removed, before requesting the new one
         // so doing it sync
 
         //start async save with command character request and relevant ID

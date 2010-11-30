@@ -436,8 +436,7 @@ const char* BString::getAnsi() const
     if (mType == BSTRType_ANSI) {
         return mString;
     } else {
-		std::wstring temp(reinterpret_cast<wchar_t*>(mString));
-		return std::string(temp.begin(), temp.end()).c_str();
+        return 0;
     }
 }
 
@@ -449,8 +448,7 @@ const wchar_t* BString::getUnicode16() const
     {
         return reinterpret_cast<wchar_t*>(mString);
     } else {
-        std::string temp(mString);
-		return std::wstring(temp.begin(), temp.end()).c_str();
+        return 0;
     }
 }
 
@@ -507,7 +505,7 @@ void BString::convert(BStringType type)
         {
             uint16_t* tmp = reinterpret_cast<uint16_t*>(newBuffer);
             for (size_t i = 0; i < mLength; ++i) {
-              tmp[i] = static_cast<uint16_t>(mString[i]);
+                tmp[i] = static_cast<uint16_t>(mString[i]);
             }
         }
     }

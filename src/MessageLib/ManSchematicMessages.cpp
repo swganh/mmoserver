@@ -1163,7 +1163,7 @@ bool MessageLib::sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject*
 
         mMessageFactory->addString(gWorldManager->getAttributeKey((*it).first));
 
-        if(manSchem->hasPPAttribute(gWorldManager->getAttributeKey((*it).first).getAnsi()))
+        if(manSchem->hasPPAttribute(gWorldManager->getAttributeKey((*it).first)))
         {
             float attributeValue = boost::lexical_cast<float,std::string>((*it).second);
             float attributeAddValue = manSchem->getPPAttribute<float>(gWorldManager->getAttributeKey((*it).first));

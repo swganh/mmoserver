@@ -703,18 +703,18 @@ void CraftingSession::addComponentAttribute()
                     {
                         // add the attribute (to the schematic) if it doesnt exist already to the relevant list for storage
                         // on sending the msco deltas respective producing the final items the values will be added to the attributes
-                        if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi()))
+                        if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
                         {
                             float attributeValue = filledComponent->getAttribute<float>((*cAPPiT)->getAttributeKey());
-                            float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>((*cAPPiT)->getAffectedAttributeKey().getAnsi());
+                            float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>((*cAPPiT)->getAffectedAttributeKey());
 
-                            mManufacturingSchematic->setPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
+                            mManufacturingSchematic->setPPAttribute((*cAPPiT)->getAffectedAttributeKey(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
                         }
 
-                        if(!mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi()))
+                        if(!mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
                         {
                             std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
-                            mManufacturingSchematic->addPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi(),attributeValue);
+                            mManufacturingSchematic->addPPAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
                         }
 
                     }
@@ -732,7 +732,7 @@ void CraftingSession::addComponentAttribute()
 
                     if(!mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
                     {
-                        std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey().getAnsi());
+                        std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
                         mItem->addAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
                     }
 

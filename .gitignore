@@ -28,7 +28,6 @@ ipch/
 *.zip
 .cproject
 .project
-mmoserverdb/
 CMakeFiles/
 Testing/
 CMakeCache.txt

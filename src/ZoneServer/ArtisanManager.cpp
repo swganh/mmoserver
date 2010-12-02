@@ -668,7 +668,7 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
 
                         stringstream query_stream;
                         query_stream << "UPDATE resource_containers SET amount=" << newAmount
-                                     << "WHERE id=" << resCont->getId();
+                                     << " WHERE id=" << resCont->getId();
                         gWorldManager->getDatabase()->executeAsyncSql(query_stream);
                     }
                     // target container full, put in what fits, create a new one
@@ -681,7 +681,7 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
                         stringstream query_stream;
                         query_stream << "UPDATE resource_containers SET amount=" << newAmount
-                                     << "WHERE id=" << resCont->getId();
+                                     << " WHERE id=" << resCont->getId();
                         gWorldManager->getDatabase()->executeAsyncSql(query_stream);
                         gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,selectedNewAmount);
                     }

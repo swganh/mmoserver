@@ -50,6 +50,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 
+using std::stringstream;
+
 //======================================================================================================================
 
 void WorldManager::_loadWorldObjects()
@@ -65,9 +67,10 @@ void WorldManager::_loadWorldObjects()
             _loadAllObjects(0);
 
             // load zone regions
-            int8 sql[128] ;
-            sprintf(sql, "SELECT id FROM zone_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            stringstream query_stream;
+            query_stream << "SELECT id FROM zone_regions WHERE planet_id=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -83,9 +86,10 @@ void WorldManager::_loadWorldObjects()
 
         }
         // load client effects
-        int8 sql[128] ;
-        sprintf(sql, "SELECT * FROM clienteffects ORDER BY id;");
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        stringstream query_stream;
+        query_stream << "SELECT * FROM clienteffects ORDER BY id;";
+                    
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -102,9 +106,9 @@ void WorldManager::_loadWorldObjects()
         });
 
         // load attribute keys
-        sql[0] = 0 ;
-        sprintf(sql, "SELECT id, name FROM attributes ORDER BY id;");
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        query_stream.str(std::string());
+        query_stream << "SELECT id, name FROM attributes ORDER BY id;";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -121,9 +125,9 @@ void WorldManager::_loadWorldObjects()
         });
 
         // load sounds
-        sql[0] = 0 ;
-        sprintf(sql, "SELECT * FROM sounds ORDER BY id;");
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        query_stream.str(std::string());
+        query_stream << "SELECT * FROM sounds ORDER BY id;";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -139,9 +143,9 @@ void WorldManager::_loadWorldObjects()
         });
 
         // load moods
-        sql[0] = 0 ;
-        sprintf(sql, "SELECT * FROM moods ORDER BY id;");
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        query_stream.str(std::string());
+        query_stream << "SELECT * FROM moods ORDER BY id;";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -157,9 +161,9 @@ void WorldManager::_loadWorldObjects()
         });
 
         // load npc converse animations
-        sql[0] = 0 ;
-        sprintf(sql, "SELECT * FROM conversation_animations ORDER BY id;");
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        query_stream.str(std::string());
+        query_stream << "SELECT * FROM conversation_animations ORDER BY id;";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -174,9 +178,10 @@ void WorldManager::_loadWorldObjects()
             LOG_IF(INFO, mvNpcConverseAnimations.size()) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
         });
         // load npc chatter
-        sql[0] = 0 ;
-        sprintf(sql, "SELECT * FROM npc_chatter WHERE planetId=%u OR planetId=99;", mZoneId);
-        mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        query_stream.str(std::string());
+        query_stream << "SELECT * FROM npc_chatter WHERE planetId=" << mZoneId
+                     << " OR planetId=99";
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
             }
@@ -200,9 +205,10 @@ void WorldManager::_loadWorldObjects()
         if(mZoneId != 41)
         {
             // load cities
-            int8 sql[512];
-            sprintf(sql, "SELECT id FROM cities WHERE planet_id=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            stringstream query_stream;
+            query_stream << "SELECT id FROM cities WHERE planet_id=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -218,9 +224,10 @@ void WorldManager::_loadWorldObjects()
             });
 
             // load badge regions
-            sql[0] = 0;
-            sprintf(sql, "SELECT id FROM badge_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            query_stream.str(std::string());
+            query_stream << "SELECT id FROM badge_regions WHERE planet_id=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -236,9 +243,10 @@ void WorldManager::_loadWorldObjects()
             });
 
             //load spawn regions
-            sql[0] = 0;
-            sprintf(sql, "SELECT id FROM spawn_regions WHERE planet_id=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            query_stream.str(std::string());
+            query_stream << "SELECT id FROM spawn_regions WHERE planet_id=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -254,9 +262,10 @@ void WorldManager::_loadWorldObjects()
             });
 
             // load world scripts
-            sql[0] = 0;
-            sprintf(sql, "SELECT priority,file FROM config_zone_scripts WHERE planet_id=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            query_stream.str(std::string());
+            query_stream << "SELECT priority,file FROM config_zone_scripts WHERE planet_id=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -274,9 +283,10 @@ void WorldManager::_loadWorldObjects()
             });
 
             //load creature spawn regions, and optionally heightmaps cache.
-            sql[0] = 0;
-            sprintf(sql, "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            query_stream.str(std::string());
+            query_stream << "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -300,9 +310,10 @@ void WorldManager::_loadWorldObjects()
             });
 
             // load harvesters
-            sql[0] = 0;
-            sprintf(sql, "SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            query_stream.str(std::string());
+            query_stream << "SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -318,9 +329,10 @@ void WorldManager::_loadWorldObjects()
             });
 
             // load factories
-            sql[0] = 0;
-            sprintf(sql, "SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            query_stream.str(std::string());
+            query_stream << "SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -336,9 +348,10 @@ void WorldManager::_loadWorldObjects()
             });
 
             // load playerhouses
-            sql[0] = 0;
-            sprintf(sql, "SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=%u ORDER BY id;",mZoneId);
-            mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+            query_stream.str(std::string());
+            query_stream << "SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=" << mZoneId
+                         << " ORDER BY id;";
+            mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
                     return;
                 }
@@ -362,9 +375,9 @@ void WorldManager::_loadWorldObjects()
 }
 void WorldManager::_loadBuildings()
 {
-    int8 sql[128] ;
-    sprintf(sql, "SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
-    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+    stringstream query_stream;
+    query_stream << "SELECT id FROM buildings WHERE planet_id = " << mZoneId;
+    mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
             return;
         }
@@ -381,20 +394,18 @@ void WorldManager::_loadBuildings()
 
 void WorldManager::_loadAllObjects(uint64 parentId)
 {
-    int8	sql[2048];
-    sprintf(sql,"(SELECT \'terminals\',terminals.id FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
-            " WHERE (terminal_types.name NOT LIKE 'unknown') AND (terminals.parent_id = %"PRIu64") AND (terminals.planet_id = %"PRIu32"))"
-            " UNION (SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-            " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64") AND (containers.planet_id = %u))"
-            " UNION (SELECT \'ticket_collectors\',ticket_collectors.id FROM ticket_collectors WHERE (parent_id=%"PRIu64") AND (planet_id=%u))"
-            " UNION (SELECT \'persistent_npcs\',persistent_npcs.id FROM persistent_npcs WHERE (parentId=%"PRIu64") AND (planet_id = %"PRIu32"))"
-            " UNION (SELECT \'shuttles\',shuttles.id FROM shuttles WHERE (parentId=%"PRIu64") AND (planet_id = %"PRIu32"))"
-            " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64") AND (planet_id = %"PRIu32"))"
-            " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64") AND (planet_id = %"PRIu32"))",
-            parentId,mZoneId,parentId,mZoneId,parentId,mZoneId,parentId,mZoneId,parentId
-            ,mZoneId,parentId,mZoneId,parentId,mZoneId);
-
-    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+    stringstream query_stream;
+    query_stream << "(SELECT \'terminals\',terminals.id FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
+                 << " WHERE (terminal_types.name NOT LIKE 'unknown') AND (terminals.parent_id = " << parentId << ") AND (terminals.planet_id = "<< mZoneId << " ))"
+                 << " UNION (SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
+                 << " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = " << parentId << ") AND (containers.planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'ticket_collectors\',ticket_collectors.id FROM ticket_collectors WHERE (parent_id=" << parentId << ") AND (planet_id="<< mZoneId << "))"
+                 << " UNION (SELECT \'persistent_npcs\',persistent_npcs.id FROM persistent_npcs WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'shuttles\',shuttles.id FROM shuttles WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId <<"))";
+    
+        mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
             return;
         }
@@ -421,14 +432,14 @@ void WorldManager::_loadAllObjects(uint64 parentId)
             else if(strcmp(str.c_str(),"resource_containers") == 0)
                 gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,id);
         }
-        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Buildings";
+        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Objects";
     });
 }
 void    WorldManager::_loadPlanetNamesAndFiles()
 {
-    int8 sql[512];
-    sprintf(sql, "SELECT * FROM planet ORDER BY planet_id;");
-    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+    stringstream query_stream;
+    query_stream << "SELECT * FROM planet ORDER BY planet_id;";
+    mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
             return;
         }

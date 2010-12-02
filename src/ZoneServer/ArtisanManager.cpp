@@ -70,6 +70,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 ArtisanManager::ArtisanManager(): mSurveyMindCost(0),mSampleActionCost(0){};
 ArtisanManager::~ArtisanManager(){};
+using std::stringstream;
 using ::common::SimpleEvent;
 using ::common::EventType;
 
@@ -337,8 +338,6 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     //
     if (stopSampling(player, resource, tool))
         return;
-    //if we're not kneeling do so now
-    gStateManager.setCurrentPostureState(player, CreaturePosture_Crouched);
 
     std::string				effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
     float					ratio			= (resource->getDistribution((int)player->mPosition.x + 8192,(int)player->mPosition.z + 8192));
@@ -667,7 +666,10 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
-                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
+                        stringstream query_stream;
+                        query_stream << "UPDATE resource_containers SET amount=" << newAmount
+                                     << "WHERE id=" << resCont->getId();
+                        gWorldManager->getDatabase()->executeAsyncSql(query_stream);
                     }
                     // target container full, put in what fits, create a new one
                     else if(newAmount > maxAmount)
@@ -677,7 +679,10 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
                         resCont->setAmount(maxAmount);
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
-                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
+                        stringstream query_stream;
+                        query_stream << "UPDATE resource_containers SET amount=" << newAmount
+                                     << "WHERE id=" << resCont->getId();
+                        gWorldManager->getDatabase()->executeAsyncSql(query_stream);
                         gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,selectedNewAmount);
                     }
 
@@ -711,6 +716,11 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
     {
          gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel_attack"), player);
         return false;
+    }
+    // you can't take samples while standing
+    if (player->states.checkPosture(CreaturePosture_Upright))
+    {
+        stop = true;
     }
     Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
     if(!inventory)

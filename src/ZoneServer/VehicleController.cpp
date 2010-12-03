@@ -258,6 +258,7 @@ void VehicleController::DismountPlayer() {
 
     //For safe measures make the player equipped by nothing
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
+	gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
     gStateManager.removeActionState(owner_, CreatureState_RidingMount);   

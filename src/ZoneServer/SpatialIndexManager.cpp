@@ -146,23 +146,27 @@ bool SpatialIndexManager::AddObject(PlayerObject *player)
 	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
 	{
 		//we just added ourselves to the grid - dont send a create to ourselves
-		if(((*i)->getId() == player->getId()))
-		{
+		if(((*i)->getId() == player->getId()))		{
 			continue;
 		}
+		
+		//it needs to be created no matter what
 		sendCreateObject((*i), player, false);
 
-		if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))
-		{
+		if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))		{
 			gContainerManager->registerPlayerToContainer((*i), player);
 			continue;
 		}
-		if((*i)->getType() == ObjType_Player) 
-		{
+		if((*i)->getType() == ObjType_Player) 		{
 			PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>(*i);
 			sendCreateObject(player, otherPlayer, false);
 
 			gContainerManager->registerPlayerToContainer(otherPlayer, player);
+			continue;
+		}
+		if((*i)->getType() == ObjType_Building) 	{
+			gContainerManager->registerPlayerToContainer((*i), player);
+			continue;
 		}
 
 	}
@@ -303,8 +307,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 	RemoveObject(removePlayer);
 
 	//remove us out of the cell
-	if(removePlayer->getParentId() == 0)
-	{
+	if(removePlayer->getParentId() == 0)	{
 		return;
 	}
 	
@@ -901,8 +904,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 void SpatialIndexManager::ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject)
 {
 
-	for(std::list<Object*>::iterator i = FinalList->begin(); i != FinalList->end(); i++)
-	{
+	for(std::list<Object*>::iterator i = FinalList->begin(); i != FinalList->end(); i++)	{
 		CheckObjectIterationForCreation((*i),updateObject);
 	}
 }
@@ -914,14 +916,12 @@ void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Ob
 {
 	PlayerObject* updatedPlayer = dynamic_cast<PlayerObject*>(updatedObject);
 
-	if(toBeTested->getId() == updatedObject->getId())
-	{
+	if(toBeTested->getId() == updatedObject->getId())	{
 		assert(false);
 	}
 
 	//we are a player and need to create the following object for us
-	if(updatedPlayer)
-	{
+	if(updatedPlayer)	{
 		sendCreateObject(toBeTested,updatedPlayer,false);
 		
 		if(toBeTested->getType() == ObjType_NPC || toBeTested->getType() == ObjType_Creature)
@@ -939,8 +939,7 @@ void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Ob
 	}
 				
 	PlayerObject* testedPlayer = dynamic_cast<PlayerObject*> (toBeTested);
-	if(testedPlayer)
-	{
+	if(testedPlayer)	{
 		sendCreateObject(updatedObject,testedPlayer,false);
 		gContainerManager->registerPlayerToContainer(updatedObject, testedPlayer);
 	}
@@ -962,21 +961,18 @@ void SpatialIndexManager::createInWorld(CreatureObject* creature)
 	this->AddObject(creature);
 
 	//are we in a cell? otherwise bail out
-	if(creature->getParentId() == 0)
-	{		
+	if(creature->getParentId() == 0)	{		
 		return;
 	}
 
 	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(creature->getParentId()));
-	if(!cell)
-	{
+	if(!cell)	{
 		assert(false && "SpatialIndexManager::createInWorld cannot cast cell ???? ");
 		return;
 	}
 	
 	BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));	
-	if(!building)
-	{
+	if(!building)	{
 		assert(false && "SpatialIndexManager::createInWorld cannot cast building ???? ");
 		return;
 	}
@@ -992,24 +988,23 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
 	this->AddObject(player);
 
 	//are we in a cell? otherwise bail out
-	if(player->getParentId() == 0)
-	{
+	if(player->getParentId() == 0)	{
 		return;
 	}
 
 	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
-	if(!cell)
-	{
+	if(!cell)	{
 		assert(false && "cannot cast cell ???? ");
 		return;
 	}
 	
 	BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));	
-	if(!building)
-	{
+	if(!building)	{
 		assert(false && "cannot cast building ???? ");
 		return;
 	}
+
+	//we *should* already be registered as known watcher to the building
 
 	//add the Creature to the cell we are in
 	cell->addObjectSecure(player);
@@ -1017,8 +1012,7 @@ void SpatialIndexManager::createInWorld(PlayerObject* player)
 	//iterate through all the cells and add the player as listener
 	CellObjectList::iterator cellIt = building->getCellList()->begin();
 
-	while(cellIt != building->getCellList()->end())
-	{
+	while(cellIt != building->getCellList()->end())	{
 		gContainerManager->registerPlayerToContainer((*cellIt),player);
 		++cellIt;
 	}			
@@ -1376,7 +1370,7 @@ void SpatialIndexManager::sendToChatRange(Object* container, std::function<void 
 //=============================================================================================================================
 //
 // just create other players / creatures for us - we still exist for them as we were still in logged state
-//
+// player regsitrations are still intact at that point as we still are in the grid
 
 bool SpatialIndexManager::InitializeObject(PlayerObject *player)
 {
@@ -1401,14 +1395,10 @@ bool SpatialIndexManager::InitializeObject(PlayerObject *player)
 		
 		sendCreateObject((*i), player, false);
 
-		//registrations should still be intact
-		//if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))
-		//{
-			//gContainerManager->registerPlayerToContainer((*i), player);
-			//continue;
-		//}
 		
-
 	}
+
+	//now building content in case we are in a building
+	initObjectsInRange(player);
 	return true;
 }

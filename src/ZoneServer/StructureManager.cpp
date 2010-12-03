@@ -588,17 +588,14 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 
 			if(!player)
 			{
-				DLOG(INFO) << "StructureManager::_handleStructureObjectTimers: No Player";
-				
-				//should be handled by the grid
-				//gMessageLib->sendDestroyObject_InRangeofObject(fence);
+												
+				gSpatialIndexManager->RemoveObjectFromWorld(fence);
 				gWorldManager->destroyObject(fence);
-				
+
 				gWorldManager->handleObjectReady(structure,player->getClient());
+				
 				it = objectList->erase(it);
 				continue;
-
-				return false;
 			}
 
 			if(!fence)
@@ -609,8 +606,8 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				return false;
 			}
 
-			//delete the fence
-			//gMessageLib->sendDestroyObject_InRangeofObject(fence); handled by the grid
+			//destroy the fence
+			gSpatialIndexManager->RemoveObjectFromWorld(fence);
 			gWorldManager->destroyObject(fence);
 
 			//create the structure in the world
@@ -1707,6 +1704,7 @@ void StructureManager::HeightmapStructureHandler(HeightmapAsyncContainer* ref)
         }
         break;
     }
+
     case HeightmapCallback_StructureFactory:
     {
         HeightResultMap* mapping = container->getResults();

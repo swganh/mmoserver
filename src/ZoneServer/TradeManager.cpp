@@ -255,8 +255,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         //to many listings ??  default is 25
         //max price on public bazaar
 
-        if(count >= static_cast<uint64>(gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxListing",(uint32)25)))
-        {
+        if(count >= static_cast<uint64>(gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxListing",(uint32)25)))	{
             gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,asynContainer->tangible->getId(),13);
             return;
         }
@@ -299,8 +298,7 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         result->getNextRow(binding,&error);
         uint64 itemId = asynContainer->tangible->getId();
 
-        if (error)
-        {
+        if (error)	{
             gMessageLib->sendCreateAuctionItemResponseMessage(asynContainer->player1,itemId,2);
             return;
         }
@@ -314,9 +312,10 @@ void TradeManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         gObjectFactory->GiveNewOwnerInDB(asynContainer->tangible,asynContainer->BazaarID);
 
         TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asynContainer->tangible->getParentId()));
-        if(container)
-        {
-            gContainerManager->removeObject(asynContainer->tangible,container);
+        
+		//now remove it from the zone
+		if(container)        {
+            gContainerManager->deleteObject(asynContainer->tangible,container);
         }
 
         gMessageFactory->StartMessage();
@@ -607,12 +606,17 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
 
 
     TangibleObject*		requestedObject		= dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ItemID));
-    Item*				item				= dynamic_cast<Item*>(gWorldManager->getObjectById(ItemID));
+    
+	if(!requestedObject)    {
+        //cave we might sell datapad schematics, too
+        return;
+    }
+	
+	Item*				item				= dynamic_cast<Item*>(requestedObject);
 
     //it might be a resourcecontaine - so its a tangibleObject
     //however only items can be equipped
-    if (item)
-    {
+    if (item)    {
         //unequips the item in case it is equipped
         playerObject->getEquipManager()->unEquipItem(item);
 
@@ -620,17 +624,10 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
         checkPlacedInstrument(item,client);
     }
 
-    if(!requestedObject)
-    {
-        //cave we might sell datapad schematics, too
-        return;
-    }
-
     if(price > (uint32)gWorldConfig->getConfiguration<uint32>("Server_Bazaar_MaxPrice",20000))
     {
         //to expensive!!!
         gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,ItemID,4);
-
         return;
     }
 
@@ -661,35 +658,27 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
 
     int32 fee = 20;
 
-    if(premium)
-    {
+    if(premium)    {
         fee = 100;
     }
 
-    if(playerObject->checkSkill(SMSkill_Merchant_Sales_1))
-        //if(playerObject->verifyAbility(496))
-    {
+    if(playerObject->checkSkill(SMSkill_Merchant_Sales_1))    {
         //efficiency 1
         fee = 16;
-        if (premium)
-        {
+        if(premium)	{
             fee = 80;
         }
     }
-    else if(playerObject->checkSkill(SMSkill_Merchant_Sales_3))
-    {
+    else if(playerObject->checkSkill(SMSkill_Merchant_Sales_3))    {
         //efficiency 3
         fee = 12;
-
-        if(premium)
-        {
+        if(premium)	{
             fee = 80;
         }
     }
 
 
-    if(!playerObject->checkDeductCredits(fee))
-    {
+    if(!playerObject->checkDeductCredits(fee))	{
         //we cannot afford the listing
         gMessageLib->sendCreateAuctionItemResponseMessage(playerObject,ItemID,9);
         return;
@@ -702,16 +691,14 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
 
     Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    //wew give the amounts of money to be taken from bank and inventory directly to the
+    //we give the amounts of money to be taken from bank and inventory directly to the
     //transaction in the next async call
 
-    if(bank->getCredits() < fee)
-    {
+    if(bank->getCredits() < fee)	{
         asyncContainer->amountbank = bank->getCredits();
         asyncContainer->amountcash = fee - bank->getCredits();
     }
-    else
-    {
+    else    {
         asyncContainer->amountbank = fee;
         asyncContainer->amountcash = 0;
     }

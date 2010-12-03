@@ -227,8 +227,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	inMoveCount = message->getUint32();
 
 	// only process if its in sequence
-	if (player->getInMoveCount() > inMoveCount)
-	{
+	if (player->getInMoveCount() > inMoveCount)	{
 		return;
 	}
 
@@ -250,38 +249,31 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 	speed  = message->getFloat();
 
 	// stop entertaining, if we were
-	if(player->getPerformingState() != PlayerPerformance_None && player->states.getPosture() != CreaturePosture_SkillAnimating)
-	{
+	if(player->getPerformingState() != PlayerPerformance_None && player->states.getPosture() != CreaturePosture_SkillAnimating)	{
 		gEntertainerManager->stopEntertaining(player);
 	}
 
 	// if we changed cell
-	if (oldParentId != parentId)
-	{
+	if (oldParentId != parentId)	{
 		CellObject* cell = NULL;
 		// Remove us from whatever we where in before.
 		// (4 for add and 0 for remove)
 		gMessageLib->broadcastContainmentMessage(player->getId(),oldParentId,0,player);
 
-		if (oldParentId != 0)
-		{
-			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
-			{
+		if (oldParentId != 0)	{
+			if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))	{
 				cell->removeObject(player);
 			}
-			else
-			{
+			else	{
 				DLOG(INFO) << "Error removing  " << player->getId() << " from cell " << oldParentId;
 			}
 		}
-		else
-		{
+		else	{
 		 	//we just entered the building - go register us
 			
 			CellObject* newCell;
 			newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
-			if (!newCell)
-			{
+			if (!newCell)	{
 				DLOG(INFO) << "Player " << player->getId() << " error casting new cell cell " << parentId;
 				assert(false);
 				return;
@@ -290,22 +282,11 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 			
 			gContainerManager->registerPlayerToBuilding(newBuilding,player);
 
-			if(player->checkIfMounted() && player->getMount())
-			{
-				player->getMount()->mDirection = dir;
-				player->getMount()->mPosition = pos;
-				player->getMount()->setCurrentSpeed(speed);
-				player->getMount()->setLastMoveTick(tickCount);
-				player->getMount()->setInMoveCount((inMoveCount));
-	
-				gSpatialIndexManager->UpdateObject(player->getMount());
-
+			if(player->checkIfMounted() && player->getMount())	{
 				//Can't ride into a building with a mount! :-p
 				//However, its easy to do so we have handling incase the client is tricked.
-				// the vehicle is the INTANGIBLE Datapad Controller
-				// the *vehicle* itself is the BODY
-				if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))
-				{
+				
+				if(VehicleController* datapad_pet = dynamic_cast<VehicleController*>(gWorldManager->getObjectById(player->getMount()->controller())))	{
 					datapad_pet->Store();
 				}
 					
@@ -314,8 +295,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 		
 		// put us into new cell
 		gMessageLib->broadcastContainmentMessage(player->getId(),parentId,4,player);
-		if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
-		{
+		if((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))	{
 			cell->addObjectSecure(player);
 			// Inform tutorial about cell change.
 			if (gWorldConfig->isTutorial())

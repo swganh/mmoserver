@@ -55,8 +55,7 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 {
 	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
 
-	if(!structure)
-	{
+	if(!structure)	{
 			DLOG(INFO) << "StructureManager::handleObjectReady: No structure";
 	}
 

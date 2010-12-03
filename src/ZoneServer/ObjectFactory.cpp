@@ -120,8 +120,8 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     case OFQuery_House:
     {
         PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asyncContainer->PlayerId));
-        if(!result->getRowCount())
-        {
+        
+		if(!result->getRowCount())        {
         	LOG(ERROR) << "create house failed : no result";
             break;
         }
@@ -132,11 +132,12 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         result->getNextRow(binding,&requestId);
         mDatabase->destroyDataBinding(binding);
 
-        if(!requestId)
-        {
+        if(!requestId)        {
             LOG(ERROR) << "Create house failed : result is 0";
+			break;
         }
-        mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
+        
+		mHouseFactory->requestObject(asyncContainer->ofCallback,requestId,0,0,asyncContainer->client);
 
         //now we need to update the Owners Lots
         //cave he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
@@ -148,6 +149,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 			Deed* deed = dynamic_cast<Deed*>(gWorldManager->getObjectById(asyncContainer->DeedId));
 				
 			gContainerManager->removeObject(deed, inventory);
+			gWorldManager->destroyObject(deed);
 		
 				
 			Datapad* datapad			= player->getDataPad();

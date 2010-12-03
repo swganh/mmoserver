@@ -95,8 +95,7 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 			return;
 
 		//bail out in case were no registerted
-		if(!container->unRegisterWatcher(player))
-		{
+		if(!container->unRegisterWatcher(player))		{
 			return;
 		}
 
@@ -114,8 +113,7 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 		CellObjectList* cellList = building->getCellList();
 		CellObjectList::iterator it = cellList->begin();
 
-		while(it != cellList->end())
-		{
+		while(it != cellList->end())	{
 			gMessageLib->sendDestroyObject((*it)->getId(),player);
 			it++;
 		}
@@ -125,8 +123,7 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 	}
 
 	//bail out in case were no registerted
-	if(!container->unRegisterWatcher(player))
-	{
+	if(!container->unRegisterWatcher(player))	{
 		return;
 	}
 
@@ -271,8 +268,7 @@ void ContainerManager::registerPlayerToBuilding(BuildingObject* building,PlayerO
 	
 	//BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
 
-	if(!building)
-	{
+	if(!building)	{
 		assert(false && "SpatialIndexManager::registerPlayerToBuilding no building");
 		return;
 	}
@@ -284,8 +280,7 @@ void ContainerManager::registerPlayerToBuilding(BuildingObject* building,PlayerO
 	registerPlayerToContainer(building,player);
 
 	//iterate through all the cells and add the player as listener
-	if(player)
-	{		
+	if(player)	{		
 		CellObjectList::iterator cellIt = building->getCellList()->begin();
 
 		while(cellIt != building->getCellList()->end())

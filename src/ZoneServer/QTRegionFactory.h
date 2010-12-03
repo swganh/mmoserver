@@ -30,12 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "FactoryBase.h"
 
-#define 	gQTRegionFactory	QTRegionFactory::getSingletonPtr()
-
-//=============================================================================
-
 class Database;
-class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
 class QTRegion;
@@ -52,30 +47,11 @@ enum QTRFQuery
 class QTRegionFactory : public FactoryBase
 {
 public:
-
-    static QTRegionFactory*	getSingletonPtr() {
-        return mSingleton;
-    }
-    static QTRegionFactory*	Init(Database* database);
-
+    QTRegionFactory(Database* database);
     ~QTRegionFactory();
 
     void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-
-private:
-
-    QTRegionFactory(Database* database);
-
-    void				_setupDatabindings();
-    void				_destroyDatabindings();
-
-    QTRegion*			_createRegion(DatabaseResult* result);
-
-    static QTRegionFactory*	mSingleton;
-    static bool				mInsFlag;
-
-    DataBinding*			mRegionBinding;
+    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);   
 };
 
 

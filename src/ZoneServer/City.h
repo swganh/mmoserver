@@ -48,10 +48,10 @@ public:
     City();
     virtual ~City();
 
-    BString			getCityName() {
+    std::string			getCityName() {
         return mCityName;
     }
-    void			setCityName(const BString cityName) {
+    void			setCityName(const std::string cityName) {
         mCityName = cityName;
     }
 
@@ -61,8 +61,7 @@ public:
 
 protected:
 
-    BString				mCityName;
-   
+    std::string				mCityName;
 };
 
 

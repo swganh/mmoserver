@@ -69,7 +69,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
 
     BStringVector	dataElements;
     BString			dataStr;
-    BString			nameStr;
+    std::string			nameStr;
 
     message->getStringUnicode16(dataStr);
 
@@ -87,17 +87,17 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
         else
         {
             nameStr = gWorldManager->getPlanetNameThis();
-            nameStr.getAnsi()[0] = toupper(nameStr.getAnsi()[0]);
+            std::transform(nameStr.begin(), nameStr.end(), nameStr.begin(), &tolower);
         }
     }
     else
     {
         for(uint i = 4; i < elementCount; i++)
         {
-            nameStr	<< dataElements[i].getAnsi();
+            nameStr.append(dataElements[i].getAnsi());
 
             if(i + 1 < elementCount)
-                nameStr << " ";
+                nameStr.append(" ");
         }
     }
 
@@ -114,7 +114,7 @@ void ObjectController::_handleRequestWaypointAtPosition(uint64 targetId,Message*
         return;
     }
 
-    datapad->requestNewWaypoint(nameStr, glm::vec3(x,y,z),static_cast<uint16>(planetId),Waypoint_blue);
+    datapad->requestNewWaypoint(nameStr.c_str(), glm::vec3(x,y,z),static_cast<uint16>(planetId),Waypoint_blue);
 }
 
 //======================================================================================================================

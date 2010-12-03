@@ -60,13 +60,13 @@ void Weapon::sendAttributes(PlayerObject* playerObject)
 
     gMessageFactory->addUint32(1 + mAttributeMap.size());
 
-    BString	tmpValueStr = BString(BSTRType_Unicode16,64);
+    wchar_t tempValue[64];
     BString	value;
 
-    tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(), 20, L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
+    swprintf(tempValue, 20, L"%u/%u",mMaxCondition - mDamage,mMaxCondition);
 
     gMessageFactory->addString(BString("condition"));
-    gMessageFactory->addString(tmpValueStr);
+    gMessageFactory->addString(tempValue);
 
     AttributeMap::iterator			mapIt;
     AttributeOrderList::iterator	orderIt = mAttributeOrderList.begin();

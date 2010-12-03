@@ -71,6 +71,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 ArtisanManager::ArtisanManager(): mSurveyMindCost(0),mSampleActionCost(0){};
 ArtisanManager::~ArtisanManager(){};
+using std::stringstream;
 using ::common::SimpleEvent;
 using ::common::EventType;
 
@@ -123,7 +124,7 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         player->setSurveyState(true);
 
         // play effect
-        BString effect = gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("survey_effect"));
+        std::string effect = gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("survey_effect"));
         gMessageLib->sendPlayClientEffectLocMessage(effect,player->mPosition,player);
 
         gContainerManager->sendToRegisteredWatchers(player,[effect, player] (PlayerObject* const recipient) 
@@ -334,10 +335,8 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
     //
     if (stopSampling(player, resource, tool))
         return;
-    //if we're not kneeling do so now
-    gStateManager.setCurrentPostureState(player, CreaturePosture_Crouched);
 
-    BString					effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
+    std::string				effect			= gWorldManager->getClientEffect(tool->getInternalAttribute<uint32>("sample_effect"));
     float					ratio			= (resource->getDistribution((int)player->mPosition.x + 8192,(int)player->mPosition.z + 8192));
     int32					surveyMod		= player->getSkillModValue(SMod_surveying);
     uint32					sampleAmount	= 0;
@@ -632,7 +631,8 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
         gSkillManager->addExperience(XpType_resource_harvesting_inorganic,(int32)((gRandom->getRand()%20) + 20),player); 
 
         // see if we can add it to an existing container
-        Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        
+        Inventory*	inventory	= player->getInventory();
         ObjectIDList*			invObjects	= inventory->getObjects();
         ObjectIDList::iterator	listIt		= invObjects->begin();
 
@@ -657,7 +657,10 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
 
-                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
+                        stringstream query_stream;
+                        query_stream << "UPDATE resource_containers SET amount=" << newAmount
+                                     << " WHERE id=" << resCont->getId();
+                        gWorldManager->getDatabase()->executeAsyncSql(query_stream);
                     }
                     // target container full, put in what fits, create a new one
                     else if(newAmount > maxAmount)
@@ -667,7 +670,10 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
                         resCont->setAmount(maxAmount);
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
-                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
+                        stringstream query_stream;
+                        query_stream << "UPDATE resource_containers SET amount=" << newAmount
+                                     << " WHERE id=" << resCont->getId();
+                        gWorldManager->getDatabase()->executeAsyncSql(query_stream);
                         gObjectFactory->requestNewResourceContainer(inventory,resource->getId(),inventory->getId(),99,selectedNewAmount);
                     }
 
@@ -701,6 +707,11 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
     {
          gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel_attack"), player);
         return false;
+    }
+    // you can't take samples while standing
+    if (player->states.checkPosture(CreaturePosture_Upright))
+    {
+        stop = true;
     }
     Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
     if(!inventory)
@@ -756,9 +767,9 @@ void ArtisanManager::surveyEvent(PlayerObject* player, CurrentResource* resource
             // remove the old one
             if(waypoint)
             {
-                gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateDelete,player);
                 datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), glm::vec3(highestDist.position.x,0.0f,highestDist.position.z),
                                         static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
+                gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateChange,player);
             }
             else
             {

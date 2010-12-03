@@ -48,15 +48,14 @@ enum RegionType
 class RegionObject : public Object
 {
 public:
-
 	RegionObject();
 	virtual ~RegionObject();
 
-	BString				getRegionName(){ return mRegionName; }
-	void				setRegionName(const BString name){ mRegionName = name; }
+	std::string			getRegionName(){ return mRegionName; }
+	void				setRegionName(const std::string name){ mRegionName = name; }
 
-	BString				getNameFile(){ return mNameFile; }
-	void				setNameFile(const BString namefile){ mNameFile = namefile; }
+	std::string			getNameFile(){ return mNameFile; }
+	void				setNameFile(const std::string namefile){ mNameFile = namefile; }
 
 	RegionType			getRegionType(){ return mRegionType; }
 	void				setType(RegionType rType){ mRegionType = rType; }
@@ -81,15 +80,15 @@ public:
 
 	uint32				subCellId;
 
+    std::shared_ptr<RegionObject> getSharedFromThis();
 protected:
 
 	ObjectIDSet			mVisitingPlayers;
-
 	RegionType			mRegionType;
 	float				mWidth;
 	float				mHeight;
-	BString				mRegionName;
-	BString				mNameFile;
+	std::string			mRegionName;
+	std::string			mNameFile;
 	bool				mActive;
 };
 

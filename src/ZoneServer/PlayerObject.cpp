@@ -2134,16 +2134,16 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
             switch (pre_event->getNewPostureState())
             {
                 case CreaturePosture_Upright:
-                    setUpright();
+                    player->setUpright();
                     break;
                 case CreaturePosture_Crouched:
-                    setCrouched();
+                    player->setCrouched();
                     break;
                 case CreaturePosture_Prone:
-                    setProne();
+                    player->setProne();
                     break;
                 case CreaturePosture_Sitting:
-                    setSitting();
+                    player->setSitting();
                     break;
                 default:
                     break;

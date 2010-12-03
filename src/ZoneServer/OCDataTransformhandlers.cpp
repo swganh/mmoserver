@@ -414,7 +414,7 @@ void ObjectController::_findInRangeObjectsOutside(bool updateAll)
 
     if(player->getSubZoneId())
     {
-        if(QTRegion* region = gWorldManager->getQTRegion(player->getSubZoneId()))
+        if(std::shared_ptr<QTRegion>region = gWorldManager->getQTRegion(player->getSubZoneId()))
         {
             Anh_Math::Rectangle qRect = Anh_Math::Rectangle(player->mPosition.x - viewingRange,player->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
 
@@ -530,75 +530,6 @@ bool ObjectController::_updateInRangeObjectsOutside()
 //
 void ObjectController::_findInRangeObjectsInside(bool updateAll)
 {
-	/*
-	PlayerObject*	player = dynamic_cast<PlayerObject*>(mObject);
-	float			viewingRange = _GetMessageHeapLoadViewingRange();
-	CellObject*		playerCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
-
-
-	// Make Set ready,
-	mInRangeObjects.clear();
-
-	// Init the iterator.
-	mObjectSetIt = mInRangeObjects.begin();
-
-	// make sure we got a cell
-	if (!playerCell)
-	{
-		gLogger->log(LogManager::DEBUG,"ERROR: No playerCell.");
-		return;
-	}
-
-	Object* object = gWorldManager->getObjectById(playerCell->getParentId());
-	//BuildingObject* building = dynamic_cast<BuildingObject*>(object);
-	BuildingObject* building = dynamic_cast<BuildingObject*>(object);
-	// make sure we got a building
-	if (!building)
-	{
-		
-		gLogger->log(LogManager::DEBUG,"ERROR: No building.");
-		return;
-	}
-
-
-	// mInRangeObjectIndex = 0;
-
-	if (updateAll)
-	{
-		// This is good to use when entering a building.
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Player | ObjType_Tangible | ObjType_NPC | ObjType_Creature | ObjType_Building | ObjType_Structure),viewingRange);
-
-		// query the qtree based on the buildings world position
-		if (QTRegion* region = mSI->getQTRegion(building->mPosition.x,building->mPosition.z))
-		{
-			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-
-			// We need to find moving creatures outside...
-			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature, &qRect);
-		}
-	}
-	else
-	{
-		// This is good to use when running around inside a building.
-
-		// We need to see player or creatures spawning inside.
-
-		// Added ObjType_Tangible because Tutorial spawns ObjType_Tangible in a way we don't normally do.
-		// If we need more speed in normal cases, just add a test for Tutorial and de-select ObjType_Tangible if not active.
-		mSI->getObjectsInRange(player,&mInRangeObjects,(ObjType_Tangible | ObjType_Player | ObjType_Creature | ObjType_NPC),viewingRange);
-
-		// query the qtree based on the buildings world position
-		if (QTRegion* region = mSI->getQTRegion(building->mPosition.x,building->mPosition.z))
-		{
-			Anh_Math::Rectangle qRect = Anh_Math::Rectangle(building->mPosition.x - viewingRange,building->mPosition.z - viewingRange,viewingRange * 2,viewingRange * 2);
-
-			// We need to find moving creatures outside...
-			region->mTree->getObjectsInRange(player,&mInRangeObjects,ObjType_Player | ObjType_NPC | ObjType_Creature,&qRect);
-		}
-	}
-	// Update the iterator to start of Set.
-	mObjectSetIt = mInRangeObjects.begin();
-	*/
 }
 
 

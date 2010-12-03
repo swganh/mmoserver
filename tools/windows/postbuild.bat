@@ -63,4 +63,6 @@ if not exist %2\bin\%3\ServerStart.bat (
     xcopy %1\data\ServerStart.bat %2\bin\%3 /I /Y /s
 )
 
+%1"\tools\windows\gitversion.exe" > %2"\bin\%3\VERSION"
+
 ENDLOCAL

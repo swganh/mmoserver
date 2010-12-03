@@ -76,7 +76,7 @@ typedef std::set<uint32>				Uint32Set;
  - Base class for all gameobjects
  */
 
-class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectFactoryCallback
+class Object : public UICallback, public Anh_Utils::EventHandler, public ObjectFactoryCallback, public std::enable_shared_from_this<Object>
 {
 	friend class PlayerObjectFactory;
 	friend class InventoryFactory;

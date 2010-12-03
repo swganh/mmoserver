@@ -63,38 +63,30 @@ void UIDropdownBox::addMessageData()
     BString	strFalse	= L"False";
     BString	strTrue		= L"True";
 
-    BString lengthStr;
-    lengthStr.setLength(sprintf(lengthStr.getAnsi(),"%u",mMaxLength));
-    lengthStr.convert(BSTRType_Unicode16);
+    char temp[64];
+    sprintf(temp,"%u",mMaxLength);
+	std::string tempString(temp);
 
-    if(mEnabled)
-    {
-        //fixme
-        return;
-    }
-    else
-    {
-        gMessageFactory->addUint8(3);
-        gMessageFactory->addUint32(1);
-        gMessageFactory->addString(strFalse);
-        gMessageFactory->addUint32(2);
-        gMessageFactory->addString(mName);
-        gMessageFactory->addString(BString("Enabled"));
+    gMessageFactory->addUint8(3);
+    gMessageFactory->addUint32(1);
+    gMessageFactory->addString((mEnabled) ? strTrue : strFalse);
+    gMessageFactory->addUint32(2);
+    gMessageFactory->addString(mName);
+    gMessageFactory->addString(BString("Enabled"));
 
-        gMessageFactory->addUint8(3);
-        gMessageFactory->addUint32(1);
-        gMessageFactory->addString(strFalse);
-        gMessageFactory->addUint32(2);
-        gMessageFactory->addString(mName);
-        gMessageFactory->addString(BString("visible"));
+	gMessageFactory->addUint8(3);
+    gMessageFactory->addUint32(1);
+    gMessageFactory->addString((mEnabled) ? strTrue : strFalse);
+    gMessageFactory->addUint32(2);
+    gMessageFactory->addString(mName);
+    gMessageFactory->addString(BString("visible"));
 
-        gMessageFactory->addUint8(3);
-        gMessageFactory->addUint32(1);
-        gMessageFactory->addString(lengthStr);
-        gMessageFactory->addUint32(2);
-        gMessageFactory->addString(mName);
-        gMessageFactory->addString(BString("MaxLength"));
-    }
+	gMessageFactory->addUint8(3);
+    gMessageFactory->addUint32(1);
+    gMessageFactory->addString(std::wstring(tempString.begin(), tempString.end()));
+    gMessageFactory->addUint32(2);
+    gMessageFactory->addString(mName);
+    gMessageFactory->addString(BString("MaxLength"));
 }
 
 //================================================================================

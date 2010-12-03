@@ -25,9 +25,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "MountObject.h"
-#include "PlayerObject.h"
 #include "WorldManager.h"
+
+#include <sstream>
+
+#include "Utils/Scheduler.h"
+#include "Utils/typedefs.h"
+#include "Utils/VariableTimeScheduler.h"
+#include "Utils/utils.h"
+
+#include "Common/ConfigManager.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DatabaseResult.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "ScriptEngine/ScriptEngine.h"
+#include "ScriptEngine/ScriptSupport.h"
+
 #include "AdminManager.h"
 #include "Buff.h"
 #include "BuffEvent.h"
@@ -43,98 +60,169 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Datapad.h"
 #include "GroupManager.h"
 #include "GroupObject.h"
+#include "FactoryFactory.h"
+#include "FactoryObject.h"
+#include "HarvesterFactory.h"
+#include "HarvesterObject.h"
 #include "Heightmap.h"
+#include "Inventory.h"
 #include "MissionManager.h"
+#include "MissionObject.h"
+#include "MountObject.h"
 #include "NpcManager.h"
 #include "NPCObject.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
 #include "PlayerStructure.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
+#include "Shuttle.h"
+#include "SpatialIndexManager.h"
 #include "StateManager.h"
+#include "TicketCollector.h"
 #include "TreasuryManager.h"
 #include "VehicleController.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
-#include "HarvesterFactory.h"
-#include "HarvesterObject.h"
-#include "FactoryFactory.h"
-#include "FactoryObject.h"
-#include "Inventory.h"
-#include "MissionObject.h"
-#include "ObjectFactory.h"
-#include "QuadTree.h"
-#include "Shuttle.h"
-#include "TicketCollector.h"
-#include "Common/ConfigManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "MessageLib/MessageLib.h"
-#include "ScriptEngine/ScriptEngine.h"
-#include "ScriptEngine/ScriptSupport.h"
-#include "Utils/Scheduler.h"
-#include "Utils/VariableTimeScheduler.h"
-#include "Utils/utils.h"
-#include "SpatialIndexManager.h"
+
+using std::stringstream;
+
 //======================================================================================================================
 
-void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, CharacterLoadingContainer* clContainer)
-{
-    PlayerObject* playerObject			= getPlayerByAccId(accId);
-    if(!playerObject) {
-        DLOG(INFO) << "WorldManager::savePlayer could not find player with AccId:" <<accId<<", save aborted.";
+void WorldManager::savePlayer(uint32 accId, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
+    // Lookup the requested player and abort if not found
+    PlayerObject* player_object = getPlayerByAccId(accId);
+    if(!player_object) {
+        DLOG(WARNING) << "WorldManager::savePlayer could not find player with AccId:" << accId << ", save aborted.";
         return;
     }
 
-    // WMQuery_SavePlayer_Position is the query handler called by the buffmanager when all the buffcallbacks are finished
-    // we prepare the asynccontainer here already
-    WMAsyncContainer* asyncContainer	= new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_SavePlayer_Position);
-
-    if(remove)
-    {
-        asyncContainer->mBool = true;
-    }
-
-    //clarify what handler we have to call after saving - if any
-    asyncContainer->mObject			= playerObject;
-    asyncContainer->mLogout			=   mLogout;
-    asyncContainer->clContainer		=	clContainer;
-
-    switch (mLogout)
-    {
-    case WMLogOut_LogOut:
-    case WMLogOut_Char_Load:
-        mDatabase->executeSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-                                   ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-                                   ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-                                   ,mZoneId,playerObject->getJediState(),playerObject->getId());
-       
-        break;
-
-    case WMLogOut_No_LogOut:
-    case WMLogOut_Zone_Transfer:
-        //start by saving the buffs the buffmanager will deal with the buffspecific db callbacks and start the position safe at their end
-        //which will return its callback to the worldmanager
-        //if no buff was there to be saved we will continue directly
-        if(playerObject && playerObject->isConnected() && !playerObject->isBeingDestroyed())
-        {
-            if(!gBuffManager->SaveBuffsAsync(asyncContainer, this, playerObject, GetCurrentGlobalTick()))
-            {
-                // position save will be called by the buff callback if there is any buff
-                mDatabase->executeSqlAsync(this,asyncContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
-                                           ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
-                                           ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
-                                           ,mZoneId,playerObject->getJediState(),playerObject->getId());
-              
-
-            }
-        }
-        break;
-    default:
-        DLOG(INFO) << "We should never get in here, make sure to call savePlayer with the enum WMLogOut";
-    }
+    // @TODO These functions should all return future<bool> and at the end a
+    // PlayerSavedEvent created with a conditional on the completion of all
+    // the futures.
+    storeCharacterPosition_(player_object, logout_type, clContainer);
+    storeCharacterAttributes_(player_object, remove, logout_type, clContainer);
 }
+
+void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
+    if(!player_object) {
+        DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
+        return;
+    }
+
+    // Determine whether this is a save for a zone transfer, if so the location
+    // we save will change.
+    bool transfer = (logout_type == WMLogOut_Zone_Transfer);
+
+    stringstream query_stream;
+
+    query_stream << "UPDATE characters SET parent_id=" << player_object->getParentId() << ", "
+                 << "oX=" << player_object->mDirection.x << ", "
+                 << "oY=" << player_object->mDirection.y << ", "
+                 << "oZ=" << player_object->mDirection.z << ", "
+                 << "oW=" << player_object->mDirection.w << ", "
+                 << "x=" << (transfer ? clContainer->destination.x : player_object->mPosition.x) << ", "
+                 << "y=" << (transfer ? clContainer->destination.y : player_object->mPosition.y) << ", "
+                 << "z=" << (transfer ? clContainer->destination.z : player_object->mPosition.z) << ", "
+                 << "planet_id=" << (transfer ? 0 : mZoneId) << ", "
+                 << "jedistate=" << player_object->getJediState() << " "
+                 << "WHERE id=" << player_object->getId();
+
+    mDatabase->executeAsyncSql(query_stream.str());
+}
+
+void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
+    if(!player_object) {
+        DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
+        return;
+    }
+
+    Ham* ham = player_object->getHam();
+    if(!ham) {
+        DLOG(WARNING) << "Unable to retrieve Ham for player: [" << player_object->getId() << "]";
+        return;
+    }
+
+    stringstream query_stream;
+
+    query_stream << "UPDATE character_attributes SET health_current=" << (ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier()) << ", "
+                 << "action_current=" << (ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier()) << ", "
+                 << "mind_current=" << (ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()) << ", "
+                 << "health_wounds=" << ham->mHealth.getWounds() << ", "
+                 << "strength_wounds=" << ham->mStrength.getWounds() << ", "
+                 << "constitution_wounds=" << ham->mConstitution.getWounds() << ", "
+                 << "action_wounds=" << ham->mAction.getWounds() << ", "
+                 << "quickness_wounds=" << ham->mQuickness.getWounds() << ", "
+                 << "stamina_wounds=" << ham->mStamina.getWounds() << ", "
+                 << "mind_wounds=" << ham->mMind.getWounds() << ", "
+                 << "focus_wounds=" << ham->mFocus.getWounds() << ", "
+                 << "willpower_wounds=" << ham->mWillpower.getWounds() << ", "
+                 << "battlefatigue=" << ham->getBattleFatigue() << ", "
+                 << "posture=" << player_object->states.getPosture() << ", "
+                 << "moodId=" << static_cast<uint16_t>(player_object->getMoodId()) << ", "
+                 << "title='" << mDatabase->escapeString(player_object->getTitle().getAnsi()) << "', "
+                 << "character_flags=" << player_object->getPlayerFlags() << ", "
+                 << "states=" << player_object->states.getAction() << ", "
+                 << "language=" << player_object->getLanguage() << ", "
+                 << "new_player_exemptions=" <<  static_cast<uint16_t>(player_object->getNewPlayerExemptions()) << " "
+                 << "WHERE character_id=" << player_object->getId();
+
+    mDatabase->executeAsyncSql(query_stream.str(), [=, &clContainer] (DatabaseResult* result) {
+        if(remove) {
+            if(!player_object) {
+                return;
+            }
+
+            GroupObject* group = gGroupManager->getGroupObject(player_object->getGroupId());
+            if(group) {
+                group->removePlayer(player_object->getId());
+            }
+
+            destroyObject(player_object);
+        }
+
+        if(logout_type == WMLogOut_Char_Load && !clContainer) {
+            gObjectFactory->requestObject(ObjType_Player, 0, 0, clContainer->ofCallback, clContainer->mPlayerId, clContainer->mClient);
+            SAFE_DELETE(clContainer);
+        }
+    });
+}
+
+//void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, CharacterLoadingContainer* clContainer)
+//{
+//    PlayerObject* playerObject			= getPlayerByAccId(accId);
+//    if(!playerObject) {
+//        DLOG(INFO) << "WorldManager::savePlayer could not find player with AccId:" <<accId<<", save aborted.";
+//        return;
+//    }
+//
+//    switch (mLogout)
+//    {
+//    case WMLogOut_LogOut:
+//    case WMLogOut_Char_Load:
+//        {
+//            // update PlayerAttributes
+//            _updatePlayerAttributesToDB(accId);
+//            _updatePlayerLogoutToDB(accId, clContainer);
+//        }
+//        break;
+//
+//    case WMLogOut_No_LogOut:
+//    case WMLogOut_Zone_Transfer:
+//        //start by saving the buffs the buffmanager will deal with the buffspecific db callbacks and start the position safe at their end
+//        //which will return its callback to the worldmanager
+//        //if no buff was there to be saved we will continue directly
+//        gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
+//        _updatePlayerAttributesToDB(accId);
+//        gObjectFactory->requestObject(ObjType_Player,0,0,clContainer->ofCallback,clContainer->mPlayerId,clContainer->mClient);
+//        //now destroy the clContainer
+//        SAFE_DELETE(clContainer);
+//
+//        _updatePlayerPositionToDB(accId);
+//        break;
+//    }
+//}
 
 //======================================================================================================================
 
@@ -147,7 +235,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
                              ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
                              ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
                              ,mZoneId,playerObject->getId()));
-   
+
 
     mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE character_attributes SET health_current=%u,action_current=%u,mind_current=%u"
                              ",health_wounds=%u,strength_wounds=%u,constitution_wounds=%u,action_wounds=%u,quickness_wounds=%u"
@@ -170,7 +258,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
                              playerObject->getMoodId(),
                              playerObject->getTitle().getAnsi(),
                              playerObject->getPlayerFlags(),
-							 playerObject->states.getAction(),
+                             playerObject->states.getAction(),
                              playerObject->getLanguage(),
                              playerObject->getGroupId(),
                              playerObject->getId()));
@@ -312,12 +400,16 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
 
 void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& destination, uint64 parentId, const glm::quat& direction)
 {
-
-	// remove from cell if we are in one / SI
+    // remove from cell if we are in one / SI
 	gSpatialIndexManager->RemoveObjectFromWorld(playerObject);
 	
 	//we've removed the taskId, now lets reset the Id
 	playerObject->getHam()->setTaskId(0);
+
+    //
+// Handle update of player movements. We need to have a consistent update of the world around us,
+// even we we are not moving in world.
+// this is especially important when we are limiting object creates to say 50 objects per second
 
 	// reset player properties
 	playerObject->resetProperties();
@@ -340,7 +432,41 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	playerObject->getHam()->checkForRegen();
 	playerObject->getStomach()->checkForRegen();
 }
+//======================================================================================================================
+//
+// Handles the saving of all players on a fixed interval
+// eventually we will put some logic to only save x players at a time
+// in this once the server becomes more stable
+//
+bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
+{
+    //uint32 playerCount = mPlayerAccMap.size();
+    //// don't save all players if > 100
+    uint32 playerSaveCount = 0;
+    PlayerAccMap::iterator playerIt = mPlayerAccMap.begin();
+    while (playerIt != mPlayerAccMap.end())
+    {
+        const PlayerObject* const playerObject = (*playerIt).second;
+        if (playerObject)
+        {
+            if (playerObject->isConnected())
+            {
+                // TODO: don't save all players if > x players (100ish)
+                // set the timer to save rest of players again
+                // TODO: check if player has saved recently
+                // save player async
+                gWorldManager->savePlayer(playerObject->getAccountId(), false, WMLogOut_No_LogOut);
+                ++playerSaveCount;
+            }
 
+        }
+
+        ++playerIt;
+    }
+    LOG(WARNING) << "Periodic Save of "<< playerSaveCount <<" Players";
+    //setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 60000, NULL));
+    return true;
+}
 //======================================================================================================================
 //
 //	Add a timed entry for cloning of dead player objects.

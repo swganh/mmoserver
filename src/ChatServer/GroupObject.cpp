@@ -331,9 +331,9 @@ void GroupObject::createChannel()
     channel->setName(BString(channelName));
     channel->setGalaxy(gChatManager->getGalaxyName());
 
-    BString tmpValueStr = BString(BSTRType_Unicode16,64);
-    tmpValueStr.setLength(swprintf(tmpValueStr.getUnicode16(),64,L"%"WidePRIu64, mId));
-    channel->setTitle(tmpValueStr);
+    wchar_t temp[64];
+    swprintf(temp,64,L"%"WidePRIu64, mId);
+    channel->setTitle(temp);
 
 	DLOG(INFO)  << "Group channel created: " << channel->getName().getAnsi() << " with id " << channel->getId();
     channel->setOwner(gSystemAvatar);

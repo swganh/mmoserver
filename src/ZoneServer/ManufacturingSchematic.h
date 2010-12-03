@@ -42,7 +42,7 @@ class CraftAttributeWeight;
 
 struct CustomizationOption
 {
-    BString		attribute;
+    BString	attribute;
     uint16		cutomizationIndex;
     uint32		paletteSize;
     uint32		defaultValue;
@@ -182,7 +182,7 @@ public:
 
 private:
 
-    BString						mItemModel;
+    BString					mItemModel;
     uint8						mSlotsFilled;
     ManufactureSlots			mManufactureSlots;
     ExperimentationProperties	mExperimentationProperties;
@@ -190,7 +190,7 @@ private:
     uint8						mCounter;
     float						mExpFailureChance;
     Item*						mItem;
-    BString						mSerial;
+    BString     				mSerial;
 
     AttributeMap				mPPAttributeMap;
 };
@@ -238,7 +238,7 @@ public:
         return mSerial;
     }
     void	setSerial(BString s) {
-        mSerial= s;
+        mSerial = s;
     }
 
     uint32	getFilledAmount() {
@@ -296,7 +296,7 @@ public:
 
     virtual ~ExperimentationProperty() {}
 
-    BString						mExpAttributeName;
+    BString					mExpAttributeName;
     CraftWeights*			mWeights;
     CraftAttributes*	mAttributes;
     float							mBlueBarSize;

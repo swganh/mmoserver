@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <list>
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 #include <boost/ptr_container/ptr_unordered_map.hpp>
@@ -58,6 +59,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/TangibleEnums.h"
 #include "ZoneServer/Weather.h"
 #include "ZoneServer/WorldManagerEnums.h"
+#include "ZoneServer/RegionObject.h"
 
 //======================================================================================================================
 
@@ -91,18 +93,15 @@ class VariableTimeScheduler;
 // pwns all objects
 typedef boost::ptr_unordered_map<uint64,Object>			ObjectMap;
 
-// seperate map for qt regions, since ids may match object ids
-//typedef boost::ptr_unordered_map<uint32,QTRegion>		QTRegionMap;
-
 // Maps for objects in world
-typedef std::map<uint32,const PlayerObject*>	PlayerAccMap;
-typedef std::map<uint64,RegionObject*>			RegionMap;
-typedef std::vector<RegionObject*>				RegionDeleteList;
+typedef std::map<uint32,const PlayerObject*>	        PlayerAccMap;
+typedef std::map<uint64,std::shared_ptr<RegionObject>>	RegionMap;
+typedef std::vector<std::shared_ptr<RegionObject>> RegionDeleteList;
 
 // Lists for objects in world
 typedef std::list<PlayerObject*>				PlayerList;
 typedef std::vector<Shuttle*>					ShuttleList;
-typedef std::vector<RegionObject*>				ActiveRegions;
+typedef std::vector<std::shared_ptr<RegionObject>>  ActiveRegions;
 typedef std::list<CreatureObject*>				CreatureQueue;
 typedef std::vector<std::pair<uint64, NpcConversionTime*> >	NpcConversionTimers;
 typedef std::map<uint64, uint64>				PlayerMovementUpdateMap;
@@ -113,7 +112,7 @@ typedef std::map<uint64, uint64>				PlayerObjectReviveMap;
 typedef std::vector<uint64>						CraftTools;
 
 // Creature spawn regions.
-typedef std::map<uint64, const CreatureSpawnRegion*>	CreatureSpawnRegionMap;
+typedef std::map<uint64, const std::shared_ptr<CreatureSpawnRegion>>	CreatureSpawnRegionMap;
 
 // Containers with handlers to Npc-objects handled by the NpcManager (or what we are going to call it its final version).
 // The active container will be the most often checked, and the Dormant the less checked container.
@@ -204,12 +203,15 @@ public:
     // ObjectFactoryCallback
     virtual void			handleObjectReady(Object* object,DispatchClient* client);
 
+    virtual void            handleObjectReady(std::shared_ptr<Object>);
+
     // TimerCallback
     virtual void			handleTimer(uint32 id, void* container);
 
     // add / delete an object, make sure to cleanup any other references
     bool					existObject(Object* object);	// Returns true if object does exist.
-	bool					addObject(Object* object,bool manual = false);
+    bool					addObject(Object* object,bool manual = false);
+    bool					addObject(std::shared_ptr<Object> object ,bool manual = false);
 	void					destroyObject(Object* object);
 		
 	void					createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object);
@@ -348,20 +350,16 @@ public:
     void					warpPlanet(PlayerObject* playerObject, const glm::vec3& destination,uint64 parentId, const glm::quat& direction = glm::quat());
 
     // get a client effect string by its id
-    BString					getClientEffect(uint32 effectId) {
+    std::string				getClientEffect(uint32 effectId) {
         return mvClientEffects[effectId - 1];
     }
 
     // get sound string by its id
-    BString					getSound(uint32 soundId) {
-		if((soundId-1) > mvSounds.size())
-		{
-			return("");
-		}
+    std::string 			getSound(uint32 soundId) {
         return mvSounds[soundId - 1];
     }
     // get a mood string by its id
-    BString					getMood(uint32 moodId) {
+    std::string					getMood(uint32 moodId) {
         return mvMoods[moodId];
     }
     // get an attribute key
@@ -369,7 +367,7 @@ public:
     // get an attribute ID
     uint32					getAttributeId(uint32 keyId);
     // get a npc animation
-    BString					getNpcConverseAnimation(uint32 animId) {
+    std::string					getNpcConverseAnimation(uint32 animId) {
         return mvNpcConverseAnimations[animId - 1];
     }
     // get a random chat phrase
@@ -403,19 +401,29 @@ public:
     uint32					getPlanetCount() {
         return mvPlanetNames.size();
     }
-
+    /*  Region Methods
+    *
+    */
     // region methods
 	// we store here regions that are due to be deleted after every iteration
     // through active regions the list is iterated and its contents removed and destroyed
-    void					addRemoveRegion(RegionObject* region){
-        mRegionDeleteList.push_back(region);
+    void					addRemoveRegion(std::shared_ptr<RegionObject> region) {
+        mRegionDeleteList.push_back(region);   //we store here regions that are due to be deleted after every iteration through active regions the list is iterated and its contents removed and destroyed
     }
-	RegionObject*			getRegionById(uint64 regionId);
-	void					addActiveRegion(RegionObject* regionObject){
+
+    std::shared_ptr<RegionObject> getRegionById(uint64 regionId);
+
+    RegionMap getRegionMap() {
+        return mRegionMap;
+    }
+    //
+    void					addActiveRegion(std::shared_ptr<RegionObject> regionObject) {
         mActiveRegions.push_back(regionObject);
     }
-	void					removeActiveRegion(RegionObject* regionObject);
-
+    void					removeActiveRegion(std::shared_ptr<RegionObject> regionObject);
+    /*  End Region Methods
+    *
+    */
     Anh_Utils::Scheduler*	getPlayerScheduler() {
         return mPlayerScheduler;
     }
@@ -474,7 +482,7 @@ private:
     bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
     bool	_handleVariousUpdates(uint64 callTime, void* ref);
 
-    //		Save players, who haven't saved in x minutes
+//		Save players, who haven't saved in x minutes
     bool	_handlePlayerSaveTimers(uint64 callTime, void* ref);
 
     bool	_handlePlayerMovementUpdateTimers(uint64 callTime, void* ref);
@@ -493,73 +501,99 @@ private:
     // process schedulers
     void	_processSchedulers();
 
+    // New Method of Loading objects from DB.
+    void    _loadWorldObjects();
+
     // load buildings and their contents
     void	_loadBuildings();
 
     // loads all child objects of the given parent
     void	_loadAllObjects(uint64 parentId);
 
+    // planet names and neceessary terrain file names
+    void    _loadPlanetNamesAndFiles();
+
     // load our script hooks
     void	_registerScriptHooks();
+
+
+    /** Stores the characters position in the database asynchronously.
+    *
+    * \param player_object The Player object to save.
+    * \param logout_type The type of logout. This is somewhat ambiguously named for the time being.
+    * \param clContainer Another legacy data variable. This will go away in future commit.
+    */
+    void storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
+    
+    /** Stores the characters attributes in the database asynchronously.
+    *
+    * Has a side effect that after a successful update if the player is logging
+    * out their player object is deleted. This will go away when we switch to
+    * using a logout event that services listen to and respond by doing the actions
+    * currently handled within this member function.
+    *
+    * \param player_object The Player object to save.
+    * \param remove Whether or not to remove the player.
+    * \param logout_type The type of logout. This is somewhat ambiguously named for the time being.
+    * \param clContainer Another legacy data variable. This will go away in future commit.
+    */
+    void storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
 
     static WorldManager*		mSingleton;
     static bool					mInsFlag;
 
     boost::pool<boost::default_user_allocator_malloc_free>	mWM_DB_AsyncPool;
 
-	AdminRequestHandlers		mAdminRequestHandlers;
-	CreatureObjectDeletionMap	mCreatureObjectDeletionMap;
-	CreatureSpawnRegionMap		mCreatureSpawnRegionMap;
-	NpcActiveHandlers			mNpcActiveHandlers;
-	NpcDormantHandlers			mNpcDormantHandlers;
-	NpcReadyHandlers			mNpcReadyHandlers;
-	ObjectIDList			    mStructureList;
-	ObjectMap					mObjectMap;
-	PlayerAccMap				mPlayerAccMap;
-		
-	PlayerObjectReviveMap		mPlayerObjectReviveMap;
-		
-	RegionMap					mRegionMap;
-	NpIdSet						mUsedTmpIds;
-	BStringVector				mvClientEffects;
-	BStringVector				mvMoods;
-	BStringVector				mvNpcConverseAnimations;
-	BStringVector				mvPlanetNames;
-	BStringVector				mvSounds;
-	BStringVector				mvTrnFileNames;
-	ActiveRegions				mActiveRegions;
-	CraftTools					mBusyCraftTools;
-	std::vector<std::pair<std::wstring,uint32> >	mvNpcChatter;
-	NpcConversionTimers			mNpcConversionTimers;
-	PlayerList					mPlayersToRemove;
-	RegionDeleteList			mRegionDeleteList;
-	ShuttleList					mShuttleList;
-	ScriptList					mWorldScripts;
-	CreatureQueue				mObjControllersToProcess;
-	Weather						mCurrentWeather;
-	ScriptEventListener			mWorldScriptsListener;
-	Anh_Utils::Scheduler*		mAdminScheduler;
-	Anh_Utils::VariableTimeScheduler* mBuffScheduler;
-	Database*					mDatabase;
-	Anh_Utils::Scheduler*		mEntertainerScheduler;
-	Anh_Utils::Scheduler*		mScoutScheduler;
-	Anh_Utils::Scheduler*		mHamRegenScheduler;
-	Anh_Utils::Scheduler*		mStomachFillingScheduler;
-	Anh_Utils::Scheduler*		mMissionScheduler;
-	Anh_Utils::Scheduler*		mNpcManagerScheduler;
-	Anh_Utils::Scheduler*		mObjControllerScheduler;
-	Anh_Utils::Scheduler*		mPlayerScheduler;
-		
-	Anh_Utils::Scheduler*		mSubsystemScheduler;
-	ZoneServer*					mZoneServer;
-	WMState						mState;
-	uint64						mNonPersistantId;
-	uint64						mObjControllersProcessTimeLimit;
-	uint64						mServerTime;
-	uint64						mTick;
-	uint32						mTotalObjectCount;
-	uint32						mZoneId;
-
+    AdminRequestHandlers		mAdminRequestHandlers;
+    CreatureObjectDeletionMap	mCreatureObjectDeletionMap;
+    CreatureSpawnRegionMap		mCreatureSpawnRegionMap;
+    NpcActiveHandlers			mNpcActiveHandlers;
+    NpcDormantHandlers			mNpcDormantHandlers;
+    NpcReadyHandlers			mNpcReadyHandlers;
+    ObjectIDList			    mStructureList;
+    ObjectMap					mObjectMap;
+    PlayerAccMap				mPlayerAccMap;
+    PlayerMovementUpdateMap		mPlayerMovementUpdateMap;
+    PlayerObjectReviveMap		mPlayerObjectReviveMap;
+    RegionMap                   mRegionMap;
+    NpIdSet						mUsedTmpIds;
+    std::vector<std::string>	mvClientEffects;
+    std::vector<std::string>    mvMoods;
+    std::vector<std::string>	mvNpcConverseAnimations;
+    BStringVector				mvPlanetNames;
+    std::vector<std::string>    mvSounds;
+    BStringVector				mvTrnFileNames;
+    ActiveRegions				mActiveRegions;
+    CraftTools					mBusyCraftTools;
+    std::vector<std::pair<std::wstring,uint32> >	mvNpcChatter;
+    NpcConversionTimers			mNpcConversionTimers;
+    PlayerList					mPlayersToRemove;
+    RegionDeleteList			mRegionDeleteList;
+    ShuttleList					mShuttleList;
+    ScriptList					mWorldScripts;
+    CreatureQueue				mObjControllersToProcess;
+    Weather						mCurrentWeather;
+    ScriptEventListener			mWorldScriptsListener;
+    Anh_Utils::Scheduler*		mAdminScheduler;
+    Anh_Utils::VariableTimeScheduler* mBuffScheduler;
+    Database*								mDatabase;
+    Anh_Utils::Scheduler*		mEntertainerScheduler;
+    Anh_Utils::Scheduler*		mScoutScheduler;
+    Anh_Utils::Scheduler*		mHamRegenScheduler;
+    Anh_Utils::Scheduler*		mStomachFillingScheduler;
+    Anh_Utils::Scheduler*		mMissionScheduler;
+    Anh_Utils::Scheduler*		mNpcManagerScheduler;
+    Anh_Utils::Scheduler*		mObjControllerScheduler;
+    Anh_Utils::Scheduler*		mPlayerScheduler;
+    Anh_Utils::Scheduler*		mSubsystemScheduler;
+    ZoneServer*					mZoneServer;
+    WMState						mState;
+    uint64						mNonPersistantId;
+    uint64						mObjControllersProcessTimeLimit;
+    uint64						mServerTime;
+    uint64						mTick;
+    uint32						mTotalObjectCount;
+    uint32						mZoneId;
     uint64						mSaveTaskId;
 };
 

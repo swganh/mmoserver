@@ -249,7 +249,7 @@ void AttackableCreature::handleObjectMenuSelect(uint8 messageType,Object* srcObj
                                 // sprintf(str,"%u credits", lootedCredits);
                                 // BString lootCreditsString(str);
                                 // lootCreditsString.convert(BSTRType_Unicode16);
-                                gMessageLib->SendSystemMessage(::common::OutOfBand("group", "prose_split_coins_self", "", "", getSpeciesGroup().getAnsi(), getSpeciesString().getAnsi(), "", "", lootedCredits, 0.0f), playerObject);
+                                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_coin_loot", "", "", getSpeciesGroup().getAnsi(), getSpeciesString().getAnsi(), "", "", lootedCredits, 0.0f), playerObject);
 
                                 // Now we need to add the credits to our own inventory.
                                 Inventory* playerInventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
@@ -1553,7 +1553,7 @@ void AttackableCreature::spawn(void)
 
     this->setSpawned();
 
-	//add to spatialIndex
+    //add to spatialIndex
 	gSpatialIndexManager->AddObject(this);
 
     // Sleeping NPC's should be put in lower prio queue.

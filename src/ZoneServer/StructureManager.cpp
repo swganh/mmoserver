@@ -723,7 +723,6 @@ void StructureManager::OpenStructureBanList(uint64 structureId, uint64 playerId)
 
 void StructureManager::processVerification(StructureAsyncCommand command, bool owner)
 {
-
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(command.PlayerId));
 
 	if(!player)

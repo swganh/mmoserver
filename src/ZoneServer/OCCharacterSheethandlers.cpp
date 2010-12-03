@@ -249,7 +249,7 @@ void ObjectController::_handleSetBiography(uint64 targetId,Message* message,Obje
     sqlPointer += mDatabase->escapeString(sqlPointer,bio.getAnsi(),bio.getLength());
     strcat(sql,end);
 
-    mDatabase->executeSqlAsync(0,0,sql);
+    mDatabase->executeAsyncSql(sql);
     
 }
 

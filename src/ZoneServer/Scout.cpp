@@ -101,13 +101,12 @@ void Scout::sendAttributes(PlayerObject* playerObject)
 
     gMessageFactory->addUint32(1 + mAttributeMap.size());
 
-    BString	tmpValueStr = BString(BSTRType_Unicode16,64);
     BString	value;
-
-    tmpValueStr.setLength(swprintf(reinterpret_cast<wchar_t*>(tmpValueStr.getUnicode16()),20,L"%u/%u",mMaxCondition - mDamage,mMaxCondition));
+	wchar_t temp[20];
+    swprintf(temp,20,L"%u/%u",mMaxCondition - mDamage,mMaxCondition);
 
     gMessageFactory->addString(BString("condition"));
-    gMessageFactory->addString(tmpValueStr);
+    gMessageFactory->addString(temp);
 
     AttributeMap::iterator			mapIt;
     AttributeOrderList::iterator	orderIt = mAttributeOrderList.begin();

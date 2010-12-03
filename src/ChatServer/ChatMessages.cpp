@@ -1083,7 +1083,7 @@ void ChatMessageLib::sendChatQueryRoomResults(DispatchClient* client, Channel* c
         BString test(*(*seconditer).second);
         gMessageFactory->addString(*(ChatManager::getSingletonPtr()->getFirstName(test)));
 #else
-        gMessageFactory->addString(*((*seconditer).second));
+        gMessageFactory->addString(((*seconditer).second));
 #endif
         ++seconditer;
     }
@@ -1099,7 +1099,7 @@ void ChatMessageLib::sendChatQueryRoomResults(DispatchClient* client, Channel* c
         gMessageFactory->addString(*(ChatManager::getSingletonPtr()->getFirstName(test)));
         //gMessageFactory->addString(*(ChatManager::getSingletonPtr()->getFirstName((string &)(*((*seconditer).second)))));
 #else
-        gMessageFactory->addString(*((*seconditer).second));
+        gMessageFactory->addString(((*seconditer).second));
 #endif
         ++seconditer;
     }
@@ -1115,7 +1115,7 @@ void ChatMessageLib::sendChatQueryRoomResults(DispatchClient* client, Channel* c
         gMessageFactory->addString(*(ChatManager::getSingletonPtr()->getFirstName(test)));
         // gMessageFactory->addString(*(ChatManager::getSingletonPtr()->getFirstName((string &)(*((*seconditer).second)))));
 #else
-        gMessageFactory->addString(*((*seconditer).second));
+        gMessageFactory->addString(((*seconditer).second));
 #endif
         ++seconditer;
     }

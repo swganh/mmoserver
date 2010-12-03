@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef SRC_COMMON_EVENT_H_
-#define SRC_COMMON_EVENT_H_
+#ifndef SRC_COMMON_CRC_H_
+#define SRC_COMMON_CRC_H_
 
 #include <cstdint>
 #include <string>
@@ -63,4 +63,4 @@ uint32_t memcrc(const std::string& source_string);
 
 }  // namespace common
 
-#endif  // SRC_COMMON_EVENT_H_
+#endif  // SRC_COMMON_CRC_H_

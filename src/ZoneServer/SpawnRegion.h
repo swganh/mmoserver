@@ -49,16 +49,24 @@ public:
 	SpawnRegion();
 	virtual ~SpawnRegion();
 
-	uint32			getSpawnType(){ return mSpawnType; }
-	void			setSpawnType(uint32 type){ mSpawnType = type; }
-	bool			isMission(){return (mMission != 0);}
+    uint32			getSpawnType() {
+        return mSpawnType;
+    }
+    void			setSpawnType(uint32 type) {
+        mSpawnType = type;
+    }
+    uint32 getMission() { return mMission; }
+    void    setMission(uint32 mission) { mMission = mission;  }
+
+    bool			isMission() {
+        return (mMission != 0);
+    }
 
 	virtual void	update();
 	virtual void	onObjectEnter(Object* object);
 	virtual void	onObjectLeave(Object* object);
 
 protected:
-
 	Anh_Math::Rectangle mQueryRect;
 
 	SpatialIndexManager*	mSIM;

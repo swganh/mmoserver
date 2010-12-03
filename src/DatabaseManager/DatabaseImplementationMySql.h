@@ -50,7 +50,7 @@ public:
     DatabaseImplementationMySql(const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
     ~DatabaseImplementationMySql();
 
-    DatabaseResult* executeSql(const char* sql, bool procedure = false);
+    DatabaseResult* executeSql(const std::string& sql, bool procedure = false);
     void destroyResult(DatabaseResult* result);
 
     void getNextRow(DatabaseResult* result, DataBinding* binding, void* object) const;

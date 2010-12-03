@@ -73,7 +73,7 @@ public:
 
     virtual void					run();
 
-    void                          NewOutgoingConnection(int8* address, uint16 port);
+    void                          NewOutgoingConnection(const int8* address, uint16 port);
     void                          RemoveAndDestroySession(Session* session);
 
     NewConnection*                getNewConnectionInfo(void)  {

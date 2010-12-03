@@ -446,7 +446,7 @@ void SocketReadThread::run(void)
 
 //======================================================================================================================
 
-void SocketReadThread::NewOutgoingConnection(int8* address, uint16 port)
+void SocketReadThread::NewOutgoingConnection(const int8* address, uint16 port)
 {
     // This will only handle a single connect call at a time right now.  At some point it would be good to make this a
     // queue so we can process these async.  This is NOT thread safe, and won't be.  Only should be called by the Service.

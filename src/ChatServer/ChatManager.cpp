@@ -764,10 +764,9 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for (uint i = 0; i < count; i++)
         {
-            BString* name = new BString();
-            result->getNextRow(binding, name);
+            BString name;
+            result->getNextRow(binding, &name);
             asyncContainer->mChannel->addModerator(name);
-            delete name;
         }
 
         mDatabase->destroyDataBinding(binding);
@@ -783,10 +782,9 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for (uint i = 0; i < count; i++)
         {
-            BString* name = new BString();
-            result->getNextRow(binding, name);
+            BString name;
+            result->getNextRow(binding, &name);
             asyncContainer->mChannel->banUser(name);
-            delete name;
         }
         mDatabase->destroyDataBinding(binding);
     }
@@ -800,10 +798,9 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         for (uint i = 0; i < count; i++)
         {
-            BString* name = new BString();
-            result->getNextRow(binding, name);
+            BString name;
+            result->getNextRow(binding, &name);
             asyncContainer->mChannel->addInvitedUser(name);
-            delete name;
         }
 
         mDatabase->destroyDataBinding(binding);
@@ -1153,8 +1150,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     BString title;
 
     Player* player = getPlayerByAccId(client->getAccountId());
-    BString* playername = new BString(BSTRType_ANSI, player->getName().getLength());
-    strcpy(playername->getAnsi(), player->getName().getAnsi());
+    BString playername = player->getName();
 
     uint8 publicFlag = message->getUint8();
     uint8 moderatedFlag = message->getUint8();
@@ -1177,14 +1173,13 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
         if (Anh_Utils::cmpistr((*iter)->getName().getAnsi(), modpath.getAnsi()) == 0)
         {
             DLOG(INFO) << "Channel " << modpath.getAnsi() << " already exist";
-            delete playername;
             return;
         }
         iter++;
     }
 
     // Lowercase...
-    playername->toLower();
+    playername.toLower();
 
     Channel* channel = new Channel();
     channel->setName(modpath);
@@ -1214,7 +1209,7 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
     asyncContainer->mChannel = channel;
     // Lowercase mDatabase->ExecuteSqlAsync(this, asyncContainer, "SELECT sf_CreateChannel('%s', %u, %u, '%s', '%s');", modpath.getAnsi(), channel->isPrivate(), moderatedFlag, player->getName().getAnsi(), title.getAnsi());
     int8 sql[128];
-    mDatabase->escapeString(sql, playername->getAnsi(), playername->getLength());
+    mDatabase->escapeString(sql, playername.getAnsi(), playername.getLength());
 
     int8 sql_2[128];
     mDatabase->escapeString(sql_2, title.getAnsi(), title.getLength());
@@ -1223,8 +1218,6 @@ void ChatManager::_processCreateRoom(Message* message,DispatchClient* client)
 
     // TEST
     DLOG(INFO) << "Channel " <<title.getAnsi()<<" created at " << modpath.getAnsi();
-
-    delete playername;
 }
 
 //======================================================================================================================
@@ -1644,7 +1637,7 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
     }
     else
     {
-        channel->addModerator(&playerName);
+        channel->addModerator(playerName);
         int8 sql[128];
         mDatabase->escapeString(sql, realPlayerName.getAnsi(), realPlayerName.getLength());
 
@@ -1750,7 +1743,7 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
     }
     else
     {
-        channel->addInvitedUser(&playerName);
+        channel->addInvitedUser(playerName);
         int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
@@ -2149,7 +2142,7 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
         }
 
         // Get the ban-stick in ready position
-        channel->banUser(&playerName);
+        channel->banUser(playerName);
         // int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
         // mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_banned VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi()*/);

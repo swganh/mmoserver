@@ -13,6 +13,12 @@ SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tools/cmake")
 
 INCLUDE(ExternalProject)
 
+# Some automated systems need an xml report which requires a second run of the
+# tests. To prevent these unnecessary runnings during normal builds the
+# following option is set with a default of false.
+OPTION(ENABLE_TEST_REPORT
+    "Enables the generation of a test report when running tests" FALSE)
+
 # On gcc platforms the c++0x flag is needed to enable features used by this project.
 IF(CMAKE_COMPILER_IS_GNUCXX)
     # First make sure the version of gnu is new enough
@@ -26,6 +32,20 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     ENDIF()
         
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+
+    # use, i.e. don't skip the full RPATH for the build tree
+    SET(CMAKE_SKIP_BUILD_RPATH FALSE)
+
+    # when building our libraries are already where we want them to be
+    # so build with that path
+    SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+    # the RPATH to be used when installing
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/glog/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql-connector-cpp/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/noise/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/spatialindex/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/tbb/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib/lib:$ENV{LD_RUN_PATH}")
+
+    # add the automatically determined parts of the RPATH
+    # which point to directories outside the build tree to the install RPATH
+    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 ELSE()
     # If not gcc and on WIN32 we're using visual studio, perform related checks here.
     IF(WIN32) 
@@ -48,7 +68,7 @@ ELSE()
         MESSAGE(STATUS "- MSVC: Disabled NON-SECURE warnings")
         
         IF(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244")
+          set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4251")
           MESSAGE(STATUS "- MSVC: Disabled generic compiletime warnings")
         ENDIF()
     ENDIF()

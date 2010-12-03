@@ -98,6 +98,9 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 
 		void					UpdateObject(Object *updateObject);
 
+		//just initialize our surroundings for us on reload were still created for other players
+		bool					InitializeObject(PlayerObject *player);
+
 		//removes an object from the grid and sends the destroys
 		void					RemoveObjectFromWorld(Object *removeObject);		
 		void					RemoveObjectFromWorld(PlayerObject *removePlayer);

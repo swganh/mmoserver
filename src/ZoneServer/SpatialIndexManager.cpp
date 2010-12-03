@@ -1372,3 +1372,43 @@ void SpatialIndexManager::sendToChatRange(Object* container, std::function<void 
 	}
 
 }
+
+//=============================================================================================================================
+//
+// just create other players / creatures for us - we still exist for them as we were still in logged state
+//
+
+bool SpatialIndexManager::InitializeObject(PlayerObject *player)
+{
+	//Pesudo
+	// 1. Calculate CellID
+	// 2. Set CellID
+	// 3. Insert object into the cell in the hash table
+
+	//now create around for us
+	//we have to query the grid as noncontainers must be created to
+		
+	ObjectListType playerList;
+	getGrid()->GetViewingRangeCellContents(player->getGridBucket(), &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
+		
+	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
+	{
+		//we just added ourselves to the grid - dont send a create to ourselves
+		if(((*i)->getId() == player->getId()))
+		{
+			continue;
+		}
+		
+		sendCreateObject((*i), player, false);
+
+		//registrations should still be intact
+		//if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))
+		//{
+			//gContainerManager->registerPlayerToContainer((*i), player);
+			//continue;
+		//}
+		
+
+	}
+	return true;
+}

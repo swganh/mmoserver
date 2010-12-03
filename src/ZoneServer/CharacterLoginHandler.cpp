@@ -130,10 +130,11 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         gMessageLib->sendWeatherUpdate(weather->mClouds,weather->mWeather,playerObject);
 
 		//initialize us for the world
-		gWorldManager->addObject(playerObject);
+		//gWorldManager->addObject(playerObject);
 
-		//create us for others
-		gSpatialIndexManager->createInWorld(playerObject);
+		//create us for others dont use create in world - we are still in the cell
+		//we just want to reinitialize the grid for us
+		gSpatialIndexManager->InitializeObject(playerObject);
 
 		//create ourselves for us
 		gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);

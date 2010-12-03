@@ -236,7 +236,6 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 			gMessageLib->sendDataTransformWithParent0B(this);
 		else
 		{
-			this->incInMoveCount();
 			gMessageLib->sendUpdateTransformMessageWithParent(this);
 		}
 	}
@@ -246,7 +245,6 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 			gMessageLib->sendDataTransform0B(this);
 		else
 		{
-			this->incInMoveCount();
 			gMessageLib->sendUpdateTransformMessage(this);
 		}
 	}

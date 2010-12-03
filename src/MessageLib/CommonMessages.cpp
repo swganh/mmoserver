@@ -339,7 +339,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));
-    mMessageFactory->addUint32(object->getInMoveCount());
+	mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));
@@ -365,7 +365,7 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));
-    mMessageFactory->addUint32(object->getInMoveCount());
+    mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));
@@ -390,7 +390,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));
-    mMessageFactory->addUint32(object->getInMoveCount());
+    mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));
@@ -416,7 +416,7 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));
-    mMessageFactory->addUint32(object->getInMoveCount());
+    mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));

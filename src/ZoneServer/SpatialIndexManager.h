@@ -106,21 +106,11 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					RemoveObjectFromWorld(PlayerObject *removePlayer);
 		void					RemoveObjectFromWorld(CreatureObject *removeCreature);
 		
-		//used by above routines to access the grid
-		void					RemoveObject(Object *removeObject);
 
 		void					RemoveRegion(RegionObject *removeObject);
 		void					addRegion(RegionObject *region);
 		RegionObject*			getRegion(uint32 id);
 
-
-		//Update functions for spawn and despawn
-		void					UpdateBackCells(Object* updateObject,uint32);
-		void					UpdateFrontCells(Object* updateObject, uint32);
-		void					CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
-		void					CheckObjectIterationForDestruction(Object* toBeTested, PlayerObject* updatedPlayer);
-		void					ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
-		void					CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
 
 		//place Objects in the spatialIndex / cells 
 		void					createInWorld(Object* object);
@@ -137,10 +127,6 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					sendToPlayersInRange(const Object* const object, bool cellContent, std::function<void (PlayerObject* player)> callback);
 
 		void					sendToChatRange(Object* container, std::function<void (PlayerObject* const player)> callback);
-
-		
-		// removes an item from a structure
-		void					removeObjectFromBuilding(Object* object, BuildingObject* building);
 
 
 		//======================================================================================================================
@@ -169,7 +155,17 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		SpatialIndexManager();
 
 		uint32					_GetMessageHeapLoadGridRange();
+		
+		//used by above routines to remove Objects from the grid
+		void					_RemoveObjectFromGrid(Object *removeObject);
 
+		//Update functions for spawn and despawn
+		void					_UpdateBackCells(Object* updateObject,uint32);
+		void					_UpdateFrontCells(Object* updateObject, uint32);
+		void					_CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
+		void					_CheckObjectIterationForDestruction(Object* toBeTested, PlayerObject* updatedPlayer);
+		void					_ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
+		void					_CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
 
 		static SpatialIndexManager*		mSingleton;
 		static bool						mInsFlag;

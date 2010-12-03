@@ -127,13 +127,7 @@ public:
 	
 	void				GetCustomRangeCellContents(uint32 CellID, uint32 range, ObjectListType* list, uint32 type);
 	
-	//void	geInRange(const Object* const object,ObjectSet* resultSet,uint32 objTypes,float range, bool cellContent);
-
 	
-
-	//void CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
-	//void CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
-	//void ObjectCreationIteration(ObjectListType* FinalList, Object* updateObject);
 
 	uint32 getCellId(float x, float z){return _getCellId(x, z);}
 
@@ -143,7 +137,7 @@ private:
 
 	uint32		_getCellId(float x, float z);
 	
-	bool _isInSubCellExtent(SubCell* subCell, float x, float z);
+	bool		_isInSubCellExtent(SubCell* subCell, float x, float z);
 
 	//This is the actual Hashtable that stores the data
 	typedef std::map<uint32, ObjectListType>		MapHandler;

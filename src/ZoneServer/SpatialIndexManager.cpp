@@ -204,17 +204,17 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 			getGrid()->UpdateObject(updateObject);
 
 			//remove us from the row we left
-			UpdateBackCells(updateObject,oldBucket);
+			_UpdateBackCells(updateObject,oldBucket);
 			
 			//create us for the row in which direction we moved
-			UpdateFrontCells(updateObject,oldBucket);
+			_UpdateFrontCells(updateObject,oldBucket);
 		}
 		else //we teleported destroy all and create everything new
 		{
 			//DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"teleportation from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
 
 			//remove us from everything
-			RemoveObject(updateObject);
+			RemoveObjectFromWorld(updateObject);
 
 			//sets the new gridcell, updates subcells
 			//getGrid()->UpdateObject(updateObject);
@@ -294,7 +294,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 	}
 
 	//remove it out of the grid
-	RemoveObject(removeObject);
+	_RemoveObjectFromGrid(removeObject);
 }
  
 //*********************************************************************
@@ -304,7 +304,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 	//DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removePlayer->getId();
 
 	//remove us from the grid
-	RemoveObject(removePlayer);
+	_RemoveObjectFromGrid(removePlayer);
 
 	//remove us out of the cell
 	if(removePlayer->getParentId() == 0)	{
@@ -335,7 +335,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
 	//DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeCreature->getId();
 
 	//remove us from the grid
-	RemoveObject(removeCreature);
+	_RemoveObjectFromGrid(removeCreature);
 
 	//remove us out of the cell
 	Object* container = gWorldManager->getObjectById(removeCreature->getParentId());
@@ -356,7 +356,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
 // if the object is a container with listeners, the listeners will be unregistered
 // SpatialIndexManager::UpdateObject calls us with updateGrid = false in case we teleported
 // we have updated the grid in that case already
-void SpatialIndexManager::RemoveObject(Object *removeObject)
+void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 {
 
 	uint32 bucket = removeObject->getGridBucket();
@@ -453,7 +453,11 @@ void SpatialIndexManager::removePlayerFromStructure(PlayerObject* player, CellOb
 	
 }
 
-// removes all structures items
+//=========================================================================================
+//
+// removes all structures items for a player
+// call this when destroying a building
+//
 void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building)
 {
 	DLOG(INFO) << "SpatialIndexManager::removeStructureItemsForPlayer:: : " << player->getId();
@@ -461,82 +465,24 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
 	ObjectList cellObjects		= building->getAllCellChilds();
 	ObjectList::iterator objIt	= cellObjects.begin();
 
-	while(objIt != cellObjects.end())
-	{
+	while(objIt != cellObjects.end())	{
 		Object* object = (*objIt);
 
-		if(PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>(object))
-		{
+		if(PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>(object))	{
 			//do nothing players and creatures are always in the grid
-
 		}
 		else
-		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
-		{
+		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))	{
 			//do nothing players and creatures are always in the grid
-
 		}
-		else
-		{
-			if((object) && (object->checkRegisteredWatchers(player)))
-			{
+		else	{
+			if((object) && (object->checkRegisteredWatchers(player)))	{
 				gContainerManager->unRegisterPlayerFromContainer(object,player);	
 			}
-
 			//destroy item for the player
 			gMessageLib->sendDestroyObject(object->getId(),player);
-
 			
 		}
-		objIt++;
-	}
-
-
-}
-
-
-// removes an item from a structure
-void SpatialIndexManager::removeObjectFromBuilding(Object* object, BuildingObject* building)
-{
-	DLOG(INFO) << "SpatialIndexManager::removeObjectFromBuilding:: : " << object->getId();
-
-	ObjectList cellObjects		= building->getAllCellChilds();
-	ObjectList::iterator objIt	= cellObjects.begin();
-
-	while(objIt != cellObjects.end())
-	{
-		Object* obj = (*objIt);
-
-		if(object == obj)
-		{
-
-			// get player list
-			ObjectList cellPlayers			= building->getAllCellChilds();
-			ObjectList::iterator playerIt	= cellPlayers.begin();
-
-			while(playerIt != cellPlayers.end())
-			{
-				PlayerObject* player = dynamic_cast<PlayerObject*>(*playerIt);
-				
-				if(player)
-				{
-					if((object) && (object->checkRegisteredWatchers(player)))
-					{
-						gContainerManager->unRegisterPlayerFromContainer(object,player);	
-					}
-
-					//destroy item for the player
-					gMessageLib->sendDestroyObject(object->getId(),player);
-				}
-
-				playerIt++;
-			}
-
-			cellObjects.erase(objIt++);
-			return;
-			
-		}
-
 		objIt++;
 	}
 
@@ -546,9 +492,9 @@ void SpatialIndexManager::removeObjectFromBuilding(Object* object, BuildingObjec
 //============================================================================
 //destroy an object if its not us
 // unregister containers
-void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated)
+void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated)
 {
-	//DLOG(INFO) << "SpatialIndexManager::CheckObjectIterationForDestruction (Object) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
+	//DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Object) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 
 	//if its a player, destroy us for him
 	if(toBeTested->getType() == ObjType_Player)
@@ -560,9 +506,9 @@ void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested,
 }
 
 
-void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested, PlayerObject* updatedPlayer)
+void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested, PlayerObject* updatedPlayer)
 {
-	//DLOG(INFO) << "SpatialIndexManager::CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
+	//DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 
 	if((toBeTested->getType() == ObjType_Creature || toBeTested->getType() == ObjType_NPC) && toBeTested->checkRegisteredWatchers(updatedPlayer))
 	{
@@ -588,7 +534,7 @@ void SpatialIndexManager::CheckObjectIterationForDestruction(Object* toBeTested,
 //do not use when teleporting
 //
 
-void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
+void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
 {
 
 	uint32 newCell = updateObject->getGridBucket();
@@ -612,7 +558,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 
 		for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);			
+			_CheckObjectIterationForDestruction((*i),updateObject);			
 		}	
 
 		return;
@@ -628,7 +574,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 
 		for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);			
+			_CheckObjectIterationForDestruction((*i),updateObject);			
 		}
 
 		return;
@@ -645,7 +591,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 		
 		for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);
+			_CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -662,7 +608,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 
 		for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);
+			_CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -682,7 +628,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 
 		for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);
+			_CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -703,7 +649,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 
 		for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);	
+			_CheckObjectIterationForDestruction((*i),updateObject);	
 		}
 
 		return;
@@ -726,7 +672,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 
 		for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);
+			_CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -747,7 +693,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 
 		for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
 		{
-			CheckObjectIterationForDestruction((*i),updateObject);
+			_CheckObjectIterationForDestruction((*i),updateObject);
 		}
 
 		return;
@@ -759,7 +705,7 @@ void SpatialIndexManager::UpdateBackCells(Object* updateObject, uint32 oldCell)
 
 //=============================================================================================
 //collect Objects in the new cells
-void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
+void SpatialIndexManager::_UpdateFrontCells(Object* updateObject, uint32 oldCell)
 {
 	uint32 newCell = updateObject->getGridBucket();
 
@@ -782,7 +728,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 
 		getGrid()->GetGridContentsListRow((updateObject->getGridBucket() + (GRIDWIDTH*VIEWRANGE)) + GRIDWIDTH, &FinalList, queryType);
 		
-		ObjectCreationIteration(&FinalList,updateObject);
+		_ObjectCreationIteration(&FinalList,updateObject);
 		
 		return;
 	}
@@ -795,7 +741,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 
 		getGrid()->GetGridContentsListRow((updateObject->getGridBucket() - (GRIDWIDTH*VIEWRANGE)) - GRIDWIDTH, &FinalList, queryType);
 		
-		ObjectCreationIteration(&FinalList,updateObject);
+		_ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -809,7 +755,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 
 		getGrid()->GetGridContentsListColumn((updateObject->getGridBucket() + VIEWRANGE) + 1, &FinalList, queryType);
 
-		ObjectCreationIteration(&FinalList,updateObject);
+		_ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -823,7 +769,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 
 		getGrid()->GetGridContentsListColumn((updateObject->getGridBucket() - VIEWRANGE) - 1, &FinalList, queryType);
 
-		ObjectCreationIteration(&FinalList,updateObject);
+		_ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -840,7 +786,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 		
 		getGrid()->GetGridContentsListRowLeft((updateObject->getGridBucket() + ((GRIDWIDTH+1)*VIEWRANGE)) - 1, &FinalList, queryType);//
 		
-		ObjectCreationIteration(&FinalList,updateObject);
+		_ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -857,7 +803,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 
 		getGrid()->GetGridContentsListRowRight((updateObject->getGridBucket() + ((GRIDWIDTH-1)*VIEWRANGE))   + 1, &FinalList, queryType);//
 	
-		ObjectCreationIteration(&FinalList,updateObject);
+		_ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -875,7 +821,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 
 		getGrid()->GetGridContentsListRowRight((updateObject->getGridBucket() - ((GRIDWIDTH+1)*VIEWRANGE))  + 1, &FinalList, queryType);//
 
-		ObjectCreationIteration(&FinalList,updateObject);
+		_ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -893,7 +839,7 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 
 		getGrid()->GetGridContentsListRowLeft((updateObject->getGridBucket() - ((GRIDWIDTH-1)*VIEWRANGE))  - 1, &FinalList, queryType);//
 
-		ObjectCreationIteration(&FinalList,updateObject);
+		_ObjectCreationIteration(&FinalList,updateObject);
 
 		return;
 	}
@@ -901,18 +847,18 @@ void SpatialIndexManager::UpdateFrontCells(Object* updateObject, uint32 oldCell)
 
 //======================================================================================================
 // iterate through all Objects and create them and register them as necessary
-void SpatialIndexManager::ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject)
+void SpatialIndexManager::_ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject)
 {
 
 	for(std::list<Object*>::iterator i = FinalList->begin(); i != FinalList->end(); i++)	{
-		CheckObjectIterationForCreation((*i),updateObject);
+		_CheckObjectIterationForCreation((*i),updateObject);
 	}
 }
 
 //================================================================================================
 // this is called for players and creatures / NPCs alike
 //
-void SpatialIndexManager::CheckObjectIterationForCreation(Object* toBeTested, Object* updatedObject)
+void SpatialIndexManager::_CheckObjectIterationForCreation(Object* toBeTested, Object* updatedObject)
 {
 	PlayerObject* updatedPlayer = dynamic_cast<PlayerObject*>(updatedObject);
 

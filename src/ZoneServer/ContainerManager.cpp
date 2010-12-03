@@ -264,9 +264,6 @@ void ContainerManager::registerPlayerToStaticContainer(Object* container, Player
 
 void ContainerManager::registerPlayerToBuilding(BuildingObject* building,PlayerObject* player)
 {
-	//iterate through all the cells and add and register their content
-	
-	//BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
 
 	if(!building)	{
 		assert(false && "SpatialIndexManager::registerPlayerToBuilding no building");
@@ -295,11 +292,10 @@ void ContainerManager::registerPlayerToBuilding(BuildingObject* building,PlayerO
 //===============================================================================================================================================================================
 //unregistering a player from a building is different, as the cells of a building must be known at all time to a player (as long as we know the building)
 //but we register cells only when the player enters the building
-//even if the cellscontent can be destroyed unless of course we go out of range and the building is destroyed
+//even if the cellcontent can be destroyed unless of course we go out of range and the building is destroyed
 void ContainerManager::unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player)
 {
-	if(!building)
-	{
+	if(!building)	{
 		assert(false && "SpatialIndexManager::unRegisterPlayerFromBuilding no building");
 		return;
 	}
@@ -467,8 +463,8 @@ void ContainerManager::destroyObjectToRegisteredPlayers(Object* container,uint64
 }
 
 //=======================================================================
-// we remove an Object for all the players registered to *container*
-// and create it for those in the new container
+// we remove an Object for all the players registered to *oldcontainer*
+// and create it for those registered to *newcontainer*
 // those watching both will receive a containment update
 //
 void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment)
@@ -512,7 +508,11 @@ void ContainerManager::updateObjectPlayerRegistrations(Object* newContainer, Obj
 	
 }
 
-void ContainerManager::deleteObject(Object* object, TangibleObject* parent)
+//=======================================================================================================
+//
+// the Object will be removed of its container, from the world and deleted in the db
+//
+void ContainerManager::deleteObject(Object* object, Object* parent)
 {
 	destroyObjectToRegisteredPlayers(parent,object->getId());
 	parent->removeObject(object);
@@ -521,7 +521,11 @@ void ContainerManager::deleteObject(Object* object, TangibleObject* parent)
 	gObjectFactory->deleteObjectFromDB(object);
 }
 
-void ContainerManager::removeObject(Object* object, TangibleObject* parent)
+//=======================================================================================================
+//
+// the Object will be removed of its container only
+//
+void ContainerManager::removeObject(Object* object, Object* parent)
 {
 	destroyObjectToRegisteredPlayers(parent,object->getId());
 	parent->removeObject(object);

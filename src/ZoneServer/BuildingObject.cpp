@@ -25,6 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "SpatialIndexManager.h"
+#include "ContainerManager.h"
+
 #include "BuildingObject.h"
 #include "PlayerObject.h"
 #include "CellObject.h"
@@ -210,35 +212,38 @@ void BuildingObject::updateCellPermissions(PlayerObject* player, bool access)
 
 void BuildingObject::prepareDestruction()
 {
-	//iterate through all the cells and destroy the contents
-	//place players inside a cell in the world
-	
-	ObjectList				objectList	= getAllCellChilds();
-	ObjectList::iterator	It			= objectList.begin();
+	//iterate through all the registered watchers
+	//place players inside into the world and unregister the content
 
-	while(It != objectList.end())
-	{
-		PlayerObject* player = dynamic_cast<PlayerObject*>((*It));
-		if(player)
-		{
-			// update playerworld - remove all structures items for the player
-			gSpatialIndexManager->removeStructureItemsForPlayer(player,this);
+	gContainerManager->sendToRegisteredPlayers(this, [=] (PlayerObject* player) {
+		
+		gSpatialIndexManager->removeStructureItemsForPlayer(player,this);
 
-			//place the player in the world
-			glm::vec3 playerWorldPosition = player->getWorldPosition();
-			//playerWorldPosition.x += 2;
-			//playerWorldPosition.z += 2;
-			player->updatePosition(0,playerWorldPosition);
-			player->setParentIdIncDB(0);
-			
-			CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById((*It)->getParentId()));
-			cell->removeObject(player);
-			gMessageLib->broadcastContainmentMessage(player,0,0xffffffff);
-
+		//is the player inside ??? or was he merely still watching??
+		CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+		if(!cell)		{
+			return;
 		}
 		
-		It++;
+		BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+		if((!building) || building->getId() != this->getId())	{
+			return;
+		}
+		
+		//place the player in the world
+		glm::vec3 playerWorldPosition = player->getWorldPosition();
+		
+		//No need to update the SI here as we only leave the cell
+		player->updatePosition(0,playerWorldPosition);
+		player->setParentIdIncDB(0);
+			
+		cell->removeObject(player);
+		
+		gMessageLib->broadcastContainmentMessage(player,0,0xffffffff);
+
 	}
+	);
+	
 
 	//remove items in the building from the world 
 	CellObjectList*				cellList	= getCellList();
@@ -246,9 +251,7 @@ void BuildingObject::prepareDestruction()
 
 	while(cellIt != cellList->end())
 	{
-		CellObject* cell = (*cellIt);
-					
-		
+		CellObject* cell = (*cellIt);	
 		cell->prepareDestruction();
 
 		++cellIt;

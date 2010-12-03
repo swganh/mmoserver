@@ -88,8 +88,8 @@ class ContainerManager :  public TimerCallback
 		void					SendDestroyEquippedObject(Object *removeObject);	
 
 		//deletes an object out of a container
-		void					deleteObject(Object* data, TangibleObject* parent);
-		void					removeObject(Object* data, TangibleObject* parent);
+		void					deleteObject(Object* data, Object* parent);
+		void					removeObject(Object* data, Object* parent);
 
 		void					removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building);
 		
@@ -113,8 +113,6 @@ class ContainerManager :  public TimerCallback
 		void					updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment);
 		void					updateEquipListToRegisteredPlayers(PlayerObject* player);
 
-		// removes an item from a structure
-		void					removeObjectFromBuilding(Object* object, BuildingObject* building);
 
 		//buildings are special containers as they always have their cells loaded even if otherwise unloaded
 		void					registerPlayerToBuilding(BuildingObject* building,PlayerObject* player);

@@ -247,14 +247,14 @@ bool ObjectController::checkContainingContainer(uint64 containingContainer, uint
 			return true;
 		}
 
-		if(containingContainer == playerId)
-		{
-			//its us
-			return true;
-		}
-
 		return false;
 
+	}
+
+	if(containingContainer == playerId)
+	{
+		//its us
+		return true;
 	}
 
 	uint64 ownerId = gSpatialIndexManager->getObjectMainParent(container);
@@ -548,10 +548,11 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	CreatureObject* unknownCreature;
 	Inventory*		creatureInventory;
 
+
 	if (itemObject->getParentId() &&
 		(unknownCreature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(itemObject->getParentId() - INVENTORY_OFFSET))) &&
 		(creatureInventory = dynamic_cast<Inventory*>(unknownCreature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))) &&
-		(creatureInventory->getId() == itemObject->getParentId()))
+		(creatureInventory->getId() == itemObject->getParentId()) && (creatureInventory->getId() != inventory->getId()))
 	{
 		
 		if(!creatureInventory->removeObject(itemObject))
@@ -574,6 +575,8 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			// TODO: Update tutorial about the loot.
 			 //playerObject->getTutorial()->transferedItemFromContainer(targetId, sourceId);
 		}
+
+		//bail out here and request the item over the db - as the item in the NPC has a temporary id and we dont want that in the db
 		// This ensure that we do not use/store any of the temp id's in the database.
         gObjectFactory->requestNewDefaultItem(inventory, item->getItemFamily(), item->getItemType(), inventory->getId(), 99, glm::vec3(), "");
 		return false;
@@ -615,7 +618,6 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	TangibleObject* containingContainer = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(tangible->getParentId()));
 	if(containingContainer && containingContainer->removeObject(itemObject))
 	{
-		gContainerManager->destroyObjectToRegisteredPlayers(containingContainer, tangible->getId());
 		return true;
 	}
 	
@@ -644,6 +646,8 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	message->getStringUnicode16(dataStr);
 
+
+
 	if(swscanf(dataStr.getUnicode16(),L"%"WidePRIu64 L" %u %f %f %f",&targetContainerId,&linkType,&x,&y,&z) != 5)
 	{
 		DLOG(INFO) << "ObjController::_handleTransferItemMisc: Error in parameters";
@@ -668,6 +672,11 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 	Object* newContainer = gWorldManager->getObjectById(targetContainerId);
 	Object* oldContainer = gWorldManager->getObjectById(tangible->getParentId());
 	
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: parameters";
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: newcontainer : " << targetContainerId;
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: oldcontainer : " << tangible->getParentId();
+	DLOG(INFO) << "ObjController::_handleTransferItemMisc: linktype : " << linkType;
+
 	// We may want to transfer other things than items...basically tangibleObjects!
 	// resourcecontainers / factory crates
 	
@@ -738,6 +747,7 @@ void ObjectController::_handleTransferItemMisc(uint64 targetId,Message* message,
 
 	//Now update the registered watchers!!
 	itemObject->setParentId(targetContainerId); 
+	
 	gContainerManager->updateObjectPlayerRegistrations(newContainer, oldContainer, tangible, linkType);
 
 	//now go and move it to wherever it belongs

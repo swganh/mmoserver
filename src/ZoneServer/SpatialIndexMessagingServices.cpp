@@ -456,7 +456,7 @@ void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
 		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
 		{
 			sendCreateTangible(tangible,playerObject);
-			gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory as we dont want to iterate through that needlessly
+			gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory 
 		}
 
 		//sendCreateObject(object,playerObject,false);
@@ -472,6 +472,7 @@ void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
 		if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objEIt))
 		{
 			sendCreateTangible(tangible,playerObject);
+			gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory
 		}
 
 		++objEIt;

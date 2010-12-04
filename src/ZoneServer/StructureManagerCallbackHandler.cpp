@@ -255,13 +255,13 @@ void StructureManager::_HandleUpdateCharacterLots(StructureManagerAsyncContainer
 
 void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
 {
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
     //ensure we actually got this from the DB
     //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627034539-8f68cacfcb354eab467bcae7158eff8c
     if(!structure)
     {
-		
-		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
 		if (player) {
 			   gMessageLib->SendSystemMessage(L"(Structure couldnt be found, please /bug report this so we can investigate.)", player);
 		}
@@ -317,8 +317,8 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 
 	UpdateCharacterLots(asynContainer->mPlayerId);
 
-	    mDatabase->destroyDataBinding(binding);
-    }
+	mDatabase->destroyDataBinding(binding);
+    
 }
 //==================================================================================================
 //

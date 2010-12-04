@@ -147,10 +147,9 @@ bool SpatialIndexManager::sendCreateObject(Object* object,PlayerObject* player, 
 				//skip statics
 				break;
 			}
-
+			
 			TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
-
-			return gMessageLib->sendCreateTano(tangibleObject,player);		
+			sendCreateTangible(tangibleObject, player, false);
 		}
 		break;
 
@@ -223,7 +222,8 @@ bool SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject,Play
 	uint64 parentId = tangibleObject->getParentId();
 
 	gMessageLib->sendCreateTano(tangibleObject, targetObject);
-		
+
+	/*
 
 	//now check whether we have children!!!
 	ObjectIDList*			ol = tangibleObject->getObjects();
@@ -243,7 +243,7 @@ bool SpatialIndexManager::sendCreateTangible(TangibleObject* tangibleObject,Play
 		sendCreateObject(tO,player,false);
 		it++;
 	}
-
+	*/
 
 	return(true);
 }

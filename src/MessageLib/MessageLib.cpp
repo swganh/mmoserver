@@ -807,9 +807,8 @@ bool MessageLib::sendCreateInTangible(IntangibleObject* intangibleObject,uint64 
 //
 bool MessageLib::sendCreateTano(TangibleObject* tangibleObject,PlayerObject* targetObject) 
 {
-	if(!_checkPlayer(targetObject))
-	{
-		DLOG(INFO) << "MessageLib::sendCreateTangible No valid player";
+	if(!_checkPlayer(targetObject))	{
+		DLOG(INFO) << "MessageLib::sendCreateTano No valid player";
 		return(false);
 	}
 

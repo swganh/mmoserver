@@ -1000,15 +1000,6 @@ void SpatialIndexManager::createInWorld(Object* object)
 		gContainerManager->updateEquipListToRegisteredPlayers(player);
 		return;
 	}
-
-	//please note that individual cells have players as listeners, not the entire building
-	//items in cells
-	CellObject* cell = dynamic_cast<CellObject*>(parent);
-	if(cell)
-	{
-		gContainerManager->createObjectToRegisteredPlayers(parent, object);
-		return;
-	}	
 	
 	if(parent)
 	{

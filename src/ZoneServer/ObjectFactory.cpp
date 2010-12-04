@@ -394,23 +394,19 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 
         //now we need to update the Owners Lots
 
-        //csve he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
-        if(player || !player->isLinkDead())
+        //case he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+        if(player)
         {
             gStructureManager->UpdateCharacterLots(player->getId());
-
-            //destroy it in the client
-            gMessageLib->sendDestroyObject(deed->getId(),player);
-
-            //delete it out of the inventory
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-            tO->deleteObject(deed);
+				
+			Inventory* inventory = player->getInventory();				
+			gContainerManager->removeObject(deed, inventory);
+			Datapad* datapad	= player->getDataPad();
 
             glm::vec3 coords;
             coords.x = x;
             coords.y = y;
             coords.z = z;
-            Datapad* datapad			= player->getDataPad();
             datapad->requestNewWaypoint("Harvester",coords, gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
 
@@ -493,21 +489,17 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
         //now we need to update the Owners Lots
         //case he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
         if(player)
-        {
+        {            
             gStructureManager->UpdateCharacterLots(player->getId());
-
-            //destroy it in the client
-            gMessageLib->sendDestroyObject(deed->getId(),player);
-
-            //delete it out of the inventory
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-            tO->deleteObject(deed);
+				
+			Inventory* inventory = player->getInventory();				
+			gContainerManager->removeObject(deed, inventory);
+			Datapad* datapad	= player->getDataPad();
 
             glm::vec3 coords;
             coords.x = x;
             coords.y = y;
             coords.z = z;
-            Datapad* datapad			= player->getDataPad();
             datapad->requestNewWaypoint("Player Factory",coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
 
@@ -596,15 +588,10 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
         if(player)
         {
             gStructureManager->UpdateCharacterLots(player->getId());
-
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-            //destroy it in the client
-            gMessageLib->sendDestroyObject(deed->getId(),player);
-
-            //delete it out of the inventory
-            tO->deleteObject(deed);
-
-            Datapad* datapad			= player->getDataPad();
+				
+			Inventory* inventory = player->getInventory();				
+			gContainerManager->removeObject(deed, inventory);
+			Datapad* datapad	= player->getDataPad();
 
             glm::vec3 coords;
             coords.x = x;
@@ -1009,6 +996,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
     default:
         break;
     }
+    gStructureManager->UpdateCharacterLots(object->getId());
 }
 
 //=============================================================================

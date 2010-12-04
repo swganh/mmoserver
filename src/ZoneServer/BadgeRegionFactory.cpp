@@ -27,125 +27,59 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "BadgeRegionFactory.h"
 #include "BadgeRegion.h"
-#include "ObjectFactoryCallback.h"
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/DataBinding.h"
+
+#include <cppconn/resultset.h>
 
 #include "Utils/utils.h"
 
-//=============================================================================
-
-bool				BadgeRegionFactory::mInsFlag    = false;
-BadgeRegionFactory*	BadgeRegionFactory::mSingleton  = NULL;
-
-//======================================================================================================================
-
-BadgeRegionFactory*	BadgeRegionFactory::Init(Database* database)
-{
-    if(!mInsFlag)
-    {
-        mSingleton = new BadgeRegionFactory(database);
-        mInsFlag = true;
-        return mSingleton;
-    }
-    else
-        return mSingleton;
-}
-
-//=============================================================================
-
 BadgeRegionFactory::BadgeRegionFactory(Database* database) : FactoryBase(database)
-{
-    _setupDatabindings();
-}
+{}
 
 //=============================================================================
 
 BadgeRegionFactory::~BadgeRegionFactory()
+{}
+
+void BadgeRegionFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-    _destroyDatabindings();
-
-    mInsFlag = false;
-    delete(mSingleton);
 }
-
 //=============================================================================
 
-void BadgeRegionFactory::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
+void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
 {
-    QueryContainerBase* asyncContainer = reinterpret_cast<QueryContainerBase*>(ref);
+    // Setup our statement
+    int8 sql[128];
+    sprintf(sql,"CALL sp_BadgeGetByRegion(%"PRIu64");", id);
 
-    switch(asyncContainer->mQueryType)
-    {
-    case BadgeFQuery_MainData:
-    {
-        BadgeRegion* badgeRegion = _createBadgeRegion(result);
-
-        if(badgeRegion->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
-            asyncContainer->mOfCallback->handleObjectReady(badgeRegion, asyncContainer->mClient);
-        else
-        {
-
+    mDatabase->executeAsyncProcedure(sql, [=](DatabaseResult* result) {
+        if(!result) {
+            return;
         }
-    }
-    break;
 
-    default:
-        break;
-    }
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
-    mQueryContainerPool.free(asyncContainer);
+        if (!result_set->next()) {
+            LOG(WARNING) << "Unable to load badges with region id: " << id;
+            return;
+        }
+        std::shared_ptr<BadgeRegion> badge_region = std::make_shared<BadgeRegion>();
+
+        badge_region->setId(result_set->getUInt64(1));
+        badge_region->setBadgeId(result_set->getUInt(2));
+        badge_region->setRegionName(result_set->getString(3));
+        badge_region->setNameFile(result_set->getString(4));
+        badge_region->mPosition.x = result_set->getDouble(5);
+        badge_region->mPosition.z = result_set->getDouble(6);
+        badge_region->setWidth(result_set->getDouble(7));
+        badge_region->setHeight(result_set->getDouble(8));
+        badge_region->setParentId(result_set->getUInt64(9));
+        badge_region->setLoadState(LoadState_Loaded);
+
+        ofCallback->handleObjectReady(badge_region);
+    });
+
 }
 
-//=============================================================================
-
-void BadgeRegionFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
-{
-    // Get our badge based on the regionID
-    mDatabase->executeProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, BadgeFQuery_MainData, client), "CALL sp_BadgeGetByRegion(%"PRIu64");", id);
-    
-}
-
-//=============================================================================
-
-BadgeRegion* BadgeRegionFactory::_createBadgeRegion(DatabaseResult* result)
-{
-    if (!result->getRowCount()) {
-    	return nullptr;
-    }
-
-    BadgeRegion*	badgeRegion = new BadgeRegion();
-
-    result->getNextRow(mBadgeRegionBinding, badgeRegion);
-
-    badgeRegion->setLoadState(LoadState_Loaded);
-
-    return badgeRegion;
-}
-
-//=============================================================================
-
-void BadgeRegionFactory::_setupDatabindings()
-{
-    mBadgeRegionBinding = mDatabase->createDataBinding(9);
-    mBadgeRegionBinding->addField(DFT_uint64,offsetof(BadgeRegion, mId), 8, 0);
-    mBadgeRegionBinding->addField(DFT_uint32,offsetof(BadgeRegion, mBadgeId), 4, 1);
-    mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion, mRegionName), 64, 2);
-    mBadgeRegionBinding->addField(DFT_bstring,offsetof(BadgeRegion, mNameFile), 64, 3);
-    mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion, mPosition.x), 4, 4);
-    mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion, mPosition.z), 4, 5);
-    mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion, mWidth), 4, 6);
-    mBadgeRegionBinding->addField(DFT_float,offsetof(BadgeRegion, mHeight), 4, 7);
-    mBadgeRegionBinding->addField(DFT_uint64,offsetof(BadgeRegion, mParentId), 8, 8);
-}
-
-//=============================================================================
-
-void BadgeRegionFactory::_destroyDatabindings()
-{
-    mDatabase->destroyDataBinding(mBadgeRegionBinding);
-}
-
-//=============================================================================
 

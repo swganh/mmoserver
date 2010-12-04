@@ -30,12 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "FactoryBase.h"
 
-#define	 gSpawnRegionFactory	SpawnRegionFactory::getSingletonPtr()
-
-//=============================================================================
 
 class Database;
-class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
 class SpawnRegion;
@@ -52,30 +48,13 @@ enum SpawnFQuery
 class SpawnRegionFactory : public FactoryBase
 {
 public:
-
-    static SpawnRegionFactory*	getSingletonPtr() {
-        return mSingleton;
-    }
-    static SpawnRegionFactory*	Init(Database* database);
-
+    
+    SpawnRegionFactory(Database* database);
     ~SpawnRegionFactory();
 
     void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
     void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
 
-private:
-
-    SpawnRegionFactory(Database* database);
-
-    void				_setupDatabindings();
-    void				_destroyDatabindings();
-
-    SpawnRegion*		_createSpawnRegion(DatabaseResult* result);
-
-    static SpawnRegionFactory*		mSingleton;
-    static bool						mInsFlag;
-
-    DataBinding*					mSpawnRegionBinding;
 };
 
 //=============================================================================

@@ -59,7 +59,7 @@ public:
 
     void	Process();
 
-    void	Connect(NetworkClient* client, int8* address, uint16 port);
+    void	Connect(NetworkClient* client, const int8* address, uint16 port);
 
     void	AddSessionToProcessQueue(Session* session);
     //void	AddNetworkCallback(NetworkCallback* callback){ mNetworkCallbackList.push_back(callback); }

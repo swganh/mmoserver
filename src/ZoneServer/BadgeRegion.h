@@ -58,7 +58,6 @@ public:
 	virtual void	onObjectEnter(Object* object);
 
 protected:
-
 	uint32				mBadgeId;
 };
 

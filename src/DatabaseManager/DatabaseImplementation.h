@@ -54,7 +54,7 @@ public:
     * \param procedure Indicates whether or not the query is a procedure and thus
     *   a multi-result statement.
     */
-    virtual DatabaseResult* executeSql(const char* sql, bool procedure = false) = 0;
+    virtual DatabaseResult* executeSql(const std::string& sql, bool procedure = false) = 0;
 
     /*! Destroys the requested database result.
     *

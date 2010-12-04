@@ -27,13 +27,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "WorldManager.h"
 
+#include <cassert>
+
+#include <cppconn/resultset.h>
+
 #ifdef WIN32
 #undef ERROR
 #endif
-
 #include <glog/logging.h>
 
-#include "PlayerObject.h"
+#include "Utils/Scheduler.h"
+#include "Utils/VariableTimeScheduler.h"
+#include "Utils/utils.h"
+
+#include "Common/ConfigManager.h"
+#include "Common/Crc.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DatabaseResult.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "ScriptEngine/ScriptEngine.h"
+#include "ScriptEngine/ScriptSupport.h"
+
 #include "AdminManager.h"
 #include "Buff.h"
 #include "BuffEvent.h"
@@ -46,45 +64,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CraftingSessionFactory.h"
 #include "CraftingTool.h"
 #include "CreatureSpawnRegion.h"
+#include "FactoryFactory.h"
+#include "FactoryObject.h"
+#include "FireworkManager.h"
+#include "ForageManager.h"
 #include "GroupManager.h"
 #include "GroupObject.h"
+#include "HarvesterFactory.h"
+#include "HarvesterObject.h"
 #include "Heightmap.h"
+#include "Inventory.h"
 #include "MissionManager.h"
+#include "MissionObject.h"
 #include "NpcManager.h"
 #include "NPCObject.h"
+#include "ObjectFactory.h"
+#include "PlayerObject.h"
 #include "PlayerStructure.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
+#include "Shuttle.h"
+#include "SpatialIndexManager.h"
+#include "TicketCollector.h"
 #include "TreasuryManager.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
-#include "RegionObject.h"
-#include "HarvesterFactory.h"
-#include "HarvesterObject.h"
-#include "FactoryFactory.h"
-#include "FactoryObject.h"
-#include "Inventory.h"
-#include "MissionObject.h"
-#include "ObjectFactory.h"
-//#include "QuadTree.h"
-#include "Shuttle.h"
-#include "ForageManager.h"
-#include "FireworkManager.h"
-#include "TicketCollector.h"
-#include "Common/ConfigManager.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "MessageLib/MessageLib.h"
-#include "ScriptEngine/ScriptEngine.h"
-#include "ScriptEngine/ScriptSupport.h"
-#include "SpatialIndexManager.h"
-#include "Utils/Scheduler.h"
-#include "Utils/VariableTimeScheduler.h"
-#include "Utils/utils.h"
 
-#include <cassert>
+using std::dynamic_pointer_cast;
+using std::shared_ptr;
 
 //======================================================================================================================
 
@@ -107,8 +115,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 	SpatialIndexManager::Init(mDatabase);
 
     // load planet names and terrain files so we can start heightmap loading
-    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_PlanetNamesAndFiles),"SELECT * FROM planet ORDER BY planet_id;");
-
+    _loadPlanetNamesAndFiles();
 
     // create schedulers
     mSubsystemScheduler		= new Anh_Utils::Scheduler();
@@ -148,7 +155,20 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     _registerScriptHooks();
 
     // initiate loading of objects
-    mDatabase->executeSqlAsync(this,new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_ObjectCount),"SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    int8 sql[128];
+    sprintf(sql, "SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
+        std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+        if (!result_set->next())
+        {
+            return;
+        }
+        // we got the total objectCount we need to load
+        mTotalObjectCount = result_set->getUInt(1);
+        LOG(INFO) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
+
+        _loadWorldObjects();
+    } ) ;
 
 #if defined(_MSC_VER)
     mNonPersistantId =   422212465065984;
@@ -228,11 +248,10 @@ void WorldManager::Shutdown()
 
     // Handle creature spawn regions. These objects are not registred in the normal object map.
     CreatureSpawnRegionMap::iterator it = mCreatureSpawnRegionMap.begin();
-    while (it != mCreatureSpawnRegionMap.end())
+    /*while (it != mCreatureSpawnRegionMap.end())
     {
-        delete (*it).second;
         mCreatureSpawnRegionMap.erase(it++);
-    }
+    }*/
     mCreatureSpawnRegionMap.clear();
 
     NpcManager::deleteManager();
@@ -292,46 +311,36 @@ WorldManager::~WorldManager()
     mInsFlag = false;
     delete(mSingleton);
 }
-
-
-//======================================================================================================================
-
-void WorldManager::_loadBuildings()
-{
-    WMAsyncContainer* asynContainer = new(mWM_DB_AsyncPool.ordered_malloc()) WMAsyncContainer(WMQuery_All_Buildings);
-    mDatabase->executeSqlAsync(this,asynContainer,"SELECT id FROM buildings WHERE planet_id = %u;",mZoneId);
-}
-
-
 //======================================================================================================================
 
 void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 {
     addObject(object);
-	
 
-	// check if we done loading
-	if ((mState == WMState_StartUp) && (mObjectMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
-	{
-		_handleLoadComplete();
-	}
+    // check if we done loading
+    if ((mState == WMState_StartUp) && (mObjectMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
+    {
+        _handleLoadComplete();
+    }
+}
+void WorldManager::handleObjectReady(shared_ptr<Object> object)
+{
+    addObject(object);
 }
 
 //======================================================================================================================
 
-RegionObject* WorldManager::getRegionById(uint64 regionId)
+std::shared_ptr<RegionObject> WorldManager::getRegionById(uint64 regionId)
 {
     RegionMap::iterator it = mRegionMap.find(regionId);
 
-    if(it != mRegionMap.end()) {
-        return((*it).second);
+    if( it != mRegionMap.end()) {
+        return (it->second);
     } else {
-        LOG(WARNING) << "Could not find region [" << regionId << "]";
+        LOG(WARNING) << "Could not find Region : " << regionId;
     }
-
-    return nullptr;
+    return shared_ptr<RegionObject>();
 }
-
 
 //======================================================================================================================
 //get the current tick
@@ -350,7 +359,7 @@ void WorldManager::LoadCurrentGlobalTick()
 {
     uint64 Tick;
     DatabaseResult* temp = mDatabase->executeSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
-   
+
 
     DataBinding*	tickbinding = mDatabase->createDataBinding(1);
     tickbinding->addField(DFT_uint64,0,8,0);
@@ -491,9 +500,9 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
                     shuttle->states.setPosture(0);
                     shuttle->setAwayTime(0);
                     shuttle->setShuttleState(ShuttleState_AboutBoarding);
-					gMessageLib->sendPostureUpdate(shuttle);
-					gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
-				}
+                    gMessageLib->sendPostureUpdate(shuttle);
+                    gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
+                }
             }
             else
                 shuttle->setAwayTime(awayTime);
@@ -532,16 +541,16 @@ bool WorldManager::_handleShuttleUpdate(uint64 callTime,void* ref)
         {
             uint32 inPortTime = shuttle->getInPortTime() + 1000;
             if(inPortTime >= shuttle->getInPortInterval())
-			{
+            {
                 uint32 inPortTime = shuttle->getInPortTime() + 1000;
                 if(inPortTime >= shuttle->getInPortInterval())
                 {
                     shuttle->setInPortTime(0);
                     shuttle->setShuttleState(ShuttleState_Away);
                     shuttle->states.setPosture(2);
-	                gMessageLib->sendPostureUpdate(shuttle);
-				    gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
-				}
+                    gMessageLib->sendPostureUpdate(shuttle);
+                    gMessageLib->sendCombatAction(shuttle,NULL,opChange_Posture);
+                }
             }
             else
             {
@@ -636,7 +645,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
                 tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
                 gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
-           
+
 
                 continue;
             }
@@ -645,8 +654,8 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
             tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
             //gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
-            gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
-            
+            mDatabase->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+
         }
 
         ++it;
@@ -892,13 +901,13 @@ void WorldManager::_handleLoadComplete()
 
 //======================================================================================================================
 
-void WorldManager::removeActiveRegion(RegionObject* regionObject)
+void WorldManager::removeActiveRegion(shared_ptr<RegionObject> regionObject)
 {
     ActiveRegions::iterator it = mActiveRegions.begin();
 
     while(it != mActiveRegions.end())
     {
-        if((*it) == regionObject)
+        if(*it == regionObject)
         {
             mActiveRegions.erase(it);
             break;
@@ -921,16 +930,14 @@ bool WorldManager::_handleRegionUpdate(uint64 callTime,void* ref)
     }
 
     //now delete any camp regions that are due
-    RegionDeleteList::iterator itR = mRegionDeleteList.begin();
-    while(itR != mRegionDeleteList.end())
-    {
-        removeActiveRegion((*itR));
-        //now remove region entries
+    //RegionDeleteList::iterator itR = mRegionDeleteList.begin();
 
-        destroyObject(*itR);
-        //delete(*itR);
-        itR++;
-    }
+    //while(itR != mRegionDeleteList.end())
+    //{
+    //    removeActiveRegion((*itR));
+    //    //now remove region entries
+    //    itR++;
+    //}
 
     mRegionDeleteList.clear();
     return(true);
@@ -1134,7 +1141,6 @@ bool WorldManager::existObject(Object* object)
         return false;
     }
 }
-
 //======================================================================================================================
 //
 // get an attribute string value from the global attribute map
@@ -1390,7 +1396,7 @@ const Anh_Math::Rectangle WorldManager::getSpawnArea(uint64 spawnRegionId)
     CreatureSpawnRegionMap::iterator it = mCreatureSpawnRegionMap.find(spawnRegionId);
     if (it != mCreatureSpawnRegionMap.end())
     {
-        const CreatureSpawnRegion *creatureSpawnRegion = (*it).second;
+        const auto creatureSpawnRegion = dynamic_pointer_cast<CreatureSpawnRegion> (it->second);
         Anh_Math::Rectangle sa(creatureSpawnRegion->mPosX, creatureSpawnRegion->mPosZ, creatureSpawnRegion->mWidth ,creatureSpawnRegion->mLength);
         spawnArea = sa;
     }

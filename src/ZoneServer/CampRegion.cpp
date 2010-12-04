@@ -24,8 +24,13 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-#include <list>
+
 #include "CampRegion.h"
+
+#include <list>
+
+#include "MessageLib/MessageLib.h"
+
 #include "Camp.h"
 #include "PlayerObject.h"
 
@@ -67,7 +72,7 @@ CampRegion::~CampRegion()
 
 void CampRegion::update()
 {
-	//Camps have a max timer of 55 minutes
+    //Camps have a max timer of 55 minutes
 	if(gWorldManager->GetCurrentGlobalTick() - mSetUpTime > 3300000)
 	{
 		despawnCamp();
@@ -97,8 +102,7 @@ void CampRegion::update()
 		mExpiresTime	= gWorldManager->GetCurrentGlobalTick(); //There is no grace period for combat.
 		return;
 	}
-
-	
+    	
 	//iterate through our visitors - apply healing
 	ObjectIDSet::iterator objIt = mVisitingPlayers.begin();
 
@@ -148,8 +152,6 @@ void CampRegion::update()
 
 		++objIt;
 	}
-
-
 }
 
 //=============================================================================
@@ -262,7 +264,7 @@ void	CampRegion::despawnCamp()
     gMessageLib->sendDestroyObject_InRangeofObject(camp);
     gWorldManager->destroyObject(camp);
 
-    gWorldManager->addRemoveRegion(this);
+    gWorldManager->addRemoveRegion(getSharedFromThis());
 
     //now grant xp
     applyXp();

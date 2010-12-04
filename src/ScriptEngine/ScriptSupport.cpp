@@ -817,7 +817,7 @@ void ScriptSupport::scriptSystemMessage(uint64 playerId, uint64 targetId, std::s
     CreatureObject* creature = dynamic_cast<CreatureObject*>(gWorldManager->getObjectById(targetId));
     if (object && creature && playerObject && playerObject->isConnected())
     {
-        BString msg = (int8*)message.c_str();
+        std::string msg = (int8*)message.c_str();
         // gMessageLib->sendPlayClientEffectLocMessage(msg, object->mPosition, playerObject);
         gMessageLib->sendPlayClientEffectObjectMessage(msg,"",creature,playerObject);
         // "clienteffect/combat_explosion_lair_large.cef"

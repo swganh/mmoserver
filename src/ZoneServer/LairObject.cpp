@@ -449,7 +449,7 @@ void LairObject::makePeaceWithDefendersOutOfRange(void)
 
 void LairObject::spawn(void)
 {
-	gLairSpawnCounter++;
+    gLairSpawnCounter++;
 	DLOG(INFO) << "Spawned lair # " <<gLairSpawnCounter << "( " <<gLairSpawnCounter - gLairDeathCounter<<")";
 
 	// Update the world about my presence.
@@ -522,7 +522,7 @@ bool LairObject::playerInRange(float range)
 	// to in-range folks
 	ObjectSet resultSet;
 
-	gSpatialIndexManager->getObjectsInRange(this,&resultSet,ObjType_Creature,30.0,true);
+    gSpatialIndexManager->getObjectsInRange(this,&resultSet,ObjType_Creature,30.0,true);
 	ObjectSet::iterator it = resultSet.begin();
 
 	

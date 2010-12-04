@@ -46,10 +46,23 @@ if %HALT_ON_ERROR% == true (set /p halt=*** BUILD FAILED... PRESS ENTER TO CONTI
 exit /b %ERRORLEVEL%
 )
 
+if not "%BUILDNUMBER%" == "false" (
+    if "%BUILD_TYPE%" == "debug" (
+        echo %BUILDNUMBER% >> build\bin\Debug\VERSION
+    )
+
+    if "%BUILD_TYPE%" == "release" (
+        echo %BUILDNUMBER% >> build\bin\Release\VERSION
+    )
+
+    if "%BUILD_TYPE%" == "all" (
+        echo %BUILDNUMBER% >> build\bin\Debug\VERSION
+        echo %BUILDNUMBER% >> build\bin\Release\VERSION
+    )
+)
+
 echo.
 echo Server Successfully Built^^!
-echo This window will close shortly.
-call :SLEEP 10
 
 goto :eof
 rem --- End of Main Execution --------------------------------------------------
@@ -68,7 +81,7 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.4.0
+set DEPENDENCIES_VERSION=0.4.1
 set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%-win.7z
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
@@ -140,6 +153,12 @@ rem Check for /buildnumber x format and then set BUILDNUMBER
 if "%~0" == "/buildnumber" (
 	set BUILDNUMBER=%~1
 	shift
+)
+
+rem Check for /build:x format and then set BUILD_TYPE
+if "%~0" == "/build" (
+set BUILD_TYPE=%~1
+shift
 )
 
 shift
@@ -696,28 +715,36 @@ if not exist "%PROJECT_BASE%build" (
 )
 cd "%PROJECT_BASE%build"
 
-cmake -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% ..
+cmake -G "Visual Studio 10" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
 
 if exist "*.cache" del /S /Q "*.cache" >NUL
 
 if "%BUILD_TYPE%" == "debug" (
 	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "release" (
 	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1	
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )
 
 if "%BUILD_TYPE%" == "all" (
 	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1	
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 
 	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
+	if errorlevel 1 exit /b 1	
+	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
 	if errorlevel 1 exit /b 1
 	if exist "*.cache" del /S /Q "*.cache" >NUL
 )

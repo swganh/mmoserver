@@ -184,8 +184,8 @@ public:
     bool				sendDisableHudElement(PlayerObject* playerObject, BString hudElement);
 
     // client effects
-    bool				sendPlayClientEffectObjectMessage(BString effect,BString location,Object* effectObject,PlayerObject* playerObject = NULL);
-    bool				sendPlayClientEffectLocMessage(BString effect, const glm::vec3& pos, PlayerObject* const targetObject) const;
+    bool				sendPlayClientEffectObjectMessage(std::string effect,BString location,Object* effectObject,PlayerObject* playerObject = NULL);
+    bool				sendPlayClientEffectLocMessage(std::string effect, const glm::vec3& pos, PlayerObject* targetObject);
 
     // position updates
     void				sendUpdateTransformMessage(MovingObject* object);
@@ -266,7 +266,7 @@ public:
     void                sendCreatureAnimation(CreatureObject* srcObject, const std::string& animation);
 	void                sendCreatureAnimation(CreatureObject* srcObject, BString animation);
     // spatial for tutorial
-    void				sendCreatureAnimation(CreatureObject* srcObject,BString animation, PlayerObject* player);
+    void				sendCreatureAnimation(CreatureObject* srcObject, const std::string &animation, PlayerObject* player);
 
     // npc conversations
     bool				sendStartNPCConversation(NPCObject* srcObject,PlayerObject* targetObject);

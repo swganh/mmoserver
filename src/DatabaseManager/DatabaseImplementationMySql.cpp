@@ -82,10 +82,12 @@ DatabaseImplementationMySql::~DatabaseImplementationMySql() {
 }
 
 
-DatabaseResult* DatabaseImplementationMySql::executeSql(const char* sql, bool procedure) {
+DatabaseResult* DatabaseImplementationMySql::executeSql(const std::string& sql, bool procedure) {
     DatabaseResult* result = nullptr;
 
     try {
+        //DLOG(INFO) << sql;
+
         sql::Statement* statement = connection_->createStatement();    
         statement->execute(sql);
         
@@ -102,6 +104,11 @@ DatabaseResult* DatabaseImplementationMySql::executeSql(const char* sql, bool pr
 
 
 void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
+    if (!result)
+    {
+        LOG(WARNING) << "DatabaseResult is NULL";
+        return;
+    }
     // For a multi-result statement to be destroyed properly all results must
     // be processed, failure to do so results in out-of-sync errors.
     if(result->isMultiResult()) {

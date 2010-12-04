@@ -55,7 +55,7 @@ public:
     virtual void	onObjectEnter(Object* object);
     virtual void	onObjectLeave(Object* object);
 
-	void	setOwner(uint64 owner){mOwnerId = owner;}
+    void	setOwner(uint64 owner){mOwnerId = owner;}
 	uint64	getOwner(){return mOwnerId;}
 
 	void	setAbandoned(bool mmh){mAbandoned = mmh;}
@@ -71,7 +71,6 @@ public:
 				
 	uint32	getVisitors(){return(links.size());}
 	uint32	getCurrentVisitors(){return(mVisitingPlayers.size());}
-				
 
 	void	setCampOwnerName(std::string name){mOwnerName = name;}
 	std::string	getCampOwnerName(){return mOwnerName;}

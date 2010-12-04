@@ -29,8 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_REGION_FACTORY_H
 
 #include "FactoryBase.h"
-
-#define	 gRegionFactory	RegionFactory::getSingletonPtr()
+#include <memory>
 
 //=============================================================================
 
@@ -48,29 +47,18 @@ class SpawnRegionFactory;
 class RegionFactory : public FactoryBase
 {
 public:
-
-    static RegionFactory*	getSingletonPtr() {
-        return mSingleton;
-    }
-    static RegionFactory*	Init(Database* database);
-
+    RegionFactory(Database* database);
     ~RegionFactory();
 
     virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result) {}
     void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);
-
+    
     void					releaseAllPoolsMemory();
-
 private:
 
-    RegionFactory(Database* database);
-
-    static RegionFactory*	mSingleton;
-    static bool				mInsFlag;
-
-	CityFactory*			mCityFactory;
-	BadgeRegionFactory*		mBadgeRegionFactory;
-	SpawnRegionFactory*		mSpawnRegionFactory;
+    std::shared_ptr<CityFactory>            mCityFactory;
+    std::shared_ptr<BadgeRegionFactory>		mBadgeRegionFactory;
+    std::shared_ptr<SpawnRegionFactory>		mSpawnRegionFactory;
 };
 
 //=============================================================================

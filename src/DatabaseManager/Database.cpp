@@ -92,6 +92,24 @@ Database::~Database() {
     }
 }
 
+void Database::executeAsyncSql(const std::stringstream& sql) {    
+    // just pass the stringstream string
+    executeAsyncSql(sql.str());
+}
+
+void Database::executeAsyncSql(const std::string& sql) {    
+    // Setup our job.
+    DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
+    job->query = sql;
+    job->multi_job = false;
+
+    // Add the job to our processList;
+    job_pending_queue_.push(job);
+}
+void Database::executeAsyncSql(const std::stringstream& sql, AsyncDatabaseCallback callback) {    
+    // just pass the stringstream string
+    executeAsyncSql(sql.str(), callback);
+}
 
 void Database::executeAsyncSql(const std::string& sql, AsyncDatabaseCallback callback) {    
     // Setup our job.
@@ -104,6 +122,23 @@ void Database::executeAsyncSql(const std::string& sql, AsyncDatabaseCallback cal
     job_pending_queue_.push(job);
 }
 
+void Database::executeAsyncProcedure(const std::stringstream& sql) {    
+    executeAsyncProcedure(sql.str());
+}
+
+void Database::executeAsyncProcedure(const std::string& sql) {    
+    // Setup our job.
+    DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
+    job->query = sql;
+    job->multi_job = true;
+
+    // Add the job to our processList;
+    job_pending_queue_.push(job);
+}
+
+void Database::executeAsyncProcedure(const std::stringstream& sql, AsyncDatabaseCallback callback) {    
+    executeAsyncProcedure(sql.str(), callback);
+}
 
 void Database::executeAsyncProcedure(const std::string& sql, AsyncDatabaseCallback callback) {    
     // Setup our job.
@@ -181,8 +216,6 @@ DatabaseResult* Database::executeSynchSql(const char* sql, ...) {
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
 
-    //DLOG(INFO) << "SYNCHRONOUS SQL: " << localSql;
-       
     return executeSql(localSql);
 }
 
@@ -210,8 +243,6 @@ void Database::executeSqlAsync(DatabaseCallback* callback,
     char localSql[20192];
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
-    
-    //DLOG(INFO) << "sql: " << localSql;
 
     // Setup our job.
     DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
@@ -237,8 +268,6 @@ void Database::executeSqlAsyncNoArguments(DatabaseCallback* callback,
 {
     char localSql[20192];
     sprintf(localSql, "%s", sql);
-    
-    //DLOG(INFO) << "sql: " << localSql;
 
     // Setup our job.
     DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();
@@ -275,8 +304,6 @@ void Database::executeProcedureAsync(DatabaseCallback* callback,
 
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
-    
-    //DLOG(INFO) << "sql: " << localSql;
 
     // Setup our job.
     DatabaseJob* job = new(job_pool_.ordered_malloc()) DatabaseJob();

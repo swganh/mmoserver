@@ -110,8 +110,6 @@ protected:
 	float		mCurrentTurnRate;
 	float		mCurrentSpeedMod;
 	float		mBaseSpeedMod;
-
-		
 };
 
 //=============================================================================

@@ -89,7 +89,7 @@ public:
 
     virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-    void					requestObject(ObjectType objType,uint16 subGroup,uint16 subType,ObjectFactoryCallback* ofCallback,uint64 id,DispatchClient* client);
+    void					requestObject(ObjectType objType,uint16 subGroup,uint16 subType,ObjectFactoryCallback* ofCallback,uint64 id,DispatchClient* client = 0);
 
     // create new objects in the database
     void					requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint64 templateId,uint64 parentId);//creates a clone item after a tangible template - out of a crate for exampl
@@ -97,7 +97,7 @@ public:
     void					requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint32 familyId,uint32 typeId,uint64 parentId,uint16 planetId, const glm::vec3& position, const BString& customName = "");
     void					requestNewDefaultManufactureSchematic(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId);
     void					requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 wpType);
-    void					requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uint64 wpId,BString name, const glm::vec3& coords,uint16 planetId,uint64 ownerId,uint8 activeStatus);
+    void					requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uint64_t wpId,BString name, const glm::vec3& coords,uint16_t planetId,uint64_t ownerId,uint16_t activeStatus);
     void					requestNewTravelTicket(ObjectFactoryCallback* ofCallback,TicketProperties ticketProperties,uint64 parentId,uint16 planetId);
     void					requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount);
     void					requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,Deed* deed,DispatchClient* client, float x, float y, float z, float dir, BString customName, PlayerObject* player);
@@ -135,11 +135,8 @@ private:
     FactoryFactory*			mFactoryFactory;
     HouseFactory*			mHouseFactory;
 
-
     boost::pool<boost::default_user_allocator_malloc_free>	mDbAsyncPool;
 };
-
-//=============================================================================
 
 class OFAsyncContainer
 {
@@ -162,5 +159,6 @@ public:
 
     glm::vec3		coords;
 };
+
 
 #endif

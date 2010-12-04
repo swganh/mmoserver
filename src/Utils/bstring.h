@@ -81,12 +81,8 @@ public:
     BString& operator <<(uint16_t* data);
 
     // Accessor Methods
-    char* getAnsi();
     const char* getAnsi() const;
-    // uint16_t* getUnicode16();
-    wchar_t* getUnicode16();
     const wchar_t* getUnicode16() const;
-    char*   getUTF8();
 
     void convert(BStringType type);
     void substring(BString& dest, uint16_t start, uint16_t end);

@@ -518,7 +518,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
     }
 
     if(result->getRowCount())
-        LOG(WARNING) << "Loaded structures.";
+        LOG(INFO) << "Loaded structures.";
 
     mDatabase->destroyDataBinding(binding);
 }
@@ -760,7 +760,7 @@ void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsy
     }
 
     if(result->getRowCount())
-        LOG(WARNING) << "Loaded structure items.";
+        LOG(INFO) << "Loaded structure items.";
 
     mDatabase->destroyDataBinding(binding);
 
@@ -1009,7 +1009,7 @@ void StructureManager::_HandleNoBuildRegionData(StructureManagerAsyncContainer* 
     }
 
     if(result->getRowCount())
-        LOG(WARNING) << "Loaded " << count << " NoBuildRegions.";
+        LOG(INFO) << "Loaded " << count << " NoBuildRegions.";
 
     mDatabase->destroyDataBinding(binding);
 }

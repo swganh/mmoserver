@@ -309,7 +309,7 @@ void Service::Process()
 
 //======================================================================================================================
 
-void Service::Connect(NetworkClient* client, int8* address, uint16 port)
+void Service::Connect(NetworkClient* client, const int8* address, uint16 port)
 {
 
 	LOG(INFO) << "New connection to " << address << " on port " << port;

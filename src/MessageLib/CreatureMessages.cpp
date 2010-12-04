@@ -407,7 +407,7 @@ bool MessageLib::sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject
         moodId = 74;
     }
 
-    BString			moodStr			= gWorldManager->getMood(moodId);
+    std::string			moodStr			= gWorldManager->getMood(moodId);
 
     ObjectList*		equippedObjects = creatureObject->getEquipManager()->getEquippedObjects();
     ObjectIDList*	defenders		= creatureObject->getDefenders();

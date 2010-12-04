@@ -42,67 +42,38 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <assert.h>
 
-//=============================================================================
-
-bool				RegionFactory::mInsFlag    = false;
-RegionFactory*		RegionFactory::mSingleton  = NULL;
-
-//======================================================================================================================
-
-RegionFactory*	RegionFactory::Init(Database* database)
-{
-    if(!mInsFlag)
-    {
-        mSingleton = new RegionFactory(database);
-        mInsFlag = true;
-        return mSingleton;
-    }
-    else
-        return mSingleton;
-}
-
-//=============================================================================
+using namespace std;
 
 RegionFactory::RegionFactory(Database* database) : FactoryBase(database)
 {
-	mCityFactory			= CityFactory::Init(mDatabase);
-	mBadgeRegionFactory		= BadgeRegionFactory::Init(mDatabase);
-	mSpawnRegionFactory		= SpawnRegionFactory::Init(mDatabase);
+    mCityFactory = make_shared<CityFactory>(mDatabase);
+    mBadgeRegionFactory = make_shared<BadgeRegionFactory>(mDatabase);
+    mSpawnRegionFactory = make_shared<SpawnRegionFactory>(mDatabase);
 }
 
 //=============================================================================
 
 RegionFactory::~RegionFactory()
-{
-    mInsFlag = false;
-    delete(mSingleton);
-}
+{}
 
 //=============================================================================
 
 void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-	switch(subGroup)
-	{
-		case Region_City:	mCityFactory->requestObject(ofCallback,id,subGroup,subType,client);	break;
-		case Region_Badge:	mBadgeRegionFactory->requestObject(ofCallback,id,subGroup,subType,client); break;
-		case Region_Spawn:  mSpawnRegionFactory->requestObject(ofCallback,id,subGroup,subType,client); break;
-		
-	
-		default:
-			DLOG(INFO) << "RegionFactory::requestObject Unknown Group\n";
-		break;
-	}
+    switch(subGroup)
+    {
+    case Region_City:
+        mCityFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+    case Region_Badge:
+        mBadgeRegionFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+    case Region_Spawn:
+        mSpawnRegionFactory->requestObject(ofCallback,id,subGroup,subType,client);
+        break;
+
+    default:
+        LOG(ERROR) << "Unknown group [" << subGroup << "]";
+        break;
+    }
 }
-
-//=============================================================================
-
-void RegionFactory::releaseAllPoolsMemory()
-{
-	mCityFactory->releaseQueryContainerPoolMemory();
-	mBadgeRegionFactory->releaseQueryContainerPoolMemory();
-	mSpawnRegionFactory->releaseQueryContainerPoolMemory();
-}
-
-//=============================================================================
-

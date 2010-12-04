@@ -36,7 +36,6 @@ RegionObject::RegionObject() : Object()
 RegionObject::~RegionObject()
 {
 }
-
 bool RegionObject::addVisitor(Object* visitor)
 {
 	if(checkVisitor(visitor))
@@ -76,4 +75,7 @@ void RegionObject::removeVisitor(Object* object)
 
 	}
 	
+}
+std::shared_ptr<RegionObject> RegionObject::getSharedFromThis() {
+    return std::static_pointer_cast<RegionObject>(Object::shared_from_this());
 }

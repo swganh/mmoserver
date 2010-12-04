@@ -1240,7 +1240,6 @@ void Trainer::spawn(void)
 {
     gSpatialIndexManager->createInWorld(this);
 
-
 	// Add us to the world.
 	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
 

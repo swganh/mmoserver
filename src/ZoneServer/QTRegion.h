@@ -46,6 +46,9 @@ public:
     void		initTree();
     bool		checkPlayerPosition(float x, float y);
 
+    uint8 getQTDepth() { return mQTDepth; }
+    void setQTDepth(uint8 depth) { mQTDepth = depth; }
+
     QuadTree*	mTree;
 
 private:

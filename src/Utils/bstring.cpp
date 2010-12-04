@@ -429,15 +429,6 @@ BString& BString::operator <<(char* data)
     return *this;
 }
 
-char* BString::getAnsi()
-{
-    if (mType == BSTRType_ANSI) {
-        return mString;
-    } else {
-        return 0;
-    }
-}
-
 //======================================================================================================================
 
 const char* BString::getAnsi() const
@@ -450,46 +441,12 @@ const char* BString::getAnsi() const
 }
 
 //======================================================================================================================
-/*
-uint16_t* BString::getUnicode16()
-{
-    if (mType == BSTRType_Unicode16)
-    {
-        return (uint16_t*)mString;
-    } else {
-        return 0;
-    }
-}
- */
-//======================================================================================================================
-
-wchar_t* BString::getUnicode16()
-{
-    if (mType == BSTRType_Unicode16)
-    {
-        return reinterpret_cast<wchar_t*>(mString);
-    } else {
-        return 0;
-    }
-}
 
 const wchar_t* BString::getUnicode16() const
 {
     if (mType == BSTRType_Unicode16)
     {
         return reinterpret_cast<wchar_t*>(mString);
-    } else {
-        return 0;
-    }
-}
-
-//======================================================================================================================
-
-char* BString::getUTF8()
-{
-    if (mType == BSTRType_UTF8)
-    {
-        return mString;
     } else {
         return 0;
     }
@@ -548,7 +505,7 @@ void BString::convert(BStringType type)
         {
             uint16_t* tmp = reinterpret_cast<uint16_t*>(newBuffer);
             for (size_t i = 0; i < mLength; ++i) {
-              tmp[i] = static_cast<uint16_t>(mString[i]);
+                tmp[i] = static_cast<uint16_t>(mString[i]);
             }
         }
     }

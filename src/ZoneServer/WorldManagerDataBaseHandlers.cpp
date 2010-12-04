@@ -357,7 +357,7 @@ void WorldManager::_loadWorldObjects()
 
                 while(result_set->next())
                 {
-                    gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
+                    gHouseFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
                 }
                 LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Houses";
                 LOG_IF(INFO, !result_set->rowsCount()) << "No Player Houses to Load in Zone: " << mZoneId;

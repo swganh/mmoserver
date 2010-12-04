@@ -58,7 +58,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "IntangibleFactory.h"
 #include "ManufacturingSchematic.h"
 #include "ObjectFactoryCallback.h"
-#include "ObjectContainer.h"
 #include "PlayerObject.h"
 #include "Inventory.h"
 #include "PlayerObjectFactory.h"

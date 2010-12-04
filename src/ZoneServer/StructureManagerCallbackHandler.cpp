@@ -260,60 +260,62 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
     //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627034539-8f68cacfcb354eab467bcae7158eff8c
     if(!structure)
     {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-        if (player) {
-            gMessageLib->SendSystemMessage(L"(We couldn't find it in the DB, please /bug report this so we can investigate.)", player);
-        }
-        return;
+		
+		PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+		if (player) {
+			   gMessageLib->SendSystemMessage(L"(Structure couldnt be found, please /bug report this so we can investigate.)", player);
+		}
+		return;
+	}
     
-        //destroy the structure here so the sf can still access the relevant data
-	    gObjectFactory->deleteObjectFromDB(structure);
+    //destroy the structure here so the sf can still access the relevant data
+	gObjectFactory->deleteObjectFromDB(structure);
+	gSpatialIndexManager->RemoveObjectFromWorld(structure);
+	gWorldManager->destroyObject(structure);
 
-	    gWorldManager->destroyObject(structure);
+	uint64 deedId;
+	DataBinding* binding = mDatabase->createDataBinding(1);
+	binding->addField(DFT_uint64,0,8);
 
-	    uint64 deedId;
-	    DataBinding* binding = mDatabase->createDataBinding(1);
-	    binding->addField(DFT_uint64,0,8);
+	uint64 count;
+	count = result->getRowCount();
 
-	    uint64 count;
-	    count = result->getRowCount();
+	if (!count)
+	{
+		DLOG(INFO) << "StructureManager::create deed no result...";
+		mDatabase->destroyDataBinding(binding);
+		return;
+	}
+	result->getNextRow(binding,&deedId);
 
-	    if (!count)
-	    {
-		    DLOG(INFO) << "StructureManager::create deed no result...";
-		    mDatabase->destroyDataBinding(binding);
-		    return;
-	    }
-	    result->getNextRow(binding,&deedId);
+	//return value of 0 means something wasnt found
+	if(!deedId)
+	{
+		DLOG(INFO) << "StructureManager::create deed no valid return value...";
+		mDatabase->destroyDataBinding(binding);
+		return;
+	}
+	//returnvalue of 1 means that there wasnt enough money on the deed
+	if(deedId == 1)
+	{
+		DLOG(INFO) << "StructureManager::create deed with not enough maintenance...";
+		gMessageLib->SendSystemMessage(common::OutOfBand("player_structure","structure_destroyed "), player);	
+		mDatabase->destroyDataBinding(binding);
+		return;
+	}
 
-	    //return value of 0 means something wasnt found
-	    if(!deedId)
-	    {
-		    DLOG(INFO) << "StructureManager::create deed no valid return value...";
-		    mDatabase->destroyDataBinding(binding);
-		    return;
-	    }
-	    //returnvalue of 1 means that there wasnt enough money on the deed
-	    if(deedId == 1)
-	    {
-		    DLOG(INFO) << "StructureManager::create deed with not enough maintenance...";
-		    gMessageLib->SendSystemMessage(common::OutOfBand("player_structure","structure_destroyed "), player);	
-		    mDatabase->destroyDataBinding(binding);
-		    return;
-	    }
+	if(player)
+	{
+		//load the deed into the inventory
+		Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		if(inventory)
+		{
+			//15 is itemfamily for deeds
+			gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
+		}
+	}
 
-	    if(player)
-	    {
-		    //load the deed into the inventory
-		    Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-		    if(inventory)
-		    {
-			    //15 is itemfamily for deeds
-			    gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
-		    }
-	    }
-
-	    UpdateCharacterLots(asynContainer->mPlayerId);
+	UpdateCharacterLots(asynContainer->mPlayerId);
 
 	    mDatabase->destroyDataBinding(binding);
     }

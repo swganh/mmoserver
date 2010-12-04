@@ -565,7 +565,8 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				mDatabase->executeSqlAsync(NULL,NULL,sql);
 				
 				gObjectFactory->deleteObjectFromDB(structure);
-							
+				
+				gSpatialIndexManager->RemoveObjectFromWorld(structure);
 				gWorldManager->destroyObject(structure);
 				
 				UpdateCharacterLots(structure->getOwner());

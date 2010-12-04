@@ -214,6 +214,7 @@ void BuildingObject::prepareDestruction()
 {
 	//iterate through all the registered watchers
 	//place players inside into the world and unregister the content
+	//add an option to delete those players we send to ...
 
 	gContainerManager->sendToRegisteredPlayers(this, [=] (PlayerObject* player) {
 		

@@ -440,10 +440,6 @@ void WorldManager::destroyObject(Object* object)
 		case ObjType_Tangible:
 		{
 			
-			if(object->getId() == 2533274790395904)
-			{
-				DLOG(INFO) << " WorldManager::destroyObject: " << object->getId();
-			}
 		}
 		break;
 

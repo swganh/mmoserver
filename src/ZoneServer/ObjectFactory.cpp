@@ -808,9 +808,9 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
                     query_stream << "DELETE FROM items WHERE id = " << schem->getItem()->getId();
                     mDatabase->executeAsyncSql(query_stream);
 
-                    query_stream.str(std::string());
-                    query_stream << "DELETE FROM item_attributes WHERE item_id =" <<  schem->getItem()->getId();
-                    mDatabase->executeAsyncSql(query_stream);
+                    //query_stream.str(std::string());
+                    //query_stream << "DELETE FROM item_attributes WHERE item_id =" <<  schem->getItem()->getId();
+                    //mDatabase->executeAsyncSql(query_stream);
 
                 }
 
@@ -830,9 +830,9 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
             query_stream << "DELETE FROM items WHERE id = " << object->getId();
             mDatabase->executeAsyncSql(query_stream);
 
-            query_stream.str(std::string());
-            query_stream << "DELETE FROM item_attributes WHERE item_id =" <<  object->getId();
-            mDatabase->executeAsyncSql(query_stream);
+          //  query_stream.str(std::string());
+            //query_stream << "DELETE FROM item_attributes WHERE item_id =" <<  object->getId();
+            //mDatabase->executeAsyncSql(query_stream);
 
         }
         break;

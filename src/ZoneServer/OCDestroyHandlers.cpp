@@ -137,6 +137,8 @@ void ObjectController::destroyObject(uint64 objectId)
 		// reset pending ui callbacks
 		playerObject->resetUICallbacks(object);
 
+		gSpatialIndexManager->RemoveObjectFromWorld(object);
+
 		// delete from db CAVE :: mark if its an Object saved in the db!!!!
 		// temporary placed instruments are not saved in the db
 		gObjectFactory->deleteObjectFromDB(object);

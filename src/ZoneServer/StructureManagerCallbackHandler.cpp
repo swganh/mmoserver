@@ -355,17 +355,12 @@ void StructureManager::_HandleStructureDestruction(StructureManagerAsyncContaine
             sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
             
-
             //delete harvester db side with all power and all resources
             gObjectFactory->deleteObjectFromDB(structure);
-            UpdateCharacterLots(structure->getOwner());
-
+            
             //delete it in the world
             gMessageLib->sendDestroyObject_InRangeofObject(structure);
             gWorldManager->destroyObject(structure);
-
-
-
         }
     }
 

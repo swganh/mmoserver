@@ -138,7 +138,6 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 {
                     //sadly the client wont inform us when the player hit escape
                     gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
-                    gStructureManager->UpdateCharacterLots(player->getId());
                 }
                 else
                 {
@@ -147,7 +146,6 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     //wrong_planet
                     //not_permitted
                     gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "wrong_planet", 0, 0, 0, data->requiredLots, 0.0f), player);
-                    gStructureManager->UpdateCharacterLots(player->getId());
                     return;
                 }
 

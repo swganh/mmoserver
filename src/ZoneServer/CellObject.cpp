@@ -70,11 +70,14 @@ void CellObject::prepareDestruction()
 	while(objIt != cellObjects->end())
 	{
 		Object* object = gWorldManager->getObjectById((*objIt));
-
+        
 		if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))
 		{
-			//should be already dealt with - shouldnt be any players left
-
+            // the player gets removed in BuildingObject::prepareDestruction()
+            if (cellObjects->size() == 1)
+            {
+                break;
+            }
 		} 
 		else
 		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
@@ -90,10 +93,19 @@ void CellObject::prepareDestruction()
 		}
 		else
 		{
-			//Carefull! destroyObject removes the object from the cell!!!
-			//the iterator is invalid afterwards!!!
-			gWorldManager->destroyObject(object);
-			objIt = cellObjects->begin();
+            // just remove it from the list and continue, it was already destroyed?
+            if(!object){
+                DLOG(WARNING) << "invalid object in CellObject::prepareDestruction()";
+                cellObjects->erase(objIt);
+                objIt = cellObjects->begin();
+            }
+            else
+            {
+			    //Carefull! destroyObject removes the object from the cell!!!
+			    //the iterator is invalid afterwards!!!
+			    gWorldManager->destroyObject(object);
+			    objIt = cellObjects->begin();
+            }
 		}
 		//careful with iterating here!!!
 	}

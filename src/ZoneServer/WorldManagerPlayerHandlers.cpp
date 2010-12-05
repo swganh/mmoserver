@@ -188,42 +188,6 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
         }
     });
 }
-
-//void WorldManager::savePlayer(uint32 accId,bool remove, WMLogOut mLogout, CharacterLoadingContainer* clContainer)
-//{
-//    PlayerObject* playerObject			= getPlayerByAccId(accId);
-//    if(!playerObject) {
-//        DLOG(INFO) << "WorldManager::savePlayer could not find player with AccId:" <<accId<<", save aborted.";
-//        return;
-//    }
-//
-//    switch (mLogout)
-//    {
-//    case WMLogOut_LogOut:
-//    case WMLogOut_Char_Load:
-//        {
-//            // update PlayerAttributes
-//            _updatePlayerAttributesToDB(accId);
-//            _updatePlayerLogoutToDB(accId, clContainer);
-//        }
-//        break;
-//
-//    case WMLogOut_No_LogOut:
-//    case WMLogOut_Zone_Transfer:
-//        //start by saving the buffs the buffmanager will deal with the buffspecific db callbacks and start the position safe at their end
-//        //which will return its callback to the worldmanager
-//        //if no buff was there to be saved we will continue directly
-//        gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
-//        _updatePlayerAttributesToDB(accId);
-//        gObjectFactory->requestObject(ObjType_Player,0,0,clContainer->ofCallback,clContainer->mPlayerId,clContainer->mClient);
-//        //now destroy the clContainer
-//        SAFE_DELETE(clContainer);
-//
-//        _updatePlayerPositionToDB(accId);
-//        break;
-//    }
-//}
-
 //======================================================================================================================
 
 void WorldManager::savePlayerSync(uint32 accId,bool remove)
@@ -464,7 +428,6 @@ bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
         ++playerIt;
     }
     LOG(WARNING) << "Periodic Save of "<< playerSaveCount <<" Players";
-    //setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 60000, NULL));
     return true;
 }
 //======================================================================================================================

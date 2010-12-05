@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <vector>
 #include <boost/asio.hpp>
+#include <boost/program_options.hpp>
 
 #include "Utils/typedefs.h"
 
@@ -47,9 +48,10 @@ class PingServer
 public:
     /*! \brief Start a ping service listening on all addresses for a specified port.
      *
-     * \param port The port to listen for ping requests on.
+     * \param argc The number of arguments in the command-line character array.
+	 * \param argv Arguments from the command-line.
      */
-    explicit PingServer(int port);
+    explicit PingServer(int argc, char* argv[]);
 
     /*! Default destructor */
     ~PingServer();
@@ -80,11 +82,15 @@ private:
     boost::asio::ip::udp::endpoint		remote_endpoint_;   //Storage for Current Client End Point (Thread Safe)
     boost::asio::io_service             io_service_;        //Boost IO Service
     boost::asio::ip::udp::socket        socket_;            //Server Socket
+	uint16								server_port_;
 
     std::vector<uint8>                  receive_buffer_;
 
     uint64                              bytes_received_;
     uint64                              bytes_sent_;
+
+	boost::program_options::options_description			options_description_;
+	boost::program_options::variables_map				variables_map_;
 };
 
 #endif // ANH_PING_SERVER_H

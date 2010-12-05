@@ -36,24 +36,50 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
-#include "Common/ConfigManager.h"
 #include <boost/thread/thread.hpp>
 
+#include "Common/BuildInfo.h"
 #include "Utils/utils.h"
 
+#include <iostream>
+#include <fstream>
 #include <functional>
 
 #define RECEIVE_BUFFER 512
 
-PingServer::PingServer(int port)
-    : io_service_()
+PingServer::PingServer(int argc, char* argv[])
+    : options_description_("Ping Server Configuration")
+	, io_service_()
     , socket_(io_service_)
     , receive_buffer_(RECEIVE_BUFFER)
 {
-    boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), port);
+	options_description_.add_options()
+		("help", "Displays this help dialog.")
+		("BindAddress", boost::program_options::value<std::string>()->default_value("127.0.0.1"), "")
+		("BindPort", boost::program_options::value<unsigned short>()->default_value(44992), "")
+		;
+	
+	std::ifstream ifs("config/PingServer.cfg");
+	if(!ifs) { throw std::runtime_error("Could not open the configuration file 'config/PingServer.cfg'"); }
+
+	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, options_description_), variables_map_);
+	boost::program_options::store(boost::program_options::parse_config_file(ifs, options_description_, true), variables_map_);
+	boost::program_options::notify(variables_map_);
+
+	// The help argument has been flagged, display the
+	// server options and throw a runtime_error exception
+	// to stop server startup.
+	if(variables_map_.count("help"))
+	{
+		std::cout << options_description_ << std::endl;
+		throw std::runtime_error("Help option flagged.");
+	}
+
+	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), variables_map_["BindPort"].as<unsigned short>());
     socket_.open(endpoint.protocol());
     socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
     socket_.bind(endpoint);
+
 
     AsyncReceive();
 }
@@ -139,45 +165,30 @@ int main(int argc, char* argv[])
 
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
+    
+    LOG(WARNING) <<  "PingServer - Build " << GetBuildString().c_str();
 
     try {
-        ConfigManager::Init("PingServer.cfg");
-    } catch (file_not_found) {
-        std::cout << "Unable to find configuration file: " << CONFIG_DIR << "PingServer.cfg" << std::endl;
-        exit(-1);
-    }
-    
-    /*try {
-        LogManager::Init(
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
-            gConfig->read<std::string>("FileLog_Name", "ping_server.log"));
-    } catch (...) {
-        std::cout << "Unable to open log file for writing" << std::endl;
-        exit(-1);
-    }*/
+		PingServer ping_server(argc, argv);
 
-    LOG(WARNING) <<  "PingServer - Build " << ConfigManager::getBuildString().c_str();
+		LOG(WARNING) << "Welcome to your SWGANH Experience!";
 
-    // Read in the address and port to start the ping server on.
-    int port            = gConfig->read<int>("BindPort");
+		while (true) {
+			// Check for incoming messages and handle them.
+			ping_server.Poll();
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
-    // Start the ping server.
-    PingServer ping_server(port);
-    LOG(WARNING) << "PingServer listening on port " << port;
+			// Stop the ping server if a key is hit.
+			if (Anh_Utils::kbhit())
+				if(std::cin.get() == 'q')
+					break;
+		}
 
-    LOG(WARNING) << "Welcome to your SWGANH Experience!";
-
-    while (true) {
-        // Check for incoming messages and handle them.
-        ping_server.Poll();
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-
-        // Stop the ping server if a key is hit.
-        if (Anh_Utils::kbhit())
-            if(std::cin.get() == 'q')
-                break;
-    }
+	} catch( std::exception& e ) {
+		LOG(ERROR) << e.what();
+		std::cin.get();
+		return 0;
+	}
 
     return 0;
 }

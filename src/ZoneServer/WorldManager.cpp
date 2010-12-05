@@ -345,7 +345,7 @@ void WorldManager::handleObjectReady(shared_ptr<Object> object)
     {
         uint32 key = (uint32)region->getId();
 
-        mQTRegionMap.insert(std::make_pair<uint32, shared_ptr<QTRegion>>(key, region));
+        mQTRegionMap.insert(std::make_pair(key, region));
 
         mSpatialIndex->insertQTRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
     }

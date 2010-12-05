@@ -302,8 +302,7 @@ void WorldManager::_loadWorldObjects()
                     creatureSpawnRegion->mWidth =  result_set->getDouble(4);
                     creatureSpawnRegion->mLength  = result_set->getDouble(5);
 
-                    mCreatureSpawnRegionMap.insert(std::make_pair<uint64_t, std::shared_ptr<CreatureSpawnRegion>>
-                                                   (creatureSpawnRegion->mId, creatureSpawnRegion));
+                    mCreatureSpawnRegionMap.insert(std::make_pair(creatureSpawnRegion->mId, creatureSpawnRegion));
                 }
                 LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
                 LOG_IF(INFO, !result_set->rowsCount()) << "No Creature Spawn Regions Loaded with ID: " << mZoneId;

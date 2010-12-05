@@ -319,7 +319,7 @@ bool WorldManager::addObject(Object* object,bool manual)
         }
         auto region = std::shared_ptr<RegionObject>(tmp);
 
-        mRegionMap.insert(std::make_pair<uint32, shared_ptr<RegionObject>>(key,region));
+        mRegionMap.insert(std::make_pair(key,region));
 
         mSpatialIndex->InsertRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
 
@@ -352,7 +352,7 @@ bool WorldManager::addObject(std::shared_ptr<Object> object, bool manual)
 
     auto region = dynamic_pointer_cast<RegionObject>(object);
 
-    mRegionMap.insert(std::make_pair<uint64 ,shared_ptr<RegionObject>>(key,region));
+    mRegionMap.insert(std::make_pair(key,region));
 
     mSpatialIndex->InsertRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
 

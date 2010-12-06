@@ -50,11 +50,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-ClientManager::ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch) :
+ClientManager::ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch, uint32_t cluster_id) :
     mClientService(service),
     mDatabase(database),
     mMessageRouter(router),
-    mConnectionDispatch(dispatch)
+    mConnectionDispatch(dispatch),
+	mClusterId(cluster_id)
 {
     // Set our member variables
     mMessageRouter->setClientManager(this);
@@ -416,7 +417,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
     {
         // Update the account record that it is now logged in and last login date.
 
-        mDatabase->executeProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+        mDatabase->executeProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", mClusterId, client->getAccountId());
 
         // finally add them to our accountId map.
         boost::recursive_mutex::scoped_lock lk(mServiceMutex);

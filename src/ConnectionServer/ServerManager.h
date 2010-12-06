@@ -63,7 +63,7 @@ class ServerManager : public NetworkCallback, public ConnectionDispatchCallback,
 {
 public:
 
-    ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager);
+    ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager, uint32 cluster_id);
     ~ServerManager(void);
 
     void                            Process(void);

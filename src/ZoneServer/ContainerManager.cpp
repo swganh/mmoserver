@@ -517,9 +517,8 @@ void ContainerManager::deleteObject(Object* object, Object* parent)
 {
 	destroyObjectToRegisteredPlayers(parent,object->getId());
 	parent->removeObject(object);
-	gWorldManager->destroyObject(object);
-
 	gObjectFactory->deleteObjectFromDB(object);
+	gWorldManager->destroyObject(object);
 }
 
 //=======================================================================================================

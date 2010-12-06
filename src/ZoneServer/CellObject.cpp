@@ -70,6 +70,8 @@ void CellObject::prepareDestruction()
 	while(objIt != cellObjects->end())	{
 		Object* object = gWorldManager->getObjectById((*objIt));
 
+
+
 		//we should have gotten rid of them by now!
 		if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))	{
 			assert(false);
@@ -86,10 +88,9 @@ void CellObject::prepareDestruction()
 			objIt = cellObjects->erase(objIt);
 		}
 		else	{
-			//Carefull! destroyObject removes the object from the cell!!!
-			//the iterator is invalid afterwards!!!
-			gWorldManager->destroyObject(object);
-			objIt = cellObjects->begin();
+			
+			gWorldManager->destroyObprepareDestructionject(object);
+			objIt = cellObjects->erase(objIt);
 		}
 		//careful with iterating here!!!
 	}

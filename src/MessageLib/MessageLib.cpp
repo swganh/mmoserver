@@ -184,105 +184,29 @@ bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uin
 //
 // broadcasts a message to all players in range of the given player
 // we use our registered playerlist here so it will be pretty fast :)
-void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object, unsigned char priority, bool toSelf) {
-    if(toSelf) {
-        gContainerManager->sendToRegisteredWatchers(object, [this, priority, message, object, toSelf] (PlayerObject* const recipient)
-        {
-
-            bool failed = false;
-
-            //save us some cycles if traffic is low
-
-            if(mMessageFactory->HeapWarningLevel() <= 4)
-            {
-                //thats something for debugmode only
-                if(!_checkPlayer(recipient))
-                {
-                    //an invalid player at this point is like armageddon and Ultymas birthday combined at one time
-                    //if this happens we need to know about it
-                    assert(false && "Invalid Player in sendtoInrange");
-                    failed = true;
-                }
-
-                // clone our message
-                mMessageFactory->StartMessage();
-                mMessageFactory->addData(message->getData(),message->getSize());
-
-                (recipient->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),recipient->getAccountId(),CR_Client,static_cast<uint8>(priority));
-
-            }
-            else
-            {
-                if(!_checkPlayer(recipient))
-                {
-                    assert(false && "Invalid Player in sendtoInrange");
-                }
-                bool yn = _checkDistance(recipient->mPosition,object,mMessageFactory->HeapWarningLevel());
-                if(yn)
-                {
-                    // clone our message
-                    mMessageFactory->StartMessage();
-                    mMessageFactory->addData(message->getData(),message->getSize());
-
-                    (recipient->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),recipient->getAccountId(),CR_Client,static_cast<uint8>(priority));
-                }
-            }
+void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object, unsigned char priority, bool to_self) {
+    gContainerManager->sendToRegisteredPlayers(object, [=] (PlayerObject* const recipient) {
+        //thats something for debugmode only
+        if(!_checkPlayer(recipient)) {
+            //an invalid player at this point is like armageddon and Ultymas birthday combined at one time
+            //if this happens we need to know about it
+            assert(false && "Invalid Player in sendtoInrange");
+            return;
         }
-                                                   );
 
-        mMessageFactory->DestroyMessage(message);
-        return;
-    }
-
-    gContainerManager->sendToRegisteredPlayers(object, [this, priority, message, object, toSelf] (PlayerObject* const recipient)
-    {
-
-        bool failed = false;
-
-        //save us some cycles if traffic is low
-
-        if(mMessageFactory->HeapWarningLevel() <= 4)
-        {
-            //thats something for debugmode only
-            if(!_checkPlayer(recipient))
-            {
-                //an invalid player at this point is like armageddon and Ultymas birthday combined at one time
-                //if this happens we need to know about it
-                assert(false && "Invalid Player in sendtoInrange");
-                failed = true;
-            }
-
+        if(_checkDistance(recipient->mPosition,object,mMessageFactory->HeapWarningLevel())) {
             // clone our message
             mMessageFactory->StartMessage();
             mMessageFactory->addData(message->getData(),message->getSize());
 
-            (recipient->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),recipient->getAccountId(),CR_Client,static_cast<uint8>(priority));
-
+            recipient->getClient()->SendChannelAUnreliable(mMessageFactory->EndMessage(), recipient->getAccountId(), CR_Client, priority);
         }
-        else
-        {
-            if(!_checkPlayer(recipient))
-            {
-                assert(false && "Invalid Player in sendtoInrange");
-            }
-            bool yn = _checkDistance(recipient->mPosition,object,mMessageFactory->HeapWarningLevel());
-            if(yn)
-            {
-                // clone our message
-                mMessageFactory->StartMessage();
-                mMessageFactory->addData(message->getData(),message->getSize());
-
-                (recipient->getClient())->SendChannelAUnreliable(mMessageFactory->EndMessage(),recipient->getAccountId(),CR_Client,static_cast<uint8>(priority));
-            }
-        }
-    }
-                                              );
+    });
 
     mMessageFactory->DestroyMessage(message);
 }
 
-void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc)
-{
+void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc) {
     ObjectListType in_range_players;
     mGrid->GetChatRangeCellContents(object->getGridBucket(), &in_range_players);
 

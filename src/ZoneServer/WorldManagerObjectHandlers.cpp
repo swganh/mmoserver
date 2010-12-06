@@ -411,9 +411,7 @@ void WorldManager::destroyObject(Object* object)
 
 			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
 			if(building)
-			{
-				building->prepareDestruction();
-				
+			{				
 				//remove it out of the worldmanagers structurelist now that it is deleted
 				ObjectIDList::iterator itStruct = mStructureList.begin();
 				while(itStruct != mStructureList.end())

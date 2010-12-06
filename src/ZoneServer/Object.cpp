@@ -679,8 +679,6 @@ void Object::UnregisterAllWatchers()
 
 		targetPlayer->unRegisterWatcher(this);
 		mKnownPlayers.erase(playerIt++);
-
-		
 	}
 }
 
@@ -689,41 +687,36 @@ void Object::UnregisterAllWatchers()
 bool Object::unRegisterWatcher(Object* object)
 {
 	//DLOG(INFO) << "Object::unRegisterWatcher :: unregister " << object->getId() << " for " << this->getId();
-
+	//make sure our target is updated
 	PlayerObject* player = dynamic_cast<PlayerObject*>(this);
-	if(player)
-	{
+	if(player)	{
 		if(player->getTargetId() == object->getId())
 			player->setTarget(0);
 	}
 
-	if(object->getType() == ObjType_Player)
-	{
+	if(object->getType() == ObjType_Player)	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(object);
 		PlayerObjectSet::iterator it = mKnownPlayers.find(player);
 
-		if(it != mKnownPlayers.end())
-		{
+		if(it != mKnownPlayers.end())		{
+			
 			//we might be its target
-			if(player->getTargetId() == this->getId())
+			if(player->getTargetId() == this->getId())	{
 				player->setTarget(0);
+			}
 
 			mKnownPlayers.erase(it);
-
-			//DLOG(INFO) << "Object::unRegisterWatcher :: " << object->getId() << " was successfully unregistered for " << this->getId();
-
+			DLOG(INFO) << "Object::unRegisterWatcher :: Player" << object->getId() << " was successfully unregistered from " << this->getId();
 			return(true);
 		}
 	}
-	else
-	{
+	else	{
 		ObjectSet::iterator it = mKnownObjects.find(object);
 
-		if(it != mKnownObjects.end())
-		{
+		if(it != mKnownObjects.end())		{
 			mKnownObjects.erase(it);
 
-			//DLOG(INFO) << "Object::unRegisterWatcher :: " << object->getId() << " was successfully unregistered for " << this->getId();
+			DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " was successfully unregistered for " << this->getId();
 			return(true);
 		}
 	}
@@ -876,7 +869,7 @@ bool Object::removeObject(Object* data)
 		}
 		++it;
 	}
-	DLOG(INFO) << "Object*::removeDataByPointer Data "<< data->getId() << " not found";
+	DLOG(INFO) << "Object::removeDataByPointer Object : Object" << this->getId() <<" Data "<< data->getId() << " not found";
 //	assert(false);
 	return false;
 }

@@ -67,29 +67,25 @@ void CellObject::prepareDestruction()
 	ObjectIDList* cellObjects		= this->getObjects();
 	ObjectIDList::iterator objIt	= cellObjects->begin();
 
-	while(objIt != cellObjects->end())
-	{
+	while(objIt != cellObjects->end())	{
 		Object* object = gWorldManager->getObjectById((*objIt));
-
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))
-		{
-			//should be already dealt with - shouldnt be any players left
+		//we should have gotten rid of them by now!
+		if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))	{
+			assert(false);
+			objIt++;
+			continue;
 
 		} 
 		else
-		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
-		{
+		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))	{
 			//put the creature into the world
 			pet->setParentIdIncDB(0);
 			pet->updatePosition(0,pet->getWorldPosition());
 			
 			//remove out of the cell
-			cellObjects->erase(objIt);
-
-			objIt = cellObjects->begin();
+			objIt = cellObjects->erase(objIt);
 		}
-		else
-		{
+		else	{
 			//Carefull! destroyObject removes the object from the cell!!!
 			//the iterator is invalid afterwards!!!
 			gWorldManager->destroyObject(object);

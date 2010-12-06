@@ -658,17 +658,13 @@ uint32 zmap::AddObject(Object *newObject)
 
 void zmap::UpdateObject(Object *updateObject)
 {
-	
-
 	glm::vec3   position;
 	
 	//cater for players in cells
-	if (updateObject->getParentId())
-	{
+	if (updateObject->getParentId())	{
 		position = updateObject->getWorldPosition(); 
 	}
-	else
-	{
+	else	{
 		position = updateObject->mPosition;
 	}
 	
@@ -676,8 +672,7 @@ void zmap::UpdateObject(Object *updateObject)
 	uint32 oldBucket	= updateObject->getGridBucket();
 
 	//no need for an update
-	if(newBucket == oldBucket)
-	{
+	if(newBucket == oldBucket)	{
 		return;
 	}
 

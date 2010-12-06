@@ -178,12 +178,12 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 
 	uint32 oldBucket = updateObject->getGridBucket();
 	
+
 	uint32 newBucket = getGrid()->getCellId(updateObject->getWorldPosition().x, updateObject->getWorldPosition().z);
 	
 	//now  process the spatial index update
-	if(newBucket != oldBucket)
-	{
-		//DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
+	if(newBucket != oldBucket)	{
+		DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << newBucket;
 		
 		//test how much we moved if only one grid proceed normally
 		if(	(newBucket == (oldBucket +1))			  || (newBucket == (oldBucket -1))				||
@@ -192,14 +192,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 			(newBucket == (oldBucket - GRIDWIDTH +1)) || (newBucket == (oldBucket - GRIDWIDTH -1))
 			)
 		{
-			/*
-			PlayerObject* player = dynamic_cast<PlayerObject*>(updateObject);
-			if(player)
-			{
-				DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"moved from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
-			}
-	*/
-
+			
 			//sets the new gridcell, updates subcells
 			getGrid()->UpdateObject(updateObject);
 
@@ -258,31 +251,19 @@ RegionObject* SpatialIndexManager::getRegion(uint32 id)
 void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 {
 	DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeObject->getId();
-	//were in a cell - get us out
-	if(removeObject->getParentId())
-	{
+	//were in a container - get us out
+	if(removeObject->getParentId())	{
 		Object* container = gWorldManager->getObjectById(removeObject->getParentId());
-		if(container)
-		{
-			if(CreatureObject* owner = dynamic_cast<CreatureObject*>(container))
-			{
+		if(container)	{
+			if(CreatureObject* owner = dynamic_cast<CreatureObject*>(container))	{
 				// remove from creatures slotmap
 				owner->getEquipManager()->removeEquippedObject(removeObject);
 
 				// send out the new equiplist
 				gMessageLib->sendEquippedListUpdate_InRange(owner);				
-
-				//destroy for players in the grid
-				//gContainerManager->SendDestroyEquippedObject(removeObject);
-
-				//gContainerManager->destroyObjectToRegisteredPlayers(container, removeObject);
-				
-				//Bailout - the reason we use SendDestroyEquippedObject(object); instead of the (faster) destroyObjectToRegisteredPlayers
-				//is that creatures do not get registered to players as containers (yet) - that might be an idea to change
-				//return;
-
 			}
 
+			//update the world on our changes
 			gContainerManager->destroyObjectToRegisteredPlayers(container,removeObject->getId());
 
 			//remove the object out of the container
@@ -293,6 +274,12 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 		return;
 	}
 
+	//if we are a building we need to prepare for destruction
+	BuildingObject* building = dynamic_cast<BuildingObject*>(removeObject);
+	if(building)	{
+		building->prepareDestruction();
+	}
+
 	//remove it out of the grid
 	_RemoveObjectFromGrid(removeObject);
 }
@@ -301,7 +288,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 //a Player or creature is ALWAYS in the grid and possibly in a cell
 void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 {
-	//DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removePlayer->getId();
+	DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removePlayer->getId();
 
 	//remove us from the grid
 	_RemoveObjectFromGrid(removePlayer);
@@ -314,8 +301,8 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 	CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(removePlayer->getParentId()));
 	if(cell)
 	{
-		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))
-		{
+		//unregister from the building and all its cells 
+		if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))		{
 			gContainerManager->unRegisterPlayerFromBuilding(building,removePlayer);
 		}
 
@@ -375,29 +362,30 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 
 	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
 	{
-		PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
-
+		//we probably cant be in there anymore
+		if((*i)->getId() == removePlayer->getId())	{
+			assert(false);
+			continue;
+		}
 		//if we are a player unregister us from everything around
 		if(removePlayer)
 		{
-			if((*i)->getId() != removePlayer->getId())
+			gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);	
+			gMessageLib->sendDestroyObject((*i)->getId(), removePlayer);
+
+			if((*i)->getType() == ObjType_Player)
 			{
-				gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);	
-				gMessageLib->sendDestroyObject((*i)->getId(), removePlayer);
-
-				if(otherPlayer)
-				{
-					gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
-				}
-
+				PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
+				gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
 			}
 		}
 		else
 
 		//is the object a container?? do we need to despawn the content and unregister it ?
 		//just dont unregister us for ourselves or our equipment - we likely only travel
-		if(otherPlayer)
+		if((*i)->getType() == ObjType_Player)
 		{
+			PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
 			//DLOG(INFO) << "SpatialIndexManager::RemoveObject:: try unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId();
 			
 			if(removeObject->checkRegisteredWatchers(otherPlayer) )

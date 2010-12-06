@@ -26,22 +26,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "ActiveConversation.h"
 #include "BuildingObject.h"
-#include "HouseObject.h"
-
 #include "CellObject.h"
+#include "ContainerManager.h"
 #include "ConversationManager.h"
 #include "Heightmap.h"
+#include "HouseObject.h"
 #include "NPCObject.h"
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
-#include "FactoryObject.h"
+//#include "FactoryObject.h"
 #include "Tutorial.h"
+#include "VehicleController.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "ContainerManager.h"
-#include "VehicleController.h"
 #include "zmap.h"
 
 #include "MessageLib/MessageLib.h"
@@ -75,8 +74,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	inMoveCount = message->getUint32();
   
 	// only process if its in sequence
-	if(player->getInMoveCount() > inMoveCount)
-	{
+	if(player->getInMoveCount() > inMoveCount)	{
 		return;
 	}
 
@@ -100,8 +98,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
 	// stop entertaining ???
 	// important is, that if we move we change our posture to NOT skill animating anymore!
 	// so only stop entertaining when we are performing and NOT skillanimationg
-	if(player->getPerformingState() != PlayerPerformance_None && player->states.getPosture() != CreaturePosture_SkillAnimating)
-	{
+	if(player->getPerformingState() != PlayerPerformance_None && player->states.getPosture() != CreaturePosture_SkillAnimating)	{
 		gEntertainerManager->stopEntertaining(player);
 	}
 
@@ -278,8 +275,8 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
 				assert(false);
 				return;
 			}
-			BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
 			
+			BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
 			gContainerManager->registerPlayerToBuilding(newBuilding,player);
 
 			if(player->checkIfMounted() && player->getMount())	{

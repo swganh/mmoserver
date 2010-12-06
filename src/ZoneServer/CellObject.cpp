@@ -89,7 +89,7 @@ void CellObject::prepareDestruction()
 		}
 		else	{
 			
-			gWorldManager->destroyObprepareDestructionject(object);
+			gWorldManager->destroyObject(object);
 			objIt = cellObjects->erase(objIt);
 		}
 		//careful with iterating here!!!

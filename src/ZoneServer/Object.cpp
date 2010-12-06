@@ -706,7 +706,7 @@ bool Object::unRegisterWatcher(Object* object)
 			}
 
 			mKnownPlayers.erase(it);
-			DLOG(INFO) << "Object::unRegisterWatcher :: Player" << object->getId() << " was successfully unregistered from " << this->getId();
+			//DLOG(INFO) << "Object::unRegisterWatcher :: Player" << object->getId() << " was successfully unregistered from " << this->getId();
 			return(true);
 		}
 	}
@@ -716,7 +716,7 @@ bool Object::unRegisterWatcher(Object* object)
 		if(it != mKnownObjects.end())		{
 			mKnownObjects.erase(it);
 
-			DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " was successfully unregistered for " << this->getId();
+			//DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " was successfully unregistered for " << this->getId();
 			return(true);
 		}
 	}

@@ -84,7 +84,7 @@ ContainerManager::ContainerManager()
 // unRegisterPlayerFromContainer *invalidates* the knownObject / knownPlayer iterator
 void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const
 {
-	DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId();
+	//DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId();
 
 	//buildings are a different kind of animal all together
 	//as cells need to be handled in a different way

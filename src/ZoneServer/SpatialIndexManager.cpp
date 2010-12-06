@@ -128,7 +128,7 @@ bool SpatialIndexManager::AddObject(PlayerObject *player)
 
 	uint32 finalBucket = getGrid()->AddObject(player);
 	
-	DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << player->getId() << " added to bucket " <<  finalBucket;
+	//DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << player->getId() << " added to bucket " <<  finalBucket;
 	
 	//any errors ?
 	if(finalBucket == 0xffffffff)
@@ -183,7 +183,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 	
 	//now  process the spatial index update
 	if(newBucket != oldBucket)	{
-		DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << newBucket;
+		//DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << newBucket;
 		
 		//test how much we moved if only one grid proceed normally
 		if(	(newBucket == (oldBucket +1))			  || (newBucket == (oldBucket -1))				||
@@ -218,7 +218,6 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 		}
 	
 	}
-
 		
 }
 
@@ -250,7 +249,7 @@ RegionObject* SpatialIndexManager::getRegion(uint32 id)
 //it can be equipped however by a creature / player
 void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 {
-	DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeObject->getId();
+	//DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeObject->getId();
 	//were in a container - get us out
 	if(removeObject->getParentId())	{
 		Object* container = gWorldManager->getObjectById(removeObject->getParentId());
@@ -288,7 +287,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 //a Player or creature is ALWAYS in the grid and possibly in a cell
 void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 {
-	DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removePlayer->getId();
+	//DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removePlayer->getId();
 
 	//remove us from the grid
 	_RemoveObjectFromGrid(removePlayer);
@@ -348,7 +347,7 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 
 	uint32 bucket = removeObject->getGridBucket();
 
-	DLOG(INFO) << "SpatialIndexManager::RemoveObject:: : " << removeObject->getId() << "out of Bucket : " << bucket;
+	//DLOG(INFO) << "SpatialIndexManager::RemoveObject:: : " << removeObject->getId() << "out of Bucket : " << bucket;
 
 	//remove out of grid lists
 	getGrid()->RemoveObject(removeObject);
@@ -448,7 +447,7 @@ void SpatialIndexManager::removePlayerFromStructure(PlayerObject* player, CellOb
 //
 void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building)
 {
-	DLOG(INFO) << "SpatialIndexManager::removeStructureItemsForPlayer:: : " << player->getId();
+	//DLOG(INFO) << "SpatialIndexManager::removeStructureItemsForPlayer:: : " << player->getId();
 
 	ObjectList cellObjects		= building->getAllCellChilds();
 	ObjectList::iterator objIt	= cellObjects.begin();
@@ -1024,13 +1023,10 @@ void SpatialIndexManager::initObjectsInRange(PlayerObject* playerObject)
 			ObjectList cellChilds = building->getAllCellChilds();
 			ObjectList::iterator cellChildsIt = cellChilds.begin();
 
-			while(cellChildsIt != cellChilds.end())
-			{
-		
+			while(cellChildsIt != cellChilds.end())	{
 				//create the tangibles now
 				TangibleObject* cellTangible = dynamic_cast<TangibleObject*>(*cellChildsIt);
-				if(cellTangible)
-				{
+				if(cellTangible)	{
 					sendCreateObject(cellTangible, playerObject, true);
 				}
 

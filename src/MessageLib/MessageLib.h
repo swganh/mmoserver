@@ -569,11 +569,11 @@ private:
 	bool				_checkPlayer(const PlayerObject* const player) const;
 	bool				_checkPlayer(uint64 playerId) const;
 
-	void				_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf = true);
-	void				_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf = true) const;
+	void				_sendToInRangeUnreliable(Message* message, Object* const object, unsigned char priority, bool to_self = true);
+	void				_sendToInRange(Message* message, Object* const object, unsigned char priority, bool to_self = true) const;
 
-	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, uint16_t priority, uint32_t crc);
-	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object,uint16 priority, uint32 crc);
+	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
+	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
 	
 	void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;
 	void				_sendToInstancedPlayers(Message* message, uint16 priority, PlayerObject* const player) const ;

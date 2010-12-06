@@ -25,33 +25,44 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "DatabaseManager/DatabaseManager.h"
+#ifndef ANH_DATABASEMANAGER_DATABASECONFIG_H
+#define ANH_DATABASEMANAGER_DATABASECONFIG_H
 
-#include <algorithm>
+#include <stdint.h>
 
-#include "DatabaseManager/Database.h"
-
-
-void DatabaseManager::process() {
-    std::for_each(database_list_.begin(), database_list_.end(), 
-        [] (std::shared_ptr<Database> db) {
-            db->process();
-        });
-}
-
-
-Database* DatabaseManager::connect(DBType type, 
-                                   const std::string& host, 
-                                   uint16_t port, 
-                                   const std::string& user, 
-                                   const std::string& pass, 
-                                   const std::string& schema)
+/**
+ * \brief A collection of Database Configuration options.
+ */
+class DatabaseConfig
 {
-    // Create our new Database object and initiailzie it.
-	auto database = std::make_shared<Database>(type, host, port, user, pass, schema, database_configuration_.getDbMinThreads(), database_configuration_.getDbMaxThreads());
+public:
+	
+	/**
+	 * \brief Initalizes the configuration options.
+	 *
+	 * \param db_min_threads The minium number of threads used for database work.
+	 * \param db_max_threads The maximum number of threads used for database work.
+	 */
+	DatabaseConfig(uint32_t db_min_threads, uint32_t db_max_threads)
+		: db_min_threads_(db_min_threads)
+		, db_max_threads_(db_max_threads) { }
 
-    // Add the new DB to our process list.
-    database_list_.push_back(database);
+	/**
+	 * \brief Default destructor.
+	 */
+	~DatabaseConfig() { }
 
-    return database.get();
-}
+	const uint32_t getDbMinThreads() const {
+		return db_min_threads_;
+	}
+
+	const uint32_t getDbMaxThreads() const {
+		return db_max_threads_;
+	}
+
+private:
+	uint32_t db_min_threads_;
+	uint32_t db_max_threads_;
+};
+
+#endif // ANH_DATABASEMANAGER_DATABASECONFIG_H

@@ -66,8 +66,10 @@ public:
     * \param user The username for accessing the requested schema.
     * \param pass The password for accessing the requested schema.
     * \param schema The database to connect to.
+	* \param db_min_threads The minimum number of threads used to process database work.
+	* \param db_max_threads The maximum number of threads used to process database work.
     */
-    Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
+    Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema, const uint32_t db_min_threads, const uint32_t db_max_threads);
     ~Database();
 
     /*! Executes an asynchronus sql query.

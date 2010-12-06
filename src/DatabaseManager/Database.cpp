@@ -41,8 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
-#include "Common/ConfigManager.h"
-
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DataBindingFactory.h"
 #include "DatabaseManager/DatabaseCallback.h"
@@ -54,7 +52,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Transaction.h"
 
 
-Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema) 
+Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema, const uint32_t db_min_threads, const uint32_t db_max_threads) 
     : database_impl_(nullptr)
     , job_pool_(sizeof(DatabaseJob))
     , transaction_pool_(sizeof(Transaction))
@@ -67,8 +65,8 @@ Database::Database(DBType type, const std::string& host, uint16_t port, const st
             break;
     }
     
-    uint32_t min_threads = gConfig->read<uint32_t>("DBMinThreads");
-    uint32_t max_threads = gConfig->read<uint32_t>("DBMaxThreads");
+    uint32_t min_threads = db_min_threads;
+    uint32_t max_threads = db_max_threads;
 
     // Create our worker threads and put them in the idle queue
     uint32_t const hardware_threads = boost::thread::hardware_concurrency();

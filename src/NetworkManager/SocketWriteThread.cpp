@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <glog/logging.h>
 
 #include "CompCryptor.h"
-#include "NetConfig.h"
 #include "Packet.h"
 #include "Service.h"
 #include "Session.h"
@@ -67,7 +66,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serverservice) :
+SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serverservice, NetworkConfig& network_configuration) :
     mService(0),
     mCompCryptor(0),
     mSocket(0),
@@ -80,13 +79,13 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
     {
 
         mServerService = true;
-        mMessageMaxSize = gNetConfig->getServerServerReliableSize();
+        mMessageMaxSize = network_configuration.getServerToServerReliableSize();
 
     }
     else
     {
         mServerService = false;
-        mMessageMaxSize = gNetConfig->getServerClientReliableSize();
+        mMessageMaxSize = network_configuration.getServerToClientReliableSize();
     }
 
 

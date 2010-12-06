@@ -69,12 +69,12 @@ void CellObject::prepareDestruction()
 
 	while(objIt != cellObjects->end())	{
 		Object* object = gWorldManager->getObjectById((*objIt));
+
 		//we should have gotten rid of them by now!
 		if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))	{
 			assert(false);
 			objIt++;
 			continue;
-
 		} 
 		else
 		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))	{

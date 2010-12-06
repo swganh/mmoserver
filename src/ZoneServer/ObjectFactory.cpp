@@ -904,6 +904,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
             query_stream << "UPDATE characters SET parent_id = 0 WHERE parent_id = " <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
         }
+        query_stream.str(std::string());
         query_stream << "DELETE FROM cells WHERE id = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
         
@@ -995,7 +996,6 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
     default:
         break;
     }
-    gStructureManager->UpdateCharacterLots(object->getId());
 }
 
 //=============================================================================

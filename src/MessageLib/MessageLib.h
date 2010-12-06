@@ -28,17 +28,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_MESSAGELIB_H
 #define ANH_ZONESERVER_MESSAGELIB_H
 
-#include "Utils/typedefs.h"
-#include "ZoneServer/ObjectController.h"
-#include "ZoneServer/Skill.h"   //for skillmodslist
-#include "ZoneServer/SocialChatTypes.h"
-#include "ZoneServer/MoodTypes.h"
-
-#include "Common/OutOfBand.h"
-
+#include <cstdint>
 #include <vector>
 #include <list>
 #include <glm/glm.hpp>
+
+#include "Utils/typedefs.h"
+
+#include "Common/OutOfBand.h"
+
+#include "ZoneServer/MoodTypes.h"
+#include "ZoneServer/ObjectController.h"
+#include "ZoneServer/Skill.h"   //for skillmodslist
+#include "ZoneServer/SocialChatTypes.h"
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
@@ -570,7 +572,7 @@ private:
 	void				_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf = true);
 	void				_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf = true) const;
 
-	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object,uint16 priority, uint32 crc);
+	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, uint16_t priority, uint32_t crc);
 	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object,uint16 priority, uint32 crc);
 	
 	void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;

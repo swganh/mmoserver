@@ -300,7 +300,7 @@ void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureOb
             cloned_message = mMessageFactory->EndMessage();
 
             // replace the target id
-            int8* data = cloned_message->getData() + 12;
+            char* data = cloned_message->getData() + 12;
             *((uint64_t*)data) = player->getId();
             player->getClient()->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, 5);
         }
@@ -410,44 +410,33 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
 
     //source_player->getClient()->SendChannelAUnreliable(message, source_player->getAccountId(), CR_Client, 5);
 }
-void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object,uint16 priority, uint32 crc)
-{
 
-    glm::vec3   position;
+void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, uint16_t priority, uint32_t crc) {
+    glm::vec3 position = object->getWorldPosition();
 
-    //cater for players in cells
-    if (object->getParentId())
-    {
-        position = object->getWorldPosition();
-    }
-    else
-    {
-        position = object->mPosition;
-    }
+    ObjectListType in_range_players;
+    mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z), &in_range_players);
 
-    ObjectListType		inRangePlayers;
-    mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z), &inRangePlayers);
-
-    Message* clonedMessage;
+    Message* cloned_message;
     bool failed = false;
 
-    for(std::list<Object*>::iterator playerIt = inRangePlayers.begin(); playerIt != inRangePlayers.end(); playerIt++)
-    {
-        PlayerObject* player = dynamic_cast<PlayerObject*>((*playerIt));
-        if ((_checkPlayer(player)) && (object->getGroupId()) &&(player->getGroupId() == object->getGroupId())&&(!player->checkIgnoreList(crc)))
-        {
+    std::for_each(in_range_players.begin(), in_range_players.end(), [=, &cloned_message] (Object* iter_object) {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(iter_object);
+
+        if(_checkPlayer(player) && object->getGroupId()
+                && (player->getGroupId() == object->getGroupId())
+        && !player->checkIgnoreList(crc)) {
             // clone our message
             mMessageFactory->StartMessage();
             mMessageFactory->addData(message->getData(),message->getSize());
-            clonedMessage = mMessageFactory->EndMessage();
+            cloned_message = mMessageFactory->EndMessage();
 
             // replace the target id
-            int8* data = clonedMessage->getData() + 12;
+            int8* data = cloned_message->getData() + 12;
             *((uint64*)data) = player->getId();
-            (player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
+            (player->getClient())->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, 5);
         }
-    }
-
+    });
 }
 
 //======================================================================================================================

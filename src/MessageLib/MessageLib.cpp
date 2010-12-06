@@ -184,10 +184,8 @@ bool MessageLib::_checkDistance(const glm::vec3& mPosition1, Object* object, uin
 //
 // broadcasts a message to all players in range of the given player
 // we use our registered playerlist here so it will be pretty fast :)
-void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object,uint16 priority,bool toSelf)
-{
-    if(toSelf)
-    {
+void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object, unsigned char priority, bool toSelf) {
+    if(toSelf) {
         gContainerManager->sendToRegisteredWatchers(object, [this, priority, message, object, toSelf] (PlayerObject* const recipient)
         {
 
@@ -283,7 +281,7 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
     mMessageFactory->DestroyMessage(message);
 }
 
-void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, uint16_t priority, uint32_t crc)
+void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc)
 {
     ObjectListType in_range_players;
     mGrid->GetChatRangeCellContents(object->getGridBucket(), &in_range_players);
@@ -302,7 +300,7 @@ void MessageLib::_sendToInRangeUnreliableChat(Message* message, const CreatureOb
             // replace the target id
             char* data = cloned_message->getData() + 12;
             *((uint64_t*)data) = player->getId();
-            player->getClient()->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, 5);
+            player->getClient()->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, priority);
         }
     });
 
@@ -411,7 +409,7 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
     //source_player->getClient()->SendChannelAUnreliable(message, source_player->getAccountId(), CR_Client, 5);
 }
 
-void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, uint16_t priority, uint32_t crc) {
+void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc) {
     glm::vec3 position = object->getWorldPosition();
 
     ObjectListType in_range_players;
@@ -434,57 +432,41 @@ void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const Creat
             // replace the target id
             int8* data = cloned_message->getData() + 12;
             *((uint64*)data) = player->getId();
-            (player->getClient())->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, 5);
+            player->getClient()->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, priority);
         }
     });
 }
 
 //======================================================================================================================
 
-void MessageLib::_sendToInRange(Message* message, Object* const object,uint16 priority,bool toSelf) const
-{
-    glm::vec3   position;
+void MessageLib::_sendToInRange(Message* message, Object* const object, unsigned char priority, bool to_self) const {
+    glm::vec3 position = object->getWorldPosition();
 
-    //cater for players in cells
-    if (object->getParentId())
-    {
-        position = object->getWorldPosition();
-    }
-    else
-    {
-        position = object->mPosition;
-    }
+    ObjectListType in_range_players;
+    mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z), &in_range_players);
 
-    ObjectListType		inRangePlayers;
-    mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z), &inRangePlayers);
-
-    for(std::list<Object*>::iterator playerIt = inRangePlayers.begin(); playerIt != inRangePlayers.end(); playerIt++)
-    {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(*playerIt);
-        if(_checkPlayer(player))
-        {
+    std::for_each(in_range_players.begin(), in_range_players.end(), [=] (Object* object) {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+        if(_checkPlayer(player)) {
             // clone our message
             mMessageFactory->StartMessage();
             mMessageFactory->addData(message->getData(),message->getSize());
 
-            (player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,static_cast<uint8>(priority));
+            player->getClient()->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, priority);
         }
+    });
 
+    if(to_self) {
+        const PlayerObject* const player = dynamic_cast<const PlayerObject*>(object);
 
-    }
-
-    if(toSelf)
-    {
-        const PlayerObject* const srcPlayer = dynamic_cast<const PlayerObject*>(object);
-
-        if(_checkPlayer(srcPlayer))
-        {
-            (srcPlayer->getClient())->SendChannelA(message,srcPlayer->getAccountId(),CR_Client, static_cast<uint8>(priority));
-            return;
+        if(_checkPlayer(player)) {
+            player->getClient()->SendChannelA(message, player->getAccountId(), CR_Client, priority);
         }
+    } else {
+        // If the message is sent to self then the process of sending destroys it
+        // otherwise we have to destroy it ourselves.
+        mMessageFactory->DestroyMessage(message);
     }
-
-    mMessageFactory->DestroyMessage(message);
 }
 
 //======================================================================================================================

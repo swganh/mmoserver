@@ -1268,13 +1268,12 @@ void ObjectController::handleObjectMenuRequest(Message* message)
 //=============================================================================================================================
 //this code doesnt make any sense ... a container* Object is the container like we see in the tutorial. It inherits tangibleObject
 //so by definition it cannot be a resourcecontainer or any other tangible despite a container!
+
+// This is called when trying to retrieve a resource from a hopper
 void ObjectController::handleObjectReady(Object* object,DispatchClient* client)
 {
 	PlayerObject* player = gWorldManager->getPlayerByAccId(client->getAccountId());
 	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(mObject);
-
-	//I want to know what paths lead here
-	assert(false);
 
 	gSpatialIndexManager->createInWorld(object);
 }

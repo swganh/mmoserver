@@ -363,7 +363,7 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 	for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
 	{
 		//we probably cant be in there anymore
-		if((*i)->getId() == removePlayer->getId())	{
+		if((*i)->getId() == removeObject->getId())	{
 			assert(false);
 			continue;
 		}

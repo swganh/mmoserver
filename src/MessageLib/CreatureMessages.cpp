@@ -672,9 +672,9 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
         // Not suported yet
         DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
 
-		//NEVER EVER BAIL OUT WITHOUT closing the message and deleting it
-		Message* message = mMessageFactory->EndMessage();
-		message->setPendingDelete(true);
+        //NEVER EVER BAIL OUT WITHOUT closing the message and deleting it
+        Message* message = mMessageFactory->EndMessage();
+        message->setPendingDelete(true);
         return;
     }
 
@@ -849,86 +849,66 @@ bool MessageLib::sendEquippedListUpdate_InRange(CreatureObject* creatureObject)
 }
 
 
-bool MessageLib::sendEquippedListUpdate(CreatureObject* creatureObject, CreatureObject* targetObject)
-{
-	PlayerObject* player = dynamic_cast<PlayerObject*>(creatureObject);
-	if(player)
-	{
-		if(!player->isConnected())
-			return(false);
-	}
-	PlayerObject* target = dynamic_cast<PlayerObject*>(targetObject);
-	if(!target || !target->isConnected())
-	{
-		return(false);
-	}
+bool MessageLib::sendEquippedListUpdate(CreatureObject* creature, CreatureObject* target) {
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creature);
+    if (!player || !player->isConnected()) {
+        return false;
+    }
 
-	ObjectList*				equippedObjects				= creatureObject->getEquipManager()->getEquippedObjects();
-	ObjectList::iterator	eqIt						= equippedObjects->begin();
-	uint32					cSize						= 0;
+    PlayerObject* target_player = dynamic_cast<PlayerObject*>(target);
+    if (!target_player || !target_player->isConnected()) {
+        return false;
+    }
 
-	// customization is necessary for haircolor on imagedesign
-	while(eqIt != equippedObjects->end())
-	{
-		if(TangibleObject* object = dynamic_cast<TangibleObject*>(*eqIt))
-		{
-			cSize += object->getCustomizationStr().getLength();
-		}
-		else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(*eqIt))
-		{
-			cSize += pet->getCustomizationStr().getLength();
-		}
+    ObjectList* equipped = player->getEquipManager()->getEquippedObjects();
+    uint32 customization_size = 0;
 
-		++eqIt;
-	}
+    std::for_each(equipped->begin(), equipped->end(), [=, &customization_size] (Object* equipped_object) {
+        if (TangibleObject* object = dynamic_cast<TangibleObject*>(equipped_object)) {
+            customization_size += object->getCustomizationStr().getLength();
+        } else if (CreatureObject* pet = dynamic_cast<CreatureObject*>(equipped_object)) {
+            customization_size += pet->getCustomizationStr().getLength();
+        }
+    });
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opDeltasMessage);
-	mMessageFactory->addUint64(creatureObject->getId());
-	mMessageFactory->addUint32(opCREO);
-	mMessageFactory->addUint8(6);
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
 
-	mMessageFactory->addUint32(15 + (equippedObjects->size() * 18)+ cSize);
-	mMessageFactory->addUint16(1);   //one update
-	mMessageFactory->addUint16(15);				 //id 15
+    mMessageFactory->addUint32(15 + (equipped->size() * 18)+ customization_size);
+    mMessageFactory->addUint16(1);   //one update
+    mMessageFactory->addUint16(15);				 //id 15
 
-	// creatures tangible objects
-	eqIt = equippedObjects->begin();
+    mMessageFactory->addUint32(equipped->size());
+    mMessageFactory->addUint32(creature->getEquipManager()->advanceEquippedObjectsUpdateCounter(equipped->size()));//+1
+    creature->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
 
-	mMessageFactory->addUint32(equippedObjects->size());
-	mMessageFactory->addUint32(creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(equippedObjects->size()));//+1
-	creatureObject->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
+    mMessageFactory->addUint8(3);// 3 for ??
+    mMessageFactory->addUint16(equipped->size());
 
-	mMessageFactory->addUint8(3);// 3 for ??
-	mMessageFactory->addUint16(equippedObjects->size());
+    std::for_each(equipped->begin(), equipped->end(), [=] (Object* object) {
+        if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object)) {
+            mMessageFactory->addString(tObject->getCustomizationStr());
+        }
 
-	while(eqIt != equippedObjects->end())
-	{
-		Object* object = (*eqIt);
+        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object)) {
+            mMessageFactory->addString(pet->getCustomizationStr());
+        }
 
-		if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object))
-		{
-			mMessageFactory->addString(tObject->getCustomizationStr());
-		}
-		else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
-		{
-			mMessageFactory->addString(pet->getCustomizationStr());
-		}
-		else
-		{
-			mMessageFactory->addUint16(0);
-		}
+        else {
+            mMessageFactory->addUint16(0);
+        }
 
-		mMessageFactory->addUint32(4);
-		mMessageFactory->addUint64(object->getId());
-		mMessageFactory->addUint32((object->getModelString()).getCrc());
+        mMessageFactory->addUint32(4);
+        mMessageFactory->addUint64(object->getId());
+        mMessageFactory->addUint32((object->getModelString()).getCrc());
+    });
 
-		++eqIt;
-	}
+    target_player->getClient()->SendChannelA(mMessageFactory->EndMessage(), target_player->getAccountId(), CR_Client, 4);
 
-	(target->getClient())->SendChannelA(mMessageFactory->EndMessage(),target->getAccountId(),CR_Client,4);
-
-	return(true);
+    return true;
 }
 
 

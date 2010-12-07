@@ -305,6 +305,12 @@ public:
 	void				sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateType,uint16 index,uint64 defenderId);
 	void				sendNewDefenderList(CreatureObject* creatureObject);
 	bool				sendDeltasCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
+
+    /** Sends an update of the equipped items on a creature object to a target player.
+    *
+    * \param creature The creature object to send the equipment list update about.
+    * \param target The target player to receive the list update.
+    */
 	bool				sendEquippedListUpdate(CreatureObject* creatureObject, CreatureObject* targetObject);
 	bool				sendEquippedListUpdate_InRange(CreatureObject* creatureObject);
 	bool				sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId);

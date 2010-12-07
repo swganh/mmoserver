@@ -255,7 +255,13 @@ public:
     bool				sendBadges(PlayerObject* srcObject,PlayerObject* targetObject);
     bool				sendBiography(PlayerObject* playerObject,PlayerObject* targetObject);
     bool				sendCharacterSheetResponse(PlayerObject* playerObject);
-    bool				sendCharacterMatchResults(const PlayerList* const matchedPlayers, const PlayerObject* const targetObject) const;
+    
+    /** Sends the results of a character match to a target player.
+    *
+    * \param matched_players The players that fit the character match requirements.
+    * \param target The target to receive the character match results.
+    */
+    bool				sendCharacterMatchResults(const PlayerList* const matchedPlayers, const PlayerObject* const target) const;
 
     // objcontroller, objcontrollermessages.cpp
     void				sendCombatAction(CreatureObject* attacker,Object* defender,uint32 animation,uint8 trail1 = 0,uint8 trail2 = 0,uint8 hit = 0);
@@ -268,9 +274,39 @@ public:
     bool				sendCraftExperimentResponse(uint32 ackType,uint32 resultId,uint8 counter,PlayerObject* playerObject);
     bool				sendSharedNetworkMessage(PlayerObject* playerObject,uint32 unknown1,uint32 unknown2);
     void				sendCombatSpam(Object* attacker,Object* defender,int32 damage,BString stfFile,BString stfVar,Item* item = NULL,uint8 colorFlag = 0,BString customText = L"");
-    void				sendFlyText(Object* srcCreature,BString stfFile,BString stfVar,uint8 red = 255,uint8 green = 255,uint8 blue = 255,uint8 display = 5);
-    // Used by Tutorial.
-    void				sendFlyText(Object* srcCreature, PlayerObject* player, BString stfFile,BString stfVar,uint8 red,uint8 green,uint8 blue,uint8 display);
+
+    
+    /** Sends a fly text message for all those in range of the creature.
+    *
+    * \param source The source creature for the fly-text.
+    * \param stf_file The file containing the text for the fly-text method.
+    * \param stf_var The variable name for the text used.
+    * \param red The redness of the current level.
+    * \param green The greenness of the current level.
+    * \param blue The blueness of the current level.
+    * \param display When active the text is displayed in the players chat history.
+    */
+    void sendFlyText(Object* source, const std::string& stf_file, const std::string& stf_var, unsigned char red = 255, unsigned char green = 255, unsigned char blue = 255, unsigned char display = 5);
+    
+    
+    // Used by Tutorial
+
+    /** A version of fly texts for usage by the tutorial
+    *
+    * @TODO Remove this method once better handling of instances is in.
+    *
+    * \param source The source creature for the fly-text.
+    * \param player The player to base the instance off of.
+    * \param stf_file The file containing the text for the fly-text method.
+    * \param stf_var The variable name for the text used.
+    * \param red The redness of the current level.
+    * \param green The greenness of the current level.
+    * \param blue The blueness of the current level.
+    * \param display When active the text is displayed in the players chat history.
+    */
+    void sendFlyText(Object* source, PlayerObject* player, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display);
+
+
     void				sendSelfPostureUpdate(PlayerObject* playerObject);
     void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
 

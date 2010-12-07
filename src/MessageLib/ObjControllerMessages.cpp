@@ -27,6 +27,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
+
+#include <boost/lexical_cast.hpp>
+
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+#include "glog/logging.h"
+
+#include "Common/atMacroString.h"
+#include "Common/byte_buffer.h"
+
+#include "NetworkManager/DispatchClient.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageDispatch.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/MessageOpcodes.h"
+
 #include "ZoneServer/SpatialIndexManager.h"
 #include "ZoneServer/ActiveConversation.h"
 #include "ZoneServer/CharSheetManager.h"
@@ -54,34 +77,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer/RegionObject.h"
 
-#include "Common/byte_buffer.h"
-#include "Common/atMacroString.h"
-#include "NetworkManager/DispatchClient.h"
-#include "NetworkManager/Message.h"
-#include "NetworkManager/DispatchClient.h"
-#include "NetworkManager/MessageDispatch.h"
-#include "NetworkManager/MessageFactory.h"
-#include "NetworkManager/MessageOpcodes.h"
-
-#include <boost/lexical_cast.hpp>
-
-#ifdef _MSC_VER
-#include <regex>  // NOLINT
-#else
-#include <boost/regex.hpp>  // NOLINT
-#endif
-
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-#include "glog/logging.h"
-
 #ifdef WIN32
 using std::regex;
 using std::smatch;
 using std::regex_search;
-#else 
+#else
 using boost::regex;
 using boost::smatch;
 using boost::regex_search;
@@ -417,7 +417,7 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 bool MessageLib::sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo)
 {
     //gLogger->log(LogManager::DEBUG,"Sending Starting Location List\n");
-	DLOG(INFO) << "Sending Starting Location List";
+    DLOG(INFO) << "Sending Starting Location List";
 
     if(!(player->isConnected()))
     {
@@ -980,93 +980,65 @@ bool MessageLib::sendBiography(PlayerObject* playerObject,PlayerObject* targetOb
 // character match results
 //
 
-bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayers, const PlayerObject* const targetObject) const
-{
-	if(!(targetObject->isConnected()))
-		return(false);
+bool MessageLib::sendCharacterMatchResults(const PlayerList* const matched_players, const PlayerObject* const target) const {
+    if(!target->isConnected()) {
+        return false;
+    }
 
-	PlayerList::const_iterator	playersIt	= matchedPlayers->begin();
-	// PlayerObject*			player		= NULL;
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000000B);
+    mMessageFactory->addUint32(opPlayersNearYou);
+    mMessageFactory->addUint64(target->getId());
+    mMessageFactory->addUint32(0);
 
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opPlayersNearYou);
-	mMessageFactory->addUint64(targetObject->getId());
-	mMessageFactory->addUint32(0);
+    mMessageFactory->addUint32(matched_players->size());
 
-	mMessageFactory->addUint32(matchedPlayers->size());
+    std::for_each(matched_players->begin(), matched_players->end(), [=] (PlayerObject* player) {
+        mMessageFactory->addUint32(4);
+        mMessageFactory->addUint32(player->getPlayerFlags());
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
+        mMessageFactory->addUint32(0);
 
-	while(playersIt != matchedPlayers->end())
-	{
-		const PlayerObject* const player = (*playersIt);
+        std::string player_name(player->getFirstName().getAnsi());
 
-		mMessageFactory->addUint32(4);
-		mMessageFactory->addUint32(player->getPlayerFlags());
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint32(0);
-		mMessageFactory->addUint32(0);
+        if(player->getLastName().getLength()) {
+            player_name.append(" ");
+            player_name.append(player->getLastName().getAnsi());
+        }
 
-		BString playerName = player->getFirstName().getAnsi();
+        mMessageFactory->addString(std::wstring(player_name.begin(), player_name.end()));
+        mMessageFactory->addUint32(player->getRaceId());
 
-		if(player->getLastName().getLength())
-		{
-			playerName << " ";
-			playerName << player->getLastName().getAnsi();
-		}
+        // only cities for now
+        glm::vec3 position = player->getWorldPosition();
 
-		playerName.convert(BSTRType_Unicode16);
+        std::string region_name("");
 
-		mMessageFactory->addString(playerName);
-		mMessageFactory->addUint32(player->getRaceId());
+        std::find_if(player->zmapSubCells.begin(), player->zmapSubCells.end(), [&region_name] (uint32_t region_id) -> bool {
+            RegionObject* region = gSpatialIndexManager->getRegion(region_id);
 
-		// only cities for now
+            if (region && region->getRegionType() == Region_City) {
+                region_name = "@" + region->getNameFile() + ":" + region->getRegionName();
+                return true;
+            }
 
-		glm::vec3   position;
-	
-		//cater for players in cells
-		if (player->getParentId())
-		{
-			position = player->getWorldPosition(); 
-		}
-		else
-		{
-			position = player->mPosition;
-		}
+            return false;
+        });
 
-        BString				regionName;
-		for(Uint32Set::iterator regionIt = player->zmapSubCells.begin(); regionIt != player->zmapSubCells.end(); regionIt++)
-		{		
-			RegionObject* region = gSpatialIndexManager->getRegion(*regionIt);
+        mMessageFactory->addString(region_name);
+        mMessageFactory->addString(std::string(gWorldManager->getPlanetNameThis()));
 
-			if(region && region->getRegionType() == Region_City)
-			{
-				regionName = "@";
-				regionName << region->getNameFile().c_str();
-				regionName << ":";
-				regionName << region->getRegionName().c_str();
+        // guild
+        mMessageFactory->addUint16(0);
 
-				break;
-			}
+        mMessageFactory->addString(player->getTitle());
+    });
 
-			++regionIt;
-		}
-		
-		mMessageFactory->addString(regionName);
+    target->getClient()->SendChannelA(mMessageFactory->EndMessage(), target->getAccountId(), CR_Client, 5);
 
-		mMessageFactory->addString(BString(gWorldManager->getPlanetNameThis()));
-
-		// guild
-		mMessageFactory->addUint16(0);
-
-		mMessageFactory->addString(player->getTitle());
-
-		++playersIt;
-	}
-
-	(targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,5);
-
-	return(true);
+    return true;
 }
 
 //======================================================================================================================
@@ -1618,29 +1590,25 @@ void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,B
 
 // We may have to use flytexts on more things than just Creatures...
 // void MessageLib::sendFlyText(CreatureObject* srcCreature,string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
-void MessageLib::sendFlyText(Object* srcCreature,BString stfFile,BString stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
-{
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opShowFlyText);
-	mMessageFactory->addUint64(srcCreature->getId());
-	mMessageFactory->addUint32(0);
+void MessageLib::sendFlyText(Object* source, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display) {
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000000B);
+    mMessageFactory->addUint32(opShowFlyText);
+    mMessageFactory->addUint64(source->getId());
+    mMessageFactory->addUint32(0);
 
-	mMessageFactory->addUint64(srcCreature->getId());
-	mMessageFactory->addString(stfFile);
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addString(stfVar);
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint8(red);
-	mMessageFactory->addUint8(green);
-	mMessageFactory->addUint8(blue);
-	mMessageFactory->addUint8(display);
+    mMessageFactory->addUint64(source->getId());
+    mMessageFactory->addString(stf_file);
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addString(stf_var);
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addUint8(red);
+    mMessageFactory->addUint8(green);
+    mMessageFactory->addUint8(blue);
+    mMessageFactory->addUint8(display);
 
-	Message* newMessage = mMessageFactory->EndMessage();
-
-	_sendToInRangeUnreliableChat(newMessage,dynamic_cast<CreatureObject*>(srcCreature),5,0);	
-
+    _sendToInRangeUnreliableChat(mMessageFactory->EndMessage(), dynamic_cast<CreatureObject*>(source), 5, 0);
 }
 
 //======================================================================================================================
@@ -1648,29 +1616,25 @@ void MessageLib::sendFlyText(Object* srcCreature,BString stfFile,BString stfVar,
 // fly text, to be used by Tutorial or other instances
 //
 
-void MessageLib::sendFlyText(Object* srcCreature, PlayerObject* playerObject, BString stfFile,BString stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
-{
-	mMessageFactory->StartMessage();
-	mMessageFactory->addUint32(opObjControllerMessage);
-	mMessageFactory->addUint32(0x0000000B);
-	mMessageFactory->addUint32(opShowFlyText);
-	mMessageFactory->addUint64(srcCreature->getId());
-	mMessageFactory->addUint32(0);
+void MessageLib::sendFlyText(Object* source, PlayerObject* playerObject, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display) {
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opObjControllerMessage);
+    mMessageFactory->addUint32(0x0000000B);
+    mMessageFactory->addUint32(opShowFlyText);
+    mMessageFactory->addUint64(source->getId());
+    mMessageFactory->addUint32(0);
 
-	mMessageFactory->addUint64(srcCreature->getId());
-	mMessageFactory->addString(stfFile);
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addString(stfVar);
-	mMessageFactory->addUint32(0);
-	mMessageFactory->addUint8(red);
-	mMessageFactory->addUint8(green);
-	mMessageFactory->addUint8(blue);
-	mMessageFactory->addUint8(display);
+    mMessageFactory->addUint64(source->getId());
+    mMessageFactory->addString(stf_file);
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addString(stf_var);
+    mMessageFactory->addUint32(0);
+    mMessageFactory->addUint8(red);
+    mMessageFactory->addUint8(green);
+    mMessageFactory->addUint8(blue);
+    mMessageFactory->addUint8(display);
 
-	Message* message = mMessageFactory->EndMessage();
-
-	_sendToInRangeUnreliableChatGroup(message,dynamic_cast<CreatureObject*>(srcCreature),5,0);	
-
+    _sendToInRangeUnreliableChatGroup(mMessageFactory->EndMessage(), dynamic_cast<CreatureObject*>(source), 5, 0);
 }
 
 //======================================================================================================================

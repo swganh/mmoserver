@@ -102,7 +102,14 @@ public:
 
     // multiple messages, messagelib.cpp
     bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
-    bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
+
+    /** Sends the baselines for a resource container to a target player.
+    *
+    * \param resource_container The resource_container to send the baselines for.
+    * \param target The target to receive the resource container baselines.
+    */
+    bool sendCreateResourceContainer(ResourceContainer* resource_container, PlayerObject* target);
+
     //bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
     bool				sendCreateTano(TangibleObject* tangibleObject,PlayerObject* targetObject);
 
@@ -113,7 +120,14 @@ public:
 	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* player);
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
-	bool				sendCreateFactory(FactoryObject* factory,PlayerObject* player);
+
+    /** Sends the baselines for a factory to a target player.
+    *
+    * \param factory The factory to send the baselines for.
+    * \param target The target to receive the factory baselines.
+    */
+	bool sendCreateFactory(FactoryObject* factory, PlayerObject* target);
+
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
 	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
 	

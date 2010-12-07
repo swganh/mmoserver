@@ -103,23 +103,44 @@ public:
     // multiple messages, messagelib.cpp
     bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
 
+
     /** Sends the baselines for a resource container to a target player.
     *
-    * \param resource_container The resource_container to send the baselines for.
+    * \param resource_container The resource container to send the baselines for.
     * \param target The target to receive the resource container baselines.
     */
     bool sendCreateResourceContainer(ResourceContainer* resource_container, PlayerObject* target);
 
-    //bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
-    bool				sendCreateTano(TangibleObject* tangibleObject,PlayerObject* targetObject);
 
-    bool				sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject);
+    /** Sends the baselines for a tangible object to a target player.
+    *
+    * \param tangible The tangible object to send the baselines for.
+    * \param target The target to receive the tangible object baselines.
+    */
+    bool sendCreateTano(TangibleObject* tangible, PlayerObject* target);
+
+    
+    /** Sends the baselines for a static object to a target player.
+    *
+    * \param tangible The static object to send the baselines for.
+    * \param target The target to receive the static object baselines.
+    */
+    bool sendCreateStaticObject(TangibleObject* tangible, PlayerObject* target);
+
 	bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
 
 	// structures
 	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
-	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* player);
+
+
+    /** Sends the baselines for a structure to a target player.
+    *
+    * \param structure The structure to send the baselines for.
+    * \param target The target to receive the structure baselines.
+    */
+	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* target);
 	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
+
 
     /** Sends the baselines for a factory to a target player.
     *
@@ -129,11 +150,30 @@ public:
 	bool sendCreateFactory(FactoryObject* factory, PlayerObject* target);
 
 	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
-	bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
+
+
+    /** Sends the baselines for a camp to a target player.
+    *
+    * \param camp The camp to send the baselines for.
+    * \param target The target to receive the camp baselines.
+    */
+	bool sendCreateCamp(TangibleObject* camp, PlayerObject* target);
 	
-    // creatures
-    bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
-    bool				sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
+
+    /** Sends the baselines for a creature object to a target player.
+    *
+    * \param creature The creature object to send the baselines for.
+    * \param target The target to receive the creature object baselines.
+    */
+    bool sendCreateCreature(CreatureObject* creature, PlayerObject* target);
+
+
+    /** Sends the baselines for a player object to a target player.
+    *
+    * \param player The player object to send the baselines for.
+    * \param target The target to receive the player object baselines.
+    */
+    bool sendCreatePlayer(PlayerObject* player, PlayerObject* target);
     
 
     void				sendInventory(PlayerObject* playerObject);

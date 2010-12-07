@@ -575,9 +575,9 @@ private:
 	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
 	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
 	
-	void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;
-	void				_sendToInstancedPlayers(Message* message, uint16 priority, PlayerObject* const player) const ;
-	void				_sendToAll(Message* message,uint16 priority,bool unreliable = false) const;
+	void				_sendToInstancedPlayersUnreliable(Message* message, unsigned char priority, const PlayerObject* const player) const;
+	void				_sendToInstancedPlayers(Message* message, unsigned char priority, PlayerObject* const player) const;
+	void				_sendToAll(Message* message, unsigned char priority, bool unreliable = false) const;
    
     /**
      * Sends a spatial message to in-range players.

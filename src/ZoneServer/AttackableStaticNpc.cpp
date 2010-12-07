@@ -25,14 +25,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "AttackableStaticNpc.h"
-#include "CellObject.h"
-#include "PlayerObject.h"
-#include "QuadTree.h"
-#include "WorldConfig.h"
-#include "WorldManager.h"
+#include "ZoneServer/AttackableStaticNpc.h"
 
 #include "MessageLib/MessageLib.h"
+
+#include "ZoneServer/CellObject.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/QuadTree.h"
+#include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/WorldManager.h"
+
 //=============================================================================
 
 AttackableStaticNpc::AttackableStaticNpc() : NPCObject(), mDeathEffectId(144)
@@ -76,7 +78,7 @@ void AttackableStaticNpc::prepareCustomRadialMenu(CreatureObject* creatureObject
 
     if (this->checkPvPState(CreaturePvPStatus_Attackable))
     {
-        
+
         // mRadialMenu = RadialMenuPtr(new RadialMenu());
         mRadialMenu->addItem(1,0,radId_combatAttack,radAction_Default);
         mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
@@ -175,99 +177,6 @@ void AttackableStaticNpc::respawn(void)
         this->mHam.mConstitution.setBaseHitPoints(500);
     }
 
-
-    /*
-    if (this->hasAttribute("creature_action"))
-    {
-    	int32 action = this->getAttribute<int32>("creature_action");
-    	this->mHam.mAction.setCurrentHitPoints(action);
-    	this->mHam.mAction.setMaxHitPoints(action);
-    	this->mHam.mAction.setBaseHitPoints(action);
-    }
-    else
-    {
-    	assert(false);
-    	this->mHam.mAction.setCurrentHitPoints(500);
-    	this->mHam.mAction.setMaxHitPoints(500);
-    	this->mHam.mAction.setBaseHitPoints(500);
-    }
-
-    if (this->hasAttribute("creature_quickness"))
-    {
-    	int32 quickness = this->getAttribute<int32>("creature_quickness");
-    	this->mHam.mQuickness.setCurrentHitPoints(quickness);
-    	this->mHam.mQuickness.setMaxHitPoints(quickness);
-    	this->mHam.mQuickness.setBaseHitPoints(quickness);
-    }
-    else
-    {
-    	assert(false);
-    	this->mHam.mQuickness.setCurrentHitPoints(500);
-    	this->mHam.mQuickness.setMaxHitPoints(500);
-    	this->mHam.mQuickness.setBaseHitPoints(500);
-    }
-
-    if (this->hasAttribute("creature_stamina"))
-    {
-    	int32 stamina = this->getAttribute<int32>("creature_stamina");
-    	this->mHam.mStamina.setCurrentHitPoints(stamina);
-    	this->mHam.mStamina.setMaxHitPoints(stamina);
-    	this->mHam.mStamina.setBaseHitPoints(stamina);
-    }
-    else
-    {
-    	assert(false);
-    	this->mHam.mStamina.setCurrentHitPoints(500);
-    	this->mHam.mStamina.setMaxHitPoints(500);
-    	this->mHam.mStamina.setBaseHitPoints(500);
-    }
-
-
-    if (this->hasAttribute("creature_mind"))
-    {
-    	int32 mind = this->getAttribute<int32>("creature_mind");
-    	this->mHam.mMind.setCurrentHitPoints(mind);
-    	this->mHam.mMind.setMaxHitPoints(mind);
-    	this->mHam.mMind.setBaseHitPoints(mind);
-    }
-    else
-    {
-    	assert(false);
-    	this->mHam.mMind.setCurrentHitPoints(500);
-    	this->mHam.mMind.setMaxHitPoints(500);
-    	this->mHam.mMind.setBaseHitPoints(500);
-    }
-
-    if (this->hasAttribute("creature_focus"))
-    {
-    	int32 focus = this->getAttribute<int32>("creature_focus");
-    	this->mHam.mFocus.setCurrentHitPoints(focus);
-    	this->mHam.mFocus.setMaxHitPoints(focus);
-    	this->mHam.mFocus.setBaseHitPoints(focus);
-    }
-    else
-    {
-    	assert(false);
-    	this->mHam.mFocus.setCurrentHitPoints(500);
-    	this->mHam.mFocus.setMaxHitPoints(500);
-    	this->mHam.mFocus.setBaseHitPoints(500);
-    }
-
-    if (this->hasAttribute("creature_willpower"))
-    {
-    	int32 willpower = this->getAttribute<int32>("creature_willpower");
-    	this->mHam.mWillpower.setCurrentHitPoints(willpower);
-    	this->mHam.mWillpower.setMaxHitPoints(willpower);
-    	this->mHam.mWillpower.setBaseHitPoints(willpower);
-    }
-    else
-    {
-    	assert(false);
-    	this->mHam.mWillpower.setCurrentHitPoints(500);
-    	this->mHam.mWillpower.setMaxHitPoints(500);
-    	this->mHam.mWillpower.setBaseHitPoints(500);
-    }
-    */
     this->mHam.calcAllModifiedHitPoints();
 
 
@@ -282,65 +191,63 @@ void AttackableStaticNpc::respawn(void)
 
 //where the %*@ did he put the methods for creation ??
 //this code requires that the object creates are already send .... grml .. what a mess
-void AttackableStaticNpc::spawn(void)
-{
-	// Update the world about my presence.
-	
-	gSpatialIndexManager->AddObject(this);
+void AttackableStaticNpc::spawn() {
+    // Update the world about my presence.
 
-	Object* object = gWorldManager->getObjectById(this->getId());
-	if(!object)
-	{
-		assert(false);
-	}
+    gSpatialIndexManager->AddObject(this);
 
-	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
+    Object* object = gWorldManager->getObjectById(this->getId());
+    if(!object)	{
+        assert(false);
+    }
 
-	// send out position updates to known players
-	this->setInMoveCount(this->getInMoveCount() + 1);
+    // Add us to the world.
+    gMessageLib->broadcastContainmentMessage(this, this->getParentId(), 4);
 
-	if (gWorldConfig->isTutorial())
-	{
-		// We need to get the player object that is the owner of this npc.
-		if (this->getPrivateOwner() != 0)
-		{
-			PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
-			if (playerObject)
-			{
-				DLOG(INFO) << "AttackableStaticNpc::spawn: Spawned a private object.";
-				if (this->getParentId())
-				{
-					// We are inside a cell.
-					gMessageLib->sendDataTransformWithParent(this, playerObject);
-					gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
-				}
-				else
-				{
-					gMessageLib->sendDataTransform(this, playerObject);
-					gMessageLib->sendUpdateTransformMessage(this, playerObject);
-				}
-			}
-			else
-			{
-				assert(false);
-				DLOG(INFO) << "AttackableStaticNpc::spawn: Failed to spawn a private object.";
-			}
-		}
-	}
-	else
-	{
-		DLOG(INFO) << "AttackableStaticNpc::spawn: Spawned an object.";
-		if (this->getParentId())
-		{
-			// We are inside a cell.
-			gMessageLib->sendDataTransformWithParent053(this);
-			gMessageLib->sendUpdateTransformMessageWithParent(this);
-		}
-		else
-		{
-			gMessageLib->sendDataTransform053(this);
-			gMessageLib->sendUpdateTransformMessage(this);
-		}
+    // send out position updates to known players
+    this->setInMoveCount(this->getInMoveCount() + 1);
+
+    if (gWorldConfig->isTutorial())
+    {
+        // We need to get the player object that is the owner of this npc.
+        if (this->getPrivateOwner() != 0)
+        {
+            PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
+            if (playerObject)
+            {
+                DLOG(INFO) << "AttackableStaticNpc::spawn: Spawned a private object.";
+                if (this->getParentId())
+                {
+                    // We are inside a cell.
+                    gMessageLib->sendDataTransformWithParent(this, playerObject);
+                    gMessageLib->sendUpdateTransformMessageWithParent(this, playerObject);
+                }
+                else
+                {
+                    gMessageLib->sendDataTransform(this, playerObject);
+                    gMessageLib->sendUpdateTransformMessage(this, playerObject);
+                }
+            }
+            else
+            {
+                assert(false);
+                DLOG(INFO) << "AttackableStaticNpc::spawn: Failed to spawn a private object.";
+            }
+        }
+    }
+    else
+    {
+        DLOG(INFO) << "AttackableStaticNpc::spawn: Spawned an object.";
+        if (this->getParentId())
+        {
+            // We are inside a cell.
+            gMessageLib->sendDataTransformWithParent053(this);
+            gMessageLib->sendUpdateTransformMessageWithParent(this);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform053(this);
+            gMessageLib->sendUpdateTransformMessage(this);
+        }
     }
 }

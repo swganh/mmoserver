@@ -464,36 +464,8 @@ void MessageLib::_sendToAll(Message* message, unsigned char priority, bool unrel
 
     mMessageFactory->DestroyMessage(message);
 }
-//======================================================================================================================
-//
-// creates all items childobjects
-//
-/*
-bool MessageLib::sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject)
-{
-    if(!_checkPlayer(targetObject))
-        return(false);
 
-    ObjectIDList*			childObjects		= srcObject->getObjects();
-    ObjectIDList::iterator	childObjectsIt		= childObjects->begin();
 
-    while(childObjectsIt != childObjects->end())
-    {
-        // items
-        if(TangibleObject* to = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*childObjectsIt))))
-        {
-            gMessageLib->sendCreateTangible(to,targetObject);
-        }
-
-        ++childObjectsIt;
-    }
-
-    return(true);
-}
-*///======================================================================================================================
-//
-// create player
-//
 bool MessageLib::sendCreatePlayer(PlayerObject* player, PlayerObject* target) {
     if (!_checkPlayer(player) || !_checkPlayer(target)) {
         return false;
@@ -777,7 +749,7 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 // create a factory
 //
 bool MessageLib::sendCreateFactory(FactoryObject* factory, PlayerObject* target) {
-    if(!_checkPlayer(target))
+    if (!_checkPlayer(target))
         return false;
 
     sendCreateObjectByCRC(factory, target, false);
@@ -797,57 +769,47 @@ bool MessageLib::sendCreateFactory(FactoryObject* factory, PlayerObject* target)
     return true;
 }
 
-//======================================================================================================================
-//
-// create a structure
-//
-bool MessageLib::sendCreateStructure(PlayerStructure* structure,PlayerObject* player)
-{
-    if(!_checkPlayer(player))
-        return(false);
 
-    if(HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure))
-    {
-        return(sendCreateHarvester(harvester, player));
-    }
-    else if(HouseObject* house = dynamic_cast<HouseObject*>(structure))
-    {
-        return(sendCreateBuilding(house, player));
-    }
-    else if(FactoryObject* factory = dynamic_cast<FactoryObject*>(structure))
-    {
-        return(sendCreateFactory(factory, player));
+bool MessageLib::sendCreateStructure(PlayerStructure* structure, PlayerObject* target) {
+    if (!_checkPlayer(target)) {
+        return false;
     }
 
-    if(structure->getPlayerStructureFamily() == PlayerStructure_Fence)
-    {
-        return(sendCreateInstallation(structure, player));
+    if (HarvesterObject* harvester = dynamic_cast<HarvesterObject*>(structure)) {
+        return sendCreateHarvester(harvester, target);
+    }
+
+    else if (HouseObject* house = dynamic_cast<HouseObject*>(structure)) {
+        return sendCreateBuilding(house, target);
+    }
+
+    else if (FactoryObject* factory = dynamic_cast<FactoryObject*>(structure)) {
+        return sendCreateFactory(factory, target);
+    }
+
+    else if (structure->getPlayerStructureFamily() == PlayerStructure_Fence) {
+        return sendCreateInstallation(structure, target);
     }
 
     DLOG(INFO) << "MessageLib::sendCreateStructure:ID  : couldnt cast structure" << structure->getId();
 
-    return(false);
+    return false;
 }
 
-//======================================================================================================================
-//
-// create camp
-//
-bool MessageLib::sendCreateCamp(TangibleObject* camp,PlayerObject* player)
-{
-    if(!_checkPlayer(player))
-        return(false);
 
-    sendCreateObjectByCRC(camp,player,false);
+bool MessageLib::sendCreateCamp(TangibleObject* camp, PlayerObject* target) {
+    if(!_checkPlayer(target) {
+    return false;
+}
 
-    sendBaselinesBUIO_3(camp,player);
-    sendBaselinesBUIO_6(camp,player);
+sendCreateObjectByCRC(camp, target, false);
 
-    uint64 campId = camp->getId();
+sendBaselinesBUIO_3(camp, target);
+sendBaselinesBUIO_6(camp, target);
 
-    sendEndBaselines(campId,player);
+sendEndBaselines(camp->getId(), target);
 
-    return(true);
+return true;
 }
 
 //======================================================================================================================

@@ -798,18 +798,18 @@ bool MessageLib::sendCreateStructure(PlayerStructure* structure, PlayerObject* t
 
 
 bool MessageLib::sendCreateCamp(TangibleObject* camp, PlayerObject* target) {
-    if(!_checkPlayer(target) {
-    return false;
-}
+    if(!_checkPlayer(target)) {
+        return false;
+    }
 
-sendCreateObjectByCRC(camp, target, false);
+    sendCreateObjectByCRC(camp, target, false);
 
-sendBaselinesBUIO_3(camp, target);
-sendBaselinesBUIO_6(camp, target);
+    sendBaselinesBUIO_3(camp, target);
+    sendBaselinesBUIO_6(camp, target);
 
-sendEndBaselines(camp->getId(), target);
+    sendEndBaselines(camp->getId(), target);
 
-return true;
+    return true;
 }
 
 //======================================================================================================================
@@ -858,8 +858,4 @@ bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSch
 
     return(true);
 }
-
-//======================================================================================================================
-
-
 

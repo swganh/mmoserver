@@ -27,6 +27,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
+#include <boost/lexical_cast.hpp>
+
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+
+#include <glog/logging.h>
+
+#include "Common/atMacroString.h"
+
+#include "NetworkManager/DispatchClient.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageDispatch.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/MessageOpcodes.h"
+
 #include "ZoneServer/CharSheetManager.h"
 #include "ZoneServer/Conversation.h"
 #include "ZoneServer/CraftingTool.h"
@@ -42,22 +59,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Wearable.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
-
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
-
-#include "Common/atMacroString.h"
-#include "NetworkManager/DispatchClient.h"
-#include "NetworkManager/Message.h"
-#include "NetworkManager/MessageDispatch.h"
-#include "NetworkManager/MessageFactory.h"
-#include "NetworkManager/MessageOpcodes.h"
-
-#include <boost/lexical_cast.hpp>
 
 
 //======================================================================================================================
@@ -189,8 +190,8 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
         LOG(WARNING) << "MessageLib::sendBaselinesPLAY_8: Failed to find datapad for playerId: " <<  playerObject->getId() << ". Did not initialize waypList(s).";
         gWorldManager->addDisconnectedPlayer(playerObject);
 
-		Message* message = mMessageFactory->EndMessage();
-		message->setPendingDelete(true);
+        Message* message = mMessageFactory->EndMessage();
+        message->setPendingDelete(true);
         return false;
     }
 

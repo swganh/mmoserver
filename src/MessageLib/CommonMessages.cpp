@@ -339,7 +339,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));
-	mMessageFactory->addUint32(object->incInMoveCount());
+    mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));
@@ -691,18 +691,18 @@ void MessageLib::sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType
     mMessageFactory->addFloat(cloudVec.y);
     mMessageFactory->addFloat(cloudVec.z);
 
-	Message* message = mMessageFactory->EndMessage();
+    Message* message = mMessageFactory->EndMessage();
     if(player)
     {
         if(player->isConnected())
         {
             (player->getClient())->SendChannelA(message,player->getAccountId(),CR_Client,3);
         }
-		else
-		{
-			//never ever leave a message either undestroyed or unfinished!!!!
-			message->setPendingDelete(true);
-		}
+        else
+        {
+            //never ever leave a message either undestroyed or unfinished!!!!
+            message->setPendingDelete(true);
+        }
     }
     else
     {
@@ -986,13 +986,13 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
     // bank
     Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    if(!bank || bank->getPlanet() == -1)
+    if(!bank || bank->planet() == -1)
     {
         mMessageFactory->addString(BString("unknown"));
     }
     else
     {
-        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->getPlanet())));
+        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->planet())));
     }
 
     if(playerObject->getHomePlanet() == -1)

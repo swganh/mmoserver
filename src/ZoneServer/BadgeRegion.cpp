@@ -25,39 +25,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "BadgeRegion.h"
-#include "PlayerObject.h"
+#include "ZoneServer/BadgeRegion.h"
 
-#include "WorldManager.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldManager.h"
 
 
-//=============================================================================
-
-BadgeRegion::BadgeRegion() : RegionObject()
+BadgeRegion::BadgeRegion(uint32_t badge_id)
+    : RegionObject()
+    , badge_id_(badge_id)
 {
-    mActive		= true;
+    mActive = true;
     mRegionType = Region_Badge;
 }
 
-//=============================================================================
 
-BadgeRegion::~BadgeRegion()
-{
+BadgeRegion::~BadgeRegion() {}
+
+
+uint32_t BadgeRegion::badge_id() const {
+    return badge_id_;
 }
 
 
-void BadgeRegion::onObjectEnter(Object* object)
-{
-	if(object->getParentId() == mParentId)
-	{
-		PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-		
-		if(player && !(player->checkBadges(mBadgeId)))
-			player->addBadge(mBadgeId);
-	}
+void BadgeRegion::badge_id(uint32_t badge_id) {
+    badge_id_ = badge_id;
 }
 
-	
 
-	
-	
+void BadgeRegion::onObjectEnter(Object* object) {
+    // Do a quick check to see if the object is in this region and is a player object.
+    if (object->getParentId() != mParentId || object->getType() != ObjType_Player) {
+        return;
+    }
+
+    PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+    if (player && !player->checkBadges(badge_id_)) {
+        player->addBadge(badge_id_);
+    }
+}

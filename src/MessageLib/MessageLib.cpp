@@ -665,26 +665,26 @@ bool MessageLib::sendCreateTano(TangibleObject* tangible, PlayerObject* target) 
 //
 // create resource container
 //
-bool MessageLib::sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject)
-{
-    if(!_checkPlayer(targetObject))
-        return(false);
+bool MessageLib::sendCreateResourceContainer(ResourceContainer* resource_container, PlayerObject* target) {
+    if(!_checkPlayer(target)) {
+        return false;
+    }
 
-    sendCreateObjectByCRC(resourceContainer,targetObject,false);
+    sendCreateObjectByCRC(resource_container, target, false);
 
-    uint64 parentId = resourceContainer->getParentId();
+    uint64_t parent_id = resource_container->getParentId();
 
-    sendContainmentMessage(resourceContainer->getId(),parentId,0xffffffff,targetObject);
+    sendContainmentMessage(resource_container->getId(), parent_id, 0xffffffff, target);
 
-    sendBaselinesRCNO_3(resourceContainer,targetObject);
-    sendBaselinesRCNO_6(resourceContainer,targetObject);
+    sendBaselinesRCNO_3(resource_container, target);
+    sendBaselinesRCNO_6(resource_container, target);
 
-    sendBaselinesRCNO_8(resourceContainer,targetObject);
-    sendBaselinesRCNO_9(resourceContainer,targetObject);
+    sendBaselinesRCNO_8(resource_container, target);
+    sendBaselinesRCNO_9(resource_container, target);
 
-    sendEndBaselines(resourceContainer->getId(),targetObject);
+    sendEndBaselines(resource_container->getId(), target);
 
-    return(true);
+    return true;
 }
 
 //======================================================================================================================
@@ -776,30 +776,25 @@ bool MessageLib::sendCreateHarvester(HarvesterObject* harvester,PlayerObject* pl
 //
 // create a factory
 //
-bool MessageLib::sendCreateFactory(FactoryObject* factory,PlayerObject* player)
-{
-    if(!_checkPlayer(player))
-        return(false);
+bool MessageLib::sendCreateFactory(FactoryObject* factory, PlayerObject* target) {
+    if(!_checkPlayer(target))
+        return false;
 
-    sendCreateObjectByCRC(factory,player,false);
+    sendCreateObjectByCRC(factory, target, false);
 
-    sendBaselinesINSO_3(factory,player);
-    sendBaselinesINSO_6(factory,player);
+    sendBaselinesINSO_3(factory, target);
+    sendBaselinesINSO_6(factory, target);
 
-    TangibleObject* InHopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
-    sendCreateTano(InHopper,player);
+    TangibleObject* ingredient_hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
+    sendCreateTano(ingredient_hopper, target);
 
-    TangibleObject* OutHopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
-    sendCreateTano(OutHopper,player);
+    TangibleObject* output_hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
+    sendCreateTano(output_hopper, target);
 
 
-    sendEndBaselines(factory->getId(),player);
+    sendEndBaselines(factory->getId(), target);
 
-    //int8 effectStr[400];
-    //sprintf(effectStr,"clienteffect/lair_med_damage_smoke.cef");
-    //sendPlayClientEffectObjectMessage(effectStr,"",harvester,player);
-
-    return(true);
+    return true;
 }
 
 //======================================================================================================================

@@ -141,7 +141,7 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
                                 // Update attribute.
                                 tangibleObject->setInternalAttribute("insured","1");
                                 gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
-                                
+
 
                                 tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() | 4);
 
@@ -281,7 +281,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
                 return;
 
             int32 creditsInInventory = inventoryObject->getCredits();
-            int32 creditsAtBank = bankObject->getCredits();
+            int32 creditsAtBank = bankObject->credits();
 
             if (mSortedInsuranceList.size() ==  0)
             {
@@ -421,7 +421,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
         case 0: // Yes
         {
             // Insure all insurable items.
-            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
+            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits());
             BString selectedItemm;
             int32 fee = mSortedInsuranceList.size() * mInsuranceFee;
 
@@ -513,7 +513,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
                         // Update attribute.
                         tangibleObject->setInternalAttribute("insured","1");
                         gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=1 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
-                        
+
 
                         tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() | 4);
 

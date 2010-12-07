@@ -182,7 +182,7 @@ void Trade::updateBank(uint32 amount)
 {
     Bank* bank = dynamic_cast<Bank*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    bank->setCredits(bank->getCredits() + amount);
+    bank->credits(bank->credits() + amount);
 
     gMessageLib->sendBankCreditsUpdate(getPlayerObject());
 }
@@ -271,7 +271,7 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
         }
 
         mTransaction->addQuery(sql);
-        
+
 
         ++it;
     }
@@ -303,13 +303,13 @@ void  Trade::processTradeListPostTransaction()
 
         //get it out of its container
         TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)->getObject()->getParentId()));
-		gContainerManager->removeObject((*it)->getObject(), container);
+        gContainerManager->removeObject((*it)->getObject(), container);
 
         //create in our tradepartners Inventory
         if((*it)->getNewOwner() && (*it)->getNewOwner()->isConnected())
-        {         
-			//this currently creates the item newly from db
-			gObjectFactory->createIteminInventory(partnerInventory,itemId,tanGroup);
+        {
+            //this currently creates the item newly from db
+            gObjectFactory->createIteminInventory(partnerInventory,itemId,tanGroup);
         }
 
         it = mItemTradeList.erase(it);

@@ -90,7 +90,7 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
     // bank credits
     if(Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
     {
-        mMessageFactory->addUint32(bank->getCredits());
+        mMessageFactory->addUint32(bank->credits());
     }
     else
     {
@@ -1213,7 +1213,7 @@ bool MessageLib::sendBankCreditsUpdate(PlayerObject* playerObject)
 
     if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
     {
-        mMessageFactory->addUint32(bank->getCredits());
+        mMessageFactory->addUint32(bank->credits());
     }
     else
     {

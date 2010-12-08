@@ -49,6 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/TangibleEnums.h"
 #include "ZoneServer/Weather.h"
 #include "ZoneServer/WorldManagerEnums.h"
+#include "ZoneServer/SpatialIndexConfig.h"
 
 //======================================================================================================================
 
@@ -171,7 +172,7 @@ public:
     static WorldManager*	getSingletonPtr() {
         return mSingleton;
     }
-    static WorldManager*	Init(uint32 zoneId, ZoneServer* zoneServer,Database* database);
+    static WorldManager*	Init(uint32 zoneId, ZoneServer* zoneServer,Database* database, SpatialIndexConfig& spatialIndexConfig, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName);
     void					Shutdown();
 
     void					Process();
@@ -471,7 +472,7 @@ public:
 
 private:
 
-    WorldManager(uint32 zoneId, ZoneServer* zoneServer,Database* database);
+    WorldManager(uint32 zoneId, ZoneServer* zoneServer,Database* database, SpatialIndexConfig& spatialIndexConfig, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName);
 
     // load the global ObjectControllerCommandMap, maps command crcs to ObjController function pointers
     void	_loadObjControllerCommandMap();
@@ -605,6 +606,7 @@ private:
     uint64						mTick;
     uint32						mTotalObjectCount;
     uint32						mZoneId;
+	uint16						mHeightmapResolution;
 
     uint64						mSaveTaskId;
 

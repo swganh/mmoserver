@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Message.h"
 
-#include "Common/ConfigManager.h"
 #include "Utils/typedefs.h"
 
 #include <boost/thread/thread.hpp>

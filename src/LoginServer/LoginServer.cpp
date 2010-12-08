@@ -33,6 +33,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #include <glog/logging.h>
 
+#include <iostream>
+#include <fstream>
+
 #include "LoginManager.h"
 #include "Common\BuildInfo.h"
 

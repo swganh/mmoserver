@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 
+#include <boost/program_options.hpp>
+
 //======================================================================================================================
 
 class CharacterAdminHandler;
@@ -65,7 +67,7 @@ class ChatServer
 {
 public:
 
-    ChatServer();
+    ChatServer(int argc, char* argv[]);
     ~ChatServer();
 
     void    Process();
@@ -93,6 +95,9 @@ private:
 
     DispatchClient*				  mClient;
     uint32					      mLastHeartbeat;
+
+	boost::program_options::options_description		options_description_;
+	boost::program_options::variables_map			variables_map_;
 
 };
 

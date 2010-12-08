@@ -46,8 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 
-#include "Common/ConfigManager.h"
-
 //======================================================================================================================
 
 ClientManager::ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch, uint32_t cluster_id) :

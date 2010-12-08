@@ -58,8 +58,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
-#include "Common/ConfigManager.h"
-
 #include "Utils/rand.h"
 #include <cstdio>
 #include <glm/gtx/random.hpp>

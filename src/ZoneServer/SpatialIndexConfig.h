@@ -25,44 +25,52 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_CONFIGMANAGER_H
-#define ANH_CONFIGMANAGER_H
+#ifndef ANH_ZONESERVER_SPATIALINDEXCONFIG_H
+#define ANH_ZONESERVER_SPATIALINDEXCONFIG_H
 
-#include "ConfigFile.h"
+#include <stdint.h>
 
-#define CONFIG_DIR "config//"
-#define	gConfig	ConfigManager::getSingletonPtr()->getConfigFile()
-
-//======================================================================================================================
-
-class ConfigManager
+/**
+ * \brief
+ */
+class SpatialIndexConfig
 {
 public:
+	/**
+	 * \breif
+	 */
+	SpatialIndexConfig(float fill_factor, uint32_t index_cap, uint32_t leaf_cap, float horizon)
+		: fill_factor_(fill_factor)
+		, index_cap_(index_cap)
+		, leaf_cap_(leaf_cap)
+		, horizon_(horizon) { }
 
-    static ConfigManager*	getSingletonPtr() {
-        return mSingleton;
-    }
+	/**
+	 * \breif Default destructor.
+	 */
+	~SpatialIndexConfig() { }
 
-    static ConfigManager*	Init(const std::string& name);
-    static std::string	getBuildString();
-    static std::string getBuildNumber();
-    static std::string getBuildTime();
+	const float getFillFactor() const {
+		return fill_factor_;
+	}
 
-    ConfigFile*				getConfigFile() {
-        return mConfigFile;
-    }
-    ~ConfigManager();
+	const uint32_t getIndexCap() const {
+		return index_cap_;
+	}
+
+	const uint32_t getLeafCap() const {
+		return leaf_cap_;
+	}
+
+	const float getHorizon() const {
+		return horizon_;
+	}
 
 private:
-
-    ConfigManager(const std::string& name);
-
-    static ConfigManager*	mSingleton;
-    static bool				mInsFlag;
-
-    ConfigFile*				mConfigFile;
+	float fill_factor_;
+	uint32_t index_cap_;
+	uint32_t leaf_cap_;
+	float horizon_;
 };
 
-//======================================================================================================================
-
-#endif
+#endif // ANH_ZONESERVER_SPATIALINDEXCONFIG_H

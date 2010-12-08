@@ -32,6 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
 
+#include <boost/program_options.hpp>
+
 //======================================================================================================================
 
 class NetworkManager;
@@ -69,14 +71,14 @@ class ZoneServer
 {
 public:
 
-    ZoneServer(int8* mapName);
+    ZoneServer(int argc, char* argv[]);
     ~ZoneServer(void);
 
     void	Process(void);
 
     void	handleWMReady();
 
-    BString  getZoneName()  {
+    std::string  getZoneName()  {
         return mZoneName;
     }
 
@@ -89,7 +91,7 @@ private:
     void	_updateDBServerList(uint32 status);
     void	_connectToConnectionServer(void);
 
-    BString                        mZoneName;
+    std::string                   mZoneName;
     uint32						  mLastHeartbeat;
 
     NetworkManager*               mNetworkManager;
@@ -101,6 +103,9 @@ private:
     MessageDispatch*              mMessageDispatch;
     CharacterLoginHandler*        mCharacterLoginHandler;
     ObjectControllerDispatch*     mObjectControllerDispatch;
+
+	boost::program_options::options_description		options_description_;
+	boost::program_options::variables_map			variables_map_;
 
     std::unique_ptr<zone::HamService>   ham_service_;
 };

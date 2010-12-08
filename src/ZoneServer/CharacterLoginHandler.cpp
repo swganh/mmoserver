@@ -50,13 +50,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
+#include "Common/BuildInfo.h"
 #include "DatabaseManager/Database.h"
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
-#include "Common/ConfigManager.h"
 #include "Utils/rand.h"
 
 
@@ -153,7 +153,7 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
 
         // Some info about the current build
         std::stringstream ss;
-        ss << "Running build " << ConfigManager::getBuildNumber() << " created " << ConfigManager::getBuildTime();
+        ss << "Running build " << GetBuildNumber() << " created " << GetBuildTime();
         std::string tmp(ss.str());
 
         gMessageLib->SendSystemMessage(std::wstring(tmp.begin(), tmp.end()), player);

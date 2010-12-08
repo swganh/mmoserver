@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class StateRules
 {
 public:
-    StateRules();
+    StateRules(std::string db_server, std::string db_user, std::string db_pass, std::string db_name);
     ~StateRules();
     /*
     *

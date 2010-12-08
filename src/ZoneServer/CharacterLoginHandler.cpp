@@ -25,24 +25,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "CharacterLoginHandler.h"
+#include "ZoneServer/CharacterLoginHandler.h"
 
 #include <iostream>
 #include <sstream>
-
-#include "BuffManager.h"
-#include "Inventory.h"
-#include "ObjectFactory.h"
-#include "PlayerObject.h"
-#include "StateManager.h"
-#include "TravelMapHandler.h"
-#include "TravelTicket.h"
-#include "Tutorial.h"
-#include "WorldConfig.h"
-#include "WorldManager.h"
-#include "SpatialIndexManager.h"
-#include "ZoneOpcodes.h"
-#include "MessageLib/MessageLib.h"
 
 // Fix for issues with glog redefining this constant
 #ifdef _WIN32
@@ -51,25 +37,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
+#include "Utils/rand.h"
+#include "Common/ConfigManager.h"
+
 #include "DatabaseManager/Database.h"
+
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
-#include "Common/ConfigManager.h"
-#include "Utils/rand.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "ZoneServer/BuffManager.h"
+#include "ZoneServer/Inventory.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/SpatialIndexManager.h"
+#include "ZoneServer/StateManager.h"
+#include "ZoneServer/TravelMapHandler.h"
+#include "ZoneServer/TravelTicket.h"
+#include "ZoneServer/Tutorial.h"
+#include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/ZoneOpcodes.h"
 
 using namespace std;
 //======================================================================================================================
 
 CharacterLoginHandler::CharacterLoginHandler(Database* database, MessageDispatch* dispatch)
-{	
-    // Store our members
-	mDatabase = database;
-	mMessageDispatch = dispatch;
-
-	// Register our opcodes
+    : mDatabase(database)
+    , mMessageDispatch(dispatch)
+{
     // Register our opcodes
     mMessageDispatch->RegisterMessageCallback(opSelectCharacter, std::bind(&CharacterLoginHandler::_processSelectCharacter, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opCmdSceneReady, std::bind(&CharacterLoginHandler::_processCmdSceneReady, this, std::placeholders::_1, std::placeholders::_2));
@@ -78,10 +78,9 @@ CharacterLoginHandler::CharacterLoginHandler(Database* database, MessageDispatch
     mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferApprovedByPosition,std::bind(&CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opClusterZoneTransferDenied,std::bind(&CharacterLoginHandler::_processClusterZoneTransferDenied, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opNewbieTutorialResponse, std::bind(&CharacterLoginHandler::_processNewbieTutorialResponse, this, std::placeholders::_1, std::placeholders::_2));
-    //mMessageDispatch->RegisterMessageCallback(opCmdSceneReady2,std::bind(&CharacterLoginHandler::_processCreateCharacter, this, std::placeholders::_1, std::placeholders::_2));
 
-	// Load anything we need from the database
-	mZoneId = gWorldManager->getZoneId();
+    // Load anything we need from the database
+    mZoneId = gWorldManager->getZoneId();
 }
 
 
@@ -89,15 +88,15 @@ CharacterLoginHandler::CharacterLoginHandler(Database* database, MessageDispatch
 
 CharacterLoginHandler::~CharacterLoginHandler(void)
 {
-	// Unregister our callbacks
-	mMessageDispatch->UnregisterMessageCallback(opSelectCharacter);
-	mMessageDispatch->UnregisterMessageCallback(opCmdSceneReady);
-	mMessageDispatch->UnregisterMessageCallback(opClusterClientDisconnect);
-	mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferApprovedByTicket);
-	mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferApprovedByPosition);
-	mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferDenied);
-	mMessageDispatch->UnregisterMessageCallback(opNewbieTutorialResponse);
-	//mMessageDispatch->UnregisterMessageCallback(opCmdSceneReady2);
+    // Unregister our callbacks
+    mMessageDispatch->UnregisterMessageCallback(opSelectCharacter);
+    mMessageDispatch->UnregisterMessageCallback(opCmdSceneReady);
+    mMessageDispatch->UnregisterMessageCallback(opClusterClientDisconnect);
+    mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferApprovedByTicket);
+    mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferApprovedByPosition);
+    mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferDenied);
+    mMessageDispatch->UnregisterMessageCallback(opNewbieTutorialResponse);
+    //mMessageDispatch->UnregisterMessageCallback(opCmdSceneReady2);
 }
 
 void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchClient* client)
@@ -130,17 +129,17 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
         gMessageLib->sendWeatherUpdate(weather->mClouds,weather->mWeather,playerObject);
 
-		//initialize us for the world
-		//gWorldManager->addObject(playerObject);
+        //initialize us for the world
+        //gWorldManager->addObject(playerObject);
 
-		//create us for others dont use create in world - we are still in the cell
-		//we just want to reinitialize the grid for us
-		gSpatialIndexManager->InitializeObject(playerObject);
+        //create us for others dont use create in world - we are still in the cell
+        //we just want to reinitialize the grid for us
+        gSpatialIndexManager->InitializeObject(playerObject);
 
-		//create ourselves for us
-		gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
+        //create ourselves for us
+        gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
 
-		
+
 
         playerObject->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
         gMessageLib->sendUpdatePlayerFlags(playerObject);
@@ -166,17 +165,17 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
         DLOG(INFO) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
         // remove old char immidiately
-		if(playerObject->getId() == playerId)
-		{
-			//we need to bail out. If a bot tries to rapidly login it can happen that we get here again even before the character 
-			//did finish loading
-			//loading this player a second time and logging it out at the same time will lead to desaster
-			LOG(WARNING) << "CharacterLoginHandler::_processSelectCharacter account " << client->getAccountId() << " is spamming logins";
-			return;
-		}
+        if(playerObject->getId() == playerId)
+        {
+            //we need to bail out. If a bot tries to rapidly login it can happen that we get here again even before the character
+            //did finish loading
+            //loading this player a second time and logging it out at the same time will lead to desaster
+            LOG(WARNING) << "CharacterLoginHandler::_processSelectCharacter account " << client->getAccountId() << " is spamming logins";
+            return;
+        }
 
-		//the old character mustnt be necessarily on the disconnect list
-		gWorldManager->removePlayerFromDisconnectedList(playerObject);
+        //the old character mustnt be necessarily on the disconnect list
+        gWorldManager->removePlayerFromDisconnectedList(playerObject);
 
         // need to make sure the char is saved and removed, before requesting the new one
         // so doing it sync
@@ -282,44 +281,44 @@ void	CharacterLoginHandler::_processNewbieTutorialResponse(Message* message, Dis
 
 void CharacterLoginHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
-	CharacterLoadingContainer* asyncContainer = reinterpret_cast<CharacterLoadingContainer*>(ref);
+    CharacterLoadingContainer* asyncContainer = reinterpret_cast<CharacterLoadingContainer*>(ref);
 
-	switch(asyncContainer->callBack)
-	{
-		//were travelling to another zone
-		case CLHCallBack_Transfer_Ticket:
-		{
-			// Next step is save the player this call back goes to the worldmanager which will handle the rest
-			CharacterLoadingContainer* newContainer = new(CharacterLoadingContainer);
+    switch(asyncContainer->callBack)
+    {
+        //were travelling to another zone
+    case CLHCallBack_Transfer_Ticket:
+    {
+        // Next step is save the player this call back goes to the worldmanager which will handle the rest
+        CharacterLoadingContainer* newContainer = new(CharacterLoadingContainer);
 
-			newContainer->callBack		= CLHCallBack_Transfer_Position;
-			newContainer->destination	= asyncContainer->destination;
-			newContainer->planet		= asyncContainer->planet;
-			newContainer->player		= asyncContainer->player;
-			newContainer->dbCallback	= this;
+        newContainer->callBack		= CLHCallBack_Transfer_Position;
+        newContainer->destination	= asyncContainer->destination;
+        newContainer->planet		= asyncContainer->planet;
+        newContainer->player		= asyncContainer->player;
+        newContainer->dbCallback	= this;
 
-			//no remove by the save we do it here in the callback
-			gWorldManager->savePlayer(asyncContainer->player->getAccountId(),false, WMLogOut_Zone_Transfer, newContainer);
-			/////////////////////////////////////////////////////
+        //no remove by the save we do it here in the callback
+        gWorldManager->savePlayer(asyncContainer->player->getAccountId(),false, WMLogOut_Zone_Transfer, newContainer);
+        /////////////////////////////////////////////////////
 
-		}
-		break;
+    }
+    break;
 
-		case CLHCallBack_Transfer_Position:
-		{
-			//the worldmanager just saved the player and updated its position to the new planet
-			gMessageLib->sendClusterZoneTransferCharacter(asyncContainer->player, asyncContainer->planet);
+    case CLHCallBack_Transfer_Position:
+    {
+        //the worldmanager just saved the player and updated its position to the new planet
+        gMessageLib->sendClusterZoneTransferCharacter(asyncContainer->player, asyncContainer->planet);
 
-			asyncContainer->player->setConnectionState(PlayerConnState_LinkDead);
+        asyncContainer->player->setConnectionState(PlayerConnState_LinkDead);
 
-			gWorldManager->destroyObject(asyncContainer->player);
-		}
-		break;
+        gWorldManager->destroyObject(asyncContainer->player);
+    }
+    break;
 
-		case CLHCallBack_None:
-		default:
-			break;
-	}
+    case CLHCallBack_None:
+    default:
+        break;
+    }
 }
 
 //======================================================================================================================
@@ -328,36 +327,36 @@ void CharacterLoginHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* 
 //
 void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* client)
 {
-	switch(object->getType())
-	{
-		case ObjType_Player:
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-			player->setConnectionState(PlayerConnState_Connected);
-			player->setClient(client);
+    switch(object->getType())
+    {
+    case ObjType_Player:
+    {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+        player->setConnectionState(PlayerConnState_Connected);
+        player->setClient(client);
 
-			gMessageLib->sendChatServerStatus(0x01,0x36,client);
-			gMessageLib->sendParameters(900,client);
-			gMessageLib->sendStartScene(mZoneId,player);
-			gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
+        gMessageLib->sendChatServerStatus(0x01,0x36,client);
+        gMessageLib->sendParameters(900,client);
+        gMessageLib->sendStartScene(mZoneId,player);
+        gMessageLib->sendServerTime(gWorldManager->getServerTime(),client);
 
-			//initialize us in the world
-			gWorldManager->addObject(player);
+        //initialize us in the world
+        gWorldManager->addObject(player);
 
-			//create us for others
-			gSpatialIndexManager->createInWorld(player);
-			
-			//create ourselves for us
-			gSpatialIndexManager->sendCreatePlayer(player,player);
+        //create us for others
+        gSpatialIndexManager->createInWorld(player);
 
-			
-		}
-		break;
+        //create ourselves for us
+        gSpatialIndexManager->sendCreatePlayer(player,player);
 
-		default:
-			DLOG(WARNING) << "CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: " << object->getType();
-		break;
-	}
+
+    }
+    break;
+
+    default:
+        DLOG(WARNING) << "CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: " << object->getType();
+        break;
+    }
 }
 
 //======================================================================================================================
@@ -410,7 +409,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
 
         // Reset to standing
         gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Upright);
-        
+
 
         // Delete the ticket then save the position then the player
         CharacterLoadingContainer* asyncContainer = new(CharacterLoadingContainer);
@@ -421,7 +420,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         asyncContainer->callBack	= CLHCallBack_Transfer_Ticket;
 
         mDatabase->executeSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRIu64"", ticket->getId());
-        
+
 
     }
 }
@@ -445,7 +444,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
 
         // Now update the DB with the new location/planetId
         mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%"PRIu64"';",x,z,planetId,playerObject->getId()));
-        
+
 
         gMessageLib->sendClusterZoneTransferCharacter(playerObject,planetId);
 

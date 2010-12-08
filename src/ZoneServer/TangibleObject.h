@@ -48,9 +48,7 @@ public:
 
     virtual void		prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount);
 
-    virtual void		upDateFactoryVolume(BString amount) {
-        ;
-    }
+    virtual void		upDateFactoryVolume(const std::string& amount) {}
     BString				getName() const {
         return mName;
     }

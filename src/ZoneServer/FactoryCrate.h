@@ -46,7 +46,7 @@ public:
     virtual void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
     void			sendAttributes(PlayerObject* playerObject);
 
-    virtual void	upDateFactoryVolume(BString amount);
+    virtual void	upDateFactoryVolume(const std::string& amount);
 
     TangibleObject*	getLinkedObject();
     int32			decreaseContent(uint32 amount);

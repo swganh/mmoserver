@@ -27,15 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "CampRegion.h"
 
+#include <algorithm>
 #include <list>
 
 #include "MessageLib/MessageLib.h"
 
-#include "Camp.h"
-#include "PlayerObject.h"
-
-#include "WorldManager.h"
-#include "MessageLib/MessageLib.h"
+#include "ZoneServer/Camp.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldManager.h"
 
 
 //=============================================================================
@@ -62,177 +61,130 @@ CampRegion::CampRegion() : RegionObject()
     mSetUpTime = gWorldManager->GetCurrentGlobalTick();
 }
 
-//=============================================================================
 
-CampRegion::~CampRegion()
-{
-}
+CampRegion::~CampRegion() {}
 
-//=============================================================================
 
-void CampRegion::update()
-{
+void CampRegion::update() {
     //Camps have a max timer of 55 minutes
-	if(gWorldManager->GetCurrentGlobalTick() - mSetUpTime > 3300000)
-	{
-		despawnCamp();
-		return;
-	}
+    if (gWorldManager->GetCurrentGlobalTick() - mSetUpTime > 3300000) {
+        despawnCamp();
+        return;
+    }
 
-	if(mAbandoned)
-	{
-		if((gWorldManager->GetCurrentGlobalTick() >= mExpiresTime) && (!mDestroyed))
-		{
-			despawnCamp();
-		}
-	}
+    if(mAbandoned && (gWorldManager->GetCurrentGlobalTick() >= mExpiresTime) && (!mDestroyed)) {
+        despawnCamp();
+        return;
+    }
 
-	PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+    PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+    if (!owner)	{
+        despawnCamp();
+        return;
+    }
 
-	if(!owner)
-	{
-		despawnCamp();
-		return;
-	}
+    if(owner->states.checkState(CreatureState_Combat)) {
+        //abandon
+        mAbandoned = true;
+        mExpiresTime = gWorldManager->GetCurrentGlobalTick(); //There is no grace period for combat.
+        return;
+    }
 
-	if(owner->states.checkState(CreatureState_Combat))
-	{
-		//abandon
-		mAbandoned	= true;
-		mExpiresTime	= gWorldManager->GetCurrentGlobalTick(); //There is no grace period for combat.
-		return;
-	}
-    	
-	//iterate through our visitors - apply healing
-	ObjectIDSet::iterator objIt = mVisitingPlayers.begin();
+    std::for_each(mVisitingPlayers.begin(), mVisitingPlayers.end(), [=] (uint64_t player_id) {
+        Object* visitor = gWorldManager->getObjectById(player_id);
+        if (!visitor) {
+            assert(false && "The camp is holding a reference to a player that doesn't exist");
+            return;
+        }
 
-	while(objIt != mVisitingPlayers.end())
-	{
-		
-		Object* object = dynamic_cast<Object*>(gWorldManager->getObjectById((*objIt)));
+        if (!mAbandoned) {
+            applyHAMHealing(visitor);
+            mXp++;
+        }
 
-		//one xp per player in camp every 2 seconds
-		if(!mAbandoned)
-		{
-			applyHAMHealing(object);
-			mXp++;
-		}
+        auto it = std::find_if(links.begin(), links.end(), [=] (campLink* link) {
+            return link->objectID == visitor->getId();
+        });
 
-		
-		//Find the right player
-		std::list<campLink*>::iterator i;
+        if (it != links.end()) {
+            (*it)->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
 
-		for(i = links.begin(); i != links.end(); i++)
-		{
-			if((*i)->objectID == object->getId())
-			{
-				
-				(*i)->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
-				
-				if((*i)->tickCount == 15)
-				{
-					applyWoundHealing(object);
-					(*i)->tickCount = 0;
-				}
-				else
-					(*i)->tickCount++;
-				
-
-				break;
-			}
-		}
-
-
-			/*
-			//This code causes the Zone Server to print relational position and rotation info
-			//to allow the adding of items without much effort.
-			int8 text[256];
-			sprintf(text,"Position: mX=%f mY=%f mZ=%f\nDirection: mX=%f mY=%f mZ=%f mW=%f", (object->mPosition.x - this->mPosition.x), (object->mPosition.y - this->mPosition.y), (object->mPosition.z - this->mPosition.z), object->mDirection.x,object->mDirection.y,object->mDirection.z,object->mDirection.w);
-			*/
-
-		++objIt;
-	}
+            if ((*it)->tickCount == 15) {
+                applyWoundHealing(visitor);
+                (*it)->tickCount = 0;
+            } else {
+                (*it)->tickCount++;
+            }
+        }
+    });
 }
 
 //=============================================================================
 
-void CampRegion::onObjectEnter(Object* object)
-{
-	PlayerObject* player = (PlayerObject*)object;
-	
-	//make sure were not already in it
-	if(addVisitor(object))
-	{
-		//have we been here before ???
-		std::list<campLink*>::iterator i;
-		bool alreadyExists = false;
+void CampRegion::onObjectEnter(Object* object) {
+    if (object->getType() != ObjType_Player) {
+        return;
+    }
 
-		for(i = links.begin(); i != links.end(); i++)
-		{
-			if((*i)->objectID == object->getId())
-			{
-				alreadyExists = true;
-			}
-		}
+    PlayerObject* visitor = dynamic_cast<PlayerObject*>(object);
+    if (!visitor) {
+        return;
+    }
 
-		if(!alreadyExists)
-		{
-			campLink* temp = new campLink;
-			temp->objectID = object->getId();
-			temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
-			temp->tickCount = 0;
+    if (!addVisitor(visitor)) {
+        return;
+    }
 
-			links.push_back(temp);
-		}
+    auto it = std::find_if(links.begin(), links.end(), [=] (campLink* link) {
+        return link->objectID == visitor->getId();
+    });
 
-        PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+    if (it != links.end()) {
+        campLink* temp = new campLink;
+        temp->objectID = visitor->getId();
+        temp->lastSeenTime = gWorldManager->GetCurrentGlobalTick();
+        temp->tickCount = 0;
 
-		if(owner && (owner->getId() != object->getId()))
-		{
-			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
-			int8 text[64];
-			sprintf(text,"You have entered %s's camp",this->getCampOwnerName().c_str());
-            BString uT = text;
-            uT.convert(BSTRType_Unicode16);
-            gMessageLib->SendSystemMessage(uT.getUnicode16(), player);
-		}
-		else
-		{
-			//ensure it's not time to destroy the camp
-			mAbandoned = false;
-		}
+        links.push_back(temp);
+    }
+
+    PlayerObject* owner = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(mOwnerId));
+
+    if (owner && (owner->getId() != visitor->getId())) {
+        std::string text = "You have entered " + this->getCampOwnerName() + "'s camp.";
+        gMessageLib->SendSystemMessage(std::wstring(text.begin(), text.end()).c_str(), visitor);
+    } else {
+        //ensure it's not time to destroy the camp
+        mAbandoned = false;
     }
 }
 
 //=============================================================================
 
-void CampRegion::onObjectLeave(Object* object)
-{
-	PlayerObject* player = (PlayerObject*)object;
+void CampRegion::onObjectLeave(Object* object) {
+    if (object->getType() != ObjType_Player) {
+        return;
+    }
 
-	if(object->getId() == mOwnerId)
-	{
-		mAbandoned	= true;
+    if(object->getId() == mOwnerId)	{
+        mAbandoned	= true;
 
-		//We want to have this camp die after the owner has been gone longer 
-		//than he stayed in the camp, with a max of two minutes.
-		uint64 mTempCurrentTime = gWorldManager->GetCurrentGlobalTick();
+        //We want to have this camp die after the owner has been gone longer
+        //than he stayed in the camp, with a max of two minutes.
+        uint64 mTempCurrentTime = gWorldManager->GetCurrentGlobalTick();
 
-		if((mTempCurrentTime - mSetUpTime) > 120000)
-			mExpiresTime = mTempCurrentTime + 120000;
-		else
-			mExpiresTime = mTempCurrentTime + (mTempCurrentTime - mSetUpTime);
-	}
-	else
-	{
-        int8 text[64];
-        sprintf(text,"You have left %s's camp", this->getCampOwnerName().c_str());
-        BString uT = text;
-        uT.convert(BSTRType_Unicode16);
-        gMessageLib->SendSystemMessage(uT.getUnicode16(), player);
-	}
+        if((mTempCurrentTime - mSetUpTime) > 120000) {
+            mExpiresTime = mTempCurrentTime + 120000;
+        } else {
+            mExpiresTime = mTempCurrentTime + (mTempCurrentTime - mSetUpTime);
+        }
+    } else {
+        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+        std::string text = "You have left " + this->getCampOwnerName() + "'s camp.";
+        gMessageLib->SendSystemMessage(std::wstring(text.begin(), text.end()).c_str(), player);
+    }
 
-	removeVisitor(object);
+    removeVisitor(object);
 }
 
 //=============================================================================

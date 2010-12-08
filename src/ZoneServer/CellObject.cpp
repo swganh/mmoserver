@@ -61,39 +61,33 @@ CellObject::~CellObject()
 // separate this from the destructor as we do not want players in building on server shutdown
 // to be placed in the gameworld
 
-void CellObject::prepareDestruction()
-{
-	 //iterate through contained Objects
-	ObjectIDList* cellObjects		= this->getObjects();
-	ObjectIDList::iterator objIt	= cellObjects->begin();
+void CellObject::prepareDestruction() {
+    //iterate through contained Objects
+    ObjectIDList* cell_objects = getObjects();
 
-	while(objIt != cellObjects->end())	{
-		Object* object = gWorldManager->getObjectById((*objIt));
+    std::for_each(cell_objects->begin(), cell_objects->end(), [] (uint64_t object_id) {
+        Object* object = gWorldManager->getObjectById(object_id);
 
+        //we should have gotten rid of them by now!
+        if(object->getType() == ObjType_Player) {
+            assert(false && "Player objects should have already been removed by this point");
+            return;
+        }
 
+        if(object->getType() == ObjType_Creature) {
+            CreatureObject* pet = dynamic_cast<CreatureObject*>(object);
 
-		//we should have gotten rid of them by now!
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))	{
-			assert(false);
-			objIt++;
-			continue;
-		} 
-		else
-		if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))	{
-			//put the creature into the world
-			pet->setParentIdIncDB(0);
-			pet->updatePosition(0,pet->getWorldPosition());
-			
-			//remove out of the cell
-			objIt = cellObjects->erase(objIt);
-		}
-		else	{
-			
-			gWorldManager->destroyObject(object);
-			objIt = cellObjects->erase(objIt);
-		}
-		//careful with iterating here!!!
-	}
+            //put the creature into the world
+            pet->setParentIdIncDB(0);
+            pet->updatePosition(0,pet->getWorldPosition());
+
+            return;
+        }
+
+        gWorldManager->destroyObject(object);
+    });
+
+    cell_objects->erase(cell_objects->begin(), cell_objects->end());
 }
 //=============================================================================
 

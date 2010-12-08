@@ -75,7 +75,7 @@ void CellObject::prepareDestruction() {
         }
 
         if(object->getType() == ObjType_Creature) {
-            CreatureObject* pet = dynamic_cast<CreatureObject*>(object);
+            CreatureObject* pet = static_cast<CreatureObject*>(object);
 
             //put the creature into the world
             pet->setParentIdIncDB(0);

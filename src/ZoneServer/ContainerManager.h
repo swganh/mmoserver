@@ -25,33 +25,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_CONTAINERMANAGER_H
-#define ANH_ZONESERVER_cONTAINERMANAGER_H
-
-#include "SpatialIndexManager.h"
-#include "WorldManagerEnums.h"
-
-#include "Object.h"
-
-#include "DatabaseManager/DatabaseCallback.h"
-
-#include "MathLib/Rectangle.h"
-#include "MessageLib/MessageLib.h"
-
-#include "Utils/TimerCallback.h"
-#include "Utils/typedefs.h"
-
-#include <boost/ptr_container/ptr_unordered_map.hpp>
+#ifndef ZONE_SERVER_CONTAINER_MANAGER_H_
+#define ZONE_SERVER_CONTAINER_MANAGER_H_
 
 #include <list>
 #include <map>
 #include <vector>
 
-//======================================================================================================================
+#include <boost/ptr_container/ptr_unordered_map.hpp>
+
+#include "Utils/typedefs.h"
+
+#include "MathLib/Rectangle.h"
+
+#include "DatabaseManager/DatabaseCallback.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "ZoneServer/Object.h"
+#include "ZoneServer/SpatialIndexManager.h"
+#include "ZoneServer/WorldManagerEnums.h"
+
 
 #define	 gContainerManager	ContainerManager::getSingletonPtr()
 
-//======================================================================================================================
 
 enum TangibleType;
 
@@ -60,90 +57,61 @@ class TangibleObject;
 class FactoryCrate;
 class CellObject;
 
-namespace Anh_Utils
-{
-   // class Clock;
-    class Scheduler;
-    //class VariableTimeScheduler;
-}
 
-//======================================================================================================================
+class ContainerManager {
+public:
 
-
-//======================================================================================================================
-//
-// ContainerManager
-//
-class ContainerManager :  public TimerCallback
-{
-	public:
-
-		static ContainerManager*	getSingletonPtr() { return mSingleton; }
-		static ContainerManager*	Init(Database* database);
-		
-		void					Shutdown();
-		
-
-		//sends the destroys for an object equipped by a creature / player that gets unequipped
-		void					SendDestroyEquippedObject(Object *removeObject);	
-
-		//deletes an object out of a container
-		void					deleteObject(Object* data, Object* parent);
-		void					removeObject(Object* data, Object* parent);
-
-		void					removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building);
-		
-		//to other players only - use for movement
-		void					sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* const player)> callback);
-
-		//to all registered watchers including ourselves
-		void					sendToRegisteredWatchers(Object* container, std::function<void (PlayerObject* const player)> callback);
-
-		void					sendToGroupedRegisteredPlayers(PlayerObject* const player, std::function<void (PlayerObject*  const player)> callback, bool self);
-
-		//registers player as watcher to a container based on si
-		void					registerPlayerToContainer(Object* container, PlayerObject* const player) const;
-		//static containers are not affected by si updates
-		void					registerPlayerToStaticContainer(Object* container, PlayerObject* const player, bool playerCreate = false) const;
-
-		void					unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const;
-		void					createObjectToRegisteredPlayers(Object* container,Object* object);
+	static ContainerManager*	getSingletonPtr() { return mSingleton; }
+	static ContainerManager*	Init(Database* database);
 	
-		void					destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf = false);
-		void					updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment);
-		void					updateEquipListToRegisteredPlayers(PlayerObject* player);
+	void					Shutdown();
+	
+
+	//sends the destroys for an object equipped by a creature / player that gets unequipped
+	void					SendDestroyEquippedObject(Object *removeObject);	
+
+	//deletes an object out of a container
+	void					deleteObject(Object* data, Object* parent);
+	void					removeObject(Object* data, Object* parent);
+
+	void					removeStructureItemsForPlayer(PlayerObject* player, BuildingObject* building);
+	
+	//to other players only - use for movement
+	void					sendToRegisteredPlayers(Object* container, std::function<void (PlayerObject* const player)> callback);
+
+	//to all registered watchers including ourselves
+	void					sendToRegisteredWatchers(Object* container, std::function<void (PlayerObject* const player)> callback);
+
+	void					sendToGroupedRegisteredPlayers(PlayerObject* const player, std::function<void (PlayerObject*  const player)> callback, bool self);
+
+	//registers player as watcher to a container based on si
+	void					registerPlayerToContainer(Object* container, PlayerObject* const player) const;
+	//static containers are not affected by si updates
+	void					registerPlayerToStaticContainer(Object* container, PlayerObject* const player, bool playerCreate = false) const;
+
+	void					unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const;
+	void					createObjectToRegisteredPlayers(Object* container,Object* object);
+
+	void					destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf = false);
+	void					updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment);
+	void					updateEquipListToRegisteredPlayers(PlayerObject* player);
 
 
-		//buildings are special containers as they always have their cells loaded even if otherwise unloaded
-		void					registerPlayerToBuilding(BuildingObject* building,PlayerObject* player);
-		void					unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player);
+	//buildings are special containers as they always have their cells loaded even if otherwise unloaded
+	void					registerPlayerToBuilding(BuildingObject* building,PlayerObject* player);
+	void					unRegisterPlayerFromBuilding(BuildingObject* building,PlayerObject* player);
 
-		//======================================================================================================================
-		// when creating a player and the player is in a cell we need to create all the cells contents for the player
-		// cellcontent is *NOT* in the grid
-		void					initObjectsInRange(PlayerObject* playerObject);
+	//======================================================================================================================
+	// when creating a player and the player is in a cell we need to create all the cells contents for the player
+	// cellcontent is *NOT* in the grid
+	void					initObjectsInRange(PlayerObject* playerObject);
 
-		
-	private:
+	
+private:
+	ContainerManager();
 
-		ContainerManager();
-
-		
-
-
-		static ContainerManager*		mSingleton;
-		static bool						mInsFlag;
-
-		
-		
+	static ContainerManager*		mSingleton;
+	static bool						mInsFlag;		
 };
 
-
-
-//======================================================================================================================
-
-#endif // ANH_ZONESERVER_CONTAINERMANAGER_H
-
-
-
-
+#endif  // ZONE_SERVER_CONTAINER_MANAGER_H_

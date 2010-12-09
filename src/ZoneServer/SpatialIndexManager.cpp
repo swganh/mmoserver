@@ -185,6 +185,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
     if(newBucket != oldBucket)	{
         DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << newBucket;
 
+
         //test how much we moved if only one grid proceed normally
         if(	(newBucket == (oldBucket +1))			  || (newBucket == (oldBucket -1))				||
                 (newBucket == (oldBucket + GRIDWIDTH))	  || (newBucket == (oldBucket - GRIDWIDTH))		||
@@ -219,7 +220,6 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 
     }
 
-
 }
 
 
@@ -251,6 +251,7 @@ RegionObject* SpatialIndexManager::getRegion(uint32 id)
 void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 {
     DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeObject->getId();
+
     //were in a container - get us out
     if(removeObject->getParentId())	{
         Object* container = gWorldManager->getObjectById(removeObject->getParentId());

@@ -89,10 +89,10 @@ public:
 	void					unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const;
 	void					createObjectToRegisteredPlayers(Object* container,Object* object);
 
+
 	void					destroyObjectToRegisteredPlayers(Object* container,uint64 object, bool destroyForSelf = false);
 	void					updateObjectPlayerRegistrations(Object* newContainer, Object* oldContainer, Object* object, uint32 containment);
 	void					updateEquipListToRegisteredPlayers(PlayerObject* player);
-
 
 	//buildings are special containers as they always have their cells loaded even if otherwise unloaded
 	void					registerPlayerToBuilding(BuildingObject* building,PlayerObject* player);

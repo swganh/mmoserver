@@ -258,7 +258,9 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
                 return;
             }
 
-            senders_name_crc = common::memcrc(source_player->getFirstName().getAnsi());
+            std::string tmp = source_player->getFirstName().getAnsi();
+            std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
+            senders_name_crc = common::memcrc(tmp);
 
             //@todo: This check for the tutorial is a hack and shouldn't be here.
             if (gWorldConfig->isTutorial()) {

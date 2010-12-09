@@ -110,6 +110,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
     playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
 
+	//this exact character is currently being logged out ...
     if((playerObject) && playerObject->isLinkDead())
     {
         // Remove old client, if any.
@@ -155,16 +156,14 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
         // Remove old client, if any.
         delete playerObject->getClient();
-
-        //client->Disconnect(0); darn it this disconects the only zone session!!!!
     }
-
-    // account already logged in with a character - we need to unload that character before loading a new one
-    //make sure that char finished loading before trying to get rid of it
-    else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
+    
+	// account already logged in with a character - we need to unload that character before loading the requested one
+	//make sure that char finished loading before trying to get rid of it
+	else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
     {
 
-        LOG(WARNING) << "same account : new player ";
+        DLOG(INFO) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
         // remove old char immidiately
         if(playerObject->getId() == playerId)
         {
@@ -187,6 +186,9 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         clContainer->mClient		= client;
         clContainer->mPlayerId		= playerId;
         clContainer->ofCallback		= this;
+
+		//take the old player out of the grid
+		gSpatialIndexManager->RemoveObjectFromWorld(playerObject);
 
         gWorldManager->savePlayer(playerObject->getAccountId(),true, WMLogOut_Char_Load, clContainer);
     }

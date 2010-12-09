@@ -2,12 +2,12 @@
 #ifndef ZONE_MAP
 #define ZONE_MAP
 
-#include "Utils/typedefs.h"
-
 #include <list>
+#include <map>
 #include <set>
 #include <vector>
-#include <map>
+
+#include "Utils/typedefs.h"
 
 class Object;
 class RegionObject;

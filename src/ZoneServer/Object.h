@@ -198,6 +198,7 @@ public:
 	bool						checkRegisteredWatchers(Object* const object) const;
 	bool						registerWatcher(Object* object);
 	bool						unRegisterWatcher(Object* object);
+	bool						unRegisterWatcher(PlayerObject* object);
 	
 	virtual void				addContainerKnownObject(Object* object);
 	bool						checkContainerKnownObjects(Object* object) const;

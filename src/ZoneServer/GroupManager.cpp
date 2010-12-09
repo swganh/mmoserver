@@ -25,25 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "GroupManager.h"
+#include "ZoneServer/GroupManager.h"
 
 #include <glog/logging.h>
 
-#include "GroupManagerCallbackContainer.h"
-
-#include "Datapad.h"
-#include "GroupObject.h"
-#include "MissionObject.h"
-#include "ObjectFactory.h"
-#include "UIManager.h"
-#include "WaypointObject.h"
-#include "PlayerObject.h"
-#include "WorldConfig.h"
-#include "WorldManager.h"
-#include "SpatialIndexManager.h"
-#include "ZoneOpcodes.h"
-
-#include "MessageLib/MessageLib.h"
+#include "Utils/utils.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -55,8 +41,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 
-#include "Utils/utils.h"
+#include "MessageLib/MessageLib.h"
 
+#include "ZoneServer/Datapad.h"
+#include "ZoneServer/GroupManagerCallbackContainer.h"
+#include "ZoneServer/GroupObject.h"
+#include "ZoneServer/MissionObject.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/SpatialIndexManager.h"
+#include "ZoneServer/UIManager.h"
+#include "ZoneServer/WaypointObject.h"
+#include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/ZoneOpcodes.h"
 
 bool						GroupManager::mInsFlag    = false;
 GroupManager*		GroupManager::mSingleton  = NULL;
@@ -75,7 +73,7 @@ GroupManager::GroupManager(Database* database, MessageDispatch* dispatch)
     mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,std::bind(&GroupManager::_processIsmGroupLootMasterResponse, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeRequest, std::bind(&GroupManager::_processIsmGroupInviteInRangeRequest, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderResponse, std::bind(&GroupManager::_processIsmIsGroupLeaderResponse, this, std::placeholders::_1, std::placeholders::_2));
-    
+
     LOG(INFO) << "GroupManager initialization complete";
 }
 
@@ -219,81 +217,79 @@ void GroupManager::_processIsmInviteRequest(Message* message, DispatchClient* cl
 
 void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchClient* client)
 {
-	// this packet is sent by the chatserver to update the group_id in the CREO6
-	// it concerns the player itself and all the inrange players
+    // this packet is sent by the chatserver to update the group_id in the CREO6
+    // it concerns the player itself and all the inrange players
 
-	PlayerObject* const player = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
-	if(player == NULL)
-	{
-		DLOG(WARNING) << "GroupManager::_processIsmGroupCREO6deltaGroupId PlayerAccId not found";
-		return;
-	}
-	
-	//this makes the player a member of the group
-	uint64 id = message->getUint64();
+    PlayerObject* const player = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
+    if(player == NULL)
+    {
+        DLOG(WARNING) << "GroupManager::_processIsmGroupCREO6deltaGroupId PlayerAccId not found";
+        return;
+    }
 
-	//did he just leave the group - is the id zero ?
-	if(id == 0)
-	{
-		GroupObject* group = getGroupObject(player->getGroupId());
-		if(group != NULL)
-		{
-			//got it - just remove him from the group
-			group->removePlayer(player->getId());
+    //this makes the player a member of the group
+    uint64 id = message->getUint64();
 
-			//if the group is now empty we need to delete it
-			Uint64List* groupList = group->getPlayerList();
-			if(groupList->size() == 0)
-			{
-				deleteGroupObject(player->getGroupId());
-				delete(group);
-			}
-		}
-	}
-	
-	player->setGroupId(id);
-	
-	if(id != 0)
-	{
-		//check if a group with that Id already exists
-		GroupObject* group;
-		group = getGroupObject(id);
+    //did he just leave the group - is the id zero ?
+    if(id == 0)
+    {
+        GroupObject* group = getGroupObject(player->getGroupId());
+        if(group != NULL)
+        {
+            //got it - just remove him from the group
+            group->removePlayer(player->getId());
 
-		if(group != NULL)
-		{
-			//yes - just add the player
-			group->addPlayer(player->getId());
-		}
-		else
-		{
-			//add a new group
-			group = new GroupObject(id);
-			addGroupObject(group);
-			group->addPlayer(player->getId());
-		}
-	}
+            //if the group is now empty we need to delete it
+            Uint64List* groupList = group->getPlayerList();
+            if(groupList->size() == 0)
+            {
+                deleteGroupObject(player->getGroupId());
+                delete(group);
+            }
+        }
+    }
 
-	// to in-range folks
-	ObjectSet resultSet;
+    player->setGroupId(id);
 
-	gSpatialIndexManager->getObjectsInRange(player,&resultSet,ObjType_Creature,30.0,true);
-	
-	ObjectSet::const_iterator	it				= resultSet.begin();
-	
-	while(it != resultSet.end())
-	{
-		const PlayerObject* const targetObject = dynamic_cast<PlayerObject*>(*it);
+    if(id != 0)
+    {
+        //check if a group with that Id already exists
+        GroupObject* group;
+        group = getGroupObject(id);
 
-		if(targetObject->isConnected())
-		{
-			gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(),player,targetObject);
-		}
+        if(group != NULL)
+        {
+            //yes - just add the player
+            group->addPlayer(player->getId());
+        }
+        else
+        {
+            //add a new group
+            group = new GroupObject(id);
+            addGroupObject(group);
+            group->addPlayer(player->getId());
+        }
+    }
 
-		++it;
-	}
+    // to in-range folks
+    ObjectSet result_set;
 
-	// to self
-	gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, player);
+    gSpatialIndexManager->getObjectsInRange(player,&result_set,ObjType_Creature,30.0,true);
+
+    std::for_each(result_set.begin(), result_set.end(), [player] (Object* object) {
+        if (object->getType() != ObjType_Player) {
+            return;
+        }
+
+        PlayerObject* target = static_cast<PlayerObject*>(object);
+
+        if(target->isConnected()) {
+            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, target);
+        }
+    });
+
+    // to self
+    gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, player);
 }
 
 //=======================================================================================================================
@@ -303,7 +299,7 @@ void GroupManager::_processIsmGroupLootModeResponse(Message* message, DispatchCl
     PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
     if(playerObject == NULL)
     {
-		return;
+        return;
     }
 
     //send the SUI
@@ -371,7 +367,7 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
         // remove the old one
         if(waypoint)
         {
-            
+
             // now update the DB
             datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), mission->getDestination().Coordinates,
                                     static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);

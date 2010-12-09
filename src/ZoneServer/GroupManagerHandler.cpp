@@ -26,20 +26,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "GroupManagerHandler.h"
-#include "UIManager.h"
-#include "WorldManager.h"
-#include "SpatialIndexManager.h"
-#include "PlayerObject.h"
-#include "MessageLib/MessageLib.h"
+
+#include "Utils/utils.h"
+
+#include "DatabaseManager/Database.h"
+#include "DatabaseManager/DataBinding.h"
+#include "DatabaseManager/DatabaseResult.h"
+
+#include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 #include "NetworkManager/Message.h"
-#include "NetworkManager/DispatchClient.h"
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DataBinding.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "Utils/utils.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "PlayerObject.h"
+#include "SpatialIndexManager.h"
+#include "UIManager.h"
+#include "WorldManager.h"
 
 bool						GroupManagerHandler::mInsFlag    = false;
 GroupManagerHandler*		GroupManagerHandler::mSingleton  = NULL;
@@ -127,23 +132,15 @@ void GroupManagerHandler::_processIsmGroupCREO6deltaGroupId(Message* message, Di
 
     player->setGroupId(message->getUint64());
 
-	// to in-range folks
-	PlayerObjectSet		inRangePlayers;
-	gSpatialIndexManager->getPlayersInRange(player,&inRangePlayers,true);
+    // to in-range folks
+    PlayerObjectSet in_range_players;
+    gSpatialIndexManager->getPlayersInRange(player, &in_range_players, true);
 
-	PlayerObjectSet::const_iterator	it				= inRangePlayers.begin();
-
-	while(it != inRangePlayers.end())
-	{
-		const PlayerObject* const targetObject = (*it);
-
-        if(targetObject->isConnected())
-        {
-            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(),player,targetObject);
+    std::for_each(in_range_players.begin(), in_range_players.end(), [player] (PlayerObject* target) {
+        if (target->isConnected()) {
+            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, target);
         }
-
-        ++it;
-    }
+    });
 
     // to self
     gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, player);

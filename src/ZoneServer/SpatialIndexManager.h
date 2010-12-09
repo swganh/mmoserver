@@ -30,24 +30,24 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //#include "ObjectFactoryCallback.h"
 
-#include "zmap.h"
-#include "WorldManagerEnums.h"
+#include <list>
+#include <map>
+#include <vector>
 
-#include "Object.h"
-
-#include "DatabaseManager/DatabaseCallback.h"
-
-#include "MathLib/Rectangle.h"
-#include "MessageLib/MessageLib.h"
+#include <boost/ptr_container/ptr_unordered_map.hpp>
 
 #include "Utils/TimerCallback.h"
 #include "Utils/typedefs.h"
 
-#include <boost/ptr_container/ptr_unordered_map.hpp>
+#include "MathLib/Rectangle.h"
 
-#include <list>
-#include <map>
-#include <vector>
+#include "DatabaseManager/DatabaseCallback.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "Object.h"
+#include "WorldManagerEnums.h"
+#include "zmap.h"
 
 //======================================================================================================================
 

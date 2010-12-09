@@ -454,7 +454,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             pageLink = 15;
         }
         else if ((dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits() < av->getDI())
-                 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits() < av->getDI())
+                 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits() < av->getDI())
                 )
         {
             // Player lack credits in both inventory and bank.
@@ -792,7 +792,7 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
         ::common::ProsePackage prose("base_player", "prose_pay_acct_success");
 
         // System message: You successfully make a payment of %DI credits to %TO.
-        
+
         if (av->getNpc()->getFirstName().getLength())
         {
 
@@ -1240,11 +1240,11 @@ void Trainer::spawn(void)
 {
     gSpatialIndexManager->createInWorld(this);
 
-	// Add us to the world.
-	gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
+    // Add us to the world.
+    gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);
 
-	// send out position updates to known players
-	this->setInMoveCount(this->getInMoveCount() + 1);
+    // send out position updates to known players
+    this->setInMoveCount(this->getInMoveCount() + 1);
 
     if (gWorldConfig->isTutorial())
     {

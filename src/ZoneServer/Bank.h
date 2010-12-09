@@ -73,7 +73,7 @@ public:
     void planet(int8_t planet);
 
 private:
-    friend PlayerObjectFactory;
+    friend class PlayerObjectFactory;
 
     Bank();
 

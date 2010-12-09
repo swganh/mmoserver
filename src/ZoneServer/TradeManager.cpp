@@ -389,7 +389,7 @@ void TradeManager::_processBankTipDeduct(Message* message,DispatchClient* client
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
     Bank*			bank			= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    bank->setCredits(bank->getCredits() + amount);
+    bank->credits(bank->credits() + amount);
     gMessageLib->sendBankCreditsUpdate(playerObject);
 }
 
@@ -406,7 +406,7 @@ void TradeManager::_processBanktipUpdate(Message* message,DispatchClient* client
     {
         Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-        bank->setCredits(bank->getCredits() + amount);
+        bank->credits(bank->credits() + amount);
 
         gTreasuryManager->saveAndUpdateBankCredits(playerObject);
     }
@@ -694,9 +694,9 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     //we give the amounts of money to be taken from bank and inventory directly to the
     //transaction in the next async call
 
-    if(bank->getCredits() < fee)	{
-        asyncContainer->amountbank = bank->getCredits();
-        asyncContainer->amountcash = fee - bank->getCredits();
+    if(bank->credits() < fee)	{
+        asyncContainer->amountbank = bank->credits();
+        asyncContainer->amountcash = fee - bank->credits();
     }
     else    {
         asyncContainer->amountbank = fee;

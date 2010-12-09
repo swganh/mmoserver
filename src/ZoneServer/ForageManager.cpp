@@ -78,7 +78,7 @@ public:
 class ForagePocket
 {
 public:
-    ForagePocket::ForagePocket(PlayerObject* player)
+    ForagePocket(PlayerObject* player)
     {
 
         innerRect = Anh_Math::Rectangle(player->mPosition.x - 10,player->mPosition.z - 10,20,20);

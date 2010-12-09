@@ -50,9 +50,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define	 gContainerManager	ContainerManager::getSingletonPtr()
 
 
-enum TangibleType;
-
-
 class TangibleObject;
 class FactoryCrate;
 class CellObject;

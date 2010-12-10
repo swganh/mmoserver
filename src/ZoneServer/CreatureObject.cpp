@@ -674,9 +674,11 @@ void CreatureObject::updateRaceGenderMask(bool female)
         }
     }
 }
+//gets called by the active Object of the statemanager
 void CreatureObject::creatureActionStateUpdate()
 {
-    gMessageLib->sendPostureAndStateUpdate(this);   
+	//disable for now until we have the threading problems solved
+    //gMessageLib->sendPostureAndStateUpdate(this);   
 }
 void CreatureObject::creaturePostureUpdate()
 {

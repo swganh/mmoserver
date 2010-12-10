@@ -480,39 +480,28 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
 //============================================================================
 //destroy an object if its not us
 // unregister containers
-void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated)
-{
-    DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Object) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 
-    //if its a player, destroy us for him
-    if(toBeTested->getType() == ObjType_Player)
-    {
-        PlayerObject* testedPlayer = dynamic_cast<PlayerObject*> (toBeTested);
-        gMessageLib->sendDestroyObject(toBeUpdated->getId(),testedPlayer);
-        gContainerManager->unRegisterPlayerFromContainer(toBeUpdated,testedPlayer);
-    }
-}
-
-
-void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested, PlayerObject* updatedPlayer)
+void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested, Object* updatedObject)
 {
     //DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 
-    if((toBeTested->getType() == ObjType_Creature || toBeTested->getType() == ObjType_NPC) && toBeTested->checkRegisteredWatchers(updatedPlayer))
-    {
-        gContainerManager->unRegisterPlayerFromContainer(toBeTested,updatedPlayer);
-    }
+	if(updatedObject->getType() == ObjType_Player)	{ 
+		PlayerObject* updatedPlayer = static_cast<PlayerObject*>(updatedObject);
+		if((toBeTested->getType() == ObjType_Creature || toBeTested->getType() == ObjType_NPC) && toBeTested->checkRegisteredWatchers(updatedObject))	{
+			gContainerManager->unRegisterPlayerFromContainer(toBeTested,updatedPlayer);
+		}
 
-    //we (updateObject) got out of range of the following (*i) objects
-    //destroy them for us
-    gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer);
+		//we (updateObject) got out of range of the following (*i) objects
+		//destroy them for us
+		gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer);
+	}    
 
     //if its a player, destroy us for him
     if(toBeTested->getType() == ObjType_Player)
     {
-        PlayerObject* testedPlayer = dynamic_cast<PlayerObject*> (toBeTested);
-        gMessageLib->sendDestroyObject(updatedPlayer->getId(),testedPlayer);
-        gContainerManager->unRegisterPlayerFromContainer(updatedPlayer,testedPlayer);
+        PlayerObject* testedPlayer = static_cast<PlayerObject*> (toBeTested);
+        gMessageLib->sendDestroyObject(updatedObject->getId(),testedPlayer);
+        gContainerManager->unRegisterPlayerFromContainer(updatedObject,testedPlayer);
     }
 }
 
@@ -531,8 +520,7 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
     uint32 queryType = Bucket_Creatures | Bucket_Objects | Bucket_Players;
 
     //npcs/ creatures are only interested in updating players
-    if(updateObject->getType() != ObjType_Player)
-    {
+    if(updateObject->getType() != ObjType_Player)    {
         queryType = Bucket_Players;
     }
 

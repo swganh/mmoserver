@@ -160,7 +160,6 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					_UpdateBackCells(Object* updateObject,uint32);
 		void					_UpdateFrontCells(Object* updateObject, uint32);
 		void					_CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
-		void					_CheckObjectIterationForDestruction(Object* toBeTested, PlayerObject* updatedPlayer);
 		void					_ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
 		void					_CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
 

@@ -214,9 +214,6 @@ void Service::Process()
         // Grab our next Service to process
         session = mSessionProcessQueue.pop();
 
-        if(!session)
-            continue;
-
         session->setInIncomingQueue(false);
 
         // Check to see if we're in the process of connecting or disconnecting.

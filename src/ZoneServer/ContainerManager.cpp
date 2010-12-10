@@ -97,17 +97,14 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
         });
     }
 
-	if(container->getType() == ObjType_Player)
-	{
+	if(container->getType() == ObjType_Player)	{
 		PlayerObject* containerPlayer = static_cast<PlayerObject*>(container);
-		if(!player->unRegisterWatcher(containerPlayer))
-		{
+		if(!player->unRegisterWatcher(containerPlayer))		{
 			assert(false);
 		}
 	}
 	else
-    if(!player->unRegisterWatcher(container))
-	{
+    if(!player->unRegisterWatcher(container))	{
 		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister container " << container->getId()  << " from  player " << player->getId() << "failed" ;
 		assert(false);
 	}

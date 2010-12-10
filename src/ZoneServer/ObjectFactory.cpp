@@ -248,6 +248,10 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
                  << (uint64) 0 << "," << planetId << "," << position.x << ","
                  << position.y << "," << position.z << ",'" << name 
                  << "'," << useCount <<")";
+
+
+
+
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
             return;
@@ -274,14 +278,23 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
     // make sure to escape strings to prevent
     std::string srcPlanet(gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.srcPlanetId)));
     std::string dstPlanet(gWorldManager->getPlanetNameById(static_cast<uint8>(ticketProperties.dstPlanetId)));
-    srcPlanet = mDatabase->escapeString(srcPlanet);
-    dstPlanet = mDatabase->escapeString(dstPlanet);
+	std::string srcPoint(ticketProperties.srcPoint->descriptor);
+	std::string dstPoint(ticketProperties.dstPoint->descriptor);
+
+	
+    srcPlanet	= mDatabase->escapeString(srcPlanet);
+    dstPlanet	= mDatabase->escapeString(dstPlanet);
+	srcPoint	= mDatabase->escapeString(srcPoint);
+	dstPoint	= mDatabase->escapeString(dstPoint);
 
     stringstream query_stream;
     query_stream << "SELECT sf_TravelTicketCreate("
-                 << "'" << srcPlanet << "'," << dstPlanet 
+                 << "'" << srcPlanet << "', '" << srcPoint << "', '" <<dstPlanet << "', '"<< dstPoint 
                  << "'," << parentId << "," << 0.0f << "," << 0.0f << ","
                  << 0.0f << "," << planetId << ")";
+
+
+
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
             return;

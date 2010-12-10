@@ -210,6 +210,8 @@ void MessageLib::_sendToInRangeUnreliable(Message* message, Object* const object
         if(_checkPlayer(player)) {
             player->getClient()->SendChannelAUnreliable(message, player->getAccountId(), CR_Client, priority);
         }
+		else
+			mMessageFactory->DestroyMessage(message);
     } else {
         // If the message is sent to self then the process of sending destroys it
         // otherwise we have to destroy it ourselves.
@@ -279,7 +281,7 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
         // If the player is not online, or if the sender is in the player's ignore list
         // then pass over this iteration.
         if (!_checkPlayer(recipient) || (senders_name_crc && recipient->checkIgnoreList(senders_name_crc))) {
-            mMessageFactory->DestroyMessage(message);
+            //mMessageFactory->DestroyMessage(message);
             return;
         }
 
@@ -321,7 +323,7 @@ void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const Creat
     bool failed = false;
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=, &cloned_message] (Object* iter_object) {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(iter_object);
+        PlayerObject* player = static_cast<PlayerObject*>(iter_object);
 
         if(_checkPlayer(player) && object->getGroupId()
                 && (player->getGroupId() == object->getGroupId())
@@ -337,6 +339,8 @@ void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const Creat
             player->getClient()->SendChannelAUnreliable(cloned_message, player->getAccountId(), CR_Client, priority);
         }
     });
+
+	mMessageFactory->DestroyMessage(message);
 }
 
 //======================================================================================================================
@@ -345,10 +349,10 @@ void MessageLib::_sendToInRange(Message* message, Object* const object, unsigned
     glm::vec3 position = object->getWorldPosition();
 
     ObjectListType in_range_players;
-    mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z), &in_range_players);
+	mGrid->GetPlayerViewingRangeCellContents(object->getGridBucket(), &in_range_players);
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=] (Object* object) {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+        PlayerObject* player = static_cast<PlayerObject*>(object);
         if(_checkPlayer(player)) {
             // clone our message
             mMessageFactory->StartMessage();
@@ -364,6 +368,8 @@ void MessageLib::_sendToInRange(Message* message, Object* const object, unsigned
         if(_checkPlayer(player)) {
             player->getClient()->SendChannelA(message, player->getAccountId(), CR_Client, priority);
         }
+		else
+			mMessageFactory->DestroyMessage(message);
     } else {
         // If the message is sent to self then the process of sending destroys it
         // otherwise we have to destroy it ourselves.
@@ -411,13 +417,11 @@ void MessageLib::_sendToInstancedPlayersUnreliable(Message* message, unsigned ch
         return;
     }
 
-    glm::vec3 position = player->getWorldPosition();
-
     ObjectListType in_range_players;
-    mGrid->GetPlayerViewingRangeCellContents(mGrid->getCellId(position.x, position.z), &in_range_players);
+	mGrid->GetPlayerViewingRangeCellContents(player->getGridBucket(), &in_range_players);
 
     std::for_each(in_range_players.begin(), in_range_players.end(), [=] (Object* object) {
-        PlayerObject* in_range_player = dynamic_cast<PlayerObject*>(object);
+        PlayerObject* in_range_player = static_cast<PlayerObject*>(object);
 
         if((player->getGroupId() != 0) && (in_range_player->getGroupId() != player->getGroupId())) {
             assert(false && "Player has an invalid player in range in an instance");

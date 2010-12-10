@@ -620,7 +620,7 @@ void Object::addContainerKnownObject(Object* object)
 
     if(object->getType() == ObjType_Player)
     {
-        mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));
+        mKnownPlayers.insert(static_cast<PlayerObject*>(object));
     }
     else
     {
@@ -665,7 +665,7 @@ bool Object::unRegisterWatcher(Object* object) {
         DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " was successfully unregistered for " << getId();
         return true;
     }
-
+	DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " could not be unregistered for " << getId();
     return false;
 }
 
@@ -689,6 +689,7 @@ bool Object::unRegisterWatcher(PlayerObject* object) {
         return true;
     }
 
+	DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " could not be unregistered for " << getId();
     return false;
 }
 

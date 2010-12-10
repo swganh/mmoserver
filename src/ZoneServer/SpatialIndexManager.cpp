@@ -376,7 +376,7 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 
             if((*i)->getType() == ObjType_Player)
             {
-                PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
+                PlayerObject* otherPlayer = static_cast<PlayerObject*>((*i));
                 gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
             }
         }
@@ -482,7 +482,7 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
 // unregister containers
 void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated)
 {
-    //DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Object) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
+    DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Object) :: check : " <<toBeTested->getId() << " to be removed from " << toBeUpdated->getId();
 
     //if its a player, destroy us for him
     if(toBeTested->getType() == ObjType_Player)
@@ -1098,7 +1098,7 @@ void SpatialIndexManager::getPlayersInRange(const Object* const object, PlayerOb
     ObjectList result_list;
     glm::vec3 position = object->getWorldPosition();
 
-    getGrid()->GetPlayerViewingRangeCellContents(getGrid()->getCellId(position.x, position.z), &result_list);
+	getGrid()->GetPlayerViewingRangeCellContents(object->getGridBucket(), &result_list);
 
     std::for_each(result_list.begin(), result_list.end(), [object, result_set, cell_content] (Object* player) {
         if (object == player) {

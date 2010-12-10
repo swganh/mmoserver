@@ -251,10 +251,8 @@ void zmap::RemoveObject(Object *removeObject)
     }
 
 
-    for(ObjectListType::iterator it = list->begin(); it != list->end(); it++)
-    {
-        if((*it)->getId() == removeObject->getId())
-        {
+    for(ObjectListType::iterator it = list->begin(); it != list->end(); it++)    {
+        if((*it)->getId() == removeObject->getId())      {
             list->erase(it);
             break;
         }
@@ -270,12 +268,11 @@ void zmap::RemoveObject(Object *removeObject)
 
 void zmap::GetCellContents(uint32 CellID, ObjectListType* list, uint32 type)
 {
-    if(type == 0)
-    {
+    if(type == 0)    {
         assert(false && "zmap::GetCellContents QueryType must NOT be 0");
     }
-    if(CellID > (GRIDWIDTH*GRIDHEIGHT))
-    {
+    
+	if(CellID > (GRIDWIDTH*GRIDHEIGHT))    {
         DLOG(INFO) << "zmap::GetCellContents :: bucket " << CellID << " out of grid";
         return;
     }
@@ -290,20 +287,17 @@ void zmap::GetCellContents(uint32 CellID, ObjectListType* list, uint32 type)
     //splice removes the entries!!!
     ObjectListType listCopy;
 
-    if(type&Bucket_Objects)
-    {
+    if(type&Bucket_Objects)    {
         listCopy = (*mapIt).second->Objects;
         list->splice(it, listCopy);
     }
 
-    if(type&Bucket_Players)
-    {
+    if(type&Bucket_Players)    {
         listCopy = (*mapIt).second->Players;
         list->splice(it, listCopy);
     }
 
-    if(type&Bucket_Creatures)
-    {
+    if(type&Bucket_Creatures)    {
         listCopy = (*mapIt).second->Creatures;
         list->splice(it, listCopy);
     }
@@ -349,10 +343,8 @@ void	zmap::GetChatRangeCellContents(uint32 CellID, ObjectListType* list)
 {
     GetPlayerGridContentsListRow(CellID, list);
 
-    for(int i = 1; i <= chatRange; i++)
-    {
+    for(int i = 1; i <= chatRange; i++)    {
         GetPlayerGridContentsListRow(CellID + (i*GRIDWIDTH), list);
-
         GetPlayerGridContentsListRow(CellID - (i*GRIDWIDTH), list);
     }
 
@@ -366,8 +358,7 @@ void zmap::GetGridContentsListRow(uint32 CellID, ObjectListType* list, uint32 ty
 {
     GetCellContents(CellID,list, type);
 
-    for(int i = 1; i <= viewRange; i++)
-    {
+    for(int i = 1; i <= viewRange; i++)    {
         GetCellContents(CellID + i,list, type);
         GetCellContents(CellID - i,list, type);
     }
@@ -378,8 +369,7 @@ void	 zmap::GetPlayerGridContentsListRow(uint32 CellID, ObjectListType* list)
 {
     GetPlayerCellContents(CellID,list);
 
-    for(int i = 1; i <= viewRange; i++)
-    {
+    for(int i = 1; i <= viewRange; i++)    {
         GetPlayerCellContents(CellID + i,list);
         GetPlayerCellContents(CellID - i,list);
     }
@@ -397,8 +387,7 @@ void	zmap::GetPlayerGridContentsListColumnDown(uint32 CellID, ObjectListType* li
 
     GetPlayerCellContents(CellID, list);
 
-    for(int i = 1; i <= (viewRange*2)-1; i++)
-    {
+    for(int i = 1; i <= (viewRange*2)-1; i++)    {
         GetPlayerCellContents(CellID - (i*GRIDWIDTH), list);
     }
 }
@@ -408,8 +397,7 @@ void	zmap::GetGridContentsListColumnDown(uint32 CellID, ObjectListType* list, ui
 {
     GetCellContents(CellID, list, type);
 
-    for(int i = 1; i <= (viewRange*2)-1; i++)
-    {
+    for(int i = 1; i <= (viewRange*2)-1; i++)    {
         GetCellContents(CellID - (i*GRIDWIDTH), list, type);
     }
 }
@@ -419,8 +407,7 @@ void	zmap::GetGridContentsListColumnUp(uint32 CellID, ObjectListType* list, uint
 
     GetCellContents(CellID, list, type);
 
-    for(int i = 1; i <= (viewRange*2)-1; i++)
-    {
+    for(int i = 1; i <= (viewRange*2)-1; i++)    {
         GetCellContents(CellID + (i*GRIDWIDTH), list, type);
     }
 }
@@ -430,8 +417,7 @@ void	zmap::GetPlayerGridContentsListColumnUp(uint32 CellID, ObjectListType* list
 
     GetPlayerCellContents(CellID, list);
 
-    for(int i = 1; i <= (viewRange*2)-1; i++)
-    {
+    for(int i = 1; i <= (viewRange*2)-1; i++)    {
         GetPlayerCellContents(CellID + (i*GRIDWIDTH), list);
     }
 
@@ -446,8 +432,7 @@ void	zmap::GetGridContentsListRowLeft(uint32 CellID, ObjectListType* list, uint3
 
     GetCellContents(CellID, list, type);
 
-    for(int i = 1; i <= ((viewRange*2)-1); i++)
-    {
+    for(int i = 1; i <= ((viewRange*2)-1); i++)    {
         GetCellContents(CellID - i, list, type);
     }
 
@@ -458,8 +443,7 @@ void	zmap::GetPlayerGridContentsListRowLeft(uint32 CellID, ObjectListType* list)
 
     GetPlayerCellContents(CellID, list);
 
-    for(int i = 1; i <= ((viewRange*2)-1); i++)
-    {
+    for(int i = 1; i <= ((viewRange*2)-1); i++)    {
         GetPlayerCellContents(CellID - i, list);
     }
 
@@ -471,8 +455,7 @@ void	zmap::GetGridContentsListRowRight(uint32 CellID, ObjectListType* list, uint
 
     GetCellContents(CellID, list, type);
 
-    for(int i = 1; i <= ((viewRange*2)-1); i++)
-    {
+    for(int i = 1; i <= ((viewRange*2)-1); i++)    {
         GetCellContents(CellID + i, list, type);
     }
 
@@ -483,8 +466,7 @@ void	zmap::GetPlayerGridContentsListRowRight(uint32 CellID, ObjectListType* list
 
     GetPlayerCellContents(CellID, list);
 
-    for(int i = 1; i <= ((viewRange*2)-1); i++)
-    {
+    for(int i = 1; i <= ((viewRange*2)-1); i++)    {
         GetPlayerCellContents(CellID + i, list);
     }
 
@@ -496,10 +478,8 @@ void	zmap::GetGridContentsListColumn(uint32 CellID, ObjectListType* list, uint32
 
     GetCellContents(CellID, list, type);
 
-    for(int i = 1; i <= viewRange; i++)
-    {
+    for(int i = 1; i <= viewRange; i++)    {
         GetCellContents(CellID + (i*GRIDWIDTH), list, type);
-
         GetCellContents(CellID - (i*GRIDWIDTH), list, type);
     }
 
@@ -510,10 +490,8 @@ void	zmap::GetPlayerGridContentsListColumn(uint32 CellID, ObjectListType* list)
 
     GetPlayerCellContents(CellID, list);
 
-    for(int i = 1; i <= viewRange; i++)
-    {
+    for(int i = 1; i <= viewRange; i++)    {
         GetPlayerCellContents(CellID + (i*GRIDWIDTH), list);
-
         GetPlayerCellContents(CellID - (i*GRIDWIDTH), list);
     }
 
@@ -525,10 +503,8 @@ void	zmap::GetViewingRangeCellContents(uint32 CellID, ObjectListType* list, uint
 
     GetGridContentsListRow(CellID, list, type);
 
-    for(int i = 1; i <= viewRange; i++)
-    {
+    for(int i = 1; i <= viewRange; i++)    {
         GetGridContentsListRow(CellID + (i*GRIDWIDTH), list, type);
-
         GetGridContentsListRow(CellID - (i*GRIDWIDTH), list, type);
     }
 }
@@ -538,10 +514,8 @@ void	zmap::GetPlayerViewingRangeCellContents(uint32 CellID, ObjectListType* list
 
     GetPlayerGridContentsListRow(CellID, list);
 
-    for(int i = 1; i <= viewRange; i++)
-    {
+    for(int i = 1; i <= viewRange; i++)    {
         GetPlayerGridContentsListRow(CellID + (i*GRIDWIDTH), list);
-
         GetPlayerGridContentsListRow(CellID - (i*GRIDWIDTH), list);
     }
 
@@ -560,10 +534,8 @@ void	zmap::GetCustomRangeCellContents(uint32 CellID, uint32 range, ObjectListTyp
 
     GetGridContentsListRow(CellID, list, type);
 
-    for(uint32 i = 0; i < range; i++)
-    {
+    for(uint32 i = 0; i < range; i++)    {
         GetGridContentsListRow(CellID + (i*GRIDWIDTH), list, type);
-
         GetGridContentsListRow(CellID - (i*GRIDWIDTH), list, type);
     }
 
@@ -580,16 +552,15 @@ uint32 zmap::AddObject(Object *newObject)
 
     //DLOG(INFO) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " ";
 
-    if(!GetCellValidFlag(finalBucket))
-    {
+    if(!GetCellValidFlag(finalBucket))    {
         //something fishy here
         assert(false && "zmap::AddObject :: couldnt find grid cell :(");
         return 0xffffffff;
     }
 
     //already in there
-    if(newObject->getGridBucket() == finalBucket)
-    {
+    if(newObject->getGridBucket() == finalBucket)    {
+		DLOG(INFO) << "zmap::AddObject :: " << newObject->getId() << " bucket " << finalBucket<< " Object was already in there";
         return finalBucket;
     }
 
@@ -641,10 +612,8 @@ uint32 zmap::AddObject(Object *newObject)
 
     SubcellListType::iterator	CellListit = cellList.begin();
 
-    while(CellListit != cellList.begin())
-    {
-        if(isObjectInSubCell(newObject,(*CellListit)->subCellId))
-        {
+    while(CellListit != cellList.begin())    {
+        if(isObjectInSubCell(newObject,(*CellListit)->subCellId))	{
             (*CellListit)->region->onObjectEnter(newObject);
         }
         CellListit++;
@@ -729,15 +698,12 @@ void zmap::UpdateObject(Object *updateObject)
 
     //iterate through the subcells the object is in
     Uint32Set::iterator subCellIt = updateObject->zmapSubCells.begin();
-    while(subCellIt != updateObject->zmapSubCells.end())
-    {
+    while(subCellIt != updateObject->zmapSubCells.end())    {
         //are we still in the subcell?
-        if(!isObjectInSubCell(updateObject, (*subCellIt)))
-        {
+        if(!isObjectInSubCell(updateObject, (*subCellIt)))        {
             //nope we left
             it = subCells.find((*subCellIt));
-            if (it != subCells.end())
-            {
+            if (it != subCells.end())            {
                 (*it).second->region->onObjectLeave(updateObject);
             }
 
@@ -757,8 +723,7 @@ void zmap::UpdateObject(Object *updateObject)
 
     multi_pairing = subCells.equal_range(updateObject->getGridBucket());
 
-    for(std::multimap<uint32, SubCell*>::iterator it = multi_pairing.first; it != multi_pairing.second; ++it)
-    {
+    for(std::multimap<uint32, SubCell*>::iterator it = multi_pairing.first; it != multi_pairing.second; ++it)    {
         bool isInRegion = false;
         bool isTrulyInRegion = isObjectInSubCell(updateObject, (*it).second->subCellId);
 
@@ -767,8 +732,7 @@ void zmap::UpdateObject(Object *updateObject)
         if(subCellIt != updateObject->zmapSubCells.end())
             isInRegion = true;
 
-        if(isTrulyInRegion && !isInRegion)
-        {
+        if(isTrulyInRegion && !isInRegion)        {
             //Has just entered the region
             updateObject->zmapSubCells.insert((*it).second->subCellId);
             (*it).second->region->onObjectEnter(updateObject);

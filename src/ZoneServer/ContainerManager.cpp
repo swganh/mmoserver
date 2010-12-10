@@ -65,7 +65,7 @@ void ContainerManager::Shutdown() {}
 void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const {
     DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId();
 
-    //bail out in case were no registerted
+    //bail out in case were not registerted
     if(!container->unRegisterWatcher(player))	{
         DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId() << "failed!!!";
         return;
@@ -74,7 +74,7 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
     //buildings are a different kind of animal all together
     //as cells need to be handled in a different way
     if(container->getType() == ObjType_Building ) {
-        BuildingObject* building = dynamic_cast<BuildingObject*>(container);
+        BuildingObject* building = static_cast<BuildingObject*>(container);
         if (!building) {
             assert(false && "Object says it's a building when it's not!");
             return;
@@ -97,9 +97,24 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
         });
     }
 
-    player->unRegisterWatcher(container);
+	if(container->getType() == ObjType_Player)
+	{
+		PlayerObject* containerPlayer = static_cast<PlayerObject*>(container);
+		if(!player->unRegisterWatcher(containerPlayer))
+		{
+			assert(false);
+		}
+	}
+	else
+    if(!player->unRegisterWatcher(container))
+	{
+		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister container " << container->getId()  << " from  player " << player->getId() << "failed" ;
+		assert(false);
+	}
+	DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister container " << container->getId()  << " from  player " << player->getId() << "succeeded" ;
     gMessageLib->sendDestroyObject(container->getId(),player);
 }
+
 
 
 void ContainerManager::SendDestroyEquippedObject(Object* object) {
@@ -139,7 +154,7 @@ void ContainerManager::registerPlayerToStaticContainer(Object* container, Player
 
     //are we sure the player doesnt know the container already ???
     if (container->checkStatics(player) && (player_create == false)) {
-        DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: Container " << container->getId() << " already known to player" << player->getId();
+        DLOG(INFO) << "SpatialIndexManager::registerPlayerToStaticContainer :: Container " << container->getId() << " already known to player" << player->getId();
         return;
     }
 

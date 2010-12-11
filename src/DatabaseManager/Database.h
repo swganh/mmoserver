@@ -56,7 +56,8 @@ typedef tbb::concurrent_queue<DatabaseWorkerThread*> DatabaseWorkerThreadQueue;
 
 /*! An encapsulation of a connection to a database.
 */
-class Database : private boost::noncopyable {
+template<typename T> class Database : public T, private boost::noncopyable 
+{
 public:
     /*! Connects to a specified database.
     *
@@ -255,6 +256,18 @@ private:
     
     boost::pool<boost::default_user_allocator_malloc_free> job_pool_;
     boost::pool<boost::default_user_allocator_malloc_free> transaction_pool_;
+};
+
+struct SwgSchemas
+{
+    protected:
+        std::string global() { return global_; }
+        std::string galaxy() { return galaxy_; }
+        std::string config() { return config_; }
+    private:
+        std::string global_;
+        std::string galaxy_;
+        std::string config_;
 };
 
 #endif // ANH_DATABASEMANAGER_DATABASE_H

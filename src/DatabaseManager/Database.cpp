@@ -9,7 +9,6 @@ Copyright (c) 2006 - 2010 The SWG:ANH Team
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
-This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
 version 2.1 of the License, or (at your option) any later version.
@@ -66,7 +65,10 @@ Database::Database(DBType type, const std::string& host, uint16_t port, const st
             database_impl_.reset(new DatabaseImplementationMySql(host, port, user, pass, schema));
             break;
     }
-    
+    global_ = gConfig->read<std::string>("DBGlobalSchema");
+    galaxy_ = gConfig->read<std::string>("DBGalaxySchema");
+    config_ = gConfig->read<std::string>("DBConfigSchema");
+
     uint32_t min_threads = gConfig->read<uint32_t>("DBMinThreads");
     uint32_t max_threads = gConfig->read<uint32_t>("DBMaxThreads");
 

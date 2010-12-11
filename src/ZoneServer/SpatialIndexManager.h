@@ -89,10 +89,6 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		// add / delete an object, make sure to cleanup any other references
 		float					_GetMessageHeapLoadViewingRange();
 		
-		// Add an object to zmap
-		bool					AddObject(Object* newObject);
-		bool					AddObject(PlayerObject *newObject);
-
 		void					UpdateObject(Object *updateObject);
 
 		//just initialize our surroundings for us on reload were still created for other players
@@ -156,12 +152,19 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		//used by above routines to remove Objects from the grid
 		void					_RemoveObjectFromGrid(Object *removeObject);
 
+		//used to add an Object to the grid
+		bool					_AddObject(Object* newObject);
+		bool					_AddObject(PlayerObject *newObject);
+
 		//Update functions for spawn and despawn
 		void					_UpdateBackCells(Object* updateObject,uint32);
 		void					_UpdateFrontCells(Object* updateObject, uint32);
 		void					_CheckObjectIterationForDestruction(Object* toBeTested, Object* toBeUpdated);
 		void					_ObjectCreationIteration(std::list<Object*>* FinalList, Object* updateObject);
 		void					_CheckObjectIterationForCreation(Object* toBeTested, Object* toBeUpdated);
+		
+		
+		
 
 		static SpatialIndexManager*		mSingleton;
 		static bool						mInsFlag;

@@ -63,11 +63,17 @@ void ContainerManager::Shutdown() {}
 
 
 void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerObject* const player) const {
-    DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId();
+    
+	//limit logging for now
+	if(container->getType() == ObjType_Player)	{
+		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from (player)" << container->getId();
+	}
 
     //bail out in case were not registerted
     if(!container->unRegisterWatcher(player))	{
-        DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId() << "failed!!!";
+		if(container->getType() == ObjType_Player)	{
+			DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister player " << player->getId() << " from" << container->getId() << "failed!!!";
+		}
         return;
     }
 
@@ -108,7 +114,7 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister container " << container->getId()  << " from  player " << player->getId() << "failed" ;
 		assert(false);
 	}
-	DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister container " << container->getId()  << " from  player " << player->getId() << "succeeded" ;
+	
     gMessageLib->sendDestroyObject(container->getId(),player);
 }
 
@@ -133,7 +139,10 @@ void ContainerManager::registerPlayerToContainer(Object* container, PlayerObject
         return;
     }
 
-    player->registerWatcher(container);
+	if(!player->registerWatcher(container))	{
+		DLOG(INFO) << "SpatialIndexManager::registerPlayerToContainer :: player " << player->getId() << " already known to container" << container->getId();
+		assert(false);
+	}
 
     ObjectIDList* content_list = container->getObjects();
 

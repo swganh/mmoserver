@@ -612,7 +612,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gWorldManager->destroyObject(fence);
 
 			//create the structure in the world
-			gSpatialIndexManager->AddObject(structure);
+			gSpatialIndexManager->createInWorld(structure);
 
 			//send the EMail
 			gMessageLib->sendConstructionComplete(player,structure);

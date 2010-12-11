@@ -80,38 +80,33 @@ SpatialIndexManager::SpatialIndexManager()
 //creates the object for all players in range
 //if object is a player all objects in range will be created
 
-bool SpatialIndexManager::AddObject(Object *newObject)
+bool SpatialIndexManager::_AddObject(Object *newObject)
 {
-    //Pesudo
-    // 1. Calculate CellID
-    // 2. Set CellID
-    // 3. Insert object into the cell in the hash table
-
     uint32 finalBucket = getGrid()->AddObject(newObject);
 
     //DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " added to bucket " <<  finalBucket;
 
-    //any errors ?
-    if(finalBucket == 0xffffffff)
-    {
+    if(finalBucket == 0xffffffff)    {
         DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << newObject->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
         return false;
     }
 
-    //get all Players in range
-    //and register as necessary
+	if(newObject->getType() == ObjType_Player)	{
+		//enforce proper handling of players!!
+		PlayerObject* player = static_cast<PlayerObject*>(newObject);
+		_AddObject(player);
+	}
+   
+	//get all Players in range and register as necessary
 
     ObjectListType playerList;
     getGrid()->GetPlayerViewingRangeCellContents(finalBucket, &playerList);
 
-    for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
-    {
-        PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
+    for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)    {
+        PlayerObject* otherPlayer = static_cast<PlayerObject*>((*i));
         sendCreateObject(newObject,otherPlayer, false);
 
-        if((newObject->getType() == ObjType_Creature) || (newObject->getType() == ObjType_NPC))
-        {
-            //DLOG(INFO) << "SpatialIndexManager::AddObject:: register : " << newObject->getId() << " to player ; " << otherPlayer->getId();
+        if((newObject->getType() == ObjType_Creature) || (newObject->getType() == ObjType_NPC))	{
             gContainerManager->registerPlayerToContainer(newObject, otherPlayer);
         }
     }
@@ -119,56 +114,46 @@ bool SpatialIndexManager::AddObject(Object *newObject)
     return true;
 }
 
-bool SpatialIndexManager::AddObject(PlayerObject *player)
+bool SpatialIndexManager::_AddObject(PlayerObject *player)
 {
-    //Pesudo
-    // 1. Calculate CellID
-    // 2. Set CellID
-    // 3. Insert object into the cell in the hash table
 
     uint32 finalBucket = getGrid()->AddObject(player);
 
-    DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << player->getId() << " added to bucket " <<  finalBucket;
+    DLOG(INFO) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " added to bucket " <<  finalBucket;
 
     //any errors ?
-    if(finalBucket == 0xffffffff)
-    {
-        DLOG(INFO) << "SpatialIndexManager::AddObject :: Object " << player->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
+    if(finalBucket == 0xffffffff)    {
+        DLOG(INFO) << "SpatialIndexManager::AddObject :: Player " << player->getId() << " could not be added to the bucket because the bucket was invalid " <<  finalBucket;
         return false;
     }
 
-    //now create it for everyone around
-    //and around for it
+    //now create it for everyone around and around for it
 
     ObjectListType playerList;
     getGrid()->GetViewingRangeCellContents(finalBucket, &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
 
-    for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
-    {
+    for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)    {
         //we just added ourselves to the grid - dont send a create to ourselves
         if(((*i)->getId() == player->getId()))		{
             continue;
         }
 
-        //it needs to be created no matter what
+        //the object needs to be created no matter what
         sendCreateObject((*i), player, false);
 
-        if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))		{
+        if(((*i)->getType() == ObjType_Creature) || ((*i)->getType() == ObjType_NPC))	{
             gContainerManager->registerPlayerToContainer((*i), player);
             continue;
         }
+
         if((*i)->getType() == ObjType_Player) 		{
-            PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>(*i);
+			//create us for the other player
+            PlayerObject* otherPlayer = static_cast<PlayerObject*>(*i);
             sendCreateObject(player, otherPlayer, false);
 
             gContainerManager->registerPlayerToContainer(otherPlayer, player);
             continue;
         }
-        if((*i)->getType() == ObjType_Building) 	{
-            gContainerManager->registerPlayerToContainer((*i), player);
-            continue;
-        }
-
     }
     return true;
 }
@@ -177,8 +162,6 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 {
 
     uint32 oldBucket = updateObject->getGridBucket();
-
-
     uint32 newBucket = getGrid()->getCellId(updateObject->getWorldPosition().x, updateObject->getWorldPosition().z);
 
     //now  process the spatial index update
@@ -191,8 +174,7 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
                 (newBucket == (oldBucket + GRIDWIDTH))	  || (newBucket == (oldBucket - GRIDWIDTH))		||
                 (newBucket == (oldBucket + GRIDWIDTH +1)) || (newBucket == (oldBucket + GRIDWIDTH -1))	||
                 (newBucket == (oldBucket - GRIDWIDTH +1)) || (newBucket == (oldBucket - GRIDWIDTH -1))
-          )
-        {
+          )	{
 
             //sets the new gridcell, updates subcells
             getGrid()->UpdateObject(updateObject);
@@ -203,19 +185,18 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
             //create us for the row in which direction we moved
             _UpdateFrontCells(updateObject,oldBucket);
         }
-        else //we teleported destroy all and create everything new
-        {
-            //DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"teleportation from bucket" << oldBucket << " to bucket" << updateObject->getGridBucket();
+		//we teleported destroy all and create everything new
+        else	{
+            DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"teleportation from bucket" << oldBucket << " to bucket" << newBucket;
 
             //remove us from everything
             RemoveObjectFromWorld(updateObject);
 
             //sets the new gridcell, updates subcells
-            //getGrid()->UpdateObject(updateObject);
             getGrid()->AddObject(updateObject);
 
             //and add us freshly to the world
-            AddObject(updateObject);
+            _AddObject(updateObject);
         }
 
     }
@@ -235,7 +216,7 @@ void SpatialIndexManager::addRegion(RegionObject *region)
     getGrid()->AddSubCell(region->mPosition.x,region->mPosition.z,region->getHeight(), region->getWidth(),region);
 
     //add the region as Object to the grid so we are able to search for nearby regions should it become necessary
-    AddObject(region);
+    _AddObject(region);
 
 }
 
@@ -250,7 +231,8 @@ RegionObject* SpatialIndexManager::getRegion(uint32 id)
 //it can be equipped however by a creature / player
 void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 {
-    DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeObject->getId();
+
+    DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: Object : " << removeObject->getId();
 
     //were in a container - get us out
     if(removeObject->getParentId())	{
@@ -289,7 +271,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(Object *removeObject)
 //a Player or creature is ALWAYS in the grid and possibly in a cell
 void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 {
-    DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removePlayer->getId();
+    DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: Player : " << removePlayer->getId();
 
     //remove us from the grid
     _RemoveObjectFromGrid(removePlayer);
@@ -300,19 +282,16 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
     }
 
     CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(removePlayer->getParentId()));
-    if(cell)
-    {
+    if(cell)    {
         //unregister from the building and all its cells
         if(BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId())))		{
             gContainerManager->unRegisterPlayerFromBuilding(building,removePlayer);
         }
 
         cell->removeObject(removePlayer);
-
     }
-    else
-    {
-        DLOG(INFO) << "SpatialIndexManager::RemovePlayerFromWorld: couldn't find cell " << removePlayer->getParentId();
+    else    {
+        DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld (player): couldn't find cell " << removePlayer->getParentId();
     }
 
 
@@ -320,7 +299,7 @@ void SpatialIndexManager::RemoveObjectFromWorld(PlayerObject *removePlayer)
 
 void SpatialIndexManager::RemoveObjectFromWorld(CreatureObject *removeCreature)
 {
-    //DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: : " << removeCreature->getId();
+    DLOG(INFO) << "SpatialIndexManager::RemoveObjectFromWorld:: Creature : " << removeCreature->getId();
 
     //remove us from the grid
     _RemoveObjectFromGrid(removeCreature);
@@ -356,10 +335,14 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 
     //get the Objects and unregister as necessary
     ObjectListType playerList;
-    //getGrid()->GetPlayerViewingRangeCellContents(gridCell, &playerList);//cell means gridcell here
-    getGrid()->GetViewingRangeCellContents(bucket, &playerList,(Bucket_Creatures|Bucket_Objects|Bucket_Players));
 
-    PlayerObject* removePlayer = dynamic_cast<PlayerObject*>(removeObject);
+	//Objects are interested in players only
+	uint32 bucket_type = (Bucket_Creatures|Bucket_Objects|Bucket_Players);
+	if(removeObject->getType() != ObjType_Player)	{
+		bucket_type = (Bucket_Players);
+	}
+  
+    getGrid()->GetViewingRangeCellContents(bucket, &playerList, bucket_type);
 
     for(ObjectListType::iterator i = playerList.begin(); i != playerList.end(); i++)
     {
@@ -369,50 +352,37 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
             continue;
         }
         //if we are a player unregister us from everything around
-        if(removePlayer)
-        {
-            gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);
-            gMessageLib->sendDestroyObject((*i)->getId(), removePlayer);
+		if(removeObject->getType() == ObjType_Player)	{
+			PlayerObject* removePlayer = static_cast<PlayerObject*>(removeObject);
+            
+			gMessageLib->sendDestroyObject((*i)->getId(), removePlayer);
 
-            if((*i)->getType() == ObjType_Player)
-            {
-                PlayerObject* otherPlayer = static_cast<PlayerObject*>((*i));
-                gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
-            }
+			//limit unregistrations to creatures / NPCs 
+			if((*i)->getType() == ObjType_NPC || (*i)->getType() == ObjType_Creature || (*i)->getType() == ObjType_Player)	{
+				gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);
+			}
         }
         else
 
             //is the object a container?? do we need to despawn the content and unregister it ?
             //just dont unregister us for ourselves or our equipment - we likely only travel
-            if((*i)->getType() == ObjType_Player)
-            {
-                PlayerObject* otherPlayer = dynamic_cast<PlayerObject*>((*i));
-                //DLOG(INFO) << "SpatialIndexManager::RemoveObject:: try unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId();
-
-                if(removeObject->checkRegisteredWatchers(otherPlayer) )
-                {
-                    DLOG(INFO) << "SpatialIndexManager::RemoveObject:: unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId();
-                    gContainerManager->unRegisterPlayerFromContainer(removeObject, otherPlayer);
-                }
-                else
-                {
-                    DLOG(INFO) << "SpatialIndexManager::RemoveObject:: failed unregister : " << removeObject->getId() << " from player ; " << otherPlayer->getId() << " not registered";
-                }
-
+            if((*i)->getType() == ObjType_Player)	{
+                PlayerObject* otherPlayer = static_cast<PlayerObject*>((*i));
+                gContainerManager->unRegisterPlayerFromContainer(removeObject, otherPlayer);
                 gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
             }
     }
 
+	//go through container registrations of tangibles for containers we still now
+
+	//all players should be taken care of at this point though
     PlayerObjectSet* knownPlayers	= removeObject->getRegisteredWatchers();
     PlayerObjectSet::iterator it	= knownPlayers->begin();
 
-    while(it != knownPlayers->end())
-    {
-
+    while(it != knownPlayers->end())    {
         //the only registration a player is still supposed to have at this point is himself and his inventory
-        PlayerObject* const player = dynamic_cast<PlayerObject*>(*it);
-        if(player->getId() != removeObject->getId())
-        {
+        PlayerObject* const player = static_cast<PlayerObject*>(*it);
+        if(player->getId() != removeObject->getId())        {
             //we shouldnt get here
             assert(false);
             //unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
@@ -424,8 +394,6 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
             it++;
     }
 
-    // no need to unregister the content of knownObjects, as thats (hopefully) just the content of our inventory
-
 }
 
 // when a player leaves a structure we need to either delete all items in the structure directly
@@ -434,8 +402,7 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 void SpatialIndexManager::removePlayerFromStructure(PlayerObject* player, CellObject* cell)
 {
     BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
-    if(building)
-    {
+    if(building)    {
         //for now delete the content directly
         removeStructureItemsForPlayer(player, building);
     }
@@ -487,18 +454,20 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 
 	if(updatedObject->getType() == ObjType_Player)	{ 
 		PlayerObject* updatedPlayer = static_cast<PlayerObject*>(updatedObject);
-		if((toBeTested->getType() == ObjType_Creature || toBeTested->getType() == ObjType_NPC) && toBeTested->checkRegisteredWatchers(updatedObject))	{
+		if((toBeTested->getType() == ObjType_Creature || toBeTested->getType() == ObjType_NPC || toBeTested->getType() == ObjType_Building) && toBeTested->checkRegisteredWatchers(updatedObject))	{
 			gContainerManager->unRegisterPlayerFromContainer(toBeTested,updatedPlayer);
 		}
 
-		//we (updateObject) got out of range of the following (*i) objects
-		//destroy them for us
+		if(toBeTested->getType() == ObjType_Player)    {
+			DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check Player : " <<toBeTested->getId() << " to be removed from Player : " << updatedObject->getId();
+		}
+
+		//we (updateObject) got out of range of toBeTested
 		gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer);
 	}    
 
     //if its a player, destroy us for him
-    if(toBeTested->getType() == ObjType_Player)
-    {
+    if(toBeTested->getType() == ObjType_Player)    {
         PlayerObject* testedPlayer = static_cast<PlayerObject*> (toBeTested);
         gMessageLib->sendDestroyObject(updatedObject->getId(),testedPlayer);
         gContainerManager->unRegisterPlayerFromContainer(updatedObject,testedPlayer);
@@ -525,15 +494,13 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
     }
 
     //ZMAP Northbound!
-    if((oldCell + GRIDWIDTH) == newCell)
-    {
+    if((oldCell + GRIDWIDTH) == newCell)    {
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
         getGrid()->GetGridContentsListRow(oldCell - (GRIDWIDTH*VIEWRANGE), &FinalList, queryType);
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-        {
+        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
             _CheckObjectIterationForDestruction((*i),updateObject);
         }
 
@@ -541,15 +508,13 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
     }
 
     //ZMAP Southbound!
-    else if((oldCell - GRIDWIDTH) == newCell)
-    {
+    else if((oldCell - GRIDWIDTH) == newCell)    {
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
         getGrid()->GetGridContentsListRow(oldCell + (GRIDWIDTH*VIEWRANGE), &FinalList, queryType);
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-        {
+        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
             _CheckObjectIterationForDestruction((*i),updateObject);
         }
 
@@ -565,8 +530,7 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
 
         getGrid()->GetGridContentsListRow(oldCell + VIEWRANGE, &FinalList, queryType);
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-        {
+        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
             _CheckObjectIterationForDestruction((*i),updateObject);
         }
 
@@ -582,8 +546,7 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
         getGrid()->GetGridContentsListColumn(oldCell - VIEWRANGE, &FinalList, queryType);
 
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-        {
+        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
             _CheckObjectIterationForDestruction((*i),updateObject);
         }
 
@@ -597,13 +560,10 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
         ObjectListType::iterator it;
 
         getGrid()->GetCellContents(oldCell - (GRIDWIDTH+1)*VIEWRANGE, &FinalList, queryType);
-
         getGrid()->GetGridContentsListColumnUp(oldCell - ((GRIDWIDTH+1)*VIEWRANGE) +GRIDWIDTH, &FinalList, queryType);
-
         getGrid()->GetGridContentsListRowRight(oldCell - ((GRIDWIDTH+1)*VIEWRANGE) + 1, &FinalList, queryType);//
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-        {
+        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
             _CheckObjectIterationForDestruction((*i),updateObject);
         }
 
@@ -618,13 +578,10 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
 
         //so we need to delete down right (Southeast)
         getGrid()->GetCellContents(oldCell - ((GRIDWIDTH-1)*VIEWRANGE), &FinalList, queryType);
-
         getGrid()->GetGridContentsListColumnUp(oldCell - ((GRIDWIDTH-1)*VIEWRANGE) +GRIDWIDTH, &FinalList, queryType);
-
         getGrid()->GetGridContentsListRowLeft(oldCell - ((GRIDWIDTH-1)*VIEWRANGE)-1, &FinalList, queryType);//
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-        {
+        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
             _CheckObjectIterationForDestruction((*i),updateObject);
         }
 
@@ -639,15 +596,10 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
 
         //so we need to delete up right (Northeast)
         getGrid()->GetCellContents(oldCell + (GRIDWIDTH+1)*VIEWRANGE, &FinalList, queryType);
-
-        //get the column down
         getGrid()->GetGridContentsListColumnDown(oldCell + ((GRIDWIDTH+1)*VIEWRANGE) - GRIDWIDTH, &FinalList, queryType);
-
-        //get the row
         getGrid()->GetGridContentsListRowLeft(oldCell + ((GRIDWIDTH+1)*VIEWRANGE) -1, &FinalList, queryType);//
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-        {
+        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
             _CheckObjectIterationForDestruction((*i),updateObject);
         }
 
@@ -662,13 +614,10 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
 
         //so we need to delete up left (Northwest)
         getGrid()->GetCellContents(oldCell + ((GRIDWIDTH-1)*VIEWRANGE), &FinalList, queryType);
-
         getGrid()->GetGridContentsListColumnDown(oldCell + ((GRIDWIDTH-1)*VIEWRANGE) -GRIDWIDTH, &FinalList, queryType);
-
         getGrid()->GetGridContentsListRowRight(oldCell + ((GRIDWIDTH-1)*VIEWRANGE) +1, &FinalList, queryType);//
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)
-        {
+        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
             _CheckObjectIterationForDestruction((*i),updateObject);
         }
 
@@ -689,16 +638,12 @@ void SpatialIndexManager::_UpdateFrontCells(Object* updateObject, uint32 oldCell
     uint32 queryType = Bucket_Creatures | Bucket_Objects | Bucket_Players;
 
     //npcs/ creatures are only interested in updating players
-    if(updateObject->getType() != ObjType_Player)
-    {
+    if(updateObject->getType() != ObjType_Player)    {
         queryType = Bucket_Players;
     }
 
-    //uint32 newCell = updateObject->getGridBucket();
-
     //ZMAP Northbound!
-    if((oldCell + GRIDWIDTH) == newCell)
-    {
+    if((oldCell + GRIDWIDTH) == newCell)    {
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
@@ -836,32 +781,23 @@ void SpatialIndexManager::_ObjectCreationIteration(std::list<Object*>* FinalList
 //
 void SpatialIndexManager::_CheckObjectIterationForCreation(Object* toBeTested, Object* updatedObject)
 {
-    PlayerObject* updatedPlayer = dynamic_cast<PlayerObject*>(updatedObject);
-
     if(toBeTested->getId() == updatedObject->getId())	{
         assert(false);
     }
 
     //we are a player and need to create the following object for us
-    if(updatedPlayer)	{
+	if(updatedObject->getType() == ObjType_Player)	{
+		
+		PlayerObject* updatedPlayer = static_cast<PlayerObject*>(updatedObject);
         sendCreateObject(toBeTested,updatedPlayer,false);
 
-        if(toBeTested->getType() == ObjType_NPC || toBeTested->getType() == ObjType_Creature)
-        {
+        if(toBeTested->getType() == ObjType_NPC || toBeTested->getType() == ObjType_Creature)	{
             gContainerManager->registerPlayerToContainer(toBeTested, updatedPlayer);
         }
-        if(toBeTested->getType() == ObjType_Player )
-        {
-            PlayerObject* testedPlayer = dynamic_cast<PlayerObject*> (toBeTested);
-
-            gContainerManager->registerPlayerToContainer(updatedObject, testedPlayer);
-            sendCreateObject(updatedObject,testedPlayer,false);
-        }
-        return;
     }
 
-    PlayerObject* testedPlayer = dynamic_cast<PlayerObject*> (toBeTested);
-    if(testedPlayer)	{
+	if(toBeTested->getType() == ObjType_Player)	{
+		PlayerObject* testedPlayer = static_cast<PlayerObject*> (toBeTested);
         sendCreateObject(updatedObject,testedPlayer,false);
         gContainerManager->registerPlayerToContainer(updatedObject, testedPlayer);
     }
@@ -880,7 +816,7 @@ void SpatialIndexManager::_CheckObjectIterationForCreation(Object* toBeTested, O
 
 void SpatialIndexManager::createInWorld(CreatureObject* creature)
 {
-    this->AddObject(creature);
+    this->_AddObject(creature);
 
     //are we in a cell? otherwise bail out
     if(creature->getParentId() == 0)	{
@@ -907,7 +843,7 @@ void SpatialIndexManager::createInWorld(CreatureObject* creature)
 void SpatialIndexManager::createInWorld(PlayerObject* player)
 {
     //just create in the SI - it will keep track of nearby players
-    this->AddObject(player);
+    this->_AddObject(player);
 
     //are we in a cell? otherwise bail out
     if(player->getParentId() == 0)	{
@@ -955,21 +891,19 @@ void SpatialIndexManager::createInWorld(Object* object)
 
     //get parent object determine who to send creates for
 
-    if(object->getParentId() == 0)
-    {
+    if(object->getParentId() == 0)    {
         //just create in the SI - it will keep track of nearby players
-        this->AddObject(object);
+        this->_AddObject(object);
         return;
     }
 
     Object* parent = gWorldManager->getObjectById(object->getParentId());
 
     //start with equipped items
-    PlayerObject* player = dynamic_cast<PlayerObject*>(parent);
-    if(player)
-    {
+	if(parent->getType() == ObjType_Player)    {
+		PlayerObject* player = static_cast<PlayerObject*>(parent);
         //add to equiplist manually yet we dont use the objectcontainer for equipped items yet
-        player->getEquipManager()->addEquippedObject(object);//veeeeery debateable .. - probably shouldnt be done here
+        player->getEquipManager()->addEquippedObject(object);
         gContainerManager->createObjectToRegisteredPlayers(parent, object);
 
         //sendCreateObject(object,player,false);
@@ -977,12 +911,13 @@ void SpatialIndexManager::createInWorld(Object* object)
         return;
     }
 
-    if(parent)
-    {
+    if(parent)    {
         //items in containers
         gContainerManager->createObjectToRegisteredPlayers(parent, object);
         return;
     }
+
+	assert(false && "No valid parent");
 
 }
 

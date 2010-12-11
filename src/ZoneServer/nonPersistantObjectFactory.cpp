@@ -222,7 +222,7 @@ TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate*
 	gWorldManager->addObject(tangible);			
 
 	//add to the si
-	gSpatialIndexManager->AddObject(tangible);
+	gSpatialIndexManager->createInWorld(tangible);
 	
 	gMessageLib->sendDataTransform053(tangible);
 
@@ -273,7 +273,7 @@ CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* p
 	gWorldManager->addObject(terminal);
 
 	//add to the si
-	gSpatialIndexManager->AddObject(terminal);
+	gSpatialIndexManager->createInWorld(terminal);
 
 	return(terminal);
 }
@@ -349,7 +349,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
 	gWorldManager->addObject(structure);
 
 	//add to the si
-	gSpatialIndexManager->AddObject(structure);
+	gSpatialIndexManager->createInWorld(structure);
 		
 	gMessageLib->sendDataTransform053(structure);
 
@@ -389,7 +389,7 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 	gWorldManager->addObject(structure);
 
 	//add to the si
-	gSpatialIndexManager->AddObject(structure);
+	gSpatialIndexManager->createInWorld(structure);
 		
 	gMessageLib->sendDataTransform053(structure);
 

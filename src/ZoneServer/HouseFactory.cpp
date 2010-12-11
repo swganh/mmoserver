@@ -310,8 +310,7 @@ void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc = _getObject(object->getParentId());
 
     //Perform checking.
-    if(!ilc)
-    {
+    if(!ilc)    {
         return;
     }
 

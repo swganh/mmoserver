@@ -279,8 +279,9 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
 
     stringstream query_stream;
     query_stream << "SELECT sf_TravelTicketCreate("
-                 << "'" << srcPlanet << "'," << dstPlanet 
-                 << "'," << parentId << "," << 0.0f << "," << 0.0f << ","
+                 << "'" << srcPlanet << "', '" << ticketProperties.srcPoint->descriptor << "', "
+                 << "'" << dstPlanet << "', '" << ticketProperties.dstPoint->descriptor << "', "
+                 << parentId << "," << 0.0f << "," << 0.0f << ","
                  << 0.0f << "," << planetId << ")";
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {

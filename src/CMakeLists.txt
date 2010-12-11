@@ -1,6 +1,6 @@
 # libraries
 
-add_subdirectory(libanh)
+add_subdirectory(anh)
 
 # executables
 

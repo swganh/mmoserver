@@ -20,17 +20,28 @@
 #include "anh/event_dispatcher/event_dispatcher.h"
 
 #include <cassert>
+#include <algorithm>
 
 using namespace anh::event_dispatcher;
+using namespace std;
 
 EventDispatcher::EventDispatcher()
+    : active_queue_(0)
 {}
 
-EventDispatcher::~EventDispatcher()
-{}
+EventDispatcher::~EventDispatcher() {
+    active_queue_ = 0;
+}
 
 bool EventDispatcher::hasListeners(const EventType& event_type) const {
-    return false;
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return false;
+    }
+
+    const EventListenerList& listener_list = (*map_it).second;
+
+    return !listener_list.empty();
 }
 
 bool EventDispatcher::hasRegisteredEventType(const EventType& event_type) const {
@@ -40,6 +51,10 @@ bool EventDispatcher::hasRegisteredEventType(const EventType& event_type) const 
     }
 
     return false;
+}
+
+bool EventDispatcher::hasEvents() const {
+    return !event_queues_[active_queue_].empty();
 }
 
 bool EventDispatcher::registerEventType(EventType event_type) {
@@ -53,5 +68,118 @@ bool EventDispatcher::registerEventType(EventType event_type) {
 }
 
 bool EventDispatcher::subscribe(const EventType& event_type, EventListener listener) {
-    return false;
+    if (!validateEventType_(event_type)) {
+        return false;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        auto insert_result = event_listeners_.insert(make_pair(event_type, EventListenerList()));
+
+        // Check if there was an insertion failure
+        if (insert_result.second == false) {
+            return false;
+        }
+
+        // Cache the iterator and verify we didn't somehow create an empty map.
+        if ((map_it = insert_result.first) == event_listeners_.end()) {
+            return false;
+        }
+    }
+
+    EventListenerList& listener_list = (*map_it).second;    
+
+    // Look for the listener in the list before adding.
+    auto find_it = find_if(listener_list.begin(), listener_list.end(), [&listener] (const EventListener& list_listener) {
+        return list_listener.first == listener.first;
+    });
+
+    if (find_it != listener_list.end()) {
+        return false;
+    }
+
+    listener_list.push_back(listener);
+
+    return true;
+}
+
+void EventDispatcher::unsubscribe(const EventType& event_type, const EventListenerType& listener_type) {    
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return;
+    }
+
+    EventListenerList& listener_list = (*map_it).second;
+
+    auto remove_it = remove_if(listener_list.begin(), listener_list.end(), [&listener_type] (const EventListener& list_listener) {
+        return list_listener.first == listener_type;
+    });
+
+    listener_list.erase(remove_it, listener_list.end());
+}
+
+void EventDispatcher::unsubscribe(const EventListenerType& listener_type) {
+    std::for_each(registered_event_types_.begin(), registered_event_types_.end(), [this, &listener_type] (const EventType& event_type) {        
+        unsubscribe(event_type, listener_type);
+    });
+}
+
+bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event) {
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return false;
+    }
+    
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {        
+        assert(false && "Inconsistency between listener map and event type set found");
+        return false;
+    }
+    
+    EventListenerList& listener_list = (*map_it).second;
+
+    bool processed = false;
+
+    for_each(listener_list.begin(), listener_list.end(), [incoming_event, &processed] (EventListener& list_listener) {
+        if (list_listener.second(incoming_event)) {
+            processed = true;
+        }
+    });
+
+    return processed;
+}
+
+bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return false;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return false;
+    }
+
+    event_queues_[active_queue_].push(incoming_event);
+
+    return true;
+}
+
+bool EventDispatcher::validateEventType_(const EventType& event_type) const {
+    if (! event_type.ident_string().length()) {
+        return false;
+    }
+
+    auto type_it = registered_event_types_.find(event_type); 
+    if (type_it == registered_event_types_.end()) {
+        return false;
+    }
+
+    return true;
 }

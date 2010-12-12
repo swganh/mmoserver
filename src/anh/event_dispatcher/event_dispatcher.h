@@ -27,15 +27,22 @@
 #include <set>
 #include <string>
 
+#include <tbb/concurrent_queue.h>
+
 #include "anh/event_dispatcher/basic_event.h"
 
 namespace anh {
 namespace event_dispatcher {
 
-typedef std::function<void (std::shared_ptr<BaseEvent>)> EventListener;
+typedef std::function<bool (std::shared_ptr<BaseEvent>)> EventListenerCallback;
+typedef anh::HashString EventListenerType;
+typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
+
+
 typedef std::list<EventListener> EventListenerList;
 typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
+typedef tbb::concurrent_queue<std::shared_ptr<BaseEvent>> EventQueue;
 
 class EventDispatcher {
 public:
@@ -44,13 +51,29 @@ public:
 
     bool hasListeners(const EventType& event_type) const;
     bool hasRegisteredEventType(const EventType& event_type) const;
+    bool hasEvents() const;
 
     bool registerEventType(EventType event_type);
 
     bool subscribe(const EventType& event_type, EventListener listener);
+    void unsubscribe(const EventType& event_type, const EventListenerType& listener_type);
+    void unsubscribe(const EventListenerType& listener_type);
+
+    bool trigger(std::shared_ptr<BaseEvent> incoming_event);
+    bool triggerAsync(std::shared_ptr<BaseEvent> incoming_event);
 
 private:
+    bool validateEventType_(const EventType& event_type) const;
+
+    enum constants {
+        NUM_QUEUES = 2
+    };
+
     EventTypeSet registered_event_types_;
+    EventListenerMap event_listeners_;
+    EventQueue event_queues_[NUM_QUEUES];
+
+    int active_queue_;
 };
 
 }  // namespace event_dispatcher

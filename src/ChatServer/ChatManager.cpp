@@ -2478,7 +2478,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
         int8 receiverStr[64];
         sprintf(receiverStr,"',%"PRIu64",'",receiver->getCharId());
         sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
-        sprintf(sql,"SELECT sf_MailCreate('%s",sender->getName().getAnsi());
+        sprintf(sql, "SELECT '%s'.sf_MailCreate('%s", mDatabase->galaxy(), sender->getName().getAnsi());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,sender->getName().getAnsi(),sender->getName().getLength());
         strcat(sql,receiverStr);
@@ -2535,7 +2535,7 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
     asyncContainer->mRequestId = dbMailId;
 
     int8 sql[256];
-    sprintf(sql,"CALL sp_ReturnChatMailById(%"PRIu32");",dbMailId);
+    sprintf(sql, "CALL '%s'.sp_ReturnChatMailById(%"PRIu32");", mDatabase->galaxy(), dbMailId);
 
     mDatabase->executeProcedureAsync(this,asyncContainer,sql);
 }

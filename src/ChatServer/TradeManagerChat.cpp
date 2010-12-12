@@ -543,7 +543,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             }
         }
         int8 sql[100];
-        sprintf(sql,"SELECT sf_CancelLiveAuction ('%"PRIu64"')", asynContainer->AuctionID);
+        sprintf(sql, "SELECT '%s'.sf_CancelLiveAuction ('%"PRIu64"')", mDatabase->galaxy(),  asynContainer->AuctionID);
 
         TradeManagerAsyncContainer* asyncContainer;
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CancelAuction, asynContainer->mClient);
@@ -1309,7 +1309,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         // what do we do if this is our first bid and we are NOT the high bidder?
         // sf_BidAuction only updates the bid of the high bidder
 
-        sprintf(sql,"SELECT sf_BidUpdate ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", asynContainer->AuctionTemp->ItemID, asynContainer->MyBid, asynContainer->MyProxy, PlayerName);
+        sprintf(sql, "SELECT '%s'.sf_BidUpdate ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, asynContainer->MyBid, asynContainer->MyProxy, PlayerName);
         TradeManagerAsyncContainer* asyncContainer;
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval, asynContainer->mClient);
         mDatabase->executeSqlAsync(this, asyncContainer, sql);
@@ -1317,7 +1317,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
 
     }
 
-    sprintf(sql,"SELECT sf_BidAuction ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", asynContainer->AuctionTemp->ItemID, TheBid, TheProxy, PlayerName);
+    sprintf(sql, "SELECT '%s'.sf_BidAuction ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, TheBid, TheProxy, PlayerName);
     TradeManagerAsyncContainer* asyncContainer;
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
 

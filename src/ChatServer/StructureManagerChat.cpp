@@ -568,7 +568,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[100];
 
             // then use maintenance
-            sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%"PRIu64")", harvesterID);
+            sprintf(sql, "SELECT '%s'.sf_HarvesterUseMaintenance(%"PRIu64")", mDatabase->galaxy(),  harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneStructureMaintenance,0);
             asyncContainer->harvesterID = harvesterID;
 
@@ -596,7 +596,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[100];
 
             //start by using power
-            sprintf(sql,"SELECT sf_HarvesterUsePower(%"PRIu64")",harvesterID);
+            sprintf(sql, "SELECT '%s'.sf_HarvesterUsePower(%"PRIu64")", mDatabase->galaxy(), harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterUsePower,0);
             asyncContainer->harvesterID = harvesterID;
 
@@ -631,7 +631,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[100];
 
             //now harvest
-            sprintf(sql,"SELECT sf_FactoryProduce(%"PRIu64")",factoryID);
+            sprintf(sql, "SELECT '%s'.sf_FactoryProduce(%"PRIu64")", mDatabase->galaxy(), factoryID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneFactoryUpdate,0);
             asyncContainer->harvesterID = factoryID;
 
@@ -665,7 +665,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[100];
 
             //now harvest
-            sprintf(sql,"SELECT sf_HarvestResource(%"PRIu64")",harvesterID);
+            sprintf(sql, "SELECT '%s'.sf_HarvestResource(%"PRIu64")", mDatabase->galaxy(), harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
             asyncContainer->harvesterID = harvesterID;
 

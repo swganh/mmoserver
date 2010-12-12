@@ -112,8 +112,8 @@ void LairObject::handleEvents(void)
         return;
     }
 
-    switch (mLairState)
-        {}
+    //switch (mLairState)
+    //    {}
 }
 
 uint64 LairObject::handleState(uint64 timeOverdue)

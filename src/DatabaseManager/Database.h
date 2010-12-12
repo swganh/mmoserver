@@ -56,7 +56,7 @@ typedef tbb::concurrent_queue<DatabaseWorkerThread*> DatabaseWorkerThreadQueue;
 
 /*! An encapsulation of a connection to a database.
 */
-template<typename T> class Database : public T, private boost::noncopyable 
+class Database : private boost::noncopyable 
 {
 public:
     /*! Connects to a specified database.
@@ -237,10 +237,18 @@ public:
     */
     bool releaseBindingPoolMemory();
 
+    std::string global() { return global_; }
+    std::string galaxy() { return galaxy_; }
+    std::string config() { return config_; }
+
 private:
     // Disable the default constructor, construction always occurs through the
     // single overloaded constructor.
     Database();
+
+    std::string global_;
+    std::string galaxy_;
+    std::string config_;
 
     DatabaseResult* executeSql(const char* sql, ...);
     
@@ -257,17 +265,4 @@ private:
     boost::pool<boost::default_user_allocator_malloc_free> job_pool_;
     boost::pool<boost::default_user_allocator_malloc_free> transaction_pool_;
 };
-
-struct SwgSchemas
-{
-    protected:
-        std::string global() { return global_; }
-        std::string galaxy() { return galaxy_; }
-        std::string config() { return config_; }
-    private:
-        std::string global_;
-        std::string galaxy_;
-        std::string config_;
-};
-
 #endif // ANH_DATABASEMANAGER_DATABASE_H

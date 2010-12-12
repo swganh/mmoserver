@@ -230,7 +230,8 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
         characterInfo.mLastName.convert(BSTRType_ANSI);
         
         // Build our procedure call
-        sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2,'%s','%s', '%s', '%s', %f",
+        sprintf(sql, "CALL '%s'.sp_CharacterCreate(%"PRIu32", 2,'%s','%s', '%s', '%s', %f",
+                database_->galaxy(),
                 client->getAccountId(),
                 database_->escapeString(characterInfo.mFirstName.getAnsi()).c_str(),
                 database_->escapeString(characterInfo.mLastName.getAnsi()).c_str(),
@@ -238,7 +239,8 @@ void CharacterAdminHandler::_processCreateCharacter(Message* message, DispatchCl
                 characterInfo.mStartCity.getAnsi(),
                 characterInfo.mScale);
     } else {
-        sprintf(sql, "CALL sp_CharacterCreate(%"PRIu32", 2, '%s', NULL , '%s', '%s', %f",
+        sprintf(sql, "CALL '%s'.sp_CharacterCreate(%"PRIu32", 2, '%s', NULL , '%s', '%s', %f",
+                database_->galaxy(),
                 client->getAccountId(),
                 database_->escapeString(characterInfo.mFirstName.getAnsi()).c_str(),
                 characterInfo.mProfession.getAnsi(),

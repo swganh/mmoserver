@@ -452,7 +452,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             int8 receiverStr[64];
             sprintf(receiverStr,"',%"PRIu64",'",receiverId);
             sprintf(footer,",%u,%"PRIu32")",(asyncContainer->mMail->mAttachments.getLength() << 1),asyncContainer->mMail->mTime);
-            sprintf(sql,"SELECT sf_MailCreate('");
+            sprintf(sql,"SELECT '%s'.sf_MailCreate('",mDatabase->galaxy());
 
             sqlPointer = sql + strlen(sql);
 
@@ -2267,7 +2267,7 @@ void ChatManager::_processAvatarId(Message* message,DispatchClient* client)
 void ChatManager::sendSystemMailMessage(Mail* mail,uint64 recipient)
 {
     int8 sql[100];
-    sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", recipient);
+    sprintf(sql, "SELECT firstname FROM '%s'.characters WHERE id LIKE %"PRIu64"",mDatabase->galaxy(), recipient);
 
     mDatabase->executeAsyncSql(sql, [this, mail, recipient] (DatabaseResult* result) {       
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
@@ -2328,7 +2328,7 @@ void ChatManager::_processSystemMailMessage(Message* message,DispatchClient* cli
     asyncContainer->mClient = client;
 
     int8 sql[100];
-    sprintf(sql, "SELECT firstname FROM characters WHERE id LIKE %"PRIu64"", ReceiverID);
+    sprintf(sql, "SELECT firstname FROM '%s'.characters WHERE id LIKE %"PRIu64"",mDatabase->galaxy(), ReceiverID);
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
@@ -2368,7 +2368,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         int8 receiverStr[64];
         sprintf(receiverStr,"',%"PRIu64",'",receiver->getCharId());
         sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
-        sprintf(sql,"SELECT sf_MailCreate('");
+        sprintf(sql,"SELECT '%s'.sf_MailCreate('",mDatabase->galaxy());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,mail->getSender().getAnsi(),mail->getSender().getLength());
         strcat(sql,receiverStr);
@@ -2398,7 +2398,7 @@ void ChatManager::_PersistentMessagebySystem(Mail* mail,DispatchClient* client, 
         asyncContainer->mMailCounter = mailId;
 
         int8 sql[256],*sqlPointer;
-        sprintf(sql,"SELECT id FROM characters WHERE LOWER(firstname) LIKE '");
+        sprintf(sql,"SELECT id FROM '%s'.characters WHERE LOWER(firstname) LIKE '", mDatabase->galaxy());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer, receiverStr.getAnsi(), receiverStr.getLength());
         *sqlPointer++ = '\'';
@@ -2478,7 +2478,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
         int8 receiverStr[64];
         sprintf(receiverStr,"',%"PRIu64",'",receiver->getCharId());
         sprintf(footer,",%u,%"PRIu32")",(mail->mAttachments.getLength() << 1),mail->mTime);
-        sprintf(sql,"SELECT sf_MailCreate('%s",sender->getName().getAnsi());
+        sprintf(sql,"SELECT '%s'.sf_MailCreate('%s",mDatabase->galaxy(),sender->getName().getAnsi());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,sender->getName().getAnsi(),sender->getName().getLength());
         strcat(sql,receiverStr);
@@ -2506,7 +2506,7 @@ void ChatManager::_processPersistentMessageToServer(Message* message,DispatchCli
         asyncContainer->mMailCounter = mailId;
 
         int8 sql[256],*sqlPointer;
-        sprintf(sql,"SELECT id FROM characters WHERE LOWER(firstname) LIKE '");
+        sprintf(sql,"SELECT id FROM '%s'.characters WHERE LOWER(firstname) LIKE '", mDatabase->galaxy());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,targetName.getAnsi(),targetName.getLength());
         *sqlPointer++ = '\'';
@@ -2535,7 +2535,7 @@ void ChatManager::_processRequestPersistentMessage(Message* message,DispatchClie
     asyncContainer->mRequestId = dbMailId;
 
     int8 sql[256];
-    sprintf(sql,"CALL sp_ReturnChatMailById(%"PRIu32");",dbMailId);
+    sprintf(sql,"CALL '%s'.sp_ReturnChatMailById(%"PRIu32");",mDatabase->galaxy(),dbMailId);
 
     mDatabase->executeProcedureAsync(this,asyncContainer,sql);
 }
@@ -2899,7 +2899,7 @@ void ChatManager::_processFindFriendMessage(Message* message,DispatchClient* cli
     asyncContainer->mName = friendName.getAnsi();
     asyncContainer->mSender = playerObject;
 
-    sprintf(sql,"SELECT id FROM swganh.characters WHERE firstname LIKE '");
+    sprintf(sql,"SELECT id FROM '%s'.characters WHERE firstname LIKE '",mDatabase->galaxy());
     sprintf(end,"'");
     sqlPointer = sql + strlen(sql);
     sqlPointer += mDatabase->escapeString(sqlPointer,friendName.getAnsi(),friendName.getLength());

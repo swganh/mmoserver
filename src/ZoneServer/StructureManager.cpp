@@ -195,7 +195,7 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 
     int8 sql[512],*sqlPointer,restStr[128];
 //	int8 sql[1024]
-    sprintf(sql, "select '%s'.sf_CheckPermissionList(%"PRIu64",'", mDatabase->galaxy(), structureId);
+    sprintf(sql, "select %s.sf_CheckPermissionList(%"PRIu64",'", mDatabase->galaxy(), structureId);
 
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,name.getAnsi(),name.getLength());
@@ -549,7 +549,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				asyncContainer->mPlayerId		= structure->getOwner();
 				asyncContainer->mStructureId	= structure->getId();
 				int8 sql[150];
-				sprintf(sql, "select '%s'.sf_DefaultHarvesterUpdateDeed(%"PRIu64",%"PRIu64")", mDatabase->galaxy(),  structure->getId(),structure->getOwner()+1);
+				sprintf(sql, "select %s.sf_DefaultHarvesterUpdateDeed(%"PRIu64",%"PRIu64")", mDatabase->galaxy(),  structure->getId(),structure->getOwner()+1);
 				mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
 			}

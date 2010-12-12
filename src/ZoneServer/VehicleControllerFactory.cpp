@@ -219,7 +219,7 @@ void VehicleControllerFactory::createVehicle(uint32 vehicle_type,PlayerObject* t
 {
     int8 sql[256];
 
-    sprintf(sql, "SELECT '%s'.sf_DefaultVehicleCreate(%u, %"PRIu64")", mDatabase->galaxy(), vehicle_type,targetPlayer->getId());
+    sprintf(sql, "SELECT %s.sf_DefaultVehicleCreate(%u, %"PRIu64")", mDatabase->galaxy(), vehicle_type,targetPlayer->getId());
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),sql);
     
 }

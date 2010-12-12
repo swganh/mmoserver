@@ -188,7 +188,7 @@ void ChatServer::Process()
 void ChatServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', %u, '%s', %u);", status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL - Update server status
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('chat', %u, '%s', %u);", mDatabase->galaxy(),  status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL - Update server status
  
 }
 

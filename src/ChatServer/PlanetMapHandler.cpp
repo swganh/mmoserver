@@ -161,7 +161,7 @@ void PlanetMapHandler::_processMapLocationsRequest(Message* message, DispatchCli
     message->getStringAnsi(container->mPlanetName);
 
     // Send our job in.
-    mDatabase->executeProcedureAsync(this, (void*)container, "CALL sp_PlanetaryMapLocations('%s')", container->mPlanetName.getAnsi());
+    mDatabase->executeProcedureAsync(this, (void*)container, "CALL %s.sp_PlanetaryMapLocations('%s')", mDatabase->galaxy(),  container->mPlanetName.getAnsi());
     
 }
 

@@ -568,7 +568,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             //CAVE galaxy id is hardcoded!!!!!!1
             int8 galaxyId = 2;
 
-            sprintf(sql, "CALL '%s'.sp_GalaxyAccountDepositCredits(%u, %u, %"PRIu64",%u", mDatabase->galaxy(), galaxyId, Account_TipSurcharge, asynContainer->player->getId(), asynContainer->surcharge);
+            sprintf(sql, "CALL %s.sp_GalaxyAccountDepositCredits(%u, %u, %"PRIu64",%u", mDatabase->galaxy(), galaxyId, Account_TipSurcharge, asynContainer->player->getId(), asynContainer->surcharge);
             TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipUpdateGalaxyAccount,0);
 
             mDatabase->executeProcedureAsync(this,asyncContainer,sql);

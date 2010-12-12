@@ -231,9 +231,9 @@ void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient*
     int8 cleanComment[4000], cleanPoster[4000];
     mDatabase->escapeString(cleanComment,comment.getAnsi(),comment.getLength());
     mDatabase->escapeString(cleanPoster,poster.getAnsi(), poster.getLength());
-    mDatabase->executeProcedureAsync(NULL, NULL, "CALL sp_CSRTicketCommentAdd(%u, '%s', '%s');", ticketid, cleanComment, cleanPoster);
+    mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_CSRTicketCommentAdd(%u, '%s', '%s');", mDatabase->galaxy(),  ticketid, cleanComment, cleanPoster);
     
-    mDatabase->executeProcedureAsync(NULL, NULL, "CALL sp_CSRTicketActivityUpdate(%u);", ticketid);
+    mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_CSRTicketActivityUpdate(%u);", mDatabase->galaxy(),  ticketid);
     
 
     gMessageFactory->StartMessage();
@@ -248,7 +248,7 @@ void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient*
 void CSRManager::_processCancelTicketMessage( Message* message, DispatchClient* client )
 {
     uint32 ticketid = message->getUint32();
-    mDatabase->executeProcedureAsync(NULL, NULL, "CALL sp_CSRTicketCancel(%u);", ticketid);
+    mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_CSRTicketCancel(%u);", mDatabase->galaxy(),  ticketid);
     
 
     gMessageFactory->StartMessage();
@@ -295,7 +295,7 @@ void CSRManager::_processCreateTicketMessage( Message* message, DispatchClient* 
     mDatabase->escapeString(cleanHarrasser, harrassinguser.getAnsi(), harrassinguser.getLength());
     mDatabase->escapeString(cleanLanguage, language.getAnsi(), language.getLength());
 
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketAdd('%s', %u, %u, '%s', '%s', '%s', '%s', %d);", cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_CSRTicketAdd('%s', %u, %u, '%s', '%s', '%s', '%s', %d);", mDatabase->galaxy(),  cleanPlayer, category, subcategory, cleanComment, cleanInfo, cleanHarrasser, cleanLanguage, bugreport);
     
 }
 
@@ -309,7 +309,7 @@ void CSRManager::_processGetArticleMessage(Message *message, DispatchClient* cli
 
     CSRAsyncContainer* asynccontainer = new CSRAsyncContainer(CSRQuery_FullArticle);
     asynccontainer->mClient = client;
-    mDatabase->executeProcedureAsync(this, asynccontainer, "CALL sp_CSRKnowledgeBaseArticleGet(%s);", id.getAnsi());
+    mDatabase->executeProcedureAsync(this, asynccontainer, "CALL %s.sp_CSRKnowledgeBaseArticleGet(%s);", mDatabase->galaxy(),  id.getAnsi());
     
 }
 
@@ -321,7 +321,7 @@ void CSRManager::_processGetCommentsMessage(Message *message, DispatchClient* cl
 
     CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_CommentsByTicket);
     asyncContainer->mClient = client;
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketCommentGet(%u);", ticketid);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_CSRTicketCommentGet(%u);", mDatabase->galaxy(),  ticketid);
     
 }
 
@@ -331,7 +331,7 @@ void CSRManager::_processGetTicketsMessage(Message *message, DispatchClient* cli
 {
     CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Tickets);
     asyncContainer->mClient = client;
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketGet (%"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_CSRTicketGet (%"PRIu64");", mDatabase->galaxy(),  mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
     
 }
 
@@ -341,7 +341,7 @@ void CSRManager::_processNewTicketActivityMessage(Message *message, DispatchClie
 {
 	CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_TicketActivity);
     asyncContainer->mClient = client;
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRTicketActivityGet (%"PRIu64");", mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_CSRTicketActivityGet (%"PRIu64");", mDatabase->galaxy(),  mChatManager->getPlayerByAccId(client->getAccountId())->getCharId());
     
 }
 
@@ -378,7 +378,7 @@ void CSRManager::_processSearchKnowledgeBaseMessage(Message *message, DispatchCl
 
     CSRAsyncContainer* asynccontainer = new CSRAsyncContainer(CSRQuery_SearchKB);
     asynccontainer->mClient = client;
-    mDatabase->executeProcedureAsync(this, asynccontainer, "CALL sp_CSRKnowledgeBaseArticleFind ('%s');", sql.getAnsi());
+    mDatabase->executeProcedureAsync(this, asynccontainer, "CALL %s.sp_CSRKnowledgeBaseArticleFind ('%s');", mDatabase->galaxy(),  sql.getAnsi());
     
 }
 
@@ -468,7 +468,7 @@ void CSRManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
             CSRAsyncContainer* asContainer = new CSRAsyncContainer(CSRQuery_SubCategories);
             asContainer->mCategory = category;
-            mDatabase->executeProcedureAsync(this, asContainer, "CALL sp_CSRSubCategoriesGet (%u);", category->mId);
+            mDatabase->executeProcedureAsync(this, asContainer, "CALL %s.sp_CSRSubCategoriesGet (%u);", mDatabase->galaxy(),  category->mId);
             
         }
     }

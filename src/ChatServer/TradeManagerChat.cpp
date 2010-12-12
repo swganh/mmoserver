@@ -138,7 +138,7 @@ TradeManagerChatHandler::TradeManagerChatHandler(Database* database, MessageDisp
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_LoadGlobalTick, 0);
 
     // @todo Hardcoded galaxy at this time, to be changed.
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_ServerGlobalTickGet (%u);", 2);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_ServerGlobalTickGet (%u);", mDatabase->galaxy(),  2);
     
 
     //load the TypeList to properly sort our items in Bazzarcategories
@@ -199,7 +199,7 @@ void TradeManagerChatHandler::Shutdown()
     // save our global tick
 
     // @todo Hardcoded galaxy at this time, to be changed.
-    mDatabase->executeProcedureAsync(this, NULL, "CALL sp_ServerGlobalTickUpdate(%u, '%"PRIu64"');", 2, getGlobalTickCount());
+    mDatabase->executeProcedureAsync(this, NULL, "CALL %s.sp_ServerGlobalTickUpdate(%u, '%"PRIu64"');", mDatabase->galaxy(),  2, getGlobalTickCount());
     
 
     mMessageDispatch->UnregisterMessageCallback(opIsVendorMessage);
@@ -269,7 +269,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_DeleteAuction,asynContainer->mClient);
 
             // Delete from commerce_auction
-            mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionDelete('%"PRIu64"');", AuctionTemp.ItemID);
+            mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_BazaarAuctionDelete('%"PRIu64"');", mDatabase->galaxy(),  AuctionTemp.ItemID);
 
             //send relevant info to Zoneserver for Itemcreation
             gChatMessageLib->processSendCreateItem(asynContainer->mClient, player->getCharId(),AuctionTemp.ItemID, AuctionTemp.ItemTyp, player->getPlanetId());
@@ -543,7 +543,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             }
         }
         int8 sql[100];
-        sprintf(sql, "SELECT '%s'.sf_CancelLiveAuction ('%"PRIu64"')", mDatabase->galaxy(),  asynContainer->AuctionID);
+        sprintf(sql, "SELECT %s.sf_CancelLiveAuction ('%"PRIu64"')", mDatabase->galaxy(),  asynContainer->AuctionID);
 
         TradeManagerAsyncContainer* asyncContainer;
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CancelAuction, asynContainer->mClient);
@@ -1309,7 +1309,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         // what do we do if this is our first bid and we are NOT the high bidder?
         // sf_BidAuction only updates the bid of the high bidder
 
-        sprintf(sql, "SELECT '%s'.sf_BidUpdate ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, asynContainer->MyBid, asynContainer->MyProxy, PlayerName);
+        sprintf(sql, "SELECT %s.sf_BidUpdate ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, asynContainer->MyBid, asynContainer->MyProxy, PlayerName);
         TradeManagerAsyncContainer* asyncContainer;
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval, asynContainer->mClient);
         mDatabase->executeSqlAsync(this, asyncContainer, sql);
@@ -1317,7 +1317,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
 
     }
 
-    sprintf(sql, "SELECT '%s'.sf_BidAuction ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, TheBid, TheProxy, PlayerName);
+    sprintf(sql, "SELECT %s.sf_BidAuction ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, TheBid, TheProxy, PlayerName);
     TradeManagerAsyncContainer* asyncContainer;
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
 
@@ -1480,7 +1480,7 @@ void TradeManagerChatHandler::processGetAuctionDetails(Message* message,Dispatch
     //we'll need our item description, the iff data and the rest will be done by the items object
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetDetails,client);
 
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionDetailsGet(%"PRIu64");", AuctionID);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_BazaarAuctionDetailsGet(%"PRIu64");", mDatabase->galaxy(),  AuctionID);
     
 }
 
@@ -1819,7 +1819,7 @@ void TradeManagerChatHandler::handleGlobalTickPreserve()
 {
     TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_SaveGlobalTick, 0);
 
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_ServerGlobalTickUpdate (%u, '%"PRIu64"');", 2, getGlobalTickCount());
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_ServerGlobalTickUpdate (%u, '%"PRIu64"');", mDatabase->galaxy(),  2, getGlobalTickCount());
     
 }
 
@@ -1832,7 +1832,7 @@ void TradeManagerChatHandler::handleCheckAuctions()
 {
     TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ExpiredListing, NULL);
     uint32 time = static_cast<uint32>(getGlobalTickCount());
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionFindExpired(%"PRIu32");", time/1000);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_BazaarAuctionFindExpired(%"PRIu32");", mDatabase->galaxy(),  time/1000);
     
 }
 

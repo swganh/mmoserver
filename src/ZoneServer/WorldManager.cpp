@@ -156,7 +156,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
     // initiate loading of objects
     int8 sql[128];
-    sprintf(sql, "SELECT '%s'.sf_getZoneObjectCount(%i);", mDatabase->galaxy(), mZoneId);
+    sprintf(sql, "SELECT %s.sf_getZoneObjectCount(%i);", mDatabase->galaxy(), mZoneId);
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
         if (!result_set->next())

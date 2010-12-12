@@ -237,9 +237,9 @@ public:
     */
     bool releaseBindingPoolMemory();
 
-    std::string global() { return global_; }
-    std::string galaxy() { return galaxy_; }
-    std::string config() { return config_; }
+    const char* global() { return global_.c_str(); }
+    const char* galaxy() { return galaxy_.c_str(); }
+    const char* config() { return config_.c_str(); }
 
 private:
     // Disable the default constructor, construction always occurs through the

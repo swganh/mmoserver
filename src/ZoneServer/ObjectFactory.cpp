@@ -128,7 +128,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId)
 {
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultManufactureSchematicCreate(" 
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultManufactureSchematicCreate(" 
                  << schemCrc << "," << parentId << ")";
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
@@ -153,7 +153,7 @@ void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback*
 void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint64 templateId,uint64 parentId)
 {
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultItemCreateByTangibleTemplate(" 
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultItemCreateByTangibleTemplate(" 
                  << parentId << "," << templateId << ")";
     
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
@@ -182,7 +182,7 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uin
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultItemCreateBySchematic(" 
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultItemCreateBySchematic(" 
                  << schemCrc << "," << parentId << "," << planetId << "," 
                  << position.x << "," << position.y << "," << position.z << ",'"
                  << name << "')";
@@ -212,7 +212,7 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultItemCreate(" 
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultItemCreate(" 
                  << familyId << "," << typeId << "," << parentId << "," 
                  << (uint64) 0 << "," << planetId << "," << position.x << ","
                  << position.y << "," << position.z << ",'" << name << "')";
@@ -278,7 +278,7 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
     dstPlanet = mDatabase->escapeString(dstPlanet);
 
     stringstream query_stream;
-    query_stream << "SELECT sf_TravelTicketCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_TravelTicketCreate("
                  << "'" << srcPlanet << "', '" << ticketProperties.srcPoint->descriptor << "', "
                  << "'" << dstPlanet << "', '" << ticketProperties.dstPoint->descriptor << "', "
                  << parentId << "," << 0.0f << "," << 0.0f << ","
@@ -306,7 +306,7 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
 void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount)
 {
     stringstream query_stream;
-    query_stream << "SELECT sf_ResourceContainerCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_ResourceContainerCreate("
                  << resourceId << "," << parentId << ","
                  << 0.0f << "," << 0.0f << "," << 0.0f << ","
                  << planetId << "," << amount << ")";
@@ -372,7 +372,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultHarvesterCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultHarvesterCreate("
                  << deedLink->structure_type << "," << 0 << ","
                  << player->getId() << "," << gWorldManager->getZoneId() << "," 
                  << oX << "," << oY << "," << oZ << "," << oW << "," << x 
@@ -466,7 +466,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultFactoryCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultFactoryCreate("
                  << deedLink->structure_type << "," << 0 << ","
                  << player->getId() << "," << gWorldManager->getZoneId() << "," 
                  << oX << "," << oY << "," << oZ << "," << oW << "," << x 
@@ -557,7 +557,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultHouseCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultHouseCreate("
                  << deedLink->structure_type << "," << 0 << ","
                  << player->getId() << "," << gWorldManager->getZoneId() << "," 
                  << oX << "," << oY << "," << oZ << "," << oW << "," << x 
@@ -621,7 +621,7 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
     newBStr.convert(BSTRType_ANSI);
     std::string strName(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_WaypointCreate('" << strName << "',"
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_WaypointCreate('" << strName << "',"
                  << ownerId << "," << coords.x << "," << coords.y << ","
                  << coords.z << "," << planetId << "," << (int)wpType << ")";
     mDatabase->executeAsyncProcedure(query_stream, [=](DatabaseResult* result) {

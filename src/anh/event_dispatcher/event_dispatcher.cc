@@ -22,6 +22,8 @@
 #include <cassert>
 #include <algorithm>
 
+#include <boost/date_time/posix_time/posix_time.hpp>
+
 using namespace anh::event_dispatcher;
 using namespace std;
 
@@ -150,6 +152,14 @@ bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event) {
     return processed;
 }
 
+bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event, PostTriggerCallback callback) {
+    bool processed = trigger(incoming_event);
+
+    callback(incoming_event, processed);
+
+    return processed;
+}
+
 bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
@@ -169,6 +179,92 @@ bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
     event_queues_[active_queue_].push(incoming_event);
 
     return true;
+}
+
+
+bool EventDispatcher::abort(const EventType& event_type, bool all_of_type) {
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return false;
+    }
+
+    // See if any events have registered for this type of event.
+    auto find_it = event_listeners_.find(event_type);
+    if (find_it == event_listeners_.end()) {
+        return false;
+    }
+
+    EventQueue tmp_queue = event_queues_[active_queue_];
+    event_queues_[active_queue_].clear();
+    
+    bool removed = false;
+
+    for_each(tmp_queue.unsafe_begin(), tmp_queue.unsafe_end(), [this, &event_type, all_of_type, &removed] (shared_ptr<BaseEvent> queued_event) {
+        if (removed && !all_of_type) {
+            event_queues_[active_queue_].push(queued_event);
+            return;
+        }
+        
+        if (queued_event->type() == event_type) {
+            removed = true;
+            return;
+        }
+        
+        event_queues_[active_queue_].push(queued_event);
+    });
+
+    return removed;
+}
+
+bool EventDispatcher::tick(uint64_t timeout_ms) {
+
+    // swap the active queues and make sure the new queue is empty afterwards.
+    int process_queue = active_queue_;
+    active_queue_ = (active_queue_ + 1) % NUM_QUEUES;
+    event_queues_[active_queue_].clear();
+
+    boost::posix_time::ptime current_time = boost::posix_time::microsec_clock::local_time();
+    boost::posix_time::time_duration max_time = boost::posix_time::milliseconds(timeout_ms);
+    boost::posix_time::time_period tick_period(current_time, current_time + max_time);
+    
+    shared_ptr<BaseEvent> tick_event;
+    while(!event_queues_[process_queue].empty()) {
+        if (!event_queues_[process_queue].try_pop(tick_event)) {
+            continue;
+        }
+
+        trigger(tick_event);
+
+        if (timeout_ms == INFINITE_TIMEOUT) {
+            continue;
+        }
+            
+        current_time = boost::posix_time::microsec_clock::local_time();
+
+        if (current_time >= tick_period.end()) {
+            break;
+        }
+    }
+
+    bool queue_flushed = event_queues_[process_queue].empty();
+    if (!queue_flushed) {
+        while (!event_queues_[process_queue].empty()) {
+            if (event_queues_[process_queue].try_pop(tick_event)) {
+                event_queues_[active_queue_].push(tick_event);
+            }
+        }
+    }
+
+    return queue_flushed;
+}
+
+
+EventTypeSet EventDispatcher::getRegisteredEventTypes() const {
+    return registered_event_types_;
 }
 
 bool EventDispatcher::validateEventType_(const EventType& event_type) const {

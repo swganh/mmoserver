@@ -17,6 +17,8 @@
  along with MMOServer.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
+
 #include <gtest/gtest.h>
 
 #include "anh/event_dispatcher/basic_event.h"
@@ -148,7 +150,6 @@ TEST(EventDispatcherTest, CanUnsubscribeFromAllEventTypes) {
     EXPECT_FALSE(dispatcher.hasListeners("event_type_2"));
 }
 
-
 /// Triggering an event should notify listeners subscribed to its type.
 TEST(EventDispatcherTest, TriggeringEventNotifiesListeners) {
     EventDispatcher dispatcher;
@@ -173,8 +174,6 @@ TEST(EventDispatcherTest, TriggeringEventNotifiesListeners) {
     EXPECT_TRUE(notified);
 }
 
-
-
 /// Triggering an event asyncronously fires the event during the primary
 /// event processing time.
 TEST(EventDispatcherTest, TriggeringAsyncQueuesEvent) {
@@ -192,4 +191,114 @@ TEST(EventDispatcherTest, TriggeringAsyncQueuesEvent) {
     EXPECT_TRUE(dispatcher.triggerAsync(my_event));
 
     EXPECT_TRUE(dispatcher.hasEvents());
+}
+
+/// Ticking dispatches queued events.
+TEST(EventDispatcherTest, TickingDispatchesQueuedEvents) {
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+    
+    dispatcher.subscribe("some_event_type", my_listener);
+
+    auto my_event = make_shared<SimpleEvent>("some_event_type");
+
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event));
+    EXPECT_TRUE(dispatcher.hasEvents());
+    EXPECT_TRUE(dispatcher.tick());
+    EXPECT_FALSE(dispatcher.hasEvents());
+}
+
+/// Aborting an event type cancels the first occurrance of it in the queue.
+TEST(EventDispatcherTest, AbortingEventCancelsFirstOccurance) {    
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+    
+    dispatcher.subscribe("some_event_type", my_listener);
+
+    auto my_event = make_shared<SimpleEvent>("some_event_type");
+
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event));
+    EXPECT_TRUE(dispatcher.hasEvents());
+    EXPECT_TRUE(dispatcher.abort("some_event_type"));
+    EXPECT_FALSE(dispatcher.hasEvents());
+
+    // load up multiples and ensure only one occurance is removed    
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event));
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event));
+    EXPECT_TRUE(dispatcher.hasEvents());
+    EXPECT_TRUE(dispatcher.abort("some_event_type"));
+    EXPECT_TRUE(dispatcher.hasEvents());
+}
+
+/// Can abort all occurrances of an event in the queue.
+TEST(EventDispatchTest, CanAbortAllEventOccurrances) {
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+    
+    dispatcher.subscribe("some_event_type", my_listener);
+
+    auto my_event = make_shared<SimpleEvent>("some_event_type");
+
+    // load up multiples and ensure all are removed    
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event));
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event));
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event));
+    EXPECT_TRUE(dispatcher.hasEvents());
+    EXPECT_TRUE(dispatcher.abort("some_event_type", true));
+    EXPECT_FALSE(dispatcher.hasEvents());
+}
+
+/// Verify that we can get a copy of the currently registered events.
+TEST(EventDispatcherTest, CanGetListOfRegisteredEventTypes) {
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("event_type_1");
+    dispatcher.registerEventType("event_type_2");
+    dispatcher.registerEventType("event_type_3");
+
+    const EventTypeSet& event_types = dispatcher.getRegisteredEventTypes();
+
+    EXPECT_EQ(uint32_t(3), event_types.size());
+
+    auto find_it = std::find(event_types.begin(), event_types.end(), "event_type_1");
+    EXPECT_FALSE(find_it == event_types.end());
+    
+    find_it = std::find(event_types.begin(), event_types.end(), "event_type_2");
+    EXPECT_FALSE(find_it == event_types.end());
+    
+    find_it = std::find(event_types.begin(), event_types.end(), "event_type_3");
+    EXPECT_FALSE(find_it == event_types.end());
+}
+
+/// Trigger a callback after processing an event.
+TEST(EventDispatcherTest, CallbackIsTriggeredAfterEventProcessing) {    
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+    
+    dispatcher.subscribe("some_event_type", my_listener);
+
+    auto my_event = make_shared<SimpleEvent>("some_event_type");
+
+    bool callback_triggered = false;
+    dispatcher.trigger(my_event, [&callback_triggered] (shared_ptr<BaseEvent> triggered_event, bool processed) {
+        callback_triggered = true;
+    });
+
+    EXPECT_TRUE(callback_triggered);
 }

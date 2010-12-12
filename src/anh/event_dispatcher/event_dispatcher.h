@@ -20,6 +20,7 @@
 #ifndef LIBANH_EVENT_DISPATCHER_EVENT_DISPATCHER_H_
 #define LIBANH_EVENT_DISPATCHER_EVENT_DISPATCHER_H_
 
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <map>
@@ -44,7 +45,15 @@ typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
 typedef tbb::concurrent_queue<std::shared_ptr<BaseEvent>> EventQueue;
 
+typedef std::function<void (std::shared_ptr<BaseEvent>, bool)> PostTriggerCallback;
+
 class EventDispatcher {
+public:
+    enum constants {
+        INFINITE_TIMEOUT = 0xfffffff,        
+        NUM_QUEUES = 2
+    };
+
 public:
     EventDispatcher();
     ~EventDispatcher();
@@ -60,14 +69,18 @@ public:
     void unsubscribe(const EventListenerType& listener_type);
 
     bool trigger(std::shared_ptr<BaseEvent> incoming_event);
+    bool trigger(std::shared_ptr<BaseEvent> incoming_event, PostTriggerCallback callback);
+
     bool triggerAsync(std::shared_ptr<BaseEvent> incoming_event);
+
+    bool abort(const EventType& event_type, bool all_of_type = false);
+
+    bool tick(uint64_t timeout_ms = INFINITE_TIMEOUT);
+
+    EventTypeSet getRegisteredEventTypes() const;
 
 private:
     bool validateEventType_(const EventType& event_type) const;
-
-    enum constants {
-        NUM_QUEUES = 2
-    };
 
     EventTypeSet registered_event_types_;
     EventListenerMap event_listeners_;

@@ -27,7 +27,29 @@ namespace event_dispatcher {
     
 typedef anh::HashString EventType;
 
-class BaseEvent {};
+class BaseEvent {
+public:
+    virtual const EventType& type() = 0;
+};
+
+template<typename T>
+class BasicEvent : public T, public BaseEvent {
+public:
+    BasicEvent()
+        : type_(T::type()) {}
+
+    BasicEvent(EventType type)
+        : type_(std::move(type)) {}
+
+    const EventType& type() { return type_; }
+
+private:
+    EventType type_;
+};
+
+struct NullEventData {};
+
+typedef BasicEvent<NullEventData> SimpleEvent;
 
 }  // namespace event_dispatcher
 }  // namespace anh

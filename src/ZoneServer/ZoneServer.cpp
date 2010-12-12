@@ -364,7 +364,7 @@ int main(int argc, char* argv[])
 #endif
     
     FLAGS_log_dir = "./logs";
-    FLAGS_stderrthreshold = 0;
+    FLAGS_stderrthreshold = 1;
     
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);

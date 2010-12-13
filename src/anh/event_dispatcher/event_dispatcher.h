@@ -27,7 +27,9 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <tuple>
 
+#include <boost/optional.hpp>
 #include <tbb/concurrent_queue.h>
 
 #include "anh/event_dispatcher/basic_event.h"
@@ -43,9 +45,12 @@ typedef std::pair<EventListenerType, EventListenerCallback> EventListener;
 typedef std::list<EventListener> EventListenerList;
 typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
-typedef tbb::concurrent_queue<std::shared_ptr<BaseEvent>> EventQueue;
 
+typedef std::function<bool ()> TriggerCondition;
 typedef std::function<void (std::shared_ptr<BaseEvent>, bool)> PostTriggerCallback;
+
+typedef std::tuple<std::shared_ptr<BaseEvent>, boost::optional<TriggerCondition>, boost::optional<PostTriggerCallback>> EventQueueItem;
+typedef tbb::concurrent_queue<EventQueueItem> EventQueue;
 
 class EventDispatcher {
 public:
@@ -70,8 +75,12 @@ public:
 
     bool trigger(std::shared_ptr<BaseEvent> incoming_event);
     bool trigger(std::shared_ptr<BaseEvent> incoming_event, PostTriggerCallback callback);
+    
+    void triggerWhen(std::shared_ptr<BaseEvent> incoming_event, TriggerCondition condition);
+    void triggerWhen(std::shared_ptr<BaseEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback);
 
     bool triggerAsync(std::shared_ptr<BaseEvent> incoming_event);
+    bool triggerAsync(std::shared_ptr<BaseEvent> incoming_event, PostTriggerCallback callback);
 
     bool abort(const EventType& event_type, bool all_of_type = false);
 

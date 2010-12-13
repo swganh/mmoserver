@@ -302,3 +302,61 @@ TEST(EventDispatcherTest, CallbackIsTriggeredAfterEventProcessing) {
 
     EXPECT_TRUE(callback_triggered);
 }
+
+/// Trigger a callback after queued event is processed.
+TEST(EventDispatcherTest, CallbackIsTriggeredAfterQueuedEventProcessing) {    
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+        [] (shared_ptr<BaseEvent> incoming_event) {return true;});    
+    dispatcher.subscribe("some_event_type", my_listener);
+
+    auto my_event = make_shared<SimpleEvent>("some_event_type");
+
+    // load up multiples and ensure all are removed    
+    bool callback_triggered = false;
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event, [&callback_triggered] (shared_ptr<BaseEvent> triggered_event, bool processed) {
+        callback_triggered = true;
+    }));
+
+    dispatcher.tick();
+    
+    EXPECT_TRUE(callback_triggered);
+}
+
+/// Can conditionally wait for a condition to be true for an event to fire.
+TEST(EventDispatcherTest, EventWaitsForCondition) {
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+    
+    dispatcher.subscribe("some_event_type", my_listener);
+
+    auto my_event = make_shared<SimpleEvent>("some_event_type");
+
+    bool callback_triggered = false;
+    bool proceed = false;
+    dispatcher.triggerWhen(my_event, 
+        [&proceed] { 
+            return proceed;
+        },
+        [&callback_triggered] (shared_ptr<BaseEvent> triggered_event, bool processed) {
+            callback_triggered = true;
+        });
+
+    EXPECT_FALSE(callback_triggered);
+    
+    // Tick forward and make sure it still hasn't processed
+    dispatcher.tick();
+    EXPECT_FALSE(callback_triggered);
+
+    // Allow our callback to continue.
+    proceed = true;
+    dispatcher.tick();
+    EXPECT_TRUE(callback_triggered);
+}

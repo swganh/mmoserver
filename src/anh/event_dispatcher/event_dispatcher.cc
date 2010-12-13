@@ -160,6 +160,56 @@ bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event, PostTri
     return processed;
 }
 
+
+void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, TriggerCondition condition) {
+    if (condition()) {
+        trigger(incoming_event);
+        return;
+    }
+    
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return;
+    }
+
+    event_queues_[active_queue_].push(make_tuple(incoming_event, condition, boost::optional<PostTriggerCallback>()));
+}
+
+
+void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback) {
+    if (condition()) {
+        trigger(incoming_event, callback);
+        return;
+    }
+    
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return;
+    }
+
+    event_queues_[active_queue_].push(make_tuple(incoming_event, condition, callback));
+}
+
 bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
@@ -176,7 +226,29 @@ bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
         return false;
     }
 
-    event_queues_[active_queue_].push(incoming_event);
+    event_queues_[active_queue_].push(make_tuple(incoming_event, boost::optional<TriggerCondition>(), boost::optional<PostTriggerCallback>()));
+
+    return true;
+}
+
+
+bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event, PostTriggerCallback callback) {
+    // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
+    assert(active_queue_ >= 0);
+    assert(active_queue_ < NUM_QUEUES);
+    
+    const EventType& event_type = incoming_event->type();
+    if (!validateEventType_(event_type)) {
+        assert(false && "Event was triggered before its type was registered");
+        return false;
+    }
+
+    auto map_it = event_listeners_.find(event_type);
+    if (map_it == event_listeners_.end()) {
+        return false;
+    }
+
+    event_queues_[active_queue_].push(make_tuple(incoming_event, boost::optional<TriggerCondition>(), callback));
 
     return true;
 }
@@ -203,13 +275,13 @@ bool EventDispatcher::abort(const EventType& event_type, bool all_of_type) {
     
     bool removed = false;
 
-    for_each(tmp_queue.unsafe_begin(), tmp_queue.unsafe_end(), [this, &event_type, all_of_type, &removed] (shared_ptr<BaseEvent> queued_event) {
+    for_each(tmp_queue.unsafe_begin(), tmp_queue.unsafe_end(), [this, &event_type, all_of_type, &removed] (EventQueueItem& queued_event) {
         if (removed && !all_of_type) {
             event_queues_[active_queue_].push(queued_event);
             return;
         }
         
-        if (queued_event->type() == event_type) {
+        if (get<0>(queued_event)->type() == event_type) {
             removed = true;
             return;
         }
@@ -231,13 +303,27 @@ bool EventDispatcher::tick(uint64_t timeout_ms) {
     boost::posix_time::time_duration max_time = boost::posix_time::milliseconds(timeout_ms);
     boost::posix_time::time_period tick_period(current_time, current_time + max_time);
     
-    shared_ptr<BaseEvent> tick_event;
+    EventQueueItem tick_event;
     while(!event_queues_[process_queue].empty()) {
         if (!event_queues_[process_queue].try_pop(tick_event)) {
             continue;
         }
 
-        trigger(tick_event);
+        // Check to see if we have a conditional for our event and if so test it
+        if (get<1>(tick_event).is_initialized()) {
+            if (!get<1>(tick_event).get()()) {
+                // If the condition failed put the event back to wait.
+                event_queues_[active_queue_].push(tick_event);
+                continue;
+            }
+        }
+
+        // If there was a callback given with the event call the appropriate trigger.
+        if (get<2>(tick_event).is_initialized()) {
+            trigger(get<0>(tick_event), get<2>(tick_event).get());
+        } else {
+            trigger(get<0>(tick_event));
+        }
 
         if (timeout_ms == INFINITE_TIMEOUT) {
             continue;

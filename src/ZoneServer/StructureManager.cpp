@@ -106,7 +106,7 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
 
     // load our NoBuildRegions
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_NoBuildRegionData, 0);
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_PlanetNoBuildRegions");
+    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_PlanetNoBuildRegions", mDatabase->galaxy());
 
     //=========================
     //check regularly the harvesters - they might have been turned off by the db, harvesters without condition might need to be deleted

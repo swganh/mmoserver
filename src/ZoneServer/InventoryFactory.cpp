@@ -132,8 +132,8 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                                        " UNION (SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%"PRIu64"))"
                                        " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%"PRIu64"))",
                                        mDatabase->galaxy(),mDatabase->galaxy(),
-                                       invId,mDatabase->galaxy(),
-                                       mDatabase->galaxy(),invId,invId);
+                                       invId,mDatabase->galaxy(),invId,
+                                       mDatabase->galaxy(),invId);
            
         }
         else

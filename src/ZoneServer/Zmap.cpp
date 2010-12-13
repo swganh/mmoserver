@@ -251,9 +251,9 @@ void zmap::RemoveObject(Object *removeObject)
     }
 
 
-    for(ObjectListType::iterator it = list->begin(); it != list->end(); it++)    {
-        if((*it)->getId() == removeObject->getId())      {
-            list->erase(it);
+    for(ObjectListType::iterator remove_it = list->begin(); remove_it != list->end(); remove_it++)    {
+        if((*remove_it)->getId() == removeObject->getId())      {
+            list->erase(remove_it);
             break;
         }
     }
@@ -287,17 +287,17 @@ void zmap::GetCellContents(uint32 CellID, ObjectListType* list, uint32 type)
     //splice removes the entries!!!
     ObjectListType listCopy;
 
-    if(type&Bucket_Objects)    {
+    if(type&&Bucket_Objects)    {
         listCopy = (*mapIt).second->Objects;
         list->splice(it, listCopy);
     }
 
-    if(type&Bucket_Players)    {
+    if(type&&Bucket_Players)    {
         listCopy = (*mapIt).second->Players;
         list->splice(it, listCopy);
     }
 
-    if(type&Bucket_Creatures)    {
+    if(type&&Bucket_Creatures)    {
         listCopy = (*mapIt).second->Creatures;
         list->splice(it, listCopy);
     }
@@ -534,7 +534,7 @@ void	zmap::GetCustomRangeCellContents(uint32 CellID, uint32 range, ObjectListTyp
 
     GetGridContentsListRow(CellID, list, type);
 
-    for(uint32 i = 0; i < range; i++)    {
+    for(uint32 i = 0; i <= range; i++)    {
         GetGridContentsListRow(CellID + (i*GRIDWIDTH), list, type);
         GetGridContentsListRow(CellID - (i*GRIDWIDTH), list, type);
     }
@@ -640,6 +640,7 @@ void zmap::UpdateObject(Object *updateObject)
 
     //no need for an update
     if(newBucket == oldBucket)	{
+		assert(false && "zmap::UpdateObject :: no movement ");
         return;
     }
 

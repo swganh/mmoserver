@@ -483,6 +483,8 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
 {
 
+	DLOG(INFO) << "SpatialIndexManager::_UpdateBackCells OldCell " << oldCell << " NewCell : " << updateObject->getGridBucket();
+
     uint32 newCell = updateObject->getGridBucket();
 
     //Update all for players
@@ -522,24 +524,22 @@ void SpatialIndexManager::_UpdateBackCells(Object* updateObject, uint32 oldCell)
     }
 
     //ZMAP Westbound!
-    else if((oldCell - 1) == newCell)
-    {
+    else if((oldCell - 1) == newCell)    {
 
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
-        getGrid()->GetGridContentsListRow(oldCell + VIEWRANGE, &FinalList, queryType);
+        getGrid()->GetGridContentsListColumn(oldCell + VIEWRANGE, &FinalList, queryType);
 
-        for(ObjectListType::iterator i = FinalList.begin(); i != FinalList.end(); i++)	{
-            _CheckObjectIterationForDestruction((*i),updateObject);
+        for(ObjectListType::iterator it = FinalList.begin(); it != FinalList.end(); it++)	{
+            _CheckObjectIterationForDestruction((*it),updateObject);
         }
 
         return;
     }
 
     //Eastbound!
-    else if((oldCell + 1) == newCell)
-    {
+    else if((oldCell + 1) == newCell)    {
         ObjectListType FinalList;
         ObjectListType::iterator it;
 

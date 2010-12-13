@@ -85,15 +85,15 @@ ChatManager::ChatManager(Database* database,MessageDispatch* dispatch) :
     ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_GalaxyName);
     // Commented out the filter for now, at a later time this needs to be updated to not be bound to a single galaxy
     // mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT name FROM galaxy;"); // WHERE galaxy_id=3");
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnGalaxyName(2);");
+    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnGalaxyName(2);",mDatabase->galaxy());
     
 
     asyncContainer = new ChatAsyncContainer(ChatQuery_Channels);
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnChatChannels();");
+    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnChatChannels();",mDatabase->galaxy());
     
 
     asyncContainer = new ChatAsyncContainer(ChatQuery_PlanetNames);
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnChatPlanetNames();");
+    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnChatPlanetNames();",mDatabase->galaxy());
     
 }
 
@@ -186,11 +186,11 @@ void ChatManager::_loadChannels(DatabaseResult* result)
         bannedContainer->mChannel = channel;
         inviteContainer->mChannel = channel;
 
-        mDatabase->executeProcedureAsync(this, modContainer, "CALL swganh.sp_ReturnChatChannelMod(%u);", channel->getId());
+        mDatabase->executeProcedureAsync(this, modContainer, "CALL %s.sp_ReturnChatChannelMod(%u);",mDatabase->galaxy(), channel->getId());
         
-        mDatabase->executeProcedureAsync(this, bannedContainer, "CALL swganh.sp_ReturnChatChannelBan(%u);", channel->getId());
+        mDatabase->executeProcedureAsync(this, bannedContainer, "CALL %s.sp_ReturnChatChannelBan(%u);",mDatabase->galaxy(), channel->getId());
         
-        mDatabase->executeProcedureAsync(this, inviteContainer, "CALL swganh.sp_ReturnChatChannelInvite(%u);", channel->getId());
+        mDatabase->executeProcedureAsync(this, inviteContainer, "CALL %s.sp_ReturnChatChannelInvite(%u);",mDatabase->galaxy(), channel->getId());
         
     }
 }
@@ -402,7 +402,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             asContainer->mClient = asyncContainer->mClient;
             asContainer->mReceiver	= player;
 
-            mDatabase->executeProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatFriendlist(%"PRIu64");",asContainer->mReceiver->getCharId());
+            mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatFriendlist(%"PRIu64");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
             
         }
         else
@@ -508,7 +508,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asContainer->mMailCounter = asyncContainer->mMailCounter;
         asContainer->mReceiverId = asyncContainer->mReceiverId;
 
-        mDatabase->executeProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnoreList(%"PRIu64");", asyncContainer->mReceiverId);
+        mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatIgnoreList(%"PRIu64");",mDatabase->galaxy(), asyncContainer->mReceiverId);
         
         mDatabase->destroyDataBinding(binding);
     }
@@ -670,7 +670,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asContainer->mClient	= asyncContainer->mClient;
         asContainer->mReceiver	= asyncContainer->mReceiver;
 
-        mDatabase->executeProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatIgnorelist(%"PRIu64");",asContainer->mReceiver->getCharId());
+        mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatIgnorelist(%"PRIu64");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
         
     }
     break;
@@ -700,7 +700,7 @@ void ChatManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         Player* currentPlayer = getPlayerByAccId(asyncContainer->mClient->getAccountId());
 
-        mDatabase->executeProcedureAsync(this, asContainer,"CALL swganh.sp_ReturnChatCharChannels(%"PRIu64");", currentPlayer->getCharId());
+        mDatabase->executeProcedureAsync(this, asContainer,"CALL %s.sp_ReturnChatCharChannels(%"PRIu64");",mDatabase->galaxy(), currentPlayer->getCharId());
         
     }
     break;
@@ -880,22 +880,10 @@ void ChatManager::_processClusterClientConnect(Message* message,DispatchClient* 
     mPlayerAccountMap.insert(std::make_pair(accountId,player));
     mPlayerList.push_back(player);
 
-    /*
-    // Query friendslist
-    ChatAsyncContainer* asContainer = new ChatAsyncContainer(ChatQuery_PlayerFriends);
-    asyncContainer->mClient = client;
-    asContainer->mReceiver	= asyncContainer->mReceiver;
-
-    mDatabase->ExecuteSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
-                                                "INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
-                                                "WHERE (chat_friendlist.character_id = %"PRIu64")",asContainer->mReceiver->getCharId());
-
-
-    */
     ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_Player);
     asyncContainer->mClient = client;
 
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL swganh.sp_ReturnCharacterName(%"PRIu64")",charId);
+    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnCharacterName(%"PRIu64")",mDatabase->galaxy(),charId);
     
 
     gMessageFactory->StartMessage();
@@ -1057,7 +1045,7 @@ void ChatManager::_processWhenLoaded(Message* message,DispatchClient* client)
                 // Update friends list
                 updateFriendsOnline(asContainer->mReceiver,true);
 
-                mDatabase->executeProcedureAsync(this,asContainer,"CALL swganh.sp_ReturnChatMailHeaders(%"PRIu64");",asContainer->mReceiver->getCharId());
+                mDatabase->executeProcedureAsync(this,asContainer,"CALL %s.sp_ReturnChatMailHeaders(%"PRIu64");",mDatabase->galaxy(),asContainer->mReceiver->getCharId());
                 
             }
         }

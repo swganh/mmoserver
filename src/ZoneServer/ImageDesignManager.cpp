@@ -880,7 +880,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
     asyncContainer->customer = customer;
 
-    sprintf(sql,"call swganh.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)", customer->getId(),myEmote->pCRC,20);
+    sprintf(sql,"call %s.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)",mDatabase->galaxy(), customer->getId(),myEmote->pCRC,20);
     mDatabase->executeProcedureAsync(this,asyncContainer,sql);
 
 

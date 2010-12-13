@@ -89,24 +89,24 @@ StructureManager::StructureManager(Database* database,MessageDispatch* dispatch)
     //todo load buildings from building table and use appropriate stfs there
     //are harvesters on there too
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadDeedData, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost, s_td.fp_length, s_td.fp_width, s_td.planetMask from swganh.structure_deed_data sdd INNER JOIN structure_type_data s_td ON sdd.StructureType = s_td.type");
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost, s_td.fp_length, s_td.fp_width, s_td.planetMask from %s.structure_deed_data sdd INNER JOIN %s.structure_type_data s_td ON sdd.StructureType = s_td.type",mDatabase->galaxy(),mDatabase->galaxy());
 
     //items
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, it.object_string, it.stf_name, it.stf_file from swganh.structure_item_template sit INNER JOIN item_types it ON (it.id = sit.item_type) WHERE sit.tan_type = %u",TanGroup_Item);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, it.object_string, it.stf_name, it.stf_file from %s.structure_item_template sit INNER JOIN %s.item_types it ON (it.id = sit.item_type) WHERE sit.tan_type = %u",mDatabase->galaxy(),mDatabase->galaxy(),TanGroup_Item);
 
     //statics
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, st.object_string, st.name, st.file from swganh.structure_item_template sit INNER JOIN static_types st ON (st.id = sit.item_type) WHERE sit.tan_type = %u",TanGroup_Static);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, st.object_string, st.name, st.file from %s.structure_item_template sit INNER JOIN %s.static_types st ON (st.id = sit.item_type) WHERE sit.tan_type = %u",mDatabase->galaxy(),mDatabase->galaxy(),TanGroup_Static);
 
 
     //terminals
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, tt.object_string, tt.name, tt.file from swganh.structure_item_template sit INNER JOIN terminal_types tt ON (tt.id = sit.item_type) WHERE sit.tan_type = %u",TanGroup_Terminal);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, tt.object_string, tt.name, tt.file from %s.structure_item_template sit INNER JOIN %s.terminal_types tt ON (tt.id = sit.item_type) WHERE sit.tan_type = %u",mDatabase->galaxy(),mDatabase->galaxy(),TanGroup_Terminal);
 
     // load our NoBuildRegions
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_NoBuildRegionData, 0);
-    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL sp_PlanetNoBuildRegions");
+    mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_PlanetNoBuildRegions");
 
     //=========================
     //check regularly the harvesters - they might have been turned off by the db, harvesters without condition might need to be deleted

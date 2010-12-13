@@ -247,7 +247,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         MissionManagerAsyncContainer*  asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Terminal_Type, 0);
-        mDatabase->executeSqlAsync(this,asyncContainer,"SELECT mtmt.id, mtmt.terminal, mtmt.mission_type,mt.content, mt.name FROM %s.mission_terminal_mission_types mtmt INNER JOIN swganh.mission_types mt ON (mt.id = mtmt.mission_type)",mDatabase->galaxy());
+        mDatabase->executeSqlAsync(this,asyncContainer,"SELECT mtmt.id, mtmt.terminal, mtmt.mission_type,mt.content, mt.name FROM %s.mission_terminal_mission_types mtmt INNER JOIN %s.mission_types mt ON (mt.id = mtmt.mission_type)",mDatabase->galaxy(),mDatabase->galaxy());
 
         asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names_File, 0);
         mDatabase->executeSqlAsync(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM %s.mission_text m_t "

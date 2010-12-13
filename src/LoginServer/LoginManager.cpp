@@ -83,7 +83,7 @@ void LoginManager::Process(void)
     if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery) > 5000)
     {
         mLastStatusQuery = Anh_Utils::Clock::getSingleton()->getLocalTime();
-        mDatabase->executeProcedureAsync(this, (void*)1, "CALL swganh.sp_ReturnGalaxyStatus;");
+        mDatabase->executeProcedureAsync(this, (void*)1, "CALL %s.sp_ReturnGalaxyStatus;",mDatabase->galaxy());
     }
 
     // Heartbeat once in awhile
@@ -203,7 +203,7 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
         // Execute our query
         client->setState(LCSTATE_QueryCharacterList);
-        mDatabase->executeProcedureAsync(this, ref, "CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId());
+        mDatabase->executeProcedureAsync(this, ref, "CALL %s.sp_ReturnAccountCharacters(%u);",mDatabase->galaxy(), client->getAccountId());
        
         break;
     }
@@ -292,7 +292,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
         //the problem with the marked authentication is, that if a connection drops without a sessiondisconnect packet
         //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
 
-        sprintf(sql,"CALL swganh.sp_ReturnUserAccount('");
+        sprintf(sql,"CALL %s.sp_ReturnUserAccount('",mDatabase->galaxy());
 
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,username.getAnsi(),username.getLength());
@@ -394,7 +394,7 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
 
     // Execute our query for sending the server list.
     client->setState(LCSTATE_QueryServerList);
-    mDatabase->executeProcedureAsync(this, (void*)client, "CALL swganh.sp_ReturnServerList;");
+    mDatabase->executeProcedureAsync(this, (void*)client, "CALL %s.sp_ReturnServerList;",mDatabase->galaxy());
 }
 
 //======================================================================================================================
@@ -677,7 +677,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
 
         //get the session_key made and returned
         int8 sql[512];
-        sprintf(sql,"CALL swganh.sp_AccountSessionKeyGenerate(%"PRIu64");", data.mId);
+        sprintf(sql,"CALL %s.sp_AccountSessionKeyGenerate(%"PRIu64");",mDatabase->galaxy(), data.mId);
 
         client->setState(LCSTATE_RetrieveSessionKey);
         mDatabase->executeProcedureAsync(this, client, sql);

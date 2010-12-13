@@ -126,14 +126,14 @@ ZoneServer::ZoneServer(int8* zoneName)
                                           (int8*)(gConfig->read<std::string>("DBName")).c_str());
 
     // increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", zoneName);
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('%s', NULL, NULL, NULL);",mDatabase->galaxy(),zoneName);
     
 
     mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
     // Grab our zoneId out of the DB for this zonename.
     uint32 zoneId = 0;
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName);
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.planet WHERE name=\'%s\';",mDatabase->galaxy(), zoneName);
     
 
     if (!result->getRowCount())
@@ -325,7 +325,7 @@ void ZoneServer::_connectToConnectionServer(void)
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
 
     // Execute our statement
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE name='connection';",mDatabase->galaxy());
 	uint32 count = static_cast<uint32>(result->getRowCount());
 
     // If we found them

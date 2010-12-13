@@ -177,11 +177,15 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint32 groupId = mDraftSchematic->getWeightsBatchId();
 
         int8 sql[550];
-        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%asse%%'");
+        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM %s.draft_schematics INNER JOIN %s.skills_schematicsgranted "
+                    "ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN %s.skills_skillmods "
+                    "ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN %s.skillmods "
+                    "ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u "
+                    "AND skillmods.skillmod_name LIKE %s",
+                    mDatabase->galaxy(),mDatabase->galaxy(),
+                    mDatabase->galaxy(),mDatabase->galaxy(),
+                    groupId,"'%%asse%%'");
         mDatabase->executeSqlAsyncNoArguments(this,container,sql);
-        
-        //mDatabase->ExecuteSqlAsync(this,container,sql);
-
 
     }
     break;
@@ -223,7 +227,8 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint32 groupId = mDraftSchematic->getWeightsBatchId();
 
         int8 sql[550];
-        sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM draft_schematic_customization dsc WHERE dsc.batchId = %u",groupId);
+        sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM "
+                    "%s.draft_schematic_customization dsc WHERE dsc.batchId = %u",mDatabase->galaxy(),groupId);
         mDatabase->executeSqlAsync(this,container,sql);
 
 
@@ -400,7 +405,12 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 
 
         int8 sql[550];
-        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%exper%%'");
+        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM %s.draft_schematics "
+                    "INNER JOIN %s.skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id "
+                    "INNER JOIN %s.skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id "
+                    "INNER JOIN %s.skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE "
+                    "draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",
+                    mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),groupId,"'%%exper%%'");
 
         //% just upsets the standard query
         mDatabase->executeSqlAsyncNoArguments(this,container,sql);

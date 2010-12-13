@@ -358,7 +358,7 @@ uint64 WorldManager::GetCurrentGlobalTick()
 void WorldManager::LoadCurrentGlobalTick()
 {
     uint64 Tick;
-    DatabaseResult* temp = mDatabase->executeSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
+    DatabaseResult* temp = mDatabase->executeSynchSql("SELECT Global_Tick_Count FROM %s.galaxy WHERE galaxy_id = '2'",mDatabase->galaxy());
 
 
     DataBinding*	tickbinding = mDatabase->createDataBinding(1);

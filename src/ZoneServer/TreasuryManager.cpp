@@ -366,7 +366,7 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,BSt
     mDatabase->escapeString(name,targetName.getAnsi(),targetName.getLength());
 
     int8 sql[256];
-    sprintf(sql,"SELECT id FROM characters WHERE firstname like '%s'",name);
+    sprintf(sql,"SELECT id FROM %s.characters WHERE firstname like '%s'",mDatabase->galaxy(),name);
 
     TreasuryManagerAsyncContainer* asyncContainer;
     asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipgetId,playerObject->getClient());

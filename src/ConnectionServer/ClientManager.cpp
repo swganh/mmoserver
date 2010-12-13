@@ -179,7 +179,7 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
     mMessageRouter->RouteMessage(message, connClient);
 
     // Update the account record that the account is logged out.
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", 0, connClient->getAccountId());
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_AccountStatusUpdate(%u, %u);",mDatabase->galaxy(), 0, connClient->getAccountId());
 
     // Client has disconnected.
 
@@ -287,7 +287,7 @@ void ClientManager::_processSelectCharacter(ConnectionClient* client, Message* m
 {
     uint64 characterId = message->getUint64();
 
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM characters WHERE id=%"PRIu64";", characterId);
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.characters WHERE id=%"PRIu64";",mDatabase->galaxy(), characterId);
 
     uint32 serverId;
     DataBinding* binding = mDatabase->createDataBinding(1);
@@ -417,7 +417,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
     {
         // Update the account record that it is now logged in and last login date.
 
-        mDatabase->executeProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", gConfig->read<uint32>("ClusterId"), client->getAccountId());
+        mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_AccountStatusUpdate(%u, %u);",mDatabase->galaxy(), gConfig->read<uint32>("ClusterId"), client->getAccountId());
 
         // finally add them to our accountId map.
         boost::recursive_mutex::scoped_lock lk(mServiceMutex);
@@ -472,10 +472,10 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
 void ClientManager::_processAllowedChars(DatabaseCallback* callback,ConnectionClient* client)
 {
     client->setState(CCSTATE_AllowedChars);
-    mDatabase->executeSqlAsync(this, client,"SELECT COUNT(characters.id) AS account_current_characters, account_characters_allowed FROM account INNER JOIN characters ON characters.account_id = account.account_id where characters.archived = '0' AND account.account_id = '%u'",client->getAccountId());
+    mDatabase->executeSqlAsync(this, client,"SELECT COUNT(characters.id) AS account_current_characters, account_characters_allowed FROM %s.account INNER JOIN %s.characters ON characters.account_id = account.account_id where characters.archived = '0' AND account.account_id = '%u'",mDatabase->galaxy(),mDatabase->galaxy(),client->getAccountId());
     
 
-    mDatabase->executeSqlAsync(this,client, "SELECT * FROM account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0;", client->getAccountId());
+    mDatabase->executeSqlAsync(this,client, "SELECT * FROM %s.account WHERE account_id=%u AND account_authenticated=1 AND account_loggedin=0;",mDatabase->galaxy(), client->getAccountId());
     
 }
 

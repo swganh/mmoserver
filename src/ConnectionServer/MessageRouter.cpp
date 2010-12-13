@@ -152,7 +152,7 @@ void MessageRouter::_loadMessageProcessMap(void)
     binding->addField(DFT_uint32, offsetof(MessageRoute, mProcessId), 4);
 
     // Execute our statement
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT messageId, processId FROM config_message_routes;");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT messageId, processId FROM %s.config_message_routes;",mDatabase->galaxy());
     
     uint32 count = static_cast<uint32>(result->getRowCount());
 

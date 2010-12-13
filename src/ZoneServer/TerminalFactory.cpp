@@ -109,7 +109,7 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
                     QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,TFQuery_ElevatorData,asyncContainer->mClient);
                     asContainer->mObject = elTerminal;
 
-                    mDatabase->executeSqlAsync(this,asContainer,"SELECT * FROM terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction", elTerminal->getId());
+                    mDatabase->executeSqlAsync(this,asContainer,"SELECT * FROM %s.terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction",mDatabase->galaxy(), elTerminal->getId());
                     
                 }
                 break;

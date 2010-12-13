@@ -558,7 +558,7 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
             StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
             asContainer->mStructureId = asynContainer->mStructureId;
 
-            gWorldManager->getDatabase()->executeSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId);
+            gWorldManager->getDatabase()->executeSqlAsync(this,asContainer,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",mDatabase->galaxy(),asContainer->mStructureId);
             
         }
     }
@@ -675,7 +675,7 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
             StructureManagerAsyncContainer* asContainer = new StructureManagerAsyncContainer(Structure_Query_UpdateAdminPermission,NULL);
             asContainer->mStructureId = asynContainer->mStructureId;
 
-            gWorldManager->getDatabase()->executeSqlAsync(this,asContainer,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",asContainer->mStructureId);
+            gWorldManager->getDatabase()->executeSqlAsync(this,asContainer,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",mDatabase->galaxy(),asContainer->mStructureId);
             
         }
     }

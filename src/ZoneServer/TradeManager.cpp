@@ -89,14 +89,14 @@ TradeManager::TradeManager(Database* database, MessageDispatch* dispatch)
 
     // load our bazaar terminals
     TradeManagerAsyncContainer* load_bazaar_container = new TradeManagerAsyncContainer(TRMQuery_LoadBazaar, 0);
-    mDatabase->executeSqlAsync(this, load_bazaar_container, "SELECT * FROM commerce_bazaar");
+    mDatabase->executeSqlAsync(this, load_bazaar_container, "SELECT * FROM %s.commerce_bazaar",mDatabase->galaxy());
    
     //AuctionHandler = new AuctionClass;
 
 
     //load the item table for the character builder terminal
     TradeManagerAsyncContainer* frog_query_container = new TradeManagerAsyncContainer(TRMQuery_ItemTableFrogQuery, 0);
-    mDatabase->executeSqlAsync(this, frog_query_container, "SELECT * FROM frog_items fi INNER JOIN item_families i_f on fi.family = i_f.id");
+    mDatabase->executeSqlAsync(this, frog_query_container, "SELECT * FROM %s.frog_items fi INNER JOIN %s.item_families i_f on fi.family = i_f.id",mDatabase->galaxy(),mDatabase->galaxy());
 }
 
 

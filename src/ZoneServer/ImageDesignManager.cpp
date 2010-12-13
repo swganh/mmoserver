@@ -807,7 +807,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
         asyncContainer->customer = customer;
         asyncContainer->performer = designer;
 
-        sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %"PRIu64"", customer->getId());
+        sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %"PRIu64"",mDatabase->galaxy(), customer->getId());
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
     }

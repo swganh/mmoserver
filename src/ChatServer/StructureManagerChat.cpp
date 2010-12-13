@@ -761,7 +761,7 @@ void StructureManagerChatHandler::handleCheckHarvesterPower()
     StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_PowerUpdate,0);
 
     int8 sql[100];
-    sprintf(sql,"SELECT h.ID FROM harvesters h WHERE h.active > 0 ");
+    sprintf(sql,"SELECT h.ID FROM %s.harvesters h WHERE h.active > 0 ",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
@@ -779,7 +779,7 @@ void StructureManagerChatHandler::handleCheckHarvesterHopper()
     StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_HopperUpdate,0);
 
     int8 sql[100];
-    sprintf(sql,"SELECT h.ID FROM harvesters h WHERE h.active > 0 ");
+    sprintf(sql,"SELECT h.ID FROM %s.harvesters h WHERE h.active > 0 ",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
@@ -796,7 +796,7 @@ void StructureManagerChatHandler::handleFactoryUpdate()
     StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_FactoryUpdate,0);
 
     int8 sql[100];
-    sprintf(sql,"SELECT f.ID FROM factories f WHERE f.active > 0 ");
+    sprintf(sql,"SELECT f.ID FROM %s.factories f WHERE f.active > 0 ",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
@@ -813,7 +813,7 @@ void StructureManagerChatHandler::handleCheckHarvesterMaintenance()
     StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_MaintenanceUpdate,0);
 
     int8 sql[100];
-    sprintf(sql,"SELECT s.ID FROM structures s");
+    sprintf(sql,"SELECT s.ID FROM %s.structures s",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 

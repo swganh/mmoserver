@@ -88,7 +88,7 @@ void VehicleControllerFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 {
 
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleControllerFactoryQuery_TypesId,client,id),
-                               "SELECT vehicle_types_id FROM vehicles WHERE id = %"PRIu64"",id);
+                               "SELECT vehicle_types_id FROM %s.vehicles WHERE id = %"PRIu64"",mDatabase->galaxy(),id);
     
 
 
@@ -145,7 +145,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,VehicleControllerFactoryQuery_ItnoData,asyncContainer->mClient,asyncContainer->mId);
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM vehicle_types WHERE id = %u",vehicleType);
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT vehicle_object_string, vehicle_itno_object_string, vehicle_name_file, vehicle_detail_file, vehicle_name FROM %s.vehicle_types WHERE id = %u",mDatabase->galaxy(),vehicleType);
         
     }
     break;
@@ -164,7 +164,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
         aContainer->mObject = (Object*)(IntangibleObject*)vehicleController;
 
 
-        mDatabase->executeSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss, vehicle_incline_acceleration, vehicle_flat_acceleration FROM vehicles WHERE id = %"PRIu64"",vehicleController->getId());
+        mDatabase->executeSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss, vehicle_incline_acceleration, vehicle_flat_acceleration FROM %s.vehicles WHERE id = %"PRIu64"",mDatabase->galaxy(),vehicleController->getId());
         
     }
     break;

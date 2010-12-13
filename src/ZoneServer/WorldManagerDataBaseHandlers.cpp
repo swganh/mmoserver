@@ -67,7 +67,7 @@ void WorldManager::_loadWorldObjects()
 
             // load zone regions
             stringstream query_stream;
-            query_stream << "SELECT id FROM zone_regions WHERE planet_id=" << mZoneId
+            query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".zone_regions WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -86,7 +86,7 @@ void WorldManager::_loadWorldObjects()
         }
         // load client effects
         stringstream query_stream;
-        query_stream << "SELECT * FROM clienteffects ORDER BY id;";
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".clienteffects ORDER BY id;";
                     
         mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
@@ -106,7 +106,7 @@ void WorldManager::_loadWorldObjects()
 
         // load attribute keys
         query_stream.str(std::string());
-        query_stream << "SELECT id, name FROM attributes ORDER BY id;";
+        query_stream << "SELECT id, name FROM "<<mDatabase->galaxy()<<".attributes ORDER BY id;";
         mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
@@ -125,7 +125,7 @@ void WorldManager::_loadWorldObjects()
 
         // load sounds
         query_stream.str(std::string());
-        query_stream << "SELECT * FROM sounds ORDER BY id;";
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".sounds ORDER BY id;";
         mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
@@ -142,7 +142,7 @@ void WorldManager::_loadWorldObjects()
 
         // load moods
         query_stream.str(std::string());
-        query_stream << "SELECT * FROM moods ORDER BY id;";
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".moods ORDER BY id;";
         mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
@@ -160,7 +160,7 @@ void WorldManager::_loadWorldObjects()
 
         // load npc converse animations
         query_stream.str(std::string());
-        query_stream << "SELECT * FROM conversation_animations ORDER BY id;";
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".conversation_animations ORDER BY id;";
         mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
                 return;
@@ -177,7 +177,7 @@ void WorldManager::_loadWorldObjects()
         });
         // load npc chatter
         query_stream.str(std::string());
-        query_stream << "SELECT * FROM npc_chatter WHERE planetId=" << mZoneId
+        query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".npc_chatter WHERE planetId=" << mZoneId
                      << " OR planetId=99";
         mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
             if (! result) {
@@ -204,7 +204,7 @@ void WorldManager::_loadWorldObjects()
         {
             // load cities
             stringstream query_stream;
-            query_stream << "SELECT id FROM cities WHERE planet_id=" << mZoneId
+            query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".cities WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -223,7 +223,7 @@ void WorldManager::_loadWorldObjects()
 
             // load badge regions
             query_stream.str(std::string());
-            query_stream << "SELECT id FROM badge_regions WHERE planet_id=" << mZoneId
+            query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".badge_regions WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -242,7 +242,7 @@ void WorldManager::_loadWorldObjects()
 
             //load spawn regions
             query_stream.str(std::string());
-            query_stream << "SELECT id FROM spawn_regions WHERE planet_id=" << mZoneId
+            query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".spawn_regions WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -261,7 +261,7 @@ void WorldManager::_loadWorldObjects()
 
             // load world scripts
             query_stream.str(std::string());
-            query_stream << "SELECT priority,file FROM config_zone_scripts WHERE planet_id=" << mZoneId
+            query_stream << "SELECT priority,file FROM "<<mDatabase->galaxy()<<".config_zone_scripts WHERE planet_id=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -282,7 +282,7 @@ void WorldManager::_loadWorldObjects()
 
             //load creature spawn regions, and optionally heightmaps cache.
             query_stream.str(std::string());
-            query_stream << "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM spawns WHERE spawn_planet=" << mZoneId
+            query_stream << "SELECT id, spawn_x, spawn_z, spawn_width, spawn_length FROM "<<mDatabase->galaxy()<<".spawns WHERE spawn_planet=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -308,7 +308,7 @@ void WorldManager::_loadWorldObjects()
 
             // load harvesters
             query_stream.str(std::string());
-            query_stream << "SELECT s.id FROM structures s INNER JOIN harvesters h ON (s.id = h.id) WHERE zone=" << mZoneId
+            query_stream << "SELECT s.id FROM "<<mDatabase->galaxy()<<".structures s INNER JOIN "<<mDatabase->galaxy()<<".harvesters h ON (s.id = h.id) WHERE zone=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -326,7 +326,7 @@ void WorldManager::_loadWorldObjects()
 
             // load factories
             query_stream.str(std::string());
-            query_stream << "SELECT s.id FROM structures s INNER JOIN factories f ON (s.id = f.id) WHERE zone=" << mZoneId
+            query_stream << "SELECT s.id FROM "<<mDatabase->galaxy()<<".structures s INNER JOIN "<<mDatabase->galaxy()<<".factories f ON (s.id = f.id) WHERE zone=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -345,7 +345,7 @@ void WorldManager::_loadWorldObjects()
 
             // load playerhouses
             query_stream.str(std::string());
-            query_stream << "SELECT s.id FROM structures s INNER JOIN houses h ON (s.id = h.id) WHERE zone=" << mZoneId
+            query_stream << "SELECT s.id FROM "<<mDatabase->galaxy()<<".structures s INNER JOIN "<<mDatabase->galaxy()<<".houses h ON (s.id = h.id) WHERE zone=" << mZoneId
                          << " ORDER BY id;";
             mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
                 if (! result) {
@@ -372,7 +372,7 @@ void WorldManager::_loadWorldObjects()
 void WorldManager::_loadBuildings()
 {
     stringstream query_stream;
-    query_stream << "SELECT id FROM buildings WHERE planet_id = " << mZoneId;
+    query_stream << "SELECT id FROM "<<mDatabase->galaxy()<<".buildings WHERE planet_id = " << mZoneId;
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
             return;
@@ -391,15 +391,15 @@ void WorldManager::_loadBuildings()
 void WorldManager::_loadAllObjects(uint64 parentId)
 {
     stringstream query_stream;
-    query_stream << "(SELECT \'terminals\',terminals.id FROM terminals INNER JOIN terminal_types ON (terminals.terminal_type = terminal_types.id)"
+    query_stream << "(SELECT \'terminals\',terminals.id FROM "<<mDatabase->galaxy()<<".terminals INNER JOIN "<<mDatabase->galaxy()<<".terminal_types ON (terminals.terminal_type = terminal_types.id)"
                  << " WHERE (terminal_types.name NOT LIKE 'unknown') AND (terminals.parent_id = " << parentId << ") AND (terminals.planet_id = "<< mZoneId << " ))"
-                 << " UNION (SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
+                 << " UNION (SELECT \'containers\',containers.id FROM "<<mDatabase->galaxy()<<".containers INNER JOIN "<<mDatabase->galaxy()<<".container_types ON (containers.container_type = container_types.id)"
                  << " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = " << parentId << ") AND (containers.planet_id = "<< mZoneId << "))"
-                 << " UNION (SELECT \'ticket_collectors\',ticket_collectors.id FROM ticket_collectors WHERE (parent_id=" << parentId << ") AND (planet_id="<< mZoneId << "))"
-                 << " UNION (SELECT \'persistent_npcs\',persistent_npcs.id FROM persistent_npcs WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
-                 << " UNION (SELECT \'shuttles\',shuttles.id FROM shuttles WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
-                 << " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
-                 << " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId <<"))";
+                 << " UNION (SELECT \'ticket_collectors\',ticket_collectors.id FROM "<<mDatabase->galaxy()<<".ticket_collectors WHERE (parent_id=" << parentId << ") AND (planet_id="<< mZoneId << "))"
+                 << " UNION (SELECT \'persistent_npcs\',persistent_npcs.id FROM "<<mDatabase->galaxy()<<".persistent_npcs WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'shuttles\',shuttles.id FROM "<<mDatabase->galaxy()<<".shuttles WHERE (parentId=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'items\',items.id FROM "<<mDatabase->galaxy()<<".items WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId << "))"
+                 << " UNION (SELECT \'resource_containers\',resource_containers.id FROM "<<mDatabase->galaxy()<<".resource_containers WHERE (parent_id=" << parentId << ") AND (planet_id = "<< mZoneId <<"))";
     
         mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
@@ -434,7 +434,7 @@ void WorldManager::_loadAllObjects(uint64 parentId)
 void    WorldManager::_loadPlanetNamesAndFiles()
 {
     stringstream query_stream;
-    query_stream << "SELECT * FROM planet ORDER BY planet_id;";
+    query_stream << "SELECT * FROM "<<mDatabase->galaxy()<<".planet ORDER BY planet_id;";
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (! result) {
             return;

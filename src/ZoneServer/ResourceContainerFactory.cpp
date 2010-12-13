@@ -127,7 +127,7 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
 
 void ResourceContainerFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM resource_containers WHERE id=%"PRIu64"",id);
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,RCFQuery_MainData,client),"SELECT * FROM %s.resource_containers WHERE id=%"PRIu64"",mDatabase->galaxy(),id);
     
 }
 

@@ -83,17 +83,20 @@ EntertainerManager::EntertainerManager(Database* database,MessageDispatch* dispa
 
     // load our performance Data
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadPerformances, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT performanceName,	instrumentAudioId, InstrumenType ,danceVisualId,	actionPointPerLoop,	loopDuration,	florushXpMod,	healMindWound,	healShockWound,	MusicVisualId FROM swganh.entertainer_performances");
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT performanceName, instrumentAudioId, InstrumenType, danceVisualId,	actionPointPerLoop"
+                                                   ",loopDuration,	florushXpMod,	healMindWound,	healShockWound, MusicVisualId FROM %s.entertainer_performances",
+                                                   mDatabase->galaxy());
 
 
     // load our attribute data for ID
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadIDAttributes, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT CustomizationCRC, SpeciesCRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, XP, Hair, divider FROM swganh.id_attributes");
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT CustomizationCRC, SpeciesCRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, XP, Hair, divider FROM %s.id_attributes",
+                                                   mDatabase->galaxy());
 
 
     // load our holoemote Data
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadHoloEmotes, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT crc, effect_id, name FROM swganh.holoemote");
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT crc, effect_id, name FROM %s.holoemote",mDatabase->galaxy());
 
 }
 
@@ -215,7 +218,7 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
     DenyServiceList*	deniedAudienceList	= entertainer->getDenyAudienceList();
     DenyServiceList::iterator denieIt = deniedAudienceList->begin();
 
-    sprintf(sql,"SELECT firstname FROM characters where id = ");
+    sprintf(sql,"SELECT firstname FROM %s.characters where id = ",mDatabase->galaxy());
 
     BStringVector availableOutCasts;
     uint32 nr = 0;
@@ -352,7 +355,7 @@ void EntertainerManager::verifyOutcastName(PlayerObject* entertainer,BString out
     mDatabase->escapeString(name,outCastName.getAnsi(),outCastName.getLength());
 
     //we'll need the id only
-    sprintf(sql,"SELECT id FROM swganh.characters c WHERE c.firstname = '%s'",name);
+    sprintf(sql,"SELECT id FROM %s.characters c WHERE c.firstname = '%s'",mDatabase->galaxy(),name);
 
 
     EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_DenyServiceFindName,0);

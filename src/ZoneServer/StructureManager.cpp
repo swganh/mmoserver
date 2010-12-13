@@ -284,7 +284,7 @@ void StructureManager::getDeleteStructureMaintenanceData(uint64 structureId, uin
 
     StructureManagerAsyncContainer* asyncContainer;
     asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateAttributes, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer, "(SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384) UNION (SELECT \'maintenance\'	, sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)  ",structureId, structureId);
+    mDatabase->executeSqlAsync(this,asyncContainer, "(SELECT \'power\', sa.value FROM %s.structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384) UNION (SELECT \'maintenance\'	, sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)  ",mDatabase->galaxy(),structureId, structureId);
 
 
     asyncContainer->mStructureId = structureId;
@@ -656,9 +656,9 @@ void StructureManager::OpenStructureHopperList(uint64 structureId, uint64 player
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'HOPPER'",structureId);
-
-
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM %s.structure_admin_data sad  "
+            "INNER JOIN %s.characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'HOPPER'",
+            mDatabase->galaxy(),mDatabase->galaxy(),structureId);
 }
 
 //=======================================================================================================================
@@ -675,7 +675,9 @@ void StructureManager::OpenStructureAdminList(uint64 structureId, uint64 playerI
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'ADMIN'",structureId);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM %s.structure_admin_data sad  "
+        "INNER JOIN %s.characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'ADMIN'",
+        mDatabase->galaxy(),mDatabase->galaxy(),structureId);
 
 }
 
@@ -693,7 +695,9 @@ void StructureManager::OpenStructureEntryList(uint64 structureId, uint64 playerI
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'Entry'",structureId);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM %s.structure_admin_data sad  "
+        "INNER JOIN %s.characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'Entry'",
+        mDatabase->galaxy(),mDatabase->galaxy(),structureId);
 
 }
 
@@ -712,7 +716,9 @@ void StructureManager::OpenStructureBanList(uint64 structureId, uint64 playerId)
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM structure_admin_data sad  INNER JOIN characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'BAN'",structureId);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT c.firstname FROM %s.structure_admin_data sad  "
+        "INNER JOIN %s.characters c ON (sad.PlayerID = c.ID)where sad.StructureID = %"PRIu64" AND sad.AdminType like 'BAN'",
+        mDatabase->galaxy(),mDatabase->galaxy(),structureId);
 
 
 }
@@ -1026,12 +1032,13 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;
 			asyncContainer->command			= command;
-			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
 			mDatabase->executeSqlAsync(this,asyncContainer,
-				"		(SELECT \'schematicCustom\', i.customName FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
-				 "UNION (SELECT \'schematicName\', it.stf_name FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-				 "UNION (SELECT \'schematicFile\', it.stf_file FROM factories f INNER JOIN items i ON (i.id = f.ManSchematicID) INNER JOIN item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
-				,command.StructureId);
+				 "		(SELECT \'schematicCustom\', i.customName FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
+				 "UNION (SELECT \'schematicName\', it.stf_name FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
+				 "UNION (SELECT \'schematicFile\', it.stf_file FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)",
+				mDatabase->galaxy(),mDatabase->galaxy(),
+                mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId,
+                mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId);
 			
 		}
 		break;
@@ -1063,10 +1070,12 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->command			= command;
 			
 			mDatabase->executeSqlAsync(this,asyncContainer,
-				"(SELECT \'name\', c.firstname  FROM characters c WHERE c.id = %"PRIu64")"
-				"UNION (SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
-				"UNION (SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
-														 " ",structure->getOwner(),command.StructureId,command.StructureId);
+				            "(SELECT \'name\', c.firstname  FROM %s.characters c WHERE c.id = %"PRIu64")"
+				            "UNION (SELECT \'power\', sa.value FROM %s.structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
+				            "UNION (SELECT \'maintenance\', sa.value FROM %s.structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382) ",
+                            mDatabase->galaxy(),structure->getOwner(),
+                            mDatabase->galaxy(),command.StructureId,
+                            mDatabase->galaxy(),command.StructureId);
 
 
 			
@@ -1081,10 +1090,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;
 			asyncContainer->command			= command;
-			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
 			mDatabase->executeSqlAsync(this,asyncContainer,
-				"(SELECT \'power\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
-				,structure->getId());
+				"(SELECT \'power\', sa.value FROM %s.structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 384)"
+				,mDatabase->galaxy(),structure->getId());
 		}
 		break;
 
@@ -1096,10 +1104,10 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;
 			asyncContainer->command			= command;
-			//mDatabase->ExecuteSqlAsync(structure,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-			mDatabase->executeSqlAsync(this,asyncContainer,"(SELECT \'maintenance\', sa.value FROM structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
-														 " UNION (SELECT \'condition\', s.condition FROM structures s WHERE s.id = %"PRIu64")",structure->getId(),structure->getId());
-
+			mDatabase->executeSqlAsync(this,asyncContainer,"(SELECT \'maintenance\', sa.value FROM %s.structure_attributes sa WHERE sa.structure_id = %"PRIu64" AND sa.attribute_id = 382)"
+														 " UNION (SELECT \'condition\', s.condition FROM %s.structures s WHERE s.id = %"PRIu64")",
+                                                         mDatabase->galaxy(),structure->getId(),
+                                                         mDatabase->galaxy(),structure->getId());
 		}
 		break;
 
@@ -1113,8 +1121,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->mPlayerId		= command.PlayerId;
 			asyncContainer->command 		= command;
 	
-			//mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-			mDatabase->executeSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
+			mDatabase->executeSqlAsync(harvester,asyncContainer,"SELECT %s.sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",mDatabase->galaxy(),harvester->getId(),command.ResourceId,command.Amount);
 
 		}
 		break;
@@ -1129,8 +1136,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer->mPlayerId		= command.PlayerId;
 			asyncContainer->command 		= command;
 			
-			//mDatabase->ExecuteSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
-			mDatabase->executeSqlAsync(harvester,asyncContainer,"SELECT sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",harvester->getId(),command.ResourceId,command.Amount);
+			mDatabase->executeSqlAsync(harvester,asyncContainer,"SELECT %s.sf_DiscardResource(%"PRIu64",%"PRIu64",%u) ",mDatabase->galaxy(),harvester->getId(),command.ResourceId,command.Amount);
 
 		}
 		break;
@@ -1145,7 +1151,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(Structure_GetResourceData,player->getClient());
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;
-			mDatabase->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+			mDatabase->executeSqlAsync(harvester,asyncContainer,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",mDatabase->galaxy(),harvester->getId());
 
 		}
 		break;
@@ -1160,7 +1166,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			asyncContainer = new StructureManagerAsyncContainer(Structure_HopperDiscard, 0);
 			asyncContainer->mStructureId	= command.StructureId;
 			asyncContainer->mPlayerId		= command.PlayerId;
-			mDatabase->executeSqlAsync(harvester,asyncContainer,"select sf_DiscardHopper(%I64u)",command.StructureId);
+			mDatabase->executeSqlAsync(harvester,asyncContainer,"select %s.sf_DiscardHopper(%I64u)",mDatabase->galaxy(),command.StructureId);
 
 		}
 		break;	 
@@ -1310,7 +1316,7 @@ void StructureManager::TransferStructureOwnership(StructureAsyncCommand command)
     asyncContainer->mPlayerId = command.PlayerId;
     asyncContainer->mTargetId = command.RecipientId;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%"PRIu64")",command.PlayerId);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT %s.sf_getLotCount(%"PRIu64")",mDatabase->galaxy(),command.PlayerId);
 
 }
 
@@ -1402,7 +1408,7 @@ uint32 StructureManager::deductPower(PlayerObject* player, uint32 amount)
                 else
                 {
                     gMessageLib->sendResourceContainerUpdateAmount(resCont,player);
-                    mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
+                    mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),newAmount,resCont->getId());
 
                 }
 
@@ -1441,10 +1447,10 @@ bool StructureManager::_handleStructureDBCheck(uint64 callTime, void* ref)
 
     StructureManagerAsyncContainer* asyncContainer;
     asyncContainer = new StructureManagerAsyncContainer(Structure_GetInactiveHarvesters, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0 AND s.zone = %u", gWorldManager->getZoneId());
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM %s.harvesters h INNER JOIN %s.structures s ON (h.ID = s.ID) WHERE active = 0 AND s.zone = %u",mDatabase->galaxy(),mDatabase->galaxy(), gWorldManager->getZoneId());
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_GetDestructionStructures, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM harvesters h INNER JOIN structures s ON (h.ID = s.ID) WHERE active = 0 AND( s.condition >= 1000) AND s.zone = %u", gWorldManager->getZoneId());
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT h.ID, s.condition FROM %s.harvesters h INNER JOIN %s.structures s ON (h.ID = s.ID) WHERE active = 0 AND( s.condition >= 1000) AND s.zone = %u", mDatabase->galaxy(),mDatabase->galaxy(),gWorldManager->getZoneId());
 
     return (true);
 }
@@ -1463,7 +1469,7 @@ void StructureManager::UpdateCharacterLots(uint64 charId)
     asyncContainer = new StructureManagerAsyncContainer(Structure_UpdateCharacterLots, 0);
     asyncContainer->mPlayerId = charId;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_getLotCount(%"PRIu64")",charId);
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT %s.sf_getLotCount(%"PRIu64")",mDatabase->galaxy(),charId);
 
 }
 

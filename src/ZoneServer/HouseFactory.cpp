@@ -127,7 +127,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         asContainer->mObject = house;
 
         int8 sql[1024];
-        sprintf(sql,"SELECT PlayerID FROM structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",house->getId());
+        sprintf(sql,"SELECT PlayerID FROM %s.structure_admin_data WHERE StructureID = %"PRIu64" AND AdminType like 'ADMIN';",mDatabase->galaxy(),house->getId());
         mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
@@ -183,7 +183,7 @@ void HouseFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,HOFQuery_CellData,asyncContainer->mClient);
         asContainer->mObject = house;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM structure_cells WHERE parent_id = %"PRIu64" ORDER BY structure_cells.id;",house->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM %s.structure_cells WHERE parent_id = %"PRIu64" ORDER BY structure_cells.id;",mDatabase->galaxy(),house->getId());
         
 
 

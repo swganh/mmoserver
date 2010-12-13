@@ -61,27 +61,27 @@ SkillManager::SkillManager(Database* database)
 
     // load skillmods
     //gLogger->log(LogManager::DEBUG,"Start Loading Skill Mods.");
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillMods),"SELECT * FROM skillmods ORDER BY skillmod_id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillMods),"SELECT * FROM %s.skillmods ORDER BY skillmod_id",mDatabase->galaxy());
     
 
     // load skillcommands
     //gLogger->log(LogManager::DEBUG,"Start Loading Skill Commands.");
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillCommands),"SELECT * FROM skillcommands ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillCommands),"SELECT * FROM %s.skillcommands ORDER BY id",mDatabase->galaxy());
     
 
     // load xp types
     //gLogger->log(LogManager::DEBUG,"Start Loading Skill XP Types.");
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_XpTypes),"SELECT * FROM xp_types ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_XpTypes),"SELECT * FROM %s.xp_types ORDER BY id",mDatabase->galaxy());
     
 
     // load skills
     //gLogger->log(LogManager::DEBUG,"Start Loading Skills.");
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_Skills),"SELECT * FROM skills ORDER BY skill_id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_Skills),"SELECT * FROM %s.skills ORDER BY skill_id",mDatabase->galaxy());
     
 
     // load extended skill information (tex)
     DLOG(INFO) << "Start Loading Skill Descriptions.";
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillDescriptions),"SELECT * FROM skills_description ORDER BY skill_id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillDescriptions),"SELECT * FROM %s.skills_description ORDER BY skill_id",mDatabase->galaxy());
     
 }
 
@@ -231,37 +231,37 @@ void SkillManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         // query required species
         //gLogger->log(LogManager::DEBUG,"Start Loading Skill Species Requirements.");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSpecies),"SELECT * FROM skills_species_required ORDER BY skill_id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSpecies),"SELECT * FROM %s.skills_species_required ORDER BY skill_id",mDatabase->galaxy());
         
 
         // query skill preclusions
         //gLogger->log(LogManager::DEBUG,"Start Loading Skill Preclusions");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillPreclusions),"SELECT * FROM skills_preclusions ORDER BY skill_id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillPreclusions),"SELECT * FROM %s.skills_preclusions ORDER BY skill_id",mDatabase->galaxy());
         
 
         // query required skills
         //gLogger->log(LogManager::DEBUG,"Start Loading Skill Requirements.");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillRequiredSkills),"SELECT * FROM skills_skill_skillsrequired ORDER BY skill_id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillRequiredSkills),"SELECT * FROM %s.skills_skill_skillsrequired ORDER BY skill_id",mDatabase->galaxy());
         
 
         // query skill commands
         //gLogger->log(LogManager::DEBUG,"Start Loading Skill Commands Granted.");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillCommands),"SELECT * FROM skills_skillcommands ORDER BY skill_id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillCommands),"SELECT * FROM %s.skills_skillcommands ORDER BY skill_id",mDatabase->galaxy());
         
 
         // query skill mods
         //gLogger->log(LogManager::DEBUG,"Start Loading Skill Mods Granted");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillMods),"SELECT * FROM skills_skillmods ORDER BY skill_id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillMods),"SELECT * FROM %s.skills_skillmods ORDER BY skill_id",mDatabase->galaxy());
         
 
         // query skill schematic groups
         //gLogger->log(LogManager::DEBUG,"Start Loading Skill Schematics Granted");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillSchematicGroups),"SELECT * FROM skills_schematicsgranted ORDER BY skill_id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillSchematicGroups),"SELECT * FROM %s.skills_schematicsgranted ORDER BY skill_id",mDatabase->galaxy());
         
 
         // query skill xp types
         //gLogger->log(LogManager::DEBUG,"Start Loading Skill XP Types");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillXpTypes),"SELECT * FROM skills_base_xp_groups ORDER BY skill_id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) SMAsyncContainer(SMQuery_SkillSkillXpTypes),"SELECT * FROM %s.skills_base_xp_groups ORDER BY skill_id",mDatabase->galaxy());
         
 
         mDatabase->destroyDataBinding(binding);

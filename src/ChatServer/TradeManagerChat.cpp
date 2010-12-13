@@ -318,7 +318,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             //build our query to get the attributes
             int8 sql[1024];
             //we'll need the quantity and all the attributes
-            sprintf(sql,"SELECT rc.resource_id, rc.amount, r.name, r.er, r.cr,r.cd,r.dr,r.fl,r.hr,r.ma, r.oq, r.sr, r.ut, r.pe FROM swganh.resource_containers rc INNER JOIN swganh.resources r ON r.id = rc.resource_id WHERE rc.id =%"PRIu64"",mItemDescription->ItemID);
+            sprintf(sql,"SELECT rc.resource_id, rc.amount, r.name, r.er, r.cr,r.cd,r.dr,r.fl,r.hr,r.ma, r.oq, r.sr, r.ut, r.pe FROM %s.resource_containers rc INNER JOIN %s.resources r ON r.id = rc.resource_id WHERE rc.id =%"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(),mItemDescription->ItemID);
             TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetResAttributeDetails, asynContainer->mClient);
             asyncContainer->mItemDescription = mItemDescription;
 
@@ -332,7 +332,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         //build our query to get the attributes
         int8 sql[1024];
         //we'll need all the attributes which are marked as external
-        sprintf(sql,"SELECT name, value FROM swganh.item_attributes ia  INNER JOIN swganh.attributes a ON ia.attribute_id = a.id WHERE ia.item_id =%"PRIu64" and a.internal = 0 ORDER BY ia.order",mItemDescription->ItemID);
+        sprintf(sql,"SELECT name, value FROM %s.item_attributes ia  INNER JOIN %s.attributes a ON ia.attribute_id = a.id WHERE ia.item_id =%"PRIu64" and a.internal = 0 ORDER BY ia.order",mDatabase->galaxy(),mDatabase->galaxy(),mItemDescription->ItemID);
 
         TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetAttributeDetails, asynContainer->mClient);
         asyncContainer->mItemDescription = mItemDescription;
@@ -872,7 +872,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
                 //refund money to everybody but the winning bidder
 
                 TradeManagerAsyncContainer* asyncContainer;
-                sprintf(sql,"SELECT cbh.proxy_bid, c.id  FROM swganh.characters AS c INNER JOIN swganh.commerce_bidhistory AS cbh ON (c.firstname = cbh.bidder_name) WHERE cbh.auction_id = %"PRIu64"",auctionTemp->ItemID);
+                sprintf(sql,"SELECT cbh.proxy_bid, c.id  FROM %s.characters AS c INNER JOIN %s.commerce_bidhistory AS cbh ON (c.firstname = cbh.bidder_name) WHERE cbh.auction_id = %"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(),auctionTemp->ItemID);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ProcessAuctionRefund,NULL);
                 asyncContainer->AuctionTemp = auctionTemp;
                 //mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -993,7 +993,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             *sqlPointer++ = '\0';
 
             int8 sql[390];
-            sprintf(sql,"SELECT cbh.proxy_bid, cbh.max_bid, c.id FROM swganh.characters AS c INNER JOIN swganh.commerce_bidhistory AS cbh ON c.firstname = '%s' WHERE cbh.auction_id = %"PRIu64" AND cbh.bidder_name = '",name,AuctionTemp->ItemID);
+            sprintf(sql,"SELECT cbh.proxy_bid, cbh.max_bid, c.id FROM %s.characters AS c INNER JOIN %s.commerce_bidhistory AS cbh ON c.firstname = '%s' WHERE cbh.auction_id = %"PRIu64" AND cbh.bidder_name = '",mDatabase->galaxy(),mDatabase->galaxy(),name,AuctionTemp->ItemID);
 
             sqlPointer = sql + strlen(sql);
             sqlPointer += mDatabase->escapeString(sqlPointer,AuctionTemp->bidder_name, strlen(AuctionTemp->bidder_name));
@@ -1384,7 +1384,7 @@ void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message
     uint64	TerminalID	= message->getUint64();
 
     int8 sql[200];
-    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM swganh.commerce_auction c  WHERE c.auction_id = %"PRIu64"", ItemID);
+    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM %s.commerce_auction c  WHERE c.auction_id = %"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(), ItemID);
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_RetrieveAuction, client);
     asyncContainer->BazaarID = TerminalID;
     mDatabase->executeSqlAsync(this, asyncContainer, sql);
@@ -1417,7 +1417,7 @@ void TradeManagerChatHandler::processBidAuctionMessage(Message* message,Dispatch
     int8 sql[490];
     //auction_bidhistory fields will be NULL when we have no bids
 
-    sprintf(sql,"SELECT ca.auction_id, ca.owner_id, ca.type, ca.category, ca.price, ca.itemtype, ca.name, ca.bazaar_id, ca.bidder_name, c.firstname FROM swganh.characters AS c INNER JOIN swganh.commerce_auction AS ca ON (ca.owner_id = c.id) where ca.auction_id = %"PRIu64"",ItemID);
+    sprintf(sql,"SELECT ca.auction_id, ca.owner_id, ca.type, ca.category, ca.price, ca.itemtype, ca.name, ca.bazaar_id, ca.bidder_name, c.firstname FROM %s.characters AS c INNER JOIN %s.commerce_auction AS ca ON (ca.owner_id = c.id) where ca.auction_id = %"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(),ItemID);
 
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_BidAuction,client);
     asyncContainer->MyBid = MyBid;
@@ -1456,7 +1456,7 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
     //get all the bids on the auction and refunf the affected players
     //send the EMails
     int8 sql[300];
-    sprintf(sql,"SELECT ch.id, ca.name, cbh.proxy_bid FROM swganh.commerce_auction AS ca INNER JOIN swganh.commerce_bidhistory AS cbh ON (cbh.bidder_name = ca.bidder_name)  INNER JOIN swganh.characters AS ch ON (cbh.bidder_name = ch.firstname)  WHERE ca.auction_id = %"PRIu64"",ItemID);
+    sprintf(sql,"SELECT ch.id, ca.name, cbh.proxy_bid FROM %s.commerce_auction AS ca INNER JOIN %s.commerce_bidhistory AS cbh ON (cbh.bidder_name = ca.bidder_name)  INNER JOIN %s.characters AS ch ON (cbh.bidder_name = ch.firstname)  WHERE ca.auction_id = %"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),ItemID);
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CancelAuction_BidderMail, client);
     asyncContainer->AuctionID = ItemID;
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
@@ -1492,7 +1492,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     //uint64 time = (getGlobalTickCount()/1000);
 
     int8 sql[2024];
-    sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM swganh.commerce_auction c INNER JOIN swganh.characters ch on (c.owner_id = ch.id) INNER join swganh.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) left join swganh.commerce_bidhistory cbh ON (cbh.bidder_name = c.bidder_name AND cbh.auction_id = c.auction_id) AND c.owner_id = ch.id  WHERE");
+    sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM %s.commerce_auction c INNER JOIN %s.characters ch on (c.owner_id = ch.id) INNER join %s.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) left join %s.commerce_bidhistory cbh ON (cbh.bidder_name = c.bidder_name AND cbh.auction_id = c.auction_id) AND c.owner_id = ch.id  WHERE",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy());
 
     Player* player;
     PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
@@ -1601,7 +1601,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
         strcat(query.WindowQuery,tmp);
         sprintf(end," )");
         strcat(query.WindowQuery,end);
-        sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM swganh.commerce_auction c INNER JOIN swganh.characters ch on (c.owner_id = ch.id) INNER join swganh.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) inner join swganh.commerce_bidhistory cbh ON (cbh.auction_id = c.auction_id) AND c.owner_id = ch.id WHERE");
+        sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM %s.commerce_auction c INNER JOIN %s.characters ch on (c.owner_id = ch.id) INNER join %s.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) inner join %s.commerce_bidhistory cbh ON (cbh.auction_id = c.auction_id) AND c.owner_id = ch.id WHERE",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy());
 
     }
     break;

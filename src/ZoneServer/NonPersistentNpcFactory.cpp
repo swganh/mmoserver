@@ -288,7 +288,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         // Do not transfer object refs, use the handle, i.e. asyncContainer->mId
         // asContainer->mObject = npc;
 
-        mDatabase->executeSqlAsync(this, asContainer, "SELECT creature_groups.creature_id FROM creature_groups WHERE creature_groups.creature_group_id=%u;", lair.mCreatureGroup);
+        mDatabase->executeSqlAsync(this, asContainer, "SELECT creature_groups.creature_id FROM %s.creature_groups WHERE creature_groups.creature_group_id=%u;",mDatabase->galaxy(), lair.mCreatureGroup);
         
 
     }
@@ -325,7 +325,9 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
 
         QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,lair_attributes.value,attributes.internal FROM lair_attributes INNER JOIN attributes ON (lair_attributes.attribute_id = attributes.id) WHERE lair_attributes.lair_id = %"PRIu64" ORDER BY lair_attributes.order", asyncContainer->mTemplateId);
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,lair_attributes.value,attributes.internal FROM %s.lair_attributes "
+                                                    "INNER JOIN %s.attributes ON (lair_attributes.attribute_id = attributes.id) WHERE lair_attributes.lair_id = %"PRIu64" ORDER BY lair_attributes.order",
+                                                    mDatabase->galaxy(),mDatabase->galaxy(),asyncContainer->mTemplateId);
         
     }
     break;

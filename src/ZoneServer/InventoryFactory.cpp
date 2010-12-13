@@ -97,7 +97,7 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,IFQuery_ObjectCount,asyncContainer->mClient);
         asContainer->mObject = inventory;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",inventory->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%"PRIu64")",mDatabase->galaxy(),inventory->getId());
         
     }
     break;
@@ -127,11 +127,13 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             //why would we load the lootcontainers and trashpiles for the inventory ???
             //containers are normal items like furniture, lightsabers and stuff
             mDatabase->executeSqlAsync(this,asContainer,
-                                       "(SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
+                                       "(SELECT \'containers\',containers.id FROM %s.containers INNER JOIN %s.container_types ON (containers.container_type = container_types.id)"
                                        " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64"))"
-                                       " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
-                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
-                                       invId,invId,invId);
+                                       " UNION (SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%"PRIu64"))"
+                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%"PRIu64"))",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),
+                                       invId,mDatabase->galaxy(),
+                                       mDatabase->galaxy(),invId,invId);
            
         }
         else

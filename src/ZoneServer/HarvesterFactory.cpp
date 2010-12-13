@@ -163,7 +163,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         //now request the associated resource container count
 
         int8 sql[250];
-        sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",mDatabase->galaxy(),harvester->getId());
         mDatabase->executeSqlAsync(this,asynContainer,sql);
      
 

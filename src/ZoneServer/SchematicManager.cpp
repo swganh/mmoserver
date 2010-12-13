@@ -59,12 +59,12 @@ SchematicManager::SchematicManager(Database* database)
 {
     // load skillschematicgroups
     //gLogger->log(LogManager::DEBUG,"Started Loading Schematic Groups.");
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicGroups),"SELECT * FROM schematic_groups ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicGroups),"SELECT * FROM %s.schematic_groups ORDER BY id",mDatabase->galaxy());
     
 
     // load experimentation groups
     //gLogger->log(LogManager::DEBUG,"Finished Loading Experimentation Groups.");
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_ExperimentationGroups),"SELECT * FROM draft_experiment_groups ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_ExperimentationGroups),"SELECT * FROM %s.draft_experiment_groups ORDER BY id",mDatabase->galaxy());
     
 }
 
@@ -150,7 +150,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         DLOG(INFO) <<  "Started Loading Schematics";
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_GroupSchematics);
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT object_string,weightsbatch_id,complexity,datasize,subCategory,craftEnabled,group_id FROM draft_schematics");
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT object_string,weightsbatch_id,complexity,datasize,subCategory,craftEnabled,group_id FROM %s.draft_schematics",mDatabase->galaxy());
     }
     break;
 

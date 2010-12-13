@@ -70,7 +70,7 @@ CSRManager::CSRManager(Database* database, MessageDispatch* dispatch, ChatManage
     _loadDatabindings();
 
     CSRAsyncContainer* asyncContainer = new CSRAsyncContainer(CSRQuery_Categories);
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CSRCategoriesGet();");
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_CSRCategoriesGet();",mDatabase->galaxy());
  
 }
 

@@ -211,7 +211,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mObject = asyncContainer->mObject;
                     asynContainer->mHopper = asyncContainer->mHopper;
 
-                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId);
+                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT value FROM %s.item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400",mDatabase->galaxy(), queryContainer.mId);
 
                 }
             }
@@ -231,7 +231,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mObject = asyncContainer->mObject;
                     asynContainer->mHopper = asyncContainer->mHopper;
 
-                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT amount FROM resource_containers WHERE id= %"PRIu64"", queryContainer.mId);
+                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT amount FROM %s.resource_containers WHERE id= %"PRIu64"",mDatabase->galaxy(), queryContainer.mId);
                 }
             }
         }
@@ -260,7 +260,10 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,FFQuery_Hopper,asyncContainer->mClient);
         asContainer->mObject = factory;
 
-        mDatabase->executeSqlAsync(this,asContainer, "(SELECT \'input\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2773) UNION (SELECT \'output\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2774)", factory->getId(), factory->getId());
+        mDatabase->executeSqlAsync(this,asContainer, "(SELECT \'input\',id FROM %s.items WHERE parent_id = %"PRIu64" AND item_type = 2773) "
+                                                     "UNION (SELECT \'output\',id FROM %s.items WHERE parent_id = %"PRIu64" AND item_type = 2774)",
+                                                     mDatabase->galaxy(),factory->getId(),
+                                                     mDatabase->galaxy(),factory->getId());
     }
     break;
 
@@ -378,7 +381,10 @@ void FactoryFactory::upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hoppe
     asynContainer->mObject = factory;
     asynContainer->mHopper = hopperId;
 
-    mDatabase->executeSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId);
+    mDatabase->executeSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM %s.items WHERE parent_id = %"PRIu64") "
+                                                   "UNION (SELECT \'resource\',id FROM %s.resource_containers WHERE parent_id = %"PRIu64")",
+                                                   mDatabase->galaxy(),hopperId,
+                                                   mDatabase->galaxy(),hopperId);
 
 }
 //=============================================================================

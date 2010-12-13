@@ -113,7 +113,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,BFQuery_Cells,asyncContainer->mClient);
             asContainer->mObject = building;
 
-            mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRIu64";",building->getId());
+            mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM %s.cells WHERE parent_id = %"PRIu64";",mDatabase->galaxy(),building->getId());
             
         }
     }
@@ -143,7 +143,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,BFQuery_Cells,asyncContainer->mClient);
         asContainer->mObject = building;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRIu64";",building->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM %s.cells WHERE parent_id = %"PRIu64";",mDatabase->galaxy(),building->getId());
         
     }
     break;

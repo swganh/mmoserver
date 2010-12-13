@@ -69,7 +69,7 @@ ResourceManager::ResourceManager(Database* database,uint32 zoneId) :
 
     // load resource types
     mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_ResourceTypes),
-                               "SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM resource_template ORDER BY id");
+                               "SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM %s.resource_template ORDER BY id",mDatabase->galaxy());
  
 }
 
@@ -222,7 +222,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         }
 
         // query categories
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_Categories),"SELECT * FROM resource_categories ORDER BY id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_Categories),"SELECT * FROM %s.resource_categories ORDER BY id",mDatabase->galaxy());
     }
     break;
 
@@ -314,11 +314,11 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
         // query old and current resources not from this planet
         mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),
-									"SELECT * FROM resources "
-									" INNER JOIN resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
+									"SELECT * FROM %s.resources "
+									" INNER JOIN %s.resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
 									" WHERE (NOT ("
 									" (resources_spawn_config.planet_id = %u) AND"
-									" (resources.active = 1)))",mZoneId);
+									" (resources.active = 1)))",mDatabase->galaxy(),mDatabase->galaxy(),mZoneId);
 		// dont load the active resources of this zone again!!!
     }
     break;

@@ -149,9 +149,10 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
             //containers are normal items like furniture, lightsabers and stuff
             mDatabase->executeSqlAsync(this,asContainer,
-                                       "(SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
-                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
-                                       item->getId(),item->getId());
+                                       "(SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%"PRIu64"))"
+                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%"PRIu64"))",
+                                       mDatabase->galaxy(),item->getId(),
+                                       mDatabase->galaxy(),item->getId());
             
 
         }

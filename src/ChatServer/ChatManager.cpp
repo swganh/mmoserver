@@ -2999,7 +2999,7 @@ bool ChatManager::isValidName(BString name)
     int8 sql[128];
     mDatabase->escapeString(sql, name.getAnsi(), name.getLength());
 
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id FROM characters WHERE LCASE(firstname) = '%s';", sql);
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id FROM %s.characters WHERE LCASE(firstname) = '%s';",mDatabase->galaxy(), sql);
 
     bool valid = (result->getRowCount() == 1);
     mDatabase->destroyResult(result);
@@ -3014,7 +3014,7 @@ bool ChatManager::isValidExactName(BString name)
 {
     int8 sql[128];
     mDatabase->escapeString(sql, name.getAnsi(), name.getLength());
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id FROM characters WHERE BINARY firstname = '%s';", sql);
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id FROM %s.characters WHERE BINARY firstname = '%s';",mDatabase->galaxy(), sql);
 
     bool valid = (result->getRowCount() == 1);
     mDatabase->destroyResult(result);
@@ -3045,7 +3045,7 @@ BString* ChatManager::getFirstName(BString& name)
         binding->addField(DFT_bstring,0,64);
         int8 sql[128];
         mDatabase->escapeString(sql, name.getAnsi(), name.getLength());
-        DatabaseResult* result = mDatabase->executeSynchSql("SELECT firstname FROM characters WHERE LCASE(firstname)= '%s';", sql);
+        DatabaseResult* result = mDatabase->executeSynchSql("SELECT firstname FROM %s.characters WHERE LCASE(firstname)= '%s';",mDatabase->galaxy(), sql);
 
         if (result->getRowCount() == 1)
         {

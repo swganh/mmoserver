@@ -108,7 +108,8 @@ void BuffManager::handleDatabaseJobComplete(void *ref, DatabaseResult *result)
             WMAsyncContainer* asContainer = asyncContainer->asyncContainer;
 
             // position save - the callback will be in the worldmanager to proceed with the rest of the safe
-            mDatabase->executeSqlAsync(reinterpret_cast<DatabaseCallback*>(asyncContainer->callBack),asContainer,"UPDATE characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",playerObject->getParentId()
+            mDatabase->executeSqlAsync(reinterpret_cast<DatabaseCallback*>(asyncContainer->callBack),asContainer,"UPDATE %s.characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u,jedistate=%u WHERE id=%"PRIu64"",
+                                        mDatabase->galaxy(),playerObject->getParentId()
                                        ,playerObject->mDirection.x,playerObject->mDirection.y,playerObject->mDirection.z,playerObject->mDirection.w
                                        ,playerObject->mPosition.x,playerObject->mPosition.y,playerObject->mPosition.z
                                        ,gWorldManager->getZoneId(),playerObject->getJediState(),playerObject->getId());
@@ -416,7 +417,7 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 
         uint32 bufficon = buff->GetIcon();
         int8 sql[550];
-        sprintf(sql, "INSERT INTO character_buffs (character_id, buff_id, instigator_id, max_ticks, tick_length, current_tick, icon, current_global_tick, start_global_tick) values(");
+        sprintf(sql, "INSERT INTO %s.character_buffs (character_id, buff_id, instigator_id, max_ticks, tick_length, current_tick, icon, current_global_tick, start_global_tick) values(",mDatabase->galaxy());
         sprintf(sql+strlen(sql), "%"PRIu64",", player->getId());
         sprintf(sql+strlen(sql), "%"PRIu64",", buff->GetID());
         sprintf(sql+strlen(sql), "%"PRIu64",", instigatorid);
@@ -439,7 +440,7 @@ bool BuffManager::AddBuffToDB(WMAsyncContainer* asyncContainer,DatabaseCallback*
 
 
         int8 sql2[550];
-        sprintf(sql2, "INSERT INTO character_buff_attributes (buff_id,character_id,type,initial,tick,final) VALUES");
+        sprintf(sql2, "INSERT INTO %s.character_buff_attributes (buff_id,character_id,type,initial,tick,final) VALUES",mDatabase->galaxy());
         //Add Attributes
         AttributeList::iterator it = buff->Attributes.begin();
 
@@ -526,7 +527,7 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
 
         uint32 bufficon = buff->GetIcon();
         int8 sql[550];
-        sprintf(sql, "INSERT INTO character_buffs (character_id, buff_id, instigator_id, max_ticks, tick_length, current_tick, icon, current_global_tick, start_global_tick) values(");
+        sprintf(sql, "INSERT INTO %s.character_buffs (character_id, buff_id, instigator_id, max_ticks, tick_length, current_tick, icon, current_global_tick, start_global_tick) values(",mDatabase->galaxy());
         sprintf(sql+strlen(sql), "%"PRIu64",", Player->getId());
         sprintf(sql+strlen(sql), "%"PRIu64",", buff->GetID());
         sprintf(sql+strlen(sql), "%"PRIu64",", instigatorid);
@@ -542,7 +543,7 @@ void BuffManager::AddBuffToDB(Buff* buff, uint64 currenttime)
         mDatabase->destroyResult(mDatabase->executeSynchSql(sql));
 
         int8 sql2[550];
-        sprintf(sql2, "INSERT INTO character_buff_attributes (buff_id,character_id,type,initial,tick,final) VALUES");
+        sprintf(sql2, "INSERT INTO %s.character_buff_attributes (buff_id,character_id,type,initial,tick,final) VALUES",mDatabase->galaxy());
         //Add Attributes
         AttributeList::iterator it = buff->Attributes.begin();
 

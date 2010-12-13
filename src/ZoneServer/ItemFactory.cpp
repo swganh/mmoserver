@@ -455,11 +455,11 @@ void ItemFactory::_postProcessAttributes(Object* object)
             else
             {
                 item->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-                mDatabase->executeSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=%u",item->getId(),AttrType_CraftToolStatus);
+                mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=%u",mDatabase->galaxy(),item->getId(),AttrType_CraftToolStatus);
 
                 int8 sql[250];
                 item->addAttribute("craft_tool_time","0");
-                sprintf(sql,"INSERT INTO item_attributes VALUES(%"PRIu64",%u,'0',0,0)",item->getId(),AttrType_CraftToolTime);
+                sprintf(sql,"INSERT INTO %s.item_attributes VALUES(%"PRIu64",%u,'0',0,0)",mDatabase->galaxy(),item->getId(),AttrType_CraftToolTime);
                 mDatabase->executeAsyncSql(sql);
                
             }

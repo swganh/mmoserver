@@ -243,7 +243,7 @@ void ObjectController::_handleSetBiography(uint64 targetId,Message* message,Obje
     player->setBiography(bio);
 
     bio.convert(BSTRType_ANSI);
-    sprintf(sql,"UPDATE character_biography SET biography ='");
+    sprintf(sql,"UPDATE %s.character_biography SET biography ='",mDatabase->galaxy());
     sprintf(end,"' WHERE character_id = %"PRIu64"",player->getId());
     sqlPointer = sql + strlen(sql);
     sqlPointer += mDatabase->escapeString(sqlPointer,bio.getAnsi(),bio.getLength());
@@ -355,7 +355,7 @@ void ObjectController::_handleMatch(uint64 targetId,Message* message,ObjectContr
 
     swscanf(matchfield.getUnicode16(),L"%u %u %u %u %u",&i1,&i2,&i3,&i4,&i5);
 
-    mDatabase->executeSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope), "UPDATE character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %"PRIu64"", i2, i3, i4, i5, matchObject->getId());
+    mDatabase->executeSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope), "UPDATE %s.character_matchmaking set match_1 = %u, match_2 = %u, match_3 = %u, match_4 = %u where character_id = %"PRIu64"",mDatabase->galaxy(), i2, i3, i4, i5, matchObject->getId());
     
 
     // update the players Object

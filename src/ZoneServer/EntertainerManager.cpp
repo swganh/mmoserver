@@ -318,7 +318,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 
     //add it to the db
     int8 sql[100];
-    sprintf(sql,"INSERT INTO entertainer_deny_service VALUES(%"PRIu64",%"PRIu64")",entertainer->getId(),outCastId);
+    sprintf(sql,"INSERT INTO %s.entertainer_deny_service VALUES(%"PRIu64",%"PRIu64")",mDatabase->galaxy(),entertainer->getId(),outCastId);
 
     EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
@@ -613,11 +613,11 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
                 EntertainerManagerAsyncContainer* asyncContainer;
 
                 asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-                sprintf(sql,"UPDATE swganh.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
+                sprintf(sql,"UPDATE %s.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",mDatabase->galaxy(),theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
                 mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
                 asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-                sprintf(sql,"UPDATE swganh.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
+                sprintf(sql,"UPDATE %s.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",mDatabase->galaxy(),theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
                 mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
                 gSkillManager->addExperience(XpType_imagedesigner,2000,asynContainer->performer);

@@ -81,10 +81,10 @@ LoginServer::LoginServer(void) :
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, NULL, NULL);",mDatabase->galaxy(), 1); // SQL - Update Server Status
     
     // In case of a crash, we need to cleanup the DB a little.
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE account SET account_authenticated = 0 WHERE account_authenticated = 1;"));
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.account SET account_authenticated = 0 WHERE account_authenticated = 1;",mDatabase->galaxy()));
     
     //and session_key now as well
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE account SET account_session_key = '';"));
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.account SET account_session_key = '';",mDatabase->galaxy()));
   
     // Instant the messageFactory. It will also run the Startup ().
     (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.

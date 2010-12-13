@@ -99,14 +99,14 @@ ConnectionServer::ConnectionServer(void) :
 
     mClusterId = gConfig->read<uint32>("ClusterId");
 
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 1, mClusterId); // Set status to online
     
 
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', NULL, NULL, NULL);");
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('connection', NULL, NULL, NULL);",mDatabase->galaxy());
     
 
     // In case of a crash, we need to cleanup the DB a little.
-    mDatabase->executeSynchSql("UPDATE account SET account_loggedin=0 WHERE account_loggedin=%u;", mClusterId);
+    mDatabase->executeSynchSql("UPDATE %s.account SET account_loggedin=0 WHERE account_loggedin=%u;",mDatabase->galaxy(), mClusterId);
     
     // Status:  0=offline, 1=loading, 2=online
     _updateDBServerList(1);

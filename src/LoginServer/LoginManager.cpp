@@ -114,7 +114,7 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
     LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
 
     // Client has disconnected.  Update the db to show they are no longer authenticated.
-    mDatabase->executeProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id=%u;", loginClient->getAccountId());
+    mDatabase->executeProcedureAsync(0, 0, "UPDATE %s.account SET account_authenticated = 0 WHERE account_id=%u;",mDatabase->galaxy(), loginClient->getAccountId());
 
     LoginClientList::iterator iter = mLoginClientList.begin();
 
@@ -390,7 +390,7 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
     client->SendChannelA(message, 4,false);
 
     // Update the account record so we know they authenticated properly.
-    mDatabase->executeSqlAsync(0, 0, "UPDATE account SET account_authenticated = 1 WHERE account_id = %u;", client->getAccountId());
+    mDatabase->executeSqlAsync(0, 0, "UPDATE %s.account SET account_authenticated = 1 WHERE account_id = %u;",mDatabase->galaxy(), client->getAccountId());
 
     // Execute our query for sending the server list.
     client->setState(LCSTATE_QueryServerList);
@@ -518,7 +518,7 @@ void LoginManager::_sendDeleteCharacterReply(uint32 result,LoginClient* client)
     // Set the account authenticated to 0 (the server will attempt to relogin for any further processing).
     // Set the state to the end state to prevent character deletion infinite loop.
     client->setState(LCSTATE_End);
-    mDatabase->executeProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id = %u;", client->getAccountId());
+    mDatabase->executeProcedureAsync(0, 0, "UPDATE %s.account SET account_authenticated = 0 WHERE account_id = %u;",mDatabase->galaxy(), client->getAccountId());
  
 }
 

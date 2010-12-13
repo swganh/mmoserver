@@ -73,7 +73,7 @@ bool Bank::updateCredits(int32_t amount) {
     gMessageLib->sendBankCreditsUpdate(owner_);
 
     stringstream query;
-    query << "UPDATE banks SET credits=" << credits_ << " WHERE id=" << mId;
+    query << "UPDATE "<<gWorldManager->getDatabase()->galaxy()<<".banks SET credits=" << credits_ << " WHERE id=" << mId;
 
     gWorldManager->getDatabase()->executeAsyncSql(query);
 

@@ -450,11 +450,11 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
     {
         //yay we were succesful
         structure->setOwner(asynContainer->mTargetId);
-        mDatabase->executeSqlAsync(0,0,"UPDATE structures SET structures.owner = %"PRIu64" WHERE structures.id = %"PRIu64"",asynContainer->mTargetId,asynContainer->mStructureId);
+        mDatabase->executeSqlAsync(0,0,"UPDATE %s.structures SET structures.owner = %"PRIu64" WHERE structures.id = %"PRIu64"",mDatabase->galaxy(),asynContainer->mTargetId,asynContainer->mStructureId);
         
-        mDatabase->executeSqlAsync(0,0,"DELETE FROM structure_admin_data where playerId = %"PRIu64" AND StructureID = %"PRIu64"",asynContainer->mPlayerId,asynContainer->mStructureId);
+        mDatabase->executeSqlAsync(0,0,"DELETE FROM %s.structure_admin_data where playerId = %"PRIu64" AND StructureID = %"PRIu64"",mDatabase->galaxy(),asynContainer->mPlayerId,asynContainer->mStructureId);
         
-        mDatabase->executeSqlAsync(0,0,"INSERT INTO structure_admin_data VALUES (NULL,%"PRIu64",%"PRIu64",'ADMIN')",asynContainer->mStructureId, asynContainer->mTargetId);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO %s.structure_admin_data VALUES (NULL,%"PRIu64",%"PRIu64",'ADMIN')",mDatabase->galaxy(),asynContainer->mStructureId, asynContainer->mTargetId);
         
 
 

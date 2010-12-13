@@ -890,7 +890,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
                 //set the new Owner
                 TradeManagerAsyncContainer* asyncContainer;
 
-                sprintf(sql,"UPDATE swganh.commerce_auction SET owner_id = %"PRIu64", bidder_name = '' WHERE auction_id = %"PRIu64" ",auctionTemp->BidderID,auctionTemp->ItemID);
+                sprintf(sql,"UPDATE %s.commerce_auction SET owner_id = %"PRIu64", bidder_name = '' WHERE auction_id = %"PRIu64" ",mDatabase->galaxy(),auctionTemp->BidderID,auctionTemp->ItemID);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
                 mDatabase->executeSqlAsync(this,asyncContainer,sql);
                 
@@ -934,7 +934,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             if(AuctionTemp->BidderID != asynContainer->AuctionTemp->OwnerID) {
                 TradeManagerAsyncContainer* asyncContainer;
 
-                sprintf(sql,"UPDATE banks SET credits=credits+%"PRId32" WHERE id=%"PRIu64"",asynContainer->MyProxy, AuctionTemp->BidderID+4);
+                sprintf(sql,"UPDATE %s.banks SET credits=credits+%"PRId32" WHERE id=%"PRIu64"",mDatabase->galaxy(),asynContainer->MyProxy, AuctionTemp->BidderID+4);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
                 mDatabase->executeSqlAsync(this,asyncContainer,sql);
                 
@@ -946,7 +946,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         //now delete the Auctions Bidhistory
         TradeManagerAsyncContainer* asyncContainer;
 
-        sprintf(sql,"DELETE FROM commerce_bidhistory WHERE auction_id = '%"PRIu64"' ",asynContainer->AuctionTemp->ItemID);
+        sprintf(sql,"DELETE FROM %s.commerce_bidhistory WHERE auction_id = '%"PRIu64"' ",mDatabase->galaxy(),asynContainer->AuctionTemp->ItemID);
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
@@ -1247,7 +1247,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         {
 
             //just update the high proxy
-            sprintf(sql,"UPDATE commerce_bidhistory SET proxy_bid = '%"PRIu32"'WHERE auction_id = '%"PRIu64"' AND bidder_name = '%s'", asynContainer->MyProxy, asynContainer->AuctionTemp->ItemID, PlayerName);
+            sprintf(sql,"UPDATE %s.commerce_bidhistory SET proxy_bid = '%"PRIu32"'WHERE auction_id = '%"PRIu64"' AND bidder_name = '%s'",mDatabase->galaxy(), asynContainer->MyProxy, asynContainer->AuctionTemp->ItemID, PlayerName);
 
             TradeManagerAsyncContainer* asyncContainer;
             asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
@@ -1353,11 +1353,11 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
     int8 Query[4096];		//depending on our Auction comments this can become long
     if (category != 0)
     {
-        sprintf(Query," UPDATE commerce_auction SET start = '%"PRIu64"', region_id = '%"PRIu32"', planet_id = '%"PRIu32"',category = '%"PRIu32"' WHERE auction_id = '%"PRIu64"'", time, RegionID, player->getPlanetId(),category,ItemID);
+        sprintf(Query," UPDATE %s.commerce_auction SET start = '%"PRIu64"', region_id = '%"PRIu32"', planet_id = '%"PRIu32"',category = '%"PRIu32"' WHERE auction_id = '%"PRIu64"'",mDatabase->galaxy(), time, RegionID, player->getPlanetId(),category,ItemID);
     }
     else
     {
-        sprintf(Query," UPDATE commerce_auction ca inner join swganh.items i ON (i.id = ca.auction_id) inner join swganh.item_types it ON (it.id = i.item_type) SET ca.start = '%"PRIu64"' , ca.region_id = '%"PRIu32"', ca.planet_id = '%"PRIu32"', ca.category = it.bazaar_category  WHERE ca.auction_id = '%"PRIu64"'", time, RegionID, player->getPlanetId(),ItemID);
+        sprintf(Query," UPDATE %s.commerce_auction ca inner join %s.items i ON (i.id = ca.auction_id) inner join %s.item_types it ON (it.id = i.item_type) SET ca.start = '%"PRIu64"' , ca.region_id = '%"PRIu32"', ca.planet_id = '%"PRIu32"', ca.category = it.bazaar_category  WHERE ca.auction_id = '%"PRIu64"'", mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),time, RegionID, player->getPlanetId(),ItemID);
     }
 
 

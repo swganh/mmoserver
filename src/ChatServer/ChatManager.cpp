@@ -1467,21 +1467,7 @@ void ChatManager::_processEnterRoomById(Message* message,DispatchClient* client)
             return;
         }
     }
-    // Test Eruptor
-    // If we have not been fully loaded, the channel list is not complete.
-    // Removed again, since we screw up client sync and we end up see two duplicates of"player" in the same channel.
 
-    /*
-    if (!player->getAddPending())
-    {
-        channel->addUser(avatar);
-        mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_char_channels VALUES (%"PRIu64", %u);", player->getCharId(), channel->getId());
-        gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
-    }
-    else
-    {
-    }
-    */
     channel->addUser(avatar);
     gChatMessageLib->sendChatOnEnteredRoom(client, avatar, channel, requestId);
 
@@ -1641,8 +1627,6 @@ void ChatManager::_processAddModeratorToRoom(Message* message,DispatchClient* cl
         int8 sql[128];
         mDatabase->escapeString(sql, realPlayerName.getAnsi(), realPlayerName.getLength());
 
-        // mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_moderators VALUES (%u, '%s');", channel->getId(), sql /* realPlayerName.getAnsi() */);
-
         mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomModeratorAdd(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
         
 
@@ -1747,7 +1731,6 @@ void ChatManager::_processInviteAvatarToRoom(Message* message,DispatchClient* cl
         int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-        //mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_invited VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi() */);
         mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserInvite(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
         
         gChatMessageLib->sendChatOnInviteToRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
@@ -2143,10 +2126,8 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
 
         // Get the ban-stick in ready position
         channel->banUser(playerName);
-        // int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
-        // mDatabase->ExecuteSqlAsync(NULL, NULL, "INSERT INTO chat_channels_banned VALUES (%u, '%s');", channel->getId(), sql /* playerName.getAnsi()*/);
-
+        
         mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserBan(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
 
         gChatMessageLib->sendChatOnBanAvatarFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);

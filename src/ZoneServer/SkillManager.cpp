@@ -511,7 +511,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
         //finding all the new schems for the skill!
         //player->addSchematicIds(skill);
 
-        mDatabase->executeSqlAsync(NULL,NULL,"INSERT INTO character_skills VALUES (%"PRIu64",%u)",player->getId(),skillId);
+        mDatabase->executeSqlAsync(NULL,NULL,"INSERT INTO %s.character_skills VALUES (%"PRIu64",%u)",mDatabase->galaxy(),player->getId(),skillId);
         
 
         creatureObject->prepareSkillMods();
@@ -556,7 +556,7 @@ bool SkillManager::learnSkill(uint32 skillId,CreatureObject* creatureObject,bool
             (void)player->UpdateXp(skill->mXpType, newXpCost);
 
             // gLogger->log(LogManager::DEBUG,"SkillManager::learnSkill: Removing %i xp of type %u", -newXpCost, skill->mXpType);
-            mDatabase->executeSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",newXpCost, skill->mXpType, player->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.character_xp SET value=value+%i WHERE xp_id=%u AND character_id=%"PRIu64"",mDatabase->galaxy(),newXpCost, skill->mXpType, player->getId());
             
             gMessageLib->sendXpUpdate(skill->mXpType,player);
         }
@@ -959,7 +959,7 @@ void SkillManager::initExperience(PlayerObject* playerObject)
                 playerObject->addXpType(xpType);
 
                 // Create entry in DB.
-                mDatabase->executeSqlAsync(NULL,NULL,"INSERT INTO character_xp VALUES (%"PRIu64",%u,0)",playerObject->getId(),xpType);
+                mDatabase->executeSqlAsync(NULL,NULL,"INSERT INTO %s.character_xp VALUES (%"PRIu64",%u,0)",mDatabase->galaxy(),playerObject->getId(),xpType);
                 
 
                 // Add this type of xp cap.
@@ -1141,7 +1141,7 @@ void SkillManager::addExperience(uint32 xpType,int32 valueDiff,PlayerObject* pla
         // gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: XP cap = %u", xpCap);
         // gLogger->log(LogManager::DEBUG,"SkillManager::addExperience: Adding %u xp of type %u to database", newXpBoost, xpType);
 
-        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE character_xp SET value=value+%i WHERE character_id=%"PRIu64" AND xp_id=%u", newXpBoost, playerObject->getId(), xpType);
+        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.character_xp SET value=value+%i WHERE character_id=%"PRIu64" AND xp_id=%u",mDatabase->galaxy(), newXpBoost, playerObject->getId(), xpType);
         
 
         // ...THEN we get any messages of new skills qualifications.

@@ -443,7 +443,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByPosition(Messag
         gWorldManager->savePlayerSync(playerObject->getAccountId(),false);
 
         // Now update the DB with the new location/planetId
-        mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%"PRIu64"';",x,z,planetId,playerObject->getId()));
+        mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.characters SET parent_id=0,x='%f', y='0', z='%f', planet_id='%u' WHERE id='%"PRIu64"';",mDatabase->galaxy(),x,z,planetId,playerObject->getId()));
 
 
         gMessageLib->sendClusterZoneTransferCharacter(playerObject,planetId);

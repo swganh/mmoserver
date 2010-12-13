@@ -361,7 +361,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
 
             //update hair customization db side seperately
             int8 sql[300];
-            sprintf(sql,"UPDATE character_appearance set %s = %u where character_id = '%"PRIu64"'",iDContainer->Atr1Name, value,customer->getId());
+            sprintf(sql,"UPDATE %s.character_appearance set %s = %u where character_id = '%"PRIu64"'",mDatabase->galaxy(),iDContainer->Atr1Name, value,customer->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
             
 
@@ -561,7 +561,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 			if(!newHairString.getLength())
 			{
 				// update the db
-				sprintf(sql,"UPDATE character_appearance set hair = '' where character_id = '%"PRIu64"'",customer->getId());
+				sprintf(sql,"UPDATE %s.character_appearance set hair = '' where character_id = '%"PRIu64"'",mDatabase->galaxy(),customer->getId());
 				mDatabase->executeSqlAsync(NULL,NULL,sql);
 			}
 		}
@@ -591,7 +591,7 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 
 
 		// update the db
-		sprintf(sql,"UPDATE character_appearance set hair = '%s' where character_id = '%"PRIu64"'",newHairString.getAnsi(),customer->getId());
+		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",mDatabase->galaxy(),newHairString.getAnsi(),customer->getId());
 		mDatabase->executeSqlAsync(NULL,NULL,sql);
 
 		// now update the modelstring in the creo6 equipped list and the corresponding tano
@@ -635,11 +635,11 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
     asyncContainer->amountbank = amountbank;
 
 
-    sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRIu64"",amountcash, customer->getId()+1);
+    sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amountcash, customer->getId()+1);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",amountbank, customer->getId()+4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amountbank, customer->getId()+4);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",amount, designer->getId()+4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amount, designer->getId()+4);
     mTransaction->addQuery(sql);
 
     mTransaction->execute();
@@ -731,7 +731,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     BString						data;
     bool						firstUpdate		 = true;
 
-    sprintf(mySQL,"UPDATE character_appearance set ");
+    sprintf(mySQL,"UPDATE %s.character_appearance set ",mDatabase->galaxy());
 
     while(it != aList->end())
     {

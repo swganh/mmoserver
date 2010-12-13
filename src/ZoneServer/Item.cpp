@@ -52,7 +52,7 @@ Item::~Item()
 
 void Item::updateWorldPosition()
 {
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE items SET parent_id ='%"PRIu64"', oX='%f',oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id ='%"PRIu64"', oX='%f',oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",gWorldManager->getDatabase()->galaxy(),this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
    
 }
 

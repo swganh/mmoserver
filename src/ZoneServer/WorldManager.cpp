@@ -641,10 +641,10 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
                 it = mBusyCraftTools.erase(it);
                 tool->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-                mDatabase->executeSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId());
+                mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",mDatabase->galaxy(),tool->getId());
 
                 tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
-                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 
 
                 continue;
@@ -654,7 +654,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
             tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
             //gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
-            mDatabase->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+            mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 
         }
 

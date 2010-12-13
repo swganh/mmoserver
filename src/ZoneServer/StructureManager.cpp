@@ -794,7 +794,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			//set to private
 			if(house->getPublic())
 			{
-				mDatabase->executeSqlAsync(0,0,"UPDATE houses h SET h.private = 0 WHERE h.ID = %I64u",command.StructureId);
+				mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 0 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
 				house->setPublic(false);
 				gMessageLib->SendSystemMessage(L"",player,"player_structure","structure_now_private");
 				updateKownPlayerPermissions(house);
@@ -803,7 +803,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			house->setPublic(true);
 			gMessageLib->SendSystemMessage(L"",player,"player_structure","structure_now_public");
-			mDatabase->executeSqlAsync(0,0,"UPDATE houses h SET h.private = 1 WHERE h.ID = %I64u",command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 1 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
 			updateKownPlayerPermissions(house);
 		}
 		break;
@@ -822,7 +822,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			factory->setActive(false);
 
 			//now turn the factory on - in db and otherwise
-			mDatabase->executeSqlAsync(0,0,"UPDATE factories f SET f.active = 0 WHERE f.ID = %I64u",command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 0 WHERE f.ID = %I64u",mDatabase->galaxy(),command.StructureId);
 			gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
 		}
@@ -849,7 +849,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			factory->setActive(true);
 
 			//now turn the factory on - in db and otherwise
-			mDatabase->executeSqlAsync(0,0,"UPDATE factories f SET f.active = 1 WHERE f.ID = %I64u",command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories f SET f.active = 1 WHERE f.ID = %I64u",mDatabase->galaxy(),command.StructureId);
 			gMessageLib->SendUpdateFactoryWorkAnimation(factory);
 
 		}
@@ -940,7 +940,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			
 			//change the ManSchems Owner ID and load it into the datapad
 			gObjectFactory->requestTanoNewParent(datapad,factory->getManSchemID() ,datapad->getId(),TanGroup_ManufacturingSchematic);
-			mDatabase->executeSqlAsync(0,0,"UPDATE factories SET ManSchematicID = 0 WHERE ID = %I64u",command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = 0 WHERE ID = %I64u",mDatabase->galaxy(),command.StructureId);
 
 			//finally reset the schem ID in the factory
 			factory->setManSchemID(0);
@@ -1005,8 +1005,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			factory->setManSchemID(command.SchematicId);
 			
 			//link the schematic to the factory in the db
-			mDatabase->executeSqlAsync(0,0,"UPDATE factories SET ManSchematicID = %I64u WHERE ID = %I64u",command.SchematicId,command.StructureId);
-			mDatabase->executeSqlAsync(0,0,"UPDATE items SET parent_id = %I64u WHERE ID = %I64u",command.StructureId,command.SchematicId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.factories SET ManSchematicID = %I64u WHERE ID = %I64u",mDatabase->galaxy(),command.SchematicId,command.StructureId);
+			mDatabase->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id = %I64u WHERE ID = %I64u",mDatabase->galaxy(),command.StructureId,command.SchematicId);
 			
 			//remove the schematic from the player
 			

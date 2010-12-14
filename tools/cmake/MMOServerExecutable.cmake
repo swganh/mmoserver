@@ -134,7 +134,8 @@ FUNCTION(AddMMOServerExecutable name)
         NetworkManager
         DatabaseManager
         Common
-        Utils    
+        Utils
+        libanh
         debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
         debug ${Boost_REGEX_LIBRARY_DEBUG}
         debug ${Boost_SYSTEM_LIBRARY_DEBUG}

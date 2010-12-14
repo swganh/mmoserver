@@ -410,7 +410,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[500];
 
             //start by using power
-            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, st.maint_cost_wk, s.lastMail FROM %s.structures s INNER JOIN %s.structure_type_data st ON (s.type = st.type) INNER JOIN %s.planet p ON (p.planet_id = s.zone)WHERE ID = %"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(),asynContainer->harvesterID);
+            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, st.maint_cost_wk, s.lastMail FROM %s.structures s INNER JOIN %s.structure_type_data st ON (s.type = st.type) INNER JOIN %s.planet p ON (p.planet_id = s.zone)WHERE ID = %"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),asynContainer->harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailCondZero,0);
             asyncContainer->harvesterID = asynContainer->harvesterID;
 

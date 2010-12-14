@@ -154,34 +154,26 @@ void StructureManager::Shutdown()
 void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 {
     HouseObject* house = dynamic_cast<HouseObject*>(structure);
-    if(!house)
-    {
+    if(!house)    {
         LOG(WARNING) << "Structure is not a HouseObject";
         return;
     }
 
 	//get all players in range and alter their permissionlists
-	// to in-range folks
 	ObjectSet resultSet;
 
-	gSpatialIndexManager->getObjectsInRange(structure,&resultSet,ObjType_Creature,30.0,true);
+	gSpatialIndexManager->getPlayersInRange(structure,&resultSet, true);
 	ObjectSet::iterator it = resultSet.begin();
 
-	while(it != resultSet.end())
-	{
+	while(it != resultSet.end())	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
 		
-		if(player)
-		{
+		if(player)	{
 			house->checkCellPermission(player);
 		}
-		
-
 		it++;
 	}
 }
-
-
 
 //=======================================================================================================================
 //checks for a name on a permission list

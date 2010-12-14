@@ -258,7 +258,7 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
     mMessageFactory->addUint64(parentId);
     mMessageFactory->addUint32(linkType);
 
-    _sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
+    _sendToInRange(mMessageFactory->EndMessage(),targetObject,5, false);
 
     return(true);
 }

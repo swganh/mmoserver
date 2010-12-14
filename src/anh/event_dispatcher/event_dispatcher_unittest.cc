@@ -56,7 +56,7 @@ TEST(EventDispatcherTest, CannotSubscribeToUnregisteredEvent) {
     EventDispatcher dispatcher;
 
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-                                 [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
 
     EXPECT_FALSE(dispatcher.subscribe("some_event_type", my_listener));
 }
@@ -69,7 +69,7 @@ TEST(EventDispatcherTest, HasListenersAfterOneSubscribes) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-                                 [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
 
     EXPECT_TRUE(dispatcher.subscribe("some_event_type", my_listener));
     EXPECT_TRUE(dispatcher.hasListeners("some_event_type"));
@@ -82,7 +82,7 @@ TEST(EventDispatcherTest, SubscribingListenerToEventTwiceFails) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-                                 [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
 
     // Should succeed the first time.
     EXPECT_TRUE(dispatcher.subscribe("some_event_type", my_listener));
@@ -101,7 +101,7 @@ TEST(EventDispatcherTest, CanSubscribeToMultipleEvents) {
     dispatcher.registerEventType("event_type_2");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-                                 [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
 
     EXPECT_TRUE(dispatcher.subscribe("event_type_1", my_listener));
     EXPECT_TRUE(dispatcher.hasListeners("event_type_1"));
@@ -117,7 +117,7 @@ TEST(EventDispatcherTest, CanUnsubscribeFromEventType) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-                                 [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
 
     // Should succeed the first time.
     EXPECT_TRUE(dispatcher.subscribe("some_event_type", my_listener));
@@ -136,7 +136,7 @@ TEST(EventDispatcherTest, CanUnsubscribeFromAllEventTypes) {
     dispatcher.registerEventType("event_type_2");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-                                 [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+                                 [] (shared_ptr<IEvent> incoming_event) {return true;});
 
     EXPECT_TRUE(dispatcher.subscribe("event_type_1", my_listener));
     EXPECT_TRUE(dispatcher.hasListeners("event_type_1"));
@@ -160,7 +160,7 @@ TEST(EventDispatcherTest, TriggeringEventNotifiesListeners) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [&notified] (shared_ptr<BaseEvent> incoming_event) -> bool {
+        [&notified] (shared_ptr<IEvent> incoming_event) -> bool {
             notified = true;
             return true;
         });
@@ -182,7 +182,7 @@ TEST(EventDispatcherTest, TriggeringAsyncQueuesEvent) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+        [] (shared_ptr<IEvent> incoming_event) {return true;});
     
     dispatcher.subscribe("some_event_type", my_listener);
 
@@ -200,7 +200,7 @@ TEST(EventDispatcherTest, TickingDispatchesQueuedEvents) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+        [] (shared_ptr<IEvent> incoming_event) {return true;});
     
     dispatcher.subscribe("some_event_type", my_listener);
 
@@ -219,7 +219,7 @@ TEST(EventDispatcherTest, AbortingEventCancelsFirstOccurance) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+        [] (shared_ptr<IEvent> incoming_event) {return true;});
     
     dispatcher.subscribe("some_event_type", my_listener);
 
@@ -245,7 +245,7 @@ TEST(EventDispatcherTest, CanAbortAllEventOccurrances) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+        [] (shared_ptr<IEvent> incoming_event) {return true;});
     
     dispatcher.subscribe("some_event_type", my_listener);
 
@@ -268,7 +268,7 @@ TEST(EventDispatcherTest, CanGetListOfRegisteredEventTypes) {
     dispatcher.registerEventType("event_type_2");
     dispatcher.registerEventType("event_type_3");
 
-    const EventTypeSet& event_types = dispatcher.getRegisteredEventTypes();
+    const EventTypeSet& event_types = dispatcher.registered_event_types();
 
     EXPECT_EQ(uint32_t(3), event_types.size());
 
@@ -289,14 +289,14 @@ TEST(EventDispatcherTest, CallbackIsTriggeredAfterEventProcessing) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+        [] (shared_ptr<IEvent> incoming_event) {return true;});
     
     dispatcher.subscribe("some_event_type", my_listener);
 
     auto my_event = make_shared<SimpleEvent>("some_event_type");
 
     bool callback_triggered = false;
-    dispatcher.trigger(my_event, [&callback_triggered] (shared_ptr<BaseEvent> triggered_event, bool processed) {
+    dispatcher.trigger(my_event, [&callback_triggered] (shared_ptr<IEvent> triggered_event, bool processed) {
         callback_triggered = true;
     });
 
@@ -310,14 +310,14 @@ TEST(EventDispatcherTest, CallbackIsTriggeredAfterQueuedEventProcessing) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [] (shared_ptr<BaseEvent> incoming_event) {return true;});    
+        [] (shared_ptr<IEvent> incoming_event) {return true;});    
     dispatcher.subscribe("some_event_type", my_listener);
 
     auto my_event = make_shared<SimpleEvent>("some_event_type");
 
     // load up multiples and ensure all are removed    
     bool callback_triggered = false;
-    EXPECT_TRUE(dispatcher.triggerAsync(my_event, [&callback_triggered] (shared_ptr<BaseEvent> triggered_event, bool processed) {
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event, [&callback_triggered] (shared_ptr<IEvent> triggered_event, bool processed) {
         callback_triggered = true;
     }));
 
@@ -333,7 +333,7 @@ TEST(EventDispatcherTest, EventWaitsForCondition) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+        [] (shared_ptr<IEvent> incoming_event) {return true;});
     
     dispatcher.subscribe("some_event_type", my_listener);
 
@@ -345,7 +345,7 @@ TEST(EventDispatcherTest, EventWaitsForCondition) {
         [&proceed] (uint32_t current_time_ms) {
             return proceed;
         },
-        [&callback_triggered] (shared_ptr<BaseEvent> triggered_event, bool processed) {
+        [&callback_triggered] (shared_ptr<IEvent> triggered_event, bool processed) {
             callback_triggered = true;
         });
 
@@ -368,7 +368,7 @@ TEST(EventDispatcherTest, TriggeringEventSetsTimestamp) {
     dispatcher.registerEventType("some_event_type");
     
     auto my_listener = make_pair(EventListenerType("some_listener_type"), 
-        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+        [] (shared_ptr<IEvent> incoming_event) {return true;});
     
     dispatcher.subscribe("some_event_type", my_listener);
 

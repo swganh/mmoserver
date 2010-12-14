@@ -28,6 +28,8 @@ using namespace anh::event_dispatcher;
 using namespace boost::posix_time;
 using namespace std;
 
+IEventDispatcher::~IEventDispatcher() {}
+
 EventDispatcher::EventDispatcher()
     : event_queues_(NUM_QUEUES)
     , active_queue_(0)
@@ -69,6 +71,10 @@ bool EventDispatcher::registerEventType(EventType event_type) {
     
     registered_event_types_.insert(std::move(event_type));
     return true;
+}
+
+EventTypeSet EventDispatcher::registered_event_types() const {
+    return registered_event_types_;
 }
 
 bool EventDispatcher::subscribe(const EventType& event_type, EventListener listener) {
@@ -128,7 +134,7 @@ void EventDispatcher::unsubscribe(const EventListenerType& listener_type) {
     });
 }
 
-bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event) {
+bool EventDispatcher::trigger(std::shared_ptr<IEvent> incoming_event) {
     const EventType& event_type = incoming_event->type();
     if (!validateEventType_(event_type)) {
         assert(false && "Event was triggered before its type was registered");
@@ -159,7 +165,7 @@ bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event) {
     return processed;
 }
 
-bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event, PostTriggerCallback callback) {
+bool EventDispatcher::trigger(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback) {
     bool processed = trigger(incoming_event);
 
     callback(incoming_event, processed);
@@ -168,7 +174,7 @@ bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event, PostTri
 }
 
 
-void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, TriggerCondition condition) {
+void EventDispatcher::triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition) {
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
     assert(active_queue_ < NUM_QUEUES);
@@ -194,7 +200,7 @@ void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, Tri
 }
 
 
-void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback) {
+void EventDispatcher::triggerWhen(std::shared_ptr<IEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback) {
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
     assert(active_queue_ < NUM_QUEUES);
@@ -219,7 +225,7 @@ void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, Tri
     event_queues_[placement_queue].push(make_tuple(incoming_event, condition, callback));
 }
 
-bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
+bool EventDispatcher::triggerAsync(std::shared_ptr<IEvent> incoming_event) {
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
     assert(active_queue_ < NUM_QUEUES);
@@ -247,7 +253,7 @@ bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
 }
 
 
-bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event, PostTriggerCallback callback) {
+bool EventDispatcher::triggerAsync(std::shared_ptr<IEvent> incoming_event, PostTriggerCallback callback) {
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
     assert(active_queue_ < NUM_QUEUES);
@@ -379,11 +385,6 @@ bool EventDispatcher::tick(uint64_t timeout_ms) {
     }
 
     return queue_flushed;
-}
-
-
-EventTypeSet EventDispatcher::getRegisteredEventTypes() const {
-    return registered_event_types_;
 }
 
 bool EventDispatcher::validateEventType_(const EventType& event_type) const {

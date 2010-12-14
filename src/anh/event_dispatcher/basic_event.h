@@ -29,8 +29,10 @@ namespace event_dispatcher {
     
 typedef anh::HashString EventType;
 
-class BaseEvent {
+class IEvent {
 public:
+    virtual ~IEvent() {}
+
     virtual const EventType& type() = 0;
     
     virtual uint32_t priority() const = 0;
@@ -41,7 +43,7 @@ public:
 };
 
 template<typename T>
-class BasicEvent : public T, public BaseEvent {
+class BasicEvent : public T, public IEvent {
 public:
     BasicEvent()
         : type_(T::type())
@@ -57,6 +59,8 @@ public:
         : type_(std::move(type))
         , timestamp_(0)
         , priority_(priority) {}
+
+    ~BasicEvent() {}
 
     const EventType& type() { return type_; }
 

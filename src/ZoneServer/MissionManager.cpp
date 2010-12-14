@@ -158,8 +158,6 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
     case MissionQuery_Load_Names_File:
     {
-        // m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')", zone);
-
         DataBinding* binding = mDatabase->createDataBinding(3);
         binding->addField(DFT_uint32,offsetof(Mission_Names,type),4,0);
         binding->addField(DFT_bstring,offsetof(Mission_Names,mission_name),64,1);

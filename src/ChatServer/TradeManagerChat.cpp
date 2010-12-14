@@ -1585,12 +1585,6 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 
     case TRMVendor_MyBids: //auctions Im bidding on currently at the bazaar
     {
-        //sprintf(query.WindowQuery," ((c.type = %u) or (c.type = %u)) AND",TRMVendor_Auction,TRMVendor_Instant);
-        //int8 tmp[128];
-        //sprintf(tmp," (cbh.bidder_name = %s)",player->getName().getAnsi());
-        //strcat(query.WindowQuery,tmp);
-        //sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM swganh.commerce_auction c INNER JOIN swganh.characters ch on (c.owner_id = ch.id) INNER join swganh.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) inner join swganh.commerce_bidhistory cbh ON (cbh.auction_id = c.auction_id) AND c.owner_id = ch.id WHERE");
-
         sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32")) AND",TRMVendor_Auction,TRMVendor_Instant);
         int8 tmp[128],end[128],*sqlPointer;
         sprintf(tmp," (cbh.bidder_name = '");

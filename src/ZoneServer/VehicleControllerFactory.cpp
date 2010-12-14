@@ -184,9 +184,10 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
             asyncrContainer->mObject = (Object*)(IntangibleObject*)vehicle;
 
             mDatabase->executeSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
-                                       " FROM attributes"
-                                       " INNER JOIN vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
-                                       " WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order", asyncContainer->mId);
+                                       " FROM %s.attributes"
+                                       " INNER JOIN %s.vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
+                                       " WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),asyncContainer->mId);
                    }
 
     }

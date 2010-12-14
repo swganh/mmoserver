@@ -86,11 +86,12 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
                                "SELECT DISTINCT(terminals.dataStr),terminals.x,terminals.y,terminals.z,terminals.dataInt1,"
                                "terminals.dataInt2,terminals.planet_id,"
                                "spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-                               " FROM terminals"
-                               " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
+                               " FROM %s.terminals"
+                               " INNER JOIN %s.spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
                                " WHERE terminals.terminal_type = 16 AND"
                                " terminals.parent_id = 0"
-                               " GROUP BY terminals.dataStr");
+                               " GROUP BY terminals.dataStr",
+                               mDatabase->galaxy(),mDatabase->galaxy());
    
 
     // load travel points in cells

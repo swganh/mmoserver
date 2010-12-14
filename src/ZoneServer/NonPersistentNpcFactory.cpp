@@ -357,9 +357,10 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
             QueryNonPersistentNpcFactory* asContainer = new QueryNonPersistentNpcFactory(asyncContainer->mOfCallback,NonPersistentNpcQuery_Attributes, 0, npc->getId());
 
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,non_persistent_npc_attributes.value,attributes.internal"
-                                       " FROM non_persistent_npc_attributes"
-                                       " INNER JOIN attributes ON (non_persistent_npc_attributes.attribute_id = attributes.id)"
-                                       " WHERE non_persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY non_persistent_npc_attributes.order", asyncContainer->mTemplateId);
+                                       " FROM %s.non_persistent_npc_attributes"
+                                       " INNER JOIN %s.attributes ON (non_persistent_npc_attributes.attribute_id = attributes.id)"
+                                       " WHERE non_persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY non_persistent_npc_attributes.order",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),asyncContainer->mTemplateId);
              }
     }
     break;
@@ -651,11 +652,13 @@ void NonPersistentNpcFactory::requestLairObject(ObjectFactoryCallback* ofCallbac
                                "lairs.spawn_dir_Y, lairs.spawn_dir_W, "
                                "lairs.family, lair_templates.lair_object_string, lair_templates.stf_name, lair_templates.stf_file, "
                                "faction.name "
-                               "FROM lairs "
-                               "INNER JOIN spawns ON (lairs.creature_spawn_region = spawns.id AND %u = spawns.spawn_planet) "
-                               "INNER JOIN lair_templates ON (lairs.lair_template = lair_templates.id) "
-                               "INNER JOIN faction ON (lairs.faction = faction.id) "
-                               "WHERE lairs.id=%u;",gWorldManager->getZoneId(), lairsId);
+                               "FROM %s.lairs "
+                               "INNER JOIN %s.spawns ON (lairs.creature_spawn_region = spawns.id AND %u = spawns.spawn_planet) "
+                               "INNER JOIN %s.lair_templates ON (lairs.lair_template = lair_templates.id) "
+                               "INNER JOIN %s.faction ON (lairs.faction = faction.id) "
+                               "WHERE lairs.id=%u;",
+                               mDatabase->galaxy(),mDatabase->galaxy(),gWorldManager->getZoneId(),mDatabase->galaxy(),mDatabase->galaxy(),
+                               lairsId);
   
 }
 
@@ -675,8 +678,8 @@ void NonPersistentNpcFactory::requestNpcObject(ObjectFactoryCallback* ofCallback
                                "non_persistent_npcs.type, non_persistent_npcs.stf_variable_id, non_persistent_npcs.stf_file_id, "
                                "faction.name, "
                                "non_persistent_npcs.moodID, non_persistent_npcs.scale, non_persistent_npcs.family "
-                               "FROM non_persistent_npcs "
-                               "INNER JOIN faction ON (non_persistent_npcs.faction = faction.id) "
-                               "WHERE non_persistent_npcs.id=%"PRIu64";", creatureTemplateId);
+                               "FROM %s.non_persistent_npcs "
+                               "INNER JOIN %s.faction ON (non_persistent_npcs.faction = faction.id) "
+                               "WHERE non_persistent_npcs.id=%"PRIu64";",mDatabase->galaxy(),mDatabase->galaxy(), creatureTemplateId);
    
 }

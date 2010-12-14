@@ -518,17 +518,19 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
             "banks.planet_id,account.account_csr,character_attributes.group_id,characters.bornyear,"
             "character_matchmaking.match_1, character_matchmaking.match_2, character_matchmaking.match_3, character_matchmaking.match_4,"
             "character_attributes.force_current,character_attributes.force_max,character_attributes.new_player_exemptions"
-            " FROM characters"
-            " INNER JOIN account ON(characters.account_id = account.account_id)"
-            " INNER JOIN banks ON (%"PRIu64" = banks.id)"
-            " INNER JOIN character_appearance ON (characters.id = character_appearance.character_id)"
-            " INNER JOIN race ON (characters.race_id = race.id)"
-            " INNER JOIN character_attributes ON (characters.id = character_attributes.character_id)"
-            " INNER JOIN character_movement ON (characters.id = character_movement.character_id)"
-            " INNER JOIN faction ON (character_attributes.faction_id = faction.id)"
-            " INNER JOIN character_biography ON (characters.id = character_biography.character_id)"
-            " INNER JOIN character_matchmaking ON (characters.id = character_matchmaking.character_id)"
-            " WHERE (characters.id = %"PRIu64");", id + BANK_OFFSET, id);
+            " FROM %s.characters"
+            " INNER JOIN %s.account ON(characters.account_id = account.account_id)"
+            " INNER JOIN %s.banks ON (%"PRIu64" = banks.id)"
+            " INNER JOIN %s.character_appearance ON (characters.id = character_appearance.character_id)"
+            " INNER JOIN %s.race ON (characters.race_id = race.id)"
+            " INNER JOIN %s.character_attributes ON (characters.id = character_attributes.character_id)"
+            " INNER JOIN %s.character_movement ON (characters.id = character_movement.character_id)"
+            " INNER JOIN %s.faction ON (character_attributes.faction_id = faction.id)"
+            " INNER JOIN %s.character_biography ON (characters.id = character_biography.character_id)"
+            " INNER JOIN %s.character_matchmaking ON (characters.id = character_matchmaking.character_id)"
+            " WHERE (characters.id = %"PRIu64");",
+            mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),id + BANK_OFFSET,mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),
+            mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(), id);
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 }

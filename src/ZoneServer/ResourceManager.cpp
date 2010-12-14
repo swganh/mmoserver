@@ -254,11 +254,11 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
                                    "resources_spawn_config.noiseMapPersistence,resources_spawn_config.noiseMapScale,"
                                    "resources_spawn_config.noiseMapBias,"
                                    "resources_spawn_config.unitsTotal,resources_spawn_config.unitsLeft"
-                                   " FROM resources"
-                                   " INNER JOIN resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
+                                   " FROM %s.resources"
+                                   " INNER JOIN %s.resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
                                    " WHERE"
                                    " (resources_spawn_config.planet_id = %u) AND"
-                                   " (resources.active = 1)",mZoneId);
+                                   " (resources.active = 1)",mDatabase->galaxy(),mDatabase->galaxy(),mZoneId);
         
     }
     break;

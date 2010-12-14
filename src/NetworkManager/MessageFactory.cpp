@@ -535,7 +535,7 @@ void MessageFactory::_processGarbageCollection(void)
                 if (!message->mLogged)
                 {
                     LOG(WARNING) <<  "Garbage Collection found a new stuck message!"
-                        << "age : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
+                        << " : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
 
                     message->mLogged = true;
                     message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();

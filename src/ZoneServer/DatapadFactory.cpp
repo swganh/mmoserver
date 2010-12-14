@@ -267,8 +267,8 @@ void DatapadFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
 {
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,DPFQuery_MainDatapadData,client),
                                "SELECT datapads.id,datapad_types.object_string,datapad_types.name,datapad_types.file"
-                               " FROM datapads INNER JOIN datapad_types ON (datapads.datapad_type = datapad_types.id)"
-                               " WHERE (datapads.id = %"PRIu64")", id);
+                               " FROM %s.datapads INNER JOIN %s.datapad_types ON (datapads.datapad_type = datapad_types.id)"
+                               " WHERE (datapads.id = %"PRIu64")",mDatabase->galaxy(),mDatabase->galaxy(), id);
   
 }
 

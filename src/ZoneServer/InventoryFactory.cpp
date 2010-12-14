@@ -190,8 +190,9 @@ void InventoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,IFQuery_MainInventoryData,client),
                                "SELECT inventories.id,inventories.credits,inventory_types.object_string,inventory_types.name,inventory_types.file,"
                                "inventory_types.slots"
-                               " FROM inventories INNER JOIN inventory_types ON (inventories.inventory_type = inventory_types.id)"
-                               " WHERE (inventories.id = %"PRIu64")",id);
+                               " FROM %s.inventories INNER JOIN %s.inventory_types ON (inventories.inventory_type = inventory_types.id)"
+                               " WHERE (inventories.id = %"PRIu64")",
+                               mDatabase->galaxy(),mDatabase->galaxy(),id);
    
 }
 

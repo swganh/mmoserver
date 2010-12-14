@@ -323,9 +323,10 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 
         mDatabase->executeSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
-                                   " FROM structure_attributes sa"
-                                   " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
-                                   " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",factory->getId());
+                                   " FROM %s.structure_attributes sa"
+                                   " INNER JOIN %s.attributes ON (sa.attribute_id = attributes.id)"
+                                   " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",
+                                   mDatabase->galaxy(),mDatabase->galaxy(),factory->getId());
 
 
     }
@@ -367,8 +368,9 @@ void FactoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
     sprintf(sql,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,"
             "std.type,std.object_string,std.stf_name, std.stf_file, s.name,"
             "std.lots_used, f.active, std.maint_cost_wk, std.power_used, std.schematicMask, s.condition, std.max_condition, f.ManSchematicId "
-            "FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN factories f ON (s.id = f.id) "
-            "WHERE (s.id = %"PRIu64")",id);
+            "FROM %s.structures s INNER JOIN %s.structure_type_data std ON (s.type = std.type) INNER JOIN %s.factories f ON (s.id = f.id) "
+            "WHERE (s.id = %"PRIu64")",
+            mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),id);
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,FFQuery_MainData,client,id);
 
     mDatabase->executeSqlAsync(this,asynContainer,sql);

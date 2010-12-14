@@ -111,9 +111,9 @@ void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id,
                                "SELECT shuttles.id,shuttles.parentId,shuttles.firstName,shuttles.lastName,"
                                "shuttles.oX,shuttles.oY,shuttles.oZ,shuttles.oW,shuttles.x,shuttles.y,shuttles.z,"
                                "shuttle_types.object_string,shuttle_types.name,shuttle_types.file,shuttles.awayTime,shuttles.inPortTime,shuttles.collectorId "
-                               "FROM shuttles "
-                               "INNER JOIN shuttle_types ON (shuttles.shuttle_type = shuttle_types.id) "
-                               "WHERE (shuttles.id = %"PRIu64")",id);
+                               "FROM %s.shuttles "
+                               "INNER JOIN %s.shuttle_types ON (shuttles.shuttle_type = shuttle_types.id) "
+                               "WHERE (shuttles.id = %"PRIu64")",mDatabase->galaxy(),mDatabase->galaxy(),id);
     
 }
 

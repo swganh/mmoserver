@@ -100,9 +100,10 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
             asContainer->mObject = container;
 
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,object_attributes.value,attributes.internal"
-                                       " FROM object_attributes"
-                                       " INNER JOIN attributes ON (object_attributes.attribute_id = attributes.id)"
-                                       " WHERE object_attributes.object_id = %"PRIu64" ORDER BY object_attributes.order",container->getId());
+                                       " FROM %s.object_attributes"
+                                       " INNER JOIN %s.attributes ON (object_attributes.attribute_id = attributes.id)"
+                                       " WHERE object_attributes.object_id = %"PRIu64" ORDER BY object_attributes.order",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),container->getId());
         }
     }
     break;

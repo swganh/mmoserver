@@ -114,9 +114,10 @@ void NonPersistantObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseRes
             asContainer->mObject = item;
 
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
-                                       " FROM item_family_attribute_defaults"
-                                       " INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
-                                       " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType());
+                                       " FROM %s.item_family_attribute_defaults"
+                                       " INNER %s.JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
+                                       " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),item->getItemType());
            
         }
     }

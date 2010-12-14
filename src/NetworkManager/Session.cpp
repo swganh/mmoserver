@@ -129,6 +129,8 @@ Session::Session(void) :
     endCount = 0;
     mHash = 0;
 
+	mLastHouseKeepingTimeTime = mLastWriteThreadTime = mConnectStartEvent;
+
 }
 
 //======================================================================================================================
@@ -290,15 +292,11 @@ Session::~Session(void)
 
 //======================================================================================================================
 
-void Session::ProcessReadThread(void)
-{
-
-}
-
 //======================================================================================================================
 
 void Session::ProcessWriteThread(void)
 {
+
     uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
     //only process when we are busy - we dont need to iterate through possible resends all the time
@@ -306,18 +304,12 @@ void Session::ProcessWriteThread(void)
     {
         if(!mSendDelayedAck)
         {
-            if(now - mLastWriteThreadTime < 300)
+            if(now - mLastWriteThreadTime < 500)
             {
                 endCount++;
                 return;
             }
         }
-    }
-
-    //we might stall if the last packets get lost and the client wont generate ooo packets ( or those get lost)
-    if(!this->mServerService )
-    {
-        _resendData();
     }
 
     mLastWriteThreadTime = now;
@@ -402,7 +394,10 @@ void Session::ProcessWriteThread(void)
             if (packetsSent >= mWindowSizeCurrent)
                 break;
 
-            _addOutgoingReliablePacket(windowPacket);
+            //_addOutgoingReliablePacket(windowPacket);
+			//dont call the mutex again were already in it
+			windowPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+			mOutgoingReliablePacketQueue.push(windowPacket);
             iterRoll = mNewRolloverWindowPacketList.erase(iterRoll);
             mRolloverWindowPacketList.push_back(windowPacket);
             packetsSent++;
@@ -431,7 +426,10 @@ void Session::ProcessWriteThread(void)
         if (packetsSent >= mWindowSizeCurrent)
             break;
 
-        _addOutgoingReliablePacket(windowPacket);
+		//_addOutgoingReliablePacket(windowPacket);
+		//the sessionmutex is already called
+		windowPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+		mOutgoingReliablePacketQueue.push(windowPacket);
 
         //mWindoPacketList has the already send but not yet acknowledged Packets
         mWindowPacketList.push_back(windowPacket);
@@ -444,6 +442,18 @@ void Session::ProcessWriteThread(void)
     }
 
     lk.unlock();
+
+	//dont spend time here to often (calling mutexes and such)
+	if(now - mLastHouseKeepingTimeTime < 1000)    {
+        return;
+    }
+
+	mLastHouseKeepingTimeTime = now;
+
+	//we might stall if the last packets get lost and the client wont generate ooo packets ( or those get lost)
+    if(!this->mServerService )    {
+        _resendData();
+    }
 
     // Handle any specific commands
     switch (mCommand)
@@ -877,37 +887,42 @@ void Session::HandleFastpathPacket(Packet* packet)
     priority = packet->getUint8();
 
     routed = packet->getUint8();
-    if (routed)
-    {
+    if (routed)    {
         dest = packet->getUint8();
         accountId = packet->getUint32();
     }
 
+	//make sure we dont crush our heap when busy
+	//reliables can be easily spared
+	if(mMessageFactory->getHeapsize() >= 99.0)	{
+		assert(false);
+		mPacketFactory->DestroyPacket(packet);
+		return;
+	}
+
+
     // Create our message and send it up.
+	Message* newMessage;
     mMessageFactory->StartMessage();
 
-    if (routed)
-    {
+    if (routed)    {
         mMessageFactory->addData(packet->getData() + 7, packet->getSize() - 7); // +2 priority/routed, +5 routing header
-    }
-    else
-    {
-        mMessageFactory->addData(packet->getData() + 2, packet->getSize() - 2); // +2 priority/routed
-    }
-
-    Message* newMessage = mMessageFactory->EndMessage();
-
-
-    newMessage->setPriority(priority);
-
-    newMessage->setDestinationId(dest);
-    newMessage->setAccountId(accountId);
-    newMessage->setFastpath(true);
-
-    if(routed)
+		newMessage = mMessageFactory->EndMessage();
+		newMessage->setPriority(priority);
+		newMessage->setDestinationId(dest);
+		newMessage->setAccountId(accountId);
+		newMessage->setFastpath(true);
         newMessage->setRouted(true);
-    else
+    }
+    else    {
+        mMessageFactory->addData(packet->getData() + 2, packet->getSize() - 2); // +2 priority/routed
+		newMessage = mMessageFactory->EndMessage();
+		newMessage->setPriority(priority);
+		newMessage->setDestinationId(dest);
+		newMessage->setAccountId(accountId);
+		newMessage->setFastpath(true);
         newMessage->setRouted(false);
+    }
 
     _addIncomingMessage(newMessage, priority);
 
@@ -1592,8 +1607,7 @@ void Session::_resendData()
     Packet*		windowPacket;
 
     // If the window packet list is empty just bail out now.
-    if (mWindowPacketList.size() == 0)
-    {
+    if (mWindowPacketList.size() == 0)    {
         return;
     }
 
@@ -2481,7 +2495,10 @@ void Session::_buildOutgoingUnreliablePackets(Message* message)
     newPacket->setIsEncrypted(true);
 
     // Push the packet on our outgoing queue
-    _addOutgoingUnreliablePacket(newPacket);
+	
+    //_addOutgoingUnreliablePacket(newPacket);
+	newPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+    mOutgoingUnreliablePacketQueue.push(newPacket);
 
     message->setPendingDelete(true);
 
@@ -2787,8 +2804,10 @@ void Session::_buildUnreliableMultiDataPacket()
     newPacket->setIsCompressed(true);
     newPacket->setIsEncrypted(true);
 
-    //unreliables go on wire directly
-    _addOutgoingUnreliablePacket(newPacket);
+    //unreliables go on wire directly ATTENTION _buildUnreliableMultiDataPacket ias already called within a mutex
+	newPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+    mOutgoingUnreliablePacketQueue.push(newPacket);
+    //_addOutgoingUnreliablePacket(newPacket);
 
 }
 

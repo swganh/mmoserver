@@ -47,7 +47,7 @@ typedef std::list<EventListener> EventListenerList;
 typedef std::map<EventType, EventListenerList> EventListenerMap;
 typedef std::set<EventType> EventTypeSet;
 
-typedef std::function<bool ()> TriggerCondition;
+typedef std::function<bool (uint64_t current_time_ms)> TriggerCondition;
 typedef std::function<void (std::shared_ptr<BaseEvent>, bool)> PostTriggerCallback;
 
 typedef std::tuple<std::shared_ptr<BaseEvent>, boost::optional<TriggerCondition>, boost::optional<PostTriggerCallback>> EventQueueItem;

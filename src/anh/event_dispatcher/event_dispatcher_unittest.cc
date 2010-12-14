@@ -342,7 +342,7 @@ TEST(EventDispatcherTest, EventWaitsForCondition) {
     bool callback_triggered = false;
     bool proceed = false;
     dispatcher.triggerWhen(my_event, 
-        [&proceed] { 
+        [&proceed] (uint32_t current_time_ms) {
             return proceed;
         },
         [&callback_triggered] (shared_ptr<BaseEvent> triggered_event, bool processed) {
@@ -359,4 +359,24 @@ TEST(EventDispatcherTest, EventWaitsForCondition) {
     proceed = true;
     dispatcher.tick();
     EXPECT_TRUE(callback_triggered);
+}
+
+/// Triggering sets timestamp for event.
+TEST(EventDispatcherTest, TriggeringEventSetsTimestamp) {
+    EventDispatcher dispatcher;
+
+    dispatcher.registerEventType("some_event_type");
+    
+    auto my_listener = make_pair(EventListenerType("some_listener_type"), 
+        [] (shared_ptr<BaseEvent> incoming_event) {return true;});
+    
+    dispatcher.subscribe("some_event_type", my_listener);
+
+    auto my_event1 = make_shared<SimpleEvent>("some_event_type");
+    auto my_event2 = make_shared<SimpleEvent>("some_event_type");
+
+    EXPECT_TRUE(dispatcher.trigger(my_event1));
+    EXPECT_TRUE(dispatcher.triggerAsync(my_event2));
+    EXPECT_GT(my_event1->timestamp(), 0);
+    EXPECT_GT(my_event2->timestamp(), 0);
 }

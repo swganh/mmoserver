@@ -32,8 +32,12 @@ typedef anh::HashString EventType;
 class BaseEvent {
 public:
     virtual const EventType& type() = 0;
+    
     virtual uint32_t priority() const = 0;
     virtual void priority(uint32_t priority) = 0;
+
+    virtual uint64_t timestamp() const = 0;
+    virtual void timestamp(uint64_t timestamp) = 0;
 };
 
 template<typename T>
@@ -41,14 +45,17 @@ class BasicEvent : public T, public BaseEvent {
 public:
     BasicEvent()
         : type_(T::type())
+        , timestamp_(0)
         , priority_(T::priority()) {}
     
     explicit BasicEvent(EventType type)
         : type_(std::move(type))
+        , timestamp_(0)
         , priority_(0) {}
     
     BasicEvent(EventType type, uint32_t priority)
         : type_(std::move(type))
+        , timestamp_(0)
         , priority_(priority) {}
 
     const EventType& type() { return type_; }
@@ -60,9 +67,18 @@ public:
     void priority(uint32_t priority) {
         priority_ = priority;
     }
+    
+    uint64_t timestamp() const {
+        return timestamp_;
+    }
+    
+    void timestamp(uint64_t timestamp)  {
+        timestamp_ = timestamp;
+    }
 
 private:
     EventType type_;
+    uint64_t timestamp_;
     uint32_t priority_;
 };
 

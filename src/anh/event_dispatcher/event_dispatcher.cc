@@ -25,6 +25,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 using namespace anh::event_dispatcher;
+using namespace boost::posix_time;
 using namespace std;
 
 EventDispatcher::EventDispatcher()
@@ -139,7 +140,12 @@ bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event) {
         assert(false && "Inconsistency between listener map and event type set found");
         return false;
     }
-    
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
+    }
+
     EventListenerList& listener_list = (*map_it).second;
 
     bool processed = false;
@@ -163,11 +169,6 @@ bool EventDispatcher::trigger(std::shared_ptr<BaseEvent> incoming_event, PostTri
 
 
 void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, TriggerCondition condition) {
-    if (condition()) {
-        trigger(incoming_event);
-        return;
-    }
-    
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
     assert(active_queue_ < NUM_QUEUES);
@@ -181,6 +182,11 @@ void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, Tri
     auto map_it = event_listeners_.find(event_type);
     if (map_it == event_listeners_.end()) {
         return;
+    }
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
     }
     
     uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
@@ -189,11 +195,6 @@ void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, Tri
 
 
 void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, TriggerCondition condition, PostTriggerCallback callback) {
-    if (condition()) {
-        trigger(incoming_event, callback);
-        return;
-    }
-    
     // Do a few quick sanity checks in debug mode to ensure our queue cycling is always on track.
     assert(active_queue_ >= 0);
     assert(active_queue_ < NUM_QUEUES);
@@ -207,6 +208,11 @@ void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, Tri
     auto map_it = event_listeners_.find(event_type);
     if (map_it == event_listeners_.end()) {
         return;
+    }
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
     }
     
     uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
@@ -227,6 +233,11 @@ bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
     auto map_it = event_listeners_.find(event_type);
     if (map_it == event_listeners_.end()) {
         return false;
+    }
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
     }
     
     uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
@@ -250,6 +261,11 @@ bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event, Po
     auto map_it = event_listeners_.find(event_type);
     if (map_it == event_listeners_.end()) {
         return false;
+    }
+
+    if (!incoming_event->timestamp()) {
+        time_duration duration = microsec_clock::local_time().time_of_day();
+        incoming_event->timestamp(duration.total_milliseconds());
     }
 
     uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
@@ -310,9 +326,9 @@ bool EventDispatcher::tick(uint64_t timeout_ms) {
     std::swap(process_queue, event_queues_[active_queue_]);
     active_queue_ = (active_queue_ + 1) % NUM_QUEUES;
 
-    boost::posix_time::ptime current_time = boost::posix_time::microsec_clock::local_time();
-    boost::posix_time::time_duration max_time = boost::posix_time::milliseconds(timeout_ms);
-    boost::posix_time::time_period tick_period(current_time, current_time + max_time);
+    ptime current_time = microsec_clock::local_time();
+    time_duration max_time = milliseconds(timeout_ms);
+    time_period tick_period(current_time, current_time + max_time);
     
     EventQueueItem tick_event;
     uint32_t new_placement_queue = 0;
@@ -324,7 +340,8 @@ bool EventDispatcher::tick(uint64_t timeout_ms) {
 
         // Check to see if we have a conditional for our event and if so test it
         if (get<1>(tick_event).is_initialized()) {
-            if (!get<1>(tick_event).get()()) {
+            time_duration duration = microsec_clock::local_time().time_of_day();
+            if (!get<1>(tick_event).get()(duration.total_milliseconds())) {
                 new_placement_queue = calculatePlacementQueue_(get<0>(tick_event)->priority());
 
                 // If the condition failed put the event back to wait.
@@ -344,7 +361,7 @@ bool EventDispatcher::tick(uint64_t timeout_ms) {
             continue;
         }
             
-        current_time = boost::posix_time::microsec_clock::local_time();
+        current_time = microsec_clock::local_time();
 
         if (current_time >= tick_period.end()) {
             break;

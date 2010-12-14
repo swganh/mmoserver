@@ -239,7 +239,7 @@ TEST(EventDispatcherTest, AbortingEventCancelsFirstOccurance) {
 }
 
 /// Can abort all occurrances of an event in the queue.
-TEST(EventDispatchTest, CanAbortAllEventOccurrances) {
+TEST(EventDispatcherTest, CanAbortAllEventOccurrances) {
     EventDispatcher dispatcher;
 
     dispatcher.registerEventType("some_event_type");

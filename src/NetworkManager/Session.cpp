@@ -2404,7 +2404,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
         newPacket->setIsEncrypted(true);
 
         // Push the packet on our outgoing queue
-        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+        //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
         mNewWindowPacketList.push_back(newPacket);
 
@@ -2431,7 +2431,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
             newPacket->setIsEncrypted(true);
 
             // Push the packet on our outgoing queue
-            boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+            //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
             mNewWindowPacketList.push_back(newPacket);
 
@@ -2459,7 +2459,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
         newPacket->setIsEncrypted(true);
 
         // Push the packet on our outgoing queue
-        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+        //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
         mNewWindowPacketList.push_back(newPacket);
 
@@ -2766,7 +2766,7 @@ void Session::_buildRoutedMultiDataPacket()
     newPacket->setIsCompressed(false); //server server !!! save the cycles!!!
     newPacket->setIsEncrypted(true);
 
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+    //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
     mNewWindowPacketList.push_back(newPacket);
 
     //sequence of packets uint16 +1 for every packet rollover from 0xffff to 0
@@ -2805,7 +2805,7 @@ void Session::_buildUnreliableMultiDataPacket()
     newPacket->setIsEncrypted(true);
 
     //unreliables go on wire directly ATTENTION _buildUnreliableMultiDataPacket ias already called within a mutex
-	newPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+	newPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
     mOutgoingUnreliablePacketQueue.push(newPacket);
     //_addOutgoingUnreliablePacket(newPacket);
 

@@ -132,15 +132,15 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     int value;
     int valuelength = sizeof(value);
     value = 524288;
-    int configvalue = gConfig->read<int32>("UDPBufferSize",4096);
+    int configvalue = gConfig->read<int32>("UDPBufferSize",8192);
     //gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
     LOG(INFO) << "UDP buffer size set to " << configvalue << "kb";
     
     if(configvalue < 128)
         configvalue = 128;
 
-    if(configvalue > 8192)
-        configvalue = 8192;
+    if(configvalue > 16384)
+        configvalue = 16384;
 
     value = configvalue *1024;
 

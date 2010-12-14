@@ -20,6 +20,8 @@
 #ifndef LIBANH_EVENT_DISPATCHER_BASIC_EVENT_H_
 #define LIBANH_EVENT_DISPATCHER_BASIC_EVENT_H_
 
+#include <cstdint>
+
 #include "anh/hash_string.h"
 
 namespace anh {
@@ -30,21 +32,38 @@ typedef anh::HashString EventType;
 class BaseEvent {
 public:
     virtual const EventType& type() = 0;
+    virtual uint32_t priority() const = 0;
+    virtual void priority(uint32_t priority) = 0;
 };
 
 template<typename T>
 class BasicEvent : public T, public BaseEvent {
 public:
     BasicEvent()
-        : type_(T::type()) {}
-
-    BasicEvent(EventType type)
-        : type_(std::move(type)) {}
+        : type_(T::type())
+        , priority_(T::priority()) {}
+    
+    explicit BasicEvent(EventType type)
+        : type_(std::move(type))
+        , priority_(0) {}
+    
+    BasicEvent(EventType type, uint32_t priority)
+        : type_(std::move(type))
+        , priority_(priority) {}
 
     const EventType& type() { return type_; }
 
+    uint32_t priority() const {
+        return priority_;
+    }
+
+    void priority(uint32_t priority) {
+        priority_ = priority;
+    }
+
 private:
     EventType type_;
+    uint32_t priority_;
 };
 
 struct NullEventData {};

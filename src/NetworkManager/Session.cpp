@@ -445,7 +445,8 @@ void Session::ProcessWriteThread(void)
 
 	//dont spend time here to often (calling mutexes and such)
 	if(now - mLastHouseKeepingTimeTime < 1000)    {
-        return;
+        if(!mCommand)
+			return;
     }
 
 	mLastHouseKeepingTimeTime = now;

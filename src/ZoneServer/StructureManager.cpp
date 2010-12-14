@@ -160,7 +160,7 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
     }
 
 	//get all players in range and alter their permissionlists
-	ObjectSet resultSet;
+	PlayerObjectSet resultSet;
 
 	gSpatialIndexManager->getPlayersInRange(structure,&resultSet, true);
 	ObjectSet::iterator it = resultSet.begin();

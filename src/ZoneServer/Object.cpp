@@ -603,27 +603,16 @@ bool Object::registerStatic(Object* object)
 // the knownObjects are the containers we are watching
 // the knownPlayers are the players watching us
 // we*can* watch ourselves!! (when equipping/unequipping stuff for example)
-
+// we need the known watchers to be able to send our movement updates fast!
 void Object::addContainerKnownObject(Object* object)
 {
-
-    //if(checkContainerKnownObjects(object))
-    //{
-    //	DLOG(INFO) << "Object::addKnownObject " << object->getId() << " couldnt be added to " <<this->getId()<< " - already in it";
-    //	return;
-    //}
-
-    if(object->getType() == ObjType_Player)
-    {
-        mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));
+    if(object->getType() == ObjType_Player)    {
+        mKnownPlayers.insert(static_cast<PlayerObject*>(object));
     }
-    else
-    {
+    else    {
         mKnownObjects.insert(object);
     }
 }
-
-
 
 //=============================================================================
 
@@ -644,8 +633,16 @@ void Object::UnregisterAllWatchers()
 }
 
 //=============================================================================
+// ok its important with these two functions that the player gets handled by the spatialIndexManager mostly as an object
+// to prevent unecessary casting
+// this means however, that the player will be handled as an object and cannot be found on the wrong list
 
 bool Object::unRegisterWatcher(Object* object) {
+	if(object->getType() == ObjType_Player)	{
+		PlayerObject* player = static_cast<PlayerObject*>(object);
+		return unRegisterWatcher(player);
+	}
+
     if (getType() == ObjType_Player) {
         PlayerObject* player = static_cast<PlayerObject*>(this);
 
@@ -660,7 +657,7 @@ bool Object::unRegisterWatcher(Object* object) {
         DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " was successfully unregistered for " << getId();
         return true;
     }
-
+	DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " could not be unregistered for " << getId();
     return false;
 }
 
@@ -684,6 +681,7 @@ bool Object::unRegisterWatcher(PlayerObject* object) {
         return true;
     }
 
+	DLOG(INFO) << "Object::unRegisterWatcher :: Object" << object->getId() << " could not be unregistered for " << getId();
     return false;
 }
 
@@ -699,7 +697,13 @@ bool Object::checkRegisteredWatchers(PlayerObject* const player) const {
 }
 
 bool Object::checkRegisteredWatchers(Object* const object) const {
-    ObjectSet::const_iterator it = mKnownObjects.find(object);
+    
+	if(object->getType() == ObjType_Player)	{
+		PlayerObject* player = static_cast<PlayerObject*>(object);
+		return checkRegisteredWatchers(player);
+	}
+	
+	ObjectSet::const_iterator it = mKnownObjects.find(object);
 
     if(it == mKnownObjects.end()) {
         it = mKnownStatics.find(object);

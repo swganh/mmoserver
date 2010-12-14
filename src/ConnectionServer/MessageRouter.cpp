@@ -75,25 +75,21 @@ void MessageRouter::Process(void)
 void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
 {
     // We need to parse the opcode and route the message
-    message->ResetIndex();
-    /*uint8 priority    = */
-    message->getPriority();  // priority
+	message->ResetIndex();
+   
     uint8 routed      = message->getRouted();    // source
-    uint8 dest        = 0;
-    //uint32 accountId  = 0;
-    uint32 opcode     = 0;
-
+    
     // If the message is from a client (routed == 0) lookup the opcode and route to the default server.
     if(routed == 0)
     {
         // Get our opcode so we can lookup the default route
-        opcode = message->getUint32();
+        uint32 opcode = message->getUint32();
 
         MessageRouteMap::iterator iter = mMessageRouteMap.find(opcode);
 
         if(iter != mMessageRouteMap.end())
         {
-            dest = static_cast<uint8>((*iter).second);
+			uint8 dest = static_cast<uint8>((*iter).second);
 
             // Set our destination server
             message->setDestinationId(dest);
@@ -118,8 +114,6 @@ void MessageRouter::RouteMessage(Message* message, ConnectionClient* client)
     }
     else  // This is from a server and already has a routing header
     {
-        opcode = message->getUint32();  // opcode
-
         // If this is meant for a client, send it to the ClientManager
         if(message->getDestinationId() == 0)
         {

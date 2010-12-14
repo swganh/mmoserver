@@ -847,7 +847,7 @@ void AttackableCreature::spawn(void)
     this->setSpawned();
 
     //add to spatialIndex
-    gSpatialIndexManager->AddObject(this);
+	gSpatialIndexManager->createInWorld(this);
 
     // Sleeping NPC's should be put in lower prio queue.
     if (this->getRegisteredWatchers()->empty())

@@ -248,6 +248,10 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
                  << (uint64) 0 << "," << planetId << "," << position.x << ","
                  << position.y << "," << position.z << ",'" << name 
                  << "'," << useCount <<")";
+
+
+
+
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
             return;
@@ -283,6 +287,9 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
                  << "'" << dstPlanet << "', '" << ticketProperties.dstPoint->descriptor << "', "
                  << parentId << "," << 0.0f << "," << 0.0f << ","
                  << 0.0f << "," << planetId << ")";
+
+
+
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
             return;

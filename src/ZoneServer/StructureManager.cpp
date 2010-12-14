@@ -154,34 +154,26 @@ void StructureManager::Shutdown()
 void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 {
     HouseObject* house = dynamic_cast<HouseObject*>(structure);
-    if(!house)
-    {
+    if(!house)    {
         LOG(WARNING) << "Structure is not a HouseObject";
         return;
     }
 
 	//get all players in range and alter their permissionlists
-	// to in-range folks
-	ObjectSet resultSet;
+	PlayerObjectSet resultSet;
 
-	gSpatialIndexManager->getObjectsInRange(structure,&resultSet,ObjType_Creature,30.0,true);
-	ObjectSet::iterator it = resultSet.begin();
+	gSpatialIndexManager->getPlayersInRange(structure,&resultSet, true);
+	PlayerObjectSet::iterator it = resultSet.begin();
 
-	while(it != resultSet.end())
-	{
+	while(it != resultSet.end())	{
 		PlayerObject* player = dynamic_cast<PlayerObject*>(*it);
 		
-		if(player)
-		{
+		if(player)	{
 			house->checkCellPermission(player);
 		}
-		
-
 		it++;
 	}
 }
-
-
 
 //=======================================================================================================================
 //checks for a name on a permission list
@@ -612,7 +604,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			gWorldManager->destroyObject(fence);
 
 			//create the structure in the world
-			gSpatialIndexManager->AddObject(structure);
+			gSpatialIndexManager->createInWorld(structure);
 
 			//send the EMail
 			gMessageLib->sendConstructionComplete(player,structure);
@@ -796,13 +788,13 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			{
 				mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 0 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
 				house->setPublic(false);
-				gMessageLib->SendSystemMessage(L"",player,"player_structure","structure_now_private");
+				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_private"),player);
 				updateKownPlayerPermissions(house);
 				return;
 			}
 
 			house->setPublic(true);
-			gMessageLib->SendSystemMessage(L"",player,"player_structure","structure_now_public");
+			gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","structure_now_public"),player);
 			mDatabase->executeSqlAsync(0,0,"UPDATE %s.houses h SET h.private = 1 WHERE h.ID = %I64u",mDatabase->galaxy(),command.StructureId);
 			updateKownPlayerPermissions(house);
 		}
@@ -932,9 +924,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			Datapad* datapad			= player->getDataPad();
 			//Inventory*	inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 			
-			if(!datapad->getCapacity())
-			{
-				gMessageLib->SendSystemMessage(L"",player,"manf_station","schematic_not_removed");
+			if(!datapad->getCapacity())	{
+				gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station","schematic_not_removed"),player);
 				return;
 			}
 			
@@ -952,9 +943,8 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		case Structure_Command_AddSchem:
 		{
 			FactoryObject* factory = dynamic_cast<FactoryObject*>(gWorldManager->getObjectById(command.StructureId));
-			if(!factory)
-			{
-				gMessageLib->SendSystemMessage(L"",player,"manf_station","schematic_not_added");
+			if(!factory)	{
+				gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station","schematic_not_added"),player);
 				DLOG(INFO) << "StructureManager::processVerification : No Factory (Structure_Command_AddSchem) ";
 				return;
 			}
@@ -1048,17 +1038,15 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 			PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
 			
 			//the structure might have been deleted between the last and the current refresh
-			if(!structure)
-			{
-				gMessageLib->SendSystemMessage(L"",player,"player_structure","no_valid_structurestatus");
+			if(!structure)	{
+				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","no_valid_structurestatus"),player);
 				return;
 			}
 			if(player->getTargetId() != structure->getId())
 			{
 				PlayerStructureTerminal* terminal = dynamic_cast<PlayerStructureTerminal*>(gWorldManager->getObjectById(player->getTargetId()));
-				if(!terminal||(terminal->getStructure() != command.StructureId))
-				{
-					gMessageLib->SendSystemMessage(L"",player,"player_structure","changed_structurestatus");
+				if(!terminal||(terminal->getStructure() != command.StructureId))	{
+					gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","changed_structurestatus"),player);
 					return;
 				}
 			}
@@ -1185,9 +1173,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(command.StructureId));
 				createRenameStructureBox(player, structure);
 			}
-			else
-				gMessageLib->SendSystemMessage(L"",player,"player_structure","rename_must_be_owner");
-
+			else	{
+				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","rename_must_be_owner"),player);
+			}
 			
 		}
 		return;
@@ -1196,8 +1184,9 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 		{
 			if(owner)
 				gStructureManager->TransferStructureOwnership(command);
-			else
-				gMessageLib->SendSystemMessage(L"",player,"player_structure","not_owner");
+			else	{
+				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","not_owner"),player);
+			}
 			
 		}
 		return;
@@ -1217,23 +1206,22 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 					}
 
 					TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getIngredientHopper()));
-					if(hopper&&hopper->getObjects()->size())
-					{
-						gMessageLib->SendSystemMessage(L"",player,"player_structure","clear_input_hopper_for_delete");
+					if(hopper&&hopper->getObjects()->size())	{
+						gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","clear_input_hopper_for_delete"),player);
 						return;
 					}
 					hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(factory->getOutputHopper()));
-					if(hopper&&hopper->getObjects()->size())
-					{
-						gMessageLib->SendSystemMessage(L"",player,"player_structure","clear_output_hopper_for_delete");
+					if(hopper&&hopper->getObjects()->size())	{
+						gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","clear_output_hopper_for_delete"),player);
 						return;
 					}
 				}
 
 				gStructureManager->getDeleteStructureMaintenanceData(command.StructureId, command.PlayerId);
 			}
-			else
-				gMessageLib->SendSystemMessage(L"",player,"player_structure","destroy_must_be_owner");
+			else	{
+				gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure","destroy_must_be_owner"),player);
+			}
 			
 			
 		}

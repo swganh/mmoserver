@@ -448,14 +448,15 @@ void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
     ObjectIDList* invObjects		= inventory->getObjects();
     ObjectIDList::iterator objIt	= invObjects->begin();
 
-    while(objIt != invObjects->end())
+    while(objIt != invObjects->end()) 
     {
         Object* object = gWorldManager->getObjectById((*objIt));
         if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(object))
         {
             sendCreateTangible(tangible,playerObject);
-            //TODO make this static as its si independent
-            gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory
+            
+			//TODO make this static as its si independent??
+            gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory ???
         }
 
         //sendCreateObject(object,playerObject,false);
@@ -471,7 +472,7 @@ void SpatialIndexManager::sendInventory(PlayerObject* playerObject)
         if(TangibleObject* tangible = dynamic_cast<TangibleObject*>(*objEIt))
         {
             sendCreateTangible(tangible,playerObject);
-            //TODO make this static as its si independent
+            //TODO make this static as its si independent ???
             gContainerManager->registerPlayerToContainer(tangible,playerObject);//eventually move the registration to the factory
         }
 

@@ -468,7 +468,8 @@ void WorldManager::destroyObject(Object* object)
 			//update the datapad
 			if(!pad || !(pad->removeData(object->getId())))
 			{
-				DLOG(WARNING) << "Worldmanager::destroyObject: Error removing Waypoint from datapad " << pad->getId();
+				DLOG(WARNING) << "Worldmanager::destroyObject: Error removing Waypoint from datapad " << parentId;
+				return;
 			}
 
 			PlayerObject* owner = dynamic_cast<PlayerObject*>(getObjectById(pad->getParentId()));

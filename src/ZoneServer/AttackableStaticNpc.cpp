@@ -194,7 +194,7 @@ void AttackableStaticNpc::respawn(void)
 void AttackableStaticNpc::spawn() {
     // Update the world about my presence.
 
-    gSpatialIndexManager->AddObject(this);
+	gSpatialIndexManager->createInWorld(this);
 
     Object* object = gWorldManager->getObjectById(this->getId());
     if(!object)	{

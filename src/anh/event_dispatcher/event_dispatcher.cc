@@ -28,7 +28,8 @@ using namespace anh::event_dispatcher;
 using namespace std;
 
 EventDispatcher::EventDispatcher()
-    : active_queue_(0)
+    : event_queues_(NUM_QUEUES)
+    , active_queue_(0)
 {}
 
 EventDispatcher::~EventDispatcher() {
@@ -56,7 +57,7 @@ bool EventDispatcher::hasRegisteredEventType(const EventType& event_type) const 
 }
 
 bool EventDispatcher::hasEvents() const {
-    return !event_queues_[active_queue_].empty();
+    return !event_queues_.front().empty();
 }
 
 bool EventDispatcher::registerEventType(EventType event_type) {
@@ -181,8 +182,9 @@ void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, Tri
     if (map_it == event_listeners_.end()) {
         return;
     }
-
-    event_queues_[active_queue_].push(make_tuple(incoming_event, condition, boost::optional<PostTriggerCallback>()));
+    
+    uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
+    event_queues_[placement_queue].push(make_tuple(incoming_event, condition, boost::optional<PostTriggerCallback>()));
 }
 
 
@@ -206,8 +208,9 @@ void EventDispatcher::triggerWhen(std::shared_ptr<BaseEvent> incoming_event, Tri
     if (map_it == event_listeners_.end()) {
         return;
     }
-
-    event_queues_[active_queue_].push(make_tuple(incoming_event, condition, callback));
+    
+    uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
+    event_queues_[placement_queue].push(make_tuple(incoming_event, condition, callback));
 }
 
 bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
@@ -225,8 +228,9 @@ bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event) {
     if (map_it == event_listeners_.end()) {
         return false;
     }
-
-    event_queues_[active_queue_].push(make_tuple(incoming_event, boost::optional<TriggerCondition>(), boost::optional<PostTriggerCallback>()));
+    
+    uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
+    event_queues_[placement_queue].push(make_tuple(incoming_event, boost::optional<TriggerCondition>(), boost::optional<PostTriggerCallback>()));
 
     return true;
 }
@@ -248,7 +252,8 @@ bool EventDispatcher::triggerAsync(std::shared_ptr<BaseEvent> incoming_event, Po
         return false;
     }
 
-    event_queues_[active_queue_].push(make_tuple(incoming_event, boost::optional<TriggerCondition>(), callback));
+    uint32_t placement_queue = calculatePlacementQueue_(incoming_event->priority());
+    event_queues_[placement_queue].push(make_tuple(incoming_event, boost::optional<TriggerCondition>(), callback));
 
     return true;
 }
@@ -268,52 +273,62 @@ bool EventDispatcher::abort(const EventType& event_type, bool all_of_type) {
     auto find_it = event_listeners_.find(event_type);
     if (find_it == event_listeners_.end()) {
         return false;
+    }    
+
+    bool removed = false;
+    
+    // cycle through each of the queues starting with the current
+    for (uint32_t i = 0, current = 0; i < NUM_QUEUES; ++i) {
+        // If we've already found an item and we're not search for all events break now.
+        if (removed && !all_of_type) {
+            break;
+        }
+
+        current = calculatePlacementQueue_(i);       
+        EventQueue tmp_queue = std::move(event_queues_[current]);
+        event_queues_[current].clear();
+
+        // Only place items back in the queue as needed.
+        for_each(tmp_queue.unsafe_begin(), tmp_queue.unsafe_end(), [this, current, &event_type, all_of_type, &removed] (EventQueueItem& queued_event) {
+            if (!removed || all_of_type) {
+                if (get<0>(queued_event)->type() == event_type) {
+                    removed = true;
+                    return;
+                }
+            }
+            
+            event_queues_[current].push(queued_event);
+        });
     }
 
-    EventQueue tmp_queue = event_queues_[active_queue_];
-    event_queues_[active_queue_].clear();
-    
-    bool removed = false;
-
-    for_each(tmp_queue.unsafe_begin(), tmp_queue.unsafe_end(), [this, &event_type, all_of_type, &removed] (EventQueueItem& queued_event) {
-        if (removed && !all_of_type) {
-            event_queues_[active_queue_].push(queued_event);
-            return;
-        }
-        
-        if (get<0>(queued_event)->type() == event_type) {
-            removed = true;
-            return;
-        }
-        
-        event_queues_[active_queue_].push(queued_event);
-    });
-
-    return removed;
+    return removed;    
 }
 
 bool EventDispatcher::tick(uint64_t timeout_ms) {
-
-    // swap the active queues and make sure the new queue is empty afterwards.
-    int process_queue = active_queue_;
+    // Create a new empty queue and swap it with the current active queue.
+    EventQueue process_queue;
+    std::swap(process_queue, event_queues_[active_queue_]);
     active_queue_ = (active_queue_ + 1) % NUM_QUEUES;
-    event_queues_[active_queue_].clear();
 
     boost::posix_time::ptime current_time = boost::posix_time::microsec_clock::local_time();
     boost::posix_time::time_duration max_time = boost::posix_time::milliseconds(timeout_ms);
     boost::posix_time::time_period tick_period(current_time, current_time + max_time);
     
     EventQueueItem tick_event;
-    while(!event_queues_[process_queue].empty()) {
-        if (!event_queues_[process_queue].try_pop(tick_event)) {
+    uint32_t new_placement_queue = 0;
+
+    while(!process_queue.empty()) {
+        if (!process_queue.try_pop(tick_event)) {
             continue;
         }
 
         // Check to see if we have a conditional for our event and if so test it
         if (get<1>(tick_event).is_initialized()) {
             if (!get<1>(tick_event).get()()) {
+                new_placement_queue = calculatePlacementQueue_(get<0>(tick_event)->priority());
+
                 // If the condition failed put the event back to wait.
-                event_queues_[active_queue_].push(tick_event);
+                event_queues_[new_placement_queue].push(tick_event);
                 continue;
             }
         }
@@ -336,11 +351,12 @@ bool EventDispatcher::tick(uint64_t timeout_ms) {
         }
     }
 
-    bool queue_flushed = event_queues_[process_queue].empty();
+    bool queue_flushed = process_queue.empty();
     if (!queue_flushed) {
-        while (!event_queues_[process_queue].empty()) {
-            if (event_queues_[process_queue].try_pop(tick_event)) {
-                event_queues_[active_queue_].push(tick_event);
+        while (!process_queue.empty()) {
+            if (process_queue.try_pop(tick_event)) {
+                new_placement_queue = calculatePlacementQueue_(get<0>(tick_event)->priority());
+                event_queues_[new_placement_queue].push(tick_event);
             }
         }
     }
@@ -365,3 +381,9 @@ bool EventDispatcher::validateEventType_(const EventType& event_type) const {
 
     return true;
 }
+
+uint32_t EventDispatcher::calculatePlacementQueue_(uint32_t priority) const {
+    priority = min(priority, static_cast<uint32_t>(NUM_QUEUES));
+    return (active_queue_ + priority) % NUM_QUEUES;
+}
+

@@ -21,6 +21,7 @@
 #define LIBANH_EVENT_DISPATCHER_EVENT_DISPATCHER_H_
 
 #include <cstdint>
+#include <deque>
 #include <functional>
 #include <list>
 #include <map>
@@ -51,6 +52,7 @@ typedef std::function<void (std::shared_ptr<BaseEvent>, bool)> PostTriggerCallba
 
 typedef std::tuple<std::shared_ptr<BaseEvent>, boost::optional<TriggerCondition>, boost::optional<PostTriggerCallback>> EventQueueItem;
 typedef tbb::concurrent_queue<EventQueueItem> EventQueue;
+typedef std::deque<EventQueue> EventQueueList;
 
 class EventDispatcher {
 public:
@@ -90,10 +92,11 @@ public:
 
 private:
     bool validateEventType_(const EventType& event_type) const;
+    uint32_t calculatePlacementQueue_(uint32_t priority = 0) const;
 
     EventTypeSet registered_event_types_;
     EventListenerMap event_listeners_;
-    EventQueue event_queues_[NUM_QUEUES];
+    EventQueueList event_queues_;
 
     int active_queue_;
 };

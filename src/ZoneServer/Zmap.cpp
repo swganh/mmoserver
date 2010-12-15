@@ -255,7 +255,7 @@ void zmap::RemoveObject(Object *removeObject)
     removeObject->setGridBucket(0xffffffff);
 
 	//regions are only for players / creatures at this point 
-    if((removeObject->getType() != ObjType_Player) || (removeObject->getType() != ObjType_NPC) || (removeObject->getType() != ObjType_Creature))
+    if((removeObject->getType() != ObjType_Player) && (removeObject->getType() != ObjType_NPC) & (removeObject->getType() != ObjType_Creature))
         return;
 
 	//remove out of any regions we might be in
@@ -599,7 +599,7 @@ uint32 zmap::AddObject(Object *newObject)
     list->push_back(newObject);
 
     //regions are only for players / creatures at this point 
-    if((newObject->getType() != ObjType_Player) || (newObject->getType() != ObjType_NPC) || (newObject->getType() != ObjType_Creature))
+    if((newObject->getType() != ObjType_Player) && (newObject->getType() != ObjType_NPC) && (newObject->getType() != ObjType_Creature))
         return finalBucket;
 
     SharedObjectListType			cellList = (*mapIt).second->SubCells;

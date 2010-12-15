@@ -264,6 +264,7 @@ void VehicleController::DismountPlayer() {
     gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
 
     owner_->setMounted(false);
+    gMessageLib->sendPostureAndStateUpdate(owner_);  
     gMessageLib->sendUpdateMovementProperties(owner_);
 }
 

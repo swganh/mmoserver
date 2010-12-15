@@ -1,8 +1,15 @@
 #include "zmap.h"
 
+#include <cassert>
+#include <algorithm>
+
 #include "Object.h"
 #include "regionObject.h"
 //#include "PlayerObject.h"
+
+using std::for_each;
+using std::remove_if;
+using std::shared_ptr;
 
 
 
@@ -58,38 +65,39 @@ zmap::~zmap()
     }
 }
 
-void zmap::CheckRegion(Object* newObject)
-{
+void zmap::CheckRegion(Object* object) {
+	// Check the regions the object is currently in and remove any it's no longer in.
+	Uint64Set& region_set = object->zmapSubCells;
+    auto region_set_end = region_set.end();
+    for (auto i = region_set.begin(); i != region_set_end; ) {
+        auto region = getRegion(*i);
 
-	//We need to check which subregions to leave
-	Uint64Set*				region_set	= &newObject->zmapSubCells;
-    Uint64Set::iterator		set_it		= region_set->begin();
+        if (! _isInRegionExtent(region, object)) {
+            region->onObjectLeave(object);
+            region_set.erase(i++);
+        }
 
-    while(set_it != region_set->end())    {
-        std::shared_ptr<RegionObject> region = getRegion(*set_it);
-		if(!_isInRegionExtent(region, newObject))	{
-    		region->onObjectLeave(newObject);
-			set_it = region_set->erase(set_it);		
-			continue;
-    	}
-        set_it++;
+        ++i;
     }
 
-
-    std::map<uint32, ObjectStruct*>::iterator mapIt = ZMapCells.find(newObject->getGridBucket());
-	
-	SharedObjectListType* list;
-	list = &(*mapIt).second->SubCells;
-
-	for(SharedObjectListType::iterator i = list->begin(); i != list->end(); i++)
-    {
-		std::shared_ptr<RegionObject> region = std::static_pointer_cast<RegionObject>((*i));
-    	if(_isInRegionExtent(region, newObject))
-    	{
-			newObject->zmapSubCells.insert(region->getId());
-    		region->onObjectEnter(newObject);
-    	}
+    // Now check for any new regions the object may have entered.
+    auto it = ZMapCells.find(object->getGridBucket());
+    if (it == ZMapCells.end()) {
+        assert(false && "Object has reference to an invalid grid bucket!");
+        return;
     }
+
+    SharedObjectListType& list = (*it).second->SubCells;
+    for_each(list.begin(), list.end(), [this, &region_set, object] (shared_ptr<Object> list_object) {
+        shared_ptr<RegionObject> region = std::static_pointer_cast<RegionObject>(list_object);
+
+        // If the object is not already in the region and is now within 
+        // the region's bounds, add it.
+        if (region_set.find(region->getId()) == region_set.end() && _isInRegionExtent(region, object)) {
+            object->zmapSubCells.insert(region->getId());
+            region->onObjectEnter(object);
+        }
+    });
 }
 
 bool zmap::_isInRegionExtent(std::shared_ptr<RegionObject> region, Object* object)

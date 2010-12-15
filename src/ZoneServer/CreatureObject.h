@@ -173,6 +173,7 @@ class CreatureObject : public MovingObject
             bool              blockLocomotion;
 
             void            blockLayers() { blockPosture = true; blockAction = true; blockLocomotion = true; }
+            void            unblock() { blockPosture = false; blockAction = false; blockLocomotion = false; }
             // posture states
             uint32_t        getPosture() { return posture; } 
             void            setPosture(uint32_t pos) { posture = pos; }

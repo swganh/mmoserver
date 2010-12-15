@@ -78,8 +78,6 @@ public:
 		
 	bool				checkVisitor(Object* object);
 
-	uint32				subCellId;
-
     std::shared_ptr<RegionObject> getSharedFromThis();
 protected:
 

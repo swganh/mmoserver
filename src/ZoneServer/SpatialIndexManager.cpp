@@ -205,24 +205,20 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
 
 
 
-void SpatialIndexManager::RemoveRegion(RegionObject *removeObject)
+void SpatialIndexManager::RemoveRegion(std::shared_ptr<RegionObject> remove_region)
 {
-    getGrid()->RemoveSubCell(removeObject->subCellId);
+	getGrid()->RemoveRegion(remove_region->getId());
 }
 
-void SpatialIndexManager::addRegion(RegionObject *region)
+void SpatialIndexManager::addRegion(std::shared_ptr<RegionObject> region)
 {
     //add the adequate subcells to the grid
-    getGrid()->AddSubCell(region->mPosition.x,region->mPosition.z,region->getHeight(), region->getWidth(),region);
-
-    //add the region as Object to the grid so we are able to search for nearby regions should it become necessary
-    _AddObject(region);
-
+    getGrid()->AddRegion(region->mPosition.x,region->mPosition.z,region->getHeight(), region->getWidth(),region);
 }
 
-RegionObject* SpatialIndexManager::getRegion(uint32 id)
+std::shared_ptr<RegionObject> SpatialIndexManager::getRegion(uint32 id)
 {
-    return getGrid()->getSubCell(id);
+    return getGrid()->getRegion(id);
 
 }
 
@@ -1148,4 +1144,14 @@ bool SpatialIndexManager::InitializeObject(PlayerObject *player) {
     //now building content in case we are in a building
     initObjectsInRange(player);
     return true;
+}
+
+void SpatialIndexManager::lookUpRegion(Object* object)
+{
+	//for now in the main thread
+	getGrid()->CheckRegion(object);
+	//active_.Send([=] {
+
+	//}
+	//);
 }

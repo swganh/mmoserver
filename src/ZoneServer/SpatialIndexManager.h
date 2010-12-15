@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/ptr_container/ptr_unordered_map.hpp>
 
+#include "Utils/ActiveObject.h"
 #include "Utils/TimerCallback.h"
 #include "Utils/typedefs.h"
 
@@ -100,9 +101,9 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					RemoveObjectFromWorld(CreatureObject *removeCreature);
 		
 
-		void					RemoveRegion(RegionObject *removeObject);
-		void					addRegion(RegionObject *region);
-		RegionObject*			getRegion(uint32 id);
+		void					RemoveRegion(std::shared_ptr<RegionObject> remove_region);
+		void					addRegion(std::shared_ptr<RegionObject> region);
+		std::shared_ptr<RegionObject>			getRegion(uint32 id);
 
 
 		//place Objects in the spatialIndex / cells 
@@ -121,6 +122,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 
 		void					sendToChatRange(Object* container, std::function<void (PlayerObject* const player)> callback);
 
+		void					lookUpRegion(Object* object);
 
 		//======================================================================================================================
 		// when creating a player and the player is in a cell we need to create all the cells contents for the player
@@ -142,6 +144,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		bool					sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
 
 		uint64					getObjectMainParent(Object* object);
+
 		
 	private:
 
@@ -174,6 +177,8 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		Database*						mDatabase;
 		
 		zmap*							mSpatialGrid;
+
+		utils::ActiveObject				active_;
 		
 		//Anh_Utils::Scheduler*			mSubsystemScheduler;
 		//ZoneServer*					mZoneServer;

@@ -12,15 +12,6 @@
 class Object;
 class RegionObject;
 
-struct SubCell;
-
-class ZmapSubCellCallback
-{
-public:
-	virtual void ZmapCallback_OnEnterSubCell() {}
-	virtual void ZmapCallback_OnExitSubCell() {}
-};
-
 class PlayerObject;
 
 #define GRIDWIDTH 410
@@ -32,32 +23,30 @@ class PlayerObject;
 #define VIEWRANGE 3
 #define CHATRANGE 1
 
-enum qtype
-{
-	q_all = 1,
-	q_player = 2,
-	q_object = 3
+enum qtype	{
+	q_all		= 1,
+	q_player	= 2,
+	q_object	= 3
 };
 
-typedef std::list<Object*>		ObjectListType;
-typedef std::list<SubCell*>		SubcellListType;
-typedef std::set<Object*>		ObjectSet;
+typedef std::list<Object*>					ObjectListType;
+typedef std::list<std::shared_ptr<Object>>	SharedObjectListType;
+typedef std::set<Object*>					ObjectSet;
+typedef std::multimap<uint32, std::shared_ptr<RegionObject>> SubCellMap;
 
-enum BucketType 
-{
+enum BucketType {
 	Bucket_Creatures = 1,
 	Bucket_Objects	 = 2,
 	Bucket_Players	 = 4
 };
 
-struct ObjectStruct
-{
+struct ObjectStruct	{
 public:
 	
 	ObjectListType		Objects;
 	ObjectListType		Creatures;
 	ObjectListType		Players;
-	SubcellListType		SubCells;
+	SharedObjectListType		SubCells;
 };
 
 class zmap
@@ -82,11 +71,13 @@ public:
 
 	bool				GetCellValidFlag(uint32 CellID);
 
-	uint32				AddSubCell(float low_x, float low_z, float height, float width, RegionObject* region);
-	bool				isObjectInSubCell(Object* object, uint32 subCellId);
-	void				RemoveSubCell(uint32 subCellId);
+	void				AddRegion(float low_x, float low_z, float height, float width, std::shared_ptr<RegionObject> region);
+	bool				isObjectInRegion(Object* object, uint64 regionid);
+	void				RemoveRegion(uint64 regionId);
+	void				CheckRegion(Object* newObject);
 
-	RegionObject*		getSubCell(uint32 subCellId);
+	std::shared_ptr<RegionObject>		getRegion(uint64 RegionIdId);
+	
 
 	//Get the contents of current cell of the player, looked up by CellID
 	void				GetCellContents(uint32 CellID, ObjectListType* list, uint32 type);//gets contents based on type enum
@@ -137,7 +128,7 @@ private:
 
 	uint32		_getCellId(float x, float z);
 	
-	bool		_isInSubCellExtent(SubCell* subCell, float x, float z);
+	bool		_isInRegionExtent(std::shared_ptr<RegionObject> region, Object* object);
 
 	//This is the actual Hashtable that stores the data
 	typedef std::map<uint32, ObjectListType>		MapHandler;
@@ -150,9 +141,7 @@ private:
 	ObjectStruct									EmptyStruct;
 
 	uint32	zmap_lookup[GRIDWIDTH+1][GRIDHEIGHT+1]; // one extra for protection
-	
-	// CellId -> List of SubCells
-	std::multimap<uint32, SubCell*> subCells;
+		
 
 	uint32		mCurrentSubCellID;
 	int32		viewRange;
@@ -163,6 +152,7 @@ protected:
 	//FILE*			ZoneLogs;
 
 	static zmap*	ZMAP;
+	SubCellMap		subCells;
 
 
 };

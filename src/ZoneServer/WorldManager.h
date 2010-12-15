@@ -213,6 +213,7 @@ public:
     bool					addObject(Object* object,bool manual = false);
     bool					addObject(std::shared_ptr<Object> object ,bool manual = false);
 	void					destroyObject(Object* object);
+	void					destroyObject(std::shared_ptr<Object> object);
 		
 	void					createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object);
 		
@@ -401,29 +402,7 @@ public:
     uint32					getPlanetCount() {
         return mvPlanetNames.size();
     }
-    /*  Region Methods
-    *
-    */
-    // region methods
-	// we store here regions that are due to be deleted after every iteration
-    // through active regions the list is iterated and its contents removed and destroyed
-    void					addRemoveRegion(std::shared_ptr<RegionObject> region) {
-        mRegionDeleteList.push_back(region);   //we store here regions that are due to be deleted after every iteration through active regions the list is iterated and its contents removed and destroyed
-    }
-
-    std::shared_ptr<RegionObject> getRegionById(uint64 regionId);
-
-    RegionMap getRegionMap() {
-        return mRegionMap;
-    }
-    //
-    void					addActiveRegion(std::shared_ptr<RegionObject> regionObject) {
-        mActiveRegions.push_back(regionObject);
-    }
-    void					removeActiveRegion(std::shared_ptr<RegionObject> regionObject);
-    /*  End Region Methods
-    *
-    */
+  
     Anh_Utils::Scheduler*	getPlayerScheduler() {
         return mPlayerScheduler;
     }
@@ -476,7 +455,6 @@ private:
     bool	_handleServerTimeUpdate(uint64 callTime,void* ref);
     bool	_handleShuttleUpdate(uint64 callTime,void* ref);
     bool	_handleDisconnectUpdate(uint64 callTime,void* ref);
-    bool	_handleRegionUpdate(uint64 callTime,void* ref);
     bool	_handleCraftToolTimers(uint64 callTime,void* ref);
     bool	_handleNpcConversionTimers(uint64 callTime,void* ref);
     bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
@@ -555,7 +533,7 @@ private:
     PlayerAccMap				mPlayerAccMap;
     PlayerMovementUpdateMap		mPlayerMovementUpdateMap;
     PlayerObjectReviveMap		mPlayerObjectReviveMap;
-    RegionMap                   mRegionMap;
+    //RegionMap                   mRegionMap;
     NpIdSet						mUsedTmpIds;
     std::vector<std::string>	mvClientEffects;
     std::vector<std::string>    mvMoods;

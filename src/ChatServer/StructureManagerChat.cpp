@@ -97,7 +97,7 @@ StructureManagerChatHandler::StructureManagerChatHandler(Database* database, Mes
     //implement configmanager in the chatserver
 
     std::tr1::shared_ptr<Timer> factory_timer(new Timer(SRMTimer_CheckFactory,this,8000,NULL));
-    std::tr1::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,1000,NULL));
+    std::tr1::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,60000,NULL));
     std::tr1::shared_ptr<Timer> maintenance_timer(new Timer(SRMTimer_CheckHarvesterMaintenance,this,3600*1000,NULL));
     std::tr1::shared_ptr<Timer> power_timer(new Timer(SRMTimer_CheckHarvesterPower,this,3600*1000,NULL));
     //std::tr1::shared_ptr<Timer> tick_preserve_timer(new Timer(CMTimer_TickPreserve,this,ServerTimeInterval*10000,NULL));
@@ -382,7 +382,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[500];
 
             //inform the owner on the maintenance issue
-            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, s.lastMail FROM %s.structures s INNER JOIN %s.structure_type_data st ON (s.type = st.type) INNER JOIN %s.planet p ON (p.planet_id = s.zone)WHERE ID = %"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(),asynContainer->harvesterID);
+            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, s.lastMail FROM %s.structures s INNER JOIN %s.structure_type_data st ON (s.type = st.type) INNER JOIN %s.planet p ON (p.planet_id = s.zone)WHERE ID = %"PRIu64"",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),asynContainer->harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailOOFMaint,0);
             asyncContainer->harvesterID = asynContainer->harvesterID;
 
@@ -648,10 +648,11 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         mDatabase->destroyDataBinding(binding);
 
     }
+    break;
 
     case STRMQuery_HopperUpdate:
     {
-        uint64 harvesterID;
+        
         DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint64,0,8);
 
@@ -660,7 +661,12 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
         for(uint64 i=0; i <count; i++)
         {
+            // clear out the value
+            uint64 harvesterID = 0;
+
             result->getNextRow(binding,&harvesterID);
+            if (harvesterID == 0)
+                continue;
 
             int8 sql[100];
 
@@ -676,6 +682,8 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             // 1 hopper full harvester turned of
             // 2 resource isnt active anymore
             // 3 resource doesnt exist in the first place
+
+
 
         }
 

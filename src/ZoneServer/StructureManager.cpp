@@ -1026,7 +1026,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 				 "		(SELECT \'schematicCustom\', i.customName FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) WHERE f.ID = %I64u)"
 				 "UNION (SELECT \'schematicName\', it.stf_name FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)"
 				 "UNION (SELECT \'schematicFile\', it.stf_file FROM %s.factories f INNER JOIN %s.items i ON (i.id = f.ManSchematicID) INNER JOIN %s.item_types it ON (i.item_type = it.id) WHERE f.ID = %I64u)",
-				mDatabase->galaxy(),mDatabase->galaxy(),
+				mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId,
                 mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId,
                 mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),command.StructureId);
 			

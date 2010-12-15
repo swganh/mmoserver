@@ -328,8 +328,9 @@ bool EventDispatcher::abort(const EventType& event_type, bool all_of_type) {
 
 bool EventDispatcher::tick(uint64_t timeout_ms) {
     // Create a new empty queue and swap it with the current active queue.
-    EventQueue process_queue;
-    std::swap(process_queue, event_queues_[active_queue_]);
+    EventQueue process_queue = event_queues_[active_queue_];
+    event_queues_[active_queue_].clear();
+    
     active_queue_ = (active_queue_ + 1) % NUM_QUEUES;
 
     ptime current_time = microsec_clock::local_time();

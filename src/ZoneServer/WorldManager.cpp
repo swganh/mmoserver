@@ -233,7 +233,6 @@ void WorldManager::Shutdown()
     delete(mSubsystemScheduler);
 
     mPlayersToRemove.clear();
-    mRegionMap.clear();
 
     // Npc conversation timers.
     mNpcConversionTimers.clear();
@@ -257,30 +256,6 @@ void WorldManager::Shutdown()
     NpcManager::deleteManager();
 
     Heightmap::deleter();
-
-    // Let's get REAL dirty here, since we have no solutions to the deletion-race of containers content.
-    // Done by Eruptor. I got tired of the unhandled problem.
-    // as we cannot keep the content out of the worldmanagers mainobjectlist - we might just store references in the container object ?
-    // the point is that we then have to delete all containers first - so register them seperately?
-    //
-	/*
-#if defined(_MSC_VER)
-    if (getObjectById((uint64)(2533274790395904)))
-#else
-    if (getObjectById((uint64)(2533274790395904LLU)))
-#endif
-    {
-#if defined(_MSC_VER)
-        Container* container = dynamic_cast<Container*>(getObjectById((uint64)(2533274790395904)));
-#else
-        Container* container = dynamic_cast<Container*>(getObjectById((uint64)(2533274790395904LLU)));
-#endif
-        if (container)
-        {
-            this->destroyObject(container);
-        }
-    }
-	*/
 
 	mCreatureObjectDeletionMap.clear();
 	mPlayerObjectReviveMap.clear();
@@ -329,18 +304,6 @@ void WorldManager::handleObjectReady(shared_ptr<Object> object)
 }
 
 //======================================================================================================================
-
-std::shared_ptr<RegionObject> WorldManager::getRegionById(uint64 regionId)
-{
-    RegionMap::iterator it = mRegionMap.find(regionId);
-
-    if( it != mRegionMap.end()) {
-        return (it->second);
-    } else {
-        LOG(WARNING) << "Could not find Region : " << regionId;
-    }
-    return shared_ptr<RegionObject>();
-}
 
 //======================================================================================================================
 //get the current tick
@@ -878,7 +841,6 @@ void WorldManager::_handleLoadComplete()
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleShuttleUpdate),7,1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleServerTimeUpdate),9,gWorldConfig->getServerTimeInterval()*1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleDisconnectUpdate),1,1000,NULL);
-	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleRegionUpdate),2,2000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleCraftToolTimers),3,1000,NULL);
 	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleNpcConversionTimers),8,1000,NULL);
 
@@ -901,48 +863,6 @@ void WorldManager::_handleLoadComplete()
 }
 
 //======================================================================================================================
-
-void WorldManager::removeActiveRegion(shared_ptr<RegionObject> regionObject)
-{
-    ActiveRegions::iterator it = mActiveRegions.begin();
-
-    while(it != mActiveRegions.end())
-    {
-        if(*it == regionObject)
-        {
-            mActiveRegions.erase(it);
-            break;
-        }
-
-        ++it;
-    }
-}
-
-//======================================================================================================================
-
-bool WorldManager::_handleRegionUpdate(uint64 callTime,void* ref)
-{
-    ActiveRegions::iterator it = mActiveRegions.begin();
-
-    while(it != mActiveRegions.end())
-    {
-        (*it)->update();
-        ++it;
-    }
-
-    //now delete any camp regions that are due
-    //RegionDeleteList::iterator itR = mRegionDeleteList.begin();
-
-    //while(itR != mRegionDeleteList.end())
-    //{
-    //    removeActiveRegion((*itR));
-    //    //now remove region entries
-    //    itR++;
-    //}
-
-    mRegionDeleteList.clear();
-    return(true);
-}
 
 //======================================================================================================================
 

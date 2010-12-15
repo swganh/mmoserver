@@ -9,19 +9,6 @@
 
 zmap* zmap::ZMAP = NULL;
 
-struct SubCell
-{
-public:
-    uint32			subCellId;
-
-    float			x;
-    float			z;
-    float			height;
-    float			width;
-
-    RegionObject*	region;
-
-};
 
 zmap::zmap()
 {
@@ -71,138 +58,144 @@ zmap::~zmap()
     }
 }
 
-bool zmap::_isInSubCellExtent(SubCell* subCell, float x, float z)
+void zmap::CheckRegion(Object* newObject)
 {
-    if(((x >= subCell->x) && (x <= (subCell->x + subCell->height))) &&
-            ((z >= subCell->z) && (z <= (subCell->z + subCell->width))))
+
+	//We need to check which subregions to leave
+	Uint64Set*				region_set	= &newObject->zmapSubCells;
+    Uint64Set::iterator		set_it		= region_set->begin();
+
+    while(set_it != region_set->end())    {
+        std::shared_ptr<RegionObject> region = getRegion(*set_it);
+		if(!_isInRegionExtent(region, newObject))	{
+    		region->onObjectLeave(newObject);
+			set_it = region_set->erase(set_it);		
+			continue;
+    	}
+        set_it++;
+    }
+
+
+    std::map<uint32, ObjectStruct*>::iterator mapIt = ZMapCells.find(newObject->getGridBucket());
+	
+	SharedObjectListType* list;
+	list = &(*mapIt).second->SubCells;
+
+	for(SharedObjectListType::iterator i = list->begin(); i != list->end(); i++)
+    {
+		std::shared_ptr<RegionObject> region = std::static_pointer_cast<RegionObject>((*i));
+    	if(_isInRegionExtent(region, newObject))
+    	{
+			newObject->zmapSubCells.insert(region->getId());
+    		region->onObjectEnter(newObject);
+    	}
+    }
+}
+
+bool zmap::_isInRegionExtent(std::shared_ptr<RegionObject> region, Object* object)
+{
+	float x = object->mPosition.x;
+	float z = object->mPosition.z;
+
+	if(((x >= region->mPosition.x) && (x <= (region->mPosition.x + region->getHeight()))) &&
+		((z >= region->mPosition.z) && (z <= (region->mPosition.z + region->getWidth()))))
         return true;
     else
         return false;
 }
 
-uint32	zmap::AddSubCell(float low_x, float low_z, float height, float width, RegionObject* region)
-{
-    SubCell* pSubCell		= new SubCell();
-    pSubCell->x				= low_x;
-    pSubCell->z				= low_z;
-    pSubCell->height		= height;
-    pSubCell->width			= width;
-    pSubCell->region		= region;
-    pSubCell->subCellId		= mCurrentSubCellID++;
 
-    region->subCellId		= pSubCell->subCellId;
+void	zmap::AddRegion(float low_x, float low_z, float height, float width, std::shared_ptr<RegionObject> region)
+{
 
     uint32 lowerLeft		= _getCellId(low_x,			low_z);
     uint32 lowerRight		= _getCellId(low_x+width,	low_z);
     uint32 upperLeft		= _getCellId(low_x,			low_z+height);
     uint32 upperRight		= _getCellId(low_x+width,	low_z+height);
 
-    unsigned int cellCountZ = (lowerLeft - upperLeft)/GRIDWIDTH;
-    unsigned int cellCountX = (lowerLeft - lowerRight);
+    signed int cellCountZ = (upperLeft - lowerLeft)/GRIDWIDTH;
+    signed int cellCountX = (lowerRight - lowerLeft);
+	assert(cellCountX >= 0);
+	assert(cellCountZ >= 0);
 
-    for(unsigned int i=0; i < cellCountZ; i++)
-    {
-        for(unsigned int j=0; j < cellCountX; j++)
-        {
-            subCells.insert(std::make_pair((lowerLeft + j + i * GRIDWIDTH), pSubCell));
-
+    for(signed int i=0; i <= cellCountZ; i++)    {
+        for(signed int j=0; j <= cellCountX; j++)	{
             std::map<uint32, ObjectStruct*>::iterator it = ZMapCells.find((lowerLeft + j + i * GRIDWIDTH));
 
-            (*it).second->SubCells.push_back(pSubCell);
+            (*it).second->SubCells.push_back(region);
 
         }
     }
 
-    return pSubCell->subCellId;
+	subCells.insert(std::make_pair(region->getId(), region));
+
+    return;
 }
 
-RegionObject* zmap::getSubCell(uint32 subCellId)
+std::shared_ptr<RegionObject> zmap::getRegion(uint64 RegionIdId)
 {
-    std::multimap<uint32, SubCell*>::iterator it = subCells.begin();
-    std::multimap<uint32, SubCell*>::iterator end = subCells.end();
+    SubCellMap::iterator it		= subCells.begin();
+    SubCellMap::iterator end	= subCells.end();
 
-    while(it != end)
-    {
-        if((*it).second->subCellId == subCellId)
-        {
-            //get cells
-            return (*it).second->region;
+    while(it != end)    {
+		if((*it).second->getId() == RegionIdId)        {
+            return (*it).second;
         }
-        else
-        {
-            ++it;
-        }
+        ++it;
     }
 
     return NULL;
 }
 
-bool zmap::isObjectInSubCell(Object* object, uint32 subCellId)
+bool zmap::isObjectInRegion(Object* object, uint64 region_id)
 {
-    std::multimap<uint32, SubCell*>::iterator it;
+    SubCellMap::iterator it;
 
-    std::pair<std::multimap<uint32, SubCell*>::iterator, std::multimap<uint32, SubCell*>::iterator> multi_pairing;
-
-    multi_pairing = subCells.equal_range(object->getGridBucket());
-
-    for(std::multimap<uint32, SubCell*>::iterator it = multi_pairing.first; it != multi_pairing.second; ++it)
-    {
-        if((*it).second->subCellId == subCellId)
-            return _isInSubCellExtent((*it).second, object->mPosition.x, object->mPosition.z);
-    }
-
+	it = subCells.find(region_id);
+	if(it != subCells.end())	{
+		return _isInRegionExtent((*it).second, object);
+	}
+    
     return false;
 }
 
-void	zmap::RemoveSubCell(uint32 subCellId)
+void	zmap::RemoveRegion(uint64 regionId)
 {
-    std::multimap<uint32, SubCell*>::iterator it = subCells.begin();
-    std::multimap<uint32, SubCell*>::iterator end = subCells.end();
+    SubCellMap::iterator it		= subCells.begin();
+    SubCellMap::iterator end	= subCells.end();
 
-
-
-    while(it != end)
-    {
-        if((*it).second->subCellId == subCellId)
-        {
+    while(it != end)    {
+		if((*it).second->getId() == regionId)        {
             //get cells
-            uint32 lowerLeft		= _getCellId((*it).second->x, (*it).second->z);
-            uint32 lowerRight		= _getCellId((*it).second->x + (*it).second->width,	(*it).second->z);
-            uint32 upperLeft		= _getCellId((*it).second->x, (*it).second->z + (*it).second->height);
-            uint32 upperRight		= _getCellId((*it).second->x + (*it).second->width,	(*it).second->z + (*it).second->height);
+			uint32 lowerLeft		= _getCellId((*it).second->mPosition.x, (*it).second->mPosition.z);
+			uint32 lowerRight		= _getCellId((*it).second->mPosition.x + (*it).second->getWidth(),	(*it).second->mPosition.z);
+			uint32 upperLeft		= _getCellId((*it).second->mPosition.x, (*it).second->mPosition.z + (*it).second->getHeight());
+			uint32 upperRight		= _getCellId((*it).second->mPosition.x + (*it).second->getWidth(),	(*it).second->mPosition.z + (*it).second->getHeight());
 
             unsigned int cellCountZ = (lowerLeft - upperLeft)/GRIDWIDTH;
             unsigned int cellCountX = (lowerLeft - lowerRight);
 
-            for(unsigned int i=0; i < cellCountZ; i++)
-            {
-                for(unsigned int j=0; j < cellCountX; j++)
-                {
+            for(unsigned int i=0; i < cellCountZ; i++)	{
+                for(unsigned int j=0; j < cellCountX; j++)	{
                     std::map<uint32, ObjectStruct*>::iterator it = ZMapCells.find((lowerLeft + j + i * GRIDWIDTH));
 
-                    SubcellListType				cellList =  (*it).second->SubCells;
+                    SharedObjectListType			cellList	= (*it).second->SubCells;
+                    SharedObjectListType::iterator	CellListit	= cellList.begin();
 
-                    SubcellListType::iterator	CellListit = cellList.begin();
-
-                    while(CellListit != cellList.begin())
-                    {
-                        if((*CellListit)->subCellId == subCellId)
-                        {
+                    while(CellListit != cellList.begin())	{
+						if((*CellListit)->getId() == regionId)	{
                             cellList.erase(CellListit);
                             break;
                         }
                         CellListit++;
                     }
-
                 }
             }
 
             it = subCells.erase(it);
+			continue;
         }
-        else
-        {
-            ++it;
-        }
+        ++it;
     }
 }
 
@@ -250,7 +243,6 @@ void zmap::RemoveObject(Object *removeObject)
     break;
     }
 
-
     for(ObjectListType::iterator remove_it = list->begin(); remove_it != list->end(); remove_it++)    {
         if((*remove_it)->getId() == removeObject->getId())      {
             list->erase(remove_it);
@@ -262,7 +254,21 @@ void zmap::RemoveObject(Object *removeObject)
     //so we do not have to search the list on insert
     removeObject->setGridBucket(0xffffffff);
 
-    return;
+	//regions are only for players / creatures at this point 
+    if((removeObject->getType() != ObjType_Player) && (removeObject->getType() != ObjType_NPC) & (removeObject->getType() != ObjType_Creature))
+        return;
+
+	//remove out of any regions we might be in
+	//We need to check which subregions to leave
+	Uint64Set*				region_set	= &removeObject->zmapSubCells;
+    Uint64Set::iterator		set_it		= region_set->begin();
+
+    while(set_it != region_set->end())    {
+        std::shared_ptr<RegionObject> region = getRegion(*set_it);
+		region->onObjectLeave(removeObject);
+		set_it = region_set->erase(set_it);		
+    }
+
 }
 
 
@@ -543,8 +549,6 @@ void	zmap::GetCustomRangeCellContents(uint32 CellID, uint32 range, ObjectListTyp
 
 
 
-
-
 uint32 zmap::AddObject(Object *newObject)
 {
 
@@ -592,30 +596,22 @@ uint32 zmap::AddObject(Object *newObject)
     break;
     }
 
-    //this *is* certainly stupid, *but*
-    //the most important thing, is that the reads are fast, thus, a list
-    /*
-    for(ObjectListType::iterator i = list->begin(); i != list->end(); i++)
-    {
-    	if((*i)->getId() == newObject->getId())
-    	{
-    		DLOG(INFO) << "zmap::AddObject :: add Object " << newObject->getId() << " to bucket " << finalBucket << " failed because Object was already in bucket";
-    		return 0xffffffff;
-    	}
-    }
-    */
     list->push_back(newObject);
 
-    //have we just entered a region ???
+    //regions are only for players / creatures at this point 
+    if((newObject->getType() != ObjType_Player) && (newObject->getType() != ObjType_NPC) && (newObject->getType() != ObjType_Creature))
+        return finalBucket;
 
-    SubcellListType				cellList = (*mapIt).second->SubCells;
-
-    SubcellListType::iterator	CellListit = cellList.begin();
+    SharedObjectListType			cellList = (*mapIt).second->SubCells;
+    SharedObjectListType::iterator	CellListit = cellList.begin();
 
     while(CellListit != cellList.begin())    {
-        if(isObjectInSubCell(newObject,(*CellListit)->subCellId))	{
-            (*CellListit)->region->onObjectEnter(newObject);
-        }
+		std::shared_ptr<RegionObject> region = std::static_pointer_cast<RegionObject>((*CellListit));
+		if(_isInRegionExtent(region, newObject))
+    	{
+			newObject->zmapSubCells.insert(region->getId());
+    		region->onObjectEnter(newObject);
+    	}
         CellListit++;
     }
 
@@ -678,80 +674,35 @@ void zmap::UpdateObject(Object *updateObject)
 
     list->push_back(updateObject);
 
-    /*
-    //this *is* certainly stupid, *but*
-    //the most important thing, is that the reads are fast, thus, a list
-    for(ObjectListType::iterator i = list->begin(); i != list->end(); i++)
-    {
-    	if((*i)->getId() == updateObject->getId())
-    	{
-    		return;
-    	}
-    }
-    */
-
-
-
-    //update subcells (regions)
-    std::multimap<uint32, SubCell*>::iterator it;
-
-    //remove any old subcells that are not in the new cell
-
-    //iterate through the subcells the object is in
-    Uint32Set::iterator subCellIt = updateObject->zmapSubCells.begin();
-    while(subCellIt != updateObject->zmapSubCells.end())    {
-        //are we still in the subcell?
-        if(!isObjectInSubCell(updateObject, (*subCellIt)))        {
-            //nope we left
-            it = subCells.find((*subCellIt));
-            if (it != subCells.end())            {
-                (*it).second->region->onObjectLeave(updateObject);
-            }
-
-            subCellIt = updateObject->zmapSubCells.erase(subCellIt);
-
-        }
-        else
-            subCellIt++;
-    }
-
-    if(updateObject->getType() != ObjType_Player)
+	//regions are only for players / creatures at this point 
+    if((updateObject->getType() != ObjType_Player) && (updateObject->getType() != ObjType_NPC) && (updateObject->getType() != ObjType_Creature))
         return;
 
-    //We need to check subregions -> New cell
+	//We need to check which subregions to leave
+	Uint64Set*				region_set	= &updateObject->zmapSubCells;
+    Uint64Set::iterator		set_it		= region_set->begin();
 
-    std::pair<std::multimap<uint32, SubCell*>::iterator, std::multimap<uint32, SubCell*>::iterator> multi_pairing;
-
-    multi_pairing = subCells.equal_range(updateObject->getGridBucket());
-
-    for(std::multimap<uint32, SubCell*>::iterator it = multi_pairing.first; it != multi_pairing.second; ++it)    {
-        bool isInRegion = false;
-        bool isTrulyInRegion = isObjectInSubCell(updateObject, (*it).second->subCellId);
-
-        Uint32Set::iterator subCellIt = updateObject->zmapSubCells.find((*it).second->subCellId);
-
-        if(subCellIt != updateObject->zmapSubCells.end())
-            isInRegion = true;
-
-        if(isTrulyInRegion && !isInRegion)        {
-            //Has just entered the region
-            updateObject->zmapSubCells.insert((*it).second->subCellId);
-            (*it).second->region->onObjectEnter(updateObject);
-
-        }
-        else if(!isTrulyInRegion && isInRegion)
-        {
-            // Has just left the region - we already handled that above in a different way
-            // that was necessary due to subregions of the old cell
-            // which might not be part of the new cell
-            subCellIt = updateObject->zmapSubCells.erase(subCellIt);
-            (*it).second->region->onObjectLeave(updateObject);
-        }
-        else
-        {
-            //No change has occurred.
-        }
+    while(set_it != region_set->end())    {
+        std::shared_ptr<RegionObject> region = getRegion(*set_it);
+		if(!_isInRegionExtent(region, updateObject))	{
+    		region->onObjectLeave(updateObject);
+			set_it = region_set->erase(set_it);		
+			continue;
+    	}
+        set_it++;
     }
 
 
+    //We need to check subregions -> New cell
+	SharedObjectListType				cell_list		= (*mapIt).second->SubCells;
+    SharedObjectListType::iterator		Cell_list_it	= cell_list.begin();
+
+    while(Cell_list_it != cell_list.begin())    {
+		std::shared_ptr<RegionObject> region = std::static_pointer_cast<RegionObject>((*Cell_list_it));
+		if(_isInRegionExtent(region, updateObject))    	{
+			updateObject->zmapSubCells.insert((*Cell_list_it)->getId());
+    		region->onObjectEnter(updateObject);
+    	}
+        Cell_list_it++;
+    }
 }

@@ -69,7 +69,7 @@ typedef std::set<uint64>				ObjectIDSet;
 typedef std::set<PlayerObject*>			PlayerObjectSet;
 typedef std::set<uint64>				PlayerObjectIDSet;
 typedef std::list<uint32>				AttributeOrderList;
-typedef std::set<uint32>				Uint32Set;
+typedef std::set<uint64>				Uint64Set;
 //=============================================================================
 
 /*
@@ -307,7 +307,7 @@ public:
 
 
 	//Set of Subcells we're in.
-	Uint32Set					zmapSubCells;
+	Uint64Set				zmapSubCells;
 
 	//handles Object ready in case our item is in the container
 	void				handleObjectReady(Object* object,DispatchClient* client);

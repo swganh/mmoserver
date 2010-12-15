@@ -31,9 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/clock.h"
 
-#include "DatabaseManager/Database.h"
-#include "DatabaseManager/DatabaseResult.h"
-#include "DatabaseManager/DataBinding.h"
+//#include "DatabaseManager/Database.h"
+//#include "DatabaseManager/DatabaseResult.h"
+//#include "DatabaseManager/DataBinding.h"
 
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
@@ -179,6 +179,9 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         gMessageLib->sendUpdateTransformMessage(player, player);
         return;
     }
+
+	gSpatialIndexManager->lookUpRegion(player);
+	
 
     //If player is mounted... move his mount too!
     if(player->checkIfMounted() && player->getMount())

@@ -237,24 +237,6 @@ bool WorldManager::addObject(Object* object,bool manual)
 		}
 		break;
 
-		case ObjType_Region:
-		{
-            RegionObject* tmp = dynamic_cast<RegionObject*>(object);
-            if (!tmp) {
-                LOG(WARNING) << "Unable to add RegionObject";
-                break;
-            }
-			auto region = std::shared_ptr<RegionObject>(tmp);
-
-			mRegionMap.insert(std::make_pair(key,region));
-
-			gSpatialIndexManager->addRegion(region.get());
-
-			if(region->getActive())
-				addActiveRegion(region);
-		}
-		break;
-
 		case ObjType_Intangible:
 		{
 			//they dont get added here in the firstplace ...
@@ -278,7 +260,25 @@ bool WorldManager::addObject(std::shared_ptr<Object> object, bool manual)
     uint64 key = object->getId();
 
     mObjectMap.insert(key,object.get());
-    return true;
+    
+	if(manual)
+		return true;
+
+	switch(object->getType())
+	{
+		//kets add our Region to the zmap
+		case ObjType_Region:
+		{
+
+			//mRegionMap.insert(std::make_pair(key,object));
+			std::shared_ptr<RegionObject> region = std::static_pointer_cast<RegionObject>(object);
+			gSpatialIndexManager->addRegion(region);
+
+		}
+		break;
+	}
+	
+	return true;
 }
 //======================================================================================================================
 // WorldManager::destroyObject(Object* object) removes an Object out of the main Object list
@@ -441,24 +441,6 @@ void WorldManager::destroyObject(Object* object)
 		}
 		break;
 
-		case ObjType_Region:
-		{
-			RegionMap::iterator it = mRegionMap.find(object->getId());
-
-			if(it != mRegionMap.end())
-			{
-				mRegionMap.erase(it);
-			}
-			else
-			{
-				DLOG(WARNING) << "Worldmanager::destroyObject: Could not find region " << object->getId();
-			}
-
-			gSpatialIndexManager->RemoveRegion(dynamic_cast<RegionObject*>(object));
-
-		}
-		break;
-
 		case ObjType_Waypoint:
 		{
 			uint64 parentId = object->getParentId();
@@ -538,6 +520,26 @@ void WorldManager::destroyObject(Object* object)
 		delete(object);
 		DLOG(WARNING) << "WorldManager::destroyObject: error removing from objectmap: " << object->getId();
 	}
+}
+
+void WorldManager::destroyObject(std::shared_ptr<Object> object)
+{
+	switch(object->getType())
+	{
+		case ObjType_Region:		{
+			gSpatialIndexManager->RemoveRegion(std::static_pointer_cast<RegionObject>(object));
+		}
+		break;
+	}
+
+
+	// finally delete it
+	ObjectMap::iterator objMapIt = mObjectMap.find(object->getId());
+
+	if(objMapIt != mObjectMap.end())	{
+		mObjectMap.erase(objMapIt);
+	}
+	
 }
 
 //======================================================================================================================

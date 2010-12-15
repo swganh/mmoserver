@@ -1017,7 +1017,7 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matched_playe
         std::string region_name("");
 
         std::find_if(player->zmapSubCells.begin(), player->zmapSubCells.end(), [&region_name] (uint32_t region_id) -> bool {
-            RegionObject* region = gSpatialIndexManager->getRegion(region_id);
+            std::shared_ptr<RegionObject> region = gSpatialIndexManager->getRegion(region_id);
 
             if (region && region->getRegionType() == Region_City) {
                 region_name = "@" + region->getNameFile() + ":" + region->getRegionName();

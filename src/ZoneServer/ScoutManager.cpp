@@ -150,14 +150,14 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
 	}
 
 	//add a camp region
-	//RegionObject* region = dynamic_cast<RegionObject*>(object);
-	CampRegion* region = new(CampRegion);
-	region->setId(gWorldManager->getRandomNpId());
+	std::shared_ptr<CampRegion> camp_region = std::make_shared<CampRegion>();
+
+	camp_region->setId(gWorldManager->getRandomNpId());
 
 	if(terminal)
-		terminal->setCampRegion(region->getId());
+		terminal->setCampRegion(camp_region->getId());
 
-	region->mPosition = player->mPosition;
+	camp_region->mPosition = player->mPosition;
 
 
 	//@todo need to update these sizes so they are more accurate.
@@ -166,48 +166,44 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
 	switch(typeId)
 	{
 	case ItemType_Camp_basic: 
-		region->setWidth(15.0); //11 Width + 2 buffer on each side
-		region->setHeight(15.0); //11 Height + 2 buffer on each side
+		camp_region->setWidth(15.0); //11 Width + 2 buffer on each side
+		camp_region->setHeight(15.0); //11 Height + 2 buffer on each side
 		break;
 	case ItemType_Camp_elite:
-		region->setWidth(18.0); //14 width + 2 buffer on each side
-		region->setHeight(26.0); //22 height + 2 buffer on each side
+		camp_region->setWidth(18.0); //14 width + 2 buffer on each side
+		camp_region->setHeight(26.0); //22 height + 2 buffer on each side
 		break;
 	case ItemType_Camp_improved:
-		region->setWidth(21.0); //17 width + 2 buffer on each side
-		region->setHeight(18.0); //14 height + 2 buffer on each side
+		camp_region->setWidth(21.0); //17 width + 2 buffer on each side
+		camp_region->setHeight(18.0); //14 height + 2 buffer on each side
 		break;
 	case ItemType_Camp_luxury: 
-		region->setWidth(46.0); //42 width + 2 buffer on each side
-		region->setHeight(45.0); //41 height + 2 buffer on each side
+		camp_region->setWidth(46.0); //42 width + 2 buffer on each side
+		camp_region->setHeight(45.0); //41 height + 2 buffer on each side
 		break;
 	case ItemType_Camp_multi:
-		region->setWidth(32.0); //28 height + 2 buffer on each side
-		region->setHeight(34.0); //30 height + 2 buffer on each side
+		camp_region->setWidth(32.0); //28 height + 2 buffer on each side
+		camp_region->setHeight(34.0); //30 height + 2 buffer on each side
 		break;
 	case ItemType_Camp_quality:
-		region->setWidth(24.0); //20 width + 2 buffer on each side
-		region->setHeight(25.0); //21 height + 2 buffer on each side
+		camp_region->setWidth(24.0); //20 width + 2 buffer on each side
+		camp_region->setHeight(25.0); //21 height + 2 buffer on each side
 		break;
 	default:
-		region->setWidth(5.0);
-		region->setHeight(5.0);
+		camp_region->setWidth(5.0);
+		camp_region->setHeight(5.0);
 	}
 
-	//region->setHeight(5.0);
-
-	//important if !0 it will never get the relevant subzone!
-	region->setSubZoneId(0);
-	region->setOwner(player->getId());
-	region->setCamp(camp->getId());
-	region->setParentId(0);
-	region->setHealingModifier(deedData->healing_modifier);
-	region->setActive(true);
-	gWorldManager->addObject(region);
+	camp_region->setOwner(player->getId());
+	camp_region->setCamp(camp->getId());
+	camp_region->setParentId(0);
+	camp_region->setHealingModifier(deedData->healing_modifier);
+	camp_region->setActive(true);
+	gWorldManager->addObject(camp_region);
 
 	int8 name[64];
 	sprintf(name,"%s %s",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
-	region->setCampOwnerName(name);
+	camp_region->setCampOwnerName(name);
 
 	player->setHasCamp(true);
 

@@ -221,7 +221,7 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
     StructureManagerAsyncContainer* asyncContainer;
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Remove_Permission, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"select sf_RemovePermissionList(%"PRIu64",'%s','%s')",structureId,playerName,list.getAnsi());
+    mDatabase->executeSqlAsync(this,asyncContainer,"select %s.sf_RemovePermissionList(%"PRIu64",'%s','%s')",mDatabase->galaxy(),structureId,playerName,list.getAnsi());
 
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
@@ -246,15 +246,14 @@ void StructureManager::addNametoPermissionList(uint64 structureId, uint64 player
     StructureManagerAsyncContainer* asyncContainer;
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Add_Permission, 0);
-    //mDatabase->ExecuteSqlAsync(this,asyncContainer,"select sf_AddPermissionList(%"PRIu64",'%s','%s')",structureId,name.getAnsi(),list.getAnsi());
-
+    
     mDatabase->escapeString(playerName,name.getAnsi(),name.getLength());
 
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
     sprintf(asyncContainer->name,"%s",name.getAnsi());
 
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sf_AddPermissionList(%"PRIu64",'%s','%s')",structureId,playerName,list.getAnsi());
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT %s.sf_AddPermissionList(%"PRIu64",'%s','%s')",mDatabase->galaxy(),structureId,playerName,list.getAnsi());
 
 
     // 0 is sucess
@@ -553,7 +552,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				
 				//deletes the deed
 				int8 sql[200];
-				sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
+				sprintf(sql,"DELETE FROM %s.items WHERE parent_id = %"PRIu64" AND item_family = 15",mDatabase->galaxy(),structure->getId());
 				mDatabase->executeSqlAsync(NULL,NULL,sql);
 				
 				gObjectFactory->deleteObjectFromDB(structure);

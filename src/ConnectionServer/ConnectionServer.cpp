@@ -134,7 +134,7 @@ ConnectionServer::~ConnectionServer(void)
     LOG(WARNING) << "ConnectionServer Shutting down...";
 
     // Update our status for the LoginServer
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 0, mClusterId); // Status set to offline
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 0, mClusterId); // Status set to offline
     
 
     // We're shuttind down, so update the DB again.
@@ -191,7 +191,7 @@ void ConnectionServer::Process(void)
 void ConnectionServer::_updateDBServerList(uint32 status)
 {
     // Execute our query
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('connection', %u, '%s', %u);", status, mServerService->getLocalAddress(), mServerService->getLocalPort());
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('connection', %u, '%s', %u);",mDatabase->galaxy(), status, mServerService->getLocalAddress(), mServerService->getLocalPort());
     
 }
 
@@ -203,12 +203,12 @@ void ConnectionServer::ToggleLock()
     if(mLocked)
     {
         // Update our status for the LoginServer
-        mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 3, mClusterId); // Status set to online (DEV / CSR Only)
+        mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 3, mClusterId); // Status set to online (DEV / CSR Only)
         
         LOG(WARNING) << "Locking server to normal users";
     } else {
         // Update our status for the LoginServer
-        mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Status set to online
+        mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 2, mClusterId); // Status set to online
         
         LOG(WARNING) << "unlocking server to normal users";
     }

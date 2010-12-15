@@ -131,7 +131,7 @@ TradeManagerChatHandler::TradeManagerChatHandler(Database* database, MessageDisp
 
     // load our bazaar terminals
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_LoadBazaar, 0);
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_BazaarTerminalsGet();");
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_BazaarTerminalsGet();",mDatabase->galaxy());
     
 
     // load our global tick
@@ -274,7 +274,6 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             //send relevant info to Zoneserver for Itemcreation
             gChatMessageLib->processSendCreateItem(asynContainer->mClient, player->getCharId(),AuctionTemp.ItemID, AuctionTemp.ItemTyp, player->getPlanetId());
 
-            //gChatMessageLib->SendRetrieveAuctionItemResponseMessage(asynContainer->mClient,AuctionTemp.ItemID, error);
         } else {
             //send error
             error = 1;
@@ -902,8 +901,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         //now move the auctions in their proper holding areas or delete the ones which have expired their holding date
         TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
 
-        /*sprintf(sql,"CALL sp_CommerceFindExpiredListing()");*/
-        mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CommerceFindExpiredListing();");
+        mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_CommerceFindExpiredListing();",mDatabase->galaxy());
         
 
     }

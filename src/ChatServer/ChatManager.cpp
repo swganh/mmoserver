@@ -84,7 +84,6 @@ ChatManager::ChatManager(Database* database,MessageDispatch* dispatch) :
 
     ChatAsyncContainer* asyncContainer = new ChatAsyncContainer(ChatQuery_GalaxyName);
     // Commented out the filter for now, at a later time this needs to be updated to not be bound to a single galaxy
-    // mDatabase->ExecuteSqlAsync(this,asyncContainer,"SELECT name FROM galaxy;"); // WHERE galaxy_id=3");
     mDatabase->executeProcedureAsync(this,asyncContainer,"CALL %s.sp_ReturnGalaxyName(2);",mDatabase->galaxy());
     
 
@@ -1824,11 +1823,8 @@ void ChatManager::_processUninviteAvatarFromRoom(Message* message, DispatchClien
         int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-        //	mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_invited WHERE char_name = '%s' AND channel_id = %u;", channel->getId(), sql);
-
         mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserUnInvite(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
         
-
         gChatMessageLib->sendChatOnUninviteFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
         gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
     }
@@ -1940,11 +1936,8 @@ void ChatManager::_processRemoveModFromRoom(Message* message,DispatchClient* cli
         int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-        // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_moderators WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
-
         mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomModeratorRemove(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
         
-
         gChatMessageLib->sendChatOnRemoveModeratorFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, requestId);
     }
 #ifdef DISP_REAL_FIRST_NAME
@@ -1986,8 +1979,6 @@ void ChatManager::_processRemoveAvatarFromRoom(Message* message,DispatchClient* 
         }
     else
     {
-        //mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
-
         mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserRemove(%u, %"PRIu64");", mDatabase->galaxy(),  avatar->getPlayer()->getCharId(), channel->getId());
         
         gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
@@ -2086,12 +2077,9 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
         ChatAvatarId* avatar = channel->findUser(playerName);
         if (avatar)
         {
-            // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_char_channels WHERE channel_id = %u AND character_id = %"PRIu64";", channel->getId(), avatar->getPlayer()->getCharId());
-
             mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserRemove(%u, %"PRIu64");", mDatabase->galaxy(),  avatar->getPlayer()->getCharId(), channel->getId());
 
             gChatMessageLib->sendChatOnLeaveRoom(client, avatar, channel, 0, errorCode);
-            // gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);	// Update clients before we remove the poor banned one.
             channel->removeUser(playerName);
         }
 
@@ -2102,14 +2090,7 @@ void ChatManager::_processBanAvatarFromRoom(Message* message,DispatchClient* cli
             (void)channel->removeInvitedUser(playerName);
             mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
 
-            // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_invited WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
-
             mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserUnInvite(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
-
-            // Removed since it gives un-wanted spam back to client.
-            // gChatMessageLib->sendChatOnUninviteFromRoom(client, mGalaxyName, realSenderName, realPlayerName, channel, 0);
-
-            // gChatMessageLib->sendChatQueryRoomResults(client, channel, 0);
         }
 
         // Get the ban-stick in ready position
@@ -2209,8 +2190,6 @@ void ChatManager::_processUnbanAvatarFromRoom(Message* message,DispatchClient* c
         (void)channel->unBanUser(playerName);
         int8 sql[128];
         mDatabase->escapeString(sql, playerName.getAnsi(), playerName.getLength());
-
-        // mDatabase->ExecuteSqlAsync(NULL, NULL, "DELETE FROM chat_channels_banned WHERE char_name = '%s' AND channel_id = %u;", sql /* playerName.getAnsi() */, channel->getId());
 
         mDatabase->executeProcedureAsync(NULL, NULL, "CALL %s.sp_ChatRoomUserUnBan(%u, '%s');", mDatabase->galaxy(),  channel->getId(), sql);
 
@@ -2964,7 +2943,6 @@ void ChatManager::_handleFindFriendDBReply(Player* player,uint64 retCode,BString
 
 bool ChatManager::isValidName(BString name)
 {
-    // DatabaseResult* result = mDatabase->ExecuteSql("SELECT id FROM characters WHERE LCASE(firstname) = '%s';", name.getAnsi());
     int8 sql[128];
     mDatabase->escapeString(sql, name.getAnsi(), name.getLength());
 

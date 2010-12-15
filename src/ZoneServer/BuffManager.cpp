@@ -216,7 +216,7 @@ void BuffManager::LoadBuffsFromResult(buffAsyncContainer* asyncContainer, Databa
     asyncContainer->mQueryType = BMQuery_Delete;
 
     int8 sql2[550];
-    sprintf(sql2, "delete from character_buffs where character_id = %"PRIu64";", player->getId());
+    sprintf(sql2, "delete from %s.character_buffs where character_id = %"PRIu64";",mDatabase->galaxy(), player->getId());
     mDatabase->executeSqlAsync(this,asyncContainer,sql2);
     
 }
@@ -252,7 +252,7 @@ void BuffManager::LoadBuffAttributesFromResult(buffAsyncContainer* asyncContaine
     asyncContainer->player->DecBuffAsyncCount();
     asyncContainer->mQueryType=BMQuery_Delete;
     int8 sql2[550];
-    sprintf(sql2, "delete from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", asyncContainer->player->getId(), asyncContainer->buff->GetDBID());
+    sprintf(sql2, "delete from %s.character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";",mDatabase->galaxy(), asyncContainer->player->getId(), asyncContainer->buff->GetDBID());
     
     mDatabase->executeSqlAsync(this,asyncContainer,sql2);
 
@@ -370,7 +370,7 @@ void BuffManager::LoadBuffAttributes(buffAsyncContainer* envelope)
     temp->player = envelope->player;
 
     int8 sql[550];
-    sprintf(sql, "SELECT type,initial,tick,final from character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";", envelope->player->getId(), envelope->buff->GetDBID());
+    sprintf(sql, "SELECT type,initial,tick,final from %s.character_buff_attributes where character_id = %"PRIu64" and buff_id = %"PRIu64";",mDatabase->galaxy(), envelope->player->getId(), envelope->buff->GetDBID());
     mDatabase->executeSqlAsync(this,temp,sql);
     
 }

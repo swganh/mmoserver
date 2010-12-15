@@ -106,7 +106,6 @@ void ShuttleFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 void ShuttleFactory::requestObject(ObjectFactoryCallback* ofCallback, uint64 id, uint16 subGroup, uint16 subType, DispatchClient* client)
 {
-    //mDatabase->ExecuteProcedureAsync(this, new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback, SHFQuery_MainData, client), "CALL sp_ShuttleDetailGet(%"PRIu64");", id);
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,SHFQuery_MainData,client),
                                "SELECT shuttles.id,shuttles.parentId,shuttles.firstName,shuttles.lastName,"
                                "shuttles.oX,shuttles.oY,shuttles.oZ,shuttles.oW,shuttles.x,shuttles.y,shuttles.z,"

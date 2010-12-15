@@ -844,7 +844,7 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
 
         player->prepareSchematicIds();
 
-        mDatabase->executeSqlAsync(NULL,NULL,"DELETE FROM character_skills WHERE character_id=%"PRIu64" AND skill_id=%u",player->getId(),skillId);
+        mDatabase->executeSqlAsync(NULL,NULL,"DELETE FROM %s.character_skills WHERE character_id=%"PRIu64" AND skill_id=%u",mDatabase->galaxy(),player->getId(),skillId);
         
 
         gMessageLib->sendSkillDeltasCreo1(skill,SMSkillRemove,player);

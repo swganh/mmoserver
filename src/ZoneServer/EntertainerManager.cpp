@@ -295,7 +295,7 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
         }
         //remove it from the db
         int8 sql[150];
-        sprintf(sql,"DELETE FROM entertainer_deny_service WHERE entertainer_id = '%"PRIu64"' and outcast_id = '%"PRIu64"'", entertainer->getId(), outCastId);
+        sprintf(sql,"DELETE FROM %s.entertainer_deny_service WHERE entertainer_id = '%"PRIu64"' and outcast_id = '%"PRIu64"'",mDatabase->galaxy(), entertainer->getId(), outCastId);
 
 
         EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);

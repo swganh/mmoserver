@@ -62,6 +62,8 @@ ScoutManager::~ScoutManager(void)
 bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player)
 {
     //get blueprint out of the db
+    if (gStructureManager->checkNoBuildRegion(player))
+        return false;
 
     StructureDeedLink*	deedData = 	gStructureManager->getDeedData(typeId);
     if(!deedData)

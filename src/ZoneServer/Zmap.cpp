@@ -243,10 +243,6 @@ void zmap::RemoveObject(Object *removeObject)
     break;
     }
 
-	//regions are only for players / creatures at this point 
-    if((removeObject->getType() != ObjType_Player) || (removeObject->getType() != ObjType_NPC) || (removeObject->getType() != ObjType_Creature))
-        return;
-
     for(ObjectListType::iterator remove_it = list->begin(); remove_it != list->end(); remove_it++)    {
         if((*remove_it)->getId() == removeObject->getId())      {
             list->erase(remove_it);
@@ -257,6 +253,10 @@ void zmap::RemoveObject(Object *removeObject)
     //make sure we can use the mGridBucket to determine what bucket we *are* in
     //so we do not have to search the list on insert
     removeObject->setGridBucket(0xffffffff);
+
+	//regions are only for players / creatures at this point 
+    if((removeObject->getType() != ObjType_Player) || (removeObject->getType() != ObjType_NPC) || (removeObject->getType() != ObjType_Creature))
+        return;
 
 	//remove out of any regions we might be in
 	//We need to check which subregions to leave

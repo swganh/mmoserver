@@ -692,7 +692,6 @@ void zmap::UpdateObject(Object *updateObject)
         set_it++;
     }
 
-
     //We need to check subregions -> New cell
 	SharedObjectListType				cell_list		= (*mapIt).second->SubCells;
     SharedObjectListType::iterator		Cell_list_it	= cell_list.begin();

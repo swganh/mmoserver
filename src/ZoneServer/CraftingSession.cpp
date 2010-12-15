@@ -1258,7 +1258,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder();
     list->clear();
 
-    mDatabase->executeSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId());
+    mDatabase->executeSqlAsync(0,0,"DELETE FROM %s.item_attributes WHERE item_id=%"PRIu64"",mDatabase->galaxy(),mManufacturingSchematic->getId());
 
 
     //save the datapad as the Owner Id in the db

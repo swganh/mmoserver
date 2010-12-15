@@ -419,7 +419,7 @@ void CharacterLoginHandler::_processClusterZoneTransferApprovedByTicket(Message*
         asyncContainer->player		= playerObject;
         asyncContainer->callBack	= CLHCallBack_Transfer_Ticket;
 
-        mDatabase->executeSqlAsync(this,asyncContainer,"DELETE FROM items WHERE id = %"PRIu64"", ticket->getId());
+        mDatabase->executeSqlAsync(this,asyncContainer,"DELETE FROM %s.items WHERE id = %"PRIu64"", mDatabase->galaxy(),ticket->getId());
 
 
     }

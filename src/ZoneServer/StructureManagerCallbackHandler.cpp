@@ -352,7 +352,7 @@ void StructureManager::_HandleStructureDestruction(StructureManagerAsyncContaine
             //delete the deed in the db
             //the parent is the structure and the item family is 15
             int8 sql[100];
-            sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
+            sprintf(sql,"DELETE FROM %s.items WHERE parent_id = %"PRIu64" AND item_family = 15",mDatabase->galaxy(),structure->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
             
             //delete harvester db side with all power and all resources

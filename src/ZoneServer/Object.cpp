@@ -373,7 +373,6 @@ void Object::setAttributeIncDB(BString key,std::string value)
     sprintf(restStr,"'WHERE item_id=%"PRIu64" AND attribute_id=%u",this->getId(),attributeID);
     strcat(sql,restStr);
 
-    //sprintf(sql,"UPDATE item_attributes SET value='%s' WHERE item_id=%"PRIu64" AND attribute_id=%u",value,this->getId(),attributeID);
     gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
 
 }

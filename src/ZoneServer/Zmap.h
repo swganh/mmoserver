@@ -29,9 +29,9 @@ enum qtype	{
 	q_object	= 3
 };
 
-typedef std::list<Object*>					ObjectListType;
-typedef std::list<std::shared_ptr<Object>>	SharedObjectListType;
-typedef std::set<Object*>					ObjectSet;
+typedef std::list<Object*> ObjectListType;
+typedef std::list<std::shared_ptr<Object>> SharedObjectListType;
+typedef std::set<Object*> ObjectSet;
 typedef std::multimap<uint32, std::shared_ptr<RegionObject>> SubCellMap;
 
 enum BucketType {
@@ -41,12 +41,11 @@ enum BucketType {
 };
 
 struct ObjectStruct	{
-public:
-	
-	ObjectListType		Objects;
-	ObjectListType		Creatures;
-	ObjectListType		Players;
-	SharedObjectListType		SubCells;
+public:	
+	ObjectListType       Objects;
+	ObjectListType       Creatures;
+	ObjectListType       Players;
+	SharedObjectListType SubCells;
 };
 
 class zmap

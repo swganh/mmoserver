@@ -9,6 +9,7 @@
 #define ANH_BYTE_BUFFER_INL_H_
 
 #include <string>
+#include <stdexcept>
 
 namespace anh {
 

@@ -23,6 +23,7 @@
 #include <iomanip>
 #include <iostream>
 #include <iterator>
+#include <stdexcept>
 
 using namespace anh;
 

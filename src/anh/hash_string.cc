@@ -70,7 +70,7 @@ bool HashString::operator!=(const HashString& other) const {
 }
 
 uint32_t HashString::ident() const {
-    return reinterpret_cast<uint32_t>(ident_);
+    return static_cast<uint32_t>(reinterpret_cast<uint64_t>(ident_));
 }
 
 const std::string& HashString::ident_string() const {

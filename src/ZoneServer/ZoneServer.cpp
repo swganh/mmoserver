@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
+#include "anh/event_dispatcher/event_dispatcher.h"
+
 #include "CharacterLoginHandler.h"
 #include "CharSheetManager.h"
 //	Managers
@@ -85,8 +87,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/thread/thread.hpp>
 
+using anh::event_dispatcher::EventDispatcher;
+using std::make_shared;
+using std::shared_ptr;
+
 using utils::Singleton;
-using common::EventDispatcher;
 
 #ifdef WIN32
 #undef ERROR
@@ -102,6 +107,7 @@ ZoneServer* gZoneServer = NULL;
 ZoneServer::ZoneServer(int8* zoneName)
     : mZoneName(zoneName)
     , mLastHeartbeat(0)
+    , event_dispatcher_(make_shared<EventDispatcher>())
     , mNetworkManager(0)
     , mDatabaseManager(0)
     , mRouterService(0)
@@ -205,7 +211,7 @@ ZoneServer::ZoneServer(int8* zoneName)
 	// Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
+    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<common::EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
 
@@ -284,6 +290,8 @@ void ZoneServer::Process(void)
     gScriptEngine->process();
     mMessageDispatch->Process();
     gEventDispatcher.Tick(current_timestep);
+    
+    event_dispatcher_->tick(0);
 
     //is there stalling ?
     mRouterService->Process();

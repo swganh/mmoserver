@@ -1,3 +1,9 @@
+# libraries
+
+add_subdirectory(anh)
+
+# executables
+
 ADD_SUBDIRECTORY(Utils)
 ADD_SUBDIRECTORY(Common)
 ADD_SUBDIRECTORY(NetworkManager)

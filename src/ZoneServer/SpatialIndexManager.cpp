@@ -356,17 +356,21 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
 			//limit unregistrations to creatures / NPCs 
 			if((*i)->getType() == ObjType_NPC || (*i)->getType() == ObjType_Creature || (*i)->getType() == ObjType_Player)	{
 				gContainerManager->unRegisterPlayerFromContainer((*i), removePlayer);
+				if((*i)->getType() == ObjType_Player)	{
+					PlayerObject* otherPlayer = static_cast<PlayerObject*>((*i));
+					gMessageLib->sendDestroyObject(removeObject->getId(), otherPlayer );
+				}
 			}
         }
-        else
-
+        else		{
             //is the object a container?? do we need to despawn the content and unregister it ?
             //just dont unregister us for ourselves or our equipment - we likely only travel
             if((*i)->getType() == ObjType_Player)	{
                 PlayerObject* otherPlayer = static_cast<PlayerObject*>((*i));
+				gMessageLib->sendDestroyObject(removeObject->getId(), otherPlayer );
                 gContainerManager->unRegisterPlayerFromContainer(removeObject, otherPlayer);
-                gMessageLib->sendDestroyObject(removeObject->getId(),otherPlayer);
             }
+		}
     }
 
 	//go through container registrations of tangibles for containers we still now
@@ -383,8 +387,12 @@ void SpatialIndexManager::_RemoveObjectFromGrid(Object *removeObject)
             assert(false);
             //unRegisterPlayerFromContainer invalidates the knownObject / knownPlayer iterator
             gContainerManager->unRegisterPlayerFromContainer(removeObject, player);
-            gMessageLib->sendDestroyObject(removeObject->getId(),player);
-            it = knownPlayers->begin();
+			
+			PlayerObject* const remove_player = static_cast<PlayerObject*>(removeObject);
+			gMessageLib->sendDestroyObject(player->getId(), remove_player);
+			gMessageLib->sendDestroyObject(remove_player->getId(),player);
+            
+			it = knownPlayers->begin();
         }
         else
             it++;
@@ -429,10 +437,8 @@ void SpatialIndexManager::removeStructureItemsForPlayer(PlayerObject* player, Bu
         else	{
             if((object) && (object->checkRegisteredWatchers(player)))	{
                 gContainerManager->unRegisterPlayerFromContainer(object,player);
+				gMessageLib->sendDestroyObject(object->getId(), player);
             }
-            //destroy item for the player
-            gMessageLib->sendDestroyObject(object->getId(),player);
-
         }
         objIt++;
     }
@@ -453,20 +459,21 @@ void SpatialIndexManager::_CheckObjectIterationForDestruction(Object* toBeTested
 		if((toBeTested->getType() == ObjType_Creature || toBeTested->getType() == ObjType_NPC || toBeTested->getType() == ObjType_Building) && toBeTested->checkRegisteredWatchers(updatedObject))	{
 			gContainerManager->unRegisterPlayerFromContainer(toBeTested,updatedPlayer);
 		}
+		
+		//we (updateObject) got out of range of toBeTested
+		gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer);
+		
 
 		if(toBeTested->getType() == ObjType_Player)    {
 			DLOG(INFO) << "SpatialIndexManager::_CheckObjectIterationForDestruction (Player) :: check Player : " <<toBeTested->getId() << " to be removed from Player : " << updatedObject->getId();
-		}
-
-		//we (updateObject) got out of range of toBeTested
-		gMessageLib->sendDestroyObject(toBeTested->getId(),updatedPlayer);
+		}		
 	}    
 
     //if its a player, destroy us for him
     if(toBeTested->getType() == ObjType_Player)    {
         PlayerObject* testedPlayer = static_cast<PlayerObject*> (toBeTested);
-        gMessageLib->sendDestroyObject(updatedObject->getId(),testedPlayer);
         gContainerManager->unRegisterPlayerFromContainer(updatedObject,testedPlayer);
+		gMessageLib->sendDestroyObject(updatedObject->getId(),testedPlayer);
     }
 }
 

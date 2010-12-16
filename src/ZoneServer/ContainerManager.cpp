@@ -77,6 +77,11 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
         return;
     }
 
+	//send destroys only for containeritems NOT for items in the si - thats the SI managers Job
+	if(container->getParentId() != 0)	{
+		gMessageLib->sendDestroyObject(container->getId(), player );
+	}
+
     //buildings are a different kind of animal all together
     //as cells need to be handled in a different way
     if(container->getType() == ObjType_Building ) {
@@ -114,8 +119,6 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister container " << container->getId()  << " from  player " << player->getId() << "failed" ;
 		assert(false);
 	}
-	
-    gMessageLib->sendDestroyObject(container->getId(),player);
 }
 
 

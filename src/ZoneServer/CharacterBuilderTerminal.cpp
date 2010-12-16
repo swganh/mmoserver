@@ -97,6 +97,8 @@ void CharacterBuilderTerminal::InitMenus()
     mMainCsrMenu.push_back("Manage Professions");
     mMainCsrMenu.push_back("Manage Wounds");
     mMainCsrMenu.push_back("Manage States");
+    mMainCsrMenu.push_back("Personal Blue Frog");
+    mPersonalFrog.push_back("Give Personal Blue Frog");
 
     InitExperience();
     InitProfessions();
@@ -216,7 +218,7 @@ void CharacterBuilderTerminal::InitItems()
     mItemMenu.push_back("Tools");
     mItemMenu.push_back("Weapons");
     mItemMenu.push_back("Armor");
-
+    
     InitStructures();
     InitFurniture();
     InitVehicles();
@@ -602,8 +604,7 @@ void CharacterBuilderTerminal::GiveItem(PlayerObject* playerObject, uint32 input
 
     if(item)
     {
-        Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-        gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99, glm::vec3(),"");
+        gObjectFactory->requestNewDefaultItem(playerObject->getInventory(),item->family,item->type,playerObject->getInventory()->getId(),99, glm::vec3(),"");
         gMessageLib->SendSystemMessage(L"The item has been placed in your inventory.", playerObject);
     }
     else
@@ -791,6 +792,12 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
             gUIManager->createNewListBox(this,"handleStateMenu","States","Select a State.",mStatesMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_StateMenu);
         }
         break;
+    case 9: // personal blue frog
+        if(playerObject->isConnected())
+        {
+            gUIManager->createNewListBox(this,"handleBlueFrogMenu","BlueFrog","Blue Frog",mPersonalFrog,playerObject,SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu);
+        }
+    break;
     default:
         break;
     }
@@ -1411,6 +1418,17 @@ void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint
         playerObject->getHam()->updateBattleFatigue(-1000);
     default:
         break;
+    }
+}
+void CharacterBuilderTerminal::_handleBlueFrogMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window)
+{
+    switch(element)
+    {
+        case 0:
+            {
+                //gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Terminal,0,playerObject->getInventory(),4294968290,playerObject->getClient());
+                //gObjectFactory->requestTanoNewParent(playerObject->getInventory(), 4294968290, playerObject->getInventory()->getId(), TanGroup_Terminal);
+            }
     }
 }
 
@@ -2730,6 +2748,8 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BStrin
         break;
     case SUI_Window_CharacterBuilder_ListBox_StateMenu:
         _handleStateMenu(playerObject, action, element, inputStr, window);
+    case SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu:
+        _handleBlueFrogMenu(playerObject, action, element, inputStr, window);
     case SUI_Window_CharacterBuilder_ListBox_CivicMenu:
         _handleCivicMenu(playerObject, action, element, inputStr, window);
         break;

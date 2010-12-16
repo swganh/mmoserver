@@ -214,8 +214,6 @@ void	CampRegion::despawnCamp()
     }
 
     gMessageLib->sendDestroyObject_InRangeofObject(camp);
-    gWorldManager->destroyObject(camp);
-
 	gSpatialIndexManager->RemoveRegion(getSharedFromThis());
 
     //now grant xp
@@ -231,7 +229,7 @@ void	CampRegion::despawnCamp()
         //still get db side in
     }
 
-
+	gWorldManager->destroyObject(camp);
 }
 
 void	CampRegion::applyWoundHealing(Object* object)

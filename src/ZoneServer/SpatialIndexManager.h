@@ -103,7 +103,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 
 		void					RemoveRegion(std::shared_ptr<RegionObject> remove_region);
 		void					addRegion(std::shared_ptr<RegionObject> region);
-		std::shared_ptr<RegionObject>			getRegion(uint32 id);
+		std::shared_ptr<RegionObject> findRegion(uint64_t id);
 
 
 		//place Objects in the spatialIndex / cells 
@@ -121,9 +121,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 		void					sendToPlayersInRange(const Object* const object, bool cellContent, std::function<void (PlayerObject* player)> callback);
 
 		void					sendToChatRange(Object* container, std::function<void (PlayerObject* const player)> callback);
-
-		void					lookUpRegion(Object* object);
-
+        
 		//======================================================================================================================
 		// when creating a player and the player is in a cell we need to create all the cells contents for the player
 		// cellcontent is *NOT* in the grid

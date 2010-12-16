@@ -178,10 +178,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         // send out position updates to known players in group or self only
         gMessageLib->sendUpdateTransformMessage(player, player);
         return;
-    }
-
-	gSpatialIndexManager->lookUpRegion(player);
-	
+    }	
 
     //If player is mounted... move his mount too!
     if(player->checkIfMounted() && player->getMount())

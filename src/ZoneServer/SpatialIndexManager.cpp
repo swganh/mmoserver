@@ -1152,13 +1152,3 @@ bool SpatialIndexManager::InitializeObject(PlayerObject *player) {
     initObjectsInRange(player);
     return true;
 }
-
-void SpatialIndexManager::lookUpRegion(Object* object)
-{
-	//for now in the main thread
-	getGrid()->checkRegion(object);
-	//active_.Send([=] {
-
-	//}
-	//);
-}

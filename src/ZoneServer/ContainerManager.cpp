@@ -114,8 +114,6 @@ void ContainerManager::unRegisterPlayerFromContainer(Object* container, PlayerOb
 		DLOG(INFO) << "ContainerManager::unRegisterPlayerFromContainer :: unregister container " << container->getId()  << " from  player " << player->getId() << "failed" ;
 		assert(false);
 	}
-	
-    gMessageLib->sendDestroyObject(container->getId(),player);
 }
 
 

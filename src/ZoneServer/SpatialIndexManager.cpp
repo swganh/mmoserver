@@ -213,7 +213,7 @@ void SpatialIndexManager::RemoveRegion(std::shared_ptr<RegionObject> remove_regi
 void SpatialIndexManager::addRegion(std::shared_ptr<RegionObject> region)
 {
     //add the adequate subcells to the grid
-    getGrid()->AddRegion(region->mPosition.x,region->mPosition.z,region->getHeight(), region->getWidth(),region);
+    getGrid()->addRegion(region);
 }
 
 std::shared_ptr<RegionObject> SpatialIndexManager::getRegion(uint32 id)
@@ -1149,7 +1149,7 @@ bool SpatialIndexManager::InitializeObject(PlayerObject *player) {
 void SpatialIndexManager::lookUpRegion(Object* object)
 {
 	//for now in the main thread
-	getGrid()->CheckRegion(object);
+	getGrid()->checkRegion(object);
 	//active_.Send([=] {
 
 	//}

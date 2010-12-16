@@ -70,10 +70,11 @@ public:
 
 	bool				GetCellValidFlag(uint32 CellID);
 
-	void				AddRegion(float low_x, float low_z, float height, float width, std::shared_ptr<RegionObject> region);
+	void				addRegion(std::shared_ptr<RegionObject> region);
+
 	bool				isObjectInRegion(Object* object, uint64 regionid);
 	void				RemoveRegion(uint64 regionId);
-	void				CheckRegion(Object* newObject);
+	void				checkRegion(Object* object);
 
 	std::shared_ptr<RegionObject>		getRegion(uint64 RegionIdId);
 	
@@ -127,7 +128,7 @@ private:
 
 	uint32		_getCellId(float x, float z);
 	
-	bool		_isInRegionExtent(std::shared_ptr<RegionObject> region, Object* object);
+	bool		isObjectInRegionBoundary_(Object* object, std::shared_ptr<RegionObject> region);
 
 	//This is the actual Hashtable that stores the data
 	typedef std::map<uint32, ObjectListType>		MapHandler;

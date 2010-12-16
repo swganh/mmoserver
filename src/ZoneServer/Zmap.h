@@ -2,6 +2,7 @@
 #ifndef ZONE_MAP
 #define ZONE_MAP
 
+#include <cstdint>
 #include <list>
 #include <map>
 #include <set>
@@ -48,14 +49,13 @@ public:
 	SharedObjectListType SubCells;
 };
 
-class zmap
-{
+class zmap {
 public:
-
-
 	// Contructor & Destructor
 	zmap();
 	~zmap();
+
+	std::shared_ptr<RegionObject> getRegion(uint64_t region_id);
 
 	// Add an object to zmap - returns the cell
 	uint32				AddObject(Object* newObject);
@@ -74,10 +74,7 @@ public:
 
 	bool				isObjectInRegion(Object* object, uint64 regionid);
 	void				RemoveRegion(uint64 regionId);
-	void				checkRegion(Object* object);
-
-	std::shared_ptr<RegionObject>		getRegion(uint64 RegionIdId);
-	
+    	
 
 	//Get the contents of current cell of the player, looked up by CellID
 	void				GetCellContents(uint32 CellID, ObjectListType* list, uint32 type);//gets contents based on type enum
@@ -128,6 +125,9 @@ private:
 
 	uint32		_getCellId(float x, float z);
 	
+    
+	void updateRegions_(Object* object);
+
 	bool		isObjectInRegionBoundary_(Object* object, std::shared_ptr<RegionObject> region);
 
 	//This is the actual Hashtable that stores the data

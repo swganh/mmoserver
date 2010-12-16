@@ -66,7 +66,7 @@ zmap::~zmap()
     }
 }
 
-void zmap::updateRegions_(Object* object) {
+void zmap::updateRegions(Object* object) {
 	// Check the regions the object is currently in and remove any it's no longer in.
 	Uint64Set& region_set = object->zmapSubCells;
     
@@ -74,7 +74,12 @@ void zmap::updateRegions_(Object* object) {
     auto region_set_it = region_set.begin();
 
     while (region_set_it != region_set_end) {
-        auto region = getRegion(*region_set_it);
+        auto region = findRegion(*region_set_it);
+
+        if (!region) {
+            region_set.erase(region_set_it++);
+            continue;
+        }
 
         if (! isObjectInRegionBoundary_(object, region)) {
             region->onObjectLeave(object);
@@ -147,7 +152,7 @@ void zmap::addRegion(std::shared_ptr<RegionObject> region) {
     return;
 }
 
-std::shared_ptr<RegionObject> zmap::getRegion(uint64_t region_id) {
+std::shared_ptr<RegionObject> zmap::findRegion(uint64_t region_id) {
     auto it = find_if(subCells.begin(), subCells.end(), [region_id] (const SubCellMap::value_type& map_entry) {
         return map_entry.second->getId() == region_id;
     });
@@ -269,9 +274,14 @@ void zmap::RemoveObject(Object *removeObject)
     Uint64Set::iterator		set_it		= region_set->begin();
 
     while(set_it != region_set->end())    {
-        std::shared_ptr<RegionObject> region = getRegion(*set_it);
+        auto region = findRegion(*set_it);
+
+        if (!region) {
+		    region_set->erase(set_it++);		
+        }
+
 		region->onObjectLeave(removeObject);
-		set_it = region_set->erase(set_it);		
+		region_set->erase(set_it++);	
     }
 
 }
@@ -603,12 +613,6 @@ uint32 zmap::AddObject(Object *newObject)
 
     list->push_back(newObject);
 
-    //regions are only for players / creatures at this point 
-    if((newObject->getType() != ObjType_Player) && (newObject->getType() != ObjType_NPC) && (newObject->getType() != ObjType_Creature))
-        return finalBucket;
-
-    updateRegions_(newObject);
-
     return finalBucket;
 }
 
@@ -666,11 +670,4 @@ void zmap::UpdateObject(Object *updateObject)
     }
 
     list->push_back(updateObject);
-
-	//regions are only for players / creatures at this point 
-    if((updateObject->getType() != ObjType_Player) && (updateObject->getType() != ObjType_NPC) && (updateObject->getType() != ObjType_Creature))
-        return;
-
-	//We need to check which subregions to leave
-    updateRegions_(updateObject);
 }

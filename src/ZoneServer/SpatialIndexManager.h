@@ -103,7 +103,7 @@ class SpatialIndexManager : public DatabaseCallback, public TimerCallback
 
 		void					RemoveRegion(std::shared_ptr<RegionObject> remove_region);
 		void					addRegion(std::shared_ptr<RegionObject> region);
-		std::shared_ptr<RegionObject>			getRegion(uint32 id);
+		std::shared_ptr<RegionObject> findRegion(uint64_t id);
 
 
 		//place Objects in the spatialIndex / cells 

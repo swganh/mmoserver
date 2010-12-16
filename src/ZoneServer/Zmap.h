@@ -54,8 +54,11 @@ public:
 	// Contructor & Destructor
 	zmap();
 	~zmap();
-
-	std::shared_ptr<RegionObject> getRegion(uint64_t region_id);
+        
+	void updateRegions(Object* object);
+    
+	void addRegion(std::shared_ptr<RegionObject> region);
+	std::shared_ptr<RegionObject> findRegion(uint64_t region_id);
 
 	// Add an object to zmap - returns the cell
 	uint32				AddObject(Object* newObject);
@@ -70,7 +73,6 @@ public:
 
 	bool				GetCellValidFlag(uint32 CellID);
 
-	void				addRegion(std::shared_ptr<RegionObject> region);
 
 	bool				isObjectInRegion(Object* object, uint64 regionid);
 	void				RemoveRegion(uint64 regionId);
@@ -125,9 +127,6 @@ private:
 
 	uint32		_getCellId(float x, float z);
 	
-    
-	void updateRegions_(Object* object);
-
 	bool		isObjectInRegionBoundary_(Object* object, std::shared_ptr<RegionObject> region);
 
 	//This is the actual Hashtable that stores the data

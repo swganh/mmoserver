@@ -164,43 +164,40 @@ void SpatialIndexManager::UpdateObject(Object *updateObject)
     uint32 oldBucket = updateObject->getGridBucket();
     uint32 newBucket = getGrid()->getCellId(updateObject->getWorldPosition().x, updateObject->getWorldPosition().z);
 
-    //now  process the spatial index update
+    // now process the spatial index update
     if(newBucket != oldBucket)	{
         DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"normal movement from bucket" << oldBucket << " to bucket" << newBucket;
-
-
-        //test how much we moved if only one grid proceed normally
-        if(	(newBucket == (oldBucket +1))			  || (newBucket == (oldBucket -1))				||
-                (newBucket == (oldBucket + GRIDWIDTH))	  || (newBucket == (oldBucket - GRIDWIDTH))		||
-                (newBucket == (oldBucket + GRIDWIDTH +1)) || (newBucket == (oldBucket + GRIDWIDTH -1))	||
-                (newBucket == (oldBucket - GRIDWIDTH +1)) || (newBucket == (oldBucket - GRIDWIDTH -1))
-          )	{
-
-            //sets the new gridcell, updates subcells
+        
+        // test how much we moved if only one grid proceed normally
+        if((newBucket == (oldBucket +1)) || (newBucket == (oldBucket -1)) ||
+           (newBucket == (oldBucket + GRIDWIDTH)) || (newBucket == (oldBucket - GRIDWIDTH))	 ||
+           (newBucket == (oldBucket + GRIDWIDTH +1)) || (newBucket == (oldBucket + GRIDWIDTH -1)) ||
+           (newBucket == (oldBucket - GRIDWIDTH +1)) || (newBucket == (oldBucket - GRIDWIDTH -1)))	{
+            // sets the new gridcell, updates subcells
             getGrid()->UpdateObject(updateObject);
 
-            //remove us from the row we left
+            // remove us from the row we left
             _UpdateBackCells(updateObject,oldBucket);
 
-            //create us for the row in which direction we moved
+            // create us for the row in which direction we moved
             _UpdateFrontCells(updateObject,oldBucket);
-        }
-		//we teleported destroy all and create everything new
-        else	{
+        } else {
+            // we teleported destroy all and create everything new
             DLOG(INFO) << "ContainerManager::UpdateObject :: " << updateObject->getId() <<"teleportation from bucket" << oldBucket << " to bucket" << newBucket;
 
-            //remove us from everything
+            // remove us from everything
             RemoveObjectFromWorld(updateObject);
 
-            //sets the new gridcell, updates subcells
+            // sets the new gridcell, updates subcells
             getGrid()->AddObject(updateObject);
 
-            //and add us freshly to the world
+            // and add us freshly to the world
             _AddObject(updateObject);
         }
-
     }
-
+    
+    // Make sure to update any regions the object may be entering or leaving.
+    getGrid()->updateRegions(updateObject);
 }
 
 
@@ -216,10 +213,8 @@ void SpatialIndexManager::addRegion(std::shared_ptr<RegionObject> region)
     getGrid()->addRegion(region);
 }
 
-std::shared_ptr<RegionObject> SpatialIndexManager::getRegion(uint32 id)
-{
-    return getGrid()->getRegion(id);
-
+std::shared_ptr<RegionObject> SpatialIndexManager::findRegion(uint64_t id) {
+    return getGrid()->findRegion(id);
 }
 
 //*********************************************************************

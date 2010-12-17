@@ -73,7 +73,7 @@ void CharacterBuilderTerminal::InitMenus()
     mMainCsrMenu.push_back("Manage Professions");
     mMainCsrMenu.push_back("Manage Wounds");
     mMainCsrMenu.push_back("Manage States");
-    mMainCsrMenu.push_back("Teleport x y");
+    mMainCsrMenu.push_back("Teleport X,Y");
 
     InitExperience();
     InitProfessions();
@@ -1429,7 +1429,7 @@ void CharacterBuilderTerminal::_handleTeleportMenu(PlayerObject* playerObject, u
     std::wstring inputs(inputStr.getUnicode16());
     std::string input(inputs.begin(), inputs.end());
     input.assign(inputs.begin(), inputs.end());
-    
+
     std::string str_x = input.substr(0, input.find_first_of(","));
     std::string str_y = input.substr(input.find_first_of(",")+1,input.find_last_of(""));
     try

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ItemTerminal.h"
-#include "CharacterbuilderTerminal.h"
+#include "CharacterBuilderTerminal.h"
 
 ItemTerminal::ItemTerminal() : Item()
 {

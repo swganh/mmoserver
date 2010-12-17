@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "BuffManager.h"
 #include "BuildingObject.h"
 #include "CellObject.h"
-#include "DataPad.h"
+#include "Datapad.h"
 #include "HouseObject.h"
 #include "PlayerObject.h"
 #include "CharacterLoginHandler.h"

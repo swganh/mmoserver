@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/VehicleController.h"
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
-#include "ZoneServer/zmap.h"
+#include "ZoneServer/Zmap.h"
 
 
 //=============================================================================

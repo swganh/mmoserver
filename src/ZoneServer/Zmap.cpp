@@ -1,10 +1,10 @@
-#include "zmap.h"
+#include "Zmap.h"
 
 #include <cassert>
 #include <algorithm>
 
 #include "Object.h"
-#include "regionObject.h"
+#include "RegionObject.h"
 //#include "PlayerObject.h"
 
 using std::find_if;

@@ -782,7 +782,7 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
             gUIManager->createNewInputBox(this,
                                           "handleTeleportMenu",
                                           "Teleport",
-                                          "Teleport Where? X Y",
+                                          "Teleport Where? Usage: X,Y",
                                           dropDowns,
                                           playerObject,
                                           SUI_IB_NODROPDOWN_OKCANCEL,

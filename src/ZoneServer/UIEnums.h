@@ -65,6 +65,7 @@ unsigned int
     SUI_Window_CharacterBuilderCreditsMenu_ListBox,
     SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox,
     SUI_Window_CharacterBuilderCreditsMenuBank_InputBox,
+    SUI_Window_CharacterBuilderTeleportMenu_InputBox,
     SUI_Window_CharacterBuilderAttributesMenu_ListBox,
     SUI_Window_CharacterBuilderXpMenu_ListBox,
     SUI_Window_CharacterBuilderItemsMenu_ListBox,

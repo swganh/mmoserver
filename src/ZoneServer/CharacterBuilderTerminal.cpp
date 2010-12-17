@@ -73,6 +73,7 @@ void CharacterBuilderTerminal::InitMenus()
     mMainCsrMenu.push_back("Manage Professions");
     mMainCsrMenu.push_back("Manage Wounds");
     mMainCsrMenu.push_back("Manage States");
+    mMainCsrMenu.push_back("Teleport x y");
 
     InitExperience();
     InitProfessions();
@@ -773,6 +774,21 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
             gUIManager->createNewListBox(this,"handleStateMenu","States","Select a State.",mStatesMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_StateMenu);
         }
         break;
+    case 10:
+        if (playerObject->isConnected())
+        {
+            BStringVector dropDowns;
+            dropDowns.push_back("test");
+            gUIManager->createNewInputBox(this,
+                                          "handleTeleportMenu",
+                                          "Teleport",
+                                          "Teleport Where? X Y",
+                                          dropDowns,
+                                          playerObject,
+                                          SUI_IB_NODROPDOWN_OKCANCEL,
+                                          SUI_Window_CharacterBuilderTeleportMenu_InputBox,
+                                          25);
+        }
     
     default:
         break;
@@ -1405,6 +1421,29 @@ void CharacterBuilderTerminal::_handleBlueFrogMenu(PlayerObject* playerObject, u
             GiveItem(playerObject,2789);
         }
         break;
+    }
+}
+void CharacterBuilderTerminal::_handleTeleportMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window)
+{
+    glm::vec3 destination;
+    std::wstring inputs(inputStr.getUnicode16());
+    std::string input(inputs.begin(), inputs.end());
+    input.assign(inputs.begin(), inputs.end());
+    
+    std::string str_x = input.substr(0, input.find_first_of(","));
+    std::string str_y = input.substr(input.find_first_of(",")+1,input.find_last_of(""));
+    try
+    {
+        destination.x = boost::lexical_cast<float, std::string>(str_x);
+        destination.y = 0.0f;
+        destination.z = boost::lexical_cast<float, std::string>(str_y);
+
+        gWorldManager->warpPlanet(playerObject, destination, 0);
+    }
+    catch(...)
+    {
+        DLOG(WARNING) << "Teleport Unsucssessful";
+        gMessageLib->SendSystemMessage(L"Teleport Unsuccessful, Usage: X,Y", playerObject);
     }
 }
 
@@ -2715,6 +2754,9 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BStrin
         break;
     case SUI_Window_CharacterBuilderItemIdInputBox:
         _handleCSRItemSelect(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilderTeleportMenu_InputBox:
+        _handleTeleportMenu(playerObject, action, element, inputStr, window);
         break;
     case SUI_Window_CharacterBuilderProfessionMastery_ListBox:
         _handleProfessionMenu(playerObject, action, element, inputStr, window);

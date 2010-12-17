@@ -529,7 +529,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 	if (container)
 	{
 		container->removeObject(itemObject);
-		gContainerManager->destroyObjectToRegisteredPlayers(container, tangible->getId());
+		//gContainerManager->destroyObjectToRegisteredPlayers(container, tangible->getId());
 		if (gWorldConfig->isTutorial())
 		{
 			playerObject->getTutorial()->transferedItemFromContainer(targetId, tangible->getParentId());
@@ -544,7 +544,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		return true;
 	}
 
-	//its hard to get a creatures inventory .. it isnt part of the worldObjectMap
+	//creature inventories are a special case - their items are temporary!!! we cannot loot them directly
 	CreatureObject* unknownCreature;
 	Inventory*		creatureInventory;
 
@@ -561,6 +561,9 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 			return false;
 		}
 
+
+		// we destroy the item in this case as its a temporary!! 
+		// we do not want to clog the db with unlooted items
 		gContainerManager->destroyObjectToRegisteredPlayers(creatureInventory, tangible->getId());
 
 		ObjectIDList* invObjList = creatureInventory->getObjects();
@@ -573,7 +576,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 		if (gWorldConfig->isTutorial())
 		{
 			// TODO: Update tutorial about the loot.
-			 //playerObject->getTutorial()->transferedItemFromContainer(targetId, sourceId);
+			playerObject->getTutorial()->transferedItemFromContainer(targetId, creatureInventory->getId());
 		}
 
 		//bail out here and request the item over the db - as the item in the NPC has a temporary id and we dont want that in the db
@@ -583,7 +586,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 
 	}		   
 
-
+	//cells are NOT tangibles - thei are static Objects
 	CellObject* cell;
 	if(cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(itemObject->getParentId())))
 	{
@@ -610,8 +613,7 @@ bool ObjectController::removeFromContainer(uint64 targetContainerId, uint64 targ
 
 		// Remove object from cell.
 		cell->removeObject(itemObject);
-		
-		gContainerManager->destroyObjectToRegisteredPlayers(cell, tangible->getId());
+		return true;
 	}
 
 	//some other container ... hopper backpack chest etc

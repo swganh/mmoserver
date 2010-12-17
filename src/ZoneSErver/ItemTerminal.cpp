@@ -39,7 +39,11 @@ ItemTerminal::~ItemTerminal()
 
 void ItemTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
 {
-    cbt_->prepareCustomRadialMenu(creatureObject, itemCount);
+    mRadialMenu = RadialMenuPtr(new RadialMenu());
+
+    // any object with callbacks needs to handle those (received with menuselect messages) !
+    mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
 }
 void ItemTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {

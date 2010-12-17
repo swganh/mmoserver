@@ -172,6 +172,7 @@ unsigned int
     SUI_Window_CharacterBuilder_ListBox_RifleMenu,
     SUI_Window_CharacterBuilder_ListBox_WoundMenu,
     SUI_Window_CharacterBuilder_ListBox_StateMenu,
+    SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu,
 
     //trade
     SUI_Window_Trade_BankTip_ConfirmSurcharge

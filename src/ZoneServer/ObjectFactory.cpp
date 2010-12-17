@@ -695,6 +695,7 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
     case TanGroup_ManufacturingSchematic:
     case TanGroup_Item:
     {
+        query_stream.str(std::string());
         query_stream << "UPDATE "<<mDatabase->galaxy()<<".items SET parent_id = " << parentId 
                      << " WHERE id = " << ObjectId;
     }
@@ -702,11 +703,18 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
 
     case TanGroup_ResourceContainer:
     {
+        query_stream.str(std::string());
         query_stream << "UPDATE "<<mDatabase->galaxy()<<".resource_containers SET parent_id = " << parentId 
                      << " WHERE id = " << ObjectId;
     }
     break;
-
+    case TanGroup_Terminal:
+    {
+        query_stream.str(std::string());
+        query_stream << "UPDATE "<<mDatabase->galaxy()<<".terminals SET parent_id = " << parentId 
+                     << " WHERE id = " << ObjectId;
+    }
+    break;
     default:
     {
         LOG(WARNING) << "No Object could be created of type: " << Group;

@@ -41,6 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "FactoryCrate.h"
 #include "Instrument.h"
 #include "Item.h"
+#include "ItemTerminal.h"
 #include "ManufacturingSchematic.h"
 #include "Medicine.h"
 #include "ObjectFactoryCallback.h"
@@ -350,6 +351,9 @@ Item* ItemFactory::_createItem(DatabaseResult* result)
         break;
     case ItemFamily_Component:
         item	= new Item();
+        break;
+    case ItemFamily_Terminal:
+        item  = new ItemTerminal();
         break;
     default:
     {

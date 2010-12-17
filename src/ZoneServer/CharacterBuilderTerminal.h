@@ -152,8 +152,7 @@ private:
     BStringVector			mResourceMenu;
     BStringVector			mWoundMenu;
     BStringVector           mStatesMenu;
-    BStringVector           mPersonalFrog;
-	
+    
 	//2nd level menus
     BStringVector			mStructureMenu;
     BStringVector			mFurnitureMenu;

@@ -52,31 +52,6 @@ CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(N
 {
 
     InitMenus();
-    //mMainMenu.push_back("Manage Experience");
-    //mMainMenu.push_back("Manage Credits");
-    //mMainMenu.push_back("Manage Attributes");
-    //mMainMenu.push_back("Manage Items");
-    //mMainMenu.push_back("Manage Professions");
-    //mMainMenu.push_back("Manage Resources");
-
-    //mCreditsMenu.push_back("Inventory credits");
-    //mCreditsMenu.push_back("Bank credits");
-
-
-    //mAttributesMenu.push_back("Battle fatigue   (50)");
-    //mAttributesMenu.push_back("Battle fatigue  (250)");
-    //mAttributesMenu.push_back("Mind Wounds      (50)");
-    //mAttributesMenu.push_back("Mind Wounds     (250)");
-    //mAttributesMenu.push_back("Heal Fatigue    (123)");
-    //mAttributesMenu.push_back("Heal Wounds     (123)");
-    //mAttributesMenu.push_back("Mugly's cocktail");
-    //mAttributesMenu.push_back("Lloyd's Health Buffs");
-    //mAttributesMenu.push_back("Lloyd's Action Buffs");
-    //mAttributesMenu.push_back("Lloyd's Mind Buffs");
-    //mAttributesMenu.push_back("Jawa beer (Mask Scent)");
-    //mAttributesMenu.push_back("Damage Health 200");
-    //mAttributesMenu.push_back("Damage Action 200");
-
 }
 
 //=============================================================================
@@ -88,6 +63,7 @@ void CharacterBuilderTerminal::InitMenus()
     mMainMenu.push_back("Manage Items");
     mMainMenu.push_back("Manage Resources");
     mMainMenu.push_back("Manage Professions");
+    mMainCsrMenu.push_back("Personal Blue Frog");
     mMainCsrMenu.push_back("Manage Experience");
     mMainCsrMenu.push_back("Manage Credits");
     mMainCsrMenu.push_back("Manage Buffs");
@@ -97,8 +73,6 @@ void CharacterBuilderTerminal::InitMenus()
     mMainCsrMenu.push_back("Manage Professions");
     mMainCsrMenu.push_back("Manage Wounds");
     mMainCsrMenu.push_back("Manage States");
-    mMainCsrMenu.push_back("Personal Blue Frog");
-    mPersonalFrog.push_back("Give Personal Blue Frog");
 
     InitExperience();
     InitProfessions();
@@ -743,61 +717,63 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
 {
     switch(element)
     {
-    case 0://Experience
+        if(!playerObject->isConnected())
+        {
+            return;
+        }
+    case 0: // personal blue frog
+        _handleBlueFrogMenu(playerObject, action, element, inputStr, window);
+        break;
+    case 1://Experience
         SendXPMenu(playerObject, action, element, inputStr, window);
         break;
-    case 1://Credits
+    case 2://Credits
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
         }
         break;
-    case 2://Buffs
+    case 3://Buffs
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleAttributesMenu","Attributes","Select a Buff.",mBuffMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_BuffMenu);
         }
         break;
-    case 3://Items
+    case 4://Items
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleItemsMenu","Items","Select a Category.",mItemMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ItemMenu);
         }
         break;
-    case 4://Resources
+    case 5://Resources
         SendResourcesMenu(playerObject, action, element, inputStr, window);
         break;
-    case 5://Get Item by ID
+    case 6://Get Item by ID
         if(playerObject->isConnected())
         {
             BStringVector dropDowns;
             gUIManager->createNewInputBox(this, "handleInputItemId", "Get Item", "Enter the item ID", dropDowns, playerObject, SUI_IB_NODROPDOWN_OKCANCEL, SUI_Window_CharacterBuilderItemIdInputBox,8);
         }
         break;
-    case 6: //Professions
+    case 7: //Professions
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
         }
         break;
-    case 7: //Wounds
+    case 8: //Wounds
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleWoundMenu","Wounds","Select a Wound.",mWoundMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_WoundMenu);
         }
         break;
-    case 8: //States
+    case 9: //States
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleStateMenu","States","Select a State.",mStatesMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_StateMenu);
         }
         break;
-    case 9: // personal blue frog
-        if(playerObject->isConnected())
-        {
-            gUIManager->createNewListBox(this,"handleBlueFrogMenu","BlueFrog","Blue Frog",mPersonalFrog,playerObject,SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu);
-        }
-    break;
+    
     default:
         break;
     }
@@ -1425,10 +1401,10 @@ void CharacterBuilderTerminal::_handleBlueFrogMenu(PlayerObject* playerObject, u
     switch(element)
     {
         case 0:
-            {
-                //gObjectFactory->requestObject(ObjType_Tangible,TanGroup_Terminal,0,playerObject->getInventory(),4294968290,playerObject->getClient());
-                //gObjectFactory->requestTanoNewParent(playerObject->getInventory(), 4294968290, playerObject->getInventory()->getId(), TanGroup_Terminal);
-            }
+        {
+            GiveItem(playerObject,2789);
+        }
+        break;
     }
 }
 

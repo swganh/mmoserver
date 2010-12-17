@@ -1003,6 +1003,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
     case ObjType_Waypoint:
     {
+        query_stream.str(std::string());
         query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".waypoints WHERE waypoint_id = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
     }

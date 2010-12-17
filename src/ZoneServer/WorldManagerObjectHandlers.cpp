@@ -445,10 +445,10 @@ void WorldManager::destroyObject(Object* object)
 		{
 			uint64 parentId = object->getParentId();
 			
-			Datapad* pad = dynamic_cast<Datapad*>(gWorldManager->getObjectById(parentId));
+			Datapad* pad = dynamic_cast<Datapad*>(gWorldManager->getObjectById(parentId+DATAPAD_OFFSET));
 			
 			//update the datapad
-			if(!pad || !(pad->removeData(object->getId())))
+			if(!pad || !(pad->removeWaypoint(object->getId())))
 			{
 				DLOG(WARNING) << "Worldmanager::destroyObject: Error removing Waypoint from datapad " << parentId;
 				return;

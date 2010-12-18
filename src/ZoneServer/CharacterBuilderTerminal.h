@@ -79,6 +79,7 @@ private:
     void _handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
     void _handleStateMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window);
     void _handleBlueFrogMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window);
+    void _handleTeleportMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window);
 
     void _handleMainMenu(PlayerObject* player, uint32 action, int32 element, BString inputStr, UIWindow* window);
     void _handleExperienceMenu(PlayerObject* player, uint32 action,int32 element,BString inputStr,UIWindow* window);

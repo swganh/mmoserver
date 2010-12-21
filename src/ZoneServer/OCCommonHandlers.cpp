@@ -70,7 +70,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 #include "CraftingSession.h"
-
+#include "ZoneServer/StateManager.h"
+#include "ZoneServer/LocomotionState.h"
 #include "SwgProtocol/BurstRunEvents.h"
 #include "SwgProtocol/ObjectControllerEvents.h"
 
@@ -1368,6 +1369,14 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
         return false;
     }
 
+	//Player must be standing or Kneeling to launch
+	if(player->states.checkPosture(CreaturePosture_Crouched))
+	{
+		gStateManager.setCurrentPostureState(player, CreaturePosture_Crouched);
+		gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", player);
+		return false;
+    }
+
     // Create a pre-command processing event.
     auto pre_execute_event = std::make_shared<PreCommandExecuteEvent>(object->getId());
     pre_execute_event->target_id(0); // This command never has a target.
@@ -1378,6 +1387,8 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
     if (!gEventDispatcher.Deliver(pre_execute_event).get()) {
         return false;
     }
+
+
 
     // Update the player's speed modifier.
     player->setCurrentSpeedModifier(player->getCurrentSpeedModifier()*2);

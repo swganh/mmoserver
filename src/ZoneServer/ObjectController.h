@@ -108,7 +108,8 @@ enum CommandQueueErrorStrings
     kInvalidTarget				= 3,
     kTargetTooFarAway			= 4,
     kCannotDoWhileState			= 5,
-    kCmdErrSTF					= 6
+    kCmdErrSTF					= 6,
+	//kCannotDoWhileProspure		= 7,
 };
 //=======================================================================
 enum LocomotionValidator
@@ -136,6 +137,35 @@ enum LocomotionValidator
     kLocoValidDead								=	20,
     kLocoValidBlocking							=	21
 };
+//=============================================================================
+
+enum PostureValidator
+{
+	kPostureInvalid								=	-1,
+	kPostureStanding							=	0,
+	kPostureSneaking							=	1,
+	kPostureWalking								=	2,
+	kPostureRunning								=	3,
+	kPostureKneeling							=	4,
+	kPostureCrouchSneaking						=	5,
+	kPostureCrouchWalking						=	6,
+	kPostureProne								=	7,
+	kPostureCrawling							=	8,
+	kPostureClimbingStationary					=	9,
+	kPostureClimbing							=	10,
+	kPostureHovering							=	11,
+	kPostureFlying								=	12,
+	kPostureLayingDown							=	13,
+	kPostureSitting								=	14,
+	kPostureSkillAnimating						=	15,
+	kPostureDrivingVehicle						=	16,
+	kPostureRidingCreature						=	17,
+	kPostureKnockedDown							=	18,
+	kPostureIncapacitated						=	19,
+	kPostureDead								=	20,
+	kPostureBlocking							=	21
+};
+
 //=============================================================================
 
 struct StatTargets
@@ -326,6 +356,7 @@ public:
     * http://wiki.swganh.org/index.php/CommandQueueRemove_(00000117)
     */
     uint32  getLocoValidator(uint64 locomotion);
+	uint32	getPostureValidator(uint64 posture);
 private:
     // validate command
     bool	_validateEnqueueCommand(uint32 &reply1,uint32 &reply2,uint64 targetId,uint32 opcode,ObjectControllerCmdProperties*& cmdProperties);

@@ -640,8 +640,8 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         //Not sure how to properly read this in. We perform a left join, because
         //the data is not existing when nobody has bid on the item yet
 
-        strcpy(AuctionTemp.HighBidRaw,"0          ");
-        strcpy(AuctionTemp.HighProxyRaw,"0          ");
+        strcpy(AuctionTemp.HighBidRaw,"0");
+        strcpy(AuctionTemp.HighProxyRaw,"0");
 
         AuctionTemp.HighBid = 0;
         AuctionTemp.HighProxy = 0;

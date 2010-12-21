@@ -31,8 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
-
-#include <boost/program_options.hpp>
+#include "Common/Server.h"
 
 //======================================================================================================================
 
@@ -67,7 +66,7 @@ public:
 
 //======================================================================================================================
 
-class ZoneServer
+class ZoneServer : public common::BaseServer
 {
 public:
 
@@ -103,9 +102,6 @@ private:
     MessageDispatch*              mMessageDispatch;
     CharacterLoginHandler*        mCharacterLoginHandler;
     ObjectControllerDispatch*     mObjectControllerDispatch;
-
-	boost::program_options::options_description		options_description_;
-	boost::program_options::variables_map			variables_map_;
 
     std::unique_ptr<zone::HamService>   ham_service_;
 };

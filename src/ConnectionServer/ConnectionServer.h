@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_CONNECTIONSERVER_CONNECTIONSERVER_H
 
 #include "Utils/typedefs.h"
-
+#include "Common/Server.h"
 #include <boost/program_options.hpp>
 
 //======================================================================================================================
@@ -45,7 +45,7 @@ class ConnectionDispatch;
 
 //======================================================================================================================
 
-class ConnectionServer
+class ConnectionServer : public common::BaseServer
 {
 
 public:
@@ -67,9 +67,6 @@ private:
     ClientManager*			mClientManager;
     ServerManager*			mServerManager;
     ConnectionDispatch*		mConnectionDispatch;
-
-	boost::program_options::options_description		options_description_;
-	boost::program_options::variables_map			variables_map_;
 
     uint32					mClusterId;
 

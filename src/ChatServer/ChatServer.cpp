@@ -67,80 +67,48 @@ ChatServer* gChatServer;
 //======================================================================================================================
 
 ChatServer::ChatServer(int argc, char* argv[]) 
-	: mNetworkManager(0)
-	,mDatabaseManager(0)
-	,mRouterService(0)
-	,mDatabase(0)
+	: BaseServer()
+	, mNetworkManager(0)
+	, mDatabaseManager(0)
+	, mRouterService(0)
+	, mDatabase(0)
 	, mLastHeartbeat(0)
-	, options_description_("Chat Server Configuration")
 {
     Anh_Utils::Clock::Init();
     LOG(WARNING) << "Chat Server Startup";
 
-	options_description_.add_options()
-		("help", "Displays this help dialog.")
-		("BindAddress", boost::program_options::value<std::string>()->default_value("127.0.0.1"), "")
-		("BindPort", boost::program_options::value<uint16_t>()->default_value(44991), "")
-		("ServiceMessageHeap", boost::program_options::value<uint32_t>()->default_value(8192), "")
-		("GlobalMessageHeap", boost::program_options::value<uint32_t>()->default_value(8192), "")
-		("DBServer", boost::program_options::value<std::string>()->default_value("localhost"), "")
-		("DBPort", boost::program_options::value<uint16_t>()->default_value(3306), "")
-		("DBName", boost::program_options::value<std::string>()->default_value("swganh"), "")
-		("DBUser", boost::program_options::value<std::string>()->default_value("root"), "")
-		("DBPass", boost::program_options::value<std::string>()->default_value(""), "")
-		("DBMinThreads", boost::program_options::value<uint32_t>()->default_value(2), "")
-		("DBMaxThreads", boost::program_options::value<uint32_t>()->default_value(4), "")
-		("ReliablePacketSizeServerToServer", boost::program_options::value<uint16_t>()->default_value(1400), "")
-		("UnreliablePacketSizeServerToServer", boost::program_options::value<uint16_t>()->default_value(1400), "")
-		("ReliablePacketSizeServerToClient", boost::program_options::value<uint16_t>()->default_value(496), "")
-		("UnreliablePacketSizeServerToClient", boost::program_options::value<uint16_t>()->default_value(496), "")
-		("ServerPacketWindowSize", boost::program_options::value<uint32_t>()->default_value(800), "")
-		("ClientPacketWindowSize", boost::program_options::value<uint32_t>()->default_value(80), "")
-		("UdpBufferSize", boost::program_options::value<uint32_t>()->default_value(4096), "")
-	;
-
-	std::ifstream ifs("config/ChatServer.cfg");
-	if(!ifs) { throw std::runtime_error("Could not open the configuration file 'config/ConnectionServer.cfg'"); }
-
-	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, options_description_), variables_map_);
-	boost::program_options::store(boost::program_options::parse_config_file(ifs, options_description_), variables_map_);
-	boost::program_options::notify(variables_map_);
-
-	// The help argument has been flagged, display the
-	// server options and throw a runtime_error exception
-	// to stop server startup.
-	if(variables_map_.count("help"))
-	{
-		std::cout << options_description_ << std::endl;
-		throw std::runtime_error("Help option flagged.");
-	}
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/chatserver.cfg");
+	LoadOptions_(argc, argv, config_files);
 
 
     // Create and startup our core services.
-	mDatabaseManager = new DatabaseManager(DatabaseConfig(variables_map_["DBMinThreads"].as<uint32_t>(), variables_map_["DBMaxThreads"].as<uint32_t>()));
+	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>()));
 
     // Startup our core modules
-	MessageFactory::getSingleton(variables_map_["GlobalMessageHeap"].as<uint32_t>());
+	MessageFactory::getSingleton(configuration_variables_map_["GlobalMessageHeap"].as<uint32_t>());
 
-	mNetworkManager = new NetworkManager( NetworkConfig(variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(), 
-		variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(), 
-		variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(), 
-		variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(), 
-		variables_map_["ServerPacketWindowSize"].as<uint32_t>(), 
-		variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
-		variables_map_["UdpBufferSize"].as<uint32_t>()));
+	mNetworkManager = new NetworkManager( NetworkConfig(configuration_variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["ServerPacketWindowSize"].as<uint32_t>(), 
+		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
+		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
 
     // Connect to the DB and start listening for the RouterServer.
     mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
-                                          (char*)(variables_map_["DBServer"].as<std::string>()).c_str(),
-                                          variables_map_["DBPort"].as<uint16_t>(),
-                                          (char*)(variables_map_["DBUser"].as<std::string>()).c_str(),
-                                          (char*)(variables_map_["DBPass"].as<std::string>()).c_str(),
-                                          (char*)(variables_map_["DBName"].as<std::string>()).c_str());
+                                          (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
+                                          configuration_variables_map_["DBPort"].as<uint16_t>(),
+                                          (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBPass"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBName"].as<std::string>()).c_str());
 
     mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);");
 
-    mRouterService = mNetworkManager->GenerateService((char*)variables_map_["BindAddress"].as<std::string>().c_str(), variables_map_["BindPort"].as<uint16_t>(),variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024, true);
+    mRouterService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024, true);
 
     // We need to register our IP and port in the DB so the connection server can connect to us.
     // Status:  0=offline, 1=loading, 2=online

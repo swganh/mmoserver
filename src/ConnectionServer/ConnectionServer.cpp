@@ -63,7 +63,7 @@ ConnectionServer* gConnectionServer = 0;
 //======================================================================================================================
 
 ConnectionServer::ConnectionServer(int argc, char* argv[]) :
-	options_description_("Connection Server Configuration"),
+	BaseServer(),
     mDatabaseManager(0),
     mDatabase(0),
     mNetworkManager(0),
@@ -80,26 +80,7 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
     Anh_Utils::Clock::Init();
     LOG(WARNING) << "ConnectionServer Startup";
 
-	options_description_.add_options()
-		("help", "Displays this help dialog.")
-		("BindAddress", boost::program_options::value<std::string>()->default_value("127.0.0.1"), "")
-		("BindPort", boost::program_options::value<uint16_t>()->default_value(44991), "")
-		("ServiceMessageHeap", boost::program_options::value<uint32_t>()->default_value(8192), "")
-		("GlobalMessageHeap", boost::program_options::value<uint32_t>()->default_value(8192), "")
-		("DBServer", boost::program_options::value<std::string>()->default_value("localhost"), "")
-		("DBPort", boost::program_options::value<uint16_t>()->default_value(3306), "")
-		("DBName", boost::program_options::value<std::string>()->default_value("swganh"), "")
-		("DBUser", boost::program_options::value<std::string>()->default_value("root"), "")
-		("DBPass", boost::program_options::value<std::string>()->default_value(""), "")
-		("DBMinThreads", boost::program_options::value<uint32_t>()->default_value(2), "")
-		("DBMaxThreads", boost::program_options::value<uint32_t>()->default_value(4), "")
-		("ReliablePacketSizeServerToServer", boost::program_options::value<uint16_t>()->default_value(1400), "")
-		("UnreliablePacketSizeServerToServer", boost::program_options::value<uint16_t>()->default_value(1400), "")
-		("ReliablePacketSizeServerToClient", boost::program_options::value<uint16_t>()->default_value(496), "")
-		("UnreliablePacketSizeServerToClient", boost::program_options::value<uint16_t>()->default_value(496), "")
-		("ServerPacketWindowSize", boost::program_options::value<uint32_t>()->default_value(800), "")
-		("ClientPacketWindowSize", boost::program_options::value<uint32_t>()->default_value(80), "")
-		("UdpBufferSize", boost::program_options::value<uint32_t>()->default_value(4096), "")
+	configuration_options_description_.add_options()
 		("ClientServiceMessageHeap", boost::program_options::value<uint32_t>()->default_value(50000), "")
 		("ServerServiceMessageHeap", boost::program_options::value<uint32_t>()->default_value(50000), "")
 		("ClusterBindAddress", boost::program_options::value<std::string>()->default_value("127.0.0.1"), "")
@@ -107,49 +88,39 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
 		("ClusterId", boost::program_options::value<uint32_t>()->default_value(2))
 	;
 
-	std::ifstream ifs("config/ConnectionServer.cfg");
-	if(!ifs) { throw std::runtime_error("Could not open the configuration file 'config/ConnectionServer.cfg'"); }
-
-	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, options_description_), variables_map_);
-	boost::program_options::store(boost::program_options::parse_config_file(ifs, options_description_), variables_map_);
-	boost::program_options::notify(variables_map_);
-
-	// The help argument has been flagged, display the
-	// server options and throw a runtime_error exception
-	// to stop server startup.
-	if(variables_map_.count("help"))
-	{
-		std::cout << options_description_ << std::endl;
-		throw std::runtime_error("Help option flagged.");
-	}
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/connectionserver.cfg");
+	LoadOptions_(argc, argv, config_files);
 
     // Startup our core modules
-	MessageFactory::getSingleton(variables_map_["GlobalMessageHeap"].as<uint32_t>());
+	MessageFactory::getSingleton(configuration_variables_map_["GlobalMessageHeap"].as<uint32_t>());
 
-	mNetworkManager = new NetworkManager( NetworkConfig(variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(), 
-		variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(), 
-		variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(), 
-		variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(), 
-		variables_map_["ServerPacketWindowSize"].as<uint32_t>(), 
-		variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
-		variables_map_["UdpBufferSize"].as<uint32_t>()));
+	mNetworkManager = new NetworkManager( NetworkConfig(configuration_variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["ServerPacketWindowSize"].as<uint32_t>(), 
+		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
+		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
 
     // Create our status service
     //clientservice
-    mClientService = mNetworkManager->GenerateService((char*)variables_map_["BindAddress"].as<std::string>().c_str(), variables_map_["BindPort"].as<uint16_t>(),variables_map_["ClientServiceMessageHeap"].as<uint32_t>()*1024, false);//,5);
+    mClientService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ClientServiceMessageHeap"].as<uint32_t>()*1024, false);//,5);
     //serverservice
-    mServerService = mNetworkManager->GenerateService((char*)variables_map_["ClusterBindAddress"].as<std::string>().c_str(), variables_map_["ClusterBindPort"].as<uint16_t>(),variables_map_["ServerServiceMessageHeap"].as<uint32_t>()*1024, true);//,15);
+    mServerService = mNetworkManager->GenerateService((char*)configuration_variables_map_["ClusterBindAddress"].as<std::string>().c_str(), configuration_variables_map_["ClusterBindPort"].as<uint16_t>(),configuration_variables_map_["ServerServiceMessageHeap"].as<uint32_t>()*1024, true);//,15);
 
-	mDatabaseManager = new DatabaseManager(DatabaseConfig(variables_map_["DBMinThreads"].as<uint32_t>(), variables_map_["DBMaxThreads"].as<uint32_t>()));
+	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>()));
 
     mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
-                                          (char*)(variables_map_["DBServer"].as<std::string>()).c_str(),
-                                          variables_map_["DBPort"].as<uint16_t>(),
-                                          (char*)(variables_map_["DBUser"].as<std::string>()).c_str(),
-                                          (char*)(variables_map_["DBPass"].as<std::string>()).c_str(),
-                                          (char*)(variables_map_["DBName"].as<std::string>()).c_str());
+                                          (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
+                                          configuration_variables_map_["DBPort"].as<uint16_t>(),
+                                          (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBPass"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBName"].as<std::string>()).c_str());
 
-    mClusterId = variables_map_["ClusterId"].as<uint32_t>();
+    mClusterId = configuration_variables_map_["ClusterId"].as<uint32_t>();
 
     mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
     

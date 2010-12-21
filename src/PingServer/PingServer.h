@@ -31,8 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <vector>
 #include <boost/asio.hpp>
-#include <boost/program_options.hpp>
 
+#include "Common/Server.h"
 #include "Utils/typedefs.h"
 
 /*! \class PingServer PingServer/PingServer.h "PingServer/PingServer.h"
@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  * by echoing back submitted data. This is used by the SWG client to determine network
  * latency in requests to the remote server.
  */
-class PingServer
+class PingServer : public common::BaseServer
 {
 public:
     /*! \brief Start a ping service listening on all addresses for a specified port.
@@ -61,7 +61,7 @@ public:
      * This method polls the socket for incoming data and triggers a handler
      * if anything is waiting.
      */
-    void Poll();
+    void Process();
 
     /*! \returns Returns the bytes received since the Ping Server was started */
     uint64 BytesReceived() const;
@@ -88,9 +88,6 @@ private:
 
     uint64                              bytes_received_;
     uint64                              bytes_sent_;
-
-	boost::program_options::options_description			options_description_;
-	boost::program_options::variables_map				variables_map_;
 };
 
 #endif // ANH_PING_SERVER_H

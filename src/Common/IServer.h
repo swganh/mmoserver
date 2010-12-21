@@ -25,38 +25,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_LOGINSERVER_ZONESERVER_H
-#define ANH_LOGINSERVER_ZONESERVER_H
+#ifndef SRC_COMMON_ISERVER_H
+#define SRC_COMMON_ISERVER_H
 
-#include "Utils/typedefs.h"
-#include "Common/Server.h"
+/*! \brief Common is a catch-all library containing primarily base classes and
+ * classes used for maintaining application lifetimes.
+ */
+namespace common {
 
-class NetworkManager;
-class Service;
-class LoginManager;
-class DatabaseManager;
-class Database;
-
-
-//======================================================================================================================
-class LoginServer : public common::BaseServer
+/**
+ * \brief
+ */
+class IServer
 {
 public:
-    LoginServer(int argc, char* argv[]);
-    ~LoginServer(void);
+	IServer() { }
+	~IServer() { }
 
-    void	Process(void);
 
-private:
-    NetworkManager*									mNetworkManager;
-    Service*										mService;
-    DatabaseManager*								mDatabaseManager;
-    Database*										mDatabase;
-    LoginManager*									mLoginManager;
 };
 
+} // namespace common
 
-
-#endif // ANH_LOGINSERVER_ZONESERVER_H
-
-
+#endif

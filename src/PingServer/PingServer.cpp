@@ -48,34 +48,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define RECEIVE_BUFFER 512
 
 PingServer::PingServer(int argc, char* argv[])
-    : options_description_("Ping Server Configuration")
+    : BaseServer()
 	, io_service_()
     , socket_(io_service_)
     , receive_buffer_(RECEIVE_BUFFER)
-{
-	options_description_.add_options()
-		("help", "Displays this help dialog.")
-		("BindAddress", boost::program_options::value<std::string>()->default_value("127.0.0.1"), "")
-		("BindPort", boost::program_options::value<unsigned short>()->default_value(44992), "")
-		;
-	
-	std::ifstream ifs("config/PingServer.cfg");
-	if(!ifs) { throw std::runtime_error("Could not open the configuration file 'config/PingServer.cfg'"); }
+{	
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/pingserver.cfg");
+	LoadOptions_(argc, argv, config_files);
 
-	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, options_description_), variables_map_);
-	boost::program_options::store(boost::program_options::parse_config_file(ifs, options_description_, true), variables_map_);
-	boost::program_options::notify(variables_map_);
-
-	// The help argument has been flagged, display the
-	// server options and throw a runtime_error exception
-	// to stop server startup.
-	if(variables_map_.count("help"))
-	{
-		std::cout << options_description_ << std::endl;
-		throw std::runtime_error("Help option flagged.");
-	}
-
-	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), variables_map_["BindPort"].as<unsigned short>());
+	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), configuration_variables_map_["BindPort"].as<uint16_t>());
     socket_.open(endpoint.protocol());
     socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
     socket_.bind(endpoint);
@@ -87,7 +71,7 @@ PingServer::PingServer(int argc, char* argv[])
 PingServer::~PingServer()
 {}
 
-void PingServer::Poll()
+void PingServer::Process()
 {
     io_service_.poll();
 }
@@ -175,7 +159,7 @@ int main(int argc, char* argv[])
 
 		while (true) {
 			// Check for incoming messages and handle them.
-			ping_server.Poll();
+			ping_server.Process();
 			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
 			// Stop the ping server if a key is hit.

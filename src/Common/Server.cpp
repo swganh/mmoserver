@@ -58,6 +58,9 @@ BaseServer::BaseServer()
 		("ServerPacketWindowSize", boost::program_options::value<uint32_t>()->default_value(800), "")
 		("ClientPacketWindowSize", boost::program_options::value<uint32_t>()->default_value(80), "")
 		("UdpBufferSize", boost::program_options::value<uint32_t>()->default_value(4096), "")
+		("DBGlobalSchema", boost::program_options::value<std::string>()->default_value("swganh_static"), "")
+		("DBGalaxySchema", boost::program_options::value<std::string>()->default_value("swganh"), "")
+		("DBConfigSchema", boost::program_options::value<std::string>()->default_value("swganh_config"), "")
 		;
 
 }

@@ -24,53 +24,32 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include "ItemTerminal.h"
+#include "CharacterBuilderTerminal.h"
 
-#ifndef ANH_ZONESERVER_SPATIALINDEXCONFIG_H
-#define ANH_ZONESERVER_SPATIALINDEXCONFIG_H
-
-#include <stdint.h>
-
-/**
- * \brief
- */
-class SpatialIndexConfig
+ItemTerminal::ItemTerminal() : Item()
 {
-public:
-	/**
-	 * \breif
-	 */
-	SpatialIndexConfig(float fill_factor, uint32_t index_cap, uint32_t leaf_cap, float horizon)
-		: fill_factor_(fill_factor)
-		, index_cap_(index_cap)
-		, leaf_cap_(leaf_cap)
-		, horizon_(horizon) { }
+    mItemType = ItemType_BlueFrog;
+    cbt_ = std::shared_ptr<CharacterBuilderTerminal>(new CharacterBuilderTerminal());
+}
 
-	/**
-	 * \breif Default destructor.
-	 */
-	~SpatialIndexConfig() { }
+ItemTerminal::~ItemTerminal()
+{
+}
 
-	const float getFillFactor() const {
-		return fill_factor_;
-	}
+void ItemTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+{
+    mRadialMenu = RadialMenuPtr(new RadialMenu());
 
-	const uint32_t getIndexCap() const {
-		return index_cap_;
-	}
-
-	const uint32_t getLeafCap() const {
-		return leaf_cap_;
-	}
-
-	const float getHorizon() const {
-		return horizon_;
-	}
-
-private:
-	float fill_factor_;
-	uint32_t index_cap_;
-	uint32_t leaf_cap_;
-	float horizon_;
-};
-
-#endif // ANH_ZONESERVER_SPATIALINDEXCONFIG_H
+    // any object with callbacks needs to handle those (received with menuselect messages) !
+    mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+}
+void ItemTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
+{
+    cbt_->handleObjectMenuSelect(messageType, srcObject);
+}
+void ItemTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+{
+    cbt_->handleUIEvent(action, element, inputStr, window);
+}

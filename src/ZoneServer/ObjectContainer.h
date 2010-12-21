@@ -52,106 +52,87 @@ typedef std::list<Object*>	ObjectList;
 class PlayerObject;
 
 
-class ObjectContainer :	public Object, public ObjectFactoryCallback
+class ObjectContainer :	public Object
 {
-
-    friend class ItemFactory;
-
+	
+	friend class ItemFactory;
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
 public:
 
-    ObjectContainer(uint64 id,uint64 parentId,const BString model,ObjectType type);
-    ObjectContainer();
-    virtual ~ObjectContainer();
+	ObjectContainer(uint64 id,uint64 parentId,const BString model,ObjectType type);
+	ObjectContainer();
+	virtual ~ObjectContainer();
 
-    //handles Object ready in case our item is in the container
-    void				handleObjectReady(Object* object,DispatchClient* client);
+	//handles Object ready in case our item is in the container
+	void				handleObjectReady(Object* object,DispatchClient* client);
 
-    Object*				getObjectMainParent(Object* object);
-    uint64				getIDMainParent(Object* object);
+	uint64				getObjectMainParent(Object* object);
 
-    ObjectIDList*		getObjects() {
-        return &mData;
-    }
-    Object*				getObjectById(uint64 id);
-    bool				addObject(Object* Data);
-    bool				addObjectSecure(Object* Data);
-    bool				addObjectSecure(Object* Data, PlayerObject* player);
-    void				addObjectSecure(Object* object, PlayerObjectSet* inRangePlayers, PlayerObject* player = NULL);
+	ObjectIDList*		getObjects() { return &mData; }
+	Object*				getObjectById(uint64 id);
+		
+	/// =====================================================
+	/// adds an Object to the cObjectContainer
+	///	returns false if the container was full and the item not added
+		
+	bool				addObject(Object* data);
+	bool				addObjectSecure(Object* data);
+		
+	bool				checkForObject(Object* object);
+		
+	bool				deleteObject(Object* data);
+	bool				removeObject(uint64 id);
+	bool				removeObject(Object* Data);
+	ObjectIDList::iterator removeObject(ObjectIDList::iterator it);
+		
+		
+	//we need to check the content of our children, too!!!!
+	virtual bool		checkCapacity(){return((mCapacity-mData.size()) > 0);}
+	virtual bool		checkCapacity(uint8 amount, PlayerObject* player = NULL);
+	void				setCapacity(uint16 cap){mCapacity = cap;}
+	uint16				getCapacity(){return mCapacity;}
+	uint16				getHeadCount();
 
-    void				createContent(PlayerObject* player);
 
-    //creates the object for the provided player/s
-    bool				addObject(Object* Data,PlayerObject* player);
-    bool				addObject(Object* Data,PlayerObjectSet*	knownPlayers);
+		
 
-    bool				checkForObject(Object* object);
+//		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
+//		ObjectSet*					getContainerKnownObjects() { return &mKnownObjects; }
+	
+	//===========================================================================================
+	//gets the contents of containers including their subcontainers
+	uint16				getContentSize(uint16 iteration)
+	{
+		/*uint16 content = mData.size();
 
+		if(iteration > gWorldConfig->getPlayerContainerDepth())
+		{
+			return content;
+		}
+			
+		ObjectIDList*			ol = getObjects();
+		ObjectIDList::iterator	it = ol->begin();
 
-    bool				deleteObject(Object* data);
+		while(it != ol->end())
+		{
+			ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(*it));
+			if(!tO)
+			{
+				assert(false);
+			}
 
-    bool				removeObject(uint64 id);
-    bool				removeObject(uint64 id, PlayerObject* player);
-    bool				removeObject(uint64 id, PlayerObjectSet*	knownPlayers);
+			content += tO->getContentSize(iteration+1);
 
-    bool				removeObject(Object* Data);
-    bool				removeObject(Object* Data, PlayerObject* player);
-    bool				removeObject(Object* Data, PlayerObjectSet*	knownPlayers);
-
-    ObjectIDList::iterator removeObject(ObjectIDList::iterator it);
-    ObjectIDList::iterator removeObject(ObjectIDList::iterator it, PlayerObject*	player);
-    ObjectIDList::iterator removeObject(ObjectIDList::iterator it, PlayerObjectSet*	knownPlayers);
-
-    //we need to check the content of our children, too!!!!
-    virtual bool		checkCapacity() {
-        return((mCapacity-mData.size()) > 0);
-    }
-    virtual bool		checkCapacity(uint8 amount, PlayerObject* player = NULL);
-    void				setCapacity(uint16 cap) {
-        mCapacity = cap;
-    }
-    uint16				getCapacity() {
-        return mCapacity;
-    }
-    uint16				getHeadCount();
-
-    //===========================================================================================
-    //gets the contents of containers including their subcontainers
-    uint16				getContentSize(uint16 iteration)
-    {
-        uint16 content = mData.size();
-
-        if(iteration > gWorldConfig->getPlayerContainerDepth())
-        {
-            return content;
-        }
-
-        ObjectIDList*			ol = getObjects();
-        ObjectIDList::iterator	it = ol->begin();
-
-        while(it != ol->end())
-        {
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById((*it)));
-            if(!tO)
-            {
-                assert(false);
-            }
-
-            content += tO->getContentSize(iteration+1);
-
-            it++;
-        }
-        return content;
-    }
-
+			it++;
+		}
+		return content;*/
+		return 1;
+	}
 
 private:
 
-
-
     ObjectIDList			mData;
     uint16					mCapacity;
-
-
 
 };
 

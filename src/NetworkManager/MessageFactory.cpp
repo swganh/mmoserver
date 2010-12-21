@@ -182,8 +182,7 @@ Message* MessageFactory::EndMessage(void)
     mCurrentUsed = ((float)_getHeapSize() / (float)mHeapTotalSize)* 100.0f;
     mMaxHeapUsedPercent = std::max<float>(mMaxHeapUsedPercent,  mCurrentUsed);
 
-
-
+	/*
     // warn if we get near our boundaries
     if(mCurrentUsed > mHeapWarnLevel)
     {
@@ -191,7 +190,7 @@ Message* MessageFactory::EndMessage(void)
         LOG(WARNING) << "MessageFactory Heap at " << mCurrentUsed;
     } else if (((mCurrentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
         mHeapWarnLevel = mCurrentUsed;
-
+	*/
     return message;
 }
 
@@ -476,6 +475,14 @@ void MessageFactory::addData(const uint8_t* data, uint16 len)
 
 void MessageFactory::_processGarbageCollection(void)
 {
+	// warn if we get near our boundaries
+    if(mCurrentUsed > mHeapWarnLevel)
+    {
+        mHeapWarnLevel = static_cast<float>(mCurrentUsed+1.2);
+        LOG(WARNING) << "MessageFactory Heap at " << mCurrentUsed;
+    } else if (((mCurrentUsed+2.2) < mHeapWarnLevel) && mHeapWarnLevel > 80.0)
+        mHeapWarnLevel = mCurrentUsed;
+
     uint32 mlt = 3;
     if(_getHeapSize() > 70.0)
         mlt = 2;
@@ -491,15 +498,9 @@ void MessageFactory::_processGarbageCollection(void)
     uint32 count = 0;
     bool further = true;
 
-
-    while((count < 50) && further)
-    {
-        if (mHeapEnd != mHeapStart)
-        {
-            if (message->getPendingDelete())
-            {
-
-                //uint32 size = message->getSize();
+    while( (count <= 50) && further)    {
+        if (mHeapEnd != mHeapStart)        {
+            if (message->getPendingDelete())	{
                 message->~Message();
                 //memset(mHeapEnd, 0xed, size + sizeof(Message));
                 mHeapEnd += message->getSize() + sizeof(Message);
@@ -507,10 +508,8 @@ void MessageFactory::_processGarbageCollection(void)
                 mMessagesDestroyed++;
 
                 // If we're at the end of the queue, rollover to the front again.
-                if (mHeapEnd == mHeapRollover)
-                {
-                    if (mHeapEnd == mHeapStart)
-                    {
+                if (mHeapEnd == mHeapRollover)	{
+                    if (mHeapEnd == mHeapStart)                    {
                         mHeapStart = mMessageHeap;
                     }
 
@@ -535,7 +534,7 @@ void MessageFactory::_processGarbageCollection(void)
                 if (!message->mLogged)
                 {
                     LOG(WARNING) <<  "Garbage Collection found a new stuck message!"
-                        << "age : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
+                        << " : " << ( uint32((Anh_Utils::Clock::getSingleton()->getStoredTime() - message->getCreateTime())/1000));
 
                     message->mLogged = true;
                     message->mLogTime = Anh_Utils::Clock::getSingleton()->getStoredTime();
@@ -600,8 +599,7 @@ void MessageFactory::_processGarbageCollection(void)
                 return;
 
         }//Heap start != Heapend
-        else
-        {
+        else        {
             return;
         }
 

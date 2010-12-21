@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 
 #include "nonPersistantObjectFactory.h"
 
@@ -285,19 +286,11 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
         uint32 crateSize = fC->getAttribute<uint32>("factory_count");
         if(!crateSize)
         {
-            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(fC->getParentId()));
-
-            if(!tO)
-            {
-                assert(false);
-                return 0;
-            }
+            TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(fC->getParentId()));
 
             //just delete it
-            gMessageLib->sendDestroyObject(fC->getId(),mOwner);
-            gObjectFactory->deleteObjectFromDB(fC->getId());
-            tO->deleteObject(fC);
-
+			gContainerManager->deleteObject(fC, container);
+           
         }
 
         //dont send result - its a callback
@@ -315,7 +308,11 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 
         tO->removeObject(component);
 
-        //leave parent_id untouched - we might need to readd it to the container
+        //leave parent_id untouched - we might need to readd it to the container!
+		//please note that we can only use components out of our inventory or the crafting stations thingy
+		//so update containment for all watchers
+
+		//TODO
         gMessageLib->sendContainmentMessage(component->getId(),mManufacturingSchematic->getId(),0xffffffff,mOwner);
 
         //send result directly we dont have a callback
@@ -581,12 +578,10 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
         if(!newContainerAmount)
         {
             //now destroy it client side
-            gMessageLib->sendDestroyObject(resContainerId,mOwner);
+			TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
 
-
-            gObjectFactory->deleteObjectFromDB(resContainer);
-            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
-            tO->deleteObject(resContainer);
+            //just delete it
+			gContainerManager->deleteObject(resContainer, container);
 
         }
         // update it
@@ -594,7 +589,7 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
         {
             resContainer->setAmount(newContainerAmount);
             gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
-            mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newContainerAmount,resContainer->getId());
+            mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),newContainerAmount,resContainer->getId());
             
         }
 
@@ -645,11 +640,8 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
         }
 
         // destroy the container as its empty now
-        gMessageLib->sendDestroyObject(resContainerId,mOwner);
-        gObjectFactory->deleteObjectFromDB(resContainer);
-
-        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
-        tO->deleteObject(resContainer);
+		TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
+		gContainerManager->deleteObject(resContainer, container);
 
         // update the slot total resource amount
         manSlot->mFilled += availableAmount;
@@ -905,7 +897,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
 
-                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resCont->getId());
+                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),newAmount,resCont->getId());
                         
                     }
                     // target container full, put in what fits, create a new one
@@ -916,7 +908,7 @@ void CraftingSession::bagResource(ManufactureSlot* manSlot,uint64 containerId)
                         resCont->setAmount(maxAmount);
 
                         gMessageLib->sendResourceContainerUpdateAmount(resCont,mOwner);
-                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,resCont->getId());
+                        gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),maxAmount,resCont->getId());
                         
 
                         gObjectFactory->requestNewResourceContainer(dynamic_cast<Inventory*>(mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)),(*resIt).first,mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId(),99,selectedNewAmount);
@@ -1276,11 +1268,11 @@ void CraftingSession::collectResources()
         //update db
         //enter it slotdependent as we dont want to clot our attributes table with resources
         //173  is cat_manf_schem_resource
-        mDatabase->executeSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO %s.item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mDatabase->galaxy(),mManufacturingSchematic->getId(),str);
         
 
         //now enter it in the relevant manschem table so we can use it in factories
-        mDatabase->executeSqlAsync(0,0,"INSERT INTO manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO %s.manschemresources VALUES (NULL,%"PRIu64",%"PRIu64",%u)",mDatabase->galaxy(),mManufacturingSchematic->getId(),(*checkResIt).first,(*checkResIt).second);
         
 
         checkResIt  ++;
@@ -1377,11 +1369,11 @@ void CraftingSession::collectComponents()
         //update db
         //enter it slotdependent as we dont want to clot our attributes table with resources
         //173  is cat_manf_schem_resource
-        mDatabase->executeSqlAsync(0,0,"INSERT INTO item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mManufacturingSchematic->getId(),str);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO %s.item_attributes VALUES (%"PRIu64",173,'%s',1,0)",mDatabase->galaxy(),mManufacturingSchematic->getId(),str);
         
 
         //now enter it in the relevant manschem table so we can use it in factories
-        mDatabase->executeSqlAsync(0,0,"INSERT INTO manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mManufacturingSchematic->getId(),tO->getItemType(),componentSerial.getAnsi(),(*checkResIt).second);
+        mDatabase->executeSqlAsync(0,0,"INSERT INTO %s.manschemcomponents VALUES (NULL,%"PRIu64",%u,%s,%u)",mDatabase->galaxy(),mManufacturingSchematic->getId(),tO->getItemType(),componentSerial.getAnsi(),(*checkResIt).second);
         
 
         checkResIt  ++;
@@ -1399,15 +1391,10 @@ void CraftingSession::updateResourceContainer(uint64 containerID, uint32 newAmou
 // destroy if its empty
     if(!newAmount)
     {
+		ResourceContainer*		resContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(containerID));
+		TangibleObject*			container		= dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
         //now destroy it client side
-        gMessageLib->sendDestroyObject(containerID,mOwner);
-
-
-        gObjectFactory->deleteObjectFromDB(containerID);
-        ResourceContainer*			resContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(containerID));
-
-        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
-        tO->deleteObject(resContainer);
+		gContainerManager->deleteObject(resContainer, container);
 
     }
     // update it
@@ -1417,7 +1404,7 @@ void CraftingSession::updateResourceContainer(uint64 containerID, uint32 newAmou
 
         resContainer->setAmount(newAmount);
         gMessageLib->sendResourceContainerUpdateAmount(resContainer,mOwner);
-        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,resContainer->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),newAmount,resContainer->getId());
        
     }
 

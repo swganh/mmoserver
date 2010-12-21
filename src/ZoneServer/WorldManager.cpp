@@ -80,16 +80,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "PlayerStructure.h"
-#include "QuadTree.h"
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "Shuttle.h"
+#include "SpatialIndexManager.h"
 #include "TicketCollector.h"
 #include "TreasuryManager.h"
 #include "WorldConfig.h"
 #include "ZoneOpcodes.h"
 #include "ZoneServer.h"
-#include "ZoneTree.h"
 
 using std::dynamic_pointer_cast;
 using std::shared_ptr;
@@ -100,7 +99,7 @@ bool			WorldManager::mInsFlag    = false;
 WorldManager*	WorldManager::mSingleton  = NULL;
 //======================================================================================================================
 
-WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* database, SpatialIndexConfig& spatialIndexConfig, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName)
+WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName)
     : mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
     , mDatabase(database)
     , mZoneServer(zoneServer)
@@ -110,16 +109,9 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     , mZoneId(zoneId)
 	, mHeightmapResolution(heightmapResolution)
 {
-
     DLOG(INFO) << "WorldManager initialization";
 
-    // set up spatial index
-    mSpatialIndex = new ZoneTree();
-	mSpatialIndex->Init(spatialIndexConfig.getFillFactor(),
-						spatialIndexConfig.getIndexCap(),
-                        spatialIndexConfig.getLeafCap(),
-                        2,
-						spatialIndexConfig.getHorizon());
+	SpatialIndexManager::Init(mDatabase);
 
 
     // load planet names and terrain files so we can start heightmap loading
@@ -164,7 +156,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
     // initiate loading of objects
     int8 sql[128];
-    sprintf(sql, "SELECT sf_getZoneObjectCount(%i);",mZoneId);
+    sprintf(sql, "SELECT %s.sf_getZoneObjectCount(%i);", mDatabase->galaxy(), mZoneId);
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
         if (!result_set->next())
@@ -178,7 +170,6 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
         _loadWorldObjects();
     } ) ;
 
-
 #if defined(_MSC_VER)
     mNonPersistantId =   422212465065984;
 #else
@@ -188,11 +179,11 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 //======================================================================================================================
 
-WorldManager*	WorldManager::Init(uint32 zoneId,ZoneServer* zoneServer,Database* database, SpatialIndexConfig& spatialIndexConfig, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName)
+WorldManager*	WorldManager::Init(uint32 zoneId,ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName)
 {
     if(!mInsFlag)
     {
-        mSingleton = new WorldManager(zoneId,zoneServer,database, spatialIndexConfig, heightmapResolution, writeResourceMaps, zoneName);
+        mSingleton = new WorldManager(zoneId,zoneServer,database, heightmapResolution, writeResourceMaps, zoneName);
         mInsFlag = true;
         return mSingleton;
     }
@@ -242,13 +233,9 @@ void WorldManager::Shutdown()
     delete(mSubsystemScheduler);
 
     mPlayersToRemove.clear();
-    mRegionMap.clear();
 
     // Npc conversation timers.
     mNpcConversionTimers.clear();
-
-    // Player movement update timers.
-    mPlayerMovementUpdateMap.clear();
 
     mCreatureObjectDeletionMap.clear();
     mPlayerObjectReviveMap.clear();
@@ -270,52 +257,26 @@ void WorldManager::Shutdown()
 
     Heightmap::deleter();
 
-    // Let's get REAL dirty here, since we have no solutions to the deletion-race of containers content.
-    // Done by Eruptor. I got tired of the unhandled problem.
-    // as we cannot keep the content out of the worldmanagers mainobjectlist - we might just store references in the container object ?
-    // the point is that we then have to delete all containers first - so register them seperately?
-    //
-#if defined(_MSC_VER)
-    if (getObjectById((uint64)(2533274790395904)))
-#else
-    if (getObjectById((uint64)(2533274790395904LLU)))
-#endif
-    {
-#if defined(_MSC_VER)
-        Container* container = dynamic_cast<Container*>(getObjectById((uint64)(2533274790395904)));
-#else
-        Container* container = dynamic_cast<Container*>(getObjectById((uint64)(2533274790395904LLU)));
-#endif
-        if (container)
-        {
-            this->destroyObject(container);
-        }
-    }
+	mCreatureObjectDeletionMap.clear();
+	mPlayerObjectReviveMap.clear();
 
-    // remove all cells and factories first so we dont get a racecondition with their content
-    // when clearing the mainObjectMap
-    ObjectIDList::iterator itStruct = mStructureList.begin();
-    while(itStruct != mStructureList.end())
-    {
-        ObjectMap::iterator objMapIt = mObjectMap.find(*itStruct);
+	// remove all cells and factories first so we dont get a racecondition with their content 
+	// when clearing the mainObjectMap
+	ObjectIDList::iterator itStruct = mStructureList.begin();
+	while(itStruct != mStructureList.end())
+	{
+		ObjectMap::iterator objMapIt = mObjectMap.find(*itStruct);
 
-        if(objMapIt != mObjectMap.end())
-        {
-            mObjectMap.erase(objMapIt);
-        }
-        itStruct++;
-    }
+		if(objMapIt != mObjectMap.end())
+		{
+			mObjectMap.erase(objMapIt);
+		}
+		itStruct++;
+	}
 
-    // shutdown SI
-    mSpatialIndex->ShutDown();
-    delete(mSpatialIndex);
-
-    // finally delete them
-    mQTRegionMap.clear();
-    mObjectMap.clear();
-
-
-
+	// shutdown SI
+	gSpatialIndexManager->Shutdown();
+	//delete(mSpatialIndex);
 }
 
 //======================================================================================================================
@@ -325,7 +286,6 @@ WorldManager::~WorldManager()
     mInsFlag = false;
     delete(mSingleton);
 }
-
 //======================================================================================================================
 
 void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
@@ -333,41 +293,17 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
     addObject(object);
 
     // check if we done loading
-    if ((mState == WMState_StartUp) && (mObjectMap.size() + mQTRegionMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
+    if ((mState == WMState_StartUp) && (mObjectMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
     {
         _handleLoadComplete();
     }
 }
-
 void WorldManager::handleObjectReady(shared_ptr<Object> object)
 {
-    if(auto region = dynamic_pointer_cast<QTRegion>(object))
-    {
-        uint32 key = (uint32)region->getId();
-
-        mQTRegionMap.insert(std::make_pair<uint32, shared_ptr<QTRegion>>(key, region));
-
-        mSpatialIndex->insertQTRegion(key,region->mPosition.x,region->mPosition.z,region->getWidth(),region->getHeight());
-    }
-    else
-    {
-        addObject(object);
-    }
+    addObject(object);
 }
 
 //======================================================================================================================
-
-std::shared_ptr<RegionObject> WorldManager::getRegionById(uint64 regionId)
-{
-    RegionMap::iterator it = mRegionMap.find(regionId);
-
-    if( it != mRegionMap.end()) {
-        return (it->second);
-    } else {
-        LOG(WARNING) << "Could not find Region : " << regionId;
-    }
-    return shared_ptr<RegionObject>();
-}
 
 //======================================================================================================================
 //get the current tick
@@ -385,7 +321,7 @@ uint64 WorldManager::GetCurrentGlobalTick()
 void WorldManager::LoadCurrentGlobalTick()
 {
     uint64 Tick;
-    DatabaseResult* temp = mDatabase->executeSynchSql("SELECT Global_Tick_Count FROM galaxy WHERE galaxy_id = '2'");
+    DatabaseResult* temp = mDatabase->executeSynchSql("SELECT Global_Tick_Count FROM %s.galaxy WHERE galaxy_id = '2'",mDatabase->galaxy());
 
 
     DataBinding*	tickbinding = mDatabase->createDataBinding(1);
@@ -470,15 +406,12 @@ bool WorldManager::_handleDisconnectUpdate(uint64 callTime,void* ref)
             playerObject->togglePlayerFlagOff(PlayerFlag_LinkDead);
             playerObject->setConnectionState(PlayerConnState_Destroying);
 
-            // Stop update timers.
-            removePlayerMovementUpdateTime(playerObject);
-
-            //remove the player out of his group - if any
-            GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
-            if(group)
-            {
-                group->removePlayer(playerObject->getId());
-            }
+			//remove the player out of his group - if any
+			GroupObject* group = gGroupManager->getGroupObject(playerObject->getGroupId());
+			if(group)
+			{
+				group->removePlayer(playerObject->getId());
+			}
 
             //asynch save
             savePlayer(playerObject->getAccountId(),true,WMLogOut_LogOut);
@@ -659,7 +592,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
                     dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->addObject(item);
                     gWorldManager->addObject(item,true);
 
-                    gMessageLib->sendCreateTangible(item,player);
+                    gMessageLib->sendCreateTano(item,player);
 
                     gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "prototype_transferred"), player);
 
@@ -671,10 +604,10 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
                 it = mBusyCraftTools.erase(it);
                 tool->setAttribute("craft_tool_status","@crafting:tool_status_ready");
-                mDatabase->executeSqlAsync(0,0,"UPDATE item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",tool->getId());
+                mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='@crafting:tool_status_ready' WHERE item_id=%"PRIu64" AND attribute_id=18",mDatabase->galaxy(),tool->getId());
 
                 tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
-                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+                gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 
 
                 continue;
@@ -684,7 +617,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
 
             tool->setAttribute("craft_tool_time",boost::lexical_cast<std::string>(tool->getTimer()));
             //gLogger->log(LogManager::DEBUG,"timer : %i",tool->getTimer());
-            mDatabase->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
+            mDatabase->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",mDatabase->galaxy(),tool->getId(),tool->getTimer(),AttrType_CraftToolTime);
 
         }
 
@@ -875,111 +808,61 @@ void WorldManager::handleTimer(uint32 id, void* container)
 //
 void WorldManager::_handleLoadComplete()
 {
-    // release memory
-    mDatabase->releaseResultPoolMemory();
-    mDatabase->releaseJobPoolMemory();
-    mDatabase->releaseBindingPoolMemory();
-    mWM_DB_AsyncPool.release_memory();
-    gObjectFactory->releaseAllPoolsMemory();
-    if(mZoneId != 41)
-        gResourceManager->releaseAllPoolsMemory();
-    gSchematicManager->releaseAllPoolsMemory();
-    gSkillManager->releaseAllPoolsMemory();
+	// release memory
+	mDatabase->releaseResultPoolMemory();
+	mDatabase->releaseJobPoolMemory();
+	mDatabase->releaseBindingPoolMemory();
+	mWM_DB_AsyncPool.release_memory();
+	gObjectFactory->releaseAllPoolsMemory();
+	if(mZoneId != 41)
+		gResourceManager->releaseAllPoolsMemory();
+	gSchematicManager->releaseAllPoolsMemory();
+	gSkillManager->releaseAllPoolsMemory();
 
+	// register script hooks
+	_startWorldScripts();
 
+	LOG(INFO) << "World load complete";
+			
+	if(mZoneId != 41)
+	{
+		while(!gHeightmap->isReady())
+			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	}
 
-    // register script hooks
-    _startWorldScripts();
+	// switch into running state
+	mState = WMState_Running;
 
-    LOG(INFO) << "World load complete";
+	// notify zoneserver
+	mZoneServer->handleWMReady();
+	mTotalObjectCount = 0;
 
-    if(mZoneId != 41)
-    {
-        while(!gHeightmap->isReady())
-            boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-    }
+	// initialize timers
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleShuttleUpdate),7,1000,NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleServerTimeUpdate),9,gWorldConfig->getServerTimeInterval()*1000,NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleDisconnectUpdate),1,1000,NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleCraftToolTimers),3,1000,NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleNpcConversionTimers),8,1000,NULL);
 
-    // switch into running state
-    mState = WMState_Running;
+	setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 120000, NULL));
+	
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
+	mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleVariousUpdates),7,1000, NULL);
 
-    // notify zoneserver
-    mZoneServer->handleWMReady();
-    mTotalObjectCount = 0;
+	// Init NPC Manager, will load lairs from the DB.
+	(void)NpcManager::Instance();
 
-    // initialize timers
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleShuttleUpdate),7,1000,NULL);
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleServerTimeUpdate),9,gWorldConfig->getServerTimeInterval()*1000,NULL);
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleDisconnectUpdate),1,1000,NULL);
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleRegionUpdate),2,2000,NULL);
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleCraftToolTimers),3,1000,NULL);
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleNpcConversionTimers),8,1000,NULL);
+	// Initialize the queues for NPC-Manager.
+	mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleDormantNpcs),5,2500,NULL);
+	mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleReadyNpcs),5,1000,NULL);
+	mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleActiveNpcs),5,250,NULL);
 
-    //is this really necessary ?
-    //whenever someone creates something near us were updated on it anyway ... ?
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerMovementUpdateTimers),4,5000,NULL);
-
-    //save player
-    setSaveTaskId(mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handlePlayerSaveTimers), 4, 120000, NULL));
-
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGeneralObjectTimers),5,2000,NULL);
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleGroupObjectTimers),5,gWorldConfig->getGroupMissionUpdateTime(),NULL);
-    mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleVariousUpdates),7,1000, NULL);
-
-    // Init NPC Manager, will load lairs from the DB.
-    (void)NpcManager::Instance();
-
-    // Initialize the queues for NPC-Manager.
-    mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleDormantNpcs),5,2500,NULL);
-    mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleReadyNpcs),5,1000,NULL);
-    mNpcManagerScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleActiveNpcs),5,250,NULL);
-
-    // Initialize static creature lairs.
-    mAdminScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleAdminRequests),5,5000,NULL);
+	// Initialize static creature lairs.
+	mAdminScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleAdminRequests),5,5000,NULL);
 }
 
 //======================================================================================================================
-
-void WorldManager::removeActiveRegion(shared_ptr<RegionObject> regionObject)
-{
-    ActiveRegions::iterator it = mActiveRegions.begin();
-
-    while(it != mActiveRegions.end())
-    {
-        if(*it == regionObject)
-        {
-            mActiveRegions.erase(it);
-            break;
-        }
-
-        ++it;
-    }
-}
-
-//======================================================================================================================
-
-bool WorldManager::_handleRegionUpdate(uint64 callTime,void* ref)
-{
-    ActiveRegions::iterator it = mActiveRegions.begin();
-
-    while(it != mActiveRegions.end())
-    {
-        (*it)->update();
-        ++it;
-    }
-
-    //now delete any camp regions that are due
-    //RegionDeleteList::iterator itR = mRegionDeleteList.begin();
-
-    //while(itR != mRegionDeleteList.end())
-    //{
-    //    removeActiveRegion((*itR));
-    //    //now remove region entries
-    //    itR++;
-    //}
-
-    mRegionDeleteList.clear();
-    return(true);
-}
 
 //======================================================================================================================
 
@@ -1023,7 +906,6 @@ int32 WorldManager::getPlanetIdByNameLike(BString name)
         ++it;
         id++;
     }
-    // gLogger->log(LogManager::DEBUG,"No match, compared %d planet names",  id);
     return(-1);
 }
 
@@ -1180,26 +1062,6 @@ bool WorldManager::existObject(Object* object)
         return false;
     }
 }
-
-
-//======================================================================================================================
-//
-// returns a qtregion
-//
-
-shared_ptr<QTRegion> WorldManager::getQTRegion(uint32 id)
-{
-    QTRegionMap::iterator it = mQTRegionMap.find(id);
-
-    if(it != mQTRegionMap.end())
-    {
-        return(it->second);
-    }
-
-    return shared_ptr<QTRegion>();
-}
-
-
 //======================================================================================================================
 //
 // get an attribute string value from the global attribute map
@@ -1363,23 +1225,23 @@ bool WorldManager::objectsInRange(uint64 obj1Id, uint64 obj2Id, float range)
     {
         // In the same cell (or both outside is rarley the case here)
         if (glm::distance(obj1->mPosition, obj2->mPosition) > range)
-        {
-            inRange = false;
-        }
-    }
-    else if ((obj1->getParentId() == 0) || (obj2->getParentId() == 0))
-    {
-        // One of us are outside.
-        inRange = false;
-    }
-    else
-    {
-        // We may be in the same building.
-        CellObject* obj1Cell = dynamic_cast<CellObject*>(this->getObjectById(obj1->getParentId()));
-        CellObject* obj2Cell = dynamic_cast<CellObject*>(this->getObjectById(obj2->getParentId()));
-        if (obj1Cell && obj2Cell && (obj1Cell->getParentId() == obj2Cell->getParentId()))
-        {
-            // In the same building
+		{
+			inRange = false;
+		}
+	}
+	else if ((obj1->getParentId() == 0) || (obj2->getParentId() == 0))
+	{
+		// One of us is outside
+		inRange = false;
+	}
+	else
+	{
+		// We may be in the same building.
+		CellObject* obj1Cell = dynamic_cast<CellObject*>(this->getObjectById(obj1->getParentId()));
+		CellObject* obj2Cell = dynamic_cast<CellObject*>(this->getObjectById(obj2->getParentId()));
+		if (obj1Cell && obj2Cell && (obj1Cell->getParentId() == obj2Cell->getParentId()))
+		{
+			// In the same building
             if (glm::distance(obj1->mPosition, obj2->mPosition) > range)
             {
                 // But out of range.

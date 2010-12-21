@@ -65,6 +65,7 @@ unsigned int
     SUI_Window_CharacterBuilderCreditsMenu_ListBox,
     SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox,
     SUI_Window_CharacterBuilderCreditsMenuBank_InputBox,
+    SUI_Window_CharacterBuilderTeleportMenu_InputBox,
     SUI_Window_CharacterBuilderAttributesMenu_ListBox,
     SUI_Window_CharacterBuilderXpMenu_ListBox,
     SUI_Window_CharacterBuilderItemsMenu_ListBox,
@@ -172,6 +173,7 @@ unsigned int
     SUI_Window_CharacterBuilder_ListBox_RifleMenu,
     SUI_Window_CharacterBuilder_ListBox_WoundMenu,
     SUI_Window_CharacterBuilder_ListBox_StateMenu,
+    SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu,
 
     //trade
     SUI_Window_Trade_BankTip_ConfirmSurcharge

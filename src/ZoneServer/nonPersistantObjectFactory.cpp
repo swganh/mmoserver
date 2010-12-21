@@ -114,9 +114,10 @@ void NonPersistantObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseRes
             asContainer->mObject = item;
 
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
-                                       " FROM item_family_attribute_defaults"
-                                       " INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
-                                       " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType());
+                                       " FROM %s.item_family_attribute_defaults"
+                                       " INNER %s.JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
+                                       " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),item->getItemType());
            
         }
     }
@@ -169,7 +170,7 @@ void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallbac
     newItem->setId(gWorldManager->getRandomNpId());
 
     int8 sql[256];
-    sprintf(sql,"SELECT item_types.object_string,item_types.stf_name,item_types.stf_file,item_types.stf_detail_name, item_types.stf_detail_file FROM item_types WHERE item_types.id = '%u'",typeId);
+    sprintf(sql,"SELECT item_types.object_string,item_types.stf_name,item_types.stf_file,item_types.stf_detail_name, item_types.stf_detail_file FROM %s.item_types WHERE item_types.id = '%u'",mDatabase->galaxy(),typeId);
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) NonPersistantQueryContainerBase(ofCallback,NonPersistantItemFactoryQuery_MainData,client,newItem),sql);
     
 
@@ -182,97 +183,100 @@ void NonPersistantObjectFactory::createTangible(ObjectFactoryCallback* ofCallbac
 
 TangibleObject* NonPersistantObjectFactory::spawnTangible(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player)
 {
+    	
+	//we dont set the types here as we are factually placing statics / and or items / terminals
+	//but we need to revisit this when dealing with high level camps
+	//in which case we have to do separate create functions for terminals crafting stations and so on
+	TangibleObject* tangible = new(TangibleObject);
+	
+	tangible->mPosition = position;
+	tangible->mPosition.x += placableTemplate->mPosition.x;
+	tangible->mPosition.y += placableTemplate->mPosition.y;
+	tangible->mPosition.z += placableTemplate->mPosition.z;
+	
+	tangible->mDirection.x = placableTemplate->mDirection.x;
+	tangible->mDirection.y = placableTemplate->mDirection.y;
+	tangible->mDirection.z = placableTemplate->mDirection.z;
 
-    //we dont set the types here as we are factually placing statics / and or items / terminals
-    //but we need to revisit this when dealing with high level camps
-    //in which case we have to do separate create functions for terminals crafting stations and so on
-    TangibleObject* tangible = new(TangibleObject);
+	tangible->mDirection.w = placableTemplate->mDirection.w;
 
-    tangible->mPosition = position;
-    tangible->mPosition.x += placableTemplate->mPosition.x;
-    tangible->mPosition.y += placableTemplate->mPosition.y;
-    tangible->mPosition.z += placableTemplate->mPosition.z;
+	tangible->setName(placableTemplate->name.getAnsi());
+	tangible->setNameFile(placableTemplate->file.getAnsi());
 
-    tangible->mDirection.x = placableTemplate->mDirection.x;
-    tangible->mDirection.y = placableTemplate->mDirection.y;
-    tangible->mDirection.z = placableTemplate->mDirection.z;
+	tangible->setParentId(parentId);
+	tangible->setCustomName(customName.getAnsi());
+	tangible->setMaxCondition(100);
 
-    tangible->mDirection.w = placableTemplate->mDirection.w;
+	tangible->setTangibleGroup(placableTemplate->tanType);
+	
+	//see above notes
+	tangible->setTangibleType(TanType_None);
 
-    tangible->setName(placableTemplate->name.getAnsi());
-    tangible->setNameFile(placableTemplate->file.getAnsi());
+	tangible->setId(gWorldManager->getRandomNpId());
 
-    tangible->setParentId(parentId);
-    tangible->setCustomName(customName.getAnsi());
-    tangible->setMaxCondition(100);
+	tangible->setModelString(placableTemplate->structureObjectString);
 
-    tangible->setTangibleGroup(placableTemplate->tanType);
+	//create it in the world
+	tangible->mDirection = player->mDirection;
+	//tangible->setTypeOptions(0xffffffff);
 
-    //see above notes
-    tangible->setTangibleType(TanType_None);
+	gWorldManager->addObject(tangible);			
 
-    tangible->setId(gWorldManager->getRandomNpId());
+	//add to the si
+	gSpatialIndexManager->createInWorld(tangible);
+	
+	gMessageLib->sendDataTransform053(tangible);
 
-    tangible->setModelString(placableTemplate->structureObjectString);
-
-    //create it in the world
-    tangible->mDirection = player->mDirection;
-    //tangible->setTypeOptions(0xffffffff);
-
-    gWorldManager->addObject(tangible);
-    gWorldManager->createObjectinWorld(player,tangible);
-    gMessageLib->sendDataTransform053(tangible);
-
-    return(tangible);
+	return(tangible);
 
 }
 
 CampTerminal* NonPersistantObjectFactory::spawnTerminal(StructureItemTemplate* placableTemplate, uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player, StructureDeedLink*	deedData)
-{
+{	
+	//we dont set the types here as we are factually placing statics / and or items / terminals
+	//but we need to revisit this when dealing with high level camps
+	//in which case we have to do separate create functions for terminals crafting stations and so on
+	CampTerminal* terminal = new(CampTerminal);
+	
+	terminal->mPosition = position;
+	terminal->mPosition.x += placableTemplate->mPosition.x;
+	terminal->mPosition.y += placableTemplate->mPosition.y;
+	terminal->mPosition.z += placableTemplate->mPosition.z;
 
-    //we dont set the types here as we are factually placing statics / and or items / terminals
-    //but we need to revisit this when dealing with high level camps
-    //in which case we have to do separate create functions for terminals crafting stations and so on
-    CampTerminal* terminal = new(CampTerminal);
+	terminal->mDirection.x = placableTemplate->mDirection.x;
+	terminal->mDirection.y = placableTemplate->mDirection.y;
+	terminal->mDirection.z = placableTemplate->mDirection.z;
 
-    terminal->mPosition = position;
-    terminal->mPosition.x += placableTemplate->mPosition.x;
-    terminal->mPosition.y += placableTemplate->mPosition.y;
-    terminal->mPosition.z += placableTemplate->mPosition.z;
+	terminal->mDirection.w = placableTemplate->mDirection.w;
 
-    terminal->mDirection.x = placableTemplate->mDirection.x;
-    terminal->mDirection.y = placableTemplate->mDirection.y;
-    terminal->mDirection.z = placableTemplate->mDirection.z;
+	terminal->setName(deedData->stf_name.getAnsi());
+	terminal->setNameFile(deedData->stf_file.getAnsi());
 
-    terminal->mDirection.w = placableTemplate->mDirection.w;
+	
+	terminal->setParentId(parentId);
+	terminal->setCustomName(customName.getAnsi());
+	terminal->setMaxCondition(100);
 
-    terminal->setName(deedData->stf_name.getAnsi());
-    terminal->setNameFile(deedData->stf_file.getAnsi());
+	terminal->setTangibleGroup(placableTemplate->tanType);
+	
+	//see above notes
+	terminal->setTangibleType(TanType_CampTerminal);
 
+	terminal->setId(gWorldManager->getRandomNpId());
 
-    terminal->setParentId(parentId);
-    terminal->setCustomName(customName.getAnsi());
-    terminal->setMaxCondition(100);
+	//tangible->setOwner(player->getId());
+	
+	terminal->setModelString(placableTemplate->structureObjectString);
 
-    terminal->setTangibleGroup(placableTemplate->tanType);
+	//create it in the world
+	//tangible->mDirection = player->mDirection;
+	
+	gWorldManager->addObject(terminal);
 
-    //see above notes
-    terminal->setTangibleType(TanType_CampTerminal);
+	//add to the si
+	gSpatialIndexManager->createInWorld(terminal);
 
-    terminal->setId(gWorldManager->getRandomNpId());
-
-    //tangible->setOwner(player->getId());
-
-    terminal->setModelString(placableTemplate->structureObjectString);
-
-    //create it in the world
-    //tangible->mDirection = player->mDirection;
-
-    gWorldManager->addObject(terminal);
-    gWorldManager->createObjectinWorld(player,terminal);
-
-    return(terminal);
-
+	return(terminal);
 }
 
 
@@ -343,10 +347,12 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingFenceObject(float x,
     //create it in the world
     structure->setModelString("object/installation/base/shared_construction_installation_base.iff");
 
-    gWorldManager->addObject(structure);
+	gWorldManager->addObject(structure);
 
-    gWorldManager->createObjectinWorld(player,structure);
-    gMessageLib->sendDataTransform053(structure);
+	//add to the si
+	gSpatialIndexManager->createInWorld(structure);
+		
+	gMessageLib->sendDataTransform053(structure);
 
     return structure;
 
@@ -379,13 +385,14 @@ PlayerStructure* NonPersistantObjectFactory::requestBuildingSignObject(float x, 
 
     structure->setModelString("object/static/structure/tatooine/shared_streetsign_wall_style_01.iff");
 
+	//create it in the world
+	
+	gWorldManager->addObject(structure);
 
-    //create it in the world
-
-    gWorldManager->addObject(structure);
-
-    gWorldManager->createObjectinWorld(player,structure);
-    gMessageLib->sendDataTransform053(structure);
+	//add to the si
+	gSpatialIndexManager->createInWorld(structure);
+		
+	gMessageLib->sendDataTransform053(structure);
 
     return structure;
 

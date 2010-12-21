@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_DATABASEMANAGER_DATABASECONFIG_H
 
 #include <stdint.h>
+#include <string>
 
 /**
  * \brief A collection of Database Configuration options.
@@ -43,9 +44,12 @@ public:
 	 * \param db_min_threads The minium number of threads used for database work.
 	 * \param db_max_threads The maximum number of threads used for database work.
 	 */
-	DatabaseConfig(uint32_t db_min_threads, uint32_t db_max_threads)
+	DatabaseConfig(uint32_t db_min_threads, uint32_t db_max_threads, std::string db_global_schema, std::string db_galaxy_schema, std::string db_config_schema)
 		: db_min_threads_(db_min_threads)
-		, db_max_threads_(db_max_threads) { }
+		, db_max_threads_(db_max_threads) 
+		, db_global_schema_(db_global_schema)
+		, db_galaxy_schema_(db_galaxy_schema)
+		, db_config_schema_(db_config_schema) { }
 
 	/**
 	 * \brief Default destructor.
@@ -60,9 +64,24 @@ public:
 		return db_max_threads_;
 	}
 
+	const std::string getDbGlobalSchema() const {
+		return db_global_schema_;
+	}
+
+	const std::string getDbGalaxySchema() const {
+		return db_galaxy_schema_;
+	}
+
+	const std::string getDbConfigSchema() const {
+		return db_config_schema_;
+	}
+
 private:
 	uint32_t db_min_threads_;
 	uint32_t db_max_threads_;
+	std::string db_global_schema_;
+	std::string db_galaxy_schema_;
+	std::string db_config_schema_;
 };
 
 #endif // ANH_DATABASEMANAGER_DATABASECONFIG_H

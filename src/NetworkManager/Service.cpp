@@ -131,14 +131,15 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     int valuelength = sizeof(value);
     value = 524288;
 	int configvalue = network_configuration.getUdpBufferSize();
+
     //gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
     LOG(INFO) << "UDP buffer size set to " << configvalue << "kb";
     
     if(configvalue < 128)
         configvalue = 128;
 
-    if(configvalue > 8192)
-        configvalue = 8192;
+    if(configvalue > 16384)
+        configvalue = 16384;
 
     value = configvalue *1024;
 
@@ -211,9 +212,6 @@ void Service::Process()
     {
         // Grab our next Service to process
         session = mSessionProcessQueue.pop();
-
-        if(!session)
-            continue;
 
         session->setInIncomingQueue(false);
 

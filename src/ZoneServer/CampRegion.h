@@ -36,16 +36,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-class ZoneTree;
+
 class PlayerObject;
-class QTRegion;
+
 
 //=============================================================================
 
-typedef std::set<uint64>						VisitorSet;
+
 class CampRegion : public RegionObject
 {
-
 public:
 
     CampRegion();
@@ -56,90 +55,52 @@ public:
     virtual void	onObjectEnter(Object* object);
     virtual void	onObjectLeave(Object* object);
 
-    void	setOwner(uint64 owner) {
-        mOwnerId = owner;
-    }
-    uint64	getOwner() {
-        return mOwnerId;
-    }
+    void	setOwner(uint64 owner){mOwnerId = owner;}
+	uint64	getOwner(){return mOwnerId;}
 
-    void	setAbandoned(bool mmh) {
-        mAbandoned = mmh;
-    }
-    uint64	getAbandoned() {
-        return mAbandoned;
-    }
+	void	setAbandoned(bool mmh){mAbandoned = mmh;}
+	uint64	getAbandoned(){return mAbandoned;}
+				
+	void	setMaxXp(uint32 max){mXpMax = max;}
+	uint32	getMaxXp(){return mXpMax;}
 
-    void	setMaxXp(uint32 max) {
-        mXpMax = max;
-    }
-    uint32	getMaxXp() {
-        return mXpMax;
-    }
+	void	setCamp(uint64 id){mCampId = id;}
+	uint64	getCamp(){return mCampId;}
 
-    void	setCamp(uint64 id) {
-        mCampId = id;
-    }
-    uint64	getCamp() {
-        return mCampId;
-    }
+	uint64	getUpTime(){return((gWorldManager->GetCurrentGlobalTick() - mSetUpTime)/1000);}
+				
+	uint32	getVisitors(){return(links.size());}
+	uint32	getCurrentVisitors(){return(mVisitingPlayers.size());}
 
-    uint64	getUpTime() {
-        return((gWorldManager->GetCurrentGlobalTick() - mSetUpTime)/1000);
-    }
+	void	setCampOwnerName(std::string name){mOwnerName = name;}
+	std::string	getCampOwnerName(){return mOwnerName;}
 
-    uint32	getVisitors() {
-        return(mVisitorSet.size());
-    }
-    uint32	getCurrentVisitors() {
-        return(mKnownPlayers.size());
-    }
+	void	setHealingModifier(float mod){mHealingModifier = mod;}
+	float	getHealingModifier(){return mHealingModifier;}
 
+	void	despawnCamp();
+	void	applyHAMHealing(Object* object);
+	void	applyWoundHealing(Object* object);
+	void	applyXp();
 
-    void	setCampOwnerName(BString name) {
-        mOwnerName = name;
-    }
-    BString	getCampOwnerName() {
-        return mOwnerName;
-    }
+	protected:
 
-    void	setHealingModifier(float mod) {
-        mHealingModifier = mod;
-    }
-    float	getHealingModifier() {
-        return mHealingModifier;
-    }
+		uint64				mCampId;
+		uint64				mOwnerId;
+		bool				mAbandoned;
+		uint64				mSetUpTime;
+		//uint64				mLeftTime;
+		uint64				mExpiresTime;
+		uint32				mXpMax;
+		uint32				mXp;
+		std::string			mOwnerName;
+		float				mHealingModifier;
 
-    void	despawnCamp();
-    void	applyHAMHealing(Object* object);
-    void	applyWoundHealing(Object* object);
-    void	applyXp();
+		uint32				mHealingDone;
 
-protected:
+		bool				mDestroyed;
 
-    ZoneTree*			mSI;
-    std::shared_ptr<QTRegion>   mQTRegion;
-    Anh_Math::Rectangle mQueryRect;
-    uint64				mCampId;
-    uint64				mOwnerId;
-    bool				mAbandoned;
-    uint64				mSetUpTime;
-    //uint64				mLeftTime;
-    uint64				mExpiresTime;
-    uint32				mXpMax;
-    uint32				mXp;
-    BString				mOwnerName;
-    float				mHealingModifier;
-
-    uint32				mHealingDone;
-
-    bool				mDestroyed;
-
-    VisitorSet			mVisitorSet;
-
-    struct				campLink;
-    std::list<campLink*>	links;
+		struct				campLink;
+		std::list<campLink*>	links;
 };
-
-
 #endif

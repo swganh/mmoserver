@@ -70,7 +70,7 @@ ResourceManager::ResourceManager(Database* database,uint32 zoneId, bool writeRes
 
     // load resource types
     mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_ResourceTypes),
-                               "SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM resource_template ORDER BY id");
+                               "SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM %s.resource_template ORDER BY id",mDatabase->galaxy());
  
 }
 
@@ -223,7 +223,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         }
 
         // query categories
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_Categories),"SELECT * FROM resource_categories ORDER BY id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_Categories),"SELECT * FROM %s.resource_categories ORDER BY id",mDatabase->galaxy());
     }
     break;
 
@@ -242,6 +242,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             mResourceCategoryMap.insert(std::make_pair(category->mId,category));
         }
 
+
         mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_CurrentResources),
                                    "SELECT resources.id,resources.name,resources.type_id,"
                                    "resources.er,resources.cr,resources.cd,resources.dr,resources.fl,resources.hr,"
@@ -252,11 +253,11 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
                                    "resources_spawn_config.noiseMapPersistence,resources_spawn_config.noiseMapScale,"
                                    "resources_spawn_config.noiseMapBias,"
                                    "resources_spawn_config.unitsTotal,resources_spawn_config.unitsLeft"
-                                   " FROM resources"
-                                   " INNER JOIN resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
+                                   " FROM %s.resources"
+                                   " INNER JOIN %s.resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
                                    " WHERE"
                                    " (resources_spawn_config.planet_id = %u) AND"
-                                   " (resources.active = 1)",mZoneId);
+                                   " (resources.active = 1)",mDatabase->galaxy(),mDatabase->galaxy(),mZoneId);
         
     }
     break;
@@ -303,6 +304,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             resource->mType = getResourceTypeById(resource->mTypeId);
             resource->mCurrent = 1;
             resource->buildDistributionMap();
+			mResourceIdMap.insert(std::make_pair(resource->mId,resource));
             mResourceCRCNameMap.insert(std::make_pair(resource->mName.getCrc(),resource));
             (getResourceCategoryById(resource->mType->mCatId))->insertResource(resource);
         }
@@ -310,7 +312,13 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         LOG_IF(INFO, count) << "Generated " << count << " resource maps";
 
         // query old and current resources not from this planet
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),
+									"SELECT * FROM %s.resources "
+									" INNER JOIN %s.resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
+									" WHERE (NOT ("
+									" (resources_spawn_config.planet_id = %u) AND"
+									" (resources.active = 1)))",mDatabase->galaxy(),mDatabase->galaxy(),mZoneId);
+		// dont load the active resources of this zone again!!!
     }
     break;
     case RMQuery_DepleteResources:

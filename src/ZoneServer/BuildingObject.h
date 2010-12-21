@@ -47,83 +47,60 @@ typedef std::vector<SpawnPoint*>	SpawnPoints;
 
 class BuildingObject :	public PlayerStructure
 {
-    friend class BuildingFactory;
-    friend class HouseFactory;
+	friend class BuildingFactory;
+	friend class HouseFactory;
 
 public:
 
-    BuildingObject();
-    ~BuildingObject();
+	BuildingObject();
+	~BuildingObject();
 
-    //ObjectList		getAllCellChilds();
+	//ObjectList		getAllCellChilds();
 
-    uint32			getLoadCount() {
-        return mTotalLoadCount;
-    }
-    void			setLoadCount(uint32 count) {
-        mTotalLoadCount = count;
-    }
+	uint32			getLoadCount(){ return mTotalLoadCount; }
+	void			setLoadCount(uint32 count){ mTotalLoadCount = count; }
 
-    BuildingFamily	getBuildingFamily() {
-        return mBuildingFamily;
-    }
-    void			setBuildingFamily(BuildingFamily bf) {
-        mBuildingFamily = bf;
-    }
+	BuildingFamily	getBuildingFamily(){ return mBuildingFamily; }
+	void			setBuildingFamily(BuildingFamily bf){ mBuildingFamily = bf; }
 
-    void			addSpawnPoint(SpawnPoint* sp) {
-        mSpawnPoints.push_back(sp);
-    }
-    SpawnPoints*	getSpawnPoints() {
-        return &mSpawnPoints;
-    }
-    SpawnPoint*		getRandomSpawnPoint();
+	void			addSpawnPoint(SpawnPoint* sp){ mSpawnPoints.push_back(sp); }
+	SpawnPoints*	getSpawnPoints(){ return &mSpawnPoints; }
+	SpawnPoint*		getRandomSpawnPoint();
 
-    CellObjectList*	getCellList() {
-        return &mCells;
-    }
-    void			addCell(CellObject* cellObject) {
-        mCells.push_back(cellObject);
-    }
-    bool			removeCell(CellObject* cellObject);
-    bool			checkForCell(CellObject* cellObject);
-    ObjectList		getAllCellChilds();
+	CellObjectList*	getCellList(){ return &mCells; }
+	void			addCell(CellObject* cellObject){ mCells.push_back(cellObject); }
+	bool			removeCell(CellObject* cellObject);
+	bool			checkForCell(CellObject* cellObject);
+	ObjectList		getAllCellChilds();
 
-    uint16			getCellContentCount();
+	void			prepareDestruction();
 
-    void			updateCellPermissions(PlayerObject* player, bool access);
+		
+	uint16			getCellContentCount();
 
-    uint64			getMinCellId() {
-        return mMaxCellId;
-    }
-    void			setMinCellId(uint64 count) {
-        mMaxCellId = count;
-    }
+	void			updateCellPermissions(PlayerObject* player, bool access);
 
-    bool			getPublic() {
-        return mPublic;
-    }
-    void			setPublic(bool value) {
-        mPublic = value;
-    }
+	uint64			getMinCellId(){ return mMaxCellId; }
+	void			setMinCellId(uint64 count){ mMaxCellId = count; }
 
-    bool			checkCapacity(uint8 amount) {
-        return ((int32)(mMaxStorage - getCellContentCount())> amount);
-    }
+	bool			getPublic(){ return mPublic; }
+	void			setPublic(bool value){ mPublic = value; }
+
+	bool			checkCapacity(uint8 amount){return ((int32)(mMaxStorage - getCellContentCount())> amount);}
 
 private:
-    CellObjectList	mCells;
-    bool			mPublic;
+	CellObjectList	mCells;
+	bool			mPublic;
 
-    uint32			mTotalLoadCount;
+	uint32			mTotalLoadCount;
+		
+	//max capacity of a house - this is *not* objectcontainer capacity as that holds the cells
+	uint32			mMaxStorage;
 
-    //max capacity of a house - this is *not* objectcontainer capacity as that holds the cells
-    uint32			mMaxStorage;
+	SpawnPoints		mSpawnPoints;
+	BuildingFamily	mBuildingFamily;
 
-    SpawnPoints		mSpawnPoints;
-    BuildingFamily	mBuildingFamily;
-
-    uint64			mMaxCellId;
+	uint64			mMaxCellId;
 };
 
 //=============================================================================

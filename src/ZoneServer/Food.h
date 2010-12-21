@@ -29,6 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_ZONESERVER_TANGIBLE_FOOD_H
 
 #include "Item.h"
+#include "Buff.h"
 
 
 //=============================================================================

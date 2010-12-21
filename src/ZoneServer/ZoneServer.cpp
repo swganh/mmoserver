@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <iostream>
 #include <fstream>
+#include "anh/event_dispatcher/event_dispatcher.h"
+
 
 #include "CharacterLoginHandler.h"
 #include "CharSheetManager.h"
@@ -87,8 +89,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/thread/thread.hpp>
 
+using anh::event_dispatcher::EventDispatcher;
+using std::make_shared;
+using std::shared_ptr;
+
 using utils::Singleton;
-using common::EventDispatcher;
 
 #ifdef WIN32
 #undef ERROR
@@ -104,6 +109,7 @@ ZoneServer* gZoneServer = NULL;
 ZoneServer::ZoneServer(int argc, char* argv[])
     : BaseServer()
 	, mLastHeartbeat(0)
+    , event_dispatcher_(make_shared<EventDispatcher>())
     , mNetworkManager(0)
     , mDatabaseManager(0)
     , mRouterService(0)
@@ -114,11 +120,6 @@ ZoneServer::ZoneServer(int argc, char* argv[])
 
 	configuration_options_description_.add_options()
 		("ZoneName", boost::program_options::value<std::string>(), "")
-		("FillFactor", boost::program_options::value<double>()->default_value(0.7), "")
-		("IndexCap", boost::program_options::value<uint32>()->default_value(100), "")
-		("LeafCap", boost::program_options::value<uint32>()->default_value(100), "")
-		("Horizon", boost::program_options::value<double>()->default_value(25.0), "")
-		("ConfigFile", boost::program_options::value<std::string>(), "")
 		("writeResourceMaps", boost::program_options::value<bool>(), "")
 		("heightMapResolution", boost::program_options::value<uint16>()->default_value(3), "")
 	;
@@ -144,7 +145,7 @@ ZoneServer::ZoneServer(int argc, char* argv[])
     LOG(ERROR) << "ZoneServer startup sequence for [" << configuration_variables_map_["ZoneName"].as<std::string>() << "]";
 
     // Create and startup our core services.
-	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>()));
+	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
 
     // Startup our core modules
 	MessageFactory::getSingleton(configuration_variables_map_["GlobalMessageHeap"].as<uint32_t>());
@@ -166,14 +167,13 @@ ZoneServer::ZoneServer(int argc, char* argv[])
                                           (char*)(configuration_variables_map_["DBName"].as<std::string>()).c_str());
 
     // increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", configuration_variables_map_["ZoneName"].as<std::string>().c_str());
-    
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", mDatabase->galaxy(), configuration_variables_map_["ZoneName"].as<std::string>().c_str());
 
     mRouterService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024, true);
 
     // Grab our zoneId out of the DB for this zonename.
     uint32 zoneId = 0;
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", configuration_variables_map_["ZoneName"].as<std::string>().c_str());
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.planet WHERE name=\'%s\';", mDatabase->galaxy(), configuration_variables_map_["ZoneName"].as<std::string>().c_str());
     
 
     if (!result->getRowCount())
@@ -211,7 +211,7 @@ ZoneServer::ZoneServer(int argc, char* argv[])
     //structure manager callback functions
     StructureManagerCommandMapClass::Init();
 
-	WorldManager::Init(zoneId,this,mDatabase, SpatialIndexConfig(configuration_variables_map_["FillFactor"].as<double>(), configuration_variables_map_["IndexCap"].as<uint32>(), configuration_variables_map_["LeafCap"].as<uint32>(), configuration_variables_map_["Horizon"].as<double>()), configuration_variables_map_["heightMapResolution"].as<uint16>(), configuration_variables_map_["writeResourceMaps"].as<bool>(), configuration_variables_map_["ZoneName"].as<std::string>());
+	WorldManager::Init(zoneId,this,mDatabase, configuration_variables_map_["heightMapResolution"].as<uint16>(), configuration_variables_map_["writeResourceMaps"].as<bool>(), configuration_variables_map_["ZoneName"].as<std::string>());
 
     // Init the non persistent factories. For now we take them one-by-one here, until we have a collection of them.
     // We can NOT create these factories among the already existing ones, if we want to have any kind of "ownership structure",
@@ -245,11 +245,11 @@ ZoneServer::ZoneServer(int argc, char* argv[])
 	// Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
+    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<common::EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
 
-    mCharacterLoginHandler = new CharacterLoginHandler(mDatabase,mMessageDispatch);
+    mCharacterLoginHandler = new CharacterLoginHandler(mDatabase, mMessageDispatch);
 
     mObjectControllerDispatch = new ObjectControllerDispatch(mDatabase,mMessageDispatch);
 }
@@ -324,6 +324,8 @@ void ZoneServer::Process(void)
     gScriptEngine->process();
     mMessageDispatch->Process();
     gEventDispatcher.Tick(current_timestep);
+    
+    event_dispatcher_->tick(0);
 
     //is there stalling ?
     mRouterService->Process();
@@ -345,7 +347,7 @@ void ZoneServer::Process(void)
 void ZoneServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-    mDatabase->executeProcedure("CALL sp_ServerStatusUpdate('%s', %u, '%s', %u)", mZoneName.c_str(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
+    mDatabase->executeProcedure("CALL %s.sp_ServerStatusUpdate('%s', %u, '%s', %u)", mDatabase->galaxy(), mZoneName.c_str(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
 }
 
 //======================================================================================================================
@@ -365,7 +367,7 @@ void ZoneServer::_connectToConnectionServer(void)
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
 
     // Execute our statement
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE name='connection';",mDatabase->galaxy());
 	uint32 count = static_cast<uint32>(result->getRowCount());
 
     // If we found them

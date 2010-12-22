@@ -1369,14 +1369,6 @@ bool HandleBurstRun(Object* object, Object* target, Message* message, ObjectCont
         return false;
     }
 
-	//Player must be standing or Kneeling to launch
-	if(player->states.checkPosture(CreaturePosture_Crouched))
-	{
-		gStateManager.setCurrentPostureState(player, CreaturePosture_Crouched);
-		gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", player);
-		return false;
-    }
-
     // Create a pre-command processing event.
     auto pre_execute_event = std::make_shared<PreCommandExecuteEvent>(object->getId());
     pre_execute_event->target_id(0); // This command never has a target.

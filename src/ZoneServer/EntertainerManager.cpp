@@ -191,11 +191,10 @@ void EntertainerManager::handleGroupManagerCallback(uint64 playerId, GroupManage
     {
         //You cannot do that because you're not the damn Leader...Stupid!
         PlayerObject* notLeader = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(container->requestingPlayer));
-		PlayerObject* testAtt = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(container->requestingPlayer));
-
+		
         if(notLeader)
             gMessageLib->SendSystemMessage(::common::OutOfBand("group", "must_be_leader"), notLeader);
-			gMessageLib->SendSystemMessage(::common::OutOfBand("group","test_of_mod"),testAtt);
+			
     }
 }
 

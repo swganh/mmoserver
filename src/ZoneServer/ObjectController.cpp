@@ -1012,7 +1012,7 @@ uint32	ObjectController::getLowestCommonBit(uint64 playerMask, uint64 cmdPropert
 uint32 ObjectController::getLocoValidator(uint64 locomotion)
 {
     // this is needed because of how SOE does their locomotion validation message
-    uint32 locoValidator = locoValidator;
+    uint32 locoValidator = 0;
     switch(locomotion)
     {
         case CreatureLocomotion_Standing: locoValidator = kLocoValidStanding; break;
@@ -1037,7 +1037,6 @@ uint32 ObjectController::getLocoValidator(uint64 locomotion)
         case CreatureLocomotion_Incapacitated: locoValidator = kLocoValidIncapacitated; break;
         case CreatureLocomotion_Dead: locoValidator = kLocoValidDead; break;
         case CreatureLocomotion_Blocking: locoValidator = kLocoValidBlocking; break;
-
     }
 
     return locoValidator;
@@ -1050,10 +1049,10 @@ uint32 ObjectController::getPostureValidator(uint64 posture)
 	uint32 postureValidator = 0;
 	switch(posture)
 	{
-		case CreaturePosture_Sitting: postureValidator = kPostureSitting; break;
-		case CreaturePosture_Prone: postureValidator = kPostureProne; break;
-		case CreaturePosture_Crouched: postureValidator = kPostureKneeling; break;
-		case CreaturePosture_Upright: postureValidator = kPostureStanding; break;
+		case CreaturePosture_Sitting: postureValidator = kLocoValidSitting; break;
+		case CreaturePosture_Prone: postureValidator = kLocoValidProne; break;
+		case CreaturePosture_Crouched: postureValidator = kLocoValidKneeling; break;
+		case CreaturePosture_Upright: postureValidator = kLocoValidStanding; break;
 	}
 	return postureValidator;
 }

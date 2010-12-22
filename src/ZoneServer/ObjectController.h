@@ -139,35 +139,6 @@ enum LocomotionValidator
 };
 //=============================================================================
 
-enum PostureValidator
-{
-	kPostureInvalid								=	-1,
-	kPostureStanding							=	0,
-	kPostureSneaking							=	1,
-	kPostureWalking								=	2,
-	kPostureRunning								=	3,
-	kPostureKneeling							=	4,
-	kPostureCrouchSneaking						=	5,
-	kPostureCrouchWalking						=	6,
-	kPostureProne								=	7,
-	kPostureCrawling							=	8,
-	kPostureClimbingStationary					=	9,
-	kPostureClimbing							=	10,
-	kPostureHovering							=	11,
-	kPostureFlying								=	12,
-	kPostureLayingDown							=	13,
-	kPostureSitting								=	14,
-	kPostureSkillAnimating						=	15,
-	kPostureDrivingVehicle						=	16,
-	kPostureRidingCreature						=	17,
-	kPostureKnockedDown							=	18,
-	kPostureIncapacitated						=	19,
-	kPostureDead								=	20,
-	kPostureBlocking							=	21
-};
-
-//=============================================================================
-
 struct StatTargets
 {
     uint32 TargetHealth;

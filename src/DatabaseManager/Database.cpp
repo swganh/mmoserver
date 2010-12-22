@@ -40,8 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
-#include "Common/ConfigManager.h"
-
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DataBindingFactory.h"
 #include "DatabaseManager/DatabaseCallback.h"
@@ -53,7 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Transaction.h"
 
 
-Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema) 
+Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema, DatabaseConfig& config) 
     : database_impl_(nullptr)
     , job_pool_(sizeof(DatabaseJob))
     , transaction_pool_(sizeof(Transaction))
@@ -65,12 +63,12 @@ Database::Database(DBType type, const std::string& host, uint16_t port, const st
             database_impl_.reset(new DatabaseImplementationMySql(host, port, user, pass, schema));
             break;
     }
-    global_ = gConfig->read<std::string>("DBGlobalSchema");
-    galaxy_ = gConfig->read<std::string>("DBGalaxySchema");
-    config_ = gConfig->read<std::string>("DBConfigSchema");
 
-    uint32_t min_threads = gConfig->read<uint32_t>("DBMinThreads");
-    uint32_t max_threads = gConfig->read<uint32_t>("DBMaxThreads");
+	uint32_t min_threads = config.getDbMinThreads();
+	uint32_t max_threads = config.getDbMaxThreads();
+	global_ = config.getDbGlobalSchema();
+	galaxy_ = config.getDbGalaxySchema();
+	config_ = config.getDbConfigSchema();
 
     // Create our worker threads and put them in the idle queue
     uint32_t const hardware_threads = boost::thread::hardware_concurrency();

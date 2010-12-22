@@ -37,8 +37,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
+#include "Common/BuildInfo.h"
 #include "Utils/rand.h"
-#include "Common/ConfigManager.h"
 
 #include "DatabaseManager/Database.h"
 
@@ -96,7 +96,61 @@ CharacterLoginHandler::~CharacterLoginHandler(void)
     mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferApprovedByPosition);
     mMessageDispatch->UnregisterMessageCallback(opClusterZoneTransferDenied);
     mMessageDispatch->UnregisterMessageCallback(opNewbieTutorialResponse);
-    //mMessageDispatch->UnregisterMessageCallback(opCmdSceneReady2);
+}
+
+void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClient* client)
+{
+    // Client has finished loading, acknowledge
+    gMessageLib->sendSceneReady(client);
+
+    // get the according player object
+    PlayerObject* player = gWorldManager->getPlayerByAccId(message->getAccountId());
+    if (player)
+    {
+        player->setReady(true);
+
+        if(player->getParentId())
+        {
+            gMessageLib->sendDataTransformWithParent0B(player);
+        }
+        else
+        {
+            gMessageLib->sendDataTransform0B(player);
+        }
+
+        // send our message of the day
+        std::string motd = gWorldConfig->getConfiguration<std::string>("motD", "Welcome to SWG:ANH");
+
+        if(player && !(player->getMotdReceived()) && motd.length())
+        {
+            player->setMotdReceived(true);
+            gMessageLib->SendSystemMessage(std::wstring(motd.begin(), motd.end()), player);
+        }
+
+        // Send newbie info.
+        player->newPlayerMessage();
+
+        player->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+
+        // Fix/workaround for addIgnore (Eruptor)
+        // If we send this info to client as soon as we get connected, client will miss the info most of the time.
+        // In this case client will end up with an empty "Ignore List" even if the Ignore-list should be populated.
+
+        // Update: The same apply to frindsList.
+        gMessageLib->sendFriendListPlay9(player);
+        gMessageLib->sendIgnoreListPlay9(player);
+        gMessageLib->sendSceneReadyToChat(client);	// will get any mails received when offline. The point is: Notidy about new mails AFTER the user have got the "logged in" message.
+
+        //Initialise the buffs
+        gBuffManager->InitBuffs(player);
+
+        // Some info about the current build
+        std::stringstream ss;
+        ss << "Running build " << GetBuildNumber() << " created " << GetBuildTime();
+        std::string tmp(ss.str());
+
+        gMessageLib->SendSystemMessage(std::wstring(tmp.begin(), tmp.end()), player);
+    }
 }
 
 void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchClient* client)
@@ -199,67 +253,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
     }
 }
 
-void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClient* client)
-{
-    // Client has finished loading, acknowledge
-    gMessageLib->sendSceneReady(client);
-
-    // get the according player object
-    PlayerObject* player = gWorldManager->getPlayerByAccId(message->getAccountId());
-    if (player)
-    {
-        player->setReady(true);
-
-        if(player->getParentId())
-        {
-            gMessageLib->sendDataTransformWithParent0B(player);
-        }
-        else
-        {
-            gMessageLib->sendDataTransform0B(player);
-        }
-
-        // send our message of the day
-        std::string motd = gWorldConfig->getConfiguration<std::string>("motD", "Welcome to SWG:ANH");
-
-        if(player && !(player->getMotdReceived()) && motd.length())
-        {
-            player->setMotdReceived(true);
-            gMessageLib->SendSystemMessage(std::wstring(motd.begin(), motd.end()), player);
-        }
-
-        // Send newbie info.
-        player->newPlayerMessage();
-
-        player->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
-
-        // Fix/workaround for addIgnore (Eruptor)
-        // If we send this info to client as soon as we get connected, client will miss the info most of the time.
-        // In this case client will end up with an empty "Ignore List" even if the Ignore-list should be populated.
-
-        // Update: The same apply to frindsList.
-        gMessageLib->sendFriendListPlay9(player);
-        gMessageLib->sendIgnoreListPlay9(player);
-        gMessageLib->sendSceneReadyToChat(client);	// will get any mails received when offline. The point is: Notidy about new mails AFTER the user have got the "logged in" message.
-
-        //// Init and start player world position updates.
-        //ObjectController* ObjCtl = player->getController();
-        //(void)ObjCtl->playerWorldUpdate(true);	// Force a world object update.
-
-        //// This timed event will handle updates of world objects when no external events arrives (movement events from client).
-        //gWorldManager->addPlayerMovementUpdateTime(player, 1000);
-
-        //Initialise the buffs
-        gBuffManager->InitBuffs(player);
-
-        // Some info about the current build
-        std::stringstream ss;
-        ss << "Running build " << ConfigManager::getBuildNumber() << " created " << ConfigManager::getBuildTime();
-        std::string tmp(ss.str());
-
-        gMessageLib->SendSystemMessage(std::wstring(tmp.begin(), tmp.end()), player);
-    }
-}
+//======================================================================================================================
 
 void	CharacterLoginHandler::_processNewbieTutorialResponse(Message* message, DispatchClient* client)
 {

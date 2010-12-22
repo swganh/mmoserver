@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Utils/clock.h"
 #include "Utils/concurrent_queue.h"
-
+#include "NetworkConfig.h"
 #include <boost/thread/thread.hpp>
 
 #define SEND_BUFFER_SIZE 8192
@@ -51,7 +51,7 @@ class SocketWriteThread
 {
 public:
 
-    SocketWriteThread(SOCKET socket, Service* service, bool serverservice);
+    SocketWriteThread(SOCKET socket, Service* service, bool serverservice, NetworkConfig& network_configuration);
     ~SocketWriteThread();
 
     virtual void	run();

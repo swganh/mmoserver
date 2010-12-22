@@ -43,11 +43,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
+#include <iostream>
+#include <fstream>
+
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
 
 #include "NetworkManager/MessageFactory.h"
-#include "Common/ConfigManager.h"
 #include "Utils/utils.h"
 #include "Utils/clock.h"
 
@@ -60,7 +62,8 @@ ConnectionServer* gConnectionServer = 0;
 
 //======================================================================================================================
 
-ConnectionServer::ConnectionServer(void) :
+ConnectionServer::ConnectionServer(int argc, char* argv[]) :
+	BaseServer(),
     mDatabaseManager(0),
     mDatabase(0),
     mNetworkManager(0),
@@ -75,29 +78,49 @@ ConnectionServer::ConnectionServer(void) :
     mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
-    // log msg to default log
-    //gLogger->printSmallLogo();
     LOG(WARNING) << "ConnectionServer Startup";
 
+	configuration_options_description_.add_options()
+		("ClientServiceMessageHeap", boost::program_options::value<uint32_t>()->default_value(50000), "")
+		("ServerServiceMessageHeap", boost::program_options::value<uint32_t>()->default_value(50000), "")
+		("ClusterBindAddress", boost::program_options::value<std::string>()->default_value("127.0.0.1"), "")
+		("ClusterBindPort", boost::program_options::value<uint16_t>()->default_value(5000))
+		("ClusterId", boost::program_options::value<uint32_t>()->default_value(2))
+	;
+
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/connectionserver.cfg");
+	LoadOptions_(argc, argv, config_files);
+
     // Startup our core modules
-    mNetworkManager = new NetworkManager();
+	MessageFactory::getSingleton(configuration_variables_map_["GlobalMessageHeap"].as<uint32_t>());
+
+	mNetworkManager = new NetworkManager( NetworkConfig(configuration_variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["ServerPacketWindowSize"].as<uint32_t>(), 
+		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
+		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
 
     // Create our status service
     //clientservice
-    mClientService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ClientServiceMessageHeap")*1024, false);//,5);
+    mClientService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ClientServiceMessageHeap"].as<uint32_t>()*1024, false);//,5);
     //serverservice
-    mServerService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("ClusterBindAddress").c_str(), gConfig->read<uint16>("ClusterBindPort"),gConfig->read<uint32>("ServerServiceMessageHeap")*1024, true);//,15);
+    mServerService = mNetworkManager->GenerateService((char*)configuration_variables_map_["ClusterBindAddress"].as<std::string>().c_str(), configuration_variables_map_["ClusterBindPort"].as<uint16_t>(),configuration_variables_map_["ServerServiceMessageHeap"].as<uint32_t>()*1024, true);//,15);
 
-    mDatabaseManager = new DatabaseManager();
+	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
 
     mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
-                                          (char*)(gConfig->read<std::string>("DBServer")).c_str(),
-                                          gConfig->read<int>("DBPort"),
-                                          (char*)(gConfig->read<std::string>("DBUser")).c_str(),
-                                          (char*)(gConfig->read<std::string>("DBPass")).c_str(),
-                                          (char*)(gConfig->read<std::string>("DBName")).c_str());
+                                          (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
+                                          configuration_variables_map_["DBPort"].as<uint16_t>(),
+                                          (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBPass"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBName"].as<std::string>()).c_str());
 
-    mClusterId = gConfig->read<uint32>("ClusterId");
+    mClusterId = configuration_variables_map_["ClusterId"].as<uint32_t>();
 
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 1, mClusterId); // Set status to online
     
@@ -111,15 +134,11 @@ ConnectionServer::ConnectionServer(void) :
     // Status:  0=offline, 1=loading, 2=online
     _updateDBServerList(1);
 
-    // Instant the messageFactory. It will also run the Startup ().
-    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.
-    // The code itself here is not needed, since it will instance itself at first use.
-
     // Startup our router modules.
     mConnectionDispatch = new ConnectionDispatch();
     mMessageRouter = new MessageRouter(mDatabase, mConnectionDispatch);
-    mClientManager = new ClientManager(mClientService, mDatabase, mMessageRouter, mConnectionDispatch);
-    mServerManager = new ServerManager(mServerService, mDatabase, mMessageRouter, mConnectionDispatch,mClientManager);
+    mClientManager = new ClientManager(mClientService, mDatabase, mMessageRouter, mConnectionDispatch, mClusterId);
+    mServerManager = new ServerManager(mServerService, mDatabase, mMessageRouter, mConnectionDispatch,mClientManager, mClusterId);
 
     // We're done initiailizing.
     _updateDBServerList(2);
@@ -230,46 +249,34 @@ int main(int argc, char* argv[])
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 
-    try {
-        ConfigManager::Init("ConnectionServer.cfg");
-    } catch (file_not_found) {
-        std::cout << "Unable to find configuration file: " << CONFIG_DIR << "ConnectionServer.cfg" << std::endl;
-        exit(-1);
-    }
+	try {
+		gConnectionServer = new ConnectionServer(argc, argv);
 
-    /*try {
-        LogManager::Init(
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
-            gConfig->read<std::string>("FileLog_Name", "connection_server.log"));
-    } catch (...) {
-        std::cout << "Unable to open log file for writing" << std::endl;
-        exit(-1);
-    }*/
+		// Main loop
+		while(1)
+		{
+			gConnectionServer->Process();
 
-    gConnectionServer = new ConnectionServer();
-
-    // Main loop
-    while(1)
-    {
-        gConnectionServer->Process();
-
-        if(Anh_Utils::kbhit())
-        {
-            char input = std::cin.get();
-            if(input == 'q')
-                break;
-            else if(input == 'l')
-                gConnectionServer->ToggleLock();
-        }
+			if(Anh_Utils::kbhit())
+			{
+				char input = std::cin.get();
+				if(input == 'q')
+					break;
+				else if(input == 'l')
+					gConnectionServer->ToggleLock();
+			}
 
 
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-    }
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		}
 
-    // Shutdown things
-    delete gConnectionServer;
-
+		// Shutdown things
+		delete gConnectionServer;
+	} catch(std::exception& e) {
+		std::cout << e.what() << std::endl;
+		std::cin.get();
+		return 0;
+	}
     return 0;
 }
 

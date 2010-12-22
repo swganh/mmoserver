@@ -27,6 +27,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ChatServer.h"
 
+#include <iostream>
+#include <fstream>
+
 #include <glog/logging.h>
 // External references
 #include "ChatManager.h"
@@ -36,6 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "StructureManagerChat.h"
 #include "CharacterAdminHandler.h"
 #include "PlanetMapHandler.h"
+
+#include "Common/BuildInfo.h"
 
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
@@ -48,7 +53,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/MessageDispatch.h"
 #include "NetworkManager/MessageFactory.h"
-#include "Common/ConfigManager.h"
 
 #include "Utils/utils.h"
 #include "Utils/clock.h"
@@ -62,28 +66,49 @@ ChatServer* gChatServer;
 
 //======================================================================================================================
 
-ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService(0),mDatabase(0), mLastHeartbeat(0)
+ChatServer::ChatServer(int argc, char* argv[]) 
+	: BaseServer()
+	, mNetworkManager(0)
+	, mDatabaseManager(0)
+	, mRouterService(0)
+	, mDatabase(0)
+	, mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
-    //gLogger->printSmallLogo();
     LOG(WARNING) << "Chat Server Startup";
 
-    // Create and startup our core services.
-    mDatabaseManager = new DatabaseManager();
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/chatserver.cfg");
+	LoadOptions_(argc, argv, config_files);
 
-    mNetworkManager = new NetworkManager();
+
+    // Create and startup our core services.
+	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
+
+    // Startup our core modules
+	MessageFactory::getSingleton(configuration_variables_map_["GlobalMessageHeap"].as<uint32_t>());
+
+	mNetworkManager = new NetworkManager( NetworkConfig(configuration_variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["ServerPacketWindowSize"].as<uint32_t>(), 
+		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
+		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
 
     // Connect to the DB and start listening for the RouterServer.
     mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
-                                          (char*)(gConfig->read<std::string>("DBServer")).c_str(),
-                                          gConfig->read<int>("DBPort"),
-                                          (char*)(gConfig->read<std::string>("DBUser")).c_str(),
-                                          (char*)(gConfig->read<std::string>("DBPass")).c_str(),
-                                          (char*)(gConfig->read<std::string>("DBName")).c_str());
+                                          (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
+                                          configuration_variables_map_["DBPort"].as<uint16_t>(),
+                                          (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBPass"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBName"].as<std::string>()).c_str());
 
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('chat', NULL, NULL, NULL);",mDatabase->galaxy());
 
-    mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
+    mRouterService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024, true);
 
     // We need to register our IP and port in the DB so the connection server can connect to us.
     // Status:  0=offline, 1=loading, 2=online
@@ -121,7 +146,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(WARNING) << "Chat Server - Build " << ConfigManager::getBuildString().c_str();
+    LOG(WARNING) << "Chat Server - Build " << GetBuildString().c_str();
     LOG(WARNING) << "Welcome to your SWGANH Experience!";
 }
 
@@ -252,41 +277,38 @@ int main(int argc, char* argv[])
     FLAGS_log_dir = "./logs";
     FLAGS_stderrthreshold = 1;
 
-    try {
-        ConfigManager::Init("ChatServer.cfg");
-    } catch (file_not_found) {
-        std::cout << "Unable to find configuration file: " << CONFIG_DIR << "ChatServer.cfg" << std::endl;
-        exit(-1);
-    }
-
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 
     bool exit = false;
+	
+	try {
+		gChatServer = new ChatServer(argc, argv);
 
-    gChatServer = new ChatServer();
+		// Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
+		//atexit(handleExit);
 
-    // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
-    //atexit(handleExit);
+		// Main loop
+		while (!exit)
+		{
+			gChatServer->Process();
 
-    // Main loop
-    while (!exit)
-    {
-        gChatServer->Process();
+			if(Anh_Utils::kbhit())
+			{
+				if(std::cin.get() == 'q')
+					break;
+			}
 
-        if(Anh_Utils::kbhit())
-        {
-            if(std::cin.get() == 'q')
-                break;
-        }
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		}
 
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-    }
-
-    // Shutdown things
-    delete gChatServer;
-
-    delete ConfigManager::getSingletonPtr();
+		// Shutdown things
+		delete gChatServer;
+	} catch(std::exception& e) {
+		std::cout << e.what() << std::endl;
+		std::cin.get();
+		return 0;
+	}
 
     return 0;
 }

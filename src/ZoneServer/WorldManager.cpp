@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/VariableTimeScheduler.h"
 #include "Utils/utils.h"
 
-#include "Common/ConfigManager.h"
 #include "Common/Crc.h"
 
 #include "DatabaseManager/Database.h"
@@ -100,7 +99,7 @@ bool			WorldManager::mInsFlag    = false;
 WorldManager*	WorldManager::mSingleton  = NULL;
 //======================================================================================================================
 
-WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* database)
+WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName)
     : mWM_DB_AsyncPool(sizeof(WMAsyncContainer))
     , mDatabase(database)
     , mZoneServer(zoneServer)
@@ -108,11 +107,12 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     , mServerTime(0)
     , mTotalObjectCount(0)
     , mZoneId(zoneId)
+	, mHeightmapResolution(heightmapResolution)
 {
     DLOG(INFO) << "WorldManager initialization";
 
-	//manages the spatial index
 	SpatialIndexManager::Init(mDatabase);
+
 
     // load planet names and terrain files so we can start heightmap loading
     _loadPlanetNamesAndFiles();
@@ -140,10 +140,10 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     //the resourcemanager gets accessed by lowlevel functions to check the IDs we get send by the client
     //it will have to be initialized in the tutorial, too
     if(zoneId != 41) {
-        ResourceManager::Init(database,mZoneId);
+		ResourceManager::Init(database,mZoneId, writeResourceMaps, zoneName);
     } else {
         //by not assigning a db we force the resourcemanager to not load db data
-        ResourceManager::Init(NULL,mZoneId);
+        ResourceManager::Init(NULL,mZoneId, writeResourceMaps, zoneName);
     }
     TreasuryManager::Init(database);
     ConversationManager::Init(database);
@@ -179,11 +179,11 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
 
 //======================================================================================================================
 
-WorldManager*	WorldManager::Init(uint32 zoneId,ZoneServer* zoneServer,Database* database)
+WorldManager*	WorldManager::Init(uint32 zoneId,ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName)
 {
     if(!mInsFlag)
     {
-        mSingleton = new WorldManager(zoneId,zoneServer,database);
+        mSingleton = new WorldManager(zoneId,zoneServer,database, heightmapResolution, writeResourceMaps, zoneName);
         mInsFlag = true;
         return mSingleton;
     }

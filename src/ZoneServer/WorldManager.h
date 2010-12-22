@@ -179,7 +179,7 @@ public:
     static WorldManager*	getSingletonPtr() {
         return mSingleton;
     }
-    static WorldManager*	Init(uint32 zoneId, ZoneServer* zoneServer,Database* database);
+    static WorldManager*	Init(uint32 zoneId, ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName);
     void					Shutdown();
 
     void					Process();
@@ -441,7 +441,7 @@ public:
     AttributeIDMap				mObjectAttributeIDMap;
 private:
 
-    WorldManager(uint32 zoneId, ZoneServer* zoneServer,Database* database);
+    WorldManager(uint32 zoneId, ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName);
 
     // load the global ObjectControllerCommandMap, maps command crcs to ObjController function pointers
     void	_loadObjControllerCommandMap();
@@ -572,6 +572,8 @@ private:
     uint64						mTick;
     uint32						mTotalObjectCount;
     uint32						mZoneId;
+	uint16						mHeightmapResolution;
+
     uint64						mSaveTaskId;
 };
 

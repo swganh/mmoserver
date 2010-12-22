@@ -49,20 +49,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageOpcodes.h"
 #include "NetworkManager/MessageFactory.h"
-#include "Common/ConfigManager.h"
 
 #include <cstring>
 
 //======================================================================================================================
 
-ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager) :
+ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager, uint32 cluster_id) :
     mMessageRouter(router),
     mServerService(service),
     mDatabase(database),
     mConnectionDispatch(dispatch),
     mClientManager(clientManager),
     mTotalActiveServers(0),
-    mTotalConnectedServers(0)
+    mTotalConnectedServers(0),
+	mClusterId(cluster_id)
 {
     memset(&mServerAddressMap, 0, sizeof(mServerAddressMap));
 
@@ -77,9 +77,6 @@ ServerManager::ServerManager(Service* service, Database* database, MessageRouter
     mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByTicket, this);
     mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByPosition, this);
     mConnectionDispatch->RegisterMessageCallback(opTutorialServerStatusRequest, this);
-
-    // Update our id
-    mClusterId = gConfig->read<uint32>("ClusterId");
 
     // setup data bindings
     _setupDataBindings();

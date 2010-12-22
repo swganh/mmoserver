@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Message.h"
 
-#include "Common/ConfigManager.h"
 #include "Utils/typedefs.h"
 
 #include <boost/thread/thread.hpp>
@@ -70,7 +69,7 @@ bool Service::mSocketsSubsystemInitComplete = false;
 
 //======================================================================================================================
 
-Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize) :
+Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize, NetworkConfig& network_configuration) :
     mNetworkManager(networkManager),
     mSocketReadThread(0),
     mSocketWriteThread(0),
@@ -85,7 +84,6 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     mCallBack = NULL;
     mId = id;
 
-    //localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
     lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();
     assert(strlen(localAddress) < 256 && "Address length should be less than 256");
     strcpy(mLocalAddressName, localAddress);
@@ -132,7 +130,8 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     int value;
     int valuelength = sizeof(value);
     value = 524288;
-    int configvalue = gConfig->read<int32>("UDPBufferSize",8192);
+	int configvalue = network_configuration.getUdpBufferSize();
+
     //gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
     LOG(INFO) << "UDP buffer size set to " << configvalue << "kb";
     
@@ -152,8 +151,8 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
 
 
     // Create our read/write socket classes
-    mSocketWriteThread = new SocketWriteThread(mLocalSocket,this,mServerService);
-    mSocketReadThread = new SocketReadThread(mLocalSocket, mSocketWriteThread,this,mfHeapSize, mServerService);
+    mSocketWriteThread = new SocketWriteThread(mLocalSocket,this,mServerService, network_configuration);
+    mSocketReadThread = new SocketReadThread(mLocalSocket, mSocketWriteThread,this,mfHeapSize, mServerService, network_configuration);
 
     // Query the stack for the actual address and port we got and store it in the service.
     //getsockname(mLocalSocket, (sockaddr*)&server, &serverLen);

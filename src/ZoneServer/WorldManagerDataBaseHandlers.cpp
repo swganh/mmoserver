@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cppconn/resultset.h>
 
-#include "Common/ConfigManager.h"
 #include "Common/Crc.h"
 
 #include "DatabaseManager/Database.h"
@@ -455,10 +454,10 @@ void    WorldManager::_loadPlanetNamesAndFiles()
         if(mZoneId != 41)
         {
             int16 resolution = 0;
-            if (gConfig->keyExists("heightMapResolution"))
-                resolution = gConfig->read<int>("heightMapResolution");
+            if (mHeightmapResolution)
+                resolution =mHeightmapResolution;
 
-            if (!Heightmap::Instance(resolution))
+            if (!Heightmap::Instance(mHeightmapResolution))
                 assert(false && "WorldManager::_handleLoadComplete Missing heightmap, look for it on the forums.");
         }
     } ) ;

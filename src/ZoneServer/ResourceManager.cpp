@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/ConfigManager.h"
 
 //======================================================================================================================
 
@@ -47,9 +46,11 @@ ResourceManager*	ResourceManager::mSingleton = NULL;
 
 //======================================================================================================================
 
-ResourceManager::ResourceManager(Database* database,uint32 zoneId) :
+ResourceManager::ResourceManager(Database* database,uint32 zoneId, bool writeResourceMaps, std::string zoneName) :
     mDatabase(database),
     mZoneId(zoneId),
+	mZoneName(zoneName),
+	mWriteResourceMaps(writeResourceMaps),
     mDBAsyncPool(sizeof(RMAsyncContainer))
 {
     // init our tree with a root
@@ -75,11 +76,11 @@ ResourceManager::ResourceManager(Database* database,uint32 zoneId) :
 
 //======================================================================================================================
 
-ResourceManager* ResourceManager::Init(Database* database,uint32 zoneId)
+ResourceManager* ResourceManager::Init(Database* database,uint32 zoneId, bool writeResourceMaps, std::string zoneName)
 {
     if(mInsFlag == false)
     {
-        mSingleton = new ResourceManager(database,zoneId);
+        mSingleton = new ResourceManager(database,zoneId, writeResourceMaps, zoneName);
         mInsFlag = true;
         return mSingleton;
     }
@@ -241,8 +242,6 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             mResourceCategoryMap.insert(std::make_pair(category->mId,category));
         }
 
-        // query current resources
-        // note: current resources not on this planet are loaded with the old resource query
 
         mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_CurrentResources),
                                    "SELECT resources.id,resources.name,resources.type_id,"
@@ -299,7 +298,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint64 count = result->getRowCount();
         for(uint64 i = 0; i < count; i++)
         {
-            resource = new CurrentResource();
+            resource = new CurrentResource(mWriteResourceMaps, mZoneName);
 
             result->getNextRow(mCurrentResourceBinding,resource);
             resource->mType = getResourceTypeById(resource->mTypeId);

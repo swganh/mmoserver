@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/noncopyable.hpp>
 
+#include "DatabaseManager/DatabaseConfig.h"
 #include "DatabaseManager/DatabaseType.h"
 
 class Database;
@@ -42,6 +43,15 @@ class Database;
 */
 class DatabaseManager : private boost::noncopyable {
 public:
+	/**
+	 * \brief Default constructor.
+	 *
+	 * \param db_config Database configuration options.
+	 * \see DatabaseConfig
+	 */
+	DatabaseManager(DatabaseConfig& database_configuration)
+		: database_configuration_(database_configuration) { }
+
     /*! Processes all current database connections.
     */
     void process();
@@ -66,6 +76,7 @@ public:
 private:
     typedef std::list<std::shared_ptr<Database>> DatabaseList;
     DatabaseList database_list_;
+	DatabaseConfig database_configuration_;
 };
 
 #endif  // DATABASE_MANAGER_DATABASE_MANAGER_H_

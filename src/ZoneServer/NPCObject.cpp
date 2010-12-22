@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Heightmap.h"
 #include "CellObject.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
 #include "Weapon.h"
 #include "WorldManager.h"
 

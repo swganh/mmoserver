@@ -32,7 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Conversation.h"
 #include "Inventory.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
 #include "SkillManager.h"
 #include "WorldManager.h"
 #include "SpatialIndexManager.h"

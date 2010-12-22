@@ -586,45 +586,7 @@ cd "%PROJECT_BASE%"
 
 goto :eof
 rem --- End of BUILD_NOISE -----------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_SPATIALINDEX --------------------------------------------
-rem --- Builds the spatial index library for use with this project.          ---
-:BUILD_SPATIALINDEX
-
-echo BUILDING: SpatialIndex - http://research.att.com/~marioh/spatialindex/
-
-cd "%PROJECT_BASE%deps\spatialindex"
-
-rem Only build spatial index if it hasn't been built already.
-if exist "spatialindex-vc\Debug\spatialindex-vc.lib" (
-	if exist "spatialindex-vc\Release\spatialindex-vc.lib" (
-		echo SpatialIndex already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-rem Build the spatial index libraries we need.
-
-rem VS likes to create these .cache files and then complain about them existing afterwards.
-rem Removing it as it's not needed.
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_SPATIALINDEX ----------------------------------------------
-rem ----------------------------------------------------------------------------
+rem ----------------------------------------------------------------------------yea
 
 
 rem ----------------------------------------------------------------------------

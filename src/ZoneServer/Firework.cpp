@@ -83,6 +83,14 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
                     return;
                 }
+
+				//player can not be swimming -> not working yet. The server do not update the state when walking in water
+				if (playerObject->states.checkState(CreatureState_Swimming))
+				{
+					gMessageLib->SendSystemMessage(L"You can not do that while swimming!", playerObject);
+					return;
+				}
+
                 else if(playerObject->getParentId())
                 {
                     gMessageLib->SendSystemMessage(L"You can not do this while indoors.", playerObject);

@@ -137,6 +137,7 @@ FUNCTION(AddMMOServerExecutable name)
         Utils
         libanh
         debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
+        debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG}
         debug ${Boost_REGEX_LIBRARY_DEBUG}
         debug ${Boost_SYSTEM_LIBRARY_DEBUG}
         debug ${Boost_THREAD_LIBRARY_DEBUG}
@@ -146,6 +147,7 @@ FUNCTION(AddMMOServerExecutable name)
         debug ${TBB_MALLOC_LIBRARY_DEBUG}
         debug ${ZLIB_LIBRARY_DEBUG}        
         optimized ${Boost_DATE_TIME_LIBRARY_RELEASE}
+        optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE}
         optimized ${Boost_REGEX_LIBRARY_RELEASE}
         optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
         optimized ${Boost_THREAD_LIBRARY_RELEASE}

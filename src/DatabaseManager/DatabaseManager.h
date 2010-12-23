@@ -49,7 +49,7 @@ public:
 	 * \param db_config Database configuration options.
 	 * \see DatabaseConfig
 	 */
-	DatabaseManager(DatabaseConfig& database_configuration)
+	explicit DatabaseManager(const DatabaseConfig& database_configuration)
 		: database_configuration_(database_configuration) { }
 
     /*! Processes all current database connections.

@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-NetworkManager::NetworkManager(NetworkConfig& network_configuration) 
+NetworkManager::NetworkManager(const NetworkConfig& network_configuration) 
 	: mServiceIdIndex(1)
 	, network_configuration_(network_configuration)
 {

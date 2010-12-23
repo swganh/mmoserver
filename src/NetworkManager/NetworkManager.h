@@ -51,7 +51,7 @@ class NetworkManager
 {
 public:
 
-    NetworkManager(NetworkConfig& network_configuration);
+    NetworkManager(const NetworkConfig& network_configuration);
     ~NetworkManager(void);
 
     void		Process(void);

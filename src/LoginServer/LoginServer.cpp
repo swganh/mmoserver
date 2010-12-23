@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <fstream>
 
 #include "LoginManager.h"
-#include "Common\BuildInfo.h"
+#include "Common/BuildInfo.h"
 
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"

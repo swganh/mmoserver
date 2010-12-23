@@ -318,7 +318,6 @@ if exist "%DEPENDENCIES_FILE%" (
 	echo Extracting dependencies ...
 
 	"tar" -xvjf "%DEPENDENCIES_FILE%"
-	echo %DEPENDENCIES_VERSION% >"deps\VERSION"
 	echo Complete!
 	echo.
 )

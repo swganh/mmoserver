@@ -16,8 +16,8 @@ FIND_LIBRARY(TOLUAPP_LIBRARY_DEBUG
     HINTS
         $ENV{TOLUAPP_ROOT}/lib
         ${TOLUAPP_ROOT}/lib
-        $ENV{TOLUAPP_ROOT}/win32/vc9/withLua51_Debug
-        ${TOLUAPP_ROOT}/win32/vc9/withLua51_Debug
+        $ENV{TOLUAPP_ROOT}/win32/vc10/withLua51_Debug
+        ${TOLUAPP_ROOT}/win32/vc10/withLua51_Debug
 )
 
 FIND_LIBRARY(TOLUAPP_LIBRARY_RELEASE
@@ -28,8 +28,8 @@ FIND_LIBRARY(TOLUAPP_LIBRARY_RELEASE
     HINTS
 		$ENV{TOLUAPP_ROOT}/lib
         ${TOLUAPP_ROOT}/lib
-        $ENV{TOLUAPP_ROOT}/win32/vc9/withLua51_Release
-        ${TOLUAPP_ROOT}/win32/vc9/withLua51_Release
+        $ENV{TOLUAPP_ROOT}/win32/vc10/withLua51_Release
+        ${TOLUAPP_ROOT}/win32/vc10/withLua51_Release
 )
         
 IF(TOLUAPP_INCLUDE_DIR AND TOLUAPP_LIBRARY_DEBUG AND TOLUAPP_LIBRARY_RELEASE)

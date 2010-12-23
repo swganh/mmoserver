@@ -156,10 +156,16 @@ if (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
     set (_TBB_LIBRARY_DIR 
          ${_TBB_INSTALL_DIR}/lib/$ENV{TBB_ARCH_PLATFORM}
          ${_TBB_INSTALL_DIR}/$ENV{TBB_ARCH_PLATFORM}/lib
+        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Debug
+        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Release
         )
 else (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
     # HH: deprecated
-    set (_TBB_LIBRARY_DIR "${_TBB_INSTALL_DIR}/lib")
+    set (_TBB_LIBRARY_DIR 
+        "${_TBB_INSTALL_DIR}/lib"        
+        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Debug
+        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Release
+    )
 endif (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
 
 find_library(TBB_LIBRARY        ${_TBB_LIB_NAME}        ${_TBB_LIBRARY_DIR} NO_DEFAULT_PATH)

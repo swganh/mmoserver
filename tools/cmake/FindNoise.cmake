@@ -7,6 +7,8 @@ FIND_PATH(NOISE_INCLUDE_DIR noise/noise.h
 	    ${NOISE_ROOT}
         $ENV{NOISE_ROOT}/include
         ${NOISE_ROOT}/include
+        $ENV{NOISE_ROOT}/src
+        ${NOISE_ROOT}/src
 )
 MARK_AS_ADVANCED(NOISE_INCLUDE_DIR)
 

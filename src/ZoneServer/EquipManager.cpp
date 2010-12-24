@@ -288,8 +288,8 @@ bool EquipManager::unEquipItem(Object* object)
         return false;
     }
 
-    //client forces us to stop performing at this point as he unequips the instrument regardless of what we do
-    if((item->getItemFamily() == ItemFamily_Instrument) && (owner->getPerformingState() != PlayerPerformance_None))
+    //client forces us to stop performing at this point as he unequips the instrument if he is not dancing
+    if((item->getItemFamily() == ItemFamily_Instrument) && (owner->getPerformingState() != PlayerPerformance_Dance))
     {
         gEntertainerManager->stopEntertaining(owner);
     }

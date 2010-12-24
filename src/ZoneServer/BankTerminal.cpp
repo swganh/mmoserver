@@ -113,18 +113,22 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType, Object* srcObject)
 
 void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, UIWindow* window)
 {
-
+	// if Window is equal to NULL -> Can not open window
     if(window == NULL)
     {
         return;
     }
 
-    PlayerObject* playerObject = window->getOwner(); // window owner
+	PlayerObject* playerObject = window->getOwner(); // window owner
 
-    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
+	// Check if you can use the bank
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() ||
+		playerObject->states.checkState(CreatureState_Combat))
     {
+		gMessageLib->SendSystemMessage(L"You can not use the bank at your current state", playerObject); // Temp Message
         return;
     }
+
 
     // two money movement deltas stands for credits
     // variations into bank & inventory.

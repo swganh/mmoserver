@@ -317,7 +317,7 @@ if not exist "%DEPENDENCIES_FILE%" (
 if exist "%DEPENDENCIES_FILE%" (
 	echo Extracting dependencies ...
 
-	"tar" -xvjf "%DEPENDENCIES_FILE%"
+	"tools\windows\tar.exe" -xvjf "%DEPENDENCIES_FILE%"
 	echo Complete!
 	echo.
 )

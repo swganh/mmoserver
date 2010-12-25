@@ -86,6 +86,7 @@ set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.tar.bz2
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set "PROJECT_DRIVE=%~d0"
+set PATH=%PROJECT_BASE%tools\windows;%PATH%
 set BUILD_TYPE=debug
 set REBUILD=build
 set MSVC_VERSION=10
@@ -254,11 +255,11 @@ if not exist "data\heightmaps\%1.hmpw" (
 	if not exist "data\heightmaps\%1.hmpw.7z" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-		"tools\windows\wget.exe" --no-check-certificate http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
+		"wget" --no-check-certificate http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
 		echo ** Downloading heightmap complete **
 	)
 
-	"tools\windows\7z.exe" x -y -odata\heightmaps data\heightmaps\%1.hmpw.7z 
+	"7z" x -y -odata\heightmaps data\heightmaps\%1.hmpw.7z 
 )
 
 goto :eof
@@ -311,13 +312,13 @@ rem --- Downloads the dependency package for the current version of the source -
 :DOWNLOAD_DEPENDENCIES
 
 if not exist "%DEPENDENCIES_FILE%" (
-	"tools\windows\wget.exe" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
+	"wget" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
 )
 
 if exist "%DEPENDENCIES_FILE%" (
 	echo Extracting dependencies ...
 
-	"tools\windows\tar.exe" -xvjf "%DEPENDENCIES_FILE%"
+	"tar" -xvjf "%DEPENDENCIES_FILE%"
 	echo Complete!
 	echo.
 )

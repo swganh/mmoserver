@@ -119,10 +119,12 @@ public:
     }
     uint16                      getPortHost(void);
     uint32                      getOutgoingReliablePacketCount(void)            {
+		boost::recursive_mutex::scoped_lock lk(mSessionMutex);
         return mOutgoingReliablePacketQueue.size();
     }
     Packet*                     getOutgoingReliablePacket(void);
     uint32                      getOutgoingUnreliablePacketCount(void)          {
+		boost::recursive_mutex::scoped_lock lk(mSessionMutex);
         return mOutgoingUnreliablePacketQueue.size();
     }
     Packet*                     getOutgoingUnreliablePacket(void);

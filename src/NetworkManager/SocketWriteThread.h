@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "Utils/clock.h"
 #include "Utils/concurrent_queue.h"
+#include "Utils/ActiveObject.h"
+
 #include "NetworkConfig.h"
 #include <boost/thread/thread.hpp>
 
@@ -99,6 +101,8 @@ private:
     boost::recursive_mutex      mSocketWriteMutex;
 
     bool						mExit;
+
+	utils::ActiveObject				active_;
 };
 
 //======================================================================================================================

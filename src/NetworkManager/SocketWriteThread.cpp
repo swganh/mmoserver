@@ -158,18 +158,20 @@ void SocketWriteThread::run()
                 continue;
 
             // Process our session
-            session->ProcessWriteThread();
+			active_.Send( [=] {
+				session->ProcessWriteThread();
+			}
+			);
 
             // Send any outgoing reliable packets
             //uint32 rcount = 0;
-
-            while (session->getOutgoingReliablePacketCount())
+			uint32 count = session->getOutgoingReliablePacketCount();
+			if(count > packets)
+				count = packets;
+            while (count)
             {
-                packetCount++;
-                if(packetCount > packets)
-                    break;
+				count--;
 
-                //LOG(INFO) << "Reliable packet sent";
                 packet = session->getOutgoingReliablePacket();
                 _sendPacket(packet, session);
             }
@@ -178,10 +180,11 @@ void SocketWriteThread::run()
             packetCount = 0;
 
             // Send any outgoing unreliable packets
-            //uint32 ucount = 0;
-            while (session->getOutgoingUnreliablePacketCount())
+            count = session->getOutgoingUnreliablePacketCount();
+            while (count)
             {
-                //LOG(INFO) << "Unreliable packet sent";
+				count--;
+                
                 packet = session->getOutgoingUnreliablePacket();
                 _sendPacket(packet, session);
                 session->DestroyPacket(packet);

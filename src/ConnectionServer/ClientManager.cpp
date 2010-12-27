@@ -420,7 +420,7 @@ void ClientManager::_handleQueryAuth(ConnectionClient* client, DatabaseResult* r
     if (result->getRowCount())
     {
         // Update the account record that it is now logged in and last login date.
-        mDatabase->executeProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", mDatabase->galaxy(), mClusterId, client->getAccountId());
+        mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_AccountStatusUpdate(%u, %u);", mDatabase->galaxy(), mClusterId, client->getAccountId());
 
         // finally add them to our accountId map.
         boost::recursive_mutex::scoped_lock lk(mServiceMutex);

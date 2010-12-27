@@ -443,14 +443,6 @@ void Session::ProcessWriteThread(void)
 
     lk.unlock();
 
-	//dont spend time here to often (calling mutexes and such)
-	if(now - mLastHouseKeepingTimeTime < 1000)    {
-        if(!mCommand)
-			return;
-    }
-
-	mLastHouseKeepingTimeTime = now;
-
 	//we might stall if the last packets get lost and the client wont generate ooo packets ( or those get lost)
     if(!this->mServerService )    {
         _resendData();
@@ -507,7 +499,13 @@ void Session::ProcessWriteThread(void)
             if((now - mLastPingPacketSent) > 2000)
                 _sendPingPacket();
         }
+        //dont spend time here to often (calling mutexes and such)
+	    if(now - mLastHouseKeepingTimeTime < 1000)    {
+            if(!mCommand)
+			    return;
+        }
 
+	    mLastHouseKeepingTimeTime = now;
     }
 
 }

@@ -617,5 +617,6 @@ StateClear::StateClear(StateManager* const sm) : ActionState(sm)
 }
 void StateClear::Enter(CreatureObject* obj)
 {
+    obj->states.unblock();
     obj->states.clearAllStates();
 }

@@ -63,11 +63,24 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
     {
         PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
 
+		// if our target is dead
+		if (targetPlayer->isDead()){
+			gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "target_already_dead", 0, targetId, 0), player);
+			return;
+		}
+
         // don't duel ourself
-        if(player == targetPlayer || targetPlayer->isDead() || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
+        if(player == targetPlayer || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
         {
             return;
         }
+
+		// if we are dead
+		if (player->isDead()){
+			gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player); // need to find the correct message
+			return;
+		}
+		
 
         // check if he's already in our duel list
         if(player->checkDuelList(targetPlayer))
@@ -101,6 +114,7 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
                 if(targetPlayer->checkIgnoreList(ignoreName.getCrc()))
                 {
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "reject_target", 0, targetId, 0), player);
+					return;
                 }
                 else
                 {
@@ -277,6 +291,7 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
                     if (target->checkDuelList(player))
                     {
                         // here we go... KILL HIM!
+						gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "death_blow"), player);
                         target->die();
                     }
                 }

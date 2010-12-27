@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 #include "Utils/clock.h"
-#include "Utils/concurrent_queue.h"
+#include "Utils/ConcurrentQueue.h"
 #include "Utils/ActiveObject.h"
 
 #include "NetworkConfig.h"
@@ -45,7 +45,7 @@ class Packet;
 class Session;
 class CompCryptor;
 
-typedef Anh_Utils::concurrent_queue<Session*>    SessionQueue;
+typedef utils::ConcurrentQueue<Session*>    SessionQueue;
 
 //======================================================================================================================
 
@@ -72,9 +72,23 @@ private:
     void			_startup(void);
     void			_shutdown(void);
 
+	/**
+	* Sends all the packet of the given session on the wire
+    *
+	* \param packet  the packet we are going to put on the wire
+    * \param session the session whose packets we want to send
+	*
+	*/
     void			_sendPacket(Packet* packet, Session* session);
-
-    //void				*mtheHandle;
+	
+	/**
+	* Sends all the packets the worker threads have build
+    * and does basic session housekeeping
+	*
+    * \param session the session whose packets we want to send
+	*
+	*/
+	void			_send(Session* session);
 
     uint16				mMessageMaxSize;
     int8				mSendBuffer[SEND_BUFFER_SIZE];
@@ -96,6 +110,7 @@ private:
     // Anh_Utils::Clock*	mClock;
 
     SessionQueue				mSessionQueue;
+	SessionQueue				mAsyncSessionQueue;
 
     boost::thread   			mThread;
     boost::recursive_mutex      mSocketWriteMutex;

@@ -110,7 +110,8 @@ Session::Session(void) :
     avgUnreliablesbuild(0),
     mPacketBuildTimeLimit(15),
     lowest(0),
-    lowestCount(0)
+    lowestCount(0),
+	mSessionProcess(false)
 {
     mConnectStartEvent = lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();       // For SCOM_Connect commands
     mLastConnectRequestSent = mConnectStartEvent;
@@ -443,18 +444,7 @@ void Session::ProcessWriteThread(void)
 
     lk.unlock();
 
-	//dont spend time here to often (calling mutexes and such)
-	if(now - mLastHouseKeepingTimeTime < 1000)    {
-        if(!mCommand)
-			return;
-    }
-
-	mLastHouseKeepingTimeTime = now;
-
-	//we might stall if the last packets get lost and the client wont generate ooo packets ( or those get lost)
-    if(!this->mServerService )    {
-        _resendData();
-    }
+	
 
     // Handle any specific commands
     switch (mCommand)
@@ -508,6 +498,18 @@ void Session::ProcessWriteThread(void)
                 _sendPingPacket();
         }
 
+    }
+
+	//dont spend time here to often (calling mutexes and such)
+	if(now - mLastHouseKeepingTimeTime < 1000)    {
+		return;
+    }
+
+	mLastHouseKeepingTimeTime = now;
+
+	//we might stall if the last packets get lost and the client wont generate ooo packets ( or those get lost)
+    if(!this->mServerService )    {
+        _resendData();
     }
 
 }
@@ -896,7 +898,7 @@ void Session::HandleFastpathPacket(Packet* packet)
 	//make sure we dont crush our heap when busy
 	//reliables can be easily spared
 	if(mMessageFactory->getHeapsize() >= 99.0)	{
-		assert(false);
+		//assert(false);
 		mPacketFactory->DestroyPacket(packet);
 		return;
 	}

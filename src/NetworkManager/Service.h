@@ -29,7 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_NETWORKMANAGER_SERVICE_H
 
 #include "Utils/typedefs.h"
-#include "Utils/concurrent_queue.h"
+#include "Utils/ConcurrentQueue.h"
+
 #include "NetworkConfig.h"
 #include <list>
 
@@ -45,7 +46,7 @@ class NetworkCallback;
 
 //======================================================================================================================
 
-typedef Anh_Utils::concurrent_queue<Session*>	SessionQueue;
+typedef utils::ConcurrentQueue<Session*>	SessionQueue;
 typedef std::list<NetworkCallback*>				NetworkCallbackList;
 
 //======================================================================================================================
@@ -64,7 +65,7 @@ public:
     void	AddSessionToProcessQueue(Session* session);
     //void	AddNetworkCallback(NetworkCallback* callback){ mNetworkCallbackList.push_back(callback); }
     void	AddNetworkCallback(NetworkCallback* callback) {
-        assert((mCallBack == NULL) && "dammit");
+
         mCallBack = callback;
     }
 

@@ -52,6 +52,7 @@ public:
     ConcurrentQueue() {
         first_ = last_ = new Node(nullptr);
         consumer_lock_ = producer_lock_ = false;
+		queuesize = 0;
     }
 
     /// Default destructor cleans up any items remaining in the queue.
@@ -64,6 +65,25 @@ public:
             delete tmp;
         }
     }
+
+	/**
+     * Returns the Queues size
+     *
+     * This function returns the queues size through aquiring a spinlock
+     * 
+     *
+     */
+	int size()	{
+		uint32 my_size;
+		// Spin-lock until exclusivity is acquired
+        while (producer_lock_.fetch_and_store(true)) {}
+		
+		my_size = queuesize;
+		
+		producer_lock_ = false;
+		
+		return my_size;
+	}
 
     /**
      * Pushes an item onto the queue.
@@ -82,6 +102,7 @@ public:
         last_->next = tmp;
         last_ = tmp;
 
+		queuesize++;
         producer_lock_ = false;
     }
 
@@ -109,7 +130,7 @@ public:
             t = *value;
             delete value;
             delete old_first;
-
+			queuesize--;
             return true;
         }
 
@@ -151,6 +172,8 @@ private:
     // Shared among producers.
     tbb::atomic<bool> producer_lock_;
     char pad4[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+
+	int queuesize;
 };
 
 }  // namespace utils

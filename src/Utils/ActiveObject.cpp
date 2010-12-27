@@ -27,12 +27,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/ActiveObject.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 using boost::thread;
 
 namespace utils {
 
 ActiveObject::ActiveObject() : done_(false) {
     thread_ = std::move(thread([=] { this->Run(); }));
+
+#ifdef _WIN32
+    HANDLE mtheHandle = thread_.native_handle();
+    SetPriorityClass(mtheHandle,REALTIME_PRIORITY_CLASS);
+#endif
 }
 
 ActiveObject::~ActiveObject() {

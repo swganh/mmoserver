@@ -4,7 +4,7 @@
 basedir=$(cd $(dirname $0) && pwd)
 
 # Configuration and options
-version=0.4.2       # mmoserver project version
+version=0.4.3       # mmoserver project version
 cflag=              # clean build - removes the build dir before building
 rflag=              # rebuild - rebuilds the dependencies and source
 tflag=              # test - runs all project tests after building

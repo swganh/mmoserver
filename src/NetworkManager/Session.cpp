@@ -110,8 +110,7 @@ Session::Session(void) :
     avgUnreliablesbuild(0),
     mPacketBuildTimeLimit(15),
     lowest(0),
-    lowestCount(0),
-	mSessionProcess(false)
+    lowestCount(0)
 {
     mConnectStartEvent = lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();       // For SCOM_Connect commands
     mLastConnectRequestSent = mConnectStartEvent;

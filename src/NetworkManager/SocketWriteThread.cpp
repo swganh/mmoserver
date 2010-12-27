@@ -133,7 +133,7 @@ SocketWriteThread::~SocketWriteThread()
 void SocketWriteThread::run()
 {
     Session*            session;
-    Packet*             packet;
+
 
     // Call our internal _startup method
     _startup();
@@ -152,57 +152,16 @@ void SocketWriteThread::run()
         for(uint32 i = 0; i < sessionCount; i++)
         {
             uint32 packetCount = 0;
-            session = mSessionQueue.pop();
-
-            if(!session)
+            if(!mSessionQueue.pop(session))
                 continue;
 
             // Process our session
-			active_.Send( [=] {
-				session->ProcessWriteThread();
-			}
-			);
+			//active_.Send( [=] {
+			session->ProcessWriteThread();
+			//}
+			//);
 
-            // Send any outgoing reliable packets
-            //uint32 rcount = 0;
-			uint32 count = session->getOutgoingReliablePacketCount();
-			if(count > packets)
-				count = packets;
-            while (count)
-            {
-				count--;
-
-                packet = session->getOutgoingReliablePacket();
-                _sendPacket(packet, session);
-            }
-
-
-            packetCount = 0;
-
-            // Send any outgoing unreliable packets
-            count = session->getOutgoingUnreliablePacketCount();
-            while (count)
-            {
-				count--;
-                
-                packet = session->getOutgoingUnreliablePacket();
-                _sendPacket(packet, session);
-                session->DestroyPacket(packet);
-            }
-
-
-            // If the session is still in a connected state, Put us back in the queue.
-            if (session->getStatus() != SSTAT_Disconnected)
-            {
-                mSessionQueue.push(session);
-            }
-            else
-            {
-                DLOG(INFO) << "Socket Write Thread: Destroy Session";
-
-                session->setStatus(SSTAT_Destroy);
-                mService->AddSessionToProcessQueue(session);
-            }
+            _send(session);
         }
 
 
@@ -351,5 +310,139 @@ void SocketWriteThread::NewSession(Session* session)
 
 //======================================================================================================================
 
+/*
 
+while(!mExit)    {
+		utils::ActiveObject				active_;
+        uint32 sessionCount = mSessionQueue.size();
 
+		if(!this->mServerService)
+			DLOG(INFO) << "SocketWriteThread::run() START";
+		if(!this->mServerService)
+			DLOG(INFO) << "";
+        for(uint32 i = 0; i < sessionCount; i++)
+        {
+            uint32 packetCount = 0;
+
+            if(!mSessionQueue.pop(session))
+                continue;
+
+            // Process our session
+			// we want to put part of the load in an active Object, but not all
+			// otherwise our writethread will be finished long before the activeObject churned through all the sessions
+			// and we will lag until the thread starts processing again
+			flipflop = true;
+			if(flipflop && (!session->getSessionQueue()) && (session->getStatus() != SSTAT_Disconnected))	{
+				session->setSessionQueue(true);
+				//if(!this->mServerService)
+					//DLOG(INFO) << "Put Session :" << session->getId() << " on wire";
+				//I1227 20:07:02.208938  3580 SocketWriteThread.cpp:165] Put Session :96 on wire
+				//I1227 20:07:02.208938  7568 SocketWriteThread.cpp:168] Session :96 active start
+				//I1227 20:07:02.210938  7568 SocketWriteThread.cpp:172] Session :96 active end
+				active_.Send( [=] {
+					if(!this->mServerService)
+						DLOG(INFO) << "Session :" << session->getId() << " active start";
+					session->ProcessWriteThread();
+					mAsyncSessionQueue.push(session);	
+					if(!this->mServerService)
+						DLOG(INFO) << "Session :" << session->getId() << " active end";
+					
+				}
+				);
+			}	else 
+			if((!session->getSessionQueue()))	{
+				if(!this->mServerService)
+					DLOG(INFO) << "Session :" << session->getId() << " oldway start";
+				session->setSessionQueue(true);
+				session->ProcessWriteThread();
+				if(!this->mServerService)
+					DLOG(INFO) << "Session :" << session->getId() << " oldway end";
+				_send(session);
+				if(!this->mServerService)
+					DLOG(INFO) << "Session :" << session->getId() << " oldway send";
+			}
+
+			
+	
+        }
+
+		sessionCount = mAsyncSessionQueue.size();
+
+		//now get all the workerthreads results and put them on wire
+        for(uint32 i = 0; i < sessionCount; i++)
+        {
+			if(!mAsyncSessionQueue.pop(session))
+                continue;
+			if(!this->mServerService)
+				DLOG(INFO) << "Session :" << session->getId() << " active send start";
+
+			_send(session);
+			
+			if(!this->mServerService)
+				DLOG(INFO) << "Session :" << session->getId() << " active send end";
+		}
+		if(!this->mServerService)
+			DLOG(INFO) << "SocketWriteThread::run() END";
+		if(!this->mServerService)
+			DLOG(INFO) << "";
+
+        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+    }
+
+    // Shutdown internally
+    _shutdown();
+}
+*/
+//======================================================================================================================
+
+void SocketWriteThread::_send(Session* session)
+{
+	Packet*             packet;
+
+	// amount of reliables to process per pass - we dont want stalling or drowning the receiver in packetbursts
+	// remember we have hundreds of clientsessions but only one serversession
+	uint32 reliable_packets = 50;
+	uint32 unreliable_packets = 500;
+    
+	if(mServerService)	{
+        reliable_packets	= 1000;
+		unreliable_packets	= 5000;
+	}
+
+	uint32 count = session->getOutgoingReliablePacketCount();
+
+	if(count > reliable_packets)
+		count = reliable_packets;
+
+	while (count)
+    {
+		count--;
+        packet = session->getOutgoingReliablePacket();
+        _sendPacket(packet, session);
+    }
+
+    // Send any outgoing unreliable packets
+    count = session->getOutgoingUnreliablePacketCount();
+	if(count > unreliable_packets)
+		count = unreliable_packets;
+
+    while (count)
+    {
+		count--;        
+        packet = session->getOutgoingUnreliablePacket();
+        _sendPacket(packet, session);
+        session->DestroyPacket(packet);
+    }
+
+	// If the session is still in a connected state, Put us back in the queue.
+	if (session->getStatus() != SSTAT_Disconnected)
+	{
+		mSessionQueue.push(session);
+	}
+	else
+	{
+		session->setStatus(SSTAT_Destroy);
+		mService->AddSessionToProcessQueue(session);
+	}
+
+}

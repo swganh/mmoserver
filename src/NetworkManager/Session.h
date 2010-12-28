@@ -151,6 +151,10 @@ public:
         return mWindowResendSize;
     }
 
+	uint32					  getWindowSizeCurrent()							{
+        return mWindowSizeCurrent;
+    }
+
 
     void						  setResendWindowSize(uint32 resendWindowSize)	  {
         mWindowResendSize = resendWindowSize;
@@ -316,15 +320,15 @@ private:
     uint16                      mOutSequenceNext;
     uint16                      mInSequenceNext;
 
-    bool						  mOutSequenceRollover;
+    bool						mOutSequenceRollover;
     uint16                      mNextPacketSequenceSent;
     uint64                      mLastRemotePacketAckReceived;
-    uint32                      mWindowSizeCurrent;		//amount of packets we want to send in one round
+    uint32 volatile             mWindowSizeCurrent;		//amount of packets we want to send in one round as to prevent drowning clients with connectionproblems
     uint32                      mWindowResendSize;	    //
 
-    bool                        mSendDelayedAck;        // We processed some incoming packets, send an ack
-    bool                        mInOutgoingQueue;       // Are we already in the queue?
-    bool                        mInIncomingQueue;       // Are we already in the queue?
+    bool volatile				mSendDelayedAck;        // We processed some incoming packets, send an ack
+    bool volatile               mInOutgoingQueue;       // Are we already in the queue?
+    bool volatile               mInIncomingQueue;       // Are we already in the queue?
 
     uint16                      mLastSequenceAcked;
 

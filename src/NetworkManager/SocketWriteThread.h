@@ -88,7 +88,7 @@ private:
     * \param session the session whose packets we want to send
 	*
 	*/
-	void			_send(Session* session);
+	uint32			_send(Session* session);
 
     uint16				mMessageMaxSize;
     int8				mSendBuffer[SEND_BUFFER_SIZE];
@@ -104,8 +104,8 @@ private:
     uint64				lastThreadProcessingTime;
     uint64				threadProcessingTime;
 
-    uint32				unCount;
-    uint32				reCount;
+    uint32				reliablePackets;
+    uint32				unReliablePackets;
     bool				mServerService;
     // Anh_Utils::Clock*	mClock;
 

@@ -105,7 +105,7 @@ private:
     uint32					mLocalAddress;
     uint32					mSessionResendWindowSize;
     uint16					mLocalPort;
-    bool					mQueued;
+    bool volatile			mQueued;
     bool					mServerService;	//marks us as the serverservice / clientservice
 
     static bool				mSocketsSubsystemInitComplete;

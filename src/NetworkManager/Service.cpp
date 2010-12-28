@@ -206,6 +206,11 @@ void Service::Process()
     NetworkClient* newClient = 0;
     uint32 sessionCount = mSessionProcessQueue.size();
 
+	//if((this->mServerService) && sessionCount)	{
+		//	DLOG(INFO) << "Service::Process() START";
+			//DLOG(INFO) << "servicing : " << sessionCount << " Sessions";
+		//}
+	uint32 messages = 0;
     for(uint32 i = 0; i < sessionCount; i++)
     {
         // Grab our next Service to process
@@ -290,7 +295,7 @@ void Service::Process()
                 // At this point we can assume we have a client object, so send the data up.
                 // actually when a server crashed it happens that we crash the connectionserver this way
                 //NetworkCallbackList::iterator iter;
-
+				messages++;
                 mCallBack->handleSessionMessage(session->getClient(), message);
                 //for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
                 //{
@@ -299,10 +304,12 @@ void Service::Process()
             }
         }
 
-        session->setInIncomingQueue(false);
     }
-
-
+	/*
+	if((this->mServerService) && sessionCount)	{
+			DLOG(INFO) << "Service::Process() END";
+			DLOG(INFO) << messages << " messages send";
+		}*/
 }
 
 //======================================================================================================================

@@ -75,15 +75,18 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
     mSocket = socket;
     mService = service;
 
-    if(serverservice)
-    {
-
+	// amount of reliables to process per pass - we dont want stalling or drowning the receiver in packetbursts
+	// remember we have hundreds of clientsessions but only one serversession
+	// however without respective Priority queues this can lead to lag
+    if(serverservice)    {
+		reliablePackets = 10000;
+		unReliablePackets = 20000;
         mServerService = true;
         mMessageMaxSize = network_configuration.getServerToServerReliableSize();
 
-    }
-    else
-    {
+    }    else    {
+		reliablePackets = 50;
+		unReliablePackets = 500;
         mServerService = false;
         mMessageMaxSize = network_configuration.getServerToClientReliableSize();
     }
@@ -111,7 +114,6 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
     mLastTime =   Anh_Utils::Clock::getSingleton()->getLocalTime();
     //lastThreadProcessingTime = threadProcessingTime = 0;
 
-    unCount = 	reCount = 0;
 }
 
 SocketWriteThread::~SocketWriteThread()
@@ -138,16 +140,18 @@ void SocketWriteThread::run()
     // Call our internal _startup method
     _startup();
 
-    uint32 packets = 50;
-    if(mServerService)
-        packets = 1000;
-
-
     // Main loop
     while(!mExit)
     {
 
         uint32 sessionCount = mSessionQueue.size();
+
+		if((!this->mServerService) && sessionCount)	{
+			DLOG(INFO) << "SocketWriteThread::run() START";
+			DLOG(INFO) << "servicing : " << sessionCount << " Sessions";
+			DLOG(INFO) << "NO ACTIVE OBJECT";
+		}
+		uint32 packetsSend = 0;
 
         for(uint32 i = 0; i < sessionCount; i++)
         {
@@ -161,9 +165,13 @@ void SocketWriteThread::run()
 			//}
 			//);
 
-            _send(session);
+			packetsSend += _send(session);
         }
 
+		if((!this->mServerService) && sessionCount)	{
+			DLOG(INFO) << "SocketWriteThread::run() END";
+			DLOG(INFO) << "sending : " << packetsSend << "Packets";
+		}
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));
     }
@@ -395,40 +403,41 @@ while(!mExit)    {
 */
 //======================================================================================================================
 
-void SocketWriteThread::_send(Session* session)
+uint32 SocketWriteThread::_send(Session* session)
 {
 	Packet*             packet;
+	
+	uint32 packetsSend = 0;
 
-	// amount of reliables to process per pass - we dont want stalling or drowning the receiver in packetbursts
-	// remember we have hundreds of clientsessions but only one serversession
-	uint32 reliable_packets = 50;
-	uint32 unreliable_packets = 500;
-    
-	if(mServerService)	{
-        reliable_packets	= 1000;
-		unreliable_packets	= 5000;
+	uint32 reliable_count = session->getOutgoingReliablePacketCount();
+
+	if(reliable_count > session->getWindowSizeCurrent())	{
+		if(!this->mServerService)	{
+			DLOG(INFO) << "SocketWriteThread::_send() will send " << session->getWindowSizeCurrent() << " of " << reliable_count << " reliable Packets";	
+		}
+		reliable_count = session->getWindowSizeCurrent();
 	}
 
-	uint32 count = session->getOutgoingReliablePacketCount();
-
-	if(count > reliable_packets)
-		count = reliable_packets;
-
-	while (count)
-    {
-		count--;
+	packetsSend += reliable_count;
+	while (reliable_count)    {
+		reliable_count--;
         packet = session->getOutgoingReliablePacket();
         _sendPacket(packet, session);
     }
 
     // Send any outgoing unreliable packets
-    count = session->getOutgoingUnreliablePacketCount();
-	if(count > unreliable_packets)
-		count = unreliable_packets;
-
-    while (count)
+    uint32 unreliable_count = session->getOutgoingUnreliablePacketCount();
+	if(unreliable_count > unReliablePackets)	{
+		if(!this->mServerService)	{
+			DLOG(INFO) << "SocketWriteThread::_send() will send " << unReliablePackets << " of " << unreliable_count << " unreliable Packets";
+		}
+		unreliable_count = unReliablePackets;
+	}
+	
+	packetsSend += unreliable_count;
+    while (unreliable_count)
     {
-		count--;        
+		unreliable_count--;        
         packet = session->getOutgoingUnreliablePacket();
         _sendPacket(packet, session);
         session->DestroyPacket(packet);
@@ -445,4 +454,5 @@ void SocketWriteThread::_send(Session* session)
 		mService->AddSessionToProcessQueue(session);
 	}
 
+	return (packetsSend);
 }

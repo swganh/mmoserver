@@ -1519,12 +1519,14 @@ void Session::_processDataOrderPacket(Packet* packet)
 
     }
 
-    if (sequence > windowSequence + mWindowPacketList.size())
-    {
+    if (sequence > windowSequence + mWindowPacketList.size())    {
         LOG(WARNING) << "Rollover Out-Of-Order packet  seq: " << sequence << ", expect >: " << windowSequence;
 
         return;
     }
+
+	if (mWindowSizeCurrent > (mWindowResendSize/10))
+		mWindowSizeCurrent--;
 
     //The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
     if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
@@ -2499,7 +2501,7 @@ void Session::_buildOutgoingUnreliablePackets(Message* message)
     // Push the packet on our outgoing queue
 	
     //_addOutgoingUnreliablePacket(newPacket);
-	newPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+	newPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
     mOutgoingUnreliablePacketQueue.push(newPacket);
 
     message->setPendingDelete(true);
@@ -2514,7 +2516,7 @@ void Session::_addOutgoingReliablePacket(Packet* packet)
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     // Set our last packet sent time index
-    packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+    packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
     mOutgoingReliablePacketQueue.push(packet);
 }
 
@@ -2526,7 +2528,7 @@ void Session::_addOutgoingUnreliablePacket(Packet* packet)
     boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     // Set our last packet sent time index
-    packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+    packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
     mOutgoingUnreliablePacketQueue.push(packet);
 }
 

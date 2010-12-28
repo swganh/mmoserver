@@ -144,6 +144,13 @@ ConnectionServer::ConnectionServer(int argc, char* argv[]) :
     _updateDBServerList(2);
 
     LOG(WARNING) << "Connection server startup complete";
+
+#ifdef _WIN32
+	//I cannot speak for *nix but under windows the main thread pauses for times, leaving the services workthreads unemployed
+	SetPriorityClass(GetCurrentThread(),REALTIME_PRIORITY_CLASS);
+	
+#endif
+
 }
 
 //======================================================================================================================

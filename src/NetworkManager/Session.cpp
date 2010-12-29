@@ -425,7 +425,6 @@ void Session::ProcessWriteThread(void)
 
     lk.unlock();
 
-	
 
     // Handle any specific commands
     switch (mCommand)
@@ -478,7 +477,13 @@ void Session::ProcessWriteThread(void)
             if((now - mLastPingPacketSent) > 2000)
                 _sendPingPacket();
         }
+        //dont spend time here to often (calling mutexes and such)
+	    if(now - mLastHouseKeepingTimeTime < 1000)    {
+            if(!mCommand)
+			    return;
+        }
 
+	    mLastHouseKeepingTimeTime = now;
     }
 
 	//dont spend time here to often (calling mutexes and such)

@@ -256,10 +256,8 @@ Session::~Session(void)
     }
 
     Packet* packet;
-    while(!mOutgoingReliablePacketQueue.empty())
+    while(mOutgoingReliablePacketQueue.pop(packet))
     {
-        packet = mOutgoingReliablePacketQueue.front();
-        mOutgoingReliablePacketQueue.pop();
         mPacketFactory->DestroyPacket(packet);
     }
 
@@ -353,6 +351,7 @@ void Session::ProcessWriteThread(void)
     if(mOutSequenceRollover)
     {
         boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+		//mutex still for the mNewRolloverWindowPacketList
 
         iterRoll = mRolloverWindowPacketList.begin();
 
@@ -379,10 +378,10 @@ void Session::ProcessWriteThread(void)
             if (packetsSent >= mWindowSizeCurrent)
                 break;
 
-            //_addOutgoingReliablePacket(windowPacket);
+            _addOutgoingReliablePacket(windowPacket);
 			//dont call the mutex again were already in it
-			windowPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
-			mOutgoingReliablePacketQueue.push(windowPacket);
+			windowPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
+			
             iterRoll = mNewRolloverWindowPacketList.erase(iterRoll);
             mRolloverWindowPacketList.push_back(windowPacket);
             packetsSent++;
@@ -411,10 +410,8 @@ void Session::ProcessWriteThread(void)
         if (packetsSent >= mWindowSizeCurrent)
             break;
 
-		//_addOutgoingReliablePacket(windowPacket);
+		_addOutgoingReliablePacket(windowPacket);
 		//the sessionmutex is already called
-		windowPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
-		mOutgoingReliablePacketQueue.push(windowPacket);
 
         //mWindoPacketList has the already send but not yet acknowledged Packets
         mWindowPacketList.push_back(windowPacket);
@@ -938,27 +935,22 @@ void Session::DestroyPacket(Packet* packet)
 
 //======================================================================================================================
 
-Packet* Session::getOutgoingReliablePacket(void)
+bool Session::getOutgoingReliablePacket(Packet*& packet)
 {
-    Packet* packet = 0;
-
-    if (mOutgoingReliablePacketQueue.size() == 0)
-        return packet;
+	Packet* p = nullptr;
+    if (!mOutgoingReliablePacketQueue.pop(p))	{
+		packet = p;
+		return false;
+	}
 
     mServerPacketsSent++;
-
-    // Get a new Outgoing packet
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
-    packet =  mOutgoingReliablePacketQueue.front();
-    mOutgoingReliablePacketQueue.pop();
-
-    lk.unlock();
-
     mLastPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
 
-    return packet;
+	packet = p;
+
+    return true;
 }
+
 
 
 //======================================================================================================================
@@ -2496,7 +2488,6 @@ void Session::_addOutgoingReliablePacket(Packet* packet)
     packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
 
     // Push the packet on our outgoing queue
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
     mOutgoingReliablePacketQueue.push(packet);
 }
 

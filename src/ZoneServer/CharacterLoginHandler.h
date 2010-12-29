@@ -31,8 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
-#include <boost/thread/recursive_mutex.hpp>
 #include <glm/glm.hpp>
+#include <set>
 
 //======================================================================================================================
 
@@ -42,6 +42,9 @@ class MessageDispatch;
 class PlayerObject;
 
 //======================================================================================================================
+
+
+typedef std::set<uint64>				ObjectIDSet;
 
 enum CLHCallBack
 {
@@ -90,7 +93,8 @@ class CharacterLoginHandler : public ObjectFactoryCallback, public DatabaseCallb
 		MessageDispatch*			mMessageDispatch;
 
 		uint32						mZoneId;
-        boost::recursive_mutex		mSessionMutex;
+        
+		ObjectIDSet					playerZoneList;
 };
 
 

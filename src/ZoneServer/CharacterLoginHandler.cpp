@@ -155,10 +155,17 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
 
 void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchClient* client)
 {
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+	
 
     PlayerObject*	playerObject;
     uint64			playerId = message->getUint64();
+
+	ObjectIDSet::iterator it = playerZoneList.find(playerId);
+	if(it != playerZoneList.end())	{
+		return;
+	}
+
+	playerZoneList.insert(playerId);
 
     // player already exists and is in logged state
 
@@ -200,6 +207,12 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
         playerObject->getHam()->checkForRegen();
         playerObject->getStomach()->checkForRegen();
+
+		ObjectIDSet::iterator it = playerZoneList.find(playerId);
+		if(it != playerZoneList.end())	{
+			it = playerZoneList.erase(it);
+		}
+
     }
     else if(playerObject  && playerObject->isBeingDestroyed())
     {
@@ -210,6 +223,12 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 
         // Remove old client, if any.
         delete playerObject->getClient();
+
+		ObjectIDSet::iterator it = playerZoneList.find(playerId);
+		if(it != playerZoneList.end())	{
+			it = playerZoneList.erase(it);
+		}
+		return;
     }
     
 	// account already logged in with a character - we need to unload that character before loading the requested one
@@ -222,7 +241,7 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
         if(playerObject->getId() == playerId)
         {
             //we need to bail out. If a bot tries to rapidly login it can happen that we get here again even before the character
-            //did finish loading
+            //did finish loading or even with a properly logged in player ...
             //loading this player a second time and logging it out at the same time will lead to desaster
             LOG(WARNING) << "CharacterLoginHandler::_processSelectCharacter account " << client->getAccountId() << " is spamming logins";
             return;
@@ -343,6 +362,11 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
         //create ourselves for us
         gSpatialIndexManager->sendCreatePlayer(player,player);
 
+		//remove us from the loaders list
+		ObjectIDSet::iterator it = playerZoneList.find(player->getId());
+		if(it != playerZoneList.end())	{
+			it = playerZoneList.erase(it);
+		}
 
     }
     break;

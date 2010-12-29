@@ -163,7 +163,7 @@ void SocketWriteThread::run()
         }
 
 		while(mAsyncSessionQueue.pop(session))	{
-			packetsSend += _send(session);
+			_send(session);
 		}
 
 		//if((!this->mServerService) && sessionCount)	{
@@ -319,28 +319,18 @@ void SocketWriteThread::NewSession(Session* session)
 
 //======================================================================================================================
 
-uint32 SocketWriteThread::_send(Session* session)
+void SocketWriteThread::_send(Session* session)
 {
 	Packet*             packet;
 	
-	uint32 packetsSend = 0;
-
 	// Send any outgoing reliable packets - retain those
-	uint32 reliable_count = session->getOutgoingReliablePacketCount();
-
-	packetsSend += reliable_count;
-	while (reliable_count)    {
-		reliable_count--;
-        packet = session->getOutgoingReliablePacket();
+	while (session->getOutgoingReliablePacket(packet))    {
+		//dont destroy reliables - they get queued until acked or resend
         _sendPacket(packet, session);
     }
 
-    // Send any outgoing unreliable packets
-    
-	
-	
+    // Send any outgoing unreliable packets	
     while (session->getOutgoingUnreliablePacket(packet))    {
-		packetsSend ++;
         _sendPacket(packet, session);
         session->DestroyPacket(packet);
     }
@@ -354,6 +344,4 @@ uint32 SocketWriteThread::_send(Session* session)
 		mService->AddSessionToProcessQueue(session);
 	}
 
-	//remove this ones profiling is over
-	return (packetsSend);
 }

@@ -121,11 +121,8 @@ public:
         return mPort;
     }
     uint16                      getPortHost(void);
-    uint32                      getOutgoingReliablePacketCount(void)            {
-		boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-        return mOutgoingReliablePacketQueue.size();
-    }
-    Packet*                     getOutgoingReliablePacket(void);
+		
+    bool						getOutgoingReliablePacket(Packet*& packet);
    
     bool						getOutgoingUnreliablePacket(Packet*& packet);
 
@@ -347,7 +344,7 @@ private:
     MessageQueue				mMultiUnreliableQueue;
 
     // Packet queues.
-    PacketQueue                 mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send
+    ConcurrentPacketQueue       mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send
     ConcurrentPacketQueue       mOutgoingUnreliablePacketQueue;   //build unreliables they will get send directly by the socket write thread  without storing for possible r esends
     PacketWindowList            mWindowPacketList;				//our build packets - ready to get send
     PacketWindowList			  mRolloverWindowPacketList;		//send packets after a rollover they await sending and / or acknowledgement by the client

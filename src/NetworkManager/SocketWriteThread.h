@@ -89,7 +89,7 @@ private:
     * \param session the session whose packets we want to send
 	*
 	*/
-	uint32			_send(Session* session);
+	void				_send(Session* session);
 
     uint16				mMessageMaxSize;
     int8				mSendBuffer[SEND_BUFFER_SIZE];

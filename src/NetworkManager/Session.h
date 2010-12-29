@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/clock.h"
 #include "Utils/typedefs.h"
+#include "Utils/ConcurrentQueue.h"
 
 #include "NetworkManager/Message.h"
 
@@ -56,6 +57,7 @@ typedef std::list<Packet*,std::allocator<Packet*> >		PacketWindowList;
 typedef std::queue<Packet*>								PacketQueue;
 //typedef std::priority_queue<Message*,std::vector<Message*>,CompareMsg>  MessageQueue;
 typedef std::queue<Message*>							MessageQueue;
+typedef utils::ConcurrentQueueLight<Message*>			ConcurrentMessageQueue;
 
 //======================================================================================================================
 
@@ -95,7 +97,7 @@ public:
 
     void                        SendChannelA(Message* message);
 
-    void						  SendChannelAUnreliable(Message* message);
+    void						SendChannelAUnreliable(Message* message);
     void                        DestroyIncomingMessage(Message* message);
     void                        DestroyPacket(Packet* packet);
 
@@ -338,12 +340,12 @@ private:
 
     // Message queues.
     MessageQueue                mOutgoingMessageQueue;		//here we store the messages given to us by the messagelib
-    MessageQueue                mUnreliableMessageQueue;
+    ConcurrentMessageQueue      mUnreliableMessageQueue;
 
     MessageQueue                mIncomingMessageQueue;
-    MessageQueue				  mMultiMessageQueue;
-    MessageQueue				  mRoutedMultiMessageQueue;
-    MessageQueue				  mMultiUnreliableQueue;
+    MessageQueue				mMultiMessageQueue;
+    MessageQueue				mRoutedMultiMessageQueue;
+    MessageQueue				mMultiUnreliableQueue;
 
     // Packet queues.
     PacketQueue                 mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send

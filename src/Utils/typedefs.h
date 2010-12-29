@@ -85,11 +85,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 
 //495 client 1024 interserver
-#define MAX_PACKET_SIZE  2048  // TODO:  This needs to be changed to a configuration variable for the network module
+#define MAX_PACKET_SIZE  496  // TODO:  This needs to be changed to a configuration variable for the network module
 
 #define MAX_CLIENT_PACKET_SIZE  496  //
-#define MAX_SERVER_PACKET_SIZE  2048  //
-#define MAX_UNRELIABLE_PACKET_SIZE  1024  //
+#define MAX_SERVER_PACKET_SIZE  1400  //
+#define MAX_UNRELIABLE_PACKET_SIZE  300  //
 
 #if defined(__WIN32__) || defined(_WIN32)
 

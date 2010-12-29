@@ -173,12 +173,9 @@ Service::~Service(void)
 {
     Session* session = 0;
 
-    while(mSessionProcessQueue.size())
+    while(mSessionProcessQueue.pop(session))
     {
-        if(mSessionProcessQueue.pop(session))
-        {
-            mSocketReadThread->RemoveAndDestroySession(session);
-        }
+		mSocketReadThread->RemoveAndDestroySession(session);
     }
 
     delete mSocketWriteThread;

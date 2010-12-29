@@ -106,7 +106,9 @@ private:
 
     uint32				reliablePackets;
     uint32				unReliablePackets;
-    bool				mServerService;
+    
+	bool				mServerService;
+	
     // Anh_Utils::Clock*	mClock;
 
     SessionQueue				mSessionQueue;

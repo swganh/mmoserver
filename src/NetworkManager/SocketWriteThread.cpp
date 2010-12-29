@@ -144,12 +144,12 @@ void SocketWriteThread::run()
     while(!mExit)
     {
 
-        uint32 sessionCount = mSessionQueue.size();
+		uint32 sessionCount = mSessionQueue.size();
 
 		if((!this->mServerService) && sessionCount)	{
-			DLOG(INFO) << "SocketWriteThread::run() START";
-			DLOG(INFO) << "servicing : " << sessionCount << " Sessions";
-			DLOG(INFO) << "NO ACTIVE OBJECT";
+			//DLOG(INFO) << "SocketWriteThread::run() START";
+			//DLOG(INFO) << "servicing : " << sessionCount << " Sessions";
+			//DLOG(INFO) << "NO ACTIVE OBJECT";
 		}
 		uint32 packetsSend = 0;
 
@@ -157,7 +157,7 @@ void SocketWriteThread::run()
         {
             uint32 packetCount = 0;
             if(!mSessionQueue.pop(session))
-                continue;
+                break;
 
             // Process our session
 			//active_.Send( [=] {
@@ -169,8 +169,8 @@ void SocketWriteThread::run()
         }
 
 		if((!this->mServerService) && sessionCount)	{
-			DLOG(INFO) << "SocketWriteThread::run() END";
-			DLOG(INFO) << "sending : " << packetsSend << "Packets";
+			//DLOG(INFO) << "SocketWriteThread::run() END";
+			//DLOG(INFO) << "sending : " << packetsSend << "Packets";
 		}
 
         boost::this_thread::sleep(boost::posix_time::milliseconds(1));

@@ -645,7 +645,7 @@ void SpatialIndexManager::_UpdateFrontCells(Object* updateObject, uint32 oldCell
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
-        getGrid()->GetGridContentsListRow((updateObject->getGridBucket() + (GRIDWIDTH*VIEWRANGE)) + GRIDWIDTH, &FinalList, queryType);
+        getGrid()->GetGridContentsListRow((newCell + (GRIDWIDTH*VIEWRANGE)) , &FinalList, queryType);
 
         _ObjectCreationIteration(&FinalList,updateObject);
 
@@ -658,7 +658,7 @@ void SpatialIndexManager::_UpdateFrontCells(Object* updateObject, uint32 oldCell
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
-        getGrid()->GetGridContentsListRow((updateObject->getGridBucket() - (GRIDWIDTH*VIEWRANGE)) - GRIDWIDTH, &FinalList, queryType);
+        getGrid()->GetGridContentsListRow((newCell - (GRIDWIDTH*VIEWRANGE)) , &FinalList, queryType);
 
         _ObjectCreationIteration(&FinalList,updateObject);
 
@@ -672,7 +672,7 @@ void SpatialIndexManager::_UpdateFrontCells(Object* updateObject, uint32 oldCell
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
-        getGrid()->GetGridContentsListColumn((updateObject->getGridBucket() + VIEWRANGE) + 1, &FinalList, queryType);
+        getGrid()->GetGridContentsListColumn((newCell + VIEWRANGE) , &FinalList, queryType);
 
         _ObjectCreationIteration(&FinalList,updateObject);
 
@@ -686,7 +686,7 @@ void SpatialIndexManager::_UpdateFrontCells(Object* updateObject, uint32 oldCell
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
-        getGrid()->GetGridContentsListColumn((updateObject->getGridBucket() - VIEWRANGE) - 1, &FinalList, queryType);
+        getGrid()->GetGridContentsListColumn((newCell - VIEWRANGE) , &FinalList, queryType);
 
         _ObjectCreationIteration(&FinalList,updateObject);
 
@@ -699,11 +699,11 @@ void SpatialIndexManager::_UpdateFrontCells(Object* updateObject, uint32 oldCell
         ObjectListType FinalList;
         ObjectListType::iterator it;
 
-        getGrid()->GetCellContents((updateObject->getGridBucket() + ((GRIDWIDTH+1)*VIEWRANGE)) , &FinalList, queryType);//
+        getGrid()->GetCellContents((newCell + ((GRIDWIDTH+1)*VIEWRANGE)) , &FinalList, queryType);//
 
         getGrid()->GetGridContentsListColumnDown((updateObject->getGridBucket() + ((GRIDWIDTH+1)*VIEWRANGE)) - GRIDWIDTH, &FinalList, queryType);//
 
-        getGrid()->GetGridContentsListRowLeft((updateObject->getGridBucket() + ((GRIDWIDTH+1)*VIEWRANGE)) - 1, &FinalList, queryType);//
+        getGrid()->GetGridContentsListRowLeft((updateObject->getGridBucket() + ((GRIDWIDTH+1)*VIEWRANGE+1)) - 1, &FinalList, queryType);//
 
         _ObjectCreationIteration(&FinalList,updateObject);
 

@@ -137,7 +137,7 @@ Session::Session(void) :
 
 Session::~Session(void)
 {
-    uint32 savedPackets = 0;
+  
     DLOG(INFO) <<  "Session::~Session " << this->getId();
     Message* message = 0;
 
@@ -163,8 +163,7 @@ Session::~Session(void)
         message->mSession = NULL;
     }
 
-    while(mUnreliableMessageQueue.pop(message))
-    {
+    while(mUnreliableMessageQueue.pop(message))    {
         // We're done with this message.
         message->setPendingDelete(true);
         message->mSession = NULL;
@@ -206,7 +205,6 @@ Session::~Session(void)
 
     while(ooopsIt != mOutOfOrderPackets.end())
     {
-        savedPackets++;
         Packet* ooopsPacket = (*ooopsIt);
         mPacketFactory->DestroyPacket(ooopsPacket);
         mOutOfOrderPackets.erase(ooopsIt++);
@@ -216,7 +214,6 @@ Session::~Session(void)
 
     while(it != mNewWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mNewWindowPacketList.erase(it++);
@@ -226,7 +223,6 @@ Session::~Session(void)
 
     while(it != mNewRolloverWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mNewRolloverWindowPacketList.erase(it++);
@@ -236,7 +232,6 @@ Session::~Session(void)
 
     while(it != mWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mWindowPacketList.erase(it++);
@@ -246,7 +241,6 @@ Session::~Session(void)
 
     while(it != mRolloverWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mRolloverWindowPacketList.erase(it++);
@@ -256,7 +250,6 @@ Session::~Session(void)
 
     while(it != mNewWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mNewWindowPacketList.erase(it++);
@@ -265,18 +258,13 @@ Session::~Session(void)
     Packet* packet;
     while(!mOutgoingReliablePacketQueue.empty())
     {
-        savedPackets++;
         packet = mOutgoingReliablePacketQueue.front();
         mOutgoingReliablePacketQueue.pop();
         mPacketFactory->DestroyPacket(packet);
     }
 
 
-    while(!mOutgoingUnreliablePacketQueue.empty())
-    {
-        savedPackets++;
-        packet = mOutgoingUnreliablePacketQueue.front();
-        mOutgoingUnreliablePacketQueue.pop();
+    while(mOutgoingUnreliablePacketQueue.pop(packet))    {
         mPacketFactory->DestroyPacket(packet);
     }
 
@@ -974,26 +962,19 @@ Packet* Session::getOutgoingReliablePacket(void)
 
 
 //======================================================================================================================
-Packet* Session::getOutgoingUnreliablePacket(void)
-{
-    Packet* packet = 0;
-
-    if (mOutgoingUnreliablePacketQueue.size() == 0)
-        return packet;
+bool Session::getOutgoingUnreliablePacket(Packet*& packet)	{
+    Packet* p = nullptr;
+    if (!mOutgoingUnreliablePacketQueue.pop(p))	{
+		packet = p;
+		return false;
+	}
 
     mServerPacketsSent++;
-
-    // Get a new Outgoing packet
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
-    packet =  mOutgoingUnreliablePacketQueue.front();
-    mOutgoingUnreliablePacketQueue.pop();
-
-    lk.unlock();
-
     mLastPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
 
-    return packet;
+	packet = p;
+
+    return true;
 }
 
 
@@ -2527,7 +2508,6 @@ void Session::_addOutgoingUnreliablePacket(Packet* packet)
     packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
 
     // Push the packet on our outgoing queue
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
     mOutgoingUnreliablePacketQueue.push(packet);
 }
 

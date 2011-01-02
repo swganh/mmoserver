@@ -54,10 +54,6 @@ public:
     */
     static void	destroyInstance(void);
 
-protected:
-    ScriptSupport();
-    ~ScriptSupport();
-
 public:
 
     // Enabled for scripting
@@ -174,8 +170,10 @@ public:
     // Not for scripting.
     void				handleObjectReady(Object* object);
     uint64				getObjectOwnedBy(uint64 theOwner);
-
+    ~ScriptSupport();
 private:
+    ScriptSupport();
+    
     void				npcSpawnGeneral(uint64 npcId,
                                         uint64 npcPrivateOwnerId,
                                         uint64 cellForSpawn,

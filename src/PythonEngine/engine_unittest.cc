@@ -76,8 +76,31 @@ TEST_F(EngineTest, loadSameFileTwice)
 }
 TEST_F(EngineTest, loadFileOneDeep)
 {
-    e->load("test-deep\\scripta.py");
-    EXPECT_TRUE(e->isFileLoaded("test-deep\\scripta.py"));
+    e->load("test-deep/scripta.py");
+    EXPECT_TRUE(e->isFileLoaded("test-deep/scripta.py"));
+}
+TEST_F(EngineTest, getLoadedFiles)
+{
+    e->load("../scripta.py");
+    e->load("../scriptb.py");
+    e->load("test.py");
+    e->load("testRunSecond.py");
+    e->load("test-deep/scripta.py");
+    EXPECT_EQ(uint32_t(5),e->getLoadedFiles().size());
+}
+TEST_F(EngineTest, removeLoadedFile)
+{
+    e->load("test.py");
+    EXPECT_TRUE(e->isFileLoaded("test.py"));
+    e->removeFile("test.py");
+    EXPECT_FALSE(e->isFileLoaded("test.py"));
+}
+TEST_F(EngineTest, reloadFile)
+{
+    e->load("test.py");
+    EXPECT_TRUE(e->isFileLoaded("test.py"));
+    e->reload("test.py");
+    EXPECT_TRUE(e->isFileLoaded("test.py"));
 }
 //TEST_F(EngineTest, loadTestModule){
 //    e->loadFile("module.py");

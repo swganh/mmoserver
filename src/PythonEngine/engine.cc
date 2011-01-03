@@ -10,6 +10,10 @@ engine::engine(const std::string& base_path)
     Py_Initialize();
     // TOOD set path based on project directory and OS
 }
+engine::~engine()
+{
+    loaded_files_.empty();
+}
 void engine::load(const std::string& filename)
 {
     // what this does is first calls the Python C-API to load the file, then pass the returned
@@ -17,7 +21,7 @@ void engine::load(const std::string& filename)
     // this takes care of all future referencing and dereferencing.
     try{
         bp::object file_object(bp::handle<>(PyFile_FromString(fullPath(filename), "r" )));
-        loaded_files_.insert(std::make_pair(fullPath(filename), file_object));
+        loaded_files_.insert(std::make_pair(std::string(fullPath(filename)), file_object));
     }
     catch(...)
     {
@@ -42,6 +46,29 @@ void engine::run(const std::string& filename)
         PyErr_Print();
     }
 }
+void engine::reload(const std::string& filename)
+{
+    if (isFileLoaded(filename))
+    {
+        removeFile(filename);
+    }
+    load(filename);
+}
+void engine::removeFile(const std::string& filename)
+{
+    auto it = loaded_files_.begin();
+    for (; it != loaded_files_.end();)
+    {
+        if (it->first == fullPath(filename))
+        {
+            loaded_files_.erase(it++);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
 
 void engine::registerModule(_inittab init_func)
 {
@@ -55,7 +82,7 @@ void engine::registerModule(_inittab init_func)
 
 bool engine::isFileLoaded(const std::string& filename)
 {
-    auto it = std::find_if(loaded_files_.begin(), loaded_files_.end(), [&](bp_object_map::value_type& file){
+    auto it = std::find_if(loaded_files_.begin(), loaded_files_.end(), [this,&filename](bp_object_map::value_type& file){
         return file.first == fullPath(filename);
     });
     return it != loaded_files_.end();

@@ -19,6 +19,7 @@ class engine
 {
 public:
     engine(const std::string& base_path);
+    ~engine();
     /**
     * \brief load's the python script into memory
     *  and stores the Boost Python Object into a 
@@ -27,6 +28,7 @@ public:
     * \param filename The file to load into memory
     */
     void load(const std::string& filename);
+
      /**
     * \brief run's the python file
     *
@@ -34,6 +36,22 @@ public:
     *   if not found, a message will be given
     */
     void run(const std::string& filename);
+
+     /**
+    * \brief reload's the python file
+    *
+    * \param filename The file to remove from the loaded_files_ map
+    *   if not found, the file will be loaded
+    */
+    void reload(const std::string& filename);
+
+    /**
+    * \brief remove the python file
+    *
+    * \param filename The file to remove from the loaded_files_ map
+    *   if not found, no action occurs
+    */
+    void removeFile(const std::string& filename);
 
     /**
     * \brief registers a module into the Python virtual machine
@@ -48,7 +66,7 @@ public:
     *   for immediate execution.
     *
     */
-    bp_object_map printLoadedFiles() { return loaded_files_; }
+    bp_object_map getLoadedFiles() { return loaded_files_; }
 
     /**
     * \brief checks to see if the filename has been loaded

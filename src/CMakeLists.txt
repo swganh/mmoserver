@@ -1,6 +1,8 @@
 # libraries
 
 add_subdirectory(anh)
+add_subdirectory(PythonEngine)
+add_subdirectory(ScriptBindings)
 
 # executables
 
@@ -11,7 +13,6 @@ ADD_SUBDIRECTORY(DatabaseManager)
 ADD_SUBDIRECTORY(MessageLib)
 ADD_SUBDIRECTORY(SwgProtocol)
 ADD_SUBDIRECTORY(ScriptEngine)
-ADD_SUBDIRECTORY(PythonEngine)
 ADD_SUBDIRECTORY(ChatServer)
 ADD_SUBDIRECTORY(ConnectionServer)
 ADD_SUBDIRECTORY(LoginServer)

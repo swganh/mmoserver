@@ -19,6 +19,7 @@ if not exist %2\bin\%3\mysqlcppconn.dll (
     xcopy %1\deps\src\mysql-connector-cpp\driver\%3\mysqlcppconn.dll %2\bin\%3\ /I /Y /s
 )
 
+
 if %3 == "Debug" (
     if not exist %2\bin\%3\tbb_debug.dll (
         xcopy %1\deps\src\tbb\build\vsproject\ia32\%3\tbb_debug.dll %2\bin\%3\ /I /Y /s
@@ -28,6 +29,10 @@ if %3 == "Debug" (
     if not exist %2\bin\%3\zlibd1.dll (
         xcopy %1\deps\src\zlib\%3\zlibd1.dll %2\bin\%3\ /I /Y /s
     )
+	
+	if not exist %2\bin\%3\boost_python3-vc100-*.dll (
+		xcopy %1\deps\src\boost\bin.v2\libs\python\build\msvc-10.0\debug\threading-multi\%3\boost_python3-vc100-*.dll %2\bin\%3 /I /Y /s
+	)
 )
 
 if %3 == "Release" (
@@ -57,6 +62,9 @@ if not exist %2\bin\%3\logs (
 
 if not exist %2\bin\%3\script (
     xcopy %1\data\script %2\bin\%3\script\ /I /Y /s
+)
+if not exist %2\bin\%3\scripts (
+    xcopy %1\data\scripts %2\bin\%3\scripts\ /I /Y /s
 )
 
 xcopy %1\data\ServerStart.bat %2\bin\%3\ /I /Y /s

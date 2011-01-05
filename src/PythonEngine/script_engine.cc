@@ -8,10 +8,12 @@ script_engine::script_engine(const std::string& base_path)
     base_path_ = base_path;
     // initialize the python script_engine
     Py_Initialize();
+    PyGILState_STATE gil_state = PyGILState_Ensure();
 }
 script_engine::~script_engine()
 {
     loaded_files_.empty();
+    //PyGILState_Release(gilState);
 }
 void script_engine::load(const std::string& filename)
 {
@@ -19,8 +21,15 @@ void script_engine::load(const std::string& filename)
     // PyObject* into handle, which takes reference and sets it as a boost::python::object.
     // this takes care of all future referencing and dereferencing.
     try{
-        bp::object file_object(bp::handle<>(PyFile_FromString(fullPath(filename), "r" )));
-        loaded_files_.insert(std::make_pair(std::string(fullPath(filename)), file_object));
+        PyObject *ioMod, *opened_file, *fd_obj;
+        
+        ioMod = PyImport_ImportModule("io");
+        opened_file = PyObject_CallMethod(ioMod, "open", "ss", fullPath(filename), "rb");
+        Py_DECREF(ioMod);
+        fd_obj = PyFile_FromFd(PyObject_AsFileDescriptor(opened_file),fullPath(filename),"r",-1,0,0,"\n", 0);
+        bp::handle<> h_open(fd_obj);
+        bp::object file_obj(h_open);
+        loaded_files_.insert(std::make_pair(std::string(fullPath(filename)), file_obj));
     }
     catch(...)
     {
@@ -37,7 +46,12 @@ void script_engine::run(const std::string& filename)
     bp::object loaded_file = getLoadedFile(filename);
     try
     {
-        PyRun_SimpleFile( PyFile_AsFile( loaded_file.ptr()), fullPath(filename) );
+        //bp::handle<> file_handle(PyFile_FromFd(PyObject_AsFileDescriptor(loaded_file.ptr()),fullPath(filename),"",-1,"", "","", 0));
+        int fd = PyObject_AsFileDescriptor(loaded_file.ptr());
+        FILE* f_open = _fdopen(fd,"r");
+        
+        PyRun_SimpleFile( f_open, fullPath(filename) );
+        
     }
     catch(...)
     {

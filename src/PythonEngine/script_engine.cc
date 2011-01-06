@@ -1,35 +1,31 @@
 #include "script_engine.h"
 #include <iostream>
+#include <fstream>
 #include "anh/event_dispatcher/event_dispatcher.h"
 
 using namespace python;
+using namespace std;
+
 script_engine::script_engine(const std::string& base_path)
 {
     base_path_ = base_path;
     // initialize the python script_engine
     Py_Initialize();
-    PyGILState_STATE gil_state = PyGILState_Ensure();
 }
 script_engine::~script_engine()
 {
     loaded_files_.empty();
-    //PyGILState_Release(gilState);
 }
 void script_engine::load(const std::string& filename)
 {
-    // what this does is first calls the Python C-API to load the file, then pass the returned
-    // PyObject* into handle, which takes reference and sets it as a boost::python::object.
-    // this takes care of all future referencing and dereferencing.
-    try{
-        PyObject *ioMod, *opened_file, *fd_obj;
-        
-        ioMod = PyImport_ImportModule("io");
-        opened_file = PyObject_CallMethod(ioMod, "open", "ss", fullPath(filename), "rb");
-        Py_DECREF(ioMod);
-        fd_obj = PyFile_FromFd(PyObject_AsFileDescriptor(opened_file),fullPath(filename),"r",-1,0,0,"\n", 0);
-        bp::handle<> h_open(fd_obj);
-        bp::object file_obj(h_open);
-        loaded_files_.insert(std::make_pair(std::string(fullPath(filename)), file_obj));
+    
+    try{              
+        string str(&getFileInput(filename)[0]);
+        if (str.length() > 0)
+        {
+            bp::str file_str(str);
+            loaded_files_.insert(std::make_pair(std::string(fullPath(filename)), file_str));
+        }
     }
     catch(...)
     {
@@ -42,16 +38,15 @@ void script_engine::run(const std::string& filename)
     // lets load the file and run it anyway
     if (!isFileLoaded(filename))
         load(filename);
-
-    bp::object loaded_file = getLoadedFile(filename);
+    
+    bp::str loaded_file = getLoadedFile(filename);
     try
     {
-        //bp::handle<> file_handle(PyFile_FromFd(PyObject_AsFileDescriptor(loaded_file.ptr()),fullPath(filename),"",-1,"", "","", 0));
-        int fd = PyObject_AsFileDescriptor(loaded_file.ptr());
-        FILE* f_open = _fdopen(fd,"r");
-        
-        PyRun_SimpleFile( f_open, fullPath(filename) );
-        
+        // Retrieve the main module
+        bp::object main = bp::import("__main__");
+        // Retrieve the main module's namespace
+        bp::object global(main.attr("__dict__"));
+        bp::exec(loaded_file, global, global);
     }
     catch(...)
     {
@@ -98,7 +93,7 @@ void script_engine::setFullPath(const std::string& filename, const std::string& 
     full_path_.append(root_path);
     full_path_.append(filename);
 }
-bp::object script_engine::getLoadedFile(const std::string& filename)
+bp::str script_engine::getLoadedFile(const std::string& filename)
 {
     auto it = std::find_if(loaded_files_.begin(), loaded_files_.end(), [&](bp_object_map::value_type& file){
         return file.first == fullPath(filename);
@@ -106,16 +101,35 @@ bp::object script_engine::getLoadedFile(const std::string& filename)
     if (it != loaded_files_.end())
         return it->second;
     else 
-        return bp::object();
+        return bp::str();
 }
 char* script_engine::fullPath(const std::string& filename)
 {
     setFullPath(filename);
     return const_cast<char*>(full_path_.c_str());
 }
+
+vector<char> script_engine::getFileInput(const std::string& filename)
+{
+    vector<char> input;
+    ifstream file(fullPath(filename), ios::in | ios::binary);
+    if (!file.is_open())
+    {
+        // set our error message here
+        setCantFindFileError();
+        input.push_back('\0');
+        return input;
+    }
+
+    file >> std::noskipws;
+    copy(istream_iterator<char>(file), istream_iterator<char>(), back_inserter(input));
+    input.push_back('\n');
+    input.push_back('\0');
+    
+    return input;
+}
 void script_engine::getExceptionFromPy()
 {
-    
     PyObject* type, *value, *trace_back;
     PyErr_Fetch(&type, &value, &trace_back);
     // normalize to change value from tuple to string
@@ -148,6 +162,11 @@ void script_engine::getExceptionFromPy()
     {
         return;
     }
+}
+void script_engine::setCantFindFileError()
+{
+    py_exception.file_name = full_path_;
+    py_exception.err_msg = full_path_ + string(": No such file or directory");
 }
 std::string script_engine::getErrorMessage()
 {

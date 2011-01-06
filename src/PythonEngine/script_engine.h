@@ -8,7 +8,7 @@
 namespace python{
 namespace bp = boost::python;
 
-typedef std::map<std::string,bp::object> bp_object_map;
+typedef std::map<std::string,bp::str> bp_object_map;
 class object;
 /*! Assists the user in loading and executing Python scripts from
 *   within C++.
@@ -26,8 +26,8 @@ public:
     ~script_engine();
     /**
     * \brief load's the python script into memory
-    *  and stores the Boost Python Object into a 
-    *  private map for later use in @runLoadedFile
+    *  and stores the Boost Python str into a 
+    *  private map for later use in @run
     *
     * \param filename The file to load into memory
     */
@@ -76,7 +76,7 @@ public:
     *  
     * \param filepath sets the path_ behind the scenes
     */
-    bp::object getLoadedFile(const std::string& filename);
+    bp::str getLoadedFile(const std::string& filename);
     /**
     * \brief gets data from PYEXCEPTION struct and 
     *       creates a friendly message
@@ -89,6 +89,13 @@ private:
     // used by internal functions
     void setFullPath(const std::string& filename, const std::string& root_path);
     void setFullPath(const std::string& filename);
+    /**
+    * \brief helper method to set a 
+    *   simple file not found message
+    */
+    void setCantFindFileError();
+
+    std::vector<char> getFileInput(const std::string& filename);
     /**
     * \brief sets the PYEXCEPTION struct based on internal python values
     *

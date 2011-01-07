@@ -3,7 +3,8 @@
 #Expects files to be compiled in TARGET_SRC and TARGET_H.
 #Supply the target name as the first parameter.  Additional
 #parameters will be passed to TARGET_LINK_LIBRARIES()
-MACRO (BUILD_PYTHON_BINDING TGTNAME)
+INCLUDE(CMakeMacroParseArguments)
+FUNCTION (BUILD_PYTHON_BINDING TGTNAME)
   
   #With Cmake2.6.x and CMP003 NEW, if user sets BOOST_PYTHON_LIBRARY
   #to be the non-versioned file ("boost_python-vc90-mt.lib"), the compiler
@@ -45,4 +46,4 @@ MACRO (BUILD_PYTHON_BINDING TGTNAME)
     SET_TARGET_PROPERTIES( ${TGTNAME} PROPERTIES PREFIX "/../../bin/$(ConfigurationName)/")
   ENDIF (MSVC)
 
-ENDMACRO(BUILD_PYTHON_BINDING)
+ENDFUNCTION()

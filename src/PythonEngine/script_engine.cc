@@ -6,7 +6,7 @@
 using namespace python;
 using namespace std;
 
-script_engine::script_engine(const std::string& base_path)
+script_engine::script_engine(const string& base_path)
 {
     base_path_ = base_path;
     // initialize the python script_engine
@@ -16,7 +16,7 @@ script_engine::~script_engine()
 {
     loaded_files_.empty();
 }
-void script_engine::load(const std::string& filename)
+void script_engine::load(const string& filename)
 {
     
     try{              
@@ -24,7 +24,7 @@ void script_engine::load(const std::string& filename)
         if (str.length() > 0)
         {
             bp::str file_str(str);
-            loaded_files_.insert(std::make_pair(std::string(fullPath(filename)), file_str));
+            loaded_files_.insert(make_pair(string(fullPath(filename)), file_str));
         }
     }
     catch(...)
@@ -32,7 +32,7 @@ void script_engine::load(const std::string& filename)
         getExceptionFromPy();
     }
 }
-void script_engine::run(const std::string& filename)
+void script_engine::run(const string& filename)
 {
     // are you trying to run a file that's not loaded?
     // lets load the file and run it anyway
@@ -53,7 +53,7 @@ void script_engine::run(const std::string& filename)
         getExceptionFromPy();
     }
 }
-void script_engine::reload(const std::string& filename)
+void script_engine::reload(const string& filename)
 {
     if (isFileLoaded(filename))
     {
@@ -61,7 +61,7 @@ void script_engine::reload(const std::string& filename)
     }
     load(filename);
 }
-void script_engine::removeFile(const std::string& filename)
+void script_engine::removeFile(const string& filename)
 {
     auto it = loaded_files_.begin();
     for (; it != loaded_files_.end();)
@@ -76,26 +76,26 @@ void script_engine::removeFile(const std::string& filename)
         }
     }
 }
-bool script_engine::isFileLoaded(const std::string& filename)
+bool script_engine::isFileLoaded(const string& filename)
 {
-    auto it = std::find_if(loaded_files_.begin(), loaded_files_.end(), [this,&filename](bp_object_map::value_type& file){
+    auto it = find_if(loaded_files_.begin(), loaded_files_.end(), [this,&filename](bp_object_map::value_type& file){
         return file.first == fullPath(filename);
     });
     return it != loaded_files_.end();
 }
-void script_engine::setFullPath(const std::string& filename)
+void script_engine::setFullPath(const string& filename)
 {
     setFullPath(filename, base_path_);
 }
-void script_engine::setFullPath(const std::string& filename, const std::string& root_path)
+void script_engine::setFullPath(const string& filename, const string& root_path)
 {
     full_path_.clear();
     full_path_.append(root_path);
     full_path_.append(filename);
 }
-bp::str script_engine::getLoadedFile(const std::string& filename)
+bp::str script_engine::getLoadedFile(const string& filename)
 {
-    auto it = std::find_if(loaded_files_.begin(), loaded_files_.end(), [&](bp_object_map::value_type& file){
+    auto it = find_if(loaded_files_.begin(), loaded_files_.end(), [&](bp_object_map::value_type& file){
         return file.first == fullPath(filename);
     });
     if (it != loaded_files_.end())
@@ -103,13 +103,13 @@ bp::str script_engine::getLoadedFile(const std::string& filename)
     else 
         return bp::str();
 }
-char* script_engine::fullPath(const std::string& filename)
+char* script_engine::fullPath(const string& filename)
 {
     setFullPath(filename);
     return const_cast<char*>(full_path_.c_str());
 }
 
-vector<char> script_engine::getFileInput(const std::string& filename)
+vector<char> script_engine::getFileInput(const string& filename)
 {
     vector<char> input;
     ifstream file(fullPath(filename), ios::in | ios::binary);
@@ -121,7 +121,7 @@ vector<char> script_engine::getFileInput(const std::string& filename)
         return input;
     }
 
-    file >> std::noskipws;
+    file >> noskipws;
     copy(istream_iterator<char>(file), istream_iterator<char>(), back_inserter(input));
     input.push_back('\n');
     input.push_back('\0');
@@ -146,16 +146,16 @@ void script_engine::getExceptionFromPy()
             //Extract line number (top entry of call stack)
             // if you want to extract another levels of call stack
             // also process traceback.attr("tb_next") recurently
-            py_exception.line_num = bp::extract<std::string> (traceback.attr("tb_lineno"));
-            py_exception.file_name = bp::extract<std::string>(traceback.attr("tb_frame").attr("f_code").attr("co_filename"));
-            py_exception.func_name = bp::extract<std::string>(traceback.attr("tb_frame").attr("f_code").attr("co_name"));
+            py_exception.line_num = bp::extract<string> (traceback.attr("tb_lineno"));
+            py_exception.file_name = bp::extract<string>(traceback.attr("tb_frame").attr("f_code").attr("co_filename"));
+            py_exception.func_name = bp::extract<string>(traceback.attr("tb_frame").attr("f_code").attr("co_name"));
         }
         if (value)
         {
             //Extract error message
             bp::handle<> hVal (PyObject_Str(value));
             bp::object err_msg(hVal);
-            py_exception.err_msg = bp::extract<std::string>(err_msg);
+            py_exception.err_msg = bp::extract<string>(err_msg);
         }
     } 
     catch(...)
@@ -168,11 +168,11 @@ void script_engine::setCantFindFileError()
     py_exception.file_name = full_path_;
     py_exception.err_msg = full_path_ + string(": No such file or directory");
 }
-std::string script_engine::getErrorMessage()
+string script_engine::getErrorMessage()
 {
     if (py_exception.err_msg.length() > 0)
     {
-        std::stringstream ss;
+        stringstream ss;
         ss << "Error: " << py_exception.err_msg;
         if (py_exception.line_num.length() >0)
         {

@@ -81,9 +81,10 @@ ELSE()
 ENDIF()
 
 # Use the static/multithreaded libraries.
-SET(Boost_USE_STATIC_LIBS ON)
+#SET(Boost_USE_STATIC_LIBS ON)
+SET(Boost_PYTHON_DYN_LINK ON)
 SET(Boost_USE_MULTITHREADED ON)
-        
+
 INCLUDE(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG(-Wno-invalid-offsetof HAS_NO_INVALID_OFFSETOF)
@@ -135,8 +136,7 @@ IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps")
     
     SET(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/zlib")
 ENDIF()
-
-FIND_PACKAGE(Boost 1.45.0 COMPONENTS date_time regex thread system python program_options REQUIRED)
+FIND_PACKAGE(Boost 1.45.0 COMPONENTS date_time regex thread system program_options REQUIRED)
 FIND_PACKAGE(GLM REQUIRED)
 FIND_PACKAGE(GLog REQUIRED)
 FIND_PACKAGE(GTest REQUIRED)
@@ -148,6 +148,11 @@ FIND_PACKAGE(TBB REQUIRED)
 FIND_PACKAGE(ToLuapp REQUIRED)
 FIND_PACKAGE(ZLIB REQUIRED)
 FIND_PACKAGE(PythonLibs REQUIRED)
+# hack to get the python3 lib
+string(REPLACE "libboost_python" "boost_python3" Boost_PYTHON3_LIBRARY_DEBUG ${Boost_PYTHON_LIBRARY_DEBUG})
+string(REPLACE "libboost_python" "boost_python3" Boost_PYTHON3_LIBRARY ${Boost_PYTHON_LIBRARY})
+SET(Boost_PYTHON3_FOUND_DEBUG ON)
+SET(Boost_PYTHON3_FOUND ON)
 
 # Add boost and tbb to the include and link directories as everything needs it.
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/ ${Boost_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${GLM_INCLUDE_DIR}  ${TBB_INCLUDE_DIRS})

@@ -112,6 +112,12 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "survey_sample"), player);
         return false;
     }
+	// checks if we are in combat, dead or incapacitated
+	if (player->states.checkState(CreatureState_Combat) || player->states.checkPosture(CreaturePosture_Dead) || player->states.checkLocomotion(CreatureLocomotion_Incapacitated))
+	{
+		gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player);
+		return false;
+	}
 
     SurveyTool*			tool			= dynamic_cast<SurveyTool*>(target);
     CurrentResource*	resource		= NULL;
@@ -193,7 +199,7 @@ bool ArtisanManager::handleRequestCoreSample(Object* player,Object* target, Mess
         //mSampleActionCost = cmdProperties->mActionCost;
         mSampleActionCost = 150;
 
-    if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->checkIfMounted() || playerObject->isDead())
+    if(playerObject->getPerformingState() != PlayerPerformance_None || playerObject->checkIfMounted() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
     {
         gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), playerObject);
         return false;

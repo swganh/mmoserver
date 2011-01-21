@@ -2766,8 +2766,10 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BStrin
         break;
     case SUI_Window_CharacterBuilder_ListBox_StateMenu:
         _handleStateMenu(playerObject, action, element, inputStr, window);
+		break;
     case SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu:
         _handleBlueFrogMenu(playerObject, action, element, inputStr, window);
+		break;
     case SUI_Window_CharacterBuilder_ListBox_CivicMenu:
         _handleCivicMenu(playerObject, action, element, inputStr, window);
         break;

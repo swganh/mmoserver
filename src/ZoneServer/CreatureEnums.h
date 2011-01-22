@@ -130,21 +130,21 @@ enum CreatureLocomotion :uint64_t
 //=============================================================================
 enum CreaturePosture
 {
-    CreaturePosture_Upright				=	0x0000000000000001,
-    CreaturePosture_Crouched			=	0x0000000000000002,
-    CreaturePosture_Prone				=	0x0000000000000004,
-    CreaturePosture_Sneaking			=	0x0000000000000008,
-    CreaturePosture_Blocking			=	0x0000000000000010,
-    CreaturePosture_Climbing			=	0x0000000000000020,
-    CreaturePosture_Flying				=	0x0000000000000040,
-    CreaturePosture_LyingDown			=	0x0000000000000080,
-    CreaturePosture_Sitting				=	0x0000000000000100,
-    CreaturePosture_SkillAnimating		=	0x0000000000000200,
-    CreaturePosture_DrivingVehicle		=	0x0000000000000400,
-    CreaturePosture_RidingCreature		=	0x0000000000000800,
-    CreaturePosture_KnockedDown			=	0x0000000000001000,
-    CreaturePosture_Incapacitated		=	0x0000000000002000,
-    CreaturePosture_Dead				=	0x0000000000004000
+    CreaturePosture_Upright				=	0,
+    CreaturePosture_Crouched			=	1,
+    CreaturePosture_Prone				=	2,
+    CreaturePosture_Sneaking			=	3,
+    CreaturePosture_Blocking			=	4,
+    CreaturePosture_Climbing			=	5,
+    CreaturePosture_Flying				=	6,
+    CreaturePosture_LyingDown			=	7,
+    CreaturePosture_Sitting				=	8,
+    CreaturePosture_SkillAnimating		=	9,
+    CreaturePosture_DrivingVehicle		=	10,
+    CreaturePosture_RidingCreature		=	11,
+    CreaturePosture_KnockedDown			=	12,
+    CreaturePosture_Incapacitated		=	13,
+    CreaturePosture_Dead				=	14
 };
 
 //=============================================================================

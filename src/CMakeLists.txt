@@ -2,7 +2,6 @@
 
 add_subdirectory(anh)
 add_subdirectory(PythonEngine)
-add_subdirectory(ScriptBindings)
 
 # executables
 

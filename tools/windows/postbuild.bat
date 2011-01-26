@@ -30,8 +30,8 @@ if %3 == "Debug" (
         xcopy %1\deps\src\zlib\%3\zlibd1.dll %2\bin\%3\ /I /Y /s
     )
 	
-	if not exist %2\bin\%3\boost_python3-vc100-*.dll (
-		xcopy %1\deps\src\boost\bin.v2\libs\python\build\msvc-10.0\debug\threading-multi\%3\boost_python3-vc100-*.dll %2\bin\%3 /I /Y /s
+	if not exist %2\bin\%3\boost_python3-vc100-mt-gd-*.dll (
+		xcopy %1\deps\src\boost\bin.v2\libs\python\build\msvc-10.0\debug\threading-multi\boost_python3-vc100-mt-gd-*.dll %2\bin\%3 /I /Y /s
 	)
 )
 

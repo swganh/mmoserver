@@ -137,7 +137,10 @@ ENDIF()
 
 FIND_PACKAGE(PythonLibs REQUIRED)
 SET(Boost_USE_STATIC_LIBS ON)
-FIND_PACKAGE(Boost 1.45.0 COMPONENTS date_time regex thread system program_options python REQUIRED)
+FIND_PACKAGE(Boost 1.45.0 COMPONENTS date_time regex thread system program_options REQUIRED)
+
+SET(Boost_USE_STATIC_LIBS OFF)
+FIND_PACKAGE(Boost 1.45.0 COMPONENTS python3 REQUIRED)
 
 FIND_PACKAGE(GLM REQUIRED)
 FIND_PACKAGE(GLog REQUIRED)
@@ -149,11 +152,6 @@ FIND_PACKAGE(Noise REQUIRED)
 FIND_PACKAGE(TBB REQUIRED)
 FIND_PACKAGE(ToLuapp REQUIRED)
 FIND_PACKAGE(ZLIB REQUIRED)
-# hack to get the boost python3 lib
-string(REPLACE "boost_python" "boost_python3" Boost_PYTHON3_LIBRARY_DEBUG ${Boost_PYTHON_LIBRARY_DEBUG})
-string(REPLACE "boost_python" "boost_python3" Boost_PYTHON3_LIBRARY ${Boost_PYTHON_LIBRARY})
-SET(Boost_PYTHON3_FOUND_DEBUG ON)
-SET(Boost_PYTHON3_FOUND ON)
 
 # Add boost and tbb to the include and link directories as everything needs it.
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/ ${Boost_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${GLM_INCLUDE_DIR}  ${TBB_INCLUDE_DIRS})

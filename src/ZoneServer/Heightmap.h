@@ -73,7 +73,7 @@ public:
     inline bool isHighResCache(void) {
         return (mCacheResoulutionDivider == 1);
     }
-    float getCachedHeightAt2DPosition(float xPos, float zPos) const;
+    float getCachedHeight(float xPos, float zPos) const;
     float getHeight(float x, float y);
     bool isReady();
     float compensateForInvalidHeightmap(float hmapRes, float clientRes, float allowedDeviation);//TODO: Re-evaluate need once heightmaps are corrected
@@ -113,7 +113,7 @@ private:
     int32 round_coord(float coord) const;
 
     uint16  mResolution;
-    float	**mHeightmapCache;
+    int16	**mHeightmapCache;
     int32	mCacheHeight;
     int32	mCacheWidth;
     int16	mCacheResoulutionDivider;
@@ -130,7 +130,7 @@ protected:
     std::string mFilename;
     FILE * hmp; //file pointer to the highmap
 
-    int32		WIDTH;
+    int32	WIDTH;
     int32   HEIGHT;
 
     std::queue<HeightmapAsyncContainer*> Jobs;

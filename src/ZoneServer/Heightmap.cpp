@@ -361,7 +361,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
     // static int32 cacheWidth = 7681;
 
     // Allocate memory for the heightmap.
-    mHeightmapCache = new float*[mCacheHeight];
+    mHeightmapCache = new int16*[mCacheHeight];
     if (!mHeightmapCache)
     {
         assert (mHeightmapCache != NULL && "Heightmap::setupCache unable to allocate memory for heightmap");
@@ -370,7 +370,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 
     for (int i = 0; i < mCacheWidth; i++)
     {
-        mHeightmapCache[i] = new float[mCacheWidth];
+        mHeightmapCache[i] = new int16[mCacheWidth];
         if (!mHeightmapCache[i])
         {
             return false;
@@ -454,7 +454,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
                     }
                 }
 
-                mHeightmapCache[zPos][xPos] = value;
+                mHeightmapCache[zPos][xPos] = signedFix;
                 xPos++;
                 // heightMapCache[z][x/2] = (float)(heightMapRow[x] &= 0x7FFF)/10;
             }
@@ -473,7 +473,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
     if (status)
     {
         DLOG(INFO) << "Min height = " << min<<" at position "<< xPosMin << ","<< zPosMin;
-        DLOG(INFO) << "Min height = " << max<<" at position "<< xPosMax << ","<< zPosMax;
+        DLOG(INFO) << "Max height = " << max<<" at position "<< xPosMax << ","<< zPosMax;
     }
     return status;
 }
@@ -483,7 +483,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 //	Retrieve the height from the cache for a given 2D x,z position.
 //
 
-float Heightmap::getCachedHeightAt2DPosition(float xPos, float zPos) const
+float Heightmap::getCachedHeight(float xPos, float zPos) const
 {
     float yPos = FLT_MIN;
     if (mCacheAvaliable)
@@ -491,7 +491,7 @@ float Heightmap::getCachedHeightAt2DPosition(float xPos, float zPos) const
         int32 x = round_coord(xPos) + (heightMapHeight/2);
         int32 z = round_coord(zPos) + (heightMapWidth/2);
 
-        yPos = mHeightmapCache[z/mCacheResoulutionDivider][x/mCacheResoulutionDivider];
+        yPos = (float)(mHeightmapCache[z/mCacheResoulutionDivider][x/mCacheResoulutionDivider])/20;
     }
     return yPos;
 }

@@ -152,6 +152,13 @@ private:
         std::string func_name;
     } py_exception;
 };
-
+class ScriptComponent {
+    struct {
+        std::string name;
+        std::string file_name;
+        std::shared_ptr<IEvent> on_event;
+    }SCRIPTDATA;
+    SCRIPTDATA[] scripts;
+};
 } // namespace python
 #endif //_PYTHON_SCRIPT_ENGINE_H_

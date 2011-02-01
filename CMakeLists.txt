@@ -134,7 +134,6 @@ IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps")
     
     SET(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/zlib")
 ENDIF()
-
 FIND_PACKAGE(PythonLibs REQUIRED)
 SET(Boost_USE_STATIC_LIBS ON)
 FIND_PACKAGE(Boost 1.45.0 COMPONENTS date_time regex thread system program_options REQUIRED)

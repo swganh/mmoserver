@@ -16,32 +16,31 @@
  You should have received a copy of the GNU General Public License
  along with MMOServer.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef _PYTHON_SCRIPT_ENGINE_H_
-#define _PYTHON_SCRIPT_ENGINE_H_
+#ifndef _ANH_SCRIPTING_MANAGER_H_
+#define _ANH_SCRIPTING_MANAGER_H_
 
-#include <boost/python.hpp>
-#include <map>
-#include <vector>
+#include "scripting_manager_interface.h"
 
-namespace python{
-namespace bp = boost::python;
+//forward declaration
+namespace boost { namespace python {class str; } }
+namespace anh{
+namespace scripting{
 
-typedef std::map<std::string,bp::str> bp_object_map;
-class object;
 /*! Assists the user in loading and executing Python scripts from
 *   within C++.
 *
 */
-class script_engine
+class ScriptingManager : public ScriptingManagerInterface
 {
 public:
+    typedef std::map<std::string, std::shared_ptr<boost::python::str>> bp_object_map;
     /**
-    * \brief creates script_engine with the base path specified
+    * \brief creates ScriptingManager with the base path specified
     *
-    * \param base_path sets where the engine looks for the files
+    * \param base_path sets where the manager looks for the files
     */
-    script_engine(const std::string& base_path);
-    ~script_engine();
+    ScriptingManager(const std::string& base_path);
+    ~ScriptingManager();
     /**
     * \brief load's the python script into memory
     *  and stores the Boost Python str into a 
@@ -94,7 +93,7 @@ public:
     *  
     * \param filepath sets the path_ behind the scenes
     */
-    bp::str getLoadedFile(const std::string& filename);
+    boost::python::str getLoadedFile(const std::string& filename);
     /**
     * \brief gets data from PYEXCEPTION struct and 
     *       creates a friendly message
@@ -103,7 +102,7 @@ public:
     std::string getErrorMessage();
 private:
     // hide default ctor
-    script_engine();
+    ScriptingManager();
     // used by internal functions
     void setFullPath(const std::string& filename, const std::string& root_path);
     void setFullPath(const std::string& filename);
@@ -151,14 +150,8 @@ private:
         std::string file_name;
         std::string func_name;
     } py_exception;
+    std::vector<PYEXCEPTION> py_exceptions;
 };
-class ScriptComponent {
-    struct {
-        std::string name;
-        std::string file_name;
-        std::shared_ptr<IEvent> on_event;
-    }SCRIPTDATA;
-    SCRIPTDATA[] scripts;
-};
-} // namespace python
-#endif //_PYTHON_SCRIPT_ENGINE_H_
+} // namespace scripting
+} // namespace anh
+#endif //_ANH_SCRIPTING_MANAGER_H_

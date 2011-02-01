@@ -16,20 +16,21 @@
  You should have received a copy of the GNU General Public License
  along with MMOServer.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "script_engine.h"
+#include "scripting_manager.h"
 #include <gtest/gtest.h>
 #include <iostream>
+#include <cstdint>
 
-using namespace python;
+using namespace anh::scripting;
 namespace {
 class ScriptEngineTest : public ::testing::Test 
 {
  protected:
      virtual void SetUp() 
      {
-         e = std::make_shared<script_engine>("../../bin/debug/scripts/unittests/");
+         e = std::make_shared<ScriptingManager>("../../bin/debug/scripts/unittests/");
      }
-     std::shared_ptr<script_engine> e;
+     std::shared_ptr<ScriptingManager> e;
 };
 TEST_F(ScriptEngineTest, loadScript ) 
 {
@@ -72,8 +73,8 @@ TEST_F(ScriptEngineTest, loadSameFileTwice)
 }
 TEST_F(ScriptEngineTest, loadFileOneDeep)
 {
-    e->load("testdeep/scripta.py");
-    EXPECT_TRUE(e->isFileLoaded("testdeep/scripta.py"));
+    e->load("test-deep/scripta.py");
+    EXPECT_TRUE(e->isFileLoaded("test-deep/scripta.py"));
 }
 TEST_F(ScriptEngineTest, getLoadedFiles)
 {
@@ -81,7 +82,7 @@ TEST_F(ScriptEngineTest, getLoadedFiles)
     e->load("../scriptb.py");
     e->load("test.py");
     e->load("testRunSecond.py");
-    e->load("testdeep/scripta.py");
+    e->load("test-deep/scripta.py");
     EXPECT_EQ(uint32_t(5),e->getLoadedFiles().size());
 }
 TEST_F(ScriptEngineTest, removeLoadedFile)

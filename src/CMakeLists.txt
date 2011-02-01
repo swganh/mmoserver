@@ -1,8 +1,6 @@
 # libraries
 
 add_subdirectory(anh)
-add_subdirectory(PythonEngine)
-
 # executables
 
 ADD_SUBDIRECTORY(Utils)

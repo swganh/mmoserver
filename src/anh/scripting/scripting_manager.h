@@ -104,21 +104,21 @@ private:
     // hide default ctor
     ScriptingManager();
     // used by internal functions
-    void setFullPath(const std::string& filename, const std::string& root_path);
-    void setFullPath(const std::string& filename);
+    void setFullPath_(const std::string& filename, const std::string& root_path);
+    void setFullPath_(const std::string& filename);
     /**
     * \brief helper method to set a 
     *   simple file not found message
     */
-    void setCantFindFileError();
+    void setCantFindFileError_();
 
-    std::vector<char> getFileInput(const std::string& filename);
+    std::vector<char> getFileInput_(const std::string& filename);
     /**
     * \brief sets the PYEXCEPTION struct based on internal python values
     *
     * \effect struct is filled out
     */
-    void getExceptionFromPy();
+    void getExceptionFromPy_();
     // base path set by the default ctor
     std::string base_path_;
     /**
@@ -127,7 +127,7 @@ private:
     * \param filename to add to base path
     * \returns char* of full path after adding filename
     */
-    char* fullPath(const std::string& filename);
+    char* fullPath_(const std::string& filename);
 
     /**
     * \brief full path including .py
@@ -150,7 +150,6 @@ private:
         std::string file_name;
         std::string func_name;
     } py_exception;
-    std::vector<PYEXCEPTION> py_exceptions;
 };
 } // namespace scripting
 } // namespace anh

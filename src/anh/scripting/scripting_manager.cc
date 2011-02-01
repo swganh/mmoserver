@@ -40,16 +40,16 @@ void ScriptingManager::load(const string& filename)
 {
     
     try{              
-        string input_str(&getFileInput(filename)[0]);
+        string input_str(&getFileInput_(filename)[0]);
         if (input_str.length() > 0)
         {
             auto file_str = make_shared<str>(input_str);
-            loaded_files_.insert(make_pair(string(fullPath(filename)), file_str));
+            loaded_files_.insert(make_pair(string(fullPath_(filename)), file_str));
         }
     }
     catch(...)
     {
-        getExceptionFromPy();
+        getExceptionFromPy_();
     }
 }
 void ScriptingManager::run(const string& filename)
@@ -70,7 +70,7 @@ void ScriptingManager::run(const string& filename)
     }
     catch(...)
     {
-        getExceptionFromPy();
+        getExceptionFromPy_();
     }
 }
 void ScriptingManager::reload(const string& filename)
@@ -86,7 +86,7 @@ void ScriptingManager::removeFile(const string& filename)
     auto it = loaded_files_.begin();
     for (; it != loaded_files_.end();)
     {
-        if (it->first == fullPath(filename))
+        if (it->first == fullPath_(filename))
         {
             loaded_files_.erase(it++);
         }
@@ -99,15 +99,15 @@ void ScriptingManager::removeFile(const string& filename)
 bool ScriptingManager::isFileLoaded(const string& filename)
 {
     auto it = find_if(loaded_files_.begin(), loaded_files_.end(), [this,&filename](bp_object_map::value_type& file){
-        return file.first == fullPath(filename);
+        return file.first == fullPath_(filename);
     });
     return it != loaded_files_.end();
 }
-void ScriptingManager::setFullPath(const string& filename)
+void ScriptingManager::setFullPath_(const string& filename)
 {
-    setFullPath(filename, base_path_);
+    setFullPath_(filename, base_path_);
 }
-void ScriptingManager::setFullPath(const string& filename, const string& root_path)
+void ScriptingManager::setFullPath_(const string& filename, const string& root_path)
 {
     full_path_.clear();
     full_path_.append(root_path);
@@ -116,27 +116,27 @@ void ScriptingManager::setFullPath(const string& filename, const string& root_pa
 str ScriptingManager::getLoadedFile(const string& filename)
 {
     auto it = find_if(loaded_files_.begin(), loaded_files_.end(), [&](bp_object_map::value_type& file){
-        return file.first == fullPath(filename);
+        return file.first == fullPath_(filename);
     });
     if (it != loaded_files_.end())
         return *it->second;
     else 
         return str();
 }
-char* ScriptingManager::fullPath(const string& filename)
+char* ScriptingManager::fullPath_(const string& filename)
 {
-    setFullPath(filename);
+    setFullPath_(filename);
     return const_cast<char*>(full_path_.c_str());
 }
 
-vector<char> ScriptingManager::getFileInput(const string& filename)
+vector<char> ScriptingManager::getFileInput_(const string& filename)
 {
     vector<char> input;
-    ifstream file(fullPath(filename), ios::in | ios::binary);
+    ifstream file(fullPath_(filename), ios::in | ios::binary);
     if (!file.is_open())
     {
         // set our error message here
-        setCantFindFileError();
+        setCantFindFileError_();
         input.push_back('\0');
         return input;
     }
@@ -148,7 +148,7 @@ vector<char> ScriptingManager::getFileInput(const string& filename)
     
     return input;
 }
-void ScriptingManager::getExceptionFromPy()
+void ScriptingManager::getExceptionFromPy_()
 {
     PyObject* type, *value, *trace_back;
     PyErr_Fetch(&type, &value, &trace_back);
@@ -183,7 +183,7 @@ void ScriptingManager::getExceptionFromPy()
         return;
     }
 }
-void ScriptingManager::setCantFindFileError()
+void ScriptingManager::setCantFindFileError_()
 {
     py_exception.file_name = full_path_;
     py_exception.err_msg = full_path_ + string(": No such file or directory");

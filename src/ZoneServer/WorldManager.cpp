@@ -292,6 +292,34 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 {
     addObject(object);
 
+	if (object->getType() == ObjType_Building)	
+	{		
+		BuildingObject* building = dynamic_cast<BuildingObject*>(object);		
+		CellObjectList* cells = building->getCellList();		
+		
+		for (unsigned int i = 0; i < cells->size(); i++)		
+		{			
+			CellObject* cell = cells->at(i);			
+			ObjectIDList* cell_objects = cell->getObjects();			
+			ObjectIDList::iterator it = cell_objects->begin();			
+			
+			while (it != cell_objects->end())			
+			{				
+				Object* content = gWorldManager->getObjectById(*it);				
+				
+				if (content->getType() == ObjType_Creature || content->getType() == ObjType_NPC)				
+				{					
+					CreatureObject* creature = dynamic_cast<CreatureObject*>(content);					
+					gSpatialIndexManager->createInWorld(creature);				
+				}				
+				else					
+					gSpatialIndexManager->createInWorld(content);				
+				
+				it++;			
+			}		
+		}	
+	}
+
     // check if we done loading
     if ((mState == WMState_StartUp) && (mObjectMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))
     {

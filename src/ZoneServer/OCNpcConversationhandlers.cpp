@@ -111,7 +111,7 @@ void ObjectController::_handleNPCConversationStart(uint64 targetId,Message* mess
 
 	// not inside same parent, or out of range
 	float distance = glm::distance(player->getWorldPosition(), npc->getWorldPosition());
-	if ((npcBuildingId != playerParentId) || distance > 10.0f)
+	if ((npcBuildingId != playerBuildingId) || distance > 10.0f)
 	{
 		inRange = false;
 	}

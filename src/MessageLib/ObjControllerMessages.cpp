@@ -1634,7 +1634,8 @@ void MessageLib::sendFlyText(Object* source, PlayerObject* playerObject, const s
     mMessageFactory->addUint8(blue);
     mMessageFactory->addUint8(display);
 
-    _sendToInRangeUnreliableChatGroup(mMessageFactory->EndMessage(), dynamic_cast<CreatureObject*>(source), 5, 0);
+	_sendToInRangeUnreliable(mMessageFactory->EndMessage(), source, 5, false);
+    //_sendToInRangeUnreliableChatGroup(mMessageFactory->EndMessage(), dynamic_cast<CreatureObject*>(source), 5, 0);
 }
 
 //======================================================================================================================

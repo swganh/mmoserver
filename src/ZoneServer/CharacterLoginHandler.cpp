@@ -368,6 +368,8 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
 			it = playerZoneList.erase(it);
 		}
 
+		// Load other objects nearby
+		gSpatialIndexManager->initObjectsInRange(player);
     }
     break;
 

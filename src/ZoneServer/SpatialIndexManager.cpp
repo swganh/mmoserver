@@ -950,11 +950,10 @@ void SpatialIndexManager::initObjectsInRange(PlayerObject* player) {
     ObjectList children = building->getAllCellChilds();
 
     std::for_each(children.begin(), children.end(), [this, player] (Object* cell_child) {
-        if (cell_child->getType() != ObjType_Tangible) {
-            return;
-        }
-
         sendCreateObject(cell_child, player, true);
+		
+		//if (cell_child->getType() == ObjType_Creature)
+		//	createInWorld(dynamic_cast<CreatureObject*>(cell_child));
     });
 }
 

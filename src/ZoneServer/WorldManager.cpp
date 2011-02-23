@@ -292,7 +292,7 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 {
     addObject(object);
 
-/*	if (object->getType() == ObjType_Building)	
+	if (object->getType() == ObjType_Building)	
 	{		
 		BuildingObject* building = dynamic_cast<BuildingObject*>(object);		
 		CellObjectList* cells = building->getCellList();		
@@ -311,14 +311,12 @@ void WorldManager::handleObjectReady(Object* object,DispatchClient* client)
 				{					
 					CreatureObject* creature = dynamic_cast<CreatureObject*>(content);					
 					gSpatialIndexManager->createInWorld(creature);				
-				}				
-				else					
-					gSpatialIndexManager->createInWorld(content);				
+				}
 				
 				it++;			
 			}		
 		}	
-	} */
+	}
 
     // check if we done loading
     if ((mState == WMState_StartUp) && (mObjectMap.size() + mCreatureSpawnRegionMap.size() >= mTotalObjectCount))

@@ -2,8 +2,8 @@ include(MMOServerExecutable)
 
 AddMMOServerExecutable(LoginServer
     MMOSERVER_DEPS 
-        Utils
-        Common
+        NetworkManager
         DatabaseManager
-        NetworkManager        
+        Common
+        Utils         
 )

@@ -2,14 +2,14 @@ include(MMOServerExecutable)
 
 AddMMOServerExecutable(ZoneServer
     MMOSERVER_DEPS 
-        libanh
-        Utils
-        Common
-        DatabaseManager
-        NetworkManager
         MessageLib
         SwgProtocol
         ScriptEngine
+        NetworkManager
+        DatabaseManager
+        Common
+        Utils   
+        libanh
     ADDITIONAL_INCLUDE_DIRS
         ${LUA_INCLUDE_DIR} 
         ${NOISE_INCLUDE_DIR} 

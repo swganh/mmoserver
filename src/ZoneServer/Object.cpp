@@ -764,7 +764,7 @@ bool Object::addObjectSecure(Object* data)
 
     if(hasObject(data->getId()))
     {
-        assert(false);
+        //assert(false);
         return false;
     }
 

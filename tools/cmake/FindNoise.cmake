@@ -20,6 +20,8 @@ FIND_LIBRARY(NOISE_LIBRARY_DEBUG
 		${NOISE_ROOT}
 	    $ENV{NOISE_ROOT}/lib
 	    ${NOISE_ROOT}/lib
+	    $ENV{NOISE_ROOT}/lib/Debug
+	    ${NOISE_ROOT}/lib/Debug
         $ENV{NOISE_ROOT}/win32/Debug
         ${NOISE_ROOT}/win32/Debug
 )
@@ -34,6 +36,8 @@ FIND_LIBRARY(NOISE_LIBRARY_RELEASE
 		${NOISE_ROOT}
 		$ENV{NOISE_ROOT}/lib
 		${NOISE_ROOT}/lib
+		$ENV{NOISE_ROOT}/lib/Release
+		${NOISE_ROOT}/lib/Release
         $ENV{NOISE_ROOT}/win32/Release
         ${NOISE_ROOT}/win32/Release
 )

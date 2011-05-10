@@ -18,6 +18,8 @@ FIND_LIBRARY(ZLIB_LIBRARY_DEBUG
     HINTS
 	    $ENV{ZLIB_ROOT}/lib
 	    ${ZLIB_ROOT}/lib
+	    $ENV{ZLIB_ROOT}/lib/Debug
+	    ${ZLIB_ROOT}/lib/Debug
         $ENV{ZLIB_ROOT}/Debug
         ${ZLIB_ROOT}/Debug
 )
@@ -30,6 +32,8 @@ FIND_LIBRARY(ZLIB_LIBRARY_RELEASE
     HINTS
 		$ENV{ZLIB_ROOT}/lib
 	    ${ZLIB_ROOT}/lib
+		$ENV{ZLIB_ROOT}/lib/Release
+	    ${ZLIB_ROOT}/lib/Release
         $ENV{ZLIB_ROOT}/Release
         ${ZLIB_ROOT}/Release
 )

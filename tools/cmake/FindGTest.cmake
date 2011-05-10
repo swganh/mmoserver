@@ -117,12 +117,12 @@ set(_gtest_libpath_suffixes lib)
 if(MSVC)
     if(GTEST_MSVC_SEARCH STREQUAL "MD")
         list(APPEND _gtest_libpath_suffixes
-            msvc/gtest-md/Debug
-            msvc/gtest-md/Release)
+            lib/Debug
+            lib/Release)
     elseif(GTEST_MSVC_SEARCH STREQUAL "MT")
         list(APPEND _gtest_libpath_suffixes
-            msvc/gtest/Debug
-            msvc/gtest/Release)
+            lib/Debug
+            lib/Release)
     endif()
 endif()
 

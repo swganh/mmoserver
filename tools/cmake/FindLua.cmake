@@ -17,6 +17,8 @@ FIND_LIBRARY(LUA_LIBRARY_DEBUG
     HINTS
         $ENV{LUA_ROOT}/lib
         ${LUA_ROOT}/lib
+        $ENV{LUA_ROOT}/lib/Debug
+        ${LUA_ROOT}/lib/Debug
 )
 
 FIND_LIBRARY(LUA_LIBRARY_RELEASE
@@ -27,6 +29,8 @@ FIND_LIBRARY(LUA_LIBRARY_RELEASE
     HINTS
         $ENV{LUA_ROOT}/lib
         ${LUA_ROOT}/lib
+        $ENV{LUA_ROOT}/lib/Release
+        ${LUA_ROOT}/lib/Release
 )
         
 IF(LUA_INCLUDE_DIR AND LUA_LIBRARY_DEBUG AND LUA_LIBRARY_RELEASE)

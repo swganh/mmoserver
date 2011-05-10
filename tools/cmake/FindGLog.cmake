@@ -18,8 +18,8 @@ FIND_LIBRARY(GLOG_LIBRARY_DEBUG
     HINTS
 	    $ENV{GLOG_ROOT}/lib
 	    ${GLOG_ROOT}/lib
-        $ENV{GLOG_ROOT}/Debug
-        ${GLOG_ROOT}/Debug
+        $ENV{GLOG_ROOT}/lib/Debug
+        ${GLOG_ROOT}/lib/Debug
 )
 
 FIND_LIBRARY(GLOG_LIBRARY_RELEASE
@@ -30,8 +30,8 @@ FIND_LIBRARY(GLOG_LIBRARY_RELEASE
     HINTS
 		$ENV{GLOG_ROOT}/lib
 		${GLOG_ROOT}/lib
-        $ENV{GLOG_ROOT}/Release
-        ${GLOG_ROOT}/Release
+        $ENV{GLOG_ROOT}/lib/Release
+        ${GLOG_ROOT}/lib/Release
 )
 
 IF(GLOG_INCLUDE_DIR AND GLOG_LIBRARY_DEBUG AND GLOG_LIBRARY_RELEASE)

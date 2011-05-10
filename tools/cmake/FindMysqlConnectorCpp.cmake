@@ -34,6 +34,8 @@ FIND_LIBRARY(MysqlConnectorCpp_LIBRARY_DEBUG
     HINTS
 	    $ENV{MysqlConnectorCpp_ROOT}/lib
 	    ${MysqlConnectorCpp_ROOT}/lib
+        $ENV{MysqlConnectorCpp_ROOT}/lib/Debug
+        ${MysqlConnectorCpp_ROOT}/lib/Debug
         $ENV{MysqlConnectorCpp_ROOT}/driver/Debug
         ${MysqlConnectorCpp_ROOT}/driver/Debug
 )
@@ -46,6 +48,8 @@ FIND_LIBRARY(MysqlConnectorCpp_LIBRARY_RELEASE
     HINTS
 		$ENV{MysqlConnectorCpp_ROOT}/lib
 		${MysqlConnectorCpp_ROOT}/lib
+        $ENV{MysqlConnectorCpp_ROOT}/lib/Release
+        ${MysqlConnectorCpp_ROOT}/lib/Release
         $ENV{MysqlConnectorCpp_ROOT}/driver/Release
         ${MysqlConnectorCpp_ROOT}/driver/Release
 )

@@ -151,13 +151,13 @@ FUNCTION(AddMMOServerLibrary name)
                       
             # Create a custom built user configuration so that the "run in debug mode"
             # works without any issues.
-    	    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/tools/windows/user_project.vcxproj.in 
+    	    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/../tools/windows/user_project.vcxproj.in 
     	        ${CMAKE_CURRENT_BINARY_DIR}/${name}_tests.vcxproj.user @ONLY)
     	     
             # After each executable project is built make sure the environment is
     	    # properly set up (scripts, default configs, etc exist).
     	    ADD_CUSTOM_COMMAND(TARGET ${name} POST_BUILD
-                COMMAND call \"${PROJECT_SOURCE_DIR}/tools/windows/postbuild.bat\" \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\" \"\$\(ConfigurationName\)\"
+                COMMAND call \"${PROJECT_SOURCE_DIR}/../tools/windows/postbuild.bat\" \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\" \"\$\(ConfigurationName\)\"
             ) 
                
     	    # After each executable project is built make sure the environment is

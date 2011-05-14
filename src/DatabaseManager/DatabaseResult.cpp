@@ -25,20 +25,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif
-
 #include "DatabaseResult.h"
-#include "DatabaseImplementation.h"
 
 #include <cppconn/resultset.h>
 #include <cppconn/statement.h>
 
-#include <mysql.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "DatabaseImplementation.h"
 
 DatabaseResult::DatabaseResult(const DatabaseImplementation& impl, sql::Statement* statement, sql::ResultSet* result_set, bool multi_result)
     : result_set_(result_set)
@@ -90,7 +82,3 @@ bool DatabaseResult::isMultiResult() {
 uint64_t DatabaseResult::getRowCount() { 
     return result_set_ ? result_set_->rowsCount() : 0; 
 }
-
-#ifdef _WIN32
-#pragma warning(pop)
-#endif

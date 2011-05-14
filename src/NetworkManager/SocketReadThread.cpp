@@ -52,6 +52,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #if defined(_MSC_VER)
+#include <Winsock2.h>
 #define socklen_t int
 #else
 #include <sys/socket.h>

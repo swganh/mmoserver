@@ -40,17 +40,19 @@ if(MSVC)
     MESSAGE(STATUS "- MSVC: Disable automatic linking for TBB library")
 endif()
 
+option(USE_SYSTEM_LIBRARIES
+    "Uses system libraries instead of downloading or building them" FALSE)
+
 # Use the static/multithreaded libraries.
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-
 
 if(NOT USE_SYSTEM_LIBRARIES)
     set(BOOST_ROOT ${VENDOR_PREFIX}/boost)
     set(GLM_ROOT ${VENDOR_PREFIX}/glm)
     set(GLOG_ROOT ${VENDOR_PREFIX}/glog)
-    set(GTEST_ROOT:PATH=${VENDOR_PREFIX}/gtest)
-    set(GMOCK_ROOT:PATH=${VENDOR_PREFIX}/gmock)
+    set(GTEST_ROOT ${VENDOR_PREFIX}/gtest)
+    set(GMOCK_ROOT ${VENDOR_PREFIX}/gmock)
     set(LUA_ROOT ${VENDOR_PREFIX}/lua)
     set(ENV{MYSQL_DIR} ${VENDOR_PREFIX}/mysql-connector-c)
     set(MysqlConnectorCpp_ROOT ${VENDOR_PREFIX}/mysql-connector-cpp)
@@ -94,38 +96,34 @@ if(WIN32)
         VERBATIM
     )
 
-    get_filename_component(GLOG_DLL_NAME ${GLOG_LIBRARY} NAME_WE)
-    get_filename_component(GLOG_DLL_PATH ${GLOG_LIBRARY} PATH)
-    string(REPLACE "/" "\\" GLOG_DLL_PATH "${GLOG_DLL_PATH}")
+    get_filename_component(GLOG_DLL_PATH ${GLOG_LIBRARY_DEBUG} PATH)
+    string(REPLACE "/" "\\" GLOG_DLL_PATH "${GLOG_DLL_PATH}\\..")
     add_custom_command(
         TARGET DEPS
         POST_BUILD
-        COMMAND xcopy "${GLOG_DLL_PATH}\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
+        COMMAND xcopy "${GLOG_DLL_PATH}\\$\(Configuration\)\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
         VERBATIM
     )
     
-    get_filename_component(MYSQL_CONNECTOR_C_DLL_NAME ${MYSQL_LIB} NAME_WE)
     get_filename_component(MYSQL_CONNECTOR_C_DLL_PATH ${MYSQL_LIB} PATH)
-    string(REPLACE "/" "\\" MYSQL_CONNECTOR_C_DLL_PATH "${MYSQL_CONNECTOR_C_DLL_PATH}")
+    string(REPLACE "/" "\\" MYSQL_CONNECTOR_C_DLL_PATH "${MYSQL_CONNECTOR_C_DLL_PATH}\\..")
     add_custom_command(
         TARGET DEPS
         POST_BUILD
-        COMMAND xcopy "${MYSQL_CONNECTOR_C_DLL_PATH}\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
+        COMMAND xcopy "${MYSQL_CONNECTOR_C_DLL_PATH}\\$\(Configuration\)\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
         VERBATIM
     )
     
     
-    get_filename_component(MYSQL_CONNECTOR_CPP_DLL_NAME ${MYSQLCONNECTORCPP_LIBRARY} NAME_WE)
-    get_filename_component(MYSQL_CONNECTOR_CPP_DLL_PATH ${MYSQLCONNECTORCPP_LIBRARY} PATH)
-    string(REPLACE "/" "\\" MYSQL_CONNECTOR_CPP_DLL_PATH "${MYSQL_CONNECTOR_CPP_DLL_PATH}")
+    get_filename_component(MYSQL_CONNECTOR_CPP_DLL_PATH ${MYSQLCONNECTORCPP_LIBRARY_DEBUG} PATH)
+    string(REPLACE "/" "\\" MYSQL_CONNECTOR_CPP_DLL_PATH "${MYSQL_CONNECTOR_CPP_DLL_PATH}\\..")
     add_custom_command(
         TARGET DEPS
         POST_BUILD
-        COMMAND xcopy "${MYSQL_CONNECTOR_CPP_DLL_PATH}\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
+        COMMAND xcopy "${MYSQL_CONNECTOR_CPP_DLL_PATH}\\$\(Configuration\)\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
         VERBATIM
     )
     
-    get_filename_component(TBB_CPP_DLL_NAME ${TBB_LIBRARY_DEBUG} NAME_WE)
     get_filename_component(TBB_CPP_DLL_PATH ${TBB_LIBRARY_DEBUG} PATH)
     string(REPLACE "/" "\\" TBB_CPP_DLL_PATH "${TBB_CPP_DLL_PATH}")
     add_custom_command(
@@ -135,13 +133,12 @@ if(WIN32)
         VERBATIM
     )
     
-    get_filename_component(ZLIB_DLL_NAME ${ZLIB_LIBRARY} NAME_WE)
-    get_filename_component(ZLIB_DLL_PATH ${ZLIB_LIBRARY} PATH)
-    string(REPLACE "/" "\\" ZLIB_DLL_PATH "${ZLIB_DLL_PATH}")
+    get_filename_component(ZLIB_DLL_PATH ${ZLIB_LIBRARY_DEBUG} PATH)
+    string(REPLACE "/" "\\" ZLIB_DLL_PATH "${ZLIB_DLL_PATH}\\..")
     add_custom_command(
         TARGET DEPS
         POST_BUILD
-        COMMAND xcopy "${ZLIB_DLL_PATH}\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
+        COMMAND xcopy "${ZLIB_DLL_PATH}\\$\(Configuration\)\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
         VERBATIM
     )    
 endif()
@@ -149,8 +146,7 @@ endif()
 enable_testing()
 
 # Add boost and tbb to the include and link directories as everything needs it.
-include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${GLM_INCLUDE_DIR}  ${TBB_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS} ${TBB_LIBRARY_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # libraries
 

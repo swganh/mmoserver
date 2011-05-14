@@ -26,6 +26,9 @@ if(MSVC)
     if(MSVC_VERSION LESS 1600)
     	message(FATAL_ERROR "Visual Studio 2010 or newer is required ")
     endif()
+    
+    SET(_WIN32_WINNT 0x0501 CACHE INTERNAL "Setting _WIN32_WINNT to 0x0501 for Windows XP minimum APIs")
+    SET(WINVER 0x0501 CACHE INTERNAL "Setting WINVER to 0x0501 for Windows XP minimum APIs")
 	
 	# any custom flags that need set for VS compilers only should be set here
 	if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
@@ -33,7 +36,10 @@ if(MSVC)
         message(STATUS "- MSVC: Disabled generic compiletime warnings")
     endif()
     
-    ADD_DEFINITIONS (/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS)
+    ADD_DEFINITIONS (/D _WIN32_WINNT=${_WIN32_WINNT})
+    MESSAGE(STATUS "- MSVC: Set minimum Windows API version")
+    
+    ADD_DEFINITIONS (/D _CRT_SECURE_NO_WARNINGS /D _SCL_SECURE_NO_WARNINGS /D WIN32_LEAN_AND_MEAN)
     MESSAGE(STATUS "- MSVC: Disabled NON-SECURE warnings")
         
     ADD_DEFINITIONS (/D __TBB_NO_IMPLICIT_LINKAGE=1)

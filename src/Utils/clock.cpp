@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #if(ANH_PLATFORM == ANH_PLATFORM_WIN32)
 #include <windows.h>
+#include <MMSystem.h>
 #else
 #include <sys/time.h>
 #endif

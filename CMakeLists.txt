@@ -5,7 +5,7 @@ project(bootstrap CXX)
 # current version
 set(mmoserver_VERSION_MAJOR 0)
 set(mmoserver_VERSION_MINOR 4)
-set(mmoserver_VERSION_PATCH 3)
+set(mmoserver_VERSION_PATCH 5)
 set(mmoserver_VERSION 
 	${mmoserver_VERSION_MAJOR}.${mmoserver_VERSION_MINOR}.${mmoserver_VERSION_PATCH})
 	

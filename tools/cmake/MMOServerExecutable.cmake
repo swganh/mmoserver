@@ -66,6 +66,7 @@ FUNCTION(AddMMOServerExecutable name)
     LIST(LENGTH MMOSERVERLIB_OPTIMIZED_LIBRARIES _optimized_list_length)
     LIST(LENGTH MMOSERVERLIB_MMOSERVER_DEPS _project_deps_list_length)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_INCLUDE_DIRS _includes_list_length)
+    LIST(LENGTH MMOSERVERLIB_ADDITIONAL_LIBRARY_DIRS _librarydirs_list_length)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_SOURCE_DIRS _sources_list_length)
     
     # load up all of the source and header files for the project
@@ -101,6 +102,8 @@ FUNCTION(AddMMOServerExecutable name)
                 ${TEST_SOURCES}
             ADDITIONAL_INCLUDE_DIRS
                 ${MMOSERVERLIB_ADDITIONAL_INCLUDE_DIRS}
+            ADDITIONAL_LIBRARY_DIRS
+                ${MMOSERVERLIB_ADDITIONAL_LIBRARY_DIRS}
             DEBUG_LIBRARIES
                 ${MMOSERVERLIB_DEBUG_LIBRARIES}
             OPTIMIZED_LIBRARIES
@@ -117,7 +120,7 @@ FUNCTION(AddMMOServerExecutable name)
     # Set some default include directories for executables
     INCLUDE_DIRECTORIES(${MYSQL_INCLUDE_DIR} ${MysqlConnectorCpp_INCLUDES})
     
-    if(__librarydirs_list_length GREATER 0)            
+    if(_librarydirs_list_length GREATER 0)            
         link_directories(${MMOSERVERLIB_ADDITIONAL_LIBRARY_DIRS})
     endif()
         
@@ -159,6 +162,5 @@ FUNCTION(AddMMOServerExecutable name)
         
     TARGET_LINK_LIBRARIES(${name}
         ${__project_library}
-        ${MYSQL_LIBRARIES}
     )
 ENDFUNCTION()

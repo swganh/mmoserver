@@ -1,3 +1,4 @@
+list(APPEND vendor_libraries vendor)
 
 ExternalProject_Add(vendor
 	DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

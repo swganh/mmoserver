@@ -126,7 +126,6 @@ if(MSVC)
     endif()
 endif()
 
-
 find_path(GTEST_INCLUDE_DIR gtest/gtest.h
     HINTS
         $ENV{GTEST_ROOT}/include

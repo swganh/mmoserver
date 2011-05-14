@@ -1,49 +1,32 @@
-FIND_PATH(GLOG_INCLUDE_DIR glog/logging.h
-    PATH
+find_path(GLOG_INCLUDE_DIR glog/logging.h
+    PATH_SUFFIXES include
+    HINTS
         $ENV{GLOG_ROOT}
         ${GLOG_ROOT}
-    HINTS
-        $ENV{GLOG_ROOT}/include
-        ${GLOG_ROOT}/include
-        $ENV{GLOG_ROOT}/src/windows
-        ${GLOG_ROOT}/src/windows
+        ${GLOG_INCLUDEDIR}
 )
-MARK_AS_ADVANCED(GLOG_INCLUDE_DIR)
 
-FIND_LIBRARY(GLOG_LIBRARY_DEBUG
-    NAMES GLOG glog libglog glog.lib libglog.lib
-    PATH
+find_library(GLOG_LIBRARY_DEBUG
+    NAMES glog libglog
+    PATH_SUFFIXES lib lib/Debug Debug
+    HINTS
         $ENV{GLOG_ROOT}
         ${GLOG_ROOT}
-    HINTS
-	    $ENV{GLOG_ROOT}/lib
-	    ${GLOG_ROOT}/lib
-        $ENV{GLOG_ROOT}/lib/Debug
-        ${GLOG_ROOT}/lib/Debug
+        ${GLOG_LIBRARYDIR}
 )
 
-FIND_LIBRARY(GLOG_LIBRARY_RELEASE
-    NAMES GLOG glog libglog glog.lib libglog.lib
-    PATH
+find_library(GLOG_LIBRARY_RELEASE
+    NAMES glog libglog
+    PATH_SUFFIXES lib lib/Release Release
+    HINTS
         $ENV{GLOG_ROOT}
         ${GLOG_ROOT}
-    HINTS
-		$ENV{GLOG_ROOT}/lib
-		${GLOG_ROOT}/lib
-        $ENV{GLOG_ROOT}/lib/Release
-        ${GLOG_ROOT}/lib/Release
+        ${GLOG_LIBRARYDIR}
 )
 
-IF(GLOG_INCLUDE_DIR AND GLOG_LIBRARY_DEBUG AND GLOG_LIBRARY_RELEASE)
-    SET(GLOG_FOUND TRUE)
-ENDIF()
+# handle the QUIETLY and REQUIRED arguments and set OPENAL_FOUND to TRUE if
+# all listed variables are TRUE
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(GLog DEFAULT_MSG GLOG_LIBRARY_DEBUG GLOG_LIBRARY_RELEASE GLOG_INCLUDE_DIR)
 
-IF(GLOG_FOUND)
-    IF (NOT GLog_FIND_QUIETLY)
-        MESSAGE(STATUS "Found GLog")
-    ENDIF()
-ELSE()
-    IF (GLog_FIND_REQUIRED)
-        MESSAGE(FATAL_ERROR "Could not find GLog")
-    ENDIF()
-ENDIF()
+mark_as_advanced(GLOG_LIBRARY_DEBUG GLOG_LIBRARY_RELEASE GLOG_INCLUDE_DIR)

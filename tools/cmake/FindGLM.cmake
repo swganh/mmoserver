@@ -1,25 +1,15 @@
-FIND_PATH(GLM_INCLUDE_DIR glm/glm.hpp
-    PATH
-        $ENV{GLM_ROOT}
-        ${GLM_ROOT}
+find_path(GLM_INCLUDE_DIR glm/glm.hpp
     HINTS
         $ENV{GLM_ROOT}
+    PATH_SUFFIXES include
+    PATHS
         ${GLM_ROOT}
-        $ENV{GLM_ROOT}/include
-        ${GLM_ROOT}/include
+        ${GLM_INCLUDEDIR}
 )
-MARK_AS_ADVANCED(GLM_INCLUDE_DIR)
 
-IF(GLM_INCLUDE_DIR)
-    SET(GLM_FOUND TRUE)
-ENDIF()
+# handle the QUIETLY and REQUIRED arguments and set OPENAL_FOUND to TRUE if
+# all listed variables are TRUE
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Glm DEFAULT_MSG GLM_INCLUDE_DIR)
 
-IF(GLM_FOUND)
-    IF (NOT GLM_FIND_QUIETLY)
-        MESSAGE(STATUS "Found GLM")
-    ENDIF()
-ELSE()
-    IF (GLM_FIND_REQUIRED)
-        MESSAGE(FATAL_ERROR "Could not find GLM")
-    ENDIF()
-ENDIF()
+mark_as_advanced(GLM_INCLUDE_DIR)

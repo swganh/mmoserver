@@ -2,6 +2,7 @@
 bin/
 vendor/
 build/
+bootstrap/
 data/heightmaps/
 docs/latex/
 docs/html/

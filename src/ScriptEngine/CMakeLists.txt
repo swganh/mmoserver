@@ -4,11 +4,13 @@ AddMMOServerLibrary(ScriptEngine
     MMOSERVER_DEPS 
         Utils
         Common
-    ADDITIONAL_SOURCE_DIRS
-        glue_files
     ADDITIONAL_INCLUDE_DIRS
+        ${Boost_INCLUDE_DIRS}
+        ${GLM_INCLUDE_DIR}
+        ${GLOG_INCLUDE_DIR}
         ${LUA_INCLUDE_DIR} 
         ${NOISE_INCLUDE_DIR} 
+        ${TBB_INCLUDE_DIRS}
         ${TOLUAPP_INCLUDE_DIR}
     DEBUG_LIBRARIES
         ${LUA_LIBRARY_DEBUG}

@@ -6,9 +6,20 @@ AddMMOServerLibrary(MessageLib
         Common
         NetworkManager
     ADDITIONAL_INCLUDE_DIRS
+        ${Boost_INCLUDE_DIRS}
+        ${GLM_INCLUDE_DIR}
+        ${GLOG_INCLUDE_DIR}
         ${NOISE_INCLUDE_DIR}
+        ${TBB_INCLUDE_DIRS}
+    ADDITIONAL_LIBRARY_DIRS
+        ${Boost_LIBRARY_DIRS}
+        ${TBB_LIBRARY_DIRS}
     DEBUG_LIBRARIES
+        ${GLOG_LIBRARY_DEBUG}
         ${NOISE_LIBRARY_DEBUG}
+        ${TBB_LIBRARY_DEBUG}
     OPTIMIZED_LIBRARIES
+        ${GLOG_LIBRARY_RELEASE}
         ${NOISE_LIBRARY_RELEASE}
+        ${TBB_LIBRARY_RELEASE}
 )

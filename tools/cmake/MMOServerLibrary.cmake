@@ -8,6 +8,7 @@
 # AddMMOServerLibrary(library_name
 #                     MMOSERVER_DEPS [ARGS] [args1...]           # Dependencies on other MMOServer projects
 #                     ADDITIONAL_INCLUDE_DIRS [ARGS] [args1...]  # Additional directories to search for includes
+#                     ADDITIONAL_LIBRARY_DIRS [ARGS] [args1...]  # Additional directories to search for libraries
 #                     ADDITIONAL_SOURCE_DIRS [ARGS] [args1...]   # Additional directories to search for files to include in the project
 #                     DEBUG_LIBRARIES [ARGS] [args1....]         # Additional debug libraries to link the project against
 #                     OPTIMIZED_LIBRARIES [ARGS] [args1...])     # Additional optimized libraries to link the project against
@@ -43,7 +44,10 @@
 #     ADDITIONAL_INCLUDE_DIRS
 #         ${LUA_INCLUDE_DIR} 
 #         ${NOISE_INCLUDE_DIR} 
+#         ${TBB_INCLUDE_DIRS}
 #         ${TOLUAPP_INCLUDE_DIR}
+#     ADDITIONAL_INCLUDE_DIRS
+#         ${TBB_LIBRARY_DIRS}
 #     DEBUG_LIBRARIES
 #         ${LUA_LIBRARY_DEBUG}
 #         ${NOISE_LIBRARY_DEBUG}
@@ -58,13 +62,14 @@
 INCLUDE(CMakeMacroParseArguments)
 
 FUNCTION(AddMMOServerLibrary name)
-    PARSE_ARGUMENTS(MMOSERVERLIB "MMOSERVER_DEPS;SOURCES;TEST_SOURCES;ADDITIONAL_INCLUDE_DIRS;ADDITIONAL_SOURCE_DIRS;DEBUG_LIBRARIES;OPTIMIZED_LIBRARIES" "" ${ARGN})
+    PARSE_ARGUMENTS(MMOSERVERLIB "MMOSERVER_DEPS;SOURCES;TEST_SOURCES;ADDITIONAL_INCLUDE_DIRS;ADDITIONAL_LIBRARY_DIRS;ADDITIONAL_SOURCE_DIRS;DEBUG_LIBRARIES;OPTIMIZED_LIBRARIES" "" ${ARGN})
     
     LIST(LENGTH SOURCES __source_files_list_length)
     LIST(LENGTH MMOSERVERLIB_DEBUG_LIBRARIES _debug_list_length)
     LIST(LENGTH MMOSERVERLIB_OPTIMIZED_LIBRARIES _optimized_list_length)
     LIST(LENGTH MMOSERVERLIB_MMOSERVER_DEPS _project_deps_list_length)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_INCLUDE_DIRS _includes_list_length)
+    LIST(LENGTH MMOSERVERLIB_ADDITIONAL_LIBRARY_DIRS _librarydirs_list_length)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_SOURCE_DIRS _sources_list_length)
             
     # Grab all of the source files and all of the unit test files.
@@ -103,6 +108,7 @@ FUNCTION(AddMMOServerLibrary name)
     
     # Create the Common library
     ADD_LIBRARY(${name} STATIC ${SOURCES})    
+    add_dependencies(${name} DEPS)
     
     IF(_project_deps_list_length GREATER 0)
         ADD_DEPENDENCIES(${name} ${MMOSERVERLIB_MMOSERVER_DEPS})
@@ -111,27 +117,17 @@ FUNCTION(AddMMOServerLibrary name)
     IF(_tests_list_length GREATER 0)
         # Create an executable for the test and link it to gtest and anh
         INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIR})
+        if(_librarydirs_list_length GREATER 0)            
+            link_directories(${MMOSERVERLIB_ADDITIONAL_LIBRARY_DIRS})
+        endif()
+        
         ADD_EXECUTABLE(${name}_tests ${TEST_SOURCES})
+        add_dependencies(${name}_tests DEPS)
         TARGET_LINK_LIBRARIES(${name}_tests 
             ${name}
             ${MMOSERVERLIB_MMOSERVER_DEPS}
             ${GTEST_BOTH_LIBRARIES}
-            debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
-            debug ${Boost_REGEX_LIBRARY_DEBUG}
-            debug ${Boost_SYSTEM_LIBRARY_DEBUG}
-            debug ${Boost_THREAD_LIBRARY_DEBUG}
-            debug ${GLOG_LIBRARY_DEBUG}
-            # debug ${GMOCK_LIBRARY_DEBUG}
-            debug ${TBB_LIBRARY_DEBUG}
-            debug ${TBB_MALLOC_LIBRARY_DEBUG}      
-            optimized ${Boost_DATE_TIME_LIBRARY_RELEASE}
-            optimized ${Boost_REGEX_LIBRARY_RELEASE}
-            optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
-            optimized ${Boost_THREAD_LIBRARY_RELEASE}
-            optimized ${GLOG_LIBRARY_RELEASE}
-            # optimized ${GMOCK_LIBRARY_RELEASE}
-            optimized ${TBB_LIBRARY}
-            optimized ${TBB_MALLOC_LIBRARY})
+            ${GMOCK_LIBRARIES})
                 
         IF(_project_deps_list_length GREATER 0)
             ADD_DEPENDENCIES(${name}_tests ${MMOSERVERLIB_MMOSERVER_DEPS})
@@ -149,17 +145,16 @@ FUNCTION(AddMMOServerLibrary name)
             # Set the default output directory for binaries for convenience.
             SET_TARGET_PROPERTIES(${name}_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}")
                       
+            # Mysql is built with the static runtime but all of our projects and deps
+            # use the dynamic runtime, in this instance it's a non-issue so ignore
+            # the problem lib.
+            SET_TARGET_PROPERTIES(${name}_tests PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMT")
+        
             # Create a custom built user configuration so that the "run in debug mode"
             # works without any issues.
-    	    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/tools/windows/user_project.vcxproj.in 
+    	    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/../tools/windows/user_project.vcxproj.in 
     	        ${CMAKE_CURRENT_BINARY_DIR}/${name}_tests.vcxproj.user @ONLY)
-    	     
-            # After each executable project is built make sure the environment is
-    	    # properly set up (scripts, default configs, etc exist).
-    	    ADD_CUSTOM_COMMAND(TARGET ${name} POST_BUILD
-                COMMAND call \"${PROJECT_SOURCE_DIR}/tools/windows/postbuild.bat\" \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\" \"\$\(ConfigurationName\)\"
-            ) 
-               
+    	                    
     	    # After each executable project is built make sure the environment is
     	    # properly set up (scripts, default configs, etc exist).
     	    ADD_CUSTOM_COMMAND(TARGET ${name}_tests POST_BUILD

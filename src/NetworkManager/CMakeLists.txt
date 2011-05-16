@@ -5,9 +5,18 @@ AddMMOServerLibrary(NetworkManager
         Utils
         Common
     ADDITIONAL_INCLUDE_DIRS
+        ${Boost_INCLUDE_DIRS}
+        ${GLOG_INCLUDE_DIR}
         ${ZLIB_INCLUDE_DIR}
+        ${TBB_INCLUDE_DIRS}
+    ADDITIONAL_LIBRARY_DIRS
+        ${Boost_LIBRARY_DIRS}
     DEBUG_LIBRARIES
-        debug ${ZLIB_LIBRARY_DEBUG}       
+        ${GLOG_LIBRARY_DEBUG}
+        ${TBB_DEBUG_LIBRARIES}
+        ${ZLIB_LIBRARY_DEBUG}       
     OPTIMIZED_LIBRARIES
-        optimized ${ZLIB_LIBRARY_RELEASE}
+        ${GLOG_LIBRARY_RELEASE}
+        ${TBB_LIBRARIES}
+        ${ZLIB_LIBRARY_RELEASE}
 )

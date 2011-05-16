@@ -8,6 +8,7 @@
 # AddMMOServerExecutable(executable_name
 #                        MMOSERVER_DEPS [ARGS] [args1...]           # Dependencies on other MMOServer projects
 #                        ADDITIONAL_INCLUDE_DIRS [ARGS] [args1...]  # Additional directories to search for includes
+#                        ADDITIONAL_LIBRARY_DIRS [ARGS] [args1...]  # Additional directories to search for libraries
 #                        ADDITIONAL_SOURCE_DIRS [ARGS] [args1...]   # Additional directories to search for files to include in the project
 #                        DEBUG_LIBRARIES [ARGS] [args1....]         # Additional debug libraries to link the project against
 #                        OPTIMIZED_LIBRARIES [ARGS] [args1...])     # Additional optimized libraries to link the project against
@@ -37,6 +38,7 @@
 #         ${NOISE_INCLUDE_DIR} 
 #         ${SpatialIndex_INCLUDE_DIR} 
 #         ${TOLUAPP_INCLUDE_DIR}
+#     ADDITIONAL_LIBRARY_DIRS
 #     ADDITIONAL_SOURCE_DIRS
 #         ${CMAKE_CURRENT_SOURCE_DIR}/objects
 #     DEBUG_LIBRARIES 
@@ -56,7 +58,7 @@ INCLUDE(CMakeMacroParseArguments)
 INCLUDE(MMOServerLibrary)
 
 FUNCTION(AddMMOServerExecutable name)
-    PARSE_ARGUMENTS(MMOSERVERLIB "MMOSERVER_DEPS;ADDITIONAL_INCLUDE_DIRS;ADDITIONAL_SOURCE_DIRS;DEBUG_LIBRARIES;OPTIMIZED_LIBRARIES" "" ${ARGN})
+    PARSE_ARGUMENTS(MMOSERVERLIB "MMOSERVER_DEPS;ADDITIONAL_INCLUDE_DIRS;ADDITIONAL_LIBRARY_DIRS;ADDITIONAL_SOURCE_DIRS;DEBUG_LIBRARIES;OPTIMIZED_LIBRARIES" "" ${ARGN})
     
     # get information about the data passed in, helpful for checking if a value
     # has been set or not
@@ -64,6 +66,7 @@ FUNCTION(AddMMOServerExecutable name)
     LIST(LENGTH MMOSERVERLIB_OPTIMIZED_LIBRARIES _optimized_list_length)
     LIST(LENGTH MMOSERVERLIB_MMOSERVER_DEPS _project_deps_list_length)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_INCLUDE_DIRS _includes_list_length)
+    LIST(LENGTH MMOSERVERLIB_ADDITIONAL_LIBRARY_DIRS _librarydirs_list_length)
     LIST(LENGTH MMOSERVERLIB_ADDITIONAL_SOURCE_DIRS _sources_list_length)
     
     # load up all of the source and header files for the project
@@ -99,6 +102,8 @@ FUNCTION(AddMMOServerExecutable name)
                 ${TEST_SOURCES}
             ADDITIONAL_INCLUDE_DIRS
                 ${MMOSERVERLIB_ADDITIONAL_INCLUDE_DIRS}
+            ADDITIONAL_LIBRARY_DIRS
+                ${MMOSERVERLIB_ADDITIONAL_LIBRARY_DIRS}
             DEBUG_LIBRARIES
                 ${MMOSERVERLIB_DEBUG_LIBRARIES}
             OPTIMIZED_LIBRARIES
@@ -115,19 +120,28 @@ FUNCTION(AddMMOServerExecutable name)
     # Set some default include directories for executables
     INCLUDE_DIRECTORIES(${MYSQL_INCLUDE_DIR} ${MysqlConnectorCpp_INCLUDES})
     
+    if(_librarydirs_list_length GREATER 0)            
+        link_directories(${MMOSERVERLIB_ADDITIONAL_LIBRARY_DIRS})
+    endif()
+        
     # Create the executable
     ADD_EXECUTABLE(${name} ${SOURCES})
+    add_dependencies(${name} DEPS)
     
     IF(_project_deps_list_length GREATER 0)
         TARGET_LINK_LIBRARIES(${name} ${MMOSERVERLIB_MMOSERVER_DEPS})
     ENDIF()
     
-    IF(_debug_list_length GREATER 0)
-        TARGET_LINK_LIBRARIES(${name} debug ${MMOSERVERLIB_DEBUG_LIBRARIES})
+    IF(_debug_list_length GREATER 0)        
+        FOREACH(__library ${MMOSERVERLIB_DEBUG_LIBRARIES})
+            TARGET_LINK_LIBRARIES(${name} debug ${__library})
+        ENDFOREACH()
     ENDIF()
     
     IF(_optimized_list_length GREATER 0)
-        TARGET_LINK_LIBRARIES(${name} optimized ${MMOSERVERLIB_OPTIMIZED_LIBRARIES})
+        FOREACH(__library ${MMOSERVERLIB_OPTIMIZED_LIBRARIES})
+            TARGET_LINK_LIBRARIES(${name} optimized ${__library})
+        ENDFOREACH()
     ENDIF()
     
     IF(WIN32)
@@ -142,15 +156,9 @@ FUNCTION(AddMMOServerExecutable name)
         # Link to some standard windows libs that all projects need.
     	TARGET_LINK_LIBRARIES(${name} "winmm.lib" "ws2_32.lib")
         
-    	# After each executable project is built make sure the environment is
-    	# properly set up (scripts, default configs, etc exist).
-    	ADD_CUSTOM_COMMAND(TARGET ${name} POST_BUILD
-            COMMAND call \"${PROJECT_SOURCE_DIR}/tools/windows/postbuild.bat\" \"${PROJECT_SOURCE_DIR}\" \"${PROJECT_BINARY_DIR}\" \"\$\(ConfigurationName\)\"
-        )   
-        
         # Create a custom built user configuration so that the "run in debug mode"
         # works without any issues.
-    	CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/tools/windows/user_project.vcxproj.in 
+    	CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/../tools/windows/user_project.vcxproj.in 
     	    ${CMAKE_CURRENT_BINARY_DIR}/${name}.vcxproj.user @ONLY)
     ELSE()
         # On unix platforms put the built runtimes in the /bin directory.
@@ -159,26 +167,5 @@ FUNCTION(AddMMOServerExecutable name)
         
     TARGET_LINK_LIBRARIES(${name}
         ${__project_library}
-        ${MYSQL_LIBRARIES}
-        debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
-        debug ${Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG}
-        debug ${Boost_REGEX_LIBRARY_DEBUG}
-        debug ${Boost_SYSTEM_LIBRARY_DEBUG}
-        debug ${Boost_THREAD_LIBRARY_DEBUG}
-        debug ${GLOG_LIBRARY_DEBUG}
-        debug ${MysqlConnectorCpp_LIBRARY_DEBUG}
-        debug ${TBB_LIBRARY_DEBUG}
-        debug ${TBB_MALLOC_LIBRARY_DEBUG}
-        debug ${ZLIB_LIBRARY_DEBUG}        
-        optimized ${Boost_DATE_TIME_LIBRARY_RELEASE}
-        optimized ${Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE}
-        optimized ${Boost_REGEX_LIBRARY_RELEASE}
-        optimized ${Boost_SYSTEM_LIBRARY_RELEASE}
-        optimized ${Boost_THREAD_LIBRARY_RELEASE}
-        optimized ${GLOG_LIBRARY_RELEASE}
-        optimized ${MysqlConnectorCpp_LIBRARY_RELEASE}
-        optimized ${TBB_LIBRARY}
-        optimized ${TBB_MALLOC_LIBRARY}
-        optimized ${ZLIB_LIBRARY_RELEASE}
     )
 ENDFUNCTION()

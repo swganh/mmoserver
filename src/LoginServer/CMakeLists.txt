@@ -5,5 +5,23 @@ AddMMOServerExecutable(LoginServer
         NetworkManager
         DatabaseManager
         Common
-        Utils         
+        Utils      
+    ADDITIONAL_INCLUDE_DIRS
+        ${Boost_INCLUDE_DIRS}
+        ${GLOG_INCLUDE_DIR}
+        ${MYSQLCONNECTORCPP_INCLUDE_DIRS}
+        ${TBB_INCLUDE_DIRS}
+    ADDITIONAL_LIBRARY_DIRS
+        ${Boost_LIBRARY_DIRS}
+        ${TBB_LIBRARY_DIRS}
+    DEBUG_LIBRARIES
+        ${GLOG_LIBRARY_DEBUG}
+        ${MYSQL_LIB}
+        ${MYSQLCONNECTORCPP_LIBRARY_DEBUG}
+        ${TBB_LIBRARY_DEBUG}
+    OPTIMIZED_LIBRARIES
+        ${GLOG_LIBRARY_RELEASE}
+        ${MYSQL_LIB}
+        ${MYSQLCONNECTORCPP_LIBRARY_RELEASE}
+        ${TBB_LIBRARY_RELEASE}   
 )

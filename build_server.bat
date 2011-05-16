@@ -16,10 +16,6 @@ rem Process command line arguments first
 goto :PROCESS_ARGUMENTS
 :CONTINUE_FROM_PROCESS_ARGUMENTS
 
-rem Build the environment and bail out if it fails
-call :BUILD_ENVIRONMENT
-if x%environment_built% == x goto :eof
-
 %PROJECT_DRIVE%
 cd %PROJECT_BASE%
 
@@ -27,38 +23,11 @@ if %SKIPHEIGHTMAPS% == false (
 call :DOWNLOAD_DATA_FILES
 )
 
-call :BUILD_DEPENDENCIES
-
-if not exist "deps" (
-	echo Missing SWGANH dependencies!
-	echo.
-	echo Download the dependencies from %DEPENDENCIES_URL% and unpack it
-	echo into the root project directory, then run this script again.
-	exit /b 1
-)
-
-if %DEPENDENCIESONLY% == true goto :eof
-
 call :BUILD_PROJECT
 
 if not %ERRORLEVEL% == 0 (
 if %HALT_ON_ERROR% == true (set /p halt=*** BUILD FAILED... PRESS ENTER TO CONTINUE ***)
 exit /b %ERRORLEVEL%
-)
-
-if not "%BUILDNUMBER%" == "false" (
-    if "%BUILD_TYPE%" == "debug" (
-        echo %BUILDNUMBER% >> build\bin\Debug\VERSION
-    )
-
-    if "%BUILD_TYPE%" == "release" (
-        echo %BUILDNUMBER% >> build\bin\Release\VERSION
-    )
-
-    if "%BUILD_TYPE%" == "all" (
-        echo %BUILDNUMBER% >> build\bin\Debug\VERSION
-        echo %BUILDNUMBER% >> build\bin\Release\VERSION
-    )
 )
 
 echo.
@@ -87,10 +56,8 @@ set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_
 set "PROJECT_BASE=%~dp0"
 set "PROJECT_DRIVE=%~d0"
 set PATH=%PROJECT_BASE%tools\windows;%PATH%
-set BUILD_TYPE=debug
-set REBUILD=build
-set MSVC_VERSION=10
 set ALLHEIGHTMAPS=false
+set ERRORLEVEL=0
 set SKIPHEIGHTMAPS=false
 set DEPENDENCIESONLY=false
 set BUILDNUMBER=0
@@ -117,19 +84,12 @@ if "%~0" == "-h" (
 	echo "    /allheightmaps                 Downloads all of the heightmaps"
 	echo "    /nohaltonerror                 Skips halting on errors"
 	echo "    /skipheightmaps                Skips downloading heightmap files"
-	echo "    /rebuild                       Rebuilds the projects instead of incremental build"
 	echo "    /clean                         Cleans the generated files"
-	echo "    /build [debug-release-all]     Specifies the build type, defaults to debug"
-	echo "    /buildnumber [num]             Specifies a build number to be set rather than commit hash"
 )
 
 if "%~0" == "/clean" (
 	call :CLEAN_BUILD
 	goto :eof
-)
-
-if "%~0" == "/builddeps" (
-	set DEPENDENCIESONLY=true
 )
 
 if "%~0" == "/allheightmaps" (
@@ -142,24 +102,6 @@ if "%~0" == "/skipheightmaps" (
 
 if "%~0" == "/nohaltonerror" (
 	set HALT_ON_ERROR=false
-)
-
-rem Check for /rebuild then set REBUILD
-if "%~0" == "/rebuild" (
-	set REBUILD=rebuild
-)
-
-
-rem Check for /buildnumber x format and then set BUILDNUMBER
-if "%~0" == "/buildnumber" (
-	set BUILDNUMBER=%~1
-	shift
-)
-
-rem Check for /build:x format and then set BUILD_TYPE
-if "%~0" == "/build" (
-set BUILD_TYPE=%~1
-shift
 )
 
 shift
@@ -177,39 +119,10 @@ rem --- project to it's original state like a fresh checkout.                ---
 
 echo Cleaning the build environment
 
-if exist "deps" rmdir /S /Q "deps"
 if exist "build" rmdir /S /Q "build"
 
 goto :eof
 rem --- End of CLEAN_BUILD -----------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ENVIRONMENT ---------------------------------------------
-:BUILD_ENVIRONMENT
-
-if not exist "%VS100COMNTOOLS%" (
-  set "VS100COMNTOOLS=%PROGRAMFILES(X86)%\Microsoft Visual Studio 10.0\Common7\Tools"
-  if not exist "!VS100COMNTOOLS!" (
-  	  set "VS100COMNTOOLS=%PROGRAMFILES%\Microsoft Visual Studio 10.0\Common7\Tools"
-  	  if not exist "!VS100COMNTOOLS!" (          
-  		    rem TODO: Allow user to enter a path to their base visual Studio directory.
-         
-    	    echo ***** Microsoft Visual Studio 10.0 required *****
-    	    exit /b 1
-  	  )
-  )
-)
-
-set "MSBUILD=%WINDIR%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe"
-
-call "%VS100COMNTOOLS%\vsvars32.bat" >NUL
-
-set environment_built=yes
-
-goto :eof
-rem --- End of BUILD_ENVIRONMENT -----------------------------------------------
 rem ----------------------------------------------------------------------------
 
 
@@ -268,67 +181,6 @@ rem ----------------------------------------------------------------------------
 
 
 rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_DEPENDENCIES --------------------------------------------
-rem --- Builds all external dependencies needed by the project.              ---
-:BUILD_DEPENDENCIES
-
-echo ** Building dependencies necessary for this project **
-echo.
-
-if not exist "deps" call :DOWNLOAD_DEPENDENCIES
-
-if not exist "deps\VERSION" (
-	echo ** Dependencies out of date -- Updating now **
-	call :CLEAN_BUILD
-	call :DOWNLOAD_DEPENDENCIES
-	echo ** Dependencies updated **
-)
-
-set /p current_version=<"deps\VERSION"
-
-if not %current_version% == %DEPENDENCIES_VERSION% (
-	echo ** Dependencies out of date -- Updating now **
-
-	rem Need to do a full rebuild after updating dependenceies
-	set REBUILD=rebuild
-
-	call :CLEAN_BUILD
-	call :DOWNLOAD_DEPENDENCIES
-	echo ** Dependencies updated **
-)
-
-call "%PROJECT_BASE%\deps\build_deps.bat"
-
-echo ** Building dependencies complete **
-
-goto :eof
-rem --- End of BUILD_DEPENDENCIES ----------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of DOWNLOAD_DEPENDENCIES -----------------------------------------
-rem --- Downloads the dependency package for the current version of the source -
-:DOWNLOAD_DEPENDENCIES
-
-if not exist "%DEPENDENCIES_FILE%" (
-	"wget" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
-)
-
-if exist "%DEPENDENCIES_FILE%" (
-	echo Extracting dependencies ...
-
-	"tar" -xvjf "%DEPENDENCIES_FILE%"
-	echo Complete!
-	echo.
-)
-
-goto :eof
-rem --- End of DOWNLOAD_DEPENDENCIES -------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
 rem --- Start of BUILD_PROJECT -------------------------------------------------
 rem --- Builds the actual project.                                           ---
 :BUILD_PROJECT
@@ -338,52 +190,12 @@ if not exist "%PROJECT_BASE%build" (
 )
 cd "%PROJECT_BASE%build"
 
-cmake -G "Visual Studio 10" -DCMAKE_INSTALL_PREFIX=%PROJECT_BASE% -DENABLE_TEST_REPORT=ON ..
+cmake -G "Visual Studio 10" -DENABLE_TEST_REPORT=ON ..
 
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-if "%BUILD_TYPE%" == "debug" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-if "%BUILD_TYPE%" == "release" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
-
-if "%BUILD_TYPE%" == "all" (
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-
-	"%MSBUILD%" "mmoserver.sln" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1	
-	"%MSBUILD%" "RUN_TESTS.vcxproj" /t:%REBUILD% /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-	if errorlevel 1 exit /b 1
-	if exist "*.cache" del /S /Q "*.cache" >NUL
-)
+cmake --build .
 
 goto :eof
 rem --- End of BUILD_PROJECT ---------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of SLEEP ---------------------------------------------------------
-rem --- Waits some seconds before returning.                                 ---
-:SLEEP
-ping -n %1 -w 1 127.0.0.1>NUL
-goto :eof
-rem --- End of SLEEP -----------------------------------------------------------
 rem ----------------------------------------------------------------------------
 
 ENDLOCAL

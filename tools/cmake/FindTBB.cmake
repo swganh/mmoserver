@@ -155,16 +155,20 @@ mark_as_advanced(TBB_INCLUDE_DIR)
 if (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
     set (_TBB_LIBRARY_DIR 
          ${_TBB_INSTALL_DIR}/lib/$ENV{TBB_ARCH_PLATFORM}
-         ${_TBB_INSTALL_DIR}/$ENV{TBB_ARCH_PLATFORM}/lib
-        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Debug
-        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Release
+         ${_TBB_INSTALL_DIR}/$ENV{TBB_ARCH_PLATFORM}/lib  
+        ${_TBB_INSTALL_DIR}/lib/ia32/vc10
+        ${_TBB_INSTALL_DIR}/build/vc10/ia32/Debug
+        ${_TBB_INSTALL_DIR}/build/vc10/ia32/Release
         )
 else (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
     # HH: deprecated
     set (_TBB_LIBRARY_DIR 
-        "${_TBB_INSTALL_DIR}/lib"        
-        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Debug
-        ${_TBB_INSTALL_DIR}/build/vsproject/ia32/Release
+        "${_TBB_INSTALL_DIR}/lib"      
+        "${_TBB_INSTALL_DIR}/lib/gcc_debug"  
+        "${_TBB_INSTALL_DIR}/lib/gcc_release"
+        ${_TBB_INSTALL_DIR}/lib/ia32/vc10
+        ${_TBB_INSTALL_DIR}/build/vc10/ia32/Debug
+        ${_TBB_INSTALL_DIR}/build/vc10/ia32/Release
     )
 endif (NOT $ENV{TBB_ARCH_PLATFORM} STREQUAL "")
 
@@ -187,7 +191,7 @@ mark_as_advanced(TBB_LIBRARY_DEBUG TBB_MALLOC_LIBRARY_DEBUG)
 
 
 if (TBB_INCLUDE_DIR)
-    if (TBB_LIBRARY)
+    if (TBB_LIBRARY OR TBB_LIBRARY_DEBUG)
         set (TBB_FOUND "YES")
         set (TBB_LIBRARIES ${TBB_LIBRARY} ${TBB_MALLOC_LIBRARY} ${TBB_LIBRARIES})
         set (TBB_DEBUG_LIBRARIES ${TBB_LIBRARY_DEBUG} ${TBB_MALLOC_LIBRARY_DEBUG} ${TBB_DEBUG_LIBRARIES})
@@ -195,7 +199,7 @@ if (TBB_INCLUDE_DIR)
         set (TBB_LIBRARY_DIRS ${TBB_LIBRARY_DIR} CACHE PATH "TBB library directory" FORCE)
         mark_as_advanced(TBB_INCLUDE_DIRS TBB_LIBRARY_DIRS TBB_LIBRARIES TBB_DEBUG_LIBRARIES)
         message(STATUS "Found Intel TBB")
-    endif (TBB_LIBRARY)
+    endif (TBB_LIBRARY OR TBB_LIBRARY_DEBUG)
 endif (TBB_INCLUDE_DIR)
 
 if (NOT TBB_FOUND)

@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8.2)
 
 project(mmoserver CXX)
 
+configure_file (
+  "${PROJECT_SOURCE_DIR}/version.h.in"
+  "${PROJECT_BINARY_DIR}/version.h"
+  )
+  
 ## compiler checks
 include(CheckCXXCompilerFlag)
 
@@ -151,11 +156,11 @@ endif()
 
 enable_testing()
 
-# Add boost and tbb to the include and link directories as everything needs it.
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+# make sure the source directory and the binary directory (where any generated
+# files will be found) are automatically searched for includes
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 # libraries
-
 add_subdirectory(anh)
 
 # executables

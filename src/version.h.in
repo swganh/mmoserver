@@ -1,0 +1,9 @@
+
+#ifndef ANH_CONFIG_
+#define ANH_CONFIG_
+
+#define VERSION_MAJOR @mmoserver_VERSION_MAJOR@
+#define VERSION_MINOR @mmoserver_VERSION_MINOR@
+#define VERSION_PATCH @mmoserver_VERSION_PATCH@
+
+#endif  // ANH_CONFIG_

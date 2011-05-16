@@ -4,7 +4,6 @@ AddMMOServerLibrary(libanh
     ADDITIONAL_INCLUDE_DIRS
         ${Boost_INCLUDE_DIRS}
         ${MYSQL_INCLUDE_DIR}
-        ${MysqlConnectorCpp_INCLUDES}
         ${TBB_INCLUDE_DIRS}
     ADDITIONAL_LIBRARY_DIRS
         ${Boost_LIBRARY_DIRS}

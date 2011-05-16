@@ -24,12 +24,6 @@
 #include <string>
 #include "Utils/typedefs.h"
 
-//======================================================================================================================
-
-std::string GetBuildNumber();
-std::string GetBuildTime();
 std::string GetBuildString();
 
-#endif // ANH_COMMON_BUILDINFO_H
-
-
+#endif  // ANH_COMMON_BUILDINFO_H

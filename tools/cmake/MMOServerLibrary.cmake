@@ -145,6 +145,11 @@ FUNCTION(AddMMOServerLibrary name)
             # Set the default output directory for binaries for convenience.
             SET_TARGET_PROPERTIES(${name}_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}")
                       
+            # Mysql is built with the static runtime but all of our projects and deps
+            # use the dynamic runtime, in this instance it's a non-issue so ignore
+            # the problem lib.
+            SET_TARGET_PROPERTIES(${name}_tests PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMT")
+        
             # Create a custom built user configuration so that the "run in debug mode"
             # works without any issues.
     	    CONFIGURE_FILE(${PROJECT_SOURCE_DIR}/../tools/windows/user_project.vcxproj.in 

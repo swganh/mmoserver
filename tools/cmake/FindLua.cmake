@@ -28,6 +28,6 @@ find_library(LUA_LIBRARY_RELEASE
 # handle the QUIETLY and REQUIRED arguments and set OPENAL_FOUND to TRUE if
 # all listed variables are TRUE
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GMock DEFAULT_MSG LUA_LIBRARY_DEBUG LUA_LIBRARY_RELEASE LUA_INCLUDE_DIR)
+find_package_handle_standard_args(Lua DEFAULT_MSG LUA_LIBRARY_DEBUG LUA_LIBRARY_RELEASE LUA_INCLUDE_DIR)
 
 mark_as_advanced(LUA_LIBRARY_DEBUG LUA_LIBRARY_RELEASE LUA_INCLUDE_DIR)

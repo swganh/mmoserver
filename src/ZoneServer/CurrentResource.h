@@ -24,7 +24,7 @@
 #include "Utils/typedefs.h"
 #include "Resource.h"
 #include "ZoneServer/noiseutils.h"
-#include <noise/noise.h>
+#include <noise.h>
 #include <string>
 
 

@@ -1,12 +1,16 @@
-FIND_PATH(NOISE_INCLUDE_DIR noise/noise.h
+FIND_PATH(NOISE_INCLUDE_DIR noise.h
     PATH
         $ENV{NOISE_ROOT}
         ${NOISE_ROOT}
     HINTS
-	    $ENV{NOISE_ROOT}
-	    ${NOISE_ROOT}
+	$ENV{NOISE_ROOT}
+	${NOISE_ROOT}
         $ENV{NOISE_ROOT}/include
         ${NOISE_ROOT}/include
+        $ENV{NOISE_ROOT}/include/noise
+        ${NOISE_ROOT}/include/noise
+        $ENV{NOISE_ROOT}/include/libnoise
+        ${NOISE_ROOT}/include/libnoise
 )
 MARK_AS_ADVANCED(NOISE_INCLUDE_DIR)
 

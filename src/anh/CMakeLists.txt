@@ -7,11 +7,16 @@ AddMMOServerLibrary(libanh
         ${TBB_INCLUDE_DIRS}
     ADDITIONAL_LIBRARY_DIRS
         ${Boost_LIBRARY_DIRS}
+        ${TBB_LIBRARY_DIRS}
     DEBUG_LIBRARIES
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_THREAD_LIBRARY}
         ${MYSQL_LIB}
         ${MysqlConnectorCpp_LIBRARY_DEBUG}
         ${TBB_DEBUG_LIBRARIES}
     OPTIMIZED_LIBRARIES
+        ${Boost_SYSTEM_LIBRARY}
+        ${Boost_THREAD_LIBRARY}
         ${MYSQL_LIB}
         ${MysqlConnectorCpp_LIBRARY_RELEASE}
         ${TBB_LIBRARIES}

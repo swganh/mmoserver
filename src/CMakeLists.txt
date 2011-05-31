@@ -25,6 +25,8 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     IF(HAS_CPP0X_SUPPORT)
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
     ENDIF()
+    
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D GLM_FORCE_COMPILER_UNKNOWN")
 endif()
 
 if(MSVC)
@@ -58,7 +60,7 @@ option(USE_SYSTEM_LIBRARIES
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 
-if(NOT USE_SYSTEM_LIBRARIES)
+if(DEFINED VENDOR_PREFIX AND NOT USE_SYSTEM_LIBRARIES)
     set(BOOST_ROOT ${VENDOR_PREFIX}/boost)
     set(GLM_ROOT ${VENDOR_PREFIX}/glm)
     set(GLOG_ROOT ${VENDOR_PREFIX}/glog)
@@ -87,71 +89,7 @@ find_package(ToLuapp REQUIRED)
 find_package(ZLIB REQUIRED)
 
 if(WIN32)    
-    string(REPLACE "/" "\\" WIN_PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR}")
-    
-    ## create a target that gathers up the necessary dll's from the above
-    ## dependencies and places them in the runtime directory for this project
-    add_custom_target(DEPS)
-
-    add_custom_command(
-        TARGET DEPS
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${WIN_PROJECT_BINARY_DIR}\\bin"
-        VERBATIM
-    )
-
-    add_custom_command(
-        TARGET DEPS
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)"
-        VERBATIM
-    )
-
-    get_filename_component(GLOG_DLL_PATH ${GLOG_LIBRARY_DEBUG} PATH)
-    string(REPLACE "/" "\\" GLOG_DLL_PATH "${GLOG_DLL_PATH}\\..")
-    add_custom_command(
-        TARGET DEPS
-        POST_BUILD
-        COMMAND xcopy "${GLOG_DLL_PATH}\\$\(Configuration\)\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
-        VERBATIM
-    )
-    
-    get_filename_component(MYSQL_CONNECTOR_C_DLL_PATH ${MYSQL_LIB} PATH)
-    string(REPLACE "/" "\\" MYSQL_CONNECTOR_C_DLL_PATH "${MYSQL_CONNECTOR_C_DLL_PATH}\\..")
-    add_custom_command(
-        TARGET DEPS
-        POST_BUILD
-        COMMAND xcopy "${MYSQL_CONNECTOR_C_DLL_PATH}\\$\(Configuration\)\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
-        VERBATIM
-    )
-    
-    
-    get_filename_component(MYSQL_CONNECTOR_CPP_DLL_PATH ${MYSQLCONNECTORCPP_LIBRARY_DEBUG} PATH)
-    string(REPLACE "/" "\\" MYSQL_CONNECTOR_CPP_DLL_PATH "${MYSQL_CONNECTOR_CPP_DLL_PATH}\\..")
-    add_custom_command(
-        TARGET DEPS
-        POST_BUILD
-        COMMAND xcopy "${MYSQL_CONNECTOR_CPP_DLL_PATH}\\$\(Configuration\)\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
-        VERBATIM
-    )
-    
-    get_filename_component(TBB_CPP_DLL_PATH ${TBB_LIBRARY_DEBUG} PATH)
-    string(REPLACE "/" "\\" TBB_CPP_DLL_PATH "${TBB_CPP_DLL_PATH}")
-    add_custom_command(
-        TARGET DEPS
-        POST_BUILD
-        COMMAND xcopy "${TBB_CPP_DLL_PATH}\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
-        VERBATIM
-    )
-    
-    get_filename_component(ZLIB_DLL_PATH ${ZLIB_LIBRARY_DEBUG} PATH)
-    string(REPLACE "/" "\\" ZLIB_DLL_PATH "${ZLIB_DLL_PATH}\\..")
-    add_custom_command(
-        TARGET DEPS
-        POST_BUILD
-        COMMAND xcopy "${ZLIB_DLL_PATH}\\$\(Configuration\)\\*.dll" "${WIN_PROJECT_BINARY_DIR}\\bin\\$\(Configuration\)" /I /Y /s
-        VERBATIM
-    )    
+    include(Win32PostBuild)
 endif()
 
 enable_testing()

@@ -23,10 +23,6 @@ AddMMOServerExecutable(ZoneServer
         ${Boost_LIBRARY_DIRS}
         ${TBB_LIBRARY_DIRS}
     DEBUG_LIBRARIES
-        ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${Boost_REGEX_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_THREAD_LIBRARY}
         ${GLOG_LIBRARY_DEBUG}
         ${LUA_LIBRARY_DEBUG}
         ${MYSQL_LIB}
@@ -36,10 +32,6 @@ AddMMOServerExecutable(ZoneServer
         ${TBB_DEBUG_LIBRARIES}
         ${ZLIB_LIBRARY_DEBUG}
     OPTIMIZED_LIBRARIES
-        ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${Boost_REGEX_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_THREAD_LIBRARY}
         ${GLOG_LIBRARY_RELEASE}
         ${LUA_LIBRARY_RELEASE}
         ${MYSQL_LIB}

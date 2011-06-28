@@ -8,11 +8,7 @@ AddMMOServerLibrary(Utils
     ADDITIONAL_LIBRARY_DIRS
         ${Boost_LIBRARY_DIRS}
     DEBUG_LIBRARIES
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_THREAD_LIBRARY}
         ${TBB_DEBUG_LIBRARIES}
     OPTIMIZED_LIBRARIES
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_THREAD_LIBRARY}
         ${TBB_LIBRARIES}
 )

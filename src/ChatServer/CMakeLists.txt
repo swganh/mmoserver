@@ -15,20 +15,12 @@ AddMMOServerExecutable(ChatServer
         ${Boost_LIBRARY_DIRS}
         ${TBB_LIBRARY_DIRS}
     DEBUG_LIBRARIES
-        ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${Boost_REGEX_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_THREAD_LIBRARY}
         ${GLOG_LIBRARY_DEBUG}
         ${MYSQL_LIB}
         ${MYSQLCONNECTORCPP_LIBRARY_DEBUG}
         ${TBB_DEBUG_LIBRARIES}
         ${ZLIB_LIBRARY_DEBUG}
     OPTIMIZED_LIBRARIES
-        ${Boost_PROGRAM_OPTIONS_LIBRARY}
-        ${Boost_REGEX_LIBRARY}
-        ${Boost_SYSTEM_LIBRARY}
-        ${Boost_THREAD_LIBRARY}
         ${GLOG_LIBRARY_RELEASE}
         ${MYSQL_LIB}
         ${MYSQLCONNECTORCPP_LIBRARY_RELEASE}

@@ -25,24 +25,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "GroupManager.h"
+#include "ZoneServer/GroupManager.h"
 
 #include <glog/logging.h>
 
-#include "GroupManagerCallbackContainer.h"
-
-#include "Datapad.h"
-#include "GroupObject.h"
-#include "MissionObject.h"
-#include "ObjectFactory.h"
-#include "UIManager.h"
-#include "WaypointObject.h"
-#include "PlayerObject.h"
-#include "WorldConfig.h"
-#include "WorldManager.h"
-#include "ZoneOpcodes.h"
-
-#include "MessageLib/MessageLib.h"
+#include "Utils/utils.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
@@ -54,8 +41,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 
-#include "Utils/utils.h"
+#include "MessageLib/MessageLib.h"
 
+#include "ZoneServer/Datapad.h"
+#include "ZoneServer/GroupManagerCallbackContainer.h"
+#include "ZoneServer/GroupObject.h"
+#include "ZoneServer/MissionObject.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/SpatialIndexManager.h"
+#include "ZoneServer/UIManager.h"
+#include "ZoneServer/WaypointObject.h"
+#include "ZoneServer/WorldConfig.h"
+#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/ZoneOpcodes.h"
 
 bool						GroupManager::mInsFlag    = false;
 GroupManager*		GroupManager::mSingleton  = NULL;
@@ -74,7 +73,7 @@ GroupManager::GroupManager(Database* database, MessageDispatch* dispatch)
     mMessageDispatch->RegisterMessageCallback(opIsmGroupLootMasterResponse,std::bind(&GroupManager::_processIsmGroupLootMasterResponse, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmGroupInviteInRangeRequest, std::bind(&GroupManager::_processIsmGroupInviteInRangeRequest, this, std::placeholders::_1, std::placeholders::_2));
     mMessageDispatch->RegisterMessageCallback(opIsmIsGroupLeaderResponse, std::bind(&GroupManager::_processIsmIsGroupLeaderResponse, this, std::placeholders::_1, std::placeholders::_2));
-    
+
     LOG(INFO) << "GroupManager initialization complete";
 }
 
@@ -224,6 +223,7 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
     PlayerObject* const player = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
     if(player == NULL)
     {
+        DLOG(WARNING) << "GroupManager::_processIsmGroupCREO6deltaGroupId PlayerAccId not found";
         return;
     }
 
@@ -272,24 +272,24 @@ void GroupManager::_processIsmGroupCREO6deltaGroupId(Message* message, DispatchC
     }
 
     // to in-range folks
-    const PlayerObjectSet*	const inRangePlayers	= player->getKnownPlayers();
-    PlayerObjectSet::const_iterator	it				= inRangePlayers->begin();
+    ObjectSet result_set;
 
-    while(it != inRangePlayers->end())
-    {
-        const PlayerObject* const targetObject = (*it);
+    gSpatialIndexManager->getObjectsInRange(player,&result_set,ObjType_Creature,30.0,true);
 
-        if(targetObject->isConnected())
-        {
-            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(),player,targetObject);
+    std::for_each(result_set.begin(), result_set.end(), [player] (Object* object) {
+        if (object->getType() != ObjType_Player) {
+            return;
         }
 
-        ++it;
-    }
+        PlayerObject* target = static_cast<PlayerObject*>(object);
+
+        if(target->isConnected()) {
+            gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, target);
+        }
+    });
 
     // to self
     gMessageLib->sendGroupIdUpdateDeltasCreo6(player->getGroupId(), player, player);
-
 }
 
 //=======================================================================================================================
@@ -299,7 +299,7 @@ void GroupManager::_processIsmGroupLootModeResponse(Message* message, DispatchCl
     PlayerObject* playerObject = gWorldManager->getPlayerByAccId(message->getUint32());  // the player whos group_id has changed
     if(playerObject == NULL)
     {
-		return;
+        return;
     }
 
     //send the SUI
@@ -367,10 +367,11 @@ void GroupManager::sendGroupMissionUpdate(GroupObject* group)
         // remove the old one
         if(waypoint)
         {
-            gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateAdd,player);
+
             // now update the DB
             datapad->updateWaypoint(waypoint->getId(), waypoint->getName(), mission->getDestination().Coordinates,
                                     static_cast<uint16>(gWorldManager->getZoneId()), player->getId(), WAYPOINT_ACTIVE);
+            gMessageLib->sendUpdateWaypoint(waypoint,ObjectUpdateChange,player);
             gMessageLib->SendSystemMessage(::common::OutOfBand("group","groupwaypoint"), player);
         }
         else

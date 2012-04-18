@@ -143,7 +143,7 @@ bool MessageLib::sendEndBaselines(uint64 objectId,const PlayerObject* const targ
 // Scene Destroy Object
 //
 //
-bool MessageLib::sendDestroyObject(uint64 objectId, PlayerObject* targetObject)
+bool MessageLib::sendDestroyObject(uint64 objectId, PlayerObject* const targetObject) const
 {
     if(!targetObject || !targetObject->isConnected())
     {
@@ -162,7 +162,7 @@ bool MessageLib::sendDestroyObject(uint64 objectId, PlayerObject* targetObject)
 
 //======================================================================================================================
 
-bool MessageLib::sendDestroyObject(uint64 objectId, CreatureObject* owner)
+bool MessageLib::sendDestroyObject(uint64 objectId, CreatureObject* const owner) const
 {
     if(!owner)
     {
@@ -258,7 +258,7 @@ bool MessageLib::sendContainmentMessage_InRange(uint64 objectId,uint64 parentId,
     mMessageFactory->addUint64(parentId);
     mMessageFactory->addUint32(linkType);
 
-    _sendToInRange(mMessageFactory->EndMessage(),targetObject,5);
+    _sendToInRange(mMessageFactory->EndMessage(),targetObject,5, false);
 
     return(true);
 }
@@ -339,7 +339,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object)
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));
-    mMessageFactory->addUint32(object->getInMoveCount());
+    mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));
@@ -365,7 +365,7 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object)
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));
-    mMessageFactory->addUint32(object->getInMoveCount());
+    mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));
@@ -390,7 +390,7 @@ void MessageLib::sendUpdateTransformMessage(MovingObject* object, PlayerObject* 
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 4.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 4.0f + 0.5f));
-    mMessageFactory->addUint32(object->getInMoveCount());
+    mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 4.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));
@@ -416,7 +416,7 @@ void MessageLib::sendUpdateTransformMessageWithParent(MovingObject* object, Play
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.x * 8.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.y * 8.0f + 0.5f));
     mMessageFactory->addUint16(static_cast<uint16>(object->mPosition.z * 8.0f + 0.5f));
-    mMessageFactory->addUint32(object->getInMoveCount());
+    mMessageFactory->addUint32(object->incInMoveCount());
 
     mMessageFactory->addUint8(static_cast<uint8>(glm::length(object->mPosition) * 8.0f + 0.5f));
     mMessageFactory->addUint8(static_cast<uint8>(object->rotation_angle() / 0.0625f));
@@ -691,16 +691,22 @@ void MessageLib::sendWeatherUpdate(const glm::vec3& cloudVec, uint32 weatherType
     mMessageFactory->addFloat(cloudVec.y);
     mMessageFactory->addFloat(cloudVec.z);
 
+    Message* message = mMessageFactory->EndMessage();
     if(player)
     {
         if(player->isConnected())
         {
-            (player->getClient())->SendChannelA(mMessageFactory->EndMessage(),player->getAccountId(),CR_Client,3);
+            (player->getClient())->SendChannelA(message,player->getAccountId(),CR_Client,3);
+        }
+        else
+        {
+            //never ever leave a message either undestroyed or unfinished!!!!
+            message->setPendingDelete(true);
         }
     }
     else
     {
-        _sendToAll(mMessageFactory->EndMessage(),3);
+        _sendToAll(message,3);
     }
 }
 
@@ -980,13 +986,13 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
     // bank
     Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    if(!bank || bank->getPlanet() == -1)
+    if(!bank || bank->planet() == -1)
     {
         mMessageFactory->addString(BString("unknown"));
     }
     else
     {
-        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->getPlanet())));
+        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->planet())));
     }
 
     if(playerObject->getHomePlanet() == -1)

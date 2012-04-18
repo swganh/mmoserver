@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "StateManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -90,11 +91,7 @@ ObjectController::ObjectController()
     , mInUseCommandQueue(false)
     , mRemoveCommandQueue(false)
     , mUpdatingObjects(false)
-{
-    mSI		= gWorldManager->getSI();
-    // We do have a global clock object, don't use seperate clock and times for every process.
-    // mClock	= new Anh_Utils::Clock();
-}
+{}
 
 //=============================================================================
 //
@@ -118,9 +115,7 @@ ObjectController::ObjectController(Object* object)
     , mInUseCommandQueue(false)
     , mRemoveCommandQueue(false)
     , mUpdatingObjects(false)
-{
-    mSI		= gWorldManager->getSI();
-}
+{}
 
 //=============================================================================
 //
@@ -1045,4 +1040,19 @@ uint32 ObjectController::getLocoValidator(uint64 locomotion)
     }
 
     return locoValidator;
+}
+
+//======================================================================
+
+uint32 ObjectController::getPostureValidator(uint64 posture)
+{
+	uint32 postureValidator = 0;
+	switch(posture)
+	{
+		case CreaturePosture_Sitting: postureValidator = kLocoValidSitting; break;
+		case CreaturePosture_Prone: postureValidator = kLocoValidProne; break;
+		case CreaturePosture_Crouched: postureValidator = kLocoValidKneeling; break;
+		case CreaturePosture_Upright: postureValidator = kLocoValidStanding; break;
+	}
+	return postureValidator;
 }

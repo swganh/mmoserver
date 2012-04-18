@@ -27,16 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "City.h"
 #include "PlayerObject.h"
-#include "QTRegion.h"
-#include "QuadTree.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
 
 //=============================================================================
 
-City::City() : RegionObject(),
-    mSI(gWorldManager->getSI()),
-    mQTRegion(NULL)
+City::City() : RegionObject()
 {
     mActive		= false;
     mRegionType = Region_City;
@@ -52,75 +47,33 @@ City::~City()
 
 void City::update()
 {
-    if(!mSubZoneId)
-    {
-        mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
-        mSubZoneId	= (uint32)mQTRegion->getId();
-        mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth * 2,mHeight * 2);
-    }
-
-    Object*		object;
-    ObjectSet	objList;
-
-    mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
-
-    if(mQTRegion)
-    {
-        mQTRegion->mTree->getObjectsInRange(this,&objList,ObjType_Player,&mQueryRect);
-    }
-
-    ObjectSet::iterator objIt = objList.begin();
-
-    while(objIt != objList.end())
-    {
-        object = (*objIt);
-
-        if(!(checkKnownObjects(object)))
-        {
-            onObjectEnter(object);
-        }
-
-        ++objIt;
-    }
-
-    ObjectSet oldKnownObjects = mKnownObjects;
-    ObjectSet::iterator objSetIt = oldKnownObjects.begin();
-
-    while(objSetIt != oldKnownObjects.end())
-    {
-        object = (*objSetIt);
-
-        if(objList.find(object) == objList.end())
-        {
-            onObjectLeave(object);
-        }
-
-        ++objSetIt;
-    }
 }
 
 //=============================================================================
 
 void City::onObjectEnter(Object* object)
 {
-    //PlayerObject* player = (PlayerObject*)object;
+    PlayerObject* player = (PlayerObject*)object;
     //player->setCityRegionId(this->getId());
 
-    addKnownObjectSafe(object);
+	addVisitor(object);
 
- }
+	DLOG(INFO) << player->getFirstName().getAnsi() << " entered " 
+        << mCityName << " (" << mVisitingPlayers.size() << " players in city)";
+}
 
 //=============================================================================
 
 void City::onObjectLeave(Object* object)
 {
-    //PlayerObject* player = (PlayerObject*)object;
+	PlayerObject* player = (PlayerObject*)object;
 
-    //if(player->getCityRegionId() == this->getId())
-    //player->setCityRegionId(0);
+	//if(player->getCityRegionId() == this->getId())
+		//player->setCityRegionId(0);
 
-    removeKnownObject(object);
+	removeVisitor(object);
+
+	DLOG(INFO) << player->getFirstName().getAnsi() << " left " 
+        << mCityName << " (" << mVisitingPlayers.size() << " players in city)";
 }
-
-//=============================================================================
 

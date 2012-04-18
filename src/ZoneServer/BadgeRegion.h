@@ -25,49 +25,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_BADGEREGION_H
-#define ANH_ZONESERVER_BADGEREGION_H
+#ifndef ZONE_SERVER_BADGE_REGION_H_
+#define ZONE_SERVER_BADGE_REGION_H_
+
+#include <boost/noncopyable.hpp>
 
 #include "RegionObject.h"
-#include "MathLib/Rectangle.h"
-#include "Utils/typedefs.h"
 
-//=============================================================================
-
-class ZoneTree;
-class PlayerObject;
-class QTRegion;
-
-//=============================================================================
-
-class BadgeRegion : public RegionObject
-{
-    friend class BadgeRegionFactory;
-
+/** Badge regions represent sections of the world map that players can earn
+* badges by exploring.
+*/
+class BadgeRegion : public RegionObject , boost::noncopyable {
 public:
+    /** Constructs a badge region with a specific id.
+    *
+    * \param badge_id The badge id to construct the badge region with.
+    */
+    explicit BadgeRegion(uint32_t badge_id);    
 
+    // Default destructor.
+    ~BadgeRegion();
+
+    /// Returns the badge id for this region.
+    uint32_t badge_id() const;
+    
+    /// Set's the badge id for this region.
+    void badge_id(uint32_t badge_id);
+    
+private:
+    // Disable the default constructor, badge region should never be created
+    // without an id.
     BadgeRegion();
-    virtual ~BadgeRegion();
 
-    uint32			getBadgeId() {
-        return mBadgeId;
-    }
-    void			setBadgeId(uint32 id) {
-        mBadgeId = id;
-    }
+    // Override onObjectEnter handler to provide custom functionality
+	void onObjectEnter(Object* object);
 
-    virtual void	update();
-
-protected:
-
-    uint32				mBadgeId;
-    ZoneTree*			mSI;
-    std::shared_ptr<QTRegion>   mQTRegion;
-    Anh_Math::Rectangle mQueryRect;
+	uint32_t badge_id_;
 };
 
-
-#endif
-
-
-
+#endif  // ZONE_SERVER_BADGE_REGION_H_

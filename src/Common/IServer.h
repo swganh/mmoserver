@@ -25,44 +25,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_CONFIGMANAGER_H
-#define ANH_CONFIGMANAGER_H
+#ifndef SRC_COMMON_ISERVER_H
+#define SRC_COMMON_ISERVER_H
 
-#include "ConfigFile.h"
+/*! \brief Common is a catch-all library containing primarily base classes and
+ * classes used for maintaining application lifetimes.
+ */
+namespace common {
 
-#define CONFIG_DIR "config//"
-#define	gConfig	ConfigManager::getSingletonPtr()->getConfigFile()
-
-//======================================================================================================================
-
-class ConfigManager
+/**
+ * \brief
+ */
+class IServer
 {
 public:
+	IServer() { }
+	~IServer() { }
 
-    static ConfigManager*	getSingletonPtr() {
-        return mSingleton;
-    }
 
-    static ConfigManager*	Init(const std::string& name);
-    static std::string	getBuildString();
-    static std::string getBuildNumber();
-    static std::string getBuildTime();
-
-    ConfigFile*				getConfigFile() {
-        return mConfigFile;
-    }
-    ~ConfigManager();
-
-private:
-
-    ConfigManager(const std::string& name);
-
-    static ConfigManager*	mSingleton;
-    static bool				mInsFlag;
-
-    ConfigFile*				mConfigFile;
 };
 
-//======================================================================================================================
+} // namespace common
 
 #endif

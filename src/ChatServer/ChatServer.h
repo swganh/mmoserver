@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
+#include "Common/Server.h"
 
 //======================================================================================================================
 
@@ -61,11 +62,11 @@ public:
 };
 
 //======================================================================================================================
-class ChatServer
+class ChatServer : public common::BaseServer
 {
 public:
 
-    ChatServer();
+    ChatServer(int argc, char* argv[]);
     ~ChatServer();
 
     void    Process();

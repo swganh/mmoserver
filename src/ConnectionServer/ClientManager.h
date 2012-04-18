@@ -55,7 +55,7 @@ class ClientManager : public NetworkCallback, public ConnectionDispatchCallback,
 {
 public:
 
-    ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* connectionDispatch);
+    ClientManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* connectionDispatch, uint32_t cluster_id);
     ~ClientManager(void);
 
     void                        Process(void);
@@ -91,6 +91,8 @@ private:
 
     boost::recursive_mutex		mServiceMutex;
     PlayerClientMap             mPlayerClientMap;
+
+	uint32_t					mClusterId;
 };
 
 //======================================================================================================================

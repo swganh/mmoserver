@@ -39,8 +39,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Message.h"
 
-#include "NetworkManager/NetConfig.h"
-
 //======================================================================================================================
 
 class NetworkClient;
@@ -363,6 +361,8 @@ private:
 
     uint64					  mPacketBuildTimeLimit;
     uint64					  mLastWriteThreadTime;
+
+	uint64					  mLastHouseKeepingTimeTime;
 
     uint32					  endCount;
     uint16					  lowest;// the lowest packet requested from the server

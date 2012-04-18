@@ -54,7 +54,8 @@ enum ItemFamily
     ItemFamily_Powerup					= 24,
     ItemFamily_Scout					= 25,
     ItemFamily_Hopper					= 29,
-    ItemFamily_FactoryCrate				= 30
+    ItemFamily_FactoryCrate				= 30,
+    ItemFamily_Terminal                 = 31
 };
 
 //=============================================================================
@@ -82,6 +83,7 @@ enum ItemType
     ItemType_SpaceStationPublic			= 31,
     ItemType_SpaceStation				= 32,
 
+    ItemType_BlueFrog                   = 2789,
     ItemType_ManSchematic				= 1312,
 
     //====================================================

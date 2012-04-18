@@ -49,20 +49,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageOpcodes.h"
 #include "NetworkManager/MessageFactory.h"
-#include "Common/ConfigManager.h"
 
 #include <cstring>
 
 //======================================================================================================================
 
-ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager) :
+ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager, uint32 cluster_id) :
     mMessageRouter(router),
     mServerService(service),
     mDatabase(database),
     mConnectionDispatch(dispatch),
     mClientManager(clientManager),
     mTotalActiveServers(0),
-    mTotalConnectedServers(0)
+    mTotalConnectedServers(0),
+	mClusterId(cluster_id)
 {
     memset(&mServerAddressMap, 0, sizeof(mServerAddressMap));
 
@@ -77,9 +77,6 @@ ServerManager::ServerManager(Service* service, Database* database, MessageRouter
     mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByTicket, this);
     mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByPosition, this);
     mConnectionDispatch->RegisterMessageCallback(opTutorialServerStatusRequest, this);
-
-    // Update our id
-    mClusterId = gConfig->read<uint32>("ClusterId");
 
     // setup data bindings
     _setupDataBindings();
@@ -133,7 +130,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 
     // Execute our statement
     int8 sql[500];
-    sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
+    sprintf(sql,"SELECT id, address, port, status, active FROM %s.config_process_list WHERE address='%s' AND port=%u;",mDatabase->galaxy(), session->getAddressString(), session->getPortHost());
     DatabaseResult* result = mDatabase->executeSynchSql(sql);
     
 
@@ -168,7 +165,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
             ++mTotalConnectedServers;
             if(mTotalConnectedServers == mTotalActiveServers)
             {
-                mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Set status to online
+                mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 2, mClusterId); // Set status to online
                
             }
         }
@@ -210,7 +207,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
     if(mServerAddressMap[connClient->getServerId()].mActive)
     {
         --mTotalConnectedServers;
-        mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
+        mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 1, mClusterId); // Set status to online
         
     }
 
@@ -282,7 +279,7 @@ void ServerManager::_loadProcessAddressMap(void)
     ServerAddress   serverAddress;
 
     // retrieve our list of process addresses.
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE active=1 ORDER BY id;",mDatabase->galaxy());
     
 
     mTotalActiveServers = static_cast<uint32>(result->getRowCount());

@@ -56,7 +56,7 @@ ConversationManager::ConversationManager(Database* database) :
     mActiveConversationPool(sizeof(ActiveConversation)),
     mDBAsyncPool(sizeof(CVAsyncContainer))
 {
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM conversations ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM %s.conversations ORDER BY id",mDatabase->galaxy());
     
 }
 
@@ -112,7 +112,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
             asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Pages);
             asCont->mConversation = conv;
 
-            mDatabase->executeSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId);
+            mDatabase->executeSqlAsync(this,asCont,"SELECT * FROM %s.conversation_pages WHERE conversation_id=%u ORDER BY page",mDatabase->galaxy(), insertId);
             
         }
 

@@ -36,24 +36,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
-#include "Common/ConfigManager.h"
 #include <boost/thread/thread.hpp>
 
+#include "Common/BuildInfo.h"
 #include "Utils/utils.h"
 
+#include <iostream>
+#include <fstream>
 #include <functional>
 
 #define RECEIVE_BUFFER 512
 
-PingServer::PingServer(int port)
-    : io_service_()
+PingServer::PingServer(int argc, char* argv[])
+    : BaseServer()
+	, io_service_()
     , socket_(io_service_)
     , receive_buffer_(RECEIVE_BUFFER)
-{
-    boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), port);
+{	
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/pingserver.cfg");
+	LoadOptions_(argc, argv, config_files);
+
+	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), configuration_variables_map_["BindPort"].as<uint16_t>());
     socket_.open(endpoint.protocol());
     socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
     socket_.bind(endpoint);
+
 
     AsyncReceive();
 }
@@ -61,7 +71,7 @@ PingServer::PingServer(int port)
 PingServer::~PingServer()
 {}
 
-void PingServer::Poll()
+void PingServer::Process()
 {
     io_service_.poll();
 }
@@ -139,45 +149,30 @@ int main(int argc, char* argv[])
 
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
+    
+    LOG(WARNING) <<  "PingServer - Build " << GetBuildString().c_str();
 
     try {
-        ConfigManager::Init("PingServer.cfg");
-    } catch (file_not_found) {
-        std::cout << "Unable to find configuration file: " << CONFIG_DIR << "PingServer.cfg" << std::endl;
-        exit(-1);
-    }
-    
-    /*try {
-        LogManager::Init(
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
-            gConfig->read<std::string>("FileLog_Name", "ping_server.log"));
-    } catch (...) {
-        std::cout << "Unable to open log file for writing" << std::endl;
-        exit(-1);
-    }*/
+		PingServer ping_server(argc, argv);
 
-    LOG(WARNING) <<  "PingServer - Build " << ConfigManager::getBuildString().c_str();
+		LOG(WARNING) << "Welcome to your SWGANH Experience!";
 
-    // Read in the address and port to start the ping server on.
-    int port            = gConfig->read<int>("BindPort");
+		while (true) {
+			// Check for incoming messages and handle them.
+			ping_server.Process();
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
 
-    // Start the ping server.
-    PingServer ping_server(port);
-    LOG(WARNING) << "PingServer listening on port " << port;
+			// Stop the ping server if a key is hit.
+			if (Anh_Utils::kbhit())
+				if(std::cin.get() == 'q')
+					break;
+		}
 
-    LOG(WARNING) << "Welcome to your SWGANH Experience!";
-
-    while (true) {
-        // Check for incoming messages and handle them.
-        ping_server.Poll();
-        boost::this_thread::sleep(boost::posix_time::milliseconds(1));
-
-        // Stop the ping server if a key is hit.
-        if (Anh_Utils::kbhit())
-            if(std::cin.get() == 'q')
-                break;
-    }
+	} catch( std::exception& e ) {
+		LOG(ERROR) << e.what();
+		std::cin.get();
+		return 0;
+	}
 
     return 0;
 }

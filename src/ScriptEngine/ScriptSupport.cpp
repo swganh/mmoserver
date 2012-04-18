@@ -413,7 +413,7 @@ void ScriptSupport::npcDirection(NPCObject* npc, float deltaX, float deltaZ) {
 
     // send out position updates to known players
     // updateNpcPosition(npc);
-    if(npc->getKnownPlayers()->empty()) {
+    if(npc->getParentId()) {
         return;
     }
 

@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <vector>
 #include <boost/asio.hpp>
 
+#include "Common/Server.h"
 #include "Utils/typedefs.h"
 
 /*! \class PingServer PingServer/PingServer.h "PingServer/PingServer.h"
@@ -42,14 +43,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  * by echoing back submitted data. This is used by the SWG client to determine network
  * latency in requests to the remote server.
  */
-class PingServer
+class PingServer : public common::BaseServer
 {
 public:
     /*! \brief Start a ping service listening on all addresses for a specified port.
      *
-     * \param port The port to listen for ping requests on.
+     * \param argc The number of arguments in the command-line character array.
+	 * \param argv Arguments from the command-line.
      */
-    explicit PingServer(int port);
+    explicit PingServer(int argc, char* argv[]);
 
     /*! Default destructor */
     ~PingServer();
@@ -59,7 +61,7 @@ public:
      * This method polls the socket for incoming data and triggers a handler
      * if anything is waiting.
      */
-    void Poll();
+    void Process();
 
     /*! \returns Returns the bytes received since the Ping Server was started */
     uint64 BytesReceived() const;
@@ -80,6 +82,7 @@ private:
     boost::asio::ip::udp::endpoint		remote_endpoint_;   //Storage for Current Client End Point (Thread Safe)
     boost::asio::io_service             io_service_;        //Boost IO Service
     boost::asio::ip::udp::socket        socket_;            //Server Socket
+	uint16								server_port_;
 
     std::vector<uint8>                  receive_buffer_;
 

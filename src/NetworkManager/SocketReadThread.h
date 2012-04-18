@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_NETWORKMANAGER_SOCKETREADTHREAD_H
 
 #include "Utils/typedefs.h"
-
+#include "NetworkConfig.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <list>
@@ -68,7 +68,7 @@ public:
 class SocketReadThread
 {
 public:
-    SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice);
+    SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice, NetworkConfig& network_configuration_);
     ~SocketReadThread();
 
     virtual void					run();

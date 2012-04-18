@@ -33,18 +33,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 #include <glog/logging.h>
 
+#include <iostream>
+#include <fstream>
+
 #include "LoginManager.h"
+#include "Common\BuildInfo.h"
 
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
-
-
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
 
 #include "NetworkManager/MessageFactory.h"
-#include "Common/ConfigManager.h"
 #include "Utils/utils.h"
 
 #include <boost/thread/thread.hpp>
@@ -55,36 +56,52 @@ LoginServer* gLoginServer = 0;
 
 
 //======================================================================================================================
-LoginServer::LoginServer(void) :
-    mNetworkManager(0)
+LoginServer::LoginServer(int argc, char* argv[]) 
+	: BaseServer()
+    , mNetworkManager(0)
 {
     Anh_Utils::Clock::Init();
     LOG(WARNING) << "Login Server Startup";
 
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/loginserver.cfg");
+	LoadOptions_(argc, argv, config_files);
+
     // Initialize our modules.
 
-    mNetworkManager = new NetworkManager();
-    LOG(WARNING) << "Config port set to " << gConfig->read<uint16>("BindPort");
-    mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
+	MessageFactory::getSingleton(configuration_variables_map_["GlobalMessageHeap"].as<uint32_t>());
 
-    mDatabaseManager = new DatabaseManager();
+	mNetworkManager = new NetworkManager( NetworkConfig(configuration_variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["ServerPacketWindowSize"].as<uint32_t>(), 
+		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
+		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
+
+    LOG(WARNING) << "Config port set to " << configuration_variables_map_["BindPort"].as<uint16>();
+    mService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024,false);
+
+	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
 
     // Connect to our database and pass it off to our modules.
     mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
-                                          (char*)(gConfig->read<std::string>("DBServer")).c_str(),
-                                          gConfig->read<int>("DBPort"),
-                                          (char*)(gConfig->read<std::string>("DBUser")).c_str(),
-                                          (char*)(gConfig->read<std::string>("DBPass")).c_str(),
-                                          (char*)(gConfig->read<std::string>("DBName")).c_str());
+                                          (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
+                                          configuration_variables_map_["DBPort"].as<uint16_t>(),
+                                          (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBPass"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBName"].as<std::string>()).c_str());
 
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', NULL, NULL, NULL);"); // SQL - Update Server Start ID
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 1); // SQL - Update Server Status
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', NULL, NULL, NULL);",mDatabase->galaxy()); // SQL - Update Server Start ID
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, NULL, NULL);",mDatabase->galaxy(), 1); // SQL - Update Server Status
     
     // In case of a crash, we need to cleanup the DB a little.
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE account SET account_authenticated = 0 WHERE account_authenticated = 1;"));
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.account SET account_authenticated = 0 WHERE account_authenticated = 1;",mDatabase->galaxy()));
     
     //and session_key now as well
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE account SET account_session_key = '';"));
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.account SET account_session_key = '';",mDatabase->galaxy()));
   
     // Instant the messageFactory. It will also run the Startup ().
     (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.
@@ -96,13 +113,13 @@ LoginServer::LoginServer(void) :
     mService->AddNetworkCallback(mLoginManager);
 
     // We're done initializing.
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, '%s', %u);", 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, '%s', %u);",mDatabase->galaxy(), 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
 
     LOG(WARNING) << "Login Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(WARNING) <<  "Login Server - Build " << ConfigManager::getBuildString().c_str();
+    LOG(WARNING) <<  "Login Server - Build " << GetBuildString().c_str();
     LOG(WARNING) << "Welcome to your SWGANH Experience!";
 }
 
@@ -110,7 +127,7 @@ LoginServer::LoginServer(void) :
 //======================================================================================================================
 LoginServer::~LoginServer(void)
 {
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('login', %u, NULL, NULL);", 2); // SQL - Update server status
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, NULL, NULL);",mDatabase->galaxy(), 2); // SQL - Update server status
     
     LOG(WARNING) << "LoginServer shutting down...";
 
@@ -155,52 +172,39 @@ int main(int argc, char* argv[])
 
     FLAGS_log_dir = "./logs";
     FLAGS_stderrthreshold = 1;
-  
-    try {
-        ConfigManager::Init("LoginServer.cfg");
-    } catch (file_not_found) {
-        std::cout << "Unable to find configuration file: " << CONFIG_DIR << "LoginServer.cfg" << std::endl;
-        exit(-1);
-    }
-
-    /*try {
-        LogManager::Init(
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("ConsoleLog_MinPriority", 6)),
-            static_cast<LogManager::LOG_PRIORITY>(gConfig->read<int>("FileLog_MinPriority", 6)),
-            gConfig->read<std::string>("FileLog_Name", "login_server.log"));
-    } catch (...) {
-        std::cout << "Unable to open log file for writing" << std::endl;
-        exit(-1);
-    }*/
     
     //set stdout buffers to 0 to force instant flush
     setvbuf( stdout, NULL, _IONBF, 0);
 
     bool exit = false;
 
-    //We cannot startup Database Logging until we startup the Database.
+    try {
+		gLoginServer = new LoginServer(argc, argv);
 
-    gLoginServer = new LoginServer();
+		// Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
+		//atexit(handleExit);
 
-    // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
-    //atexit(handleExit);
+		// Main loop
+		while (!exit)
+		{
+			gLoginServer->Process();
 
-    // Main loop
-    while (!exit)
-    {
-        gLoginServer->Process();
+			if(Anh_Utils::kbhit())
+				if(std::cin.get() == 'q')
+					break;
 
-        if(Anh_Utils::kbhit())
-            if(std::cin.get() == 'q')
-                break;
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+		}
 
-        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-    }
+		// Shutdown things
+		delete gLoginServer;
+	} catch( std::exception& e ) {
+		std::cout << e.what() << std::endl;
+		std::cin.get();
+		return 0;
+	}
 
-    // Shutdown things
-    delete gLoginServer;
-
-    return 0;
+	return 0;
 }
 
 

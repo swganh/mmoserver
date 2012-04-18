@@ -26,20 +26,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "SessionFactory.h"
-#include "NetConfig.h"
 #include "Session.h"
 
 
 
 //======================================================================================================================
 
-SessionFactory::SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice)
+SessionFactory::SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice, NetworkConfig& network_configuration)
 : mServerService(serverservice)
 , mService(service)
 , mSocketWriteThread(writeThread)
 , mPacketFactory(packetFactory)
 , mMessageFactory(messageFactory)
 , mSessionIdNext(0)
+, network_configuration_(network_configuration)
 {
 
 }
@@ -74,8 +74,8 @@ Session* SessionFactory::CreateSession(void)
 
     if(mServerService)
     {
-        uint16 unreliable = gNetConfig->getServerServerUnReliableSize();
-        uint16 reliable = gNetConfig->getServerServerReliableSize();
+        uint16 unreliable = network_configuration_.getServerToServerUnreliableSize();
+        uint16 reliable = network_configuration_.getServerToServerReliableSize();
 
         if(reliable > MAX_SERVER_PACKET_SIZE)
             reliable = MAX_SERVER_PACKET_SIZE;
@@ -87,8 +87,8 @@ Session* SessionFactory::CreateSession(void)
     }
     else
     {
-        uint16 unreliable = gNetConfig->getServerClientUnReliableSize();
-        uint16 reliable = gNetConfig->getServerClientReliableSize();
+        uint16 unreliable = network_configuration_.getServerToClientUnreliableSize();
+        uint16 reliable = network_configuration_.getServerToClientReliableSize();
 
         if(reliable > MAX_CLIENT_PACKET_SIZE)
             reliable = MAX_CLIENT_PACKET_SIZE;

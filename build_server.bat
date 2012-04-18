@@ -364,7 +364,7 @@ if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
 
 rem Build the boost libraries we need.
 
-cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0
+cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-program_options --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0
 
 cd "%PROJECT_BASE%"
 

@@ -98,7 +98,6 @@ struct PerformanceStruct
 
 struct IDStruct
 {
-    //SELECT CRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, name FROM swganh.id_attributes");
     uint32			CustomizationCRC;
     uint32			SpeciesCRC;
     uint32			Atr1ID;

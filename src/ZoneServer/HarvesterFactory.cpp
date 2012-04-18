@@ -117,9 +117,10 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         asynContainer->mObject	= harvester;
 
         mDatabase->executeSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
-                                   " FROM structure_attributes sa"
-                                   " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
-                                   " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",harvester->getId());
+                                   " FROM %s.structure_attributes sa"
+                                   " INNER JOIN %s.attributes ON (sa.attribute_id = attributes.id)"
+                                   " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",
+                                   mDatabase->galaxy(),mDatabase->galaxy(),harvester->getId());
        
     }
     break;
@@ -163,7 +164,7 @@ void HarvesterFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         //now request the associated resource container count
 
         int8 sql[250];
-        sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",harvester->getId());
+        sprintf(sql,"SELECT hr.resourceID, hr.quantity FROM %s.harvester_resources hr WHERE hr.ID = '%"PRIu64"' ",mDatabase->galaxy(),harvester->getId());
         mDatabase->executeSqlAsync(this,asynContainer,sql);
      
 
@@ -203,8 +204,9 @@ void HarvesterFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
 
     int8 sql2[1024];
     sprintf(sql2,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,std.type,std.object_string,std.stf_name, std.stf_file, s.name, std.lots_used, std.resource_Category, h.ResourceID, h.active, h.rate, std.maint_cost_wk, std.power_used, s.condition, std.max_condition, std.repair_cost "
-            "FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN harvesters h ON (s.id = h.id) "
-            "WHERE (s.id = %"PRIu64")",id);
+            "FROM %s.structures s INNER JOIN %s.structure_type_data std ON (s.type = std.type) INNER JOIN %s.harvesters h ON (s.id = h.id) "
+            "WHERE (s.id = %"PRIu64")",
+            mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),id);
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,HFQuery_MainData,client,id);
 
     mDatabase->executeSqlAsync(this,asynContainer,sql2);

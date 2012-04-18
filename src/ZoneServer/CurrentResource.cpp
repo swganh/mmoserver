@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "CurrentResource.h"
 #include "ResourceType.h"
-#include "Common/ConfigManager.h"
 
 // Fix for issues with glog redefining this constant
 #ifdef _WIN32
@@ -38,7 +37,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-CurrentResource::CurrentResource() : Resource()
+CurrentResource::CurrentResource(bool writeResourceMaps, std::string zoneName) 
+	: Resource()
+	, mWriteResourceMaps(writeResourceMaps)
+	, mZoneName(zoneName)
 {
 }
 
@@ -83,9 +85,9 @@ void CurrentResource::buildDistributionMap()
     LOG(INFO) << "Building DistributionMap for " << mName.getAnsi() << " " << mType->getName().getAnsi();
     mapBuilder.Build();
 
-    if(gConfig->read<int>("writeResourceMaps"))
+    if(mWriteResourceMaps)
     {
-        BString fileName = (int8*)(gConfig->read<std::string>("ZoneName")).c_str();
+        BString fileName = (int8*)(mZoneName).c_str();
         fileName << "_" << mName.getAnsi() << ".bmp";
 
         LOG(INFO) << "Writing File " << fileName.getAnsi();

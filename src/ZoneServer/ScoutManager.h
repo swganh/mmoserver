@@ -38,7 +38,6 @@ class Message;
 class MessageDispatch;
 class PlayerObject;
 class ObjectControllerCommandMap;
-class ZoneTree;
 
 #define gScoutManager	ScoutManager::getSingletonPtr()
 

@@ -27,20 +27,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PacketFactory.h"
 #include "Packet.h"
-#include "NetConfig.h"
 
 
 //======================================================================================================================
 
-PacketFactory::PacketFactory(bool serverservice)
+PacketFactory::PacketFactory(bool serverservice, NetworkConfig& network_configuration)
     : mPacketPool(sizeof(Packet))
 {
     mPacketCount = 0;
 
     if(serverservice)
-        mMaxPayLoad = gNetConfig->getServerServerReliableSize();
+        mMaxPayLoad = network_configuration.getServerToServerReliableSize();
     else
-        mMaxPayLoad = gNetConfig->getServerClientReliableSize();
+        mMaxPayLoad = network_configuration.getServerToClientReliableSize();
 }
 
 

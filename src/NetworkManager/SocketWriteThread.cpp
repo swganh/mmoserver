@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <glog/logging.h>
 
 #include "CompCryptor.h"
-#include "NetConfig.h"
 #include "Packet.h"
 #include "Service.h"
 #include "Session.h"
@@ -67,7 +66,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serverservice) :
+SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serverservice, NetworkConfig& network_configuration) :
     mService(0),
     mCompCryptor(0),
     mSocket(0),
@@ -80,13 +79,13 @@ SocketWriteThread::SocketWriteThread(SOCKET socket, Service* service, bool serve
     {
 
         mServerService = true;
-        mMessageMaxSize = gNetConfig->getServerServerReliableSize();
+        mMessageMaxSize = network_configuration.getServerToServerReliableSize();
 
     }
     else
     {
         mServerService = false;
-        mMessageMaxSize = gNetConfig->getServerClientReliableSize();
+        mMessageMaxSize = network_configuration.getServerToClientReliableSize();
     }
 
 
@@ -170,7 +169,7 @@ void SocketWriteThread::run()
                 if(packetCount > packets)
                     break;
 
-                LOG(INFO) << "Reliable packet sent";
+                //LOG(INFO) << "Reliable packet sent";
                 packet = session->getOutgoingReliablePacket();
                 _sendPacket(packet, session);
             }
@@ -182,7 +181,7 @@ void SocketWriteThread::run()
             //uint32 ucount = 0;
             while (session->getOutgoingUnreliablePacketCount())
             {
-                LOG(INFO) << "Unreliable packet sent";
+                //LOG(INFO) << "Unreliable packet sent";
                 packet = session->getOutgoingUnreliablePacket();
                 _sendPacket(packet, session);
                 session->DestroyPacket(packet);
@@ -330,7 +329,7 @@ void SocketWriteThread::_sendPacket(Packet* packet, Session* session)
         outLen += 2;
     }
 
-    LOG(INFO) << "Sending message to " << session->getAddressString() << " on port " << ntohs(session->getPort());
+    //LOG(INFO) << "Sending message to " << session->getAddressString() << " on port " << ntohs(session->getPort());
     sent = sendto(mSocket, mSendBuffer, outLen, 0, &toAddr, toLen);
 
     if (sent < 0)

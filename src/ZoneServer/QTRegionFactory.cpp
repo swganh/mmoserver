@@ -59,9 +59,9 @@ void QTRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
     int8 sql[1024];
     sprintf(sql,"SELECT zone_regions.id,zone_regions.qtdepth,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
             "planet_regions.width,planet_regions.height"
-            " FROM zone_regions"
-            " INNER JOIN planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
-            " WHERE (zone_regions.id = %"PRIu64")",id);
+            " FROM %s.zone_regions"
+            " INNER JOIN %s.planet_regions ON (zone_regions.region_id = planet_regions.region_id)"
+            " WHERE (zone_regions.id = %"PRIu64")",mDatabase->galaxy(),mDatabase->galaxy(),id);
 
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {

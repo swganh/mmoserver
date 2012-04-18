@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 #include "Utils/clock.h"
+#include "NetworkConfig.h"
 #include "Packet.h"
 #include <boost/pool/pool.hpp>
 
@@ -43,7 +44,7 @@ class PacketFactory
 {
 public:
 
-    PacketFactory(bool serverservice);
+    PacketFactory(bool serverservice, NetworkConfig& network_configuration);
     ~PacketFactory(void);
 
     void		Process(void);

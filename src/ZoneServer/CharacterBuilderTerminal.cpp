@@ -52,31 +52,6 @@ CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(N
 {
 
     InitMenus();
-    //mMainMenu.push_back("Manage Experience");
-    //mMainMenu.push_back("Manage Credits");
-    //mMainMenu.push_back("Manage Attributes");
-    //mMainMenu.push_back("Manage Items");
-    //mMainMenu.push_back("Manage Professions");
-    //mMainMenu.push_back("Manage Resources");
-
-    //mCreditsMenu.push_back("Inventory credits");
-    //mCreditsMenu.push_back("Bank credits");
-
-
-    //mAttributesMenu.push_back("Battle fatigue   (50)");
-    //mAttributesMenu.push_back("Battle fatigue  (250)");
-    //mAttributesMenu.push_back("Mind Wounds      (50)");
-    //mAttributesMenu.push_back("Mind Wounds     (250)");
-    //mAttributesMenu.push_back("Heal Fatigue    (123)");
-    //mAttributesMenu.push_back("Heal Wounds     (123)");
-    //mAttributesMenu.push_back("Mugly's cocktail");
-    //mAttributesMenu.push_back("Lloyd's Health Buffs");
-    //mAttributesMenu.push_back("Lloyd's Action Buffs");
-    //mAttributesMenu.push_back("Lloyd's Mind Buffs");
-    //mAttributesMenu.push_back("Jawa beer (Mask Scent)");
-    //mAttributesMenu.push_back("Damage Health 200");
-    //mAttributesMenu.push_back("Damage Action 200");
-
 }
 
 //=============================================================================
@@ -88,6 +63,7 @@ void CharacterBuilderTerminal::InitMenus()
     mMainMenu.push_back("Manage Items");
     mMainMenu.push_back("Manage Resources");
     mMainMenu.push_back("Manage Professions");
+    mMainCsrMenu.push_back("Personal Blue Frog");
     mMainCsrMenu.push_back("Manage Experience");
     mMainCsrMenu.push_back("Manage Credits");
     mMainCsrMenu.push_back("Manage Buffs");
@@ -97,6 +73,7 @@ void CharacterBuilderTerminal::InitMenus()
     mMainCsrMenu.push_back("Manage Professions");
     mMainCsrMenu.push_back("Manage Wounds");
     mMainCsrMenu.push_back("Manage States");
+    mMainCsrMenu.push_back("Teleport X,Y");
 
     InitExperience();
     InitProfessions();
@@ -216,7 +193,7 @@ void CharacterBuilderTerminal::InitItems()
     mItemMenu.push_back("Tools");
     mItemMenu.push_back("Weapons");
     mItemMenu.push_back("Armor");
-
+    
     InitStructures();
     InitFurniture();
     InitVehicles();
@@ -602,8 +579,7 @@ void CharacterBuilderTerminal::GiveItem(PlayerObject* playerObject, uint32 input
 
     if(item)
     {
-        Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-        gObjectFactory->requestNewDefaultItem(inventory,item->family,item->type,inventory->getId(),99, glm::vec3(),"");
+        gObjectFactory->requestNewDefaultItem(playerObject->getInventory(),item->family,item->type,playerObject->getInventory()->getId(),99, glm::vec3(),"");
         gMessageLib->SendSystemMessage(L"The item has been placed in your inventory.", playerObject);
     }
     else
@@ -698,8 +674,8 @@ void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uin
 
 void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-  // Check if the player is a csr and handle the menu appropriately.
-	if (playerObject->getCsrTag())
+    // Check if the player is a csr and handle the menu appropriately.
+    if (playerObject->getCsrTag())
         return _handleMainCsrMenu(playerObject, action, element, inputStr, window);
 
     switch(element)
@@ -742,55 +718,78 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
 {
     switch(element)
     {
-    case 0://Experience
+        if(!playerObject->isConnected())
+        {
+            return;
+        }
+    case 0: // personal blue frog
+        _handleBlueFrogMenu(playerObject, action, element, inputStr, window);
+        break;
+    case 1://Experience
         SendXPMenu(playerObject, action, element, inputStr, window);
         break;
-    case 1://Credits
+    case 2://Credits
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
         }
         break;
-    case 2://Buffs
+    case 3://Buffs
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleAttributesMenu","Attributes","Select a Buff.",mBuffMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_BuffMenu);
         }
         break;
-    case 3://Items
+    case 4://Items
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleItemsMenu","Items","Select a Category.",mItemMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ItemMenu);
         }
         break;
-    case 4://Resources
+    case 5://Resources
         SendResourcesMenu(playerObject, action, element, inputStr, window);
         break;
-    case 5://Get Item by ID
+    case 6://Get Item by ID
         if(playerObject->isConnected())
         {
             BStringVector dropDowns;
             gUIManager->createNewInputBox(this, "handleInputItemId", "Get Item", "Enter the item ID", dropDowns, playerObject, SUI_IB_NODROPDOWN_OKCANCEL, SUI_Window_CharacterBuilderItemIdInputBox,8);
         }
         break;
-    case 6: //Professions
+    case 7: //Professions
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
         }
         break;
-    case 7: //Wounds
+    case 8: //Wounds
         if(playerObject->isConnected())
         {
             gUIManager->createNewListBox(this,"handleWoundMenu","Wounds","Select a Wound.",mWoundMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_WoundMenu);
         }
         break;
-    case 8: //States
-    if(playerObject->isConnected())
-    {
-        gUIManager->createNewListBox(this,"handleStateMenu","States","Select a State.",mStatesMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_StateMenu);
-    }
-    break;
+    case 9: //States
+        if(playerObject->isConnected())
+        {
+            gUIManager->createNewListBox(this,"handleStateMenu","States","Select a State.",mStatesMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_StateMenu);
+        }
+        break;
+    case 10:
+        if (playerObject->isConnected())
+        {
+            BStringVector dropDowns;
+            dropDowns.push_back("test");
+            gUIManager->createNewInputBox(this,
+                                          "handleTeleportMenu",
+                                          "Teleport",
+                                          "Teleport Where? Usage: X,Y",
+                                          dropDowns,
+                                          playerObject,
+                                          SUI_IB_NODROPDOWN_OKCANCEL,
+                                          SUI_Window_CharacterBuilderTeleportMenu_InputBox,
+                                          25);
+        }
+    
     default:
         break;
     }
@@ -864,39 +863,40 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
     {
         switch(element)
         {
-            case 0: // inventory credits
-            {
-                BStringVector dropDowns;
-                dropDowns.push_back("test");
-                gUIManager->createNewInputBox(this,
-                    "handleInputInventoryCredits",
-                    "Inventory Credits",
-                    "Enter amount",
-                    dropDowns,
-                    player,
-                    SUI_IB_NODROPDOWN_OKCANCEL,
-                    SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox,
-                    8);
-            }
-            break;
+        case 0: // inventory credits
+        {
+            BStringVector dropDowns;
+            dropDowns.push_back("test");
+            gUIManager->createNewInputBox(this,
+                                          "handleInputInventoryCredits",
+                                          "Inventory Credits",
+                                          "Enter amount",
+                                          dropDowns,
+                                          player,
+                                          SUI_IB_NODROPDOWN_OKCANCEL,
+                                          SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox,
+                                          8);
+        }
+        break;
 
-            case 1: // bank credits
-            {
-                BStringVector dropDowns;
-                dropDowns.push_back("test");
-                gUIManager->createNewInputBox(this,
-                    "handleInputInventoryCredits",
-                    "Bank Credits",
-                    "Enter amount",
-                    dropDowns,
-                    player,
-                    SUI_IB_NODROPDOWN_OKCANCEL,
-                    SUI_Window_CharacterBuilderCreditsMenuBank_InputBox,
-                    8);
-            }
-            break;
+        case 1: // bank credits
+        {
+            BStringVector dropDowns;
+            dropDowns.push_back("test");
+            gUIManager->createNewInputBox(this,
+                                          "handleInputInventoryCredits",
+                                          "Bank Credits",
+                                          "Enter amount",
+                                          dropDowns,
+                                          player,
+                                          SUI_IB_NODROPDOWN_OKCANCEL,
+                                          SUI_Window_CharacterBuilderCreditsMenuBank_InputBox,
+                                          8);
+        }
+        break;
 
-            default:{}break;
+        default:
+        {} break;
         }
     } else {
         // parse the input value
@@ -919,7 +919,7 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
         }
         else
         {
-            dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->setCredits(mInputBoxAmount);
+            dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits(mInputBoxAmount);
             gTreasuryManager->saveAndUpdateBankCredits(player);
         }
     }
@@ -929,117 +929,124 @@ void CharacterBuilderTerminal::_handleBuffMenu(PlayerObject* playerObject, uint3
     switch(element)
     {
     case 0:
-        {
-            BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
-            Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
-            tempBuff1->AddAttribute(tempAttribute1);
-            playerObject->AddBuff(tempBuff1);
+    {
+        BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
+        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
+        tempBuff1->AddAttribute(tempAttribute1);
+        playerObject->AddBuff(tempBuff1);
 
-            BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
-            Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
-            tempBuff2->AddAttribute(tempAttribute2);
-            playerObject->AddBuff(tempBuff2);
+        BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
+        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
+        tempBuff2->AddAttribute(tempAttribute2);
+        playerObject->AddBuff(tempBuff2);
 
-            BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
-            Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
-            tempBuff3->AddAttribute(tempAttribute3);
-            playerObject->AddBuff(tempBuff3);
+        BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
+        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
+        tempBuff3->AddAttribute(tempAttribute3);
+        playerObject->AddBuff(tempBuff3);
 
-        }break;
-    case 1: 
-        {
-            BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
-            Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
-            tempBuff1->AddAttribute(tempAttribute1);
-            playerObject->AddBuff(tempBuff1);
+    }
+    break;
+    case 1:
+    {
+        BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
+        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
+        tempBuff1->AddAttribute(tempAttribute1);
+        playerObject->AddBuff(tempBuff1);
 
-            BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
-            Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
-            tempBuff2->AddAttribute(tempAttribute2);
-            playerObject->AddBuff(tempBuff2);
+        BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
+        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
+        tempBuff2->AddAttribute(tempAttribute2);
+        playerObject->AddBuff(tempBuff2);
 
-            BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
-            Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
-            tempBuff3->AddAttribute(tempAttribute3);
-            playerObject->AddBuff(tempBuff3);
+        BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
+        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
+        tempBuff3->AddAttribute(tempAttribute3);
+        playerObject->AddBuff(tempBuff3);
 
-        }break;
-    case 2: 
-        {
-            BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
-            Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
-            tempBuff1->AddAttribute(tempAttribute1);
-            playerObject->AddBuff(tempBuff1);
+    }
+    break;
+    case 2:
+    {
+        BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
+        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
+        tempBuff1->AddAttribute(tempAttribute1);
+        playerObject->AddBuff(tempBuff1);
 
-            BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
-            Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
-            tempBuff2->AddAttribute(tempAttribute2);
-            playerObject->AddBuff(tempBuff2);
+        BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
+        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
+        tempBuff2->AddAttribute(tempAttribute2);
+        playerObject->AddBuff(tempBuff2);
 
-            BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
-            Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
-            tempBuff3->AddAttribute(tempAttribute3);
-            playerObject->AddBuff(tempBuff3);
+        BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
+        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 60000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
+        tempBuff3->AddAttribute(tempAttribute3);
+        playerObject->AddBuff(tempBuff3);
 
-        }break;
+    }
+    break;
     case 3:
-        {
-            BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
-            Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
-            tempBuff1->AddAttribute(tempAttribute1);
-            playerObject->AddBuff(tempBuff1);
+    {
+        BuffAttribute* tempAttribute1 = new BuffAttribute(attr_health, +2400,0,-2400);
+        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_health, gWorldManager->GetCurrentGlobalTick());
+        tempBuff1->AddAttribute(tempAttribute1);
+        playerObject->AddBuff(tempBuff1);
 
-            BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
-            Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
-            tempBuff2->AddAttribute(tempAttribute2);
-            playerObject->AddBuff(tempBuff2);
+        BuffAttribute* tempAttribute2 = new BuffAttribute(attr_strength, +2400,0,-2400);
+        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_strength, gWorldManager->GetCurrentGlobalTick());
+        tempBuff2->AddAttribute(tempAttribute2);
+        playerObject->AddBuff(tempBuff2);
 
-            BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
-            Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
-            tempBuff3->AddAttribute(tempAttribute3);
-            playerObject->AddBuff(tempBuff3);
+        BuffAttribute* tempAttribute3 = new BuffAttribute(attr_constitution, +2400,0,-2400);
+        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_constitution, gWorldManager->GetCurrentGlobalTick());
+        tempBuff3->AddAttribute(tempAttribute3);
+        playerObject->AddBuff(tempBuff3);
 
-        }break;
-    case 4: 
-        {
-            BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
-            Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
-            tempBuff1->AddAttribute(tempAttribute1);
-            playerObject->AddBuff(tempBuff1);
+    }
+    break;
+    case 4:
+    {
+        BuffAttribute* tempAttribute1 = new BuffAttribute(attr_action, +2400,0,-2400);
+        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_action, gWorldManager->GetCurrentGlobalTick());
+        tempBuff1->AddAttribute(tempAttribute1);
+        playerObject->AddBuff(tempBuff1);
 
-            BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
-            Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
-            tempBuff2->AddAttribute(tempAttribute2);
-            playerObject->AddBuff(tempBuff2);
+        BuffAttribute* tempAttribute2 = new BuffAttribute(attr_quickness, +2400,0,-2400);
+        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_quickness, gWorldManager->GetCurrentGlobalTick());
+        tempBuff2->AddAttribute(tempAttribute2);
+        playerObject->AddBuff(tempBuff2);
 
-            BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
-            Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
-            tempBuff3->AddAttribute(tempAttribute3);
-            playerObject->AddBuff(tempBuff3);
+        BuffAttribute* tempAttribute3 = new BuffAttribute(attr_stamina, +2400,0,-2400);
+        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, medical_enhance_stamina, gWorldManager->GetCurrentGlobalTick());
+        tempBuff3->AddAttribute(tempAttribute3);
+        playerObject->AddBuff(tempBuff3);
 
-        }break;
-    case 5: 
-        {
-            BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
-            Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
-            tempBuff1->AddAttribute(tempAttribute1);
-            playerObject->AddBuff(tempBuff1);
+    }
+    break;
+    case 5:
+    {
+        BuffAttribute* tempAttribute1 = new BuffAttribute(attr_mind, +600,0,-600);
+        Buff* tempBuff1 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_dance_mind, gWorldManager->GetCurrentGlobalTick());
+        tempBuff1->AddAttribute(tempAttribute1);
+        playerObject->AddBuff(tempBuff1);
 
-            BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
-            Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
-            tempBuff2->AddAttribute(tempAttribute2);
-            playerObject->AddBuff(tempBuff2);
+        BuffAttribute* tempAttribute2 = new BuffAttribute(attr_focus, +600,0,-600);
+        Buff* tempBuff2 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_music_focus, gWorldManager->GetCurrentGlobalTick());
+        tempBuff2->AddAttribute(tempAttribute2);
+        playerObject->AddBuff(tempBuff2);
 
-            BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
-            Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
-            tempBuff3->AddAttribute(tempAttribute3);
-            playerObject->AddBuff(tempBuff3);
+        BuffAttribute* tempAttribute3 = new BuffAttribute(attr_willpower, +600,0,-600);
+        Buff* tempBuff3 = Buff::SimpleBuff(playerObject, playerObject, 10800000, performance_enhance_music_willpower, gWorldManager->GetCurrentGlobalTick());
+        tempBuff3->AddAttribute(tempAttribute3);
+        playerObject->AddBuff(tempBuff3);
 
-        }break;
+    }
+    break;
     case 6:
         playerObject->ClearAllBuffs();
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleItemMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1088,7 +1095,8 @@ void CharacterBuilderTerminal::_handleItemMenu(PlayerObject* playerObject, uint3
             gUIManager->createNewListBox(this,"handleArmorMenu","Armor","Select a category.",mArmorMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_ArmorMenu);
         }
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -1171,7 +1179,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
             gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu","Resources","Select",resourceNameList,resourceIdList,playerObject,SUI_Window_CharacterBuilder_ListBox_ResourceMenu);
         }
         else//if(rParent->getChildren()->size())
-        {				//it was a resource - create
+        {   //it was a resource - create
 
             ResourceIdList resourceIdList = dynamic_cast<UIResourceSelectListBox*>(window)->getResourceIdList();
 
@@ -1264,7 +1272,7 @@ void CharacterBuilderTerminal::_handleResourcesCRC(PlayerObject* playerObject, u
         //	gLogger->log(LogManager::WARNING,"CharacterBuilderTerminal::_handleResourcesCRC could not locate resource in list for element index:%I32u",element);
         //	return;
         //}
-        uint32		crc;	
+        uint32		crc;
         try
         {
             crc	= static_cast<uint32>(resourceIdList[element]);
@@ -1323,7 +1331,7 @@ void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject,
         }
 
         gUIManager->createNewResourceSelectListBox(this,"handleResourcesMenu","Resources","Select",resourceNameList,resourceIdList,playerObject,SUI_Window_CharacterBuilderResourcesCRCMenu_ListBox);
-    }	
+    }
 }
 void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
@@ -1402,101 +1410,135 @@ void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint
         playerObject->getHam()->updateBattleFatigue(-1000);
     default:
         break;
-    }	
+    }
+}
+void CharacterBuilderTerminal::_handleBlueFrogMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window)
+{
+    switch(element)
+    {
+        case 0:
+        {
+            GiveItem(playerObject,2789);
+        }
+        break;
+    }
+}
+void CharacterBuilderTerminal::_handleTeleportMenu(PlayerObject* playerObject, uint32 action, int32 element, BString inputStr, UIWindow* window)
+{
+    glm::vec3 destination;
+    std::wstring inputs(inputStr.getUnicode16());
+    std::string input(inputs.begin(), inputs.end());
+    input.assign(inputs.begin(), inputs.end());
+
+    std::string str_x = input.substr(0, input.find_first_of(","));
+    std::string str_y = input.substr(input.find_first_of(",")+1,input.find_last_of(""));
+    try
+    {
+        destination.x = boost::lexical_cast<float, std::string>(str_x);
+        destination.y = 0.0f;
+        destination.z = boost::lexical_cast<float, std::string>(str_y);
+
+        gWorldManager->warpPlanet(playerObject, destination, 0);
+    }
+    catch(...)
+    {
+        DLOG(WARNING) << "Teleport Unsucssessful";
+        gMessageLib->SendSystemMessage(L"Teleport Unsuccessful, Usage: X,Y", playerObject);
+    }
 }
 
 void CharacterBuilderTerminal::_handleStateMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
     switch(element)
     {
-        case 0:
+    case 0:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Cover);
         break;
-        case 1:
+    case 1:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Combat);
         break;
-        case 2:
+    case 2:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Peace);
         break;
-        case 3:
+    case 3:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Aiming);
         break;
-        case 4:
+    case 4:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Alert);
         break;
-        case 5:
+    case 5:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Berserk);
         break;
-        case 6:
+    case 6:
         gStateManager.setCurrentActionState(playerObject, CreatureState_FeignDeath);
         break;
-        case 7:
+    case 7:
         gStateManager.setCurrentActionState(playerObject, CreatureState_CombatAttitudeEvasive);
         break;
-        case 8:
+    case 8:
         gStateManager.setCurrentActionState(playerObject, CreatureState_CombatAttitudeNormal);
         break;
-        case 9:
+    case 9:
         gStateManager.setCurrentActionState(playerObject, CreatureState_CombatAttitudeAggressive);
         break;
-        case 10:
+    case 10:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Tumbling);
         break;
-        case 11:
+    case 11:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Rallied);
         break;
-        case 12:
+    case 12:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Stunned);
         break;
-        case 13:
+    case 13:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Swimming);
         break;
-        case 14:
+    case 14:
         gStateManager.setCurrentActionState(playerObject, CreatureState_SittingOnChair);
         break;
-        case 15:
+    case 15:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Crafting);
         break;
-        case 16:
+    case 16:
         gStateManager.setCurrentActionState(playerObject, CreatureState_GlowingJedi);
         break;
-        case 17:
+    case 17:
         gStateManager.setCurrentActionState(playerObject, CreatureState_MaskScent);
         break;
-        case 18:
+    case 18:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Poisoned);
         break;
-        case 19:
+    case 19:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Bleeding);
         break;
-        case 20:
+    case 20:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Diseased);
         break;
-        case 21:
+    case 21:
         gStateManager.setCurrentActionState(playerObject, CreatureState_OnFire);
         break;
-        case 22:
+    case 22:
         gStateManager.setCurrentActionState(playerObject, CreatureState_RidingMount);
         break;
-        case 23:
+    case 23:
         gStateManager.setCurrentActionState(playerObject, CreatureState_MountedCreature);
         break;
-        case 24:
+    case 24:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Blinded);
         break;
-        case 25:
+    case 25:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Dizzy);
         break;
-        case 26:
+    case 26:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Intimidated);
         break;
-        case 27:
+    case 27:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Immobilized);
         break;
-        case 28:
+    case 28:
         gStateManager.setCurrentActionState(playerObject, CreatureState_Frozen);
         break;
-        case 29:
+    case 29:
         gStateManager.setCurrentActionState(playerObject, CreatureState_ClearState);
     }
 }
@@ -1682,7 +1724,8 @@ void CharacterBuilderTerminal::_handleArmorMenu(PlayerObject* playerObject, uint
             gUIManager->createNewListBox(this,"handleUbeseArmorMenu","Ubese Armor","Select a category.",mUbeseArmorMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_UbeseArmorMenu);
         }
         break;
-    default:break;
+    default:
+        break;
     }
 }
 void CharacterBuilderTerminal::_handleHarvesterMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
@@ -2014,7 +2057,7 @@ void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32
     switch(element)
     {
     case 0:
-        {
+    {
         GiveItem(player,1131);
         GiveItem(player,615);
         GiveItem(player,608);
@@ -2024,8 +2067,8 @@ void CharacterBuilderTerminal::_handleBoneArmorMenu(PlayerObject* player, uint32
         GiveItem(player,705);
         GiveItem(player,1001);
         GiveItem(player,870);
-        }
-        break;
+    }
+    break;
     case 1:
         GiveItem(player,870);
         break;
@@ -2065,7 +2108,7 @@ void CharacterBuilderTerminal::_handleCompositeArmorMenu(PlayerObject* player, u
     switch(element)
     {
     case 0:
-        {
+    {
         GiveItem(player,518);
         GiveItem(player,784);
         GiveItem(player,1195);
@@ -2075,8 +2118,8 @@ void CharacterBuilderTerminal::_handleCompositeArmorMenu(PlayerObject* player, u
         GiveItem(player,601);
         GiveItem(player,978);
         GiveItem(player,1107);
-        }
-        break;
+    }
+    break;
     case 1:
         GiveItem(player,518);
         break;
@@ -2113,7 +2156,7 @@ void CharacterBuilderTerminal::_handleUbeseArmorMenu(PlayerObject* player, uint3
     switch(element)
     {
     case 0:
-        {
+    {
         GiveItem(player,1249);
         GiveItem(player,711);
         GiveItem(player,1281);
@@ -2122,8 +2165,8 @@ void CharacterBuilderTerminal::_handleUbeseArmorMenu(PlayerObject* player, uint3
         GiveItem(player,1232);
         GiveItem(player,1196);
         GiveItem(player,1296);
-        }
-        break;
+    }
+    break;
     case 1:
         GiveItem(player,1249);
         break;
@@ -2554,183 +2597,188 @@ void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BStrin
 
     switch(window->getWindowType())
     {
-        case SUI_Window_CharacterBuilderMainMenu_ListBox:
-            _handleMainMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ExperienceMenu:
-            _handleExperienceMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_CreditMenu:
-        case SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox:
-        case SUI_Window_CharacterBuilderCreditsMenuBank_InputBox:
-            _handleCreditMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_BuffMenu:
-            _handleBuffMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ItemMenu:
-            _handleItemMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilderResourcesTypesMenu_ListBox:
-            _handleResourcesTypes(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ResourceMenu:
-            _handleResourceMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilderResourcesCRCMenu_ListBox:
-            _handleResourcesCRC(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_StructureMenu:
-            _handleStructureMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_FurnitureMenu:
-            _handleFurnitureMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_VehicleMenu:
-            GiveItem(playerObject, 1736+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_InstrumentMenu:
-            _handleInstrumentMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ToolMenu:
-            _handleToolMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_WeaponMenu:
-            _handleWeaponMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ArmorMenu:
-            _handleArmorMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_FactoryMenu:
-            GiveItem(playerObject, 1590+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_HarvesterMenu:
-            _handleHarvesterMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_CampMenu:
-            GiveItem(playerObject,1970+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_HouseMenu:
-            _handleHouseMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_RugMenu:
-            _handleRugMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_PlantMenu:
-            _handlePlantMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ElegantMenu:
-            _handleElegantMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ModernMenu:
-            _handleModernMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_PlainMenu:
-            _handlePlainMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_CheapMenu:
-            _handleCheapMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_SurveyToolMenu:
-            GiveItem(playerObject, 1+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_CraftingToolMenu:
-            GiveItem(playerObject, 11+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_MeleeMenu:
-            _handleMeleeMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_RangedMenu:
-            _handleRangedMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_BoneArmorMenu:
-            _handleBoneArmorMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_CompositeArmorMenu:
-            _handleCompositeArmorMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_UbeseArmorMenu:
-            _handleUbeseArmorMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_FloraMenu:
-            GiveItem(playerObject,1601+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_GasMenu:
-            GiveItem(playerObject,1604+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ChemicalMenu:
-            GiveItem(playerObject,1607+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_WaterMenu:
-            GiveItem(playerObject,1610+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_MineralMenu:
-            GiveItem(playerObject,1613+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_GenericMenu:
-            GiveItem(playerObject, 1720+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_TatooineMenu:
-            GiveItem(playerObject, 1732+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_OneHandSwordMenu:
-            _handleOneHandSwordMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_TwoHandSwordMenu:
-            _handleTwoHandSwordMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_AxeMenu:
-            GiveItem(playerObject,2276+element);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_BatonMenu:
-            _handleBatonMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_PolearmMenu:
-            _handlePolearmMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_KnifeMenu:
-            _handleKnifeMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_UnarmedMenu:
-            GiveItem(playerObject,2294);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_CarbineMenu:
-            _handleCarbineMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_ThrownMenu:
-            _handleThrownMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_HeavyMenu:
-            _handleHeavyMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_PistolMenu:
-            _handlePistolMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_RifleMenu:
-            _handleRifleMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilderItemIdInputBox:
-            _handleCSRItemSelect(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilderProfessionMastery_ListBox:
-            _handleProfessionMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_WoundMenu:
-            _handleWoundMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_StateMenu:
-            _handleStateMenu(playerObject, action, element, inputStr, window);
-        case SUI_Window_CharacterBuilder_ListBox_CivicMenu:
-            _handleCivicMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_GuildHallMenu:
-            _handleGuildMenu(playerObject, action, element, inputStr, window);
-            break;
-        case SUI_Window_CharacterBuilder_ListBox_CityHallMenu:
-            _handleCityMenu(playerObject, action, element, inputStr, window);
-            break;
-        default:
-            break;
+    case SUI_Window_CharacterBuilderMainMenu_ListBox:
+        _handleMainMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ExperienceMenu:
+        _handleExperienceMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_CreditMenu:
+    case SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox:
+    case SUI_Window_CharacterBuilderCreditsMenuBank_InputBox:
+        _handleCreditMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_BuffMenu:
+        _handleBuffMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ItemMenu:
+        _handleItemMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilderResourcesTypesMenu_ListBox:
+        _handleResourcesTypes(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ResourceMenu:
+        _handleResourceMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilderResourcesCRCMenu_ListBox:
+        _handleResourcesCRC(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_StructureMenu:
+        _handleStructureMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_FurnitureMenu:
+        _handleFurnitureMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_VehicleMenu:
+        GiveItem(playerObject, 1736+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_InstrumentMenu:
+        _handleInstrumentMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ToolMenu:
+        _handleToolMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_WeaponMenu:
+        _handleWeaponMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ArmorMenu:
+        _handleArmorMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_FactoryMenu:
+        GiveItem(playerObject, 1590+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_HarvesterMenu:
+        _handleHarvesterMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_CampMenu:
+        GiveItem(playerObject,1970+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_HouseMenu:
+        _handleHouseMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_RugMenu:
+        _handleRugMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_PlantMenu:
+        _handlePlantMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ElegantMenu:
+        _handleElegantMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ModernMenu:
+        _handleModernMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_PlainMenu:
+        _handlePlainMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_CheapMenu:
+        _handleCheapMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_SurveyToolMenu:
+        GiveItem(playerObject, 1+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_CraftingToolMenu:
+        GiveItem(playerObject, 11+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_MeleeMenu:
+        _handleMeleeMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_RangedMenu:
+        _handleRangedMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_BoneArmorMenu:
+        _handleBoneArmorMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_CompositeArmorMenu:
+        _handleCompositeArmorMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_UbeseArmorMenu:
+        _handleUbeseArmorMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_FloraMenu:
+        GiveItem(playerObject,1601+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_GasMenu:
+        GiveItem(playerObject,1604+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ChemicalMenu:
+        GiveItem(playerObject,1607+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_WaterMenu:
+        GiveItem(playerObject,1610+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_MineralMenu:
+        GiveItem(playerObject,1613+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_GenericMenu:
+        GiveItem(playerObject, 1720+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_TatooineMenu:
+        GiveItem(playerObject, 1732+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_OneHandSwordMenu:
+        _handleOneHandSwordMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_TwoHandSwordMenu:
+        _handleTwoHandSwordMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_AxeMenu:
+        GiveItem(playerObject,2276+element);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_BatonMenu:
+        _handleBatonMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_PolearmMenu:
+        _handlePolearmMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_KnifeMenu:
+        _handleKnifeMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_UnarmedMenu:
+        GiveItem(playerObject,2294);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_CarbineMenu:
+        _handleCarbineMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_ThrownMenu:
+        _handleThrownMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_HeavyMenu:
+        _handleHeavyMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_PistolMenu:
+        _handlePistolMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_RifleMenu:
+        _handleRifleMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilderItemIdInputBox:
+        _handleCSRItemSelect(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilderTeleportMenu_InputBox:
+        _handleTeleportMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilderProfessionMastery_ListBox:
+        _handleProfessionMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_WoundMenu:
+        _handleWoundMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_StateMenu:
+        _handleStateMenu(playerObject, action, element, inputStr, window);
+    case SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu:
+        _handleBlueFrogMenu(playerObject, action, element, inputStr, window);
+    case SUI_Window_CharacterBuilder_ListBox_CivicMenu:
+        _handleCivicMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_GuildHallMenu:
+        _handleGuildMenu(playerObject, action, element, inputStr, window);
+        break;
+    case SUI_Window_CharacterBuilder_ListBox_CityHallMenu:
+        _handleCityMenu(playerObject, action, element, inputStr, window);
+        break;
+    default:
+        break;
     }
 }
 

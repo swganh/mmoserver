@@ -43,7 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "WaypointObject.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
+#include "SpatialIndexManager.h"
 
 #include "Common/OutOfBand.h"
 #include "DatabaseManager/Database.h"
@@ -57,8 +57,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #endif
 
 #include <glog/logging.h>
-
-#include "Common/ConfigManager.h"
 
 #include "Utils/rand.h"
 #include <cstdio>
@@ -112,15 +110,15 @@ const char* creators[9] =
 MissionManager::MissionManager(Database* database, uint32 zone) :
     mDatabase(database)
 {
-    
+
     MissionManagerAsyncContainer* asyncContainer;
     asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Types, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT id, type, content, name FROM swganh.mission_types");
- 
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT id, type, content, name FROM %s.mission_types",mDatabase->galaxy());
+
 
     asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT name FROM swganh.mission_names WHERE planet = %u", zone);
- 
+    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT name FROM %s.mission_names WHERE planet = %u",mDatabase->galaxy(), zone);
+
 
 }
 
@@ -158,8 +156,6 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
     case MissionQuery_Load_Names_File:
     {
-        // m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')", zone);
-
         DataBinding* binding = mDatabase->createDataBinding(3);
         binding->addField(DFT_uint32,offsetof(Mission_Names,type),4,0);
         binding->addField(DFT_bstring,offsetof(Mission_Names,mission_name),64,1);
@@ -247,10 +243,12 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         MissionManagerAsyncContainer*  asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Terminal_Type, 0);
-        mDatabase->executeSqlAsync(this,asyncContainer,"SELECT mtmt.id, mtmt.terminal, mtmt.mission_type,mt.content, mt.name FROM swganh.mission_terminal_mission_types mtmt INNER JOIN swganh.mission_types mt ON (mt.id = mtmt.mission_type)");
+        mDatabase->executeSqlAsync(this,asyncContainer,"SELECT mtmt.id, mtmt.terminal, mtmt.mission_type,mt.content, mt.name FROM %s.mission_terminal_mission_types mtmt INNER JOIN %s.mission_types mt ON (mt.id = mtmt.mission_type)",mDatabase->galaxy(),mDatabase->galaxy());
 
         asyncContainer = new MissionManagerAsyncContainer(MissionQuery_Load_Names_File, 0);
-        mDatabase->executeSqlAsyncNoArguments(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM swganh.mission_text m_t INNER JOIN swganh.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')");
+        mDatabase->executeSqlAsync(this,asyncContainer,"SELECT m_t.mission_type, m_t.mission_name, m_t.mission_text FROM %s.mission_text m_t "
+                                                                  "INNER JOIN %s.mission_types mty ON mty.id = m_t.mission_type WHERE mission_name like 'm%o' AND (mty.type NOT like 'mission_npc_%')",
+                                                                  mDatabase->galaxy(),mDatabase->galaxy());
 
         if(result->getRowCount())
             DLOG(WARNING) << "Loaded mission types.";
@@ -579,8 +577,7 @@ void MissionManager::missionComplete(PlayerObject* player, MissionObject* missio
     gMessageLib->sendPlayMusicMessage(2501,player); //sound/music_mission_complete.snd
     gMessageLib->sendMissionComplete(player);
     Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-    bank->setCredits(bank->getCredits() + mission->getReward());
-    gTreasuryManager->saveAndUpdateBankCredits(player);
+    bank->updateCredits(mission->getReward());
 
     return;
 }
@@ -1142,13 +1139,14 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
     //END TEMP
 
     ObjectSet inRangeNPCs;
-    gWorldManager->getSI()->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500);
+
+    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_Creature,30.0,true);
+    ObjectSet::iterator it = inRangeNPCs.begin();
 
     //Start & End
     bool found = false;
     Location mission_start;
     Location mission_dest;
-    ObjectSet::iterator it = inRangeNPCs.begin();
 
     //we may stall the main thread with the way it was done ???? however often enough the mission generation never finished!!!!!!!!!!!!!!!
 
@@ -1227,7 +1225,6 @@ MissionObject* MissionManager::generateDeliverMission(MissionObject* mission)
 
 MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission,int count)
 {
-
     count < 5 ?
     mission->setMissionType(musician):
     mission->setMissionType(dancer);
@@ -1237,7 +1234,8 @@ MissionObject* MissionManager::generateEntertainerMission(MissionObject* mission
     mission->setNum(mission_num);
 
     ObjectSet inRangeNPCs;
-    gWorldManager->getSI()->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,3000);
+
+    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,3000,false);
     //Start
     uint32 cntLoop = 0;
     bool found = false;
@@ -1400,27 +1398,8 @@ MissionObject* MissionManager::generateCraftingMission(MissionObject* mission)
 
     //END TEMP
 
-    //Randomly choose a crafting mission
-    int mission_num = (gRandom->getRand() % 50)+1;
-    mission->setNum(mission_num);
-
-    //Creator
-    mission->setCreator(creators[gRandom->getRand() % 9]);
-
-    //Title
-    sprintf(mt,"m%dt",mission_num);
-    mission->setTitleFile("mission/mission_npc_crafting_neutral_easy");
-    mission->setTitle(mt);
-
-    //Details
-    sprintf(md,"m%dd",mission_num);
-    mission->setDetailFile("mission/mission_npc_crafting_neutral_easy");
-    mission->setDetail(md);
-
-    //END TEMP
-
     ObjectSet inRangeNPCs;
-    gWorldManager->getSI()->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500);
+    gSpatialIndexManager->getObjectsInRange(mission->getOwner(),&inRangeNPCs,ObjType_NPC,1500,false);
 
     uint32 cntLoop = 0;
     //Start & End

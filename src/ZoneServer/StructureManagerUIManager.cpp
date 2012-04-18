@@ -335,7 +335,7 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
     if(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)) { //we can access the bank
         Bank* pBank = dynamic_cast<Bank*> (player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
         if(pBank) {
-            funds += pBank->getCredits();
+            funds += pBank->credits();
         }
     }
 

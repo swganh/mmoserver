@@ -69,11 +69,13 @@ FUNCTION(AddMMOServerExecutable name)
     FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)   
     FILE(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)       
     
+    SOURCE_GROUP("" FILES ${SOURCES} ${HEADERS})
+    
     IF(_sources_list_length GREATER 0)
         FOREACH(_source_dir ${MMOSERVERLIB_ADDITIONAL_SOURCE_DIRS})
-            FILE(GLOB ADDITIONAL_SOURCES ${_source_dir}/*.cc ${_source_dir}/*.cpp)
-            FILE(GLOB ADDITIONAL_HEADERS ${_source_dir}/*.h)
-            
+            FILE(GLOB ADDITIONAL_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/${_source_dir}/*.cc ${CMAKE_CURRENT_SOURCE_DIR}/${_source_dir}/*.cpp)
+            FILE(GLOB ADDITIONAL_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/${_source_dir}/*.h)
+            SOURCE_GROUP(${_source_dir} FILES ${ADDITIONAL_SOURCES} ${ADDITIONAL_HEADERS})
             LIST(APPEND SOURCES ${ADDITIONAL_SOURCES})
             LIST(APPEND HEADERS ${ADDITIONAL_HEADERS})
         ENDFOREACH()
@@ -132,7 +134,8 @@ FUNCTION(AddMMOServerExecutable name)
         NetworkManager
         DatabaseManager
         Common
-        Utils    
+        Utils
+        libanh
         debug ${Boost_DATE_TIME_LIBRARY_DEBUG}
         debug ${Boost_REGEX_LIBRARY_DEBUG}
         debug ${Boost_SYSTEM_LIBRARY_DEBUG}

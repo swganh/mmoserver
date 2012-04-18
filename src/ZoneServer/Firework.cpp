@@ -78,16 +78,19 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
             if(this->getItemType() >= ItemType_Firework_Type_5 || this->getItemType() <= ItemType_Firework_Type_2)
             {
                 //Player must be standing or Kneeling to launch
-                if(playerObject->states.checkPosture(CreaturePosture_Upright) || playerObject->states.checkPosture(CreaturePosture_Crouched))
+                if(!playerObject->states.checkPosture(CreaturePosture_Upright) && !playerObject->states.checkPosture(CreaturePosture_Crouched))
                 {
                     gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
                     return;
                 }
-                else if(playerObject->getParentId())
-                {
-                    gMessageLib->SendSystemMessage(L"You must be standing or kneeling to start a firework.", playerObject);
-                    return;
-                }
+
+				//player can not be swimming -> not working yet. The server do not update the state when walking in water
+				if (playerObject->states.checkState(CreatureState_Swimming))
+				{
+					gMessageLib->SendSystemMessage(L"You can not do that while swimming!", playerObject);
+					return;
+				}
+
                 else if(playerObject->getParentId())
                 {
                     gMessageLib->SendSystemMessage(L"You can not do this while indoors.", playerObject);
@@ -104,7 +107,7 @@ void Firework::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     if (charges)
                     {
                         this->setAttribute("charges",boost::lexical_cast<std::string>(charges));
-                        gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",charges,this->getId(), AttrType_Charges);
+                        gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%f' WHERE item_id=%"PRIu64" AND attribute_id=%u",gWorldManager->getDatabase()->galaxy(),charges,this->getId(), AttrType_Charges);
                         
                         //now update the uses display
                         gMessageLib->sendUpdateUses(this,playerObject);

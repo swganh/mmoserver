@@ -46,7 +46,6 @@ class Object;
 class PlayerObject;
 class ObjectControllerCmdProperties;
 class Database;
-class ZoneTree;
 class ArtisanHeightmapAsyncContainer;
 class CurrentResource;
 class SurveyTool;

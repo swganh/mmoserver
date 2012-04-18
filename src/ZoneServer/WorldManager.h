@@ -28,6 +28,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_WORLDMANAGER_H
 #define ANH_ZONESERVER_WORLDMANAGER_H
 
+#include "ObjectFactoryCallback.h"
+
+#include "Weather.h"
+#include "WorldManagerEnums.h"
+#include "SpatialIndexManager.h"
+
+
+#include "ScriptEngine/ScriptEventListener.h"
+
+#include "DatabaseManager/DatabaseCallback.h"
+
 #include <list>
 #include <map>
 #include <unordered_map>
@@ -45,10 +56,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ScriptEngine/ScriptEventListener.h"
 
 #include "ZoneServer/ObjectFactoryCallback.h"
-#include "ZoneServer/QTRegion.h"
 #include "ZoneServer/TangibleEnums.h"
 #include "ZoneServer/Weather.h"
 #include "ZoneServer/WorldManagerEnums.h"
+#include "ZoneServer/RegionObject.h"
 
 //======================================================================================================================
 
@@ -82,9 +93,6 @@ class VariableTimeScheduler;
 // pwns all objects
 typedef boost::ptr_unordered_map<uint64,Object>			ObjectMap;
 
-// seperate map for qt regions, since ids may match object ids
-typedef std::unordered_map<uint32,std::shared_ptr<QTRegion>>	QTRegionMap;
-
 // Maps for objects in world
 typedef std::map<uint32,const PlayerObject*>	        PlayerAccMap;
 typedef std::map<uint64,std::shared_ptr<RegionObject>>	RegionMap;
@@ -116,7 +124,7 @@ typedef std::map<uint64, uint64>				NpcActiveHandlers;
 typedef std::map<uint64, uint64>				AdminRequestHandlers;
 
 // AttributeKey map
-typedef std::map<uint32,BString>					AttributeKeyMap;
+typedef std::map<uint32,BString>				AttributeKeyMap;
 typedef std::map<uint32,uint32>					AttributeIDMap;
 
 // non-persistent id set
@@ -171,7 +179,7 @@ public:
     static WorldManager*	getSingletonPtr() {
         return mSingleton;
     }
-    static WorldManager*	Init(uint32 zoneId, ZoneServer* zoneServer,Database* database);
+    static WorldManager*	Init(uint32 zoneId, ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName);
     void					Shutdown();
 
     void					Process();
@@ -201,27 +209,19 @@ public:
     virtual void			handleTimer(uint32 id, void* container);
 
     // add / delete an object, make sure to cleanup any other references
-    float					_GetMessageHeapLoadViewingRange();
     bool					existObject(Object* object);	// Returns true if object does exist.
     bool					addObject(Object* object,bool manual = false);
-
-    // new object handling system
-    bool                    addObject(std::shared_ptr<Object> object, bool manual = false);
-
-    void					destroyObject(Object* object);
-    void					destroyObjectForKnownPlayers(Object* object);
-    void					createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object);
-    void					createObjectinWorld(PlayerObject* player, Object* object);
-    void					createObjectinWorld(Object* object);
-    Object*					getObjectById(uint64 objId);
-    void					eraseObject(uint64 key);
+    bool					addObject(std::shared_ptr<Object> object ,bool manual = false);
+	void					destroyObject(Object* object);
+	void					destroyObject(std::shared_ptr<Object> object);
+		
+	void					createObjectForKnownPlayers(PlayerObjectSet* knownPlayers, Object* object);
+		
+	Object*					getObjectById(uint64 objId);
+	void					eraseObject(uint64 key);
 
     // Find object owned by "player"
     uint64					getObjectOwnedBy(uint64 theOwner);
-
-    // spatial query, creates all objects in range for each other
-    void					initObjectsInRange(PlayerObject* playerObject);
-    void					initPlayersInRange(Object* object,PlayerObject* player);
 
     // adds a creatures commandqueue to the main process queue
     uint64					addObjControllerToProcess(ObjectController* objController);
@@ -292,9 +292,6 @@ public:
     // removes player from the timeout list
     void					removePlayerFromDisconnectedList(PlayerObject* playerObject);
 
-    // adds a player to the timeout list
-    void					addPlayerToDisconnectedList(PlayerObject* playerObject);
-
     // adds a shuttle
     void					addShuttle(Shuttle* shuttle) {
         mShuttleList.push_back(shuttle);
@@ -342,14 +339,13 @@ public:
     ShuttleList*			getShuttleList() {
         return &mShuttleList;
     }
-
+    ObjectIDList*			getStructureList(){
+        return &mStructureList; 
+    }
     // delete Player off of the accountmap
     void					removePlayerfromAccountMap(uint64 playerID);
 
     // retrieve spatial index for this zone
-    ZoneTree*				getSI() {
-        return mSpatialIndex;
-    }
 
     // removes player from the current scene, and starts a new one after updating his position
     void					warpPlanet(PlayerObject* playerObject, const glm::vec3& destination,uint64 parentId, const glm::quat& direction = glm::quat());
@@ -406,32 +402,7 @@ public:
     uint32					getPlanetCount() {
         return mvPlanetNames.size();
     }
-    /*  Region Methods
-    *
-    */
-    // region methods
-    void					addRemoveRegion(std::shared_ptr<RegionObject> region) {
-        mRegionDeleteList.push_back(region);   //we store here regions that are due to be deleted after every iteration through active regions the list is iterated and its contents removed and destroyed
-    }
-
-    std::shared_ptr<RegionObject> getRegionById(uint64 regionId);
-
-    RegionMap getRegionMap() {
-        return mRegionMap;
-    }
-    //
-    void					addActiveRegion(std::shared_ptr<RegionObject> regionObject) {
-        mActiveRegions.push_back(regionObject);
-    }
-    void					removeActiveRegion(std::shared_ptr<RegionObject> regionObject);
-    std::shared_ptr<QTRegion>	getQTRegion(uint32 id);
-
-    QTRegionMap			getQTRegionMap() {
-        return mQTRegionMap;
-    }
-    /*  End Region Methods
-    *
-    */
+  
     Anh_Utils::Scheduler*	getPlayerScheduler() {
         return mPlayerScheduler;
     }
@@ -463,15 +434,14 @@ public:
 
     //find objects in the world
     Object*					getNearestTerminal(PlayerObject* player, TangibleType terminalType, float searchrange = 32);
-
+    
     ~WorldManager();
 
     AttributeKeyMap				mObjectAttributeKeyMap;
     AttributeIDMap				mObjectAttributeIDMap;
-
 private:
 
-    WorldManager(uint32 zoneId, ZoneServer* zoneServer,Database* database);
+    WorldManager(uint32 zoneId, ZoneServer* zoneServer,Database* database, uint16 heightmapResolution, bool writeResourceMaps, std::string zoneName);
 
     // load the global ObjectControllerCommandMap, maps command crcs to ObjController function pointers
     void	_loadObjControllerCommandMap();
@@ -485,7 +455,6 @@ private:
     bool	_handleServerTimeUpdate(uint64 callTime,void* ref);
     bool	_handleShuttleUpdate(uint64 callTime,void* ref);
     bool	_handleDisconnectUpdate(uint64 callTime,void* ref);
-    bool	_handleRegionUpdate(uint64 callTime,void* ref);
     bool	_handleCraftToolTimers(uint64 callTime,void* ref);
     bool	_handleNpcConversionTimers(uint64 callTime,void* ref);
     bool	_handleFireworkLaunchTimers(uint64 callTime,void* ref);
@@ -564,8 +533,7 @@ private:
     PlayerAccMap				mPlayerAccMap;
     PlayerMovementUpdateMap		mPlayerMovementUpdateMap;
     PlayerObjectReviveMap		mPlayerObjectReviveMap;
-    QTRegionMap					mQTRegionMap;
-    RegionMap                   mRegionMap;
+    //RegionMap                   mRegionMap;
     NpIdSet						mUsedTmpIds;
     std::vector<std::string>	mvClientEffects;
     std::vector<std::string>    mvMoods;
@@ -595,7 +563,6 @@ private:
     Anh_Utils::Scheduler*		mNpcManagerScheduler;
     Anh_Utils::Scheduler*		mObjControllerScheduler;
     Anh_Utils::Scheduler*		mPlayerScheduler;
-    ZoneTree*								mSpatialIndex;
     Anh_Utils::Scheduler*		mSubsystemScheduler;
     ZoneServer*					mZoneServer;
     WMState						mState;
@@ -605,9 +572,9 @@ private:
     uint64						mTick;
     uint32						mTotalObjectCount;
     uint32						mZoneId;
+	uint16						mHeightmapResolution;
 
     uint64						mSaveTaskId;
-
 };
 
 

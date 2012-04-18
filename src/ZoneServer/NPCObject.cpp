@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "QuadTree.h"
 #include "Weapon.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -173,25 +172,26 @@ void NPCObject::setDirection(float deltaX, float deltaZ)
         this->mDirection.w = static_cast<float>(cos(0.5f*acos(z/h)));
     }
 
-    // send out position updates to known players
-    if (this->getKnownPlayers()->empty())
-    {
-        return;
-    }
+    
+	// send out position updates to known players
+	if (this->getRegisteredWatchers()->empty())
+	{
+		return;
+	}
 
-    this->setInMoveCount(this->getInMoveCount() + 1);
+	this->setInMoveCount(this->getInMoveCount() + 1);
 
-    if (this->getParentId())
-    {
-        // We are inside a cell.
-        gMessageLib->sendDataTransformWithParent053(this);
-        gMessageLib->sendUpdateTransformMessageWithParent(this);
-    }
-    else
-    {
-        gMessageLib->sendDataTransform053(this);
-        gMessageLib->sendUpdateTransformMessage(this);
-    }
+	if (this->getParentId())
+	{
+		// We are inside a cell.
+		gMessageLib->sendDataTransformWithParent053(this);
+		gMessageLib->sendUpdateTransformMessageWithParent(this);
+	}
+	else
+	{
+		gMessageLib->sendDataTransform053(this);
+		gMessageLib->sendUpdateTransformMessage(this);
+	}
 }
 
 //=============================================================================
@@ -596,43 +596,43 @@ void NPCObject::updateGroupDamage(DamageDealer* damageDealer)
 //
 void NPCObject::updateAttackersWeaponAndCombatXp(uint64 playerId, uint64 groupId, int32 damageDone, int32 weaponUsedMask)
 {
-    // Combat XP is one tenth of the total weapon XP.
-    int32 combatXp = damageDone/10;
-    uint32 noOfWeaponsUsed = 0;
+	// Combat XP is one tenth of the total weapon XP.
+	int32 combatXp = damageDone/10;
+	uint32 noOfWeaponsUsed = 0;
 
-    // Now we need to figure out how many weapons that was involved in this mess.
-    for (uint32 i = WeaponGroup_Unarmed; i < WeaponGroup_Flamethrower; i = i << 1)
-    {
-        if ((i & weaponUsedMask) ==  i)
-        {
-            // We got a weapon type.
-            noOfWeaponsUsed++;
-        }
-    }
+	// Now we need to figure out how many weapons that was involved in this mess.
+	for (uint32 i = WeaponGroup_Unarmed; i < WeaponGroup_Flamethrower; i = i << 1)
+	{
+		if ((i & weaponUsedMask) ==  i)
+		{
+			// We got a weapon type.
+			noOfWeaponsUsed++;
+		}
+	}
 
-    // Here is the XP to grant for each type of damage done.
-    if (noOfWeaponsUsed)
-    {
-        int32 weaponXp = damageDone/(noOfWeaponsUsed);
+	// Here is the XP to grant for each type of damage done.
+	if (noOfWeaponsUsed)
+	{
+		int32 weaponXp = damageDone/(noOfWeaponsUsed);
 
-        if (PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId)))
-        {
-            // Only update XP for players in range and still in group, if specified.
-            if (playerObject && this->checkKnownPlayer(playerObject))
-            {
-                bool valid = true;
-                if (groupId)
-                {
-                    valid = (playerObject->getGroupId() == (groupId));
-                }
-                if (valid)
-                {
-                    this->sendAttackersWeaponXp(playerObject, weaponUsedMask, weaponXp);
-                    gSkillManager->addExperience(XpType_combat_general, combatXp, playerObject);
-                }
-            }
-        }
-    }
+		if (PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId)))
+		{
+			// Only update XP for players in range and still in group, if specified.
+			if (playerObject && this->checkRegisteredWatchers(playerObject))
+			{
+				bool valid = true;
+				if (groupId)
+				{
+					valid = (playerObject->getGroupId() == (groupId));
+				}
+				if (valid)
+				{
+					this->sendAttackersWeaponXp(playerObject, weaponUsedMask, weaponXp);
+					gSkillManager->addExperience(XpType_combat_general, combatXp, playerObject);
+				}
+			}
+		}
+	}
 }
 
 

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/typedefs.h"
 #include "Utils/concurrent_queue.h"
-
+#include "NetworkConfig.h"
 #include <list>
 
 
@@ -54,7 +54,7 @@ class Service
 {
 public:
 
-    Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize);
+    Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize, NetworkConfig& network_configuration);
     ~Service(void);
 
     void	Process();

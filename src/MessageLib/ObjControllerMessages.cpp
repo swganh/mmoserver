@@ -27,6 +27,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib.h"
 
+#ifdef _MSC_VER
+#include <regex>  // NOLINT
+#else
+#include <boost/regex.hpp>  // NOLINT
+#endif
+
+#include <boost/lexical_cast.hpp>
+
+// Fix for issues with glog redefining this constant
+#ifdef ERROR
+#undef ERROR
+#endif
+#include "glog/logging.h"
+
+#include "Common/atMacroString.h"
+#include "Common/byte_buffer.h"
+
+#include "NetworkManager/DispatchClient.h"
+#include "NetworkManager/Message.h"
+#include "NetworkManager/MessageDispatch.h"
+#include "NetworkManager/MessageFactory.h"
+#include "NetworkManager/MessageOpcodes.h"
+
+#include "ZoneServer/SpatialIndexManager.h"
 #include "ZoneServer/ActiveConversation.h"
 #include "ZoneServer/CharSheetManager.h"
 #include "ZoneServer/Conversation.h"
@@ -51,36 +75,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
-#include "ZoneServer/ZoneTree.h"
-
-#include "Common/byte_buffer.h"
-#include "Common/atMacroString.h"
-#include "NetworkManager/DispatchClient.h"
-#include "NetworkManager/Message.h"
-#include "NetworkManager/DispatchClient.h"
-#include "NetworkManager/MessageDispatch.h"
-#include "NetworkManager/MessageFactory.h"
-#include "NetworkManager/MessageOpcodes.h"
-
-#include <boost/lexical_cast.hpp>
-
-#ifdef _MSC_VER
-#include <regex>  // NOLINT
-#else
-#include <boost/regex.hpp>  // NOLINT
-#endif
-
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-#include "glog/logging.h"
+#include "ZoneServer/RegionObject.h"
 
 #ifdef WIN32
 using std::regex;
 using std::smatch;
 using std::regex_search;
-#else 
+#else
 using boost::regex;
 using boost::smatch;
 using boost::regex_search;
@@ -94,7 +95,7 @@ using common::OutOfBand;
 // Spatial Chat
 //
 
-void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
     // First, if this is not a player object, check to see if it's an stf string.
     if (speaking_object->getType() != ObjType_Player) {
         // Use regex to check if the chat string matches the stf string format.
@@ -120,11 +121,11 @@ void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const st
     SendSpatialChat_(speaking_object, custom_message, OutOfBand(), player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
 }
 
-void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+void MessageLib::SendSpatialChat(CreatureObject* const speaking_object, const OutOfBand& prose_message,  PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
     SendSpatialChat_(speaking_object, L"", prose_message, player_object, target_id, text_size, chat_type_id, mood_id, whisper_target_animate);
 }
 
-void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
+void MessageLib::SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const OutOfBand& prose_message, PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate) {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
@@ -416,7 +417,7 @@ bool MessageLib::sendEmptyObjectMenuResponse(uint64 requestedId,PlayerObject* ta
 bool MessageLib::sendStartingLocationList(PlayerObject* player, uint8 tatooine, uint8 corellia, uint8 talus, uint8 rori, uint8 naboo)
 {
     //gLogger->log(LogManager::DEBUG,"Sending Starting Location List\n");
-	DLOG(INFO) << "Sending Starting Location List";
+    DLOG(INFO) << "Sending Starting Location List";
 
     if(!(player->isConnected()))
     {
@@ -865,51 +866,6 @@ void MessageLib::sendDataTransform053(Object* object)
 
     _sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
 }
-
-void MessageLib::sendDataTransform071(Object* object)
-{
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opObjControllerMessage);
-    mMessageFactory->addUint32(0x00000071);
-    mMessageFactory->addUint32(opDataTransform);
-    mMessageFactory->addUint64(object->getId());
-    mMessageFactory->addUint32(0);
-    mMessageFactory->addUint32(object->incDataTransformCounter());
-
-    mMessageFactory->addFloat(object->mDirection.x);
-    mMessageFactory->addFloat(object->mDirection.y);
-    mMessageFactory->addFloat(object->mDirection.z);
-    mMessageFactory->addFloat(object->mDirection.w);
-    mMessageFactory->addFloat(object->mPosition.x);
-    mMessageFactory->addFloat(object->mPosition.y);
-    mMessageFactory->addFloat(object->mPosition.z);
-    mMessageFactory->addUint32(0);
-
-    _sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
-}
-
-void MessageLib::sendDataTransform023(Object* object)
-{
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opObjControllerMessage);
-    mMessageFactory->addUint32(0x00000023);
-    mMessageFactory->addUint32(opDataTransform);
-    mMessageFactory->addUint64(object->getId());
-    mMessageFactory->addUint32(0);
-    mMessageFactory->addUint32(object->incDataTransformCounter());
-
-    mMessageFactory->addFloat(object->mDirection.x);
-    mMessageFactory->addFloat(object->mDirection.y);
-    mMessageFactory->addFloat(object->mDirection.z);
-    mMessageFactory->addFloat(object->mDirection.w);
-    mMessageFactory->addFloat(object->mPosition.x);
-    mMessageFactory->addFloat(object->mPosition.y);
-    mMessageFactory->addFloat(object->mPosition.z);
-    mMessageFactory->addUint32(0);
-
-    _sendToInRangeUnreliable(mMessageFactory->EndMessage(),object,5);
-}
-
 //======================================================================================================================
 //
 // move object in cell
@@ -1024,85 +980,65 @@ bool MessageLib::sendBiography(PlayerObject* playerObject,PlayerObject* targetOb
 // character match results
 //
 
-bool MessageLib::sendCharacterMatchResults(const PlayerList* const matchedPlayers, const PlayerObject* const targetObject) const
-{
-    if(!(targetObject->isConnected()))
-        return(false);
-
-    PlayerList::const_iterator	playersIt	= matchedPlayers->begin();
-    // PlayerObject*			player		= NULL;
+bool MessageLib::sendCharacterMatchResults(const PlayerList* const matched_players, const PlayerObject* const target) const {
+    if(!target->isConnected()) {
+        return false;
+    }
 
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opPlayersNearYou);
-    mMessageFactory->addUint64(targetObject->getId());
+    mMessageFactory->addUint64(target->getId());
     mMessageFactory->addUint32(0);
 
-    mMessageFactory->addUint32(matchedPlayers->size());
+    mMessageFactory->addUint32(matched_players->size());
 
-    while(playersIt != matchedPlayers->end())
-    {
-        const PlayerObject* const player = (*playersIt);
-
+    std::for_each(matched_players->begin(), matched_players->end(), [=] (PlayerObject* player) {
         mMessageFactory->addUint32(4);
         mMessageFactory->addUint32(player->getPlayerFlags());
         mMessageFactory->addUint32(0);
         mMessageFactory->addUint32(0);
         mMessageFactory->addUint32(0);
 
-        BString playerName = player->getFirstName().getAnsi();
+        std::string player_name(player->getFirstName().getAnsi());
 
-        if(player->getLastName().getLength())
-        {
-            playerName << " ";
-            playerName << player->getLastName().getAnsi();
+        if(player->getLastName().getLength()) {
+            player_name.append(" ");
+            player_name.append(player->getLastName().getAnsi());
         }
 
-        playerName.convert(BSTRType_Unicode16);
-
-        mMessageFactory->addString(playerName);
+        mMessageFactory->addString(std::wstring(player_name.begin(), player_name.end()));
         mMessageFactory->addUint32(player->getRaceId());
 
         // only cities for now
-        ObjectSet				regions;
-        gWorldManager->getSI()->getObjectsInRange(player,&regions,ObjType_Region,1);
+        glm::vec3 position = player->getWorldPosition();
 
-        ObjectSet::iterator	objIt = regions.begin();
-        BString				regionName;
+        std::string region_name("");
 
-        while(objIt != regions.end())
-        {
-            RegionObject* region = dynamic_cast<RegionObject*>(*objIt);
+        std::find_if(player->zmapSubCells.begin(), player->zmapSubCells.end(), [&region_name] (uint64_t region_id) -> bool {
+            std::shared_ptr<RegionObject> region = gSpatialIndexManager->findRegion(region_id);
 
-            if(region->getRegionType() == Region_City)
-            {
-                regionName = "@";
-                regionName << region->getNameFile().c_str();
-                regionName << ":";
-                regionName << region->getRegionName().c_str();
-
-                break;
+            if (region && region->getRegionType() == Region_City) {
+                region_name = "@" + region->getNameFile() + ":" + region->getRegionName();
+                return true;
             }
 
-            ++objIt;
-        }
+            return false;
+        });
 
-        mMessageFactory->addString(regionName);
-
-        mMessageFactory->addString(BString(gWorldManager->getPlanetNameThis()));
+        mMessageFactory->addString(region_name);
+        mMessageFactory->addString(std::string(gWorldManager->getPlanetNameThis()));
 
         // guild
         mMessageFactory->addUint16(0);
 
         mMessageFactory->addString(player->getTitle());
+    });
 
-        ++playersIt;
-    }
+    target->getClient()->SendChannelA(mMessageFactory->EndMessage(), target->getAccountId(), CR_Client, 5);
 
-    (targetObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),targetObject->getAccountId(),CR_Client,5);
-
-    return(true);
+    return true;
 }
 
 //======================================================================================================================
@@ -1653,68 +1589,26 @@ void MessageLib::sendCombatSpam(Object* attacker,Object* defender,int32 damage,B
 //
 
 // We may have to use flytexts on more things than just Creatures...
-// void MessageLib::sendFlyText(CreatureObject* srcCreature,BString stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
-void MessageLib::sendFlyText(Object* srcCreature,BString stfFile,BString stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
-{
+// void MessageLib::sendFlyText(CreatureObject* srcCreature,string stfFile,string stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
+void MessageLib::sendFlyText(Object* source, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display) {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opShowFlyText);
-    mMessageFactory->addUint64(srcCreature->getId());
+    mMessageFactory->addUint64(source->getId());
     mMessageFactory->addUint32(0);
 
-    mMessageFactory->addUint64(srcCreature->getId());
-    mMessageFactory->addString(stfFile);
+    mMessageFactory->addUint64(source->getId());
+    mMessageFactory->addString(stf_file);
     mMessageFactory->addUint32(0);
-    mMessageFactory->addString(stfVar);
+    mMessageFactory->addString(stf_var);
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint8(red);
     mMessageFactory->addUint8(green);
     mMessageFactory->addUint8(blue);
     mMessageFactory->addUint8(display);
 
-    Message* newMessage = mMessageFactory->EndMessage();
-
-    const PlayerObjectSet* const inRangePlayers	= srcCreature->getKnownPlayers();
-    PlayerObjectSet::const_iterator it	= inRangePlayers->begin();
-
-    Message* clonedMessage;
-
-    while(it != inRangePlayers->end())
-    {
-        const PlayerObject* const player = (*it);
-
-        if(player->isConnected())
-        {
-            mMessageFactory->StartMessage();
-            mMessageFactory->addData(newMessage->getData(),newMessage->getSize());
-            clonedMessage = mMessageFactory->EndMessage();
-
-            // replace the target id
-            int8* data = clonedMessage->getData() + 12;
-            *((uint64*)data) = player->getId();
-
-            (player->getClient())->SendChannelAUnreliable(clonedMessage,player->getAccountId(),CR_Client,5);
-        }
-
-        ++it;
-    }
-
-    // if we are a player, echo it back to ourself
-    if(srcCreature->getType() == ObjType_Player)
-    {
-        PlayerObject* srcPlayer = dynamic_cast<PlayerObject*>(srcCreature);
-
-        if(srcPlayer->isConnected())
-        {
-            (srcPlayer->getClient())->SendChannelAUnreliable(newMessage,srcPlayer->getAccountId(),CR_Client,5);
-            return;
-        }
-
-    }
-
-    mMessageFactory->DestroyMessage(newMessage);
-
+    _sendToInRangeUnreliableChat(mMessageFactory->EndMessage(), dynamic_cast<CreatureObject*>(source), 5, 0);
 }
 
 //======================================================================================================================
@@ -1722,53 +1616,26 @@ void MessageLib::sendFlyText(Object* srcCreature,BString stfFile,BString stfVar,
 // fly text, to be used by Tutorial or other instances
 //
 
-void MessageLib::sendFlyText(Object* srcCreature, PlayerObject* playerObject, BString stfFile,BString stfVar,uint8 red,uint8 green,uint8 blue,uint8 display)
-{
+void MessageLib::sendFlyText(Object* source, PlayerObject* playerObject, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display) {
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opObjControllerMessage);
     mMessageFactory->addUint32(0x0000000B);
     mMessageFactory->addUint32(opShowFlyText);
-    mMessageFactory->addUint64(srcCreature->getId());
+    mMessageFactory->addUint64(source->getId());
     mMessageFactory->addUint32(0);
 
-    mMessageFactory->addUint64(srcCreature->getId());
-    mMessageFactory->addString(stfFile);
+    mMessageFactory->addUint64(source->getId());
+    mMessageFactory->addString(stf_file);
     mMessageFactory->addUint32(0);
-    mMessageFactory->addString(stfVar);
+    mMessageFactory->addString(stf_var);
     mMessageFactory->addUint32(0);
     mMessageFactory->addUint8(red);
     mMessageFactory->addUint8(green);
     mMessageFactory->addUint8(blue);
     mMessageFactory->addUint8(display);
 
-    Message* message = mMessageFactory->EndMessage();
-
-    PlayerList inRangeMembers = playerObject->getInRangeGroupMembers(true);
-    PlayerList::iterator player	= inRangeMembers.begin();
-    Message* clonedMessage;
-
-    while (player != inRangeMembers.end())
-    {
-        if ((*player)->isConnected())
-        {
-            // Clone the message.
-            mMessageFactory->StartMessage();
-            mMessageFactory->addData(message->getData(),message->getSize());
-            clonedMessage = mMessageFactory->EndMessage();
-
-            // replace the target id
-            int8* data = clonedMessage->getData() + 12;
-            *((uint64*)data) = (*player)->getId();
-
-            ((*player)->getClient())->SendChannelAUnreliable(clonedMessage,(*player)->getAccountId(),CR_Client,5);
-        }
-        ++player;
-    }
-    mMessageFactory->DestroyMessage(message);
-
-    // _sendToInstancedPlayers(mMessageFactory->EndMessage(),5, player);
+    _sendToInRangeUnreliableChatGroup(mMessageFactory->EndMessage(), dynamic_cast<CreatureObject*>(source), 5, 0);
 }
-
 
 //======================================================================================================================
 //

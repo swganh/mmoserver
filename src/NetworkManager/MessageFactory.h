@@ -30,9 +30,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cstdint>
 #include <string>
+#include <assert.h>
 #include "Utils/typedefs.h"
 #include "Utils/bstring.h"
-#include "Common/ConfigManager.h"
 
 //======================================================================================================================
 
@@ -63,6 +63,7 @@ public:
     void                    DestroyMessage(Message* message);
 
     static MessageFactory*	getSingleton(void);
+	static MessageFactory*	getSingleton(uint32_t heap_size);
     static void             destroySingleton(void);
 
     // Data packing methods.
@@ -130,7 +131,19 @@ inline MessageFactory* MessageFactory::getSingleton(void)
 {
     if(!mSingleton)
     {
-        mSingleton = new MessageFactory(gConfig->read<uint32>("GlobalMessageHeap")*1024);
+        assert(0 && "You should have called the overload in your Server's initalization method...");
+    }
+
+    return mSingleton;
+}
+
+//======================================================================================================================
+
+inline MessageFactory* MessageFactory::getSingleton(uint32_t heap_size)
+{
+    if(!mSingleton)
+    {
+        mSingleton = new MessageFactory(heap_size*1024);
     }
 
     return mSingleton;

@@ -52,6 +52,8 @@ public:
     ConcurrentQueue() {
         first_ = last_ = new Node(nullptr);
         consumer_lock_ = producer_lock_ = false;
+
+		queuesize = 0;
     }
 
     /// Default destructor cleans up any items remaining in the queue.
@@ -64,6 +66,201 @@ public:
             delete tmp;
         }
     }
+
+	/**
+     * Returns whether the queue is filled
+     *
+     * This function returns whether the queues is filled
+     * 
+     *
+     */
+	bool filled()	{
+	
+		// Spin-lock until exclusivity is acquired
+		while (consumer_lock_.fetch_and_store(true)) {}
+
+        if (first_->next != nullptr) {
+			consumer_lock_ = false;
+			return true;
+        }
+
+        consumer_lock_ = false;
+        return false;
+	}
+
+
+	/**
+     * Returns the Queues size
+     *
+     * This function returns the queues size 
+     *
+     */
+	int size()	{
+		return queuesize;
+	}
+
+    /**
+     * Pushes an item onto the queue.
+     *
+     * This method pushes an item onto the queue. Keep in mind that a copy of the item
+     * being put in is made so T must provide a copy constructor.
+     *
+     * \param t The item being pushed onto the queue.
+     */
+    void push(const T& t) {
+        Node* tmp = new Node(new T(t));
+
+        // Spin-lock until exclusivity is acquired
+        while (producer_lock_.fetch_and_store(true)) {}
+
+        last_->next = tmp;
+        last_ = tmp;
+
+		while (consumer_lock_.fetch_and_store(true)) {}
+		queuesize++;
+		consumer_lock_ = false;
+        producer_lock_ = false;
+    }
+
+    /**
+     * Pops an item off the front of the queue.
+     *
+     * Pops an item off the front of the queue and copies it into the container passed in.
+     *
+     * \param t The container to copy the queue item into.
+     * \returns Returns true if an item was successfully popped, false if not or the queue was empty.
+     */
+    bool pop(T& t) {
+        while (consumer_lock_.fetch_and_store(true)) {}
+
+        if (first_->next != nullptr) {
+            Node* old_first = first_;
+            Node* first = first_->next;
+
+            T* value = first->value;
+            first->value = nullptr;
+            first_ = first;
+
+            consumer_lock_ = false;
+
+            t = *value;
+            delete value;
+            delete old_first;
+			while (producer_lock_.fetch_and_store(true)) {}
+			queuesize--;
+			producer_lock_ = false;
+            return true;
+        }
+
+        consumer_lock_ = false;
+        return false;
+    }
+
+	    /**
+     * gives access to item at front of the queue.
+     *
+     * gives access to item at front of the queue. Please note that it might be snapped away if there are multiple consumers
+     *
+     * \returns Returns pointer to the first container on the queue
+     */
+    bool front(T& t) {
+        while (consumer_lock_.fetch_and_store(true)) {}
+
+        if (first_->next != nullptr) {
+            
+			Node* first = first_->next;
+			T* value = first->value;
+
+			consumer_lock_ = false;
+
+			t = *value;
+			return true;
+         
+        }
+
+        consumer_lock_ = false;
+        return false;
+    }
+
+private:
+    // Node element used by the queue which holds the contained item and a pointer
+    // to the next node in the queue.
+    struct Node {
+        Node(T* val) : value(val) {
+            next = nullptr;
+        }
+
+        T* value;
+
+        tbb::atomic<Node*> next;
+        char pad[CACHE_LINE_SIZE - sizeof(T*) - sizeof(tbb::atomic<Node*>)];
+    };
+
+    // @note: All these pad* variables are here to prevent hidden contention caused by
+    // the push and pop methods both accessing data in close proximity. By adding the padding
+    // it ensures that these things are kept on separate cache lines which eliminates the contention.
+    char pad0[CACHE_LINE_SIZE];
+
+    // Accessed by one consumer at a time.
+    Node* first_;
+    char pad1[CACHE_LINE_SIZE - sizeof(Node*)];
+
+    // Shared among consumers.
+    tbb::atomic<bool> consumer_lock_;
+    char pad2[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+
+    // Accessed by one producer at a time.
+    Node* last_;
+    char pad3[CACHE_LINE_SIZE - sizeof(Node*)];
+
+    // Shared among producers.
+    tbb::atomic<bool> producer_lock_;
+    char pad4[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+
+	int queuesize;
+
+};
+
+template <typename T>
+class ConcurrentQueueLight {
+public:
+    /// Default constructor initializes the queue to a default state.
+    ConcurrentQueueLight() {
+        first_ = last_ = new Node(nullptr);
+        consumer_lock_ = producer_lock_ = false;
+    }
+
+    /// Default destructor cleans up any items remaining in the queue.
+    ~ConcurrentQueueLight() {
+        while (first_ != nullptr) {
+            Node* tmp = first_;
+            first_ = tmp->next;
+
+            delete tmp->value;
+            delete tmp;
+        }
+    }
+
+	/**
+     * Returns whether the queue is filled
+     *
+     * This function returns whether the queues is filled
+     * 
+     *
+     */
+	bool filled()	{
+	
+		// Spin-lock until exclusivity is acquired
+		while (consumer_lock_.fetch_and_store(true)) {}
+
+        if (first_->next != nullptr) {
+			consumer_lock_ = false;
+			return true;
+        }
+
+        consumer_lock_ = false;
+        return false;
+	}
 
     /**
      * Pushes an item onto the queue.
@@ -109,8 +306,34 @@ public:
             t = *value;
             delete value;
             delete old_first;
-
+	
             return true;
+        }
+
+        consumer_lock_ = false;
+        return false;
+    }
+
+	    /**
+     * gives access to item at front of the queue.
+     *
+     * gives access to item at front of the queue. Please note that it might be snapped away if there are multiple consumers
+     *
+     * \returns Returns pointer to the first container on the queue
+     */
+    bool front(T& t) {
+        while (consumer_lock_.fetch_and_store(true)) {}
+
+        if (first_->next != nullptr) {
+            
+			Node* first = first_->next;
+			T* value = first->value;
+
+			consumer_lock_ = false;
+
+			t = *value;
+			return true;
+         
         }
 
         consumer_lock_ = false;
@@ -151,7 +374,9 @@ private:
     // Shared among producers.
     tbb::atomic<bool> producer_lock_;
     char pad4[CACHE_LINE_SIZE - sizeof(tbb::atomic<bool>)];
+
 };
+
 
 }  // namespace utils
 

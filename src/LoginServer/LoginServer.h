@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_LOGINSERVER_ZONESERVER_H
 
 #include "Utils/typedefs.h"
-
+#include "Common/Server.h"
 
 class NetworkManager;
 class Service;
@@ -39,20 +39,20 @@ class Database;
 
 
 //======================================================================================================================
-class LoginServer
+class LoginServer : public common::BaseServer
 {
 public:
-    LoginServer(void);
+    LoginServer(int argc, char* argv[]);
     ~LoginServer(void);
 
     void	Process(void);
 
 private:
     NetworkManager*									mNetworkManager;
-    Service*                        mService;
+    Service*										mService;
     DatabaseManager*								mDatabaseManager;
-    Database*												mDatabase;
-    LoginManager*                   mLoginManager;
+    Database*										mDatabase;
+    LoginManager*									mLoginManager;
 };
 
 

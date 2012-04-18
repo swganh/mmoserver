@@ -47,6 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CreatureFactory.h"
 #include "Deed.h"
 #include "Datapad.h"
+#include "ContainerManager.h"
 #include "CellObject.h"
 #include "DraftSchematic.h"
 #include "HarvesterFactory.h"
@@ -127,7 +128,7 @@ void ObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback* ofCallback,uint32 schemCrc,uint64 parentId)
 {
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultManufactureSchematicCreate(" 
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultManufactureSchematicCreate(" 
                  << schemCrc << "," << parentId << ")";
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
@@ -152,7 +153,7 @@ void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback*
 void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint64 templateId,uint64 parentId)
 {
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultItemCreateByTangibleTemplate(" 
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultItemCreateByTangibleTemplate(" 
                  << parentId << "," << templateId << ")";
     
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
@@ -181,7 +182,7 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uin
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultItemCreateBySchematic(" 
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultItemCreateBySchematic(" 
                  << schemCrc << "," << parentId << "," << planetId << "," 
                  << position.x << "," << position.y << "," << position.z << ",'"
                  << name << "')";
@@ -211,7 +212,7 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultItemCreate(" 
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultItemCreate(" 
                  << familyId << "," << typeId << "," << parentId << "," 
                  << (uint64) 0 << "," << planetId << "," << position.x << ","
                  << position.y << "," << position.z << ",'" << name << "')";
@@ -242,11 +243,15 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "CALL sp_CreateForagedItem(" 
+    query_stream << "CALL "<<mDatabase->galaxy()<<".sp_CreateForagedItem(" 
                  << familyId << "," << typeId << "," << parentId << "," 
                  << (uint64) 0 << "," << planetId << "," << position.x << ","
                  << position.y << "," << position.z << ",'" << name 
                  << "'," << useCount <<")";
+
+
+
+
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
             return;
@@ -277,10 +282,14 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
     dstPlanet = mDatabase->escapeString(dstPlanet);
 
     stringstream query_stream;
-    query_stream << "SELECT sf_TravelTicketCreate("
-                 << "'" << srcPlanet << "'," << dstPlanet 
-                 << "'," << parentId << "," << 0.0f << "," << 0.0f << ","
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_TravelTicketCreate("
+                 << "'" << srcPlanet << "', '" << ticketProperties.srcPoint->descriptor << "', "
+                 << "'" << dstPlanet << "', '" << ticketProperties.dstPoint->descriptor << "', "
+                 << parentId << "," << 0.0f << "," << 0.0f << ","
                  << 0.0f << "," << planetId << ")";
+
+
+
     mDatabase->executeAsyncSql(query_stream, [=] (DatabaseResult* result) {
         if (!result) {
             return;
@@ -304,7 +313,7 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
 void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallback,uint64 resourceId,uint64 parentId,uint16 planetId,uint32 amount)
 {
     stringstream query_stream;
-    query_stream << "SELECT sf_ResourceContainerCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_ResourceContainerCreate("
                  << resourceId << "," << parentId << ","
                  << 0.0f << "," << 0.0f << "," << 0.0f << ","
                  << planetId << "," << amount << ")";
@@ -370,7 +379,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultHarvesterCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultHarvesterCreate("
                  << deedLink->structure_type << "," << 0 << ","
                  << player->getId() << "," << gWorldManager->getZoneId() << "," 
                  << oX << "," << oY << "," << oZ << "," << oW << "," << x 
@@ -392,29 +401,25 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
 
         //now we need to update the Owners Lots
 
-        //csve he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
-        if(player || !player->isLinkDead())
+        //case he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
+        if(player)
         {
             gStructureManager->UpdateCharacterLots(player->getId());
-
-            //destroy it in the client
-            gMessageLib->sendDestroyObject(deed->getId(),player);
-
-            //delete it out of the inventory
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-            tO->deleteObject(deed);
+				
+			Inventory* inventory = player->getInventory();				
+			gContainerManager->removeObject(deed, inventory);
+			Datapad* datapad	= player->getDataPad();
 
             glm::vec3 coords;
             coords.x = x;
             coords.y = y;
             coords.z = z;
-            Datapad* datapad			= player->getDataPad();
             datapad->requestNewWaypoint("Harvester",coords, gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
 
         // now we need to link the deed to the harvester in the db and remove it out of the inventory in the db
         stringstream query_sql;
-        query_sql << "UPDATE items SET parent_id = " << requestId 
+        query_sql << "UPDATE "<<mDatabase->galaxy()<<".items SET parent_id = " << requestId 
                   << " WHERE id = " << deed->getId();
         mDatabase->executeAsyncSql(query_sql);
     });
@@ -468,7 +473,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultFactoryCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultFactoryCreate("
                  << deedLink->structure_type << "," << 0 << ","
                  << player->getId() << "," << gWorldManager->getZoneId() << "," 
                  << oX << "," << oY << "," << oZ << "," << oW << "," << x 
@@ -491,27 +496,23 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
         //now we need to update the Owners Lots
         //case he might have logged out already - even if thats *very* unlikely (heck of a query that would have been)
         if(player)
-        {
+        {            
             gStructureManager->UpdateCharacterLots(player->getId());
-
-            //destroy it in the client
-            gMessageLib->sendDestroyObject(deed->getId(),player);
-
-            //delete it out of the inventory
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-            tO->deleteObject(deed);
+				
+			Inventory* inventory = player->getInventory();				
+			gContainerManager->removeObject(deed, inventory);
+			Datapad* datapad	= player->getDataPad();
 
             glm::vec3 coords;
             coords.x = x;
             coords.y = y;
             coords.z = z;
-            Datapad* datapad			= player->getDataPad();
             datapad->requestNewWaypoint("Player Factory",coords,gWorldManager->getPlanetIdByName(gWorldManager->getPlanetNameThis()),1);
         }
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         stringstream query_sql;
-        query_sql << "UPDATE items SET parent_id = " << requestId 
+        query_sql << "UPDATE "<<mDatabase->galaxy()<<".items SET parent_id = " << requestId 
                   << " WHERE id = " << deed->getId();
         mDatabase->executeAsyncSql(query_sql);
     });
@@ -563,7 +564,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
     newBStr.convert(BSTRType_ANSI);
     std::string name(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_DefaultHouseCreate("
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_DefaultHouseCreate("
                  << deedLink->structure_type << "," << 0 << ","
                  << player->getId() << "," << gWorldManager->getZoneId() << "," 
                  << oX << "," << oY << "," << oZ << "," << oW << "," << x 
@@ -594,15 +595,10 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
         if(player)
         {
             gStructureManager->UpdateCharacterLots(player->getId());
-
-            ObjectContainer* tO = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(deed->getParentId()));
-            //destroy it in the client
-            gMessageLib->sendDestroyObject(deed->getId(),player);
-
-            //delete it out of the inventory
-            tO->deleteObject(deed);
-
-            Datapad* datapad			= player->getDataPad();
+				
+			Inventory* inventory = player->getInventory();				
+			gContainerManager->removeObject(deed, inventory);
+			Datapad* datapad	= player->getDataPad();
 
             glm::vec3 coords;
             coords.x = x;
@@ -614,7 +610,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 
         // now we need to link the deed to the factory in the db and remove it out of the inventory in the db
         stringstream query_sql;
-        query_sql << "UPDATE items SET parent_id = " << requestId 
+        query_sql << "UPDATE "<<mDatabase->galaxy()<<".items SET parent_id = " << requestId 
                   << " WHERE id = " << deed->getId();
         mDatabase->executeAsyncSql(query_sql);
     });
@@ -632,7 +628,7 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
     newBStr.convert(BSTRType_ANSI);
     std::string strName(mDatabase->escapeString(newBStr.getAnsi()));
     stringstream query_stream;
-    query_stream << "SELECT sf_WaypointCreate('" << strName << "',"
+    query_stream << "SELECT "<<mDatabase->galaxy() << ".sf_WaypointCreate('" << strName << "',"
                  << ownerId << "," << coords.x << "," << coords.y << ","
                  << coords.z << "," << planetId << "," << (int)wpType << ")";
     mDatabase->executeAsyncProcedure(query_stream, [=](DatabaseResult* result) {
@@ -662,7 +658,7 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
     name.convert(BSTRType_ANSI);
     std::string strName(mDatabase->escapeString(name.getAnsi()));
     stringstream query_stream;
-    query_stream << "CALL sp_WaypointUpdate('" << strName << "',"
+    query_stream << "CALL "<<mDatabase->galaxy()<<".sp_WaypointUpdate('" << strName << "',"
                  << wpId << "," << coords.x << "," << coords.y << ","
                  << coords.z << "," << planetId << "," << activeStatus << ")";
     mDatabase->executeAsyncProcedure(query_stream, [=](DatabaseResult* result) {
@@ -699,18 +695,26 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
     case TanGroup_ManufacturingSchematic:
     case TanGroup_Item:
     {
-        query_stream << "UPDATE items SET parent_id = " << parentId 
+        query_stream.str(std::string());
+        query_stream << "UPDATE "<<mDatabase->galaxy()<<".items SET parent_id = " << parentId 
                      << " WHERE id = " << ObjectId;
     }
     break;
 
     case TanGroup_ResourceContainer:
     {
-        query_stream << "UPDATE resource_containers SET parent_id = " << parentId 
+        query_stream.str(std::string());
+        query_stream << "UPDATE "<<mDatabase->galaxy()<<".resource_containers SET parent_id = " << parentId 
                      << " WHERE id = " << ObjectId;
     }
     break;
-
+    case TanGroup_Terminal:
+    {
+        query_stream.str(std::string());
+        query_stream << "UPDATE "<<mDatabase->galaxy()<<".terminals SET parent_id = " << parentId 
+                     << " WHERE id = " << ObjectId;
+    }
+    break;
     default:
     {
         LOG(WARNING) << "No Object could be created of type: " << Group;
@@ -756,14 +760,14 @@ void ObjectFactory::GiveNewOwnerInDB(Object* object, uint64 ID)
         {
         case TanGroup_Item:
         {
-            query_stream << "UPDATE items SET parent_id = " << ID 
+            query_stream << "UPDATE "<<mDatabase->galaxy()<<".items SET parent_id = " << ID 
                          << " WHERE id = " << object ->getId();
         }
         break;
 
         case TanGroup_ResourceContainer:
         {
-            query_stream << "UPDATE resource_containers SET parent_id = " << ID 
+            query_stream << "UPDATE "<<mDatabase->galaxy()<<".resource_containers SET parent_id = " << ID 
                          << " WHERE id = " << object ->getId();
         }
         break;
@@ -776,7 +780,7 @@ void ObjectFactory::GiveNewOwnerInDB(Object* object, uint64 ID)
 
     case ObjType_Waypoint:
     {
-        query_stream << "UPDATE waypoints SET parent_id = " << ID
+        query_stream << "UPDATE "<<mDatabase->galaxy()<<".waypoints SET parent_id = " << ID
                      << " WHERE id = " << object->getId();
     }
     break;
@@ -817,12 +821,12 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
                 if (schem)
                 {
                     //first associated item
-                    query_stream << "DELETE FROM items WHERE id = " << schem->getItem()->getId();
+                    query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".items WHERE id = " << schem->getItem()->getId();
                     mDatabase->executeAsyncSql(query_stream);
 
-                    query_stream.str(std::string());
-                    query_stream << "DELETE FROM item_attributes WHERE item_id =" <<  schem->getItem()->getId();
-                    mDatabase->executeAsyncSql(query_stream);
+                    //query_stream.str(std::string());
+                    //query_stream << "DELETE FROM item_attributes WHERE item_id =" <<  schem->getItem()->getId();
+                    //mDatabase->executeAsyncSql(query_stream);
 
                 }
 
@@ -839,19 +843,19 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
                 ++objIt;
             }
             query_stream.str(std::string());
-            query_stream << "DELETE FROM items WHERE id = " << object->getId();
+            query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".items WHERE id = " << object->getId();
             mDatabase->executeAsyncSql(query_stream);
 
-            query_stream.str(std::string());
-            query_stream << "DELETE FROM item_attributes WHERE item_id =" <<  object->getId();
-            mDatabase->executeAsyncSql(query_stream);
+          //  query_stream.str(std::string());
+            //query_stream << "DELETE FROM item_attributes WHERE item_id =" <<  object->getId();
+            //mDatabase->executeAsyncSql(query_stream);
 
         }
         break;
 
         case TanGroup_ResourceContainer:
         {
-            query_stream << "DELETE FROM resource_containers WHERE id = " <<  object->getId();
+            query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".resource_containers WHERE id = " <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
 
         }
@@ -859,7 +863,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
         case TanGroup_Terminal:
         {
-            query_stream << "DELETE FROM terminals WHERE id =" <<  object->getId();
+            query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".terminals WHERE id =" <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
         }
         break;
@@ -878,15 +882,15 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
         {
         case ItnoGroup_Vehicle:
         {
-            query_stream << "DELETE FROM vehicle_cutomization WHERE vehicles_id =" <<  object->getId();
+            query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".vehicle_cutomization WHERE vehicles_id =" <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
 
             query_stream.str(std::string());
-            query_stream << "DELETE FROM vehicle_attributes WHERE vehicles_id = " <<  object->getId();
+            query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".vehicle_attributes WHERE vehicles_id = " <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
 
             query_stream.str(std::string());
-            query_stream << "DELETE FROM vehicles WHERE id = " <<  object->getId();
+            query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".vehicles WHERE id = " <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
 
         }
@@ -913,14 +917,15 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
             ++objIt;
 
             query_stream.str(std::string());
-            query_stream << "UPDATE characters SET parent_id = 0 WHERE parent_id = " <<  object->getId();
+            query_stream << "UPDATE "<<mDatabase->galaxy()<<".characters SET parent_id = 0 WHERE parent_id = " <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
         }
-        query_stream << "DELETE FROM cells WHERE id = " <<  object->getId();
+        query_stream.str(std::string());
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".cells WHERE id = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
         
         query_stream.str(std::string());
-        query_stream << "DELETE FROM structure_cells WHERE id = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".structure_cells WHERE id = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
     }
     break;
@@ -946,21 +951,21 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
 
             ++cellIt;
         }
-        query_stream << "DELETE FROM houses WHERE ID = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".houses WHERE ID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
 
         query_stream.str(std::string());
-        query_stream << "DELETE FROM structures WHERE ID = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".structures WHERE ID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
 
         //Admin / Hopper Lists
         query_stream.str(std::string());
-        query_stream << "DELETE FROM structure_admin_data WHERE StructureID = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".structure_admin_data WHERE StructureID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
 
         //update attributes cave redeed vs destroy
         query_stream.str(std::string());
-        query_stream << "DELETE FROM structure_attributes WHERE Structure_id = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".structure_attributes WHERE Structure_id = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
     }
     break;
@@ -968,37 +973,38 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
     {
 
         //Harvester
-        query_stream << "DELETE FROM structures WHERE ID = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".structures WHERE ID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
         
         query_stream.str(std::string());
-        query_stream << "DELETE FROM harvesters WHERE ID = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".harvesters WHERE ID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
 
         query_stream.str(std::string());
-        query_stream << "DELETE FROM factories WHERE ID = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".factories WHERE ID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
 
         //Admin / Hopper Lists
         query_stream.str(std::string());
-        query_stream << "DELETE FROM structure_admin_data WHERE StructureID = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".structure_admin_data WHERE StructureID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
 
         //update attributes redeed vs destroy
         query_stream.str(std::string());
-        query_stream << "DELETE FROM structure_attributes WHERE Structure_id = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".structure_attributes WHERE Structure_id = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
 
         //update hopper contents
         query_stream.str(std::string());
-        query_stream << "DELETE FROM harvester_resources WHERE ID = " <<  object->getId();
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".harvester_resources WHERE ID = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
     }
     break;
 
     case ObjType_Waypoint:
     {
-        query_stream << "DELETE FROM waypoints WHERE waypoint_id = " <<  object->getId();
+        query_stream.str(std::string());
+        query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".waypoints WHERE waypoint_id = " <<  object->getId();
         mDatabase->executeAsyncSql(query_stream);
     }
     break;

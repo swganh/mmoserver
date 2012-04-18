@@ -24,35 +24,32 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include "ItemTerminal.h"
+#include "CharacterBuilderTerminal.h"
 
-#include "QuadTree.h"
-
-
-//======================================================================================================================
-//
-// Constructor
-//
-
-QuadTree::QuadTree(float lowX,float lowZ,float width,float height,uint8 depth) :
-    QuadTreeNode(lowX,lowZ,width,height)
+ItemTerminal::ItemTerminal() : Item()
 {
-    // lets grow a tree
-    for(uint8 i = 0; i < depth; i++)
-    {
-        subDivide();
-    }
+    mItemType = ItemType_BlueFrog;
+    cbt_ = std::shared_ptr<CharacterBuilderTerminal>(new CharacterBuilderTerminal());
 }
 
-//======================================================================================================================
-//
-// Deconstructor
-//
-
-QuadTree::~QuadTree()
+ItemTerminal::~ItemTerminal()
 {
-
 }
 
-//======================================================================================================================
+void ItemTerminal::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount)
+{
+    mRadialMenu = RadialMenuPtr(new RadialMenu());
 
-
+    // any object with callbacks needs to handle those (received with menuselect messages) !
+    mRadialMenu->addItem(1,0,radId_itemUse,radAction_ObjCallback);
+    mRadialMenu->addItem(2,0,radId_examine,radAction_Default);
+}
+void ItemTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
+{
+    cbt_->handleObjectMenuSelect(messageType, srcObject);
+}
+void ItemTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+{
+    cbt_->handleUIEvent(action, element, inputStr, window);
+}

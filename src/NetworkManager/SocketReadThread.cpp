@@ -64,7 +64,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice) :
+SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread, Service* service,uint32 mfHeapSize, bool serverservice, NetworkConfig& network_configuration) :
     mReceivePacket(0),
     mDecompressPacket(0),
     mSessionFactory(0),
@@ -75,13 +75,13 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
 {
     if(serverservice)
     {
-        mMessageMaxSize = gNetConfig->getServerServerReliableSize();
-        mSessionResendWindowSize = gNetConfig->getServerPacketWindow();
+        mMessageMaxSize = network_configuration.getServerToServerReliableSize();
+        mSessionResendWindowSize = network_configuration.getServerPacketWindow();
     }
     else
     {
-        mMessageMaxSize = gNetConfig->getServerClientReliableSize();
-        mSessionResendWindowSize = gNetConfig->getClientPacketWindow();
+        mMessageMaxSize = network_configuration.getServerToClientReliableSize();
+        mSessionResendWindowSize = network_configuration.getClientPacketWindow();
     }
 
     mSocket = socket;
@@ -94,8 +94,8 @@ SocketReadThread::SocketReadThread(SOCKET socket, SocketWriteThread* writeThread
 
     // Startup our factories
     mMessageFactory = new MessageFactory(mfHeapSize,service->getId());
-    mPacketFactory	= new PacketFactory(serverservice);
-    mSessionFactory = new SessionFactory(writeThread, service, mPacketFactory, mMessageFactory, serverservice);
+    mPacketFactory	= new PacketFactory(serverservice, network_configuration);
+    mSessionFactory = new SessionFactory(writeThread, service, mPacketFactory, mMessageFactory, serverservice, network_configuration);
 
     mCompCryptor = new CompCryptor();
 
@@ -190,7 +190,7 @@ void SocketReadThread::run(void)
 
         if(count && FD_ISSET(mSocket, &socketSet))
         {
-            LOG(INFO) << "Message received on port " << port;
+            //LOG(INFO) << "Message received on port " << port;
             // Read any incoming packets.
             recvLen = recvfrom(mSocket, mReceivePacket->getData(),(int) mMessageMaxSize, 0, (sockaddr*)&from, reinterpret_cast<socklen_t*>(&fromLen));
 

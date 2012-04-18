@@ -36,10 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/clock.h"
 #include "Utils/typedefs.h"
+#include "Utils/ConcurrentQueue.h"
 
 #include "NetworkManager/Message.h"
-
-#include "NetworkManager/NetConfig.h"
 
 //======================================================================================================================
 
@@ -56,8 +55,10 @@ class SessionPacket;
 
 typedef std::list<Packet*,std::allocator<Packet*> >		PacketWindowList;
 typedef std::queue<Packet*>								PacketQueue;
+typedef utils::ConcurrentQueueLight<Packet*>			ConcurrentPacketQueue;
 //typedef std::priority_queue<Message*,std::vector<Message*>,CompareMsg>  MessageQueue;
 typedef std::queue<Message*>							MessageQueue;
+typedef utils::ConcurrentQueueLight<Message*>			ConcurrentMessageQueue;
 
 //======================================================================================================================
 
@@ -97,7 +98,7 @@ public:
 
     void                        SendChannelA(Message* message);
 
-    void						  SendChannelAUnreliable(Message* message);
+    void						SendChannelAUnreliable(Message* message);
     void                        DestroyIncomingMessage(Message* message);
     void                        DestroyPacket(Packet* packet);
 
@@ -120,14 +121,11 @@ public:
         return mPort;
     }
     uint16                      getPortHost(void);
-    uint32                      getOutgoingReliablePacketCount(void)            {
-        return mOutgoingReliablePacketQueue.size();
-    }
-    Packet*                     getOutgoingReliablePacket(void);
-    uint32                      getOutgoingUnreliablePacketCount(void)          {
-        return mOutgoingUnreliablePacketQueue.size();
-    }
-    Packet*                     getOutgoingUnreliablePacket(void);
+		
+    bool						getOutgoingReliablePacket(Packet*& packet);
+   
+    bool						getOutgoingUnreliablePacket(Packet*& packet);
+
     uint32                      getIncomingQueueMessageCount()    {
         return mIncomingMessageQueue.size();
     }
@@ -149,6 +147,10 @@ public:
     }
     uint32					  getResendWindowSize()							  {
         return mWindowResendSize;
+    }
+
+	uint32					  getWindowSizeCurrent()							{
+        return mWindowSizeCurrent;
     }
 
 
@@ -316,15 +318,15 @@ private:
     uint16                      mOutSequenceNext;
     uint16                      mInSequenceNext;
 
-    bool						  mOutSequenceRollover;
+    bool						mOutSequenceRollover;
     uint16                      mNextPacketSequenceSent;
     uint64                      mLastRemotePacketAckReceived;
-    uint32                      mWindowSizeCurrent;		//amount of packets we want to send in one round
+    uint32 volatile             mWindowSizeCurrent;		//amount of packets we want to send in one round as to prevent drowning clients with connectionproblems
     uint32                      mWindowResendSize;	    //
 
-    bool                        mSendDelayedAck;        // We processed some incoming packets, send an ack
-    bool                        mInOutgoingQueue;       // Are we already in the queue?
-    bool                        mInIncomingQueue;       // Are we already in the queue?
+    bool volatile				mSendDelayedAck;        // We processed some incoming packets, send an ack
+    bool volatile               mInOutgoingQueue;       // Are we already in the queue?
+    bool volatile               mInIncomingQueue;       // Are we already in the queue?
 
     uint16                      mLastSequenceAcked;
 
@@ -334,16 +336,16 @@ private:
 
     // Message queues.
     MessageQueue                mOutgoingMessageQueue;		//here we store the messages given to us by the messagelib
-    MessageQueue                mUnreliableMessageQueue;
+    ConcurrentMessageQueue      mUnreliableMessageQueue;
 
     MessageQueue                mIncomingMessageQueue;
-    MessageQueue				  mMultiMessageQueue;
-    MessageQueue				  mRoutedMultiMessageQueue;
-    MessageQueue				  mMultiUnreliableQueue;
+    MessageQueue				mMultiMessageQueue;
+    MessageQueue				mRoutedMultiMessageQueue;
+    MessageQueue				mMultiUnreliableQueue;
 
     // Packet queues.
-    PacketQueue                 mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send
-    PacketQueue                 mOutgoingUnreliablePacketQueue;   //build unreliables they will get send directly by the socket write thread  without storing for possible r esends
+    ConcurrentPacketQueue       mOutgoingReliablePacketQueue;		//these are packets put on by the sessionwrite thread to send
+    ConcurrentPacketQueue       mOutgoingUnreliablePacketQueue;   //build unreliables they will get send directly by the socket write thread  without storing for possible r esends
     PacketWindowList            mWindowPacketList;				//our build packets - ready to get send
     PacketWindowList			  mRolloverWindowPacketList;		//send packets after a rollover they await sending and / or acknowledgement by the client
     PacketWindowList			  mNewRolloverWindowPacketList;
@@ -363,6 +365,8 @@ private:
 
     uint64					  mPacketBuildTimeLimit;
     uint64					  mLastWriteThreadTime;
+
+	uint64					  mLastHouseKeepingTimeTime;
 
     uint32					  endCount;
     uint16					  lowest;// the lowest packet requested from the server

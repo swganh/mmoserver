@@ -24,41 +24,25 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include "Item.h"
 
-#ifndef ANH_ZONESERVER_QTREGION_H
-#define ANH_ZONESERVER_QTREGION_H
+#ifndef ANH_ZONESERVER_TANGIBLE_ITEMTERMINAL_H
+#define ANH_ZONESERVER_TANGIBLE_ITEMTERMINAL_H
 
-#include "RegionObject.h"
+class CharacterBuilderTerminal;
 
-class QuadTree;
-
-//=============================================================================
-
-class QTRegion : public RegionObject
+class ItemTerminal : public Item
 {
-    friend class QTRegionFactory;
-
+    friend class ItemFactory;
+    
 public:
-
-    QTRegion();
-    virtual ~QTRegion();
-
-    void		initTree();
-    bool		checkPlayerPosition(float x, float y);
-
-    uint8 getQTDepth() { return mQTDepth; }
-    void setQTDepth(uint8 depth) { mQTDepth = depth; }
-
-    QuadTree*	mTree;
-
+    ItemTerminal();
+    void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
+    void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
+    void	handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+    virtual ~ItemTerminal();
 private:
-
-    uint8		mQTDepth;
-
+    std::shared_ptr<CharacterBuilderTerminal> cbt_;
 };
 
-//=============================================================================
-
 #endif
-
-

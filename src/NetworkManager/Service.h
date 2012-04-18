@@ -29,8 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_NETWORKMANAGER_SERVICE_H
 
 #include "Utils/typedefs.h"
-#include "Utils/concurrent_queue.h"
+#include "Utils/ConcurrentQueue.h"
 
+#include "NetworkConfig.h"
 #include <list>
 
 
@@ -45,7 +46,7 @@ class NetworkCallback;
 
 //======================================================================================================================
 
-typedef Anh_Utils::concurrent_queue<Session*>	SessionQueue;
+typedef utils::ConcurrentQueue<Session*>	SessionQueue;
 typedef std::list<NetworkCallback*>				NetworkCallbackList;
 
 //======================================================================================================================
@@ -54,7 +55,7 @@ class Service
 {
 public:
 
-    Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize);
+    Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize, NetworkConfig& network_configuration);
     ~Service(void);
 
     void	Process();
@@ -64,7 +65,7 @@ public:
     void	AddSessionToProcessQueue(Session* session);
     //void	AddNetworkCallback(NetworkCallback* callback){ mNetworkCallbackList.push_back(callback); }
     void	AddNetworkCallback(NetworkCallback* callback) {
-        assert((mCallBack == NULL) && "dammit");
+
         mCallBack = callback;
     }
 
@@ -104,7 +105,7 @@ private:
     uint32					mLocalAddress;
     uint32					mSessionResendWindowSize;
     uint16					mLocalPort;
-    bool					mQueued;
+    bool volatile			mQueued;
     bool					mServerService;	//marks us as the serverservice / clientservice
 
     static bool				mSocketsSubsystemInitComplete;

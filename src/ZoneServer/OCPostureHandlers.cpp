@@ -29,13 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectControllerCommandMap.h"
 #include "PlayerObject.h"
 #include "StateManager.h"
-#include "QTRegion.h"
 #include "CellObject.h"
 #include "WorldManager.h"
-#include "QuadTree.h"
-#include "ZoneTree.h"
 #include "NetworkManager/Message.h"
-
 
 //=============================================================================
 //
@@ -76,80 +72,23 @@ void ObjectController::_handleSitServer(uint64 targetId,Message* message,ObjectC
             if(elementCount == 4)
             {
                 // outside
-                if(!chairCell)
-                {
-                    if(std::shared_ptr<QTRegion> newRegion = gWorldManager->getSI()->getQTRegion(chair_position.x, chair_position.z))
-                    {
-                        // we didnt change so update the old one
-                        if((uint32)newRegion->getId() == playerObject->getSubZoneId())
-                        {
-                            // playerObject also updates the players position
-                            newRegion->mTree->updateObject(playerObject, chair_position);
-                        }
-                        else
-                        {
-                            // remove from old
-                            if(std::shared_ptr<QTRegion>oldRegion = gWorldManager->getQTRegion(playerObject->getSubZoneId()))
-                            {
-                                oldRegion->mTree->removeObject(playerObject);
-                            }
+                playerObject->updatePosition(chairCell,chair_position);
+			
+			//this->mDirection = Anh_Math::Quaternion();
 
-                            // update players position
-                            playerObject->mPosition = chair_position;
+			if(chairCell)
+			{
+				gMessageLib->sendDataTransformWithParent053(playerObject);
+			}
+			else
+			{
+				gMessageLib->sendDataTransform053(playerObject);
+			}
 
-                            // put into new
-                            playerObject->setSubZoneId((uint32)newRegion->getId());
-                            newRegion->mTree->addObject(playerObject);
-                        }
-                    }
-                    else
-                    {
-                        // we should never get here !
-                        DLOG(INFO) << "SitOnObject: could not find zone region in map";
+			//gMessageLib->sendUpdateMovementProperties(playerObject);
+			//gMessageLib->sendPostureAndStateUpdate(playerObject);
 
-                        // hammertime !
-                        exit(-1);
-                    }
-                }
-                // we are in a cell
-                else
-                {
-                    // switch cells, if needed
-                    if(playerObject->getParentId() != chairCell)
-                    {
-                        CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(playerObject->getParentId()));
-
-                        if(cell)
-                            cell->removeObject(playerObject);
-                        else
-                            DLOG(INFO) << "Error removing " << playerObject->getId() <<" to cell " << chairCell;
-
-                        playerObject->setParentId(chairCell);
-
-                        cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(chairCell));
-
-                        if(cell)
-                            cell->addObjectSecure(playerObject);
-                        else
-                            DLOG(INFO) << "Error adding " << playerObject->getId() <<" to cell " << chairCell;
-                    }
-
-                    playerObject->mPosition = chair_position;
-                }
-
-                //playerObject->mDirection = Anh_Math::Quaternion();
-                gStateManager.setCurrentActionState(playerObject, CreatureState_SittingOnChair);
-
-                // TODO: check if we need to send transforms to others
-                if(chairCell)
-                {
-                    gMessageLib->sendDataTransformWithParent053(playerObject);
-                }
-                else
-                {
-                    gMessageLib->sendDataTransform053(playerObject);
-                }
-                gMessageLib->sendSitOnObject(playerObject);
+			gMessageLib->sendSitOnObject(playerObject);
             }
         }
         // sitting on ground
@@ -197,8 +136,9 @@ void ObjectController::_handleKneel(uint64 targetId,Message* message,ObjectContr
 {
     PlayerObject*	playerObject = dynamic_cast<PlayerObject*>(mObject);
 
-    if(playerObject) 
-        gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Crouched);
+    if(playerObject)
+		
+		gStateManager.setCurrentPostureState(playerObject, CreaturePosture_Crouched);
 }
 
 //=============================================================================

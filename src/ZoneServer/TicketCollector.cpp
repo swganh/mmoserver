@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIListBox.h"
 #include "UIManager.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 
 #include <time.h>
@@ -186,12 +187,9 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,BString inputStr
                         if(dstPlanetId == zoneId)
                         {
                             // only delete the ticket if we are warping on this planet.
-                            gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
-                            gObjectFactory->deleteObjectFromDB(ticket);
-
-                            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-                            tO->deleteObject(ticket);
-
+							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+							gContainerManager->deleteObject(ticket, tO);
+                            
                             gWorldManager->warpPlanet(playerObject,destination,0);
                         }
                         else
@@ -245,12 +243,9 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
                 if(dstPlanetId == zoneId)
                 {
                     // only delete the ticket if we are warping on this planet.
-                    gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
-                    gObjectFactory->deleteObjectFromDB(ticket);
-
-                    TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-                    tO->deleteObject(ticket);
-
+					TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+					gContainerManager->deleteObject(ticket, tO);
+                    
                     gWorldManager->warpPlanet(playerObject,destination,0);
                 }
                 else

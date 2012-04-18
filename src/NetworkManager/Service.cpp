@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "NetworkManager/Message.h"
 
-#include "Common/ConfigManager.h"
 #include "Utils/typedefs.h"
 
 #include <boost/thread/thread.hpp>
@@ -70,7 +69,7 @@ bool Service::mSocketsSubsystemInitComplete = false;
 
 //======================================================================================================================
 
-Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize) :
+Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, int8* localAddress, uint16 localPort,uint32 mfHeapSize, NetworkConfig& network_configuration) :
     mNetworkManager(networkManager),
     mSocketReadThread(0),
     mSocketWriteThread(0),
@@ -85,7 +84,6 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     mCallBack = NULL;
     mId = id;
 
-    //localAddress = (char*)gConfig->read<std::string>("BindAddress").c_str();
     lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();
     assert(strlen(localAddress) < 256 && "Address length should be less than 256");
     strcpy(mLocalAddressName, localAddress);
@@ -132,15 +130,16 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
     int value;
     int valuelength = sizeof(value);
     value = 524288;
-    int configvalue = gConfig->read<int32>("UDPBufferSize",4096);
+	int configvalue = network_configuration.getUdpBufferSize();
+
     //gLogger->log(LogManager::INFORMATION, "UDPBuffer set to %ukb", configvalue);
     LOG(INFO) << "UDP buffer size set to " << configvalue << "kb";
     
     if(configvalue < 128)
         configvalue = 128;
 
-    if(configvalue > 8192)
-        configvalue = 8192;
+    if(configvalue > 16384)
+        configvalue = 16384;
 
     value = configvalue *1024;
 
@@ -152,8 +151,8 @@ Service::Service(NetworkManager* networkManager, bool serverservice, uint32 id, 
 
 
     // Create our read/write socket classes
-    mSocketWriteThread = new SocketWriteThread(mLocalSocket,this,mServerService);
-    mSocketReadThread = new SocketReadThread(mLocalSocket, mSocketWriteThread,this,mfHeapSize, mServerService);
+    mSocketWriteThread = new SocketWriteThread(mLocalSocket,this,mServerService, network_configuration);
+    mSocketReadThread = new SocketReadThread(mLocalSocket, mSocketWriteThread,this,mfHeapSize, mServerService, network_configuration);
 
     // Query the stack for the actual address and port we got and store it in the service.
     //getsockname(mLocalSocket, (sockaddr*)&server, &serverLen);
@@ -174,14 +173,9 @@ Service::~Service(void)
 {
     Session* session = 0;
 
-    while(mSessionProcessQueue.size())
+    while(mSessionProcessQueue.pop(session))
     {
-        session = mSessionProcessQueue.pop();
-
-        if(session)
-        {
-            mSocketReadThread->RemoveAndDestroySession(session);
-        }
+		mSocketReadThread->RemoveAndDestroySession(session);
     }
 
     delete mSocketWriteThread;
@@ -209,13 +203,19 @@ void Service::Process()
     NetworkClient* newClient = 0;
     uint32 sessionCount = mSessionProcessQueue.size();
 
+	//if((this->mServerService) && sessionCount)	{
+		//	DLOG(INFO) << "Service::Process() START";
+			//DLOG(INFO) << "servicing : " << sessionCount << " Sessions";
+		//}
+	uint32 messages = 0;
     for(uint32 i = 0; i < sessionCount; i++)
     {
         // Grab our next Service to process
-        session = mSessionProcessQueue.pop();
+        if(!mSessionProcessQueue.pop(session))
+			break;
 
-        if(!session)
-            continue;
+		if(!session)
+			continue;
 
         session->setInIncomingQueue(false);
 
@@ -292,7 +292,7 @@ void Service::Process()
                 // At this point we can assume we have a client object, so send the data up.
                 // actually when a server crashed it happens that we crash the connectionserver this way
                 //NetworkCallbackList::iterator iter;
-
+				messages++;
                 mCallBack->handleSessionMessage(session->getClient(), message);
                 //for(iter = mNetworkCallbackList.begin(); iter != mNetworkCallbackList.end(); ++iter)
                 //{
@@ -301,10 +301,12 @@ void Service::Process()
             }
         }
 
-        session->setInIncomingQueue(false);
     }
-
-
+	/*
+	if((this->mServerService) && sessionCount)	{
+			DLOG(INFO) << "Service::Process() END";
+			DLOG(INFO) << messages << " messages send";
+		}*/
 }
 
 //======================================================================================================================

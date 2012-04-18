@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseCallback.h"
 #include "DatabaseManager/DatabaseType.h"
 #include "DatabaseManager/DataBindingFactory.h"
+#include "DatabaseManager/DatabaseConfig.h"
 
 struct DatabaseJob;
 class DataBinding;
@@ -56,7 +57,8 @@ typedef tbb::concurrent_queue<DatabaseWorkerThread*> DatabaseWorkerThreadQueue;
 
 /*! An encapsulation of a connection to a database.
 */
-class Database : private boost::noncopyable {
+class Database : private boost::noncopyable 
+{
 public:
     /*! Connects to a specified database.
     *
@@ -66,8 +68,10 @@ public:
     * \param user The username for accessing the requested schema.
     * \param pass The password for accessing the requested schema.
     * \param schema The database to connect to.
+	* \param db_min_threads The minimum number of threads used to process database work.
+	* \param db_max_threads The maximum number of threads used to process database work.
     */
-    Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema);
+    Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema, DatabaseConfig& config);
     ~Database();
 
     /*! Executes an asynchronus sql query.
@@ -236,6 +240,10 @@ public:
     */
     bool releaseBindingPoolMemory();
 
+    const char* global() { return global_.c_str(); }
+    const char* galaxy() { return galaxy_.c_str(); }
+    const char* config() { return config_.c_str(); }
+
 private:
     // Disable the default constructor, construction always occurs through the
     // single overloaded constructor.
@@ -255,6 +263,10 @@ private:
     
     boost::pool<boost::default_user_allocator_malloc_free> job_pool_;
     boost::pool<boost::default_user_allocator_malloc_free> transaction_pool_;
+
+    std::string global_;
+    std::string galaxy_;
+    std::string config_;
 };
 
 #endif // ANH_DATABASEMANAGER_DATABASE_H

@@ -119,15 +119,17 @@ Session::Session(void) :
     mLastPacketSent = mConnectStartEvent;          // General session timeout
     mLastRemotePacketAckReceived = mConnectStartEvent;          // General session timeout
 
-
+	//this will be changed by the sessionfactory eventually
     mServerService = false;
     mMaxPacketSize = MAX_PACKET_SIZE;
-    mMaxUnreliableSize= (uint32) MAX_PACKET_SIZE/2;
+    mMaxUnreliableSize= MAX_PACKET_SIZE;
 
     mLastPingPacketSent = 0;
 
     endCount = 0;
     mHash = 0;
+
+	mLastHouseKeepingTimeTime = mLastWriteThreadTime = mConnectStartEvent;
 
 }
 
@@ -135,7 +137,7 @@ Session::Session(void) :
 
 Session::~Session(void)
 {
-    uint32 savedPackets = 0;
+  
     DLOG(INFO) <<  "Session::~Session " << this->getId();
     Message* message = 0;
 
@@ -161,11 +163,7 @@ Session::~Session(void)
         message->mSession = NULL;
     }
 
-    while(!mUnreliableMessageQueue.empty())
-    {
-        message = mUnreliableMessageQueue.front();
-        mUnreliableMessageQueue.pop();
-
+    while(mUnreliableMessageQueue.pop(message))    {
         // We're done with this message.
         message->setPendingDelete(true);
         message->mSession = NULL;
@@ -207,7 +205,6 @@ Session::~Session(void)
 
     while(ooopsIt != mOutOfOrderPackets.end())
     {
-        savedPackets++;
         Packet* ooopsPacket = (*ooopsIt);
         mPacketFactory->DestroyPacket(ooopsPacket);
         mOutOfOrderPackets.erase(ooopsIt++);
@@ -217,7 +214,6 @@ Session::~Session(void)
 
     while(it != mNewWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mNewWindowPacketList.erase(it++);
@@ -227,7 +223,6 @@ Session::~Session(void)
 
     while(it != mNewRolloverWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mNewRolloverWindowPacketList.erase(it++);
@@ -237,7 +232,6 @@ Session::~Session(void)
 
     while(it != mWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mWindowPacketList.erase(it++);
@@ -247,7 +241,6 @@ Session::~Session(void)
 
     while(it != mRolloverWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mRolloverWindowPacketList.erase(it++);
@@ -257,27 +250,19 @@ Session::~Session(void)
 
     while(it != mNewWindowPacketList.end())
     {
-        savedPackets++;
         Packet* packet = (*it);
         mPacketFactory->DestroyPacket(packet);
         mNewWindowPacketList.erase(it++);
     }
 
     Packet* packet;
-    while(!mOutgoingReliablePacketQueue.empty())
+    while(mOutgoingReliablePacketQueue.pop(packet))
     {
-        savedPackets++;
-        packet = mOutgoingReliablePacketQueue.front();
-        mOutgoingReliablePacketQueue.pop();
         mPacketFactory->DestroyPacket(packet);
     }
 
 
-    while(!mOutgoingUnreliablePacketQueue.empty())
-    {
-        savedPackets++;
-        packet = mOutgoingUnreliablePacketQueue.front();
-        mOutgoingUnreliablePacketQueue.pop();
+    while(mOutgoingUnreliablePacketQueue.pop(packet))    {
         mPacketFactory->DestroyPacket(packet);
     }
 
@@ -290,34 +275,24 @@ Session::~Session(void)
 
 //======================================================================================================================
 
-void Session::ProcessReadThread(void)
-{
-
-}
-
 //======================================================================================================================
 
 void Session::ProcessWriteThread(void)
 {
+
     uint64 now = Anh_Utils::Clock::getSingleton()->getLocalTime();
 
     //only process when we are busy - we dont need to iterate through possible resends all the time
-    if((!mUnreliableMessageQueue.size())&&(!mOutgoingMessageQueue.size()) && (!mNewWindowPacketList.size()))
+    if((!mUnreliableMessageQueue.filled())&&(!mOutgoingMessageQueue.size()) && (!mNewWindowPacketList.size()))
     {
         if(!mSendDelayedAck)
         {
-            if(now - mLastWriteThreadTime < 300)
+            if(now - mLastWriteThreadTime < 500)
             {
                 endCount++;
                 return;
             }
         }
-    }
-
-    //we might stall if the last packets get lost and the client wont generate ooo packets ( or those get lost)
-    if(!this->mServerService )
-    {
-        _resendData();
     }
 
     mLastWriteThreadTime = now;
@@ -349,13 +324,13 @@ void Session::ProcessWriteThread(void)
     uint32 pUnreliableBuild = 0;
 
     //build reliable packets dont use timeGetTime ... -its expensive
-    while((pBuild < 100) && mOutgoingMessageQueue.size())
+    while((pBuild < 200) && mOutgoingMessageQueue.size())
     {
         pBuild += _buildPackets();
     }
     
     //build unreliable packets
-    while((pUnreliableBuild < 100) && mUnreliableMessageQueue.size())
+    while((pUnreliableBuild < 200) && mUnreliableMessageQueue.filled())
     {
         //unreliables are directly put on the wire without getting in the way of our window
         //this way they get lost when we have lag but thats not exactly a hughe problem
@@ -376,6 +351,7 @@ void Session::ProcessWriteThread(void)
     if(mOutSequenceRollover)
     {
         boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+		//mutex still for the mNewRolloverWindowPacketList
 
         iterRoll = mRolloverWindowPacketList.begin();
 
@@ -403,6 +379,9 @@ void Session::ProcessWriteThread(void)
                 break;
 
             _addOutgoingReliablePacket(windowPacket);
+			//dont call the mutex again were already in it
+			windowPacket->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
+			
             iterRoll = mNewRolloverWindowPacketList.erase(iterRoll);
             mRolloverWindowPacketList.push_back(windowPacket);
             packetsSent++;
@@ -431,7 +410,8 @@ void Session::ProcessWriteThread(void)
         if (packetsSent >= mWindowSizeCurrent)
             break;
 
-        _addOutgoingReliablePacket(windowPacket);
+		_addOutgoingReliablePacket(windowPacket);
+		//the sessionmutex is already called
 
         //mWindoPacketList has the already send but not yet acknowledged Packets
         mWindowPacketList.push_back(windowPacket);
@@ -444,6 +424,7 @@ void Session::ProcessWriteThread(void)
     }
 
     lk.unlock();
+
 
     // Handle any specific commands
     switch (mCommand)
@@ -496,7 +477,25 @@ void Session::ProcessWriteThread(void)
             if((now - mLastPingPacketSent) > 2000)
                 _sendPingPacket();
         }
+        //dont spend time here to often (calling mutexes and such)
+	    if(now - mLastHouseKeepingTimeTime < 1000)    {
+            if(!mCommand)
+			    return;
+        }
 
+	    mLastHouseKeepingTimeTime = now;
+    }
+
+	//dont spend time here to often (calling mutexes and such)
+	if(now - mLastHouseKeepingTimeTime < 1000)    {
+		return;
+    }
+
+	mLastHouseKeepingTimeTime = now;
+
+	//we might stall if the last packets get lost and the client wont generate ooo packets ( or those get lost)
+    if(!this->mServerService )    {
+        _resendData();
     }
 
 }
@@ -515,16 +514,19 @@ void Session::SendChannelA(Message* message)
         return;
     }
 
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
     //the connectionserver puts a lot of fastpaths here  - so just put them were they belong
     //this alone takes roughly 5% cpu off of the connectionserver
-
-    if(message->getFastpath()&& (message->getSize() < mMaxUnreliableSize))
+    if(message->getFastpath()&& (message->getSize() < mMaxUnreliableSize))	{
+		if(mMessageFactory->getHeapsize() > 95.0)	{
+			message->setPendingDelete(true);
+			return;
+		}
         mUnreliableMessageQueue.push(message);
+	}
     else
     {
         message->setFastpath(false);	  //send it as reliable if its to big
+		boost::recursive_mutex::scoped_lock lk(mSessionMutex);
         mOutgoingMessageQueue.push(message);
     }
 }
@@ -534,20 +536,22 @@ void Session::SendChannelAUnreliable(Message* message)
     message->mSession = this;
 
     //check whether we are disconnecting
-    if(mStatus != SSTAT_Connected)
+    if((mMessageFactory->getHeapsize() > 95.0) || (mStatus != SSTAT_Connected))
     {
         message->setPendingDelete(true);
         return;
     }
 
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
     if(message->getSize() > mMaxUnreliableSize)	//I send the attribute messages as unreliables	 but they can be to big!!
     {
         message->setFastpath(false);	  //send it as reliable if its to big
+		
+		boost::recursive_mutex::scoped_lock lk(mSessionMutex);
         mOutgoingMessageQueue.push(message);
     }
-    else
+    else	{
         mUnreliableMessageQueue.push(message);
+	}
 }
 
 
@@ -877,37 +881,42 @@ void Session::HandleFastpathPacket(Packet* packet)
     priority = packet->getUint8();
 
     routed = packet->getUint8();
-    if (routed)
-    {
+    if (routed)    {
         dest = packet->getUint8();
         accountId = packet->getUint32();
     }
 
+	//make sure we dont crush our heap when busy
+	//reliables can be easily spared
+	if(mMessageFactory->getHeapsize() >= 95.0)	{
+		//assert(false);
+		mPacketFactory->DestroyPacket(packet);
+		return;
+	}
+
+
     // Create our message and send it up.
+	Message* newMessage;
     mMessageFactory->StartMessage();
 
-    if (routed)
-    {
+    if (routed)    {
         mMessageFactory->addData(packet->getData() + 7, packet->getSize() - 7); // +2 priority/routed, +5 routing header
-    }
-    else
-    {
-        mMessageFactory->addData(packet->getData() + 2, packet->getSize() - 2); // +2 priority/routed
-    }
-
-    Message* newMessage = mMessageFactory->EndMessage();
-
-
-    newMessage->setPriority(priority);
-
-    newMessage->setDestinationId(dest);
-    newMessage->setAccountId(accountId);
-    newMessage->setFastpath(true);
-
-    if(routed)
+		newMessage = mMessageFactory->EndMessage();
+		newMessage->setPriority(priority);
+		newMessage->setDestinationId(dest);
+		newMessage->setAccountId(accountId);
+		newMessage->setFastpath(true);
         newMessage->setRouted(true);
-    else
+    }
+    else    {
+        mMessageFactory->addData(packet->getData() + 2, packet->getSize() - 2); // +2 priority/routed
+		newMessage = mMessageFactory->EndMessage();
+		newMessage->setPriority(priority);
+		newMessage->setDestinationId(dest);
+		newMessage->setAccountId(accountId);
+		newMessage->setFastpath(true);
         newMessage->setRouted(false);
+    }
 
     _addIncomingMessage(newMessage, priority);
 
@@ -931,50 +940,38 @@ void Session::DestroyPacket(Packet* packet)
 
 //======================================================================================================================
 
-Packet* Session::getOutgoingReliablePacket(void)
+bool Session::getOutgoingReliablePacket(Packet*& packet)
 {
-    Packet* packet = 0;
-
-    if (mOutgoingReliablePacketQueue.size() == 0)
-        return packet;
+	Packet* p = nullptr;
+    if (!mOutgoingReliablePacketQueue.pop(p))	{
+		packet = p;
+		return false;
+	}
 
     mServerPacketsSent++;
-
-    // Get a new Outgoing packet
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
-    packet =  mOutgoingReliablePacketQueue.front();
-    mOutgoingReliablePacketQueue.pop();
-
-    lk.unlock();
-
     mLastPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
 
-    return packet;
+	packet = p;
+
+    return true;
 }
 
 
-//======================================================================================================================
-Packet* Session::getOutgoingUnreliablePacket(void)
-{
-    Packet* packet = 0;
 
-    if (mOutgoingUnreliablePacketQueue.size() == 0)
-        return packet;
+//======================================================================================================================
+bool Session::getOutgoingUnreliablePacket(Packet*& packet)	{
+    Packet* p = nullptr;
+    if (!mOutgoingUnreliablePacketQueue.pop(p))	{
+		packet = p;
+		return false;
+	}
 
     mServerPacketsSent++;
-
-    // Get a new Outgoing packet
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
-
-    packet =  mOutgoingUnreliablePacketQueue.front();
-    mOutgoingUnreliablePacketQueue.pop();
-
-    lk.unlock();
-
     mLastPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
 
-    return packet;
+	packet = p;
+
+    return true;
 }
 
 
@@ -1502,12 +1499,14 @@ void Session::_processDataOrderPacket(Packet* packet)
 
     }
 
-    if (sequence > windowSequence + mWindowPacketList.size())
-    {
+    if (sequence > windowSequence + mWindowPacketList.size())    {
         LOG(WARNING) << "Rollover Out-Of-Order packet  seq: " << sequence << ", expect >: " << windowSequence;
 
         return;
     }
+
+	if (mWindowSizeCurrent > (mWindowResendSize/10))
+		mWindowSizeCurrent--;
 
     //The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
     if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
@@ -1592,8 +1591,7 @@ void Session::_resendData()
     Packet*		windowPacket;
 
     // If the window packet list is empty just bail out now.
-    if (mWindowPacketList.size() == 0)
-    {
+    if (mWindowPacketList.size() == 0)    {
         return;
     }
 
@@ -2390,7 +2388,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
         newPacket->setIsEncrypted(true);
 
         // Push the packet on our outgoing queue
-        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+        //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
         mNewWindowPacketList.push_back(newPacket);
 
@@ -2417,7 +2415,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
             newPacket->setIsEncrypted(true);
 
             // Push the packet on our outgoing queue
-            boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+            //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
             mNewWindowPacketList.push_back(newPacket);
 
@@ -2445,7 +2443,7 @@ void Session::_buildOutgoingReliablePackets(Message* message)
         newPacket->setIsEncrypted(true);
 
         // Push the packet on our outgoing queue
-        boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+        //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
         mNewWindowPacketList.push_back(newPacket);
 
@@ -2481,9 +2479,9 @@ void Session::_buildOutgoingUnreliablePackets(Message* message)
     newPacket->setIsEncrypted(true);
 
     // Push the packet on our outgoing queue
+	
     _addOutgoingUnreliablePacket(newPacket);
-
-    message->setPendingDelete(true);
+	message->setPendingDelete(true);    
 
 }
 
@@ -2491,11 +2489,10 @@ void Session::_buildOutgoingUnreliablePackets(Message* message)
 //======================================================================================================================
 void Session::_addOutgoingReliablePacket(Packet* packet)
 {
-    // Push the packet on our outgoing queue
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+	// Set our last packet sent time index
+    packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
 
-    // Set our last packet sent time index
-    packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+    // Push the packet on our outgoing queue
     mOutgoingReliablePacketQueue.push(packet);
 }
 
@@ -2503,11 +2500,10 @@ void Session::_addOutgoingReliablePacket(Packet* packet)
 //======================================================================================================================
 void Session::_addOutgoingUnreliablePacket(Packet* packet)
 {
-    // Push the packet on our outgoing queue
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+	// Set our last packet sent time index
+    packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getStoredTime());
 
-    // Set our last packet sent time index
-    packet->setTimeQueued(Anh_Utils::Clock::getSingleton()->getLocalTime());
+    // Push the packet on our outgoing queue
     mOutgoingUnreliablePacketQueue.push(packet);
 }
 
@@ -2614,21 +2610,28 @@ uint32 Session::_buildPackets()
 }
 
 //======================================================================================================================
-
+//
+// this function should not be executed paralell in the session - the sessions need to be processed parallel!!!!
+// this way we can keep accessing the front messages without having to worry for them being snapped away
 uint32 Session::_buildPacketsUnreliable()
 {
 
     uint32 packetsbuild = 0;
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+    //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
-    Message* message = mUnreliableMessageQueue.front();
-    mUnreliableMessageQueue.pop();
+    Message* message;
+	if(!mUnreliableMessageQueue.pop(message))	{
+		assert(false);
+		return 0;
+	}
 
-    // no larger ones than ff yet, we want at least 2 messages to fit in, dont use routed mesages, so the frontline server does packing only
-    if(!mUnreliableMessageQueue.size()
-            || message->getRouted() || mUnreliableMessageQueue.front()->getRouted()//dont pack unreliable in server server - the idea is it just costs unnecessary cpu time
-            || message->getSize() > 252 || mUnreliableMessageQueue.front()->getSize() > 252 //sizebyte so 255 is max including header
-            || message->getSize() + mUnreliableMessageQueue.front()->getSize() > mMaxUnreliableSize - 16)
+	Message* front_message;
+	bool front = mUnreliableMessageQueue.front(front_message);// we need to test the front to check what we can add so please only paralelize the sessions!
+
+    if(!front
+            || message->getRouted() //dont pack unreliable in server server - the idea is it just costs unnecessary cpu time as they need to be repackaged
+            || message->getSize() > 252 || front_message->getSize() > 252 //sizebyte so 255 is max including header
+            || message->getSize() + front_message->getSize() > mMaxUnreliableSize - 16)
     {
         packetsbuild++;
         _buildOutgoingUnreliablePackets(message);
@@ -2641,16 +2644,14 @@ uint32 Session::_buildPacketsUnreliable()
 
         uint16 baseSize = 12 + message->getSize(); // 2 header, 2 sequence, 2 0019, 1 size,2 prio/routing, 3 comp/crc
         packetsbuild++;
-        while(baseSize < mMaxUnreliableSize && mUnreliableMessageQueue.size())
+        while(baseSize < mMaxUnreliableSize && mUnreliableMessageQueue.front(message))
         {
-            message = mUnreliableMessageQueue.front();
-
             baseSize += message->getSize() + 3; // size + prio + routing
 
             if(baseSize >= mMaxPacketSize || message->getRouted() || message->getSize() > 252)
                 break;
 
-            mUnreliableMessageQueue.pop();
+            mUnreliableMessageQueue.pop(message);
             mMultiUnreliableQueue.push(message);
         }
 
@@ -2749,7 +2750,7 @@ void Session::_buildRoutedMultiDataPacket()
     newPacket->setIsCompressed(false); //server server !!! save the cycles!!!
     newPacket->setIsEncrypted(true);
 
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+    //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
     mNewWindowPacketList.push_back(newPacket);
 
     //sequence of packets uint16 +1 for every packet rollover from 0xffff to 0
@@ -2772,10 +2773,6 @@ void Session::_buildUnreliableMultiDataPacket()
         message = mMultiUnreliableQueue.front();
         mMultiUnreliableQueue.pop();
 
-        //assert((message->getSize() + 2)<= 255 && "Message size should never be exceeded by this point");
-        //assert(!message->getRouted() && "Message should be routed by this point");
-        //assert(message->getFastpath() && "Only fastpath messages should be handled here");
-
         newPacket->addUint8(message->getSize() + 2); // count priority + routing flag
         newPacket->addUint8(message->getPriority());
         newPacket->addUint8(0);
@@ -2786,8 +2783,7 @@ void Session::_buildUnreliableMultiDataPacket()
 
     newPacket->setIsCompressed(true);
     newPacket->setIsEncrypted(true);
-
-    //unreliables go on wire directly
+	
     _addOutgoingUnreliablePacket(newPacket);
 
 }

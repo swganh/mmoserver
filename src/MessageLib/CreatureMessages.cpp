@@ -90,7 +90,7 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
     // bank credits
     if(Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
     {
-        mMessageFactory->addUint32(bank->getCredits());
+        mMessageFactory->addUint32(bank->credits());
     }
     else
     {
@@ -671,6 +671,10 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
         // Reset all
         // Not suported yet
         DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
+
+        //NEVER EVER BAIL OUT WITHOUT closing the message and deleting it
+        Message* message = mMessageFactory->EndMessage();
+        message->setPendingDelete(true);
         return;
     }
 
@@ -843,6 +847,70 @@ bool MessageLib::sendEquippedListUpdate_InRange(CreatureObject* creatureObject)
 
     return(true);
 }
+
+
+bool MessageLib::sendEquippedListUpdate(CreatureObject* creature, CreatureObject* target) {
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creature);
+    if (!player || !player->isConnected()) {
+        return false;
+    }
+
+    PlayerObject* target_player = dynamic_cast<PlayerObject*>(target);
+    if (!target_player || !target_player->isConnected()) {
+        return false;
+    }
+
+    ObjectList* equipped = player->getEquipManager()->getEquippedObjects();
+    uint32 customization_size = 0;
+
+    std::for_each(equipped->begin(), equipped->end(), [=, &customization_size] (Object* equipped_object) {
+        if (TangibleObject* object = dynamic_cast<TangibleObject*>(equipped_object)) {
+            customization_size += object->getCustomizationStr().getLength();
+        } else if (CreatureObject* pet = dynamic_cast<CreatureObject*>(equipped_object)) {
+            customization_size += pet->getCustomizationStr().getLength();
+        }
+    });
+
+    mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opDeltasMessage);
+    mMessageFactory->addUint64(creature->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(6);
+
+    mMessageFactory->addUint32(15 + (equipped->size() * 18)+ customization_size);
+    mMessageFactory->addUint16(1);   //one update
+    mMessageFactory->addUint16(15);				 //id 15
+
+    mMessageFactory->addUint32(equipped->size());
+    mMessageFactory->addUint32(creature->getEquipManager()->advanceEquippedObjectsUpdateCounter(equipped->size()));//+1
+    creature->getEquipManager()->advanceEquippedObjectsUpdateCounter(1);
+
+    mMessageFactory->addUint8(3);// 3 for ??
+    mMessageFactory->addUint16(equipped->size());
+
+    std::for_each(equipped->begin(), equipped->end(), [=] (Object* object) {
+        if(TangibleObject* tObject = dynamic_cast<TangibleObject*>(object)) {
+            mMessageFactory->addString(tObject->getCustomizationStr());
+        }
+
+        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object)) {
+            mMessageFactory->addString(pet->getCustomizationStr());
+        }
+
+        else {
+            mMessageFactory->addUint16(0);
+        }
+
+        mMessageFactory->addUint32(4);
+        mMessageFactory->addUint64(object->getId());
+        mMessageFactory->addUint32((object->getModelString()).getCrc());
+    });
+
+    target_player->getClient()->SendChannelA(mMessageFactory->EndMessage(), target_player->getAccountId(), CR_Client, 4);
+
+    return true;
+}
+
 
 //======================================================================================================================
 //
@@ -1145,7 +1213,7 @@ bool MessageLib::sendBankCreditsUpdate(PlayerObject* playerObject)
 
     if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
     {
-        mMessageFactory->addUint32(bank->getCredits());
+        mMessageFactory->addUint32(bank->credits());
     }
     else
     {

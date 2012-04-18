@@ -173,6 +173,7 @@ class CreatureObject : public MovingObject
             bool              blockLocomotion;
 
             void            blockLayers() { blockPosture = true; blockAction = true; blockLocomotion = true; }
+            void            unblock() { blockPosture = false; blockAction = false; blockLocomotion = false; }
             // posture states
             uint32_t        getPosture() { return posture; } 
             void            setPosture(uint32_t pos) { posture = pos; }
@@ -191,16 +192,6 @@ class CreatureObject : public MovingObject
             // clear states, do not call directly
             void            clearAllStates() { action = CreatureState_ClearState;}
         } states;
-        //// OLD WAY OF DOING STATES
-        //// states
-        //uint64				getState(){ return mState; }
-        //// do not call these manually use the StateManager directly.
-        //void				toggleStateOn(CreatureState state){ mState = mState | state; }
-        //void				states.toggleActionOff(CreatureState state){ mState = mState & ~state; }
-        ////void			toggleState(CreatureState state){ mState = mState ^ state; }
-        //bool				checkState(CreatureState state){ return((mState & state) == state); }
-        //bool				checkStates(uint64 states){ return((mState & states) == states); }
-        //bool				->states.checkStatesEither(uint64 states){ return((mState & states) != 0); }
 
         // factions
         BString				getFaction(){ return mFaction; }

@@ -76,8 +76,6 @@ public:
 
     bool			hasAdmin(uint64 id);
 
-    void			prepareDestruction();
-
     void			checkCellPermission(PlayerObject* player);
 
 

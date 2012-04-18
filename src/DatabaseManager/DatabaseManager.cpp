@@ -48,7 +48,7 @@ Database* DatabaseManager::connect(DBType type,
                                    const std::string& schema)
 {
     // Create our new Database object and initiailzie it.
-    auto database = std::make_shared<Database>(type, host, port, user, pass, schema);
+	auto database = std::make_shared<Database>(type, host, port, user, pass, schema, database_configuration_);
 
     // Add the new DB to our process list.
     database_list_.push_back(database);

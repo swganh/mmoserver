@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "StateManager.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -62,11 +63,24 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
     {
         PlayerObject* targetPlayer = dynamic_cast<PlayerObject*>(target);
 
+		// if our target is dead
+		if (targetPlayer->isDead()){
+			gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "target_already_dead", 0, targetId, 0), player);
+			return;
+		}
+
         // don't duel ourself
-        if(player == targetPlayer || targetPlayer->isDead() || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
+        if(player == targetPlayer || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
         {
             return;
         }
+
+		// if we are dead
+		if (player->isDead()){
+			gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "wrong_state"), player); // need to find the correct message
+			return;
+		}
+		
 
         // check if he's already in our duel list
         if(player->checkDuelList(targetPlayer))
@@ -100,6 +114,7 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
                 if(targetPlayer->checkIgnoreList(ignoreName.getCrc()))
                 {
                     gMessageLib->SendSystemMessage(::common::OutOfBand("duel", "reject_target", 0, targetId, 0), player);
+					return;
                 }
                 else
                 {
@@ -276,6 +291,7 @@ void ObjectController::_handleDeathBlow(uint64 targetId,Message* message,ObjectC
                     if (target->checkDuelList(player))
                     {
                         // here we go... KILL HIM!
+						gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "death_blow"), player);
                         target->die();
                     }
                 }
@@ -358,9 +374,9 @@ void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnP
         int8 sql[256];
         sprintf(sql,"SELECT health_wounds,strength_wounds,constitution_wounds,action_wounds,quickness_wounds,"
                 "stamina_wounds,mind_wounds,focus_wounds,willpower_wounds"
-                " FROM character_clone"
+                " FROM %s.character_clone"
                 " WHERE"
-                " (character_id = %"PRIu64");",player->getId());
+                " (character_id = %"PRIu64");",mDatabase->galaxy(),player->getId());
 
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
     }
@@ -417,8 +433,9 @@ void ObjectController::lootAll(uint64 targetId, PlayerObject* playerObject)
                         {
                             gObjectFactory->requestNewDefaultItem(playerInventory, item->getItemFamily(), item->getItemType(), playerInventory->getId(), 99, glm::vec3(), "");
 
-                            //remove from container - destroy for player
-                            invObjectIt = inventory->removeObject(invObjectIt,playerObject);
+                            //remove from container - destroy for watching players
+							gContainerManager->destroyObjectToRegisteredPlayers(inventory,(*invObjectIt), true);
+				
                         }
                         lootedItems++;
                     }

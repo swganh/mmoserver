@@ -32,13 +32,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Conversation.h"
 #include "Inventory.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
 #include "SkillManager.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "UIManager.h"
 #include "WorldConfig.h"
 #include "Tutorial.h"
-#include "ZoneTree.h"
+
 
 #include "Common/OutOfBand.h"
 #include "MessageLib/MessageLib.h"
@@ -453,7 +453,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             pageLink = 15;
         }
         else if ((dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits() < av->getDI())
-                 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits() < av->getDI())
+                 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits() < av->getDI())
                 )
         {
             // Player lack credits in both inventory and bank.
@@ -791,7 +791,7 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
         ::common::ProsePackage prose("base_player", "prose_pay_acct_success");
 
         // System message: You successfully make a payment of %DI credits to %TO.
-        
+
         if (av->getNpc()->getFirstName().getLength())
         {
 
@@ -1189,7 +1189,7 @@ void Trainer::restorePosition(PlayerObject* player)
     }
 }
 
-
+//prepare the spawn event by initialization
 void Trainer::respawn(void)
 {
     // The cell we will spawn in.
@@ -1237,34 +1237,7 @@ void Trainer::respawn(void)
 
 void Trainer::spawn(void)
 {
-    // gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Spawning creature %"PRIu64"",  this->getId());
-    // gLogger->log(LogManager::DEBUG,"Spawned static objects # %"PRIu64" (%"PRIu64")",  gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
-
-    // Update the world about my presence.
-
-    if (this->getParentId())
-    {
-        // insert into cell
-        this->setSubZoneId(0);
-
-        if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-        {
-            cell->addObjectSecure(this);
-        }
-        else
-        {
-            // It's a serious isse that we need to investigate.
-            assert(cell && "Trainer::spawn WorldManager unable to find CellObject");
-        }
-    }
-    else
-    {
-        if (std::shared_ptr<QTRegion>region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-        {
-            this->setSubZoneId((uint32)region->getId());
-            region->mTree->addObject(this);
-        }
-    }
+    gSpatialIndexManager->createInWorld(this);
 
     // Add us to the world.
     gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);

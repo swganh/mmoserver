@@ -119,7 +119,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
     DispatchClient* dispatchClient = 0;
     bool deleteClient = false;
 
-    boost::recursive_mutex::scoped_lock lk(mSessionMutex);
+    //boost::recursive_mutex::scoped_lock lk(mSessionMutex);
 
     message->ResetIndex();
 
@@ -158,7 +158,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
             LOG(INFO) << "Could not find DispatchClient for account " <<  message->getAccountId() << " to be deleted.";
 
             client->getSession()->DestroyIncomingMessage(message);
-            lk.unlock();
+            //lk.unlock();
 
             return;
         }
@@ -175,7 +175,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
         {
             client->getSession()->DestroyIncomingMessage(message);
 
-            lk.unlock();
+            //lk.unlock();
             return;
         }
         /*
@@ -188,7 +188,7 @@ void MessageDispatch::handleSessionMessage(NetworkClient* client, Message* messa
         }
         */
     }
-    lk.unlock();
+    //lk.unlock();
 
     MessageCallbackMap::iterator iter = mMessageCallbackMap.find(opcode);
 

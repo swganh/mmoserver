@@ -39,16 +39,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cppconn/prepared_statement.h>
 
 #include "Utils/typedefs.h"
-#include "Common/ConfigManager.h"
 
 #include "StateManager.h"
 
-StateRules::StateRules()
+StateRules::StateRules(std::string db_server, std::string db_user, std::string db_pass, std::string db_name)
 {
     std::unique_ptr<sql::Connection>sql_connection_;
     sql::Driver* driver = sql::mysql::get_driver_instance();
-    sql_connection_.reset(driver->connect(gConfig->read<std::string>("DBServer"), gConfig->read<std::string>("DBUser"), gConfig->read<std::string>("DBPass")));
-    sql_connection_->setSchema(gConfig->read<std::string>("DBName"));
+    sql_connection_.reset(driver->connect(db_server, db_user, db_pass));
+    sql_connection_->setSchema(db_name);
 
     std::unique_ptr<sql::Statement> statement(sql_connection_->createStatement());
     sql::ResultSet* res;

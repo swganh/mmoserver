@@ -25,38 +25,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#ifndef ANH_ZONESERVER_QTREGION_FACTORY_H
-#define ANH_ZONESERVER_QTREGION_FACTORY_H
+#ifndef SRC_COMMON_ISERVER_H
+#define SRC_COMMON_ISERVER_H
 
-#include "FactoryBase.h"
+/*! \brief Common is a catch-all library containing primarily base classes and
+ * classes used for maintaining application lifetimes.
+ */
+namespace common {
 
-class Database;
-class DispatchClient;
-class ObjectFactoryCallback;
-class QTRegion;
-
-//=============================================================================
-
-enum QTRFQuery
-{
-    QTRFQuery_MainData	= 1
-};
-
-//=============================================================================
-
-class QTRegionFactory : public FactoryBase
+/**
+ * \brief
+ */
+class IServer
 {
 public:
-    QTRegionFactory(Database* database);
-    ~QTRegionFactory();
+	IServer() { }
+	~IServer() { }
 
-    void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
-    void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);   
+
 };
 
-
-//=============================================================================
-
+} // namespace common
 
 #endif
-

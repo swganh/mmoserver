@@ -29,8 +29,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define ANH_CONNECTIONSERVER_CONNECTIONSERVER_H
 
 #include "Utils/typedefs.h"
-
-
+#include "Common/Server.h"
+#include <boost/program_options.hpp>
+#include <boost/thread/thread.hpp>
 
 //======================================================================================================================
 
@@ -45,12 +46,12 @@ class ConnectionDispatch;
 
 //======================================================================================================================
 
-class ConnectionServer
+class ConnectionServer : public common::BaseServer
 {
 
 public:
 
-    ConnectionServer(void);
+    ConnectionServer(int argc, char* argv[]);
     ~ConnectionServer(void);
 
     void	Process(void);

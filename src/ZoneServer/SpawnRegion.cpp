@@ -27,18 +27,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SpawnRegion.h"
 #include "PlayerObject.h"
-#include "QTRegion.h"
-#include "QuadTree.h"
+#include "SpatialIndexManager.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
+
 
 //=============================================================================
 
 SpawnRegion::SpawnRegion()
-    : RegionObject()
-    , mQTRegion(NULL)
-    , mSI(gWorldManager->getSI())
-    , mMission(0)
+: RegionObject()
+, mMission(0)
 {
     mActive		= true;
     mRegionType = Region_Spawn;
@@ -54,76 +51,25 @@ SpawnRegion::~SpawnRegion()
 
 void SpawnRegion::update()
 {
-    //this is very problematic - currently we assume an object entered us when it is in the same qtregion we are in
-
-    //run about every 4.5 seconds
-    if(!mSubZoneId)
-    {
-        mQTRegion	= mSI->getQTRegion(mPosition.x,mPosition.z);
-        mSubZoneId	= (uint32)mQTRegion->getId();
-        mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth,mPosition.z - mHeight,mWidth * 2,mHeight * 2);
-    }
-
-    Object*		object;
-    ObjectSet	objList;
-
-    if(mParentId)
-    {
-        mSI->getObjectsInRange(this,&objList,ObjType_Player,mWidth);
-    }
-
-    if(mQTRegion)
-    {
-        mQTRegion->mTree->getObjectsInRange(this,&objList,ObjType_Player,&mQueryRect);
-    }
-
-    ObjectSet::iterator objIt = objList.begin();
-
-    while(objIt != objList.end())
-    {
-        object = dynamic_cast<Object*>(*objIt);
-
-        if(!(checkKnownObjects(object)))
-        {
-            onObjectEnter(object);
-        }
-
-        ++objIt;
-    }
-
-    PlayerObjectSet oldKnownObjects = mKnownPlayers;
-    PlayerObjectSet::iterator objSetIt = oldKnownObjects.begin();
-
-    while(objSetIt != oldKnownObjects.end())
-    {
-        object = dynamic_cast<Object*>(*objSetIt);
-
-        if(objList.find(object) == objList.end())
-        {
-            onObjectLeave(object);
-        }
-
-        ++objSetIt;
-    }
+	// not necessary anymore 
+	//regions get updated by the grid when someone enters
 }
 
 //=============================================================================
 
 void SpawnRegion::onObjectEnter(Object* object)
 {
-    if(object->getParentId() == mParentId)
-    {
-        //PlayerObject* player = (PlayerObject*)object;
-        addKnownObjectSafe(object);
-    }
+	if(object->getParentId() == mParentId)
+	{
+		//PlayerObject* player = (PlayerObject*)object;
+	//	addKnownObjectSafe(object);
+	}
 }
 
 //=============================================================================
 
 void SpawnRegion::onObjectLeave(Object* object)
 {
-    //PlayerObject* player = (PlayerObject*)object;
-    removeKnownObject(object);
 }
 
 //=============================================================================

@@ -133,7 +133,7 @@ void ObjectController::_handleSetWaypointActiveStatus(uint64 targetId,Message* m
     if(waypoint)
     {
         waypoint->toggleActive();
-        mDatabase->executeSqlAsync(0,0,"UPDATE waypoints set active=%u WHERE waypoint_id=%"PRIu64"",(uint8)waypoint->getActive(),targetId);
+        mDatabase->executeSqlAsync(0,0,"UPDATE %s.waypoints set active=%u WHERE waypoint_id=%"PRIu64"",mDatabase->galaxy(),(uint8)waypoint->getActive(),targetId);
     }
     else
     {
@@ -225,7 +225,7 @@ void ObjectController::_handleSetWaypointName(uint64 targetId,Message* message,O
 
     name.convert(BSTRType_ANSI);
 
-    sprintf(sql,"UPDATE waypoints SET name='");
+    sprintf(sql,"UPDATE %s.waypoints SET name='",mDatabase->galaxy());
     sqlPointer = sql + strlen(sql);
     sqlPointer += mDatabase->escapeString(sqlPointer,name.getAnsi(),name.getLength());
     sprintf(restStr,"' WHERE waypoint_id=%"PRIu64"",targetId);

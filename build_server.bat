@@ -81,11 +81,12 @@ rem ----------------------------------------------------------------------------
 rem --- Start of SET_DEFAULTS --------------------------------------------------
 :SET_DEFAULTS
 
-set DEPENDENCIES_VERSION=0.4.1
-set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%-win.7z
+set DEPENDENCIES_VERSION=0.4.3
+set DEPENDENCIES_FILE=mmoserver-deps-%DEPENDENCIES_VERSION%.tar.bz2
 set DEPENDENCIES_URL=http://github.com/downloads/swganh/mmoserver/%DEPENDENCIES_FILE%
 set "PROJECT_BASE=%~dp0"
 set "PROJECT_DRIVE=%~d0"
+set PATH=%PROJECT_BASE%tools\windows;%PATH%
 set BUILD_TYPE=debug
 set REBUILD=build
 set MSVC_VERSION=10
@@ -254,11 +255,11 @@ if not exist "data\heightmaps\%1.hmpw" (
 	if not exist "data\heightmaps\%1.hmpw.7z" (
 		echo ** Downloading Heightmap for %1 **
 		echo.
-		"tools\windows\wget.exe" --no-check-certificate http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
+		"wget" --no-check-certificate http://github.com/downloads/anhstudios/swg-heightmaps/%1.hmpw.7z -O data\heightmaps\%1.hmpw.7z
 		echo ** Downloading heightmap complete **
 	)
 
-	"tools\windows\7z.exe" x -y -odata\heightmaps data\heightmaps\%1.hmpw.7z 
+	"7z" x -y -odata\heightmaps data\heightmaps\%1.hmpw.7z 
 )
 
 goto :eof
@@ -296,15 +297,7 @@ if not %current_version% == %DEPENDENCIES_VERSION% (
 	echo ** Dependencies updated **
 )
 
-if exist "deps\boost" call :BUILD_BOOST
-if exist "deps\glog" call :BUILD_GLOG
-if exist "deps\gtest" call :BUILD_GTEST
-if exist "deps\lua" call :BUILD_LUA
-if exist "deps\mysql-connector-cpp" call :BUILD_MYSQLCONN
-if exist "deps\noise" call :BUILD_NOISE
-if exist "deps\spatialindex" call :BUILD_SPATIALINDEX
-if exist "deps\tolua++" call :BUILD_TOLUA
-if exist "deps\zlib" call :BUILD_ZLIB
+call "%PROJECT_BASE%\deps\build_deps.bat"
 
 echo ** Building dependencies complete **
 
@@ -319,14 +312,13 @@ rem --- Downloads the dependency package for the current version of the source -
 :DOWNLOAD_DEPENDENCIES
 
 if not exist "%DEPENDENCIES_FILE%" (
-	"tools\windows\wget.exe" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
+	"wget" --no-check-certificate !DEPENDENCIES_URL! -O "%DEPENDENCIES_FILE%"
 )
 
 if exist "%DEPENDENCIES_FILE%" (
 	echo Extracting dependencies ...
 
-	"tools\windows\7z.exe" x -y "%DEPENDENCIES_FILE%"
-	echo %DEPENDENCIES_VERSION% >"deps\VERSION"
+	"tar" -xvjf "%DEPENDENCIES_FILE%"
 	echo Complete!
 	echo.
 )
@@ -334,375 +326,6 @@ if exist "%DEPENDENCIES_FILE%" (
 goto :eof
 rem --- End of DOWNLOAD_DEPENDENCIES -------------------------------------------
 rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_BOOST ---------------------------------------------------
-rem --- Builds the boost library for use with this project.                  ---
-:BUILD_BOOST
-
-echo BUILDING: Boost - http://www.boost.org/
-
-cd "%PROJECT_BASE%deps\boost"
-
-rem Only build boost if it hasn't been built already.
-if exist "stage\lib\libboost_*-mt-gd.lib" (
-	if exist "stage\lib\libboost_*-mt.lib" (
-		echo Boost libraries already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-rem Build BJAM which is needed to build boost.
-if not exist "tools\jam\src\bin.ntx86\bjam.exe" (
-	cd "tools\jam\src"
-	cmd /q /c build.bat
-	cd "%PROJECT_BASE%deps\boost"
-)
-
-rem Build the boost libraries we need.
-
-cmd /c "tools\jam\src\bin.ntx86\bjam.exe" --toolset=msvc-%MSVC_VERSION%.0 --with-date_time --with-thread --with-regex --with-system variant=debug,release link=static runtime-link=shared threading=multi define=_SCL_SECURE_NO_WARNINGS=0
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_BOOST -----------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_GLOG ----------------------------------------------------
-rem --- Builds glog library used for logging.                                ---
-:BUILD_GLOG
-
-echo BUILDING: Google glog - http://code.google.com/p/google-glog/
-
-cd "%PROJECT_BASE%deps\glog"
-
-rem Only build gtest if it hasn't been built already.
-if exist "debug\libglog.lib" (
-	if exist "release\libglog.lib" (
-		echo Google glog library already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "google-glog.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "google-glog.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_GLOG ------------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_GTEST ---------------------------------------------------
-rem --- Builds all googletest library used for unit testing.                 ---
-:BUILD_GTEST
-
-echo BUILDING: Google Test - http://code.google.com/p/googletest/
-
-cd "%PROJECT_BASE%deps\gtest\msvc"
-
-rem Only build gtest if it hasn't been built already.
-if exist "gtest-md\Debug\gtest-mdd.lib" (
-	if exist "gtest-md\Release\gtest-md.lib" (
-		echo Google Test library already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "gtest-md.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "gtest-md.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_GTEST -----------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_LUA -----------------------------------------------------
-rem --- Builds the lua library for use with this project.                    ---
-:BUILD_LUA
-
-echo BUILDING: Lua - http://www.lua.org/
-
-cd "%PROJECT_BASE%deps\lua"
-
-rem Only build lua if it hasn't been built already.
-if exist "lib\lua5.1d.lib" (
-	if exist "lib\lua5.1.lib" (
-		echo Lua already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-rem Build the lua libraries we need.
-
-call :COMPILE_LUA debug >NUL
-call :COMPILE_LUA release >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_LUA -------------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of COMPILE_LUA ---------------------------------------------------
-rem --- Compiles the lua library.                                            ---
-:COMPILE_LUA
-
-if "%1" == "debug" (
-	set buildcmd=cl /nologo /MDd /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
-	set libname=lua5.1d.lib
-)
-
-if "%1" == "release" (
-	set buildcmd=cl /nologo /MD /O2 /W3 /c /D_CRT_SECURE_NO_DEPRECATE
-	set libname=lua5.1.lib
-)
-
-rem Create the output directory if it does not yet exist.
-if not exist "lib" (
-	mkdir "lib"
-)
-
-cd src
-
-%buildcmd% *.c
-
-del lua.obj luac.obj
-
-lib /out:../lib/%libname% *.obj
-
-del *.obj
-
-cd ..
-
-goto :eof
-rem --- End of COMPILE_LUA -----------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_MYSQLCONN -----------------------------------------------
-rem --- Builds the mysql c++ connector library for use with this project.    ---
-:BUILD_MYSQLCONN
-
-echo BUILDING: Mysql Connector/C++ - https://launchpad.net/mysql-connector-cpp
-
-cd "%PROJECT_BASE%deps\mysql-connector-cpp"
-
-rem Only build mysql++ if it hasn't been built already.
-if exist "driver\Debug\mysqlcppconn.lib" (
-	if exist "driver\Release\mysqlcppconn.lib" (
-		echo Mysql Connector/C++ already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-rem Build the mysql Connector/C++ library we need.
-
-rem VS likes to create these .cache files and then complain about them existing afterwards.
-rem Removing it as it's not needed.
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "MYSQLCPPCONN.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "MYSQLCPPCONN.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_MYSQLCONN -------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_NOISE ---------------------------------------------------
-rem --- Builds the noise library for use with this project.                  ---
-:BUILD_NOISE
-
-echo BUILDING: Noise - http://libnoise.sourceforge.net/
-
-cd "%PROJECT_BASE%deps\noise"
-
-rem Only build noise if it hasn't been built already.
-if exist "win32\Debug\libnoise.lib" (
-	if exist "win32\Release\libnoise.lib" (
-		echo Noise already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-rem Build the noise libraries we need.
-
-rem VS likes to create these .cache files and then complain about them existing afterwards.
-rem Removing it as it's not needed.
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "libnoise.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_NOISE -----------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_SPATIALINDEX --------------------------------------------
-rem --- Builds the spatial index library for use with this project.          ---
-:BUILD_SPATIALINDEX
-
-echo BUILDING: SpatialIndex - http://research.att.com/~marioh/spatialindex/
-
-cd "%PROJECT_BASE%deps\spatialindex"
-
-rem Only build spatial index if it hasn't been built already.
-if exist "spatialindex-vc\Debug\spatialindex-vc.lib" (
-	if exist "spatialindex-vc\Release\spatialindex-vc.lib" (
-		echo SpatialIndex already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-rem Build the spatial index libraries we need.
-
-rem VS likes to create these .cache files and then complain about them existing afterwards.
-rem Removing it as it's not needed.
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Debug,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "spatialindex.sln" /t:build /p:Platform=Win32,Configuration=Release,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_SPATIALINDEX ----------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_TOLUA ---------------------------------------------------
-rem --- Builds the tolua++ library for use with this project.                ---
-:BUILD_TOLUA
-
-echo BUILDING: tolua++ - http://www.codenix.com/~tolua/
-
-cd "%PROJECT_BASE%deps\tolua++\win32\vc9"
-
-rem Only build tolua++ if it hasn't been built already.
-if exist "withLua51_Debug\toluapp.lib" (
-	if exist "withLua51_Release\toluapp.lib" (
-		echo tolua++ already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-rem Build the tolua++ libraries we need.
-
-rem VS likes to create these .cache files and then complain about them existing afterwards.
-rem Removing it as it's not needed.
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "toluapp_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Debug,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "toluapp_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration=withLua51_Release,VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_TOLUA -----------------------------------------------------
-rem ----------------------------------------------------------------------------
-
-
-
-rem ----------------------------------------------------------------------------
-rem --- Start of BUILD_ZLIB ----------------------------------------------------
-rem --- Builds the zlib library for use with this project.                   ---
-:BUILD_ZLIB
-
-echo BUILDING: zlib - http://www.zlib.net/
-
-cd "%PROJECT_BASE%deps\zlib\projects\visualc6"
-
-rem Only build zlib if it hasn't been built already.
-if exist "Win32_LIB_Debug\zlibd.lib" (
-	if exist "Win32_LIB_Release\zlib.lib" (
-		echo zlib library already built ... skipping
-		echo.
-		cd "%PROJECT_BASE%"
-		goto :eof
-	)
-)
-
-rem Build the zlib library.
-
-rem VS likes to create these .cache files and then complain about them existing afterwards.
-rem Removing it as it's not needed.
-if exist "zlib.sln.cache" del /S /Q "zlib.sln.cache" >NUL
-
-"%MSBUILD%" "zlib_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration="LIB Debug",VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-"%MSBUILD%" "zlib_vc%MSVC_VERSION%.sln" /t:build /p:Platform=Win32,Configuration="LIB Release",VCBuildAdditionalOptions="/useenv"
-if exist "*.cache" del /S /Q "*.cache" >NUL
-
-cd "%PROJECT_BASE%"
-
-goto :eof
-rem --- End of BUILD_ZLIB ------------------------------------------------------
-rem ----------------------------------------------------------------------------
-
 
 
 rem ----------------------------------------------------------------------------

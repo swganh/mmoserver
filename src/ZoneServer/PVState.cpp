@@ -50,10 +50,10 @@ bool PVState::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 o
 			reply2 = mController->getLowestCommonBit(creature->states.getAction(), cmdProperties->mStates);
 			return false;
 		}
-		if (cmdProperties->mLocomotionMask !=0 && ((cmdProperties->mLocomotionMask & creature->states.getLocomotion()) != 0))
+		if (cmdProperties->mPostureMask !=0 && ((cmdProperties->mPostureMask & creature->states.getPosture()) != 0))
 		{
 			reply1 = kCannotDoWhileLocomotion;
-			reply2 = mController->getLocoValidator(creature->states.getLocomotion());
+			reply2 = mController->getPostureValidator(creature->states.getLocomotion());
 			return false;
 		}
     }

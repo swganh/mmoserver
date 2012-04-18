@@ -802,19 +802,22 @@ bool Tutorial::isContainerEmpty(uint64 containerId)
     bool empty = false;
     if (containerId == mContainerEventId)
     {
-        Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
-        if (container)
-        {
-            uint32 objectCount = 0;
-            ObjectList* objList = container->getObjects();
-            ObjectList::iterator it = objList->begin();
+	    Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
+	    if (container)
+	    {
+		    uint32 objectCount = 0;
+		    ObjectIDList* objList = container->getObjects();
+		    ObjectIDList::iterator it = objList->begin();
 
-            ObjectList::iterator cEnd = objList->end();
+		    ObjectIDList::iterator cEnd = objList->end();
 
-            while(it != cEnd)
-            {
-                if((*it)->getPrivateOwner() == this->getPlayer())
-                    ++objectCount;
+		    while(it != cEnd)
+		    {
+			    TangibleObject* item = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+			    if(item->getPrivateOwner() == this->getPlayer())
+                {
+				    ++objectCount;
+                }
 
                 ++it;
             }

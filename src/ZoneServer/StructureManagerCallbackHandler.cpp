@@ -53,34 +53,35 @@ using ::common::OutOfBand;
 
 void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 {
-    PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
+	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
 
-    if(!structure)
-    {
-        DLOG(INFO) << "StructureManager::handleObjectReady: No structure";
-    }
+	if(!structure)	{
+			DLOG(INFO) << "StructureManager::handleObjectReady: No structure";
+	}
 
-    if(gWorldManager->getWMState() == WMState_Running)
-    {
-        // set timer for deletion of building fence
+	if(gWorldManager->getWMState() == WMState_Running)
+	{
+		// set timer for deletion of building fence
 
-        uint32 account = client->getAccountId();
-        PlayerObject* player = gWorldManager->getPlayerByAccId(account);
+		uint32 account = client->getAccountId();
+		PlayerObject* player = gWorldManager->getPlayerByAccId(account);
 
-        PlayerStructure* fence =  gNonPersistantObjectFactory->requestBuildingFenceObject(structure->mPosition.x,structure->mPosition.y,structure->mPosition.z, player);
-        structure->getTTS()->todo = ttE_BuildingFence;
-        structure->getTTS()->buildingFence = fence->getId();
-        structure->getTTS()->playerId = player->getId();
-        structure->getTTS()->projectedTime = mBuildingFenceInterval + Anh_Utils::Clock::getSingleton()->getLocalTime();
+		PlayerStructure* fence =  gNonPersistantObjectFactory->requestBuildingFenceObject(structure->mPosition.x,structure->mPosition.y,structure->mPosition.z, player);
+		structure->getTTS()->todo = ttE_BuildingFence;
+		structure->getTTS()->buildingFence = fence->getId();
+		structure->getTTS()->playerId = player->getId();
+		structure->getTTS()->projectedTime = mBuildingFenceInterval + Anh_Utils::Clock::getSingleton()->getLocalTime();
 
-        gWorldManager->handleObjectReady(structure,player->getClient());
+		//add structure to the mainObjectMap, do not create yet
+		gWorldManager->addObject(structure,true);
+		gWorldManager->getStructureList()->push_back(structure->getId());
 
-        addStructureforConstruction(structure->getId());
-    }
-    else
-    {
-        gWorldManager->handleObjectReady(structure,NULL);
-    }
+		addStructureforConstruction(structure->getId());
+	}
+	else
+	{
+		gWorldManager->handleObjectReady(structure,NULL);
+	}
 }
 
 
@@ -254,77 +255,71 @@ void StructureManager::_HandleUpdateCharacterLots(StructureManagerAsyncContainer
 
 void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncContainer* asynContainer,DatabaseResult* result)
 {
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+
     PlayerStructure* structure = dynamic_cast<PlayerStructure*>(gWorldManager->getObjectById(asynContainer->mStructureId));
     //ensure we actually got this from the DB
     //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627034539-8f68cacfcb354eab467bcae7158eff8c
     if(!structure)
     {
-        PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
-        if (player) {
-            gMessageLib->SendSystemMessage(L"(We couldn't find it in the DB, please /bug report this so we can investigate.)", player);
-        }
-        return;
-    }
-    //if its a playerstructure boot all players and pets inside
-    HouseObject* house = dynamic_cast<HouseObject*>(structure);
-    if(house)
-    {
-        house->prepareDestruction();
-    }
-
-
+		if (player) {
+			   gMessageLib->SendSystemMessage(L"(Structure couldnt be found, please /bug report this so we can investigate.)", player);
+		}
+		return;
+	}
+    
     //destroy the structure here so the sf can still access the relevant data
-    gObjectFactory->deleteObjectFromDB(structure);
-    gMessageLib->sendDestroyObject_InRangeofObject(structure);
+	gObjectFactory->deleteObjectFromDB(structure);
+	gSpatialIndexManager->RemoveObjectFromWorld(structure);
+	gWorldManager->destroyObject(structure);
 
-    gWorldManager->destroyObject(structure);
+	uint64 deedId;
+	DataBinding* binding = mDatabase->createDataBinding(1);
+	binding->addField(DFT_uint64,0,8);
 
+	uint64 count;
+	count = result->getRowCount();
 
-    PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(asynContainer->mPlayerId));
+	if (!count)
+	{
+		DLOG(INFO) << "StructureManager::create deed no result...";
+		mDatabase->destroyDataBinding(binding);
+		return;
+	}
+	result->getNextRow(binding,&deedId);
 
-    uint64 deedId;
-    DataBinding* binding = mDatabase->createDataBinding(1);
-    binding->addField(DFT_uint64,0,8);
+	//return value of 0 means something wasnt found
+	if(!deedId)
+	{
+		DLOG(INFO) << "StructureManager::create deed no valid return value...";
+		mDatabase->destroyDataBinding(binding);
+		return;
+	}
+	//returnvalue of 1 means that there wasnt enough money on the deed
+	if(deedId == 1)
+	{
+		DLOG(INFO) << "StructureManager::create deed with not enough maintenance...";
+		gMessageLib->SendSystemMessage(common::OutOfBand("player_structure","structure_destroyed "), player);	
+		mDatabase->destroyDataBinding(binding);
+		return;
+	}
 
-    uint64 count;
-    count = result->getRowCount();
+	if(player)
+	{
+		//load the deed into the inventory
+		Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+		if(inventory)
+		{
+			//15 is itemfamily for deeds
+			gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
+		}
+	}
 
-    if (!count)
-    {
-        mDatabase->destroyDataBinding(binding);
-        return;
-    }
-    result->getNextRow(binding,&deedId);
+	UpdateCharacterLots(asynContainer->mPlayerId);
 
-    //return value of 0 means something wasnt found
-    if(!deedId)
-    {
-        mDatabase->destroyDataBinding(binding);
-        return;
-    }
-    //returnvalue of 1 means that there wasnt enough money on the deed
-    if(deedId == 1)
-    {
-        if(player)
-            gMessageLib->SendSystemMessage(OutOfBand("player_structure", "structure_destroyed"), player);
-        mDatabase->destroyDataBinding(binding);
-        return;
-    }
-
-    if(player)
-    {
-        //load the deed into the inventory
-        Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-        if(inventory)
-        {
-            //15 is itemfamily for deeds
-            gObjectFactory->createIteminInventory(inventory,deedId,TanGroup_Item);
-        }
-    }
-
-    mDatabase->destroyDataBinding(binding);
+	mDatabase->destroyDataBinding(binding);
+    
 }
-
 //==================================================================================================
 //
 // handles the callback of the destruction of structures when condition wears of.
@@ -360,17 +355,12 @@ void StructureManager::_HandleStructureDestruction(StructureManagerAsyncContaine
             sprintf(sql,"DELETE FROM items WHERE parent_id = %"PRIu64" AND item_family = 15",structure->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
             
-
             //delete harvester db side with all power and all resources
             gObjectFactory->deleteObjectFromDB(structure);
-            UpdateCharacterLots(structure->getOwner());
-
+            
             //delete it in the world
             gMessageLib->sendDestroyObject_InRangeofObject(structure);
             gWorldManager->destroyObject(structure);
-
-
-
         }
     }
 

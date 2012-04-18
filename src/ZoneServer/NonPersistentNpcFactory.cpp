@@ -179,7 +179,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         }
         else
         {
-        	LOG(ERROR) << "Object cannot be found";
+        	LOG(ERROR) << "NonPersistentNpcFactory::handleDatabaseJobComplete Object cannot be found";
         }
     }
     break;
@@ -221,7 +221,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         // We save the lairs-type... that's kinda a template for the complete lair.
         LairObject* npc	= new LairObject(asyncContainer->mTemplateId);
 
-        // Set the new if of this temp object.
+        // Set the new id of this temp object.
         npc->setId(asyncContainer->mId);
 
         // Register object with WorldManager.

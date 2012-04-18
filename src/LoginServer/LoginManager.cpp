@@ -395,7 +395,6 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
     // Execute our query for sending the server list.
     client->setState(LCSTATE_QueryServerList);
     mDatabase->executeProcedureAsync(this, (void*)client, "CALL swganh.sp_ReturnServerList;");
-    
 }
 
 //======================================================================================================================

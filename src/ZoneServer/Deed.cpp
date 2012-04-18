@@ -30,12 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "Item_Enums.h"
 #include "nonPersistantObjectFactory.h"
-#include "ObjectFactory.h"
+//#include "ObjectFactory.h"
 #include "PlayerObject.h"
 #include "ScoutManager.h"
 #include "StructureManager.h"
 #include "VehicleControllerFactory.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -74,22 +75,10 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
                 if(datapad->getCapacity())
                 {
-                    gVehicleControllerFactory->createVehicle(this->getItemType(),player);
+                    	gVehicleControllerFactory->createVehicle(this->getItemType(),player);
 
-                    //parent container can be every backpack / inventory / cell // chest
-                    //cave - we shouldnt be able to use it in a cell otherwise we need to think about sending updates to all players watching
-
-                    ObjectContainer* parentContainer = dynamic_cast<ObjectContainer*>(gWorldManager->getObjectById(this->getParentId()));
-                    if(!parentContainer)
-                    {
-                        return;
-                    }
-                    parentContainer->removeObject(this);
-
-                    //cave if were in a cell or it is an opened container we need to identify all onlookers and update them
-                    gMessageLib->sendDestroyObject(this->getId(),player);
-                    gObjectFactory->deleteObjectFromDB(this);
-                    gWorldManager->destroyObject(this);
+						Inventory* inventory = player->getInventory();
+						gContainerManager->deleteObject(this,inventory);						
                 }
                 else
                 {
@@ -149,7 +138,6 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                 {
                     //sadly the client wont inform us when the player hit escape
                     gMessageLib->sendEnterStructurePlacement(this,data->structureObjectString,player);
-                    gStructureManager->UpdateCharacterLots(player->getId());
                 }
                 else
                 {
@@ -158,7 +146,6 @@ void Deed::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
                     //wrong_planet
                     //not_permitted
                     gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "wrong_planet", 0, 0, 0, data->requiredLots, 0.0f), player);
-                    gStructureManager->UpdateCharacterLots(player->getId());
                     return;
                 }
 

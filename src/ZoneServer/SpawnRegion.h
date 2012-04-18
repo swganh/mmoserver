@@ -34,21 +34,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 
-class ZoneTree;
+class SpatialIndexManager;
 class PlayerObject;
-class QTRegion;
 
 //=============================================================================
 
 class SpawnRegion : public RegionObject
 {
-    friend class SpawnRegionFactory;
-    friend class MissionSpawnRegionFactory;
+	friend class SpawnRegionFactory;
+	friend class MissionSpawnRegionFactory;
 
 public:
 
-    SpawnRegion();
-    virtual ~SpawnRegion();
+	SpawnRegion();
+	virtual ~SpawnRegion();
 
     uint32			getSpawnType() {
         return mSpawnType;
@@ -63,17 +62,16 @@ public:
         return (mMission != 0);
     }
 
-    virtual void	update();
-    virtual void	onObjectEnter(Object* object);
-    virtual void	onObjectLeave(Object* object);
+	virtual void	update();
+	virtual void	onObjectEnter(Object* object);
+	virtual void	onObjectLeave(Object* object);
 
 protected:
+	Anh_Math::Rectangle mQueryRect;
 
-    Anh_Math::Rectangle mQueryRect;
-    std::shared_ptr<QTRegion>   mQTRegion;
-    ZoneTree*			mSI;
-    uint32				mMission;
-    uint32				mSpawnType;
+	SpatialIndexManager*	mSIM;
+	uint32					mMission;
+	uint32					mSpawnType;
 };
 
 

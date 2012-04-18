@@ -290,7 +290,9 @@ Datapad* DatapadFactory::_createDatapad(DatabaseResult* result)
     result->getNextRow(mDatapadBinding,(void*)datapad);
     datapad->setParentId(datapad->mId - 3);
 
-    return datapad;
+	gWorldManager->addObject(datapad, true);
+
+	return datapad;
 }
 
 //=============================================================================

@@ -25,54 +25,72 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
+#include "ZoneServer/Bank.h"
 
-#include "Bank.h"
-#include "PlayerObject.h"
-#include "WorldManager.h"
-#include "MessageLib/MessageLib.h"
+#include <sstream>
+
 #include "DatabaseManager/Database.h"
 
-//=============================================================================
+#include "MessageLib/MessageLib.h"
 
-Bank::Bank() : TangibleObject(),
-    mCredits(0),
-    mPlanet(-1)
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldManager.h"
+
+using std::stringstream;
+
+Bank::Bank(PlayerObject* owner)
+    : TangibleObject()
+    , owner_(owner)
+    , credits_(0)
+    , planet_(-1)
 {
-    mTanGroup	= TanGroup_PlayerInternal;
-    mTanType	= TanType_Bank;
+    mId = owner->getId() + BANK_OFFSET;
+    mTanGroup = TanGroup_PlayerInternal;
+    mTanType = TanType_Bank;
 }
 
-//=============================================================================
 
-Bank::~Bank()
-{
-    ObjectList::iterator it = mObjects.begin();
-    while(it != mObjects.end())
-    {
-        delete(*it);
-        mObjects.erase(it);
-        it = mObjects.begin();
+Bank::~Bank() {}
+
+
+int Bank::credits() const {
+    return credits_;
+}
+
+
+void Bank::credits(int credits) {
+    credits_ = credits;
+}
+
+bool Bank::updateCredits(int32_t amount) {
+    // No transaction is accepted if it causes the account to go below 0.
+    if (credits_ + amount < 0) {
+        return false;
     }
+
+    credits(credits_ + amount);
+
+    gMessageLib->sendBankCreditsUpdate(owner_);
+
+    stringstream query;
+    query << "UPDATE banks SET credits=" << credits_ << " WHERE id=" << mId;
+
+    gWorldManager->getDatabase()->executeAsyncSql(query);
+
+    return true;
 }
 
-//=============================================================================
 
-bool Bank::updateCredits(int32 amount)
-{
-    if(mCredits + amount < 0)
-        return(false);
-
-    mCredits += amount;
-
-    if(mParent->getType() == ObjType_Player)
-        gMessageLib->sendBankCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
-
-    gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE banks set credits=credits+%i WHERE id=%"PRIu64"",amount,mId);
-    
-
-    return(true);
+void Bank::owner(PlayerObject* owner) {
+    owner_ = owner;
 }
 
-//=============================================================================
+
+int8_t Bank::planet() const {
+    return planet_;
+}
 
 
+void Bank::planet(int8_t planet) {
+    planet_ = planet;
+}

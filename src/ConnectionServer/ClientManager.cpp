@@ -89,18 +89,23 @@ void ClientManager::Process(void)
 
 void ClientManager::SendMessageToClient(Message* message)
 {
+
+	// We're headed to the client, don't use the routing header.
+    message->setRouted(false);
+
     // Find our client from the accountId.
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
 
     PlayerClientMap::iterator iter = mPlayerClientMap.find(message->getAccountId());
-
-    // We're headed to the client, don't use the routing header.
-    message->setRouted(false);
-
+	
     // If we found the client, send the data.
     if (iter != mPlayerClientMap.end())
     {
         ConnectionClient* client = (*iter).second;
+		
+		//unlock here sendchannel is getting the mSessionMutex we dont want to spend time waiting to synchronize mutexes
+		lk.unlock();
+
         client->SendChannelA(message, message->getPriority(), message->getFastpath());
     }
     else
@@ -182,6 +187,7 @@ void ClientManager::handleSessionDisconnect(NetworkClient* client)
     mDatabase->executeProcedureAsync(0, 0, "CALL sp_AccountStatusUpdate(%u, %u);", 0, connClient->getAccountId());
 
     // Client has disconnected.
+
     boost::recursive_mutex::scoped_lock lk(mServiceMutex);
     PlayerClientMap::iterator iter = mPlayerClientMap.find(connClient->getAccountId());
 

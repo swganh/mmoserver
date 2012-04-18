@@ -86,7 +86,7 @@ std::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(Creatur
     radial->addItem(2,1,radId_bankTransfer,radAction_ObjCallback,"@sui:bank_credits");
 
     // case its our bank
-    if(static_cast<uint32>(bank->getPlanet()) == gWorldManager->getZoneId())
+    if(static_cast<uint32>(bank->planet()) == gWorldManager->getZoneId())
     {
         radial->addItem(3,1,radId_bankItems,radAction_ObjCallback,"@sui:bank_items");
         radial->addItem(4,1,radId_bankQuit,radAction_ObjCallback,"@sui:bank_quit");
@@ -96,7 +96,7 @@ std::shared_ptr<RadialMenu> TreasuryManager::bankBuildTerminalRadialMenu(Creatur
 
     // case we have no binded bank
     // Do not allow to join bank in tutorial, player will never be able to quit that bank when he/she has left tutorial.
-    else if ((bank->getPlanet() < 0) && (!gWorldConfig->isTutorial()))
+    else if ((bank->planet() < 0) && (!gWorldConfig->isTutorial()))
     {
         radial->addItem(3,1,radId_bankJoin,radAction_ObjCallback,"@sui:bank_join");
         radial->addItem(4,1,radId_bankWithdrawAll,radAction_ObjCallback,"@sui:bank_withdrawall");
@@ -126,13 +126,13 @@ void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
             {
                 // bank credits = bank + inventory.
                 // inventory = 0
-                bank->setCredits(bank->getCredits() + credits);
+                bank->credits(bank->credits() + credits);
                 inventory->setCredits(0);
                 // save to the db
-                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()));
-                
+                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->credits(),bank->getId()));
+
                 mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()));
-                
+
 
                 //send the appropriate deltas.
                 gMessageLib->sendInventoryCreditsUpdate(playerObject);
@@ -157,20 +157,20 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
     {
         if(Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
         {
-            if(bank->getCredits() > 0)
+            if(bank->credits() > 0)
             {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_withdraw_success", 0, 0, 0, bank->getCredits()), playerObject);
+                gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_withdraw_success", 0, 0, 0, bank->credits()), playerObject);
 
                 // inventory credits = bank + inventory.
                 // bank = 0
-                inventory->setCredits(inventory->getCredits() + bank->getCredits());
-                bank->setCredits(0);
+                inventory->setCredits(inventory->getCredits() + bank->credits());
+                bank->credits(0);
 
                 // save to the db
-                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()));
-                
+                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->credits(),bank->getId()));
+
                 mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()));
-                
+
 
                 //send the appropriate deltas.
                 gMessageLib->sendInventoryCreditsUpdate(playerObject);
@@ -214,7 +214,7 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
             if(Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
             {
                 inventory->setCredits(inventory->getCredits() - bankMoneyDelta);
-                bank->setCredits(bank->getCredits() + bankMoneyDelta);
+                bank->credits(bank->credits() + bankMoneyDelta);
             }
         }
 
@@ -245,7 +245,7 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
         {
             if(Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
             {
-                bank->setCredits(bank->getCredits() - inventoryMoneyDelta);
+                bank->credits(bank->credits() - inventoryMoneyDelta);
                 inventory->setCredits(inventory->getCredits() + inventoryMoneyDelta);
 
             }
@@ -273,7 +273,7 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
     if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
     {
         // check if the player is really binded to this bank
-        if(static_cast<uint32>(bank->getPlanet()) != gWorldManager->getZoneId())
+        if(static_cast<uint32>(bank->planet()) != gWorldManager->getZoneId())
         {
             gMessageLib->SendSystemMessage(L"You are not a member of this bank.", playerObject);
             return;
@@ -282,7 +282,7 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
         // check if the bank item box is empty
 
         // update the playerObject
-        bank->setPlanet(-1);
+        bank->planet(-1);
 
         // save to db
         mDatabase->executeSqlAsync(NULL,NULL,"UPDATE banks SET planet_id = -1 WHERE id=%"PRIu64"",bank->getId());
@@ -299,23 +299,23 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
     if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
     {
         // check if we're not already binded here
-        if(static_cast<uint32>(bank->getPlanet()) == gWorldManager->getZoneId())
+        if(static_cast<uint32>(bank->planet()) == gWorldManager->getZoneId())
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "already_member_of_bank"), playerObject);
             return;
         }
 
         // check if we are not binded to any other bank
-        if(!(bank->getPlanet() < 0))
+        if(!(bank->planet() < 0))
         {
             gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "member_of_different_bank"), playerObject);
             return;
         }
 
-        bank->setPlanet((int8)gWorldManager->getZoneId());
+        bank->planet((int8)gWorldManager->getZoneId());
 
         // save to db
-        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE banks SET planet_id=%i WHERE id=%"PRIu64"",bank->getPlanet(),bank->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE banks SET planet_id=%i WHERE id=%"PRIu64"",bank->planet(),bank->getId());
 
         //This message period added at the end as its missing from client.
         gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_joined_bank"), playerObject);
@@ -327,7 +327,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 {
     mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1));
-    
+
     gMessageLib->sendInventoryCreditsUpdate(playerObject);
 }
 
@@ -335,8 +335,8 @@ void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 
 void TreasuryManager::saveAndUpdateBankCredits(PlayerObject* playerObject)
 {
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits(), playerObject->getId() + 4));
-    
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits(), playerObject->getId() + 4));
+
     gMessageLib->sendBankCreditsUpdate(playerObject);
 }
 
@@ -349,7 +349,7 @@ void TreasuryManager::bankTipOffline(int32 amount,PlayerObject* playerObject,BSt
     //check whether we have sufficient funds
     //dont forget the surcharge
     Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-    int32 credits = bank->getCredits();
+    int32 credits = bank->credits();
 
     int32 surcharge = (int32)((amount/100)*5);
 
@@ -397,8 +397,8 @@ void TreasuryManager::bankTipOnline(int32 amount, PlayerObject* playerObject, Pl
     Bank* playerBank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
     Bank* targetBank = dynamic_cast<Bank*>(targetObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    playerBank->setCredits(playerBank->getCredits() - (amount+surcharge));
-    targetBank->setCredits(targetBank->getCredits() + amount);
+    playerBank->credits(playerBank->credits() - (amount+surcharge));
+    targetBank->credits(targetBank->credits() + amount);
 
     saveAndUpdateBankCredits(playerObject);
     saveAndUpdateBankCredits(targetObject);
@@ -458,7 +458,7 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
     sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",asyncContainer->amount, asyncContainer->targetId + BANK_OFFSET);
     mTransaction->addQuery(sql);
     mTransaction->execute();
-    
+
 
 }
 
@@ -466,39 +466,39 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 
 void TreasuryManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-	// gLogger->logMsgF("CloningTerminal::handleUIEvent You are here!",MSG_NORMAL);
+    // gLogger->logMsgF("CloningTerminal::handleUIEvent You are here!",MSG_NORMAL);
 
-	if(window == NULL)
-	{
-		return;
-	}
+    if(window == NULL)
+    {
+        return;
+    }
 
-	PlayerObject* playerObject = window->getOwner(); // window owner
+    PlayerObject* playerObject = window->getOwner(); // window owner
 
-	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
-	{
-		return;
-	}
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
+    {
+        return;
+    }
 
-	switch(window->getWindowType())
-	{
-		case SUI_Window_Trade_BankTip_ConfirmSurcharge:
-		{
-			if (action == 1)
-			{
-				// That's the Cancel.
-				//what 
-			}
-			else
-			{
-				// This is the OK.  (action == 0)
-				
-				TreasuryManagerAsyncContainer* asynContainer = (TreasuryManagerAsyncContainer*) window->getAsyncContainer();
-				handleBankTipSurchargeConfirmed(asynContainer);
-			}
-		}
-		break;
-	}
+    switch(window->getWindowType())
+    {
+    case SUI_Window_Trade_BankTip_ConfirmSurcharge:
+    {
+        if (action == 1)
+        {
+            // That's the Cancel.
+            //what
+        }
+        else
+        {
+            // This is the OK.  (action == 0)
+
+            TreasuryManagerAsyncContainer* asynContainer = (TreasuryManagerAsyncContainer*) window->getAsyncContainer();
+            handleBankTipSurchargeConfirmed(asynContainer);
+        }
+    }
+    break;
+    }
 }
 
 
@@ -557,7 +557,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             Bank* bank = dynamic_cast<Bank*>(asynContainer->player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
             //update our own bankaccount
-            bank->setCredits(bank->getCredits() - asynContainer->amount);
+            bank->credits(bank->credits() - asynContainer->amount);
 
             gMessageLib->sendBankCreditsUpdate(asynContainer->player);
             gMessageLib->sendBankTipDustOff(asynContainer->player,asynContainer->targetId,asynContainer->amount,asynContainer->targetName);
@@ -572,7 +572,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipUpdateGalaxyAccount,0);
 
             mDatabase->executeProcedureAsync(this,asyncContainer,sql);
-            
+
         }
         else
         {

@@ -25,24 +25,30 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "FactoryCrate.h"
-#include "Inventory.h"
-#include "Item_Enums.h"
-#include "ObjectFactory.h"
-#include "PlayerObject.h"
-#include "StructureManager.h"
-#include "WorldManager.h"
-#include "ZoneOpcodes.h"
+#include "ZoneServer/FactoryCrate.h"
 
-#include "MessageLib/MessageLib.h"
+#include <cassert>
+
+#include "Utils/colors.h"
+
+#include "Common/Crc.h"
+
+#include "DatabaseManager/Database.h"
 
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 
-//
-#include "DatabaseManager/Database.h"
-#include "Utils/colors.h"
-#include <cassert>
+#include "MessageLib/MessageLib.h"
+
+#include "ZoneServer/Inventory.h"
+#include "ZoneServer/Item_Enums.h"
+#include "ZoneServer/ObjectFactory.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/StructureManager.h"
+#include "ZoneServer/WorldManager.h"
+#include "ZoneServer/ContainerManager.h"
+#include "ZoneServer/ZoneOpcodes.h"
+
 
 //=============================================================================
 
@@ -86,7 +92,7 @@ void FactoryCrate::sendAttributes(PlayerObject* playerObject)
 
     BString	value,aStr;
 
-	wchar_t temp[64];
+    wchar_t temp[64];
     swprintf(temp,50,L"%u/%u",mMaxCondition - mDamage,mMaxCondition);
 
     gMessageFactory->addString(BString("condition"));
@@ -196,7 +202,7 @@ int32 FactoryCrate::decreaseContent(uint32 amount)
 
     this->setAttribute("factory_count",boost::lexical_cast<std::string>(newAmount));
     gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",newAmount,this->getId(),AttrType_factory_count);
-    
+
 
     return newAmount;
 }
@@ -204,34 +210,22 @@ int32 FactoryCrate::decreaseContent(uint32 amount)
 //========================================================================================
 //used by the factoryfactory to update hoppercontent when looking at a hopper
 //
-void FactoryCrate::upDateFactoryVolume(BString amount)
-{
-    if(!this->hasAttribute("factory_count"))
-    {
+void FactoryCrate::upDateFactoryVolume(const std::string& amount) {
+    if(!hasAttribute("factory_count")) {
         return;
     }
 
-    std::string v = this->getAttribute<std::string>("factory_count");
-    BString value = v.c_str();
-
-    if(value.getCrc() == amount.getCrc())
-    {
+    std::string current_amount = getAttribute<std::string>("factory_count");
+    if(current_amount == amount) {
         return;
     }
-    this->setAttribute("factory_count",amount.getAnsi());
 
-    PlayerObjectSet*			knownPlayers	= this->getKnownPlayers();
-    PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
+    setAttribute("factory_count", amount);
 
-    while(playerIt != knownPlayers->end())
-    {
-        PlayerObject* player = (*playerIt);
-        if(player)
-            gMessageLib->sendUpdateCrateContent(this,player);
-
-        playerIt++;
-    }
-
+    Object* parent = gWorldManager->getObjectById(getParentId());
+    gContainerManager->sendToRegisteredWatchers(parent, [this] (PlayerObject* const player)	{
+        gMessageLib->sendUpdateCrateContent(this,player);
+    });
 }
 
 

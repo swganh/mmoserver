@@ -89,7 +89,7 @@ private:
     void	_updateDBServerList(uint32 status);
     void	_connectToConnectionServer(void);
 
-    BString                        mZoneName;
+    BString                       mZoneName;
     uint32						  mLastHeartbeat;
 
     NetworkManager*               mNetworkManager;

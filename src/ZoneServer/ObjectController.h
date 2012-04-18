@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "HeightMapCallback.h"
 #include "ObjControllerEvent.h"
 #include <boost/pool/pool.hpp>
+#include "zmap.h"
 
 // maximum commands allowed to be queued
 #define COMMAND_QUEUE_MAX_SIZE 30
@@ -47,6 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=======================================================================
 
 class Message;
+class BuildingObject;
 class Object;
 class ObjectControllerCmdProperties;
 class ObjectControllerCommandMap;
@@ -54,7 +56,6 @@ class ObjControllerCommandMessage;
 class ObjectFactory;
 class Database;
 class DatabaseResult;
-class ZoneTree;
 class ObjControllerAsyncContainer;
 class UIWindow;
 class EnqueueValidator;
@@ -744,80 +745,77 @@ private:
      * @param cmd_properties Contextual information for use during processing this command.
      */
     void HandleRotateFurniture_(uint64 target_id, Message* message, ObjectControllerCmdProperties* cmd_properties);
-
-    //pets
-    void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-    void	_handleDismount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-    // admin
-    void	_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-    void	_handleAdminWarpSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-    void	_handleBroadcast(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-    void	_handleBroadcastPlanet(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-    void	_handleBroadcastGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-    void	_handleShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-    void	_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-
-
-    BString	handleBroadcast(BString message) const;
-    BString	handleBroadcastPlanet(BString message) const;
-    BString	handleBroadcastGalaxy(BString message) const;
-    BString	handleShutdownGalaxy(BString message) const;
-    BString handleCancelShutdownGalaxy(BString message) const;
-
-    // Admin
-    int32	getAdminCommandFunction(BString command) const;
-    int32	indexOfFirstField(const BString message) const;
-    int32	indexOfNextField(const BString message) const;
-    void	broadcastGalaxyMessage(BString theBroadcast, int32 planetId) const;
-    void	scheduleShutdown(int32 scheduledTime, BString shutdownReason) const;
-    void	cancelScheduledShutdown(BString cancelShutdownReason) const;
-    void	sendAdminFeedback(BString reply) const;
-    BString	removeWhiteSpace(BString str) const;
-    BString	skipToNextField(BString str) const;
-
-    // spatial object updates
-    float	_GetMessageHeapLoadViewingRange();
-    void	_findInRangeObjectsOutside(bool updateAll);
-    bool	_updateInRangeObjectsOutside();
-    void	_findInRangeObjectsInside(bool updateAll);
-    bool	_updateInRangeObjectsInside();
-    bool	_destroyOutOfRangeObjects(ObjectSet* inRangeObjects);
+		//pets
+		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleDismount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		// admin
+		void	_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleAdminWarpSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		void	_handleBroadcast(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		void	_handleBroadcastPlanet(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		void	_handleBroadcastGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		void	_handleShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+		void	_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 
 
-    // ham
-    bool	_consumeHam(ObjectControllerCmdProperties* cmdProperties);
+		BString	handleBroadcast(BString message) const;
+		BString	handleBroadcastPlanet(BString message) const;
+		BString	handleBroadcastGalaxy(BString message) const;
+		BString	handleShutdownGalaxy(BString message) const;
+		BString handleCancelShutdownGalaxy(BString message) const;
+
+		// Admin
+		int32	getAdminCommandFunction(BString command) const;
+		int32	indexOfFirstField(const BString message) const;
+		int32	indexOfNextField(const BString message) const;
+		void	broadcastGalaxyMessage(BString theBroadcast, int32 planetId) const;
+		void	scheduleShutdown(int32 scheduledTime, BString shutdownReason) const;
+		void	cancelScheduledShutdown(BString cancelShutdownReason) const;
+		void	sendAdminFeedback(BString reply) const;
+		BString	removeWhiteSpace(BString str) const;
+		BString	skipToNextField(BString str) const;
+
+		// spatial object updates
+		float	_GetMessageHeapLoadViewingRange();
+		void	_findInRangeObjectsOutside(bool updateAll);
+		bool	_updateInRangeObjectsOutside();
+		void	_findInRangeObjectsInside(bool updateAll);
+		bool	_updateInRangeObjectsInside();
+		bool	_destroyOutOfRangeObjects(ObjectSet* inRangeObjects);
 
 
-    boost::pool<boost::default_user_allocator_malloc_free>		mCmdMsgPool;
-    boost::pool<boost::default_user_allocator_malloc_free>		mDBAsyncContainerPool;
-    boost::pool<boost::default_user_allocator_malloc_free>		mEventPool;
-
-    CommandQueue				mCommandQueue;
-    EventQueue					mEventQueue;
-    ObjectSet						mInRangeObjects;
-    ObjectSet::iterator mObjectSetIt;
-
-    EnqueueValidators	mEnqueueValidators;
-    ProcessValidators	mProcessValidators;
-
-    Database*			mDatabase;
-    ZoneTree*			mSI;
-    Object*				mObject;
-
-    uint64				mCommandQueueProcessTimeLimit;
-    uint64				mEventQueueProcessTimeLimit;
-    uint64				mNextCommandExecution;
-    uint64				mTaskId;
-    uint64				mUnderrunTime;			// time "missed" due to late arrival of command queue.
-    int32				mMovementInactivityTrigger;
-    uint32				mFullUpdateTrigger;
-
-    bool				mDestroyOutOfRangeObjects;
-    bool				mInUseCommandQueue;
-    bool				mRemoveCommandQueue;
-    bool				mUpdatingObjects;
+		// ham
+		bool	_consumeHam(ObjectControllerCmdProperties* cmdProperties);
 
 
+		boost::pool<boost::default_user_allocator_malloc_free>		mCmdMsgPool;
+		boost::pool<boost::default_user_allocator_malloc_free>		mDBAsyncContainerPool;
+		boost::pool<boost::default_user_allocator_malloc_free>		mEventPool;
+
+		CommandQueue				mCommandQueue;
+		EventQueue					mEventQueue;
+		ObjectSet						mInRangeObjects;
+		ObjectSet::iterator mObjectSetIt;
+
+		EnqueueValidators	mEnqueueValidators;
+		ProcessValidators	mProcessValidators;
+
+		Database*			mDatabase;
+		
+		Object*				mObject;
+
+		uint64				mCommandQueueProcessTimeLimit;
+		uint64				mEventQueueProcessTimeLimit;
+		uint64				mNextCommandExecution;
+		uint64				mTaskId;
+		uint64				mUnderrunTime;			// time "missed" due to late arrival of command queue.
+		int32				mMovementInactivityTrigger;
+		uint32				mFullUpdateTrigger;
+
+		bool				mDestroyOutOfRangeObjects;
+		bool				mInUseCommandQueue;
+		bool				mRemoveCommandQueue;
+		bool				mUpdatingObjects;
 };
 
 //=======================================================================

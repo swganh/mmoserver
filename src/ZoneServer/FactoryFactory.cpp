@@ -136,12 +136,12 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             TangibleObject* tangible = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asyncContainer->mId));
             if(!tangible)
             {
-            	LOG(WARNING) << "Oject is not tangible";
+                LOG(WARNING) << "Oject is not tangible";
                 mDatabase->destroyDataBinding(binding);
                 return;
             }
             result->getNextRow(binding,&queryContainer);
-            tangible->upDateFactoryVolume(queryContainer.mString); //virtual function present in tangible, resourceContainer and factoryCrate
+            tangible->upDateFactoryVolume(queryContainer.mString.getAnsi()); //virtual function present in tangible, resourceContainer and factoryCrate
 
         }
         InLoadingContainer* ilc = _getObject(asyncContainer->mHopper);
@@ -212,7 +212,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mHopper = asyncContainer->mHopper;
 
                     mDatabase->executeSqlAsync(this,asynContainer, "SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId);
-                    
+
                 }
             }
 
@@ -323,7 +323,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                                    " FROM structure_attributes sa"
                                    " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
                                    " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",factory->getId());
-        
+
 
     }
     break;
@@ -343,7 +343,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void FactoryFactory::_createFactory(DatabaseResult* result, FactoryObject* factory)
 {
     if (!result->getRowCount()) {
-       	return;
+        return;
     }
 
     result->getNextRow(mFactoryBinding,factory);
@@ -379,7 +379,7 @@ void FactoryFactory::upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hoppe
     asynContainer->mHopper = hopperId;
 
     mDatabase->executeSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId);
-    
+
 }
 //=============================================================================
 

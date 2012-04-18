@@ -123,6 +123,10 @@ void CharacterAdminHandler::_processRandomNameRequest(Message* message, Dispatch
         
         if (!result_set->next()) {
             LOG(WARNING) << "Unable to generate random name for client [" << client->getAccountId() << "]";
+
+			Message* newMessage = gMessageFactory->EndMessage();
+			newMessage->setPendingDelete(true);
+
             return;
         }
 

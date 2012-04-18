@@ -30,8 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
+#include "WorldManager.h"
 
-
+#include "ContainerManager.h"
+#include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
 
 // Fix for issues with glog redefining this constant
@@ -523,94 +525,86 @@ BString EntertainerManager::commitIdAttribute(PlayerObject* customer, BString at
 //
 void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 {
-    int8 sql[1024];
+	int8 sql[1024];
 
-    const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
-    PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
-    //hark the equiplist might contain a helmet at this spot
-    TangibleObject*				playerHair		= dynamic_cast<TangibleObject*>(customer->getHair());//dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
-    TangibleObject*				playerHairSlot	= dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
+	//the reason the hair is unequipped when wearing a helmet is because otherwise parts of the hair looked out of the helmet, which plainly looks stupid
 
-    bool hairEquipped;
-    //do we need to equip the hair or are we wearing a helmet????
-    if(!playerHairSlot)
-        hairEquipped = true;//not technically equipped BUT were NOT wearing a helmet
-    else
-        hairEquipped = (playerHairSlot->getTangibleType() == TanType_Hair);
+	//hark the equiplist might contain a helmet at this spot
+	TangibleObject*				playerHair		= dynamic_cast<TangibleObject*>(customer->getHair());//dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
+	TangibleObject*				playerHairSlot	= dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
 
-    BString						customization	= "";
+	bool hairEquipped;
+	//do we need to equip the hair or are we wearing a helmet????
+	if(!playerHairSlot)
+		hairEquipped = true;//not technically equipped BUT were NOT wearing a helmet
+	else
+		hairEquipped = (playerHairSlot->getTangibleType() == TanType_Hair);
 
-    if(playerHair)
-    {
-        //are we wearing a helmet ? if not we need to update the world
-        if(hairEquipped)
-        {
-            customization = playerHair->getCustomizationStr();
+	BString						customization	= "";
 
-            //Udate equiplist
-            customer->getEquipManager()->removeEquippedObject(CreatureEquipSlot_Hair);
-            gMessageLib->sendEquippedListUpdate_InRange(customer);
+	if(playerHair)
+	{
+		//are we wearing a helmet ? if not we need to update the world
+		if(hairEquipped)
+		{
+			customization = playerHair->getCustomizationStr();
 
-            //gMessageLib->sendContainmentMessage(playerHair->getId(),customer->getId(),0xffffffff,customer);
-            //destroy clientside
-            gMessageLib->sendDestroyObject_InRange(playerHair->getId(),customer,true);
-
-            //Update the db only if we remain bald
-            if(!newHairString.getLength())
-            {
-                // update the db
-                sprintf(sql,"UPDATE character_appearance set hair = '' where character_id = '%"PRIu64"'",customer->getId());
-                mDatabase->executeSqlAsync(NULL,NULL,sql);
-                
-            }
-        }
-        //destroy serverside
-        delete(playerHair);
-        customer->setHair(NULL);
-
-    }
-
-    //do we have new hair ??
-    if(newHairString.getLength())
-    {
-        playerHair		= new TangibleObject();
-        customer->setHair(playerHair);
-
-        int8 tmpHair[128];
-        sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",customer->getSpeciesString().getAnsi(),&newHairString.getAnsi()[22 + customer->getSpeciesString().getLength()]);
-        playerHair->setId(customer->getId() + 8);
-        playerHair->setParentId(customer->getId());
-        playerHair->setModelString(tmpHair);
-        playerHair->setTangibleGroup(TanGroup_Hair);
-        playerHair->setTangibleType(TanType_Hair);
-        playerHair->setName("hair");
-        playerHair->setNameFile("hair_name");
-        playerHair->setCustomizationStr((uint8*)customization.getAnsi());
+			//Udate equiplist
+			customer->getEquipManager()->removeEquippedObject(CreatureEquipSlot_Hair);
+			
+			gContainerManager->updateEquipListToRegisteredPlayers(customer);
+		
+			gContainerManager->destroyObjectToRegisteredPlayers(customer,playerHair->getId(), true);
 
 
+			//Update the db only if we remain bald
+			if(!newHairString.getLength())
+			{
+				// update the db
+				sprintf(sql,"UPDATE character_appearance set hair = '' where character_id = '%"PRIu64"'",customer->getId());
+				mDatabase->executeSqlAsync(NULL,NULL,sql);
+			}
+		}
+		//destroy serverside
+		delete(playerHair);
+		customer->setHair(NULL);
 
-        // update the db
-        sprintf(sql,"UPDATE character_appearance set hair = '%s' where character_id = '%"PRIu64"'",newHairString.getAnsi(),customer->getId());
-        mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+	}
 
-        // now update the modelstring in the creo6 equipped list and the corresponding tano
-        //are we wearing a helmet ? if not we need to update the world
-        if(hairEquipped)
-        {
-            customer->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,playerHair);
-            gMessageLib->sendCreateTangible(playerHair,customer);
-            gMessageLib->sendEquippedListUpdate_InRange(customer);
+	//do we have new hair ??
+	if(newHairString.getLength())
+	{
+		playerHair		= new TangibleObject();
+		customer->setHair(playerHair);
 
-            while(itiR != inRangePlayers->end())
-            {
+		int8 tmpHair[128];
+		sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",customer->getSpeciesString().getAnsi(),&newHairString.getAnsi()[22 + customer->getSpeciesString().getLength()]);
+		playerHair->setId(customer->getId() + 8);
+		playerHair->setParentId(customer->getId());
+		playerHair->setModelString(tmpHair);
+		playerHair->setTangibleGroup(TanGroup_Hair);
+		playerHair->setTangibleType(TanType_Hair);
+		playerHair->setName("hair");
+		playerHair->setNameFile("hair_name");
+		playerHair->setCustomizationStr((uint8*)customization.getAnsi());
 
-                gMessageLib->sendCreateTangible(playerHair,(*itiR));
 
-                ++itiR;
-            }
-        }
-    }
+
+		// update the db
+		sprintf(sql,"UPDATE character_appearance set hair = '%s' where character_id = '%"PRIu64"'",newHairString.getAnsi(),customer->getId());
+		mDatabase->executeSqlAsync(NULL,NULL,sql);
+
+		// now update the modelstring in the creo6 equipped list and the corresponding tano
+		//are we wearing a helmet ? if not we need to update the world
+		if(hairEquipped)
+		{
+			customer->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,playerHair);
+			
+			gContainerManager->updateEquipListToRegisteredPlayers(customer);
+			gContainerManager->createObjectToRegisteredPlayers(customer,playerHair);
+
+		}
+	}
 }
 
 //=============================================================================
@@ -793,9 +787,6 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
         
     }
 
-
-
-
     //build plus send customization
     //please note that hair object customizatio is send updated and maintained b ycommitIdColor
     customer->buildCustomization(customer->getCustomization());
@@ -865,7 +856,6 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     //empty the attribute lists
     aList->clear();
     cList->clear();
-
 }
 
 //=============================================================================

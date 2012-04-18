@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "CreatureObject.h"
 #include "EntertainerManager.h"
+#include "Inventory.h"
 #include "Stomach.h"
 #include "Trade.h"
 #include "MountObject.h"
@@ -132,6 +133,9 @@ class PlayerObject : public CreatureObject
 
         void				setTravelPoint(TravelTerminal* tp){ mTravelPoint = tp; }
         TravelTerminal*		getTravelPoint(){ return mTravelPoint; }
+        
+        Inventory*          getInventory() { return mInventory; }
+        void                setInventory(Inventory* pad) {mInventory = pad; }
 
         /*! Returns the current player's Datapad
          *
@@ -361,7 +365,7 @@ class PlayerObject : public CreatureObject
         SchematicsIdList*	getSchematicsAddList(){ return &mSchematicAddList; }
 
         // groups
-        PlayerList			getInRangeGroupMembers(bool self = false) const;
+        PlayerList			getInRangeGroupMembers(bool self = false);
         uint64				getLastGroupMissionUpdateTime(){return mLastGroupMissionUpdateTime;}
         void				setLastGroupMissionUpdateTime(uint64 time){mLastGroupMissionUpdateTime = time;}
 
@@ -454,6 +458,7 @@ class PlayerObject : public CreatureObject
         bool				mHasCamp;
 
         Datapad*			mDataPad;
+		Inventory*			mInventory;
         bool				mAcceptsBandFlourishes;
         AudienceList		mAudienceList;
         BadgesList			mBadgeList;

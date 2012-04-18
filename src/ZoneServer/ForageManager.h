@@ -37,7 +37,6 @@ class Message;
 class MessageDispatch;
 class PlayerObject;
 class ObjectControllerCommandMap;
-class ZoneTree;
 
 enum forageClasses
 {
@@ -100,8 +99,7 @@ protected:
 
 private:
     static ForageManager*	mSingleton;
-    ZoneTree*				mSI;
-
+    
     ForagePocket*			pHead;
 
 };

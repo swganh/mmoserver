@@ -188,7 +188,9 @@ CellObject* CellFactory::_createCell(DatabaseResult* result)
 
     result->getNextRow(mCellBinding,(void*)cellObject);
 
-    return cellObject;
+	//cells are added to the worldmanager in the buildingFactory!!
+	
+	return cellObject;
 }
 
 //=============================================================================
@@ -221,6 +223,7 @@ void CellFactory::handleObjectReady(Object* object,DispatchClient* client)
     CellObject*			cell = dynamic_cast<CellObject*>(ilc->mObject);
 
     gWorldManager->addObject(object,true);
+
 
     switch(object->getType())
     {

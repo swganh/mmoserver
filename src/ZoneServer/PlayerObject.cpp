@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "GroupManager.h"
 #include "GroupObject.h"
 #include "Inventory.h"
-#include "QuadTree.h"
+#include "ContainerManager.h"
 
 #include "ActionStateEvent.h"
 #include "LocomotionStateEvent.h"
@@ -62,7 +62,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "WorldManager.h"
 #include "ZoneOpcodes.h"
 
-#include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 #include "ScriptEngine/ScriptEngine.h"
 #include "DatabaseManager/Database.h"
@@ -84,7 +83,7 @@ using ::common::EventListenerType;
 
 PlayerObject::PlayerObject()
     : CreatureObject()
-	, mHasCamp(false)
+    , mHasCamp(false)
     , mDataPad(nullptr)
     , mBazaarPoint(nullptr)
     , mClient(nullptr)
@@ -112,10 +111,10 @@ PlayerObject::PlayerObject()
     , mExperimentationPoints(0)
     , mFriendsListUpdateCounter(0)
     , mHoloEmote(0)
-	, mIgnoresListUpdateCounter(0)
-	, mPlayerFlags(0)
+    , mIgnoresListUpdateCounter(0)
+    , mPlayerFlags(0)
     , mPlayerCustomFlags(0)
-	, mLots(10)
+    , mLots(10)
     , mMissionIdMask(0)
     , mBindPlanet(-1)
     , mHomePlanet(-1)
@@ -183,7 +182,11 @@ PlayerObject::~PlayerObject()
     // make sure we stop entertaining if we are an entertainer
     gEntertainerManager->stopEntertaining(this);
 
+    // remove any timers we got running
     gWorldManager->removeObjControllerToProcess(mObjectController.getTaskId());
+    gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
+    gWorldManager->removeCreatureStomachToProcess(mStomach->mDrinkTaskId);
+    gWorldManager->removeCreatureStomachToProcess(mStomach->mFoodTaskId);
     mObjectController.setTaskId(0);
     mHam.setTaskId(0);
     mStomach->mFoodTaskId = 0;
@@ -192,12 +195,11 @@ PlayerObject::~PlayerObject()
     // delete currently placed instrument
     if(mPlacedInstrument)
     {
-        if(dynamic_cast<Item*>(gWorldManager->getObjectById(mPlacedInstrument)))
+        if(Item* item = dynamic_cast<Item*>(gWorldManager->getObjectById(mPlacedInstrument)))
         {
             mObjectController.destroyObject(mPlacedInstrument);
         }
     }
-
 
     // make sure we are deleted out of entertainer Ticks when entertained
     if(mEntertainerWatchToId)
@@ -222,8 +224,33 @@ PlayerObject::~PlayerObject()
     gStateManager.removeActionState(this, CreatureState_Crafting);
     this->setCraftingStage(0);
     this->setExperimentationFlag(0);
+
+    // remove the player out of his group - if any
+    if(GroupObject* group = gGroupManager->getGroupObject(mGroupId))
+    {
+        group->removePlayer(mId);
+
+    }
+
     // update duel lists
-    clearDuelList();
+    PlayerList::iterator duelIt = mDuelList.begin();
+
+    while(duelIt != mDuelList.end())
+    {
+        if((*duelIt)->checkDuelList(this))
+        {
+            PlayerObject* duelPlayer = (*duelIt);
+
+            duelPlayer->removeFromDuelList(this);
+
+            gMessageLib->sendUpdatePvpStatus(this,duelPlayer);
+            gMessageLib->sendUpdatePvpStatus(duelPlayer,this);
+        }
+
+        ++duelIt;
+    }
+    mDuelList.clear();
+
 
 
     // update defender lists
@@ -243,15 +270,30 @@ PlayerObject::~PlayerObject()
             // if no more defenders, clear combat state
             if(!defenderCreature->getDefenders()->size())
             {
-                gStateManager.setCurrentActionState(defenderCreature, CreatureState_Peace);
+                // TODO: replace
+                gStateManager.removeActionState(this, CreatureState_Combat);
+
+                gMessageLib->sendStateUpdate(defenderCreature);
             }
         }
 
         ++defenderIt;
     }
 
-    // destroy known objects
-    destroyKnownObjects();
+    // remove us from cell / SI
+    //please note that players are always in the si and get handled through it!
+    //we dont need to update the cellcontainer to make them disappear
+    if(mParentId)
+    {
+        if(CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(mParentId)))
+        {
+            cell->removeObject(this);
+        }
+        else
+        {
+            DLOG(WARNING) << "PlayerObject::destructor: couldn't find cell " << mParentId;
+        }
+    }
 
     clearAllUIWindows();
 
@@ -273,9 +315,6 @@ PlayerObject::~PlayerObject()
 
     delete(mStomach);
     delete(mTrade);
-
-    delete getClient();
-    setClient(NULL);
 }
 
 //=============================================================================
@@ -310,7 +349,7 @@ void PlayerObject::resetProperties()
     mSkillModUpdateCounter				= mSkillMods.size();
     mXpUpdateCounter					= mXpList.size();
     gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
-    
+
     // the client resets the bufftimers on local travel ... :(
     gBuffManager->InitBuffs(this);
 
@@ -564,7 +603,7 @@ bool PlayerObject::checkDeductCredits(int32 amount)
 
     if(bank && inventory)
     {
-        return(amount <= bank->getCredits() + inventory->getCredits());
+        return(amount <= bank->credits() + inventory->getCredits());
     }
     else
     {
@@ -578,7 +617,7 @@ bool PlayerObject::testBank(int32 amount)
 {
     if(Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank)))
     {
-        return(amount <= bank->getCredits());
+        return(amount <= bank->credits());
     }
 
     return(false);
@@ -604,19 +643,19 @@ bool PlayerObject::deductCredits(int32 amount)
     {
         if(Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
         {
-            if(amount <= bank->getCredits() + inventory->getCredits())
+            if(amount <= bank->credits() + inventory->getCredits())
             {
                 // bank first
-                if(amount > bank->getCredits())
+                if(amount > bank->credits())
                 {
                     // first empty bank, then inv.
-                    amount -= bank->getCredits();
-                    bank->setCredits(0);
+                    amount -= bank->credits();
+                    bank->credits(0);
                     inventory->setCredits(inventory->getCredits() - amount);
                 }
                 else
                 {
-                    bank->setCredits(bank->getCredits() - amount);
+                    bank->credits(bank->credits() - amount);
                 }
 
                 gMessageLib->sendBankCreditsUpdate(this);
@@ -1098,13 +1137,10 @@ bool PlayerObject::checkIgnoreList(uint32 nameCrc) const
 
     return(false);
 }
-
-//=============================================================================
-
-PlayerList PlayerObject::getInRangeGroupMembers(bool self) const
+PlayerList PlayerObject::getInRangeGroupMembers(bool self)
 {
-    PlayerObjectSet::const_iterator	it			= mKnownPlayers.begin();
     PlayerList						members;
+    PlayerList*						pMembers = &members;
 
     if(self)
     {
@@ -1116,19 +1152,23 @@ PlayerList PlayerObject::getInRangeGroupMembers(bool self) const
         return members;
     }
 
-    while(it != mKnownPlayers.end())
+    gContainerManager->sendToRegisteredPlayers(this,[this, pMembers] (PlayerObject* const recipient)
     {
-        if((*it)->getGroupId() == mGroupId)
+
+        if(recipient->getGroupId() == mGroupId)
         {
-            members.push_back(*it);
+            pMembers->push_back(recipient);
         }
 
-        ++it;
     }
+                                              );
+
+
 
     return members;
 }
 
+//=============================================================================
 //=============================================================================
 
 void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
@@ -1202,7 +1242,7 @@ void PlayerObject::giveBankCredits(uint32 amount)
 {
     if(Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank)))
     {
-        bank->setCredits(bank->getCredits() + amount);
+        bank->credits(bank->credits() + amount);
 
         gMessageLib->sendBankCreditsUpdate(this);
     }
@@ -1535,7 +1575,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
     default:
     {
-		DLOG(INFO) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
+        DLOG(INFO) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
     }
     break;
     }
@@ -1634,7 +1674,7 @@ void PlayerObject::addToDuelList(PlayerObject* player)
     if(this->getId()!= player->getId())
         mDuelList.push_back(player);
     else
-		DLOG(INFO) << "PlayerObject::addToDuelList: "<<player->getId() << " wanted to add himself to his/her duel list";
+        DLOG(INFO) << "PlayerObject::addToDuelList: "<<player->getId() << " wanted to add himself to his/her duel list";
 }
 //=============================================================================
 //
@@ -1812,7 +1852,7 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
                         // Remove insurance.
                         tangibleObject->setInternalAttribute("insured","0");
                         gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE item_attributes SET value=0 WHERE item_id=%"PRIu64" AND attribute_id=%u",tangibleObject->getId(), 1270);
-                        
+
 
                         tangibleObject->setTypeOptions(tangibleObject->getTypeOptions() & ~((uint32)4));
 
@@ -2069,7 +2109,7 @@ void PlayerObject::setParentIdIncDB(uint64 parentId)
     mParentId = parentId;
 
     gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE characters SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
-    
+
 }
 
 //=============================================================================
@@ -2093,23 +2133,23 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
             // process the appropriate command.
             switch (pre_event->getNewPostureState())
             {
-                case CreaturePosture_Upright:
-                    setUpright();
-                    break;
-                case CreaturePosture_Crouched:
-                    setCrouched();
-                    break;
-                case CreaturePosture_Prone:
-                    setProne();
-                    break;
-                case CreaturePosture_Sitting:
-                    setSitting();
-                    break;
-                default:
-                    break;
+            case CreaturePosture_Upright:
+                player->setUpright();
+                break;
+            case CreaturePosture_Crouched:
+                player->setCrouched();
+                break;
+            case CreaturePosture_Prone:
+                player->setProne();
+                break;
+            case CreaturePosture_Sitting:
+                player->setSitting();
+                break;
+            default:
+                break;
             }
             // update client
-             if(isConnected())
+            if(isConnected())
                 gMessageLib->sendHeartBeat(getClient());
 
             gMessageLib->sendUpdateMovementProperties(player);
@@ -2122,7 +2162,7 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
 }
 
 void PlayerObject::setSitting()
-{    
+{
     //hack-fix clientside bug by manually sending client message
     gMessageLib->SendSystemMessage(::common::OutOfBand("shared", "player_sit"), this);
 }
@@ -2152,7 +2192,7 @@ void PlayerObject::setUpright()
 
 void PlayerObject::setProne()
 {
-   if(this->isConnected())
+    if(this->isConnected())
         gMessageLib->sendHeartBeat(this->getClient());
 
     // see if we need to get out of sampling mode

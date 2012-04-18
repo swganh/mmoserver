@@ -36,8 +36,46 @@ RegionObject::RegionObject() : Object()
 RegionObject::~RegionObject()
 {
 }
+bool RegionObject::addVisitor(Object* visitor)
+{
+	if(checkVisitor(visitor))
+	{
+		return false;
+	}
 
+	mVisitingPlayers.insert(visitor->getId());
+	return true;
+}
+
+//=============================================================================
+// returns true when item *is* found
+
+bool RegionObject::checkVisitor(Object* object)
+{
+	
+	ObjectIDSet::const_iterator it = mVisitingPlayers.find(object->getId());
+
+	if(it != mVisitingPlayers.end())
+	{
+		return(true);
+	}
+	
+	return(false);
+}
+
+void RegionObject::removeVisitor(Object* object)
+{
+	
+	ObjectIDSet::iterator it = mVisitingPlayers.find(object->getId());
+
+	if(it != mVisitingPlayers.end())
+	{
+	
+		mVisitingPlayers.erase(it);
+
+	}
+	
+}
 std::shared_ptr<RegionObject> RegionObject::getSharedFromThis() {
     return std::static_pointer_cast<RegionObject>(Object::shared_from_this());
 }
-

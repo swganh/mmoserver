@@ -244,7 +244,7 @@ void HouseFactory::_createHouse(DatabaseResult* result, HouseObject* house)
 
 void HouseFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    //request the harvesters Data first
+    //request the houses Data first
 
     int8 sql[1024];
     sprintf(sql,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z, "
@@ -310,8 +310,7 @@ void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
     InLoadingContainer* ilc = _getObject(object->getParentId());
 
     //Perform checking.
-    if(!ilc)
-    {
+    if(!ilc)    {
         return;
     }
 

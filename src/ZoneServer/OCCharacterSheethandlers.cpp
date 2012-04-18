@@ -38,6 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "UIManager.h"
 
 #include "MessageLib/MessageLib.h"
@@ -269,19 +270,22 @@ void ObjectController::_handleEditBiography(uint64 targetId,Message* message,Obj
 void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
     PlayerObject*	player			= dynamic_cast<PlayerObject*>(mObject);
-    BString			dataStr;
-    PlayerList		playersMatched;
-    uint32			masksCount		= 0;
-    uint32			playerFlags		= 0;
-    uint32			mask2			= 0;
-    uint32			mask3			= 0;
-    uint32			mask4			= 0;
-    uint32			factionCrc		= 0;
-    int32			raceId			= 0;
-    int8			titleStr[128];
-    int8			unknown[64];
-    uint32			elementCount	= 0;
-    Skill*			skill			= NULL;
+	BString			dataStr;
+	PlayerList		playersMatched;
+	PlayerList*		matchReference;
+	uint32			masksCount		= 0;
+	uint32			playerFlags		= 0;
+	uint32			mask2			= 0;
+	uint32			mask3			= 0;
+	uint32			mask4			= 0;
+	uint32			factionCrc		= 0;
+	int32			raceId			= 0;
+	int8			titleStr[128];
+	int8			unknown[64];
+	uint32			elementCount	= 0;
+	Skill*			skill			= NULL;
+	int8*			pTitle;
+	pTitle = titleStr;
 
     message->getStringUnicode16(dataStr);
 
@@ -306,37 +310,34 @@ void ObjectController::_handleRequestCharacterMatch(uint64 targetId,Message* mes
     }
 
     // for now check players in viewing range
-    PlayerObjectSet* inRangePlayers	= player->getKnownPlayers();
+	// and ourselves =)
+	playersMatched.push_back(player);
+	
+	//for our practical purpose were not sending to them but merely iterating through them
+	gContainerManager->sendToRegisteredPlayers(player,[playerFlags, raceId, factionCrc, skill, pTitle, matchReference, this] ( PlayerObject* const inRangePlayer) 
+		{
+			
+			if(((playerFlags & inRangePlayer->getPlayerFlags()) == playerFlags)
+			&&(raceId == -1 || raceId == inRangePlayer->getRaceId())
+			&&(factionCrc == 0 || factionCrc == 1 || factionCrc == inRangePlayer->getFaction().getCrc()))
+			{
+				if(skill == NULL)
+				{
+					matchReference->push_back(inRangePlayer);
+				}
+				else
+				{
+					if((skill->mIsProfession && strstr(inRangePlayer->getTitle().getAnsi(),pTitle))
+						|| (strcmp(pTitle,inRangePlayer->getTitle().getAnsi()) == 0))
+					{
+						matchReference->push_back(inRangePlayer);
+					}
+				}
+			}
+		}
 
-    // and ourselve =)
-    playersMatched.push_back(player);
-
-    PlayerObjectSet::iterator it = inRangePlayers->begin();
-
-    while(it != inRangePlayers->end())
-    {
-        PlayerObject* inRangePlayer = (*it);
-
-        if(((playerFlags & inRangePlayer->getPlayerFlags()) == playerFlags)
-                &&(raceId == -1 || raceId == inRangePlayer->getRaceId())
-                &&(factionCrc == 0 || factionCrc == 1 || factionCrc == inRangePlayer->getFaction().getCrc()))
-        {
-            if(skill == NULL)
-            {
-                playersMatched.push_back(inRangePlayer);
-            }
-            else
-            {
-                if((skill->mIsProfession && strstr(inRangePlayer->getTitle().getAnsi(),titleStr))
-                        || (strcmp(titleStr,inRangePlayer->getTitle().getAnsi()) == 0))
-                    playersMatched.push_back(inRangePlayer);
-            }
-        }
-
-        ++it;
-    }
-
-    gMessageLib->sendCharacterMatchResults(&playersMatched,player);
+	);
+	gMessageLib->sendCharacterMatchResults(&playersMatched,player);
 }
 
 //======================================================================================================================

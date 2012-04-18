@@ -40,7 +40,6 @@ class DatabaseResult;
 class DataBinding;
 class DispatchClient;
 class ObjectFactoryCallback;
-class QTRegionFactory;
 class SpawnRegionFactory;
 
 //=============================================================================
@@ -60,7 +59,6 @@ private:
     std::shared_ptr<CityFactory>            mCityFactory;
     std::shared_ptr<BadgeRegionFactory>		mBadgeRegionFactory;
     std::shared_ptr<SpawnRegionFactory>		mSpawnRegionFactory;
-    std::shared_ptr<QTRegionFactory> 		mQTRegionFactory;
 };
 
 //=============================================================================

@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "StateManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -90,11 +91,7 @@ ObjectController::ObjectController()
     , mInUseCommandQueue(false)
     , mRemoveCommandQueue(false)
     , mUpdatingObjects(false)
-{
-    mSI		= gWorldManager->getSI();
-    // We do have a global clock object, don't use seperate clock and times for every process.
-    // mClock	= new Anh_Utils::Clock();
-}
+{}
 
 //=============================================================================
 //
@@ -118,9 +115,7 @@ ObjectController::ObjectController(Object* object)
     , mInUseCommandQueue(false)
     , mRemoveCommandQueue(false)
     , mUpdatingObjects(false)
-{
-    mSI		= gWorldManager->getSI();
-}
+{}
 
 //=============================================================================
 //

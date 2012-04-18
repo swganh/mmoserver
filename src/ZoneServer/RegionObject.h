@@ -48,66 +48,46 @@ enum RegionType
 class RegionObject : public Object
 {
 public:
+	RegionObject();
+	virtual ~RegionObject();
 
-    RegionObject();
-    virtual ~RegionObject();
+	std::string			getRegionName(){ return mRegionName; }
+	void				setRegionName(const std::string name){ mRegionName = name; }
 
-    std::string				getRegionName() {
-        return mRegionName;
-    }
-    void				setRegionName(const std::string name) {
-        mRegionName = name;
-    }
+	std::string			getNameFile(){ return mNameFile; }
+	void				setNameFile(const std::string namefile){ mNameFile = namefile; }
 
-    std::string				getNameFile() {
-        return mNameFile;
-    }
-    void				setNameFile(const std::string namefile) {
-        mNameFile = namefile;
-    }
+	RegionType			getRegionType(){ return mRegionType; }
+	void				setType(RegionType rType){ mRegionType = rType; }
 
-    RegionType			getRegionType() {
-        return mRegionType;
-    }
-    void				setType(RegionType rType) {
-        mRegionType = rType;
-    }
+	float				getWidth(){ return mWidth; }
+	void				setWidth(float width){ mWidth = width; }
 
-    float				getWidth() {
-        return mWidth;
-    }
-    void				setWidth(float width) {
-        mWidth = width;
-    }
+	float				getHeight(){ return mHeight; }
+	void				setHeight(float height){ mHeight = height; }
 
-    float				getHeight() {
-        return mHeight;
-    }
-    void				setHeight(float height) {
-        mHeight = height;
-    }
+	bool				getActive(){ return mActive; }
+	void				setActive(bool a){ mActive = a; }
 
-    bool				getActive() {
-        return mActive;
-    }
-    void				setActive(bool a) {
-        mActive = a;
-    }
+	virtual void		update(){}
+	virtual void		onObjectEnter(Object* object){}
+	virtual void		onObjectLeave(Object* object){}
 
-    virtual void		update() {}
-    virtual void		onObjectEnter(Object* object) {}
-    virtual void		onObjectLeave(Object* object) {}
-    
+	bool				addVisitor(Object* visitor);
+	void				removeVisitor(Object* visitor);
+		
+	bool				checkVisitor(Object* object);
+
     std::shared_ptr<RegionObject> getSharedFromThis();
-
 protected:
-    
-    RegionType			mRegionType;
-    float				mWidth;
-    float				mHeight;
-    std::string			mRegionName;
-    std::string			mNameFile;
-    bool				mActive;
+
+	ObjectIDSet			mVisitingPlayers;
+	RegionType			mRegionType;
+	float				mWidth;
+	float				mHeight;
+	std::string			mRegionName;
+	std::string			mNameFile;
+	bool				mActive;
 };
 
 

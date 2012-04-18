@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceManager.h"
 #include "SchematicManager.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 
 #include "nonPersistantObjectFactory.h"
 
@@ -285,19 +286,11 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
         uint32 crateSize = fC->getAttribute<uint32>("factory_count");
         if(!crateSize)
         {
-            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(fC->getParentId()));
-
-            if(!tO)
-            {
-                assert(false);
-                return 0;
-            }
+            TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(fC->getParentId()));
 
             //just delete it
-            gMessageLib->sendDestroyObject(fC->getId(),mOwner);
-            gObjectFactory->deleteObjectFromDB(fC->getId());
-            tO->deleteObject(fC);
-
+			gContainerManager->deleteObject(fC, container);
+           
         }
 
         //dont send result - its a callback
@@ -315,7 +308,11 @@ bool CraftingSession::prepareComponent(Item* component, uint32 needed, Manufactu
 
         tO->removeObject(component);
 
-        //leave parent_id untouched - we might need to readd it to the container
+        //leave parent_id untouched - we might need to readd it to the container!
+		//please note that we can only use components out of our inventory or the crafting stations thingy
+		//so update containment for all watchers
+
+		//TODO
         gMessageLib->sendContainmentMessage(component->getId(),mManufacturingSchematic->getId(),0xffffffff,mOwner);
 
         //send result directly we dont have a callback
@@ -581,12 +578,10 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
         if(!newContainerAmount)
         {
             //now destroy it client side
-            gMessageLib->sendDestroyObject(resContainerId,mOwner);
+			TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
 
-
-            gObjectFactory->deleteObjectFromDB(resContainer);
-            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
-            tO->deleteObject(resContainer);
+            //just delete it
+			gContainerManager->deleteObject(resContainer, container);
 
         }
         // update it
@@ -645,11 +640,8 @@ void CraftingSession::handleFillSlotResource(uint64 resContainerId,uint32 slotId
         }
 
         // destroy the container as its empty now
-        gMessageLib->sendDestroyObject(resContainerId,mOwner);
-        gObjectFactory->deleteObjectFromDB(resContainer);
-
-        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
-        tO->deleteObject(resContainer);
+		TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
+		gContainerManager->deleteObject(resContainer, container);
 
         // update the slot total resource amount
         manSlot->mFilled += availableAmount;
@@ -1399,15 +1391,10 @@ void CraftingSession::updateResourceContainer(uint64 containerID, uint32 newAmou
 // destroy if its empty
     if(!newAmount)
     {
+		ResourceContainer*		resContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(containerID));
+		TangibleObject*			container		= dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
         //now destroy it client side
-        gMessageLib->sendDestroyObject(containerID,mOwner);
-
-
-        gObjectFactory->deleteObjectFromDB(containerID);
-        ResourceContainer*			resContainer	= dynamic_cast<ResourceContainer*>(gWorldManager->getObjectById(containerID));
-
-        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(resContainer->getParentId()));
-        tO->deleteObject(resContainer);
+		gContainerManager->deleteObject(resContainer, container);
 
     }
     // update it

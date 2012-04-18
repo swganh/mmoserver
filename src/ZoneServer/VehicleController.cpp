@@ -185,7 +185,8 @@ void VehicleController::Call() {
         return;
     }
 
-    gWorldManager->createObjectinWorld(owner_, body_);
+	//currently done by gWorldManager->addObject(body_)
+	//gSpatialIndexManager->createInWorld(body_);
 
     gMessageLib->sendUpdateTransformMessage(body_);
 
@@ -223,11 +224,10 @@ void VehicleController::Store()
         return;
     }
 
-    //the body is a creature_object!!!
-    gMessageLib->sendDestroyObject_InRangeofObject(body_);
+	//the body is a creature_object!!!
+	gSpatialIndexManager->RemoveObjectFromWorld(body_);
 
     owner_->setMount(NULL);
-
 
     owner_->setMounted(false);
     owner_->setMountCalled(false);
@@ -257,6 +257,7 @@ void VehicleController::DismountPlayer() {
 
     //For safe measures make the player equipped by nothing
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
+	gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
     gStateManager.removeActionState(owner_, CreatureState_RidingMount);   

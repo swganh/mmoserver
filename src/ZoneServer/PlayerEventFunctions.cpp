@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Heightmap.h"
 #include "WaypointObject.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "DatabaseManager/Database.h"
 #include "Utils/clock.h"
 #include "MessageLib/MessageLib.h"
@@ -46,7 +47,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/OutOfBand.h"
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
-
 #include "Utils/rand.h"
 
 #include <algorithm>
@@ -97,8 +97,8 @@ void PlayerObject::onItemDeleteEvent(const ItemDeleteEvent* event)
         return;
     }
 
-    TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
-    tO->deleteObject(item);
+    TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(item->getParentId()));
+	gContainerManager->deleteObject(item, container);
 
 }
 

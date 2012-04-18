@@ -219,6 +219,7 @@ void CSRManager::_processConnectPlayerMessage(Message* message, DispatchClient* 
 
 void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient* client )
 {
+	/*
     BString poster;
     BString comment;
 
@@ -238,7 +239,8 @@ void CSRManager::_processAppendCommentMessage( Message* message, DispatchClient*
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opAppendCommentResponseMessage);
     gMessageFactory->addUint32(0);
-    gMessageFactory->addUint32(ticketid);
+    gMessageFactory->addUint32(ticketid);AAAAAAAAAAAAAAAAAAAAAARGH
+	*/
 }
 
 //======================================================================================================================

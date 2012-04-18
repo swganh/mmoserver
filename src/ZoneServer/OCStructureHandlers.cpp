@@ -322,9 +322,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
 {
 
     PlayerObject*	player	= dynamic_cast<PlayerObject*>(mObject);
-
-    if(!player)
-    {
+    if(!player)    {
         return;
     }
 
@@ -406,7 +404,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData Structure not in Range";
+        DLOG(INFO) << " ObjectController::_handleHarvesterSelectResource Structure not in Range";
         return;
     }
 
@@ -423,7 +421,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 
     if((!tmpResource)||(!tmpResource->getCurrent()))
     {
-        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData No valid resource!";
+        DLOG(INFO) << " ObjectController::_handleHarvesterSelectResource No valid resource!";
         return;
     }
 

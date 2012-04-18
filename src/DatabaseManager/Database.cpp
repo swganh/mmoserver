@@ -215,7 +215,7 @@ DatabaseResult* Database::executeSynchSql(const char* sql, ...) {
     char localSql[8192];
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
-       
+
     return executeSql(localSql);
 }
 

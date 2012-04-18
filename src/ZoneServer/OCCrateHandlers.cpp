@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#include "UIManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 
 #include "MessageLib/MessageLib.h"
 #include "NetworkManager/Message.h"
@@ -89,10 +90,9 @@ void	ObjectController::_ExtractObject(uint64 targetId,Message* message,ObjectCon
     int32 content = crate->decreaseContent(1);
     if(!content)
     {
-        gMessageLib->sendDestroyObject(crate->getId(),playerObject);
-        gObjectFactory->deleteObjectFromDB(crate->getId());
-        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(crate->getParentId()));
-        tO->deleteObject(crate);
+		TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(crate->getParentId()));
+		gContainerManager->deleteObject(crate, container);
+        
         return;
     }
 

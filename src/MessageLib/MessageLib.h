@@ -28,19 +28,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_MESSAGELIB_H
 #define ANH_ZONESERVER_MESSAGELIB_H
 
-#include "Utils/typedefs.h"
-//#include "Utils/typedefs.h"
-//#include "ZoneServer/ObjectFactory.h"
-#include "ZoneServer/ObjectController.h"
-#include "ZoneServer/Skill.h"   //for skillmodslist
-#include "ZoneServer/SocialChatTypes.h"
-#include "ZoneServer/MoodTypes.h"
-
-#include "Common/OutOfBand.h"
-
+#include <cstdint>
 #include <vector>
 #include <list>
 #include <glm/glm.hpp>
+
+#include "Utils/typedefs.h"
+
+#include "Common/OutOfBand.h"
+
+#include "ZoneServer/MoodTypes.h"
+#include "ZoneServer/ObjectController.h"
+#include "ZoneServer/Skill.h"   //for skillmodslist
+#include "ZoneServer/SocialChatTypes.h"
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
@@ -80,6 +80,7 @@ typedef struct tagResourceLocation ResourceLocation;
 
 typedef std::set<PlayerObject*>			PlayerObjectSetML;
 typedef std::list<PlayerObject*>		PlayerList;
+typedef std::list<Object*>				ObjectList;
 
 enum ObjectUpdate
 {
@@ -97,27 +98,82 @@ public:
     static MessageLib*	getSingletonPtr() { return mSingleton; }
     static MessageLib*	Init();
 
-    // multiple messages, messagelib.cpp
-    bool				sendCreateObject(Object* object,PlayerObject* player,bool sendSelftoTarget = true);
-    bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
-    bool				sendCreateResourceContainer(ResourceContainer* resourceContainer,PlayerObject* targetObject);
-    bool				sendCreateFactoryCrate(FactoryCrate* crate,PlayerObject* targetObject);
-    bool				sendCreateTangible(TangibleObject* tangibleObject,PlayerObject* targetObject, bool sendchildren = true);
-    void				sendCreateTangible(TangibleObject* tangibleObject, PlayerObjectSetML*	knownPlayers, bool sendchildren = true) ;
-    bool				sendCreateStaticObject(TangibleObject* tangibleObject,PlayerObject* targetObject);
-    bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
+    void				setGrid(zmap*	grid){mGrid = grid;}
 
-    // structures
-    bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
-    bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* player);
-    bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
-    bool				sendCreateFactory(FactoryObject* factory,PlayerObject* player);
-    bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
-    bool				sendCreateCamp(TangibleObject* camp,PlayerObject* player);
+    // multiple messages, messagelib.cpp
+    bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
+
+
+    /** Sends the baselines for a resource container to a target player.
+    *
+    * \param resource_container The resource container to send the baselines for.
+    * \param target The target to receive the resource container baselines.
+    */
+    bool sendCreateResourceContainer(ResourceContainer* resource_container, PlayerObject* target);
+
+
+    /** Sends the baselines for a tangible object to a target player.
+    *
+    * \param tangible The tangible object to send the baselines for.
+    * \param target The target to receive the tangible object baselines.
+    */
+    bool sendCreateTano(TangibleObject* tangible, PlayerObject* target);
+
     
-    // creatures
-    bool				sendCreateCreature(CreatureObject* creatureObject,PlayerObject* targetObject);
-    bool				sendCreatePlayer(PlayerObject* playerObject,PlayerObject* targetObject);
+    /** Sends the baselines for a static object to a target player.
+    *
+    * \param tangible The static object to send the baselines for.
+    * \param target The target to receive the static object baselines.
+    */
+    bool sendCreateStaticObject(TangibleObject* tangible, PlayerObject* target);
+
+	bool				sendCreateInTangible(IntangibleObject* intangibleObject, uint64 containmentId, PlayerObject* targetObject);
+
+	// structures
+	bool				sendCreateInstallation(PlayerStructure* structure,PlayerObject* player);
+
+
+    /** Sends the baselines for a structure to a target player.
+    *
+    * \param structure The structure to send the baselines for.
+    * \param target The target to receive the structure baselines.
+    */
+	bool				sendCreateStructure(PlayerStructure* structure,PlayerObject* target);
+	bool				sendCreateHarvester(HarvesterObject* harvester,PlayerObject* player);
+
+
+    /** Sends the baselines for a factory to a target player.
+    *
+    * \param factory The factory to send the baselines for.
+    * \param target The target to receive the factory baselines.
+    */
+	bool sendCreateFactory(FactoryObject* factory, PlayerObject* target);
+
+	bool				sendCreateBuilding(BuildingObject* buildingObject,PlayerObject* playerObject);
+
+
+    /** Sends the baselines for a camp to a target player.
+    *
+    * \param camp The camp to send the baselines for.
+    * \param target The target to receive the camp baselines.
+    */
+	bool sendCreateCamp(TangibleObject* camp, PlayerObject* target);
+	
+
+    /** Sends the baselines for a creature object to a target player.
+    *
+    * \param creature The creature object to send the baselines for.
+    * \param target The target to receive the creature object baselines.
+    */
+    bool sendCreateCreature(CreatureObject* creature, PlayerObject* target);
+
+
+    /** Sends the baselines for a player object to a target player.
+    *
+    * \param player The player object to send the baselines for.
+    * \param target The target to receive the player object baselines.
+    */
+    bool sendCreatePlayer(PlayerObject* player, PlayerObject* target);
     
 
     void				sendInventory(PlayerObject* playerObject);
@@ -133,8 +189,8 @@ public:
     bool				sendOpenedContainer(uint64 objectId, PlayerObject* targetObject);
     bool				sendPostureMessage(CreatureObject* creatureObject,PlayerObject* targetObject);
     bool				sendEndBaselines(uint64 objectId,const PlayerObject* const targetObject) const;
-    bool				sendDestroyObject(uint64 objectId, PlayerObject* targetObject);
-    bool				sendDestroyObject(uint64 objectId, CreatureObject* owner);
+    bool				sendDestroyObject(uint64 objectId, PlayerObject* const targetObject) const;
+    bool				sendDestroyObject(uint64 objectId, CreatureObject* const owner) const;
     bool				sendDestroyObject_InRange(uint64 objectId,PlayerObject* const owner, bool self);
     bool				sendDestroyObject_InRangeofObject(Object* object);
     void				sendGroupLeaderRequest(PlayerObject* sender, uint64 requestId, uint32 operation, uint64 groupId);
@@ -199,7 +255,13 @@ public:
     bool				sendBadges(PlayerObject* srcObject,PlayerObject* targetObject);
     bool				sendBiography(PlayerObject* playerObject,PlayerObject* targetObject);
     bool				sendCharacterSheetResponse(PlayerObject* playerObject);
-    bool				sendCharacterMatchResults(const PlayerList* const matchedPlayers, const PlayerObject* const targetObject) const;
+    
+    /** Sends the results of a character match to a target player.
+    *
+    * \param matched_players The players that fit the character match requirements.
+    * \param target The target to receive the character match results.
+    */
+    bool				sendCharacterMatchResults(const PlayerList* const matchedPlayers, const PlayerObject* const target) const;
 
     // objcontroller, objcontrollermessages.cpp
     void				sendCombatAction(CreatureObject* attacker,Object* defender,uint32 animation,uint8 trail1 = 0,uint8 trail2 = 0,uint8 hit = 0);
@@ -212,9 +274,39 @@ public:
     bool				sendCraftExperimentResponse(uint32 ackType,uint32 resultId,uint8 counter,PlayerObject* playerObject);
     bool				sendSharedNetworkMessage(PlayerObject* playerObject,uint32 unknown1,uint32 unknown2);
     void				sendCombatSpam(Object* attacker,Object* defender,int32 damage,BString stfFile,BString stfVar,Item* item = NULL,uint8 colorFlag = 0,BString customText = L"");
-    void				sendFlyText(Object* srcCreature,BString stfFile,BString stfVar,uint8 red = 255,uint8 green = 255,uint8 blue = 255,uint8 display = 5);
-    // Used by Tutorial.
-    void				sendFlyText(Object* srcCreature, PlayerObject* player, BString stfFile,BString stfVar,uint8 red,uint8 green,uint8 blue,uint8 display);
+
+    
+    /** Sends a fly text message for all those in range of the creature.
+    *
+    * \param source The source creature for the fly-text.
+    * \param stf_file The file containing the text for the fly-text method.
+    * \param stf_var The variable name for the text used.
+    * \param red The redness of the current level.
+    * \param green The greenness of the current level.
+    * \param blue The blueness of the current level.
+    * \param display When active the text is displayed in the players chat history.
+    */
+    void sendFlyText(Object* source, const std::string& stf_file, const std::string& stf_var, unsigned char red = 255, unsigned char green = 255, unsigned char blue = 255, unsigned char display = 5);
+    
+    
+    // Used by Tutorial
+
+    /** A version of fly texts for usage by the tutorial
+    *
+    * @TODO Remove this method once better handling of instances is in.
+    *
+    * \param source The source creature for the fly-text.
+    * \param player The player to base the instance off of.
+    * \param stf_file The file containing the text for the fly-text method.
+    * \param stf_var The variable name for the text used.
+    * \param red The redness of the current level.
+    * \param green The greenness of the current level.
+    * \param blue The blueness of the current level.
+    * \param display When active the text is displayed in the players chat history.
+    */
+    void sendFlyText(Object* source, PlayerObject* player, const std::string& stf_file, const std::string& stf_var, unsigned char red, unsigned char green, unsigned char blue, unsigned char display);
+
+
     void				sendSelfPostureUpdate(PlayerObject* playerObject);
     void				sendSetWaypointActiveStatus(WaypointObject* waypointObject, bool active, PlayerObject* targetObject);
 
@@ -233,7 +325,7 @@ public:
      * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
      * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
      */
-    void SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
+    void SendSpatialChat(CreatureObject* const speaking_object, const std::wstring& custom_message, PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
 
     /**
      * Sends a message via spatial chat using a ProsePackage (STF string), spoken by the specified object.
@@ -248,7 +340,7 @@ public:
      * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
      * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
      */
-    void SendSpatialChat(CreatureObject* const speaking_object, const common::OutOfBand& prose_message, const PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
+    void SendSpatialChat(CreatureObject* const speaking_object, const common::OutOfBand& prose_message, PlayerObject* const player_object = NULL, uint64_t target_id = 0, uint16_t text_size = 0x32, SocialChatType chat_type_id = kSocialChatNone, MoodType mood_id = kMoodNone, uint8_t whisper_target_animate = 0);
 
     /**
      * Sends a spatial emote (such as a player or NPC cheering).
@@ -287,8 +379,6 @@ public:
     void				sendSitOnObject(CreatureObject* creatureObject);
     void				sendDataTransformWithParent0B(Object* object);
     void				sendDataTransform0B(Object* object);
-    void				sendDataTransform023(Object* object);
-    void				sendDataTransform071(Object* object);
 
     // position updates for tutorial
     void				sendDataTransform(Object* object, PlayerObject* player);
@@ -302,31 +392,38 @@ public:
     bool				sendBaselinesCREO_6(CreatureObject* creatureObject,PlayerObject* targetObject);
 
     // deltas
-    void				sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateType,uint16 index,uint64 defenderId);
-    void				sendNewDefenderList(CreatureObject* creatureObject);
-    bool				sendDeltasCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
-    bool				sendEquippedListUpdate_InRange(CreatureObject* creatureObject);
-    bool				sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId);
-    void				sendPostureUpdate(CreatureObject* creatureObject);
-    void				sendMoodUpdate(CreatureObject* creatureObject);
-    bool				sendBankCreditsUpdate(PlayerObject* playerObject);
-    bool				sendInventoryCreditsUpdate(PlayerObject* playerObject);
-    bool				sendUpdateMovementProperties(PlayerObject* playerObject);
-    void				sendStateUpdate(CreatureObject* creatureObject);
-    void				sendSingleBarUpdate(CreatureObject* creatureObject);
-    void				sendPostureAndStateUpdate(CreatureObject* creatureObject);
-    bool				sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* targetObject);
-    bool				sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,CreatureObject* creatureObject,PlayerObject* playerObject);
-    bool				sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject* targetObject,uint32 statusMask = 0);
-    void				sendTargetUpdateDeltasCreo6(CreatureObject* creatureObject);
-    void				sendPerformanceId(CreatureObject* creatureObject);
-    void				UpdateEntertainerPerfomanceCounter(CreatureObject* creatureObject);
-    void				sendListenToId(PlayerObject* playerObject);
-    void				sendTerrainNegotiation(CreatureObject* creatureObject);
-    void				sendMoodString(CreatureObject* creatureObject,BString animation);
-    void				sendWeaponIdUpdate(CreatureObject* creatureObject);
-    void				sendIncapTimerUpdate(CreatureObject* creatureObject);
-    bool				sendSkillModUpdateCreo4(PlayerObject* playerObject);
+	void				sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateType,uint16 index,uint64 defenderId);
+	void				sendNewDefenderList(CreatureObject* creatureObject);
+	bool				sendDeltasCREO_3(CreatureObject* creatureObject,PlayerObject* targetObject);
+
+    /** Sends an update of the equipped items on a creature object to a target player.
+    *
+    * \param creature The creature object to send the equipment list update about.
+    * \param target The target player to receive the list update.
+    */
+	bool				sendEquippedListUpdate(CreatureObject* creatureObject, CreatureObject* targetObject);
+	bool				sendEquippedListUpdate_InRange(CreatureObject* creatureObject);
+	bool				sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId);
+	void				sendPostureUpdate(CreatureObject* creatureObject);
+	void				sendMoodUpdate(CreatureObject* creatureObject);
+	bool				sendBankCreditsUpdate(PlayerObject* playerObject);
+	bool				sendInventoryCreditsUpdate(PlayerObject* playerObject);
+	bool				sendUpdateMovementProperties(PlayerObject* playerObject);
+	void				sendStateUpdate(CreatureObject* creatureObject);
+	void				sendSingleBarUpdate(CreatureObject* creatureObject);
+	void				sendPostureAndStateUpdate(CreatureObject* creatureObject);
+	bool				sendSkillDeltasCreo1(Skill* skill,uint8 action,PlayerObject* targetObject);
+	bool				sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,CreatureObject* creatureObject,PlayerObject* playerObject);
+	bool				sendUpdatePvpStatus(CreatureObject* creatureObject,PlayerObject* targetObject,uint32 statusMask = 0);
+	void				sendTargetUpdateDeltasCreo6(CreatureObject* creatureObject);
+	void				sendPerformanceId(CreatureObject* creatureObject);
+	void				UpdateEntertainerPerfomanceCounter(CreatureObject* creatureObject);
+	void				sendListenToId(PlayerObject* playerObject);
+	void				sendTerrainNegotiation(CreatureObject* creatureObject);
+	void				sendMoodString(CreatureObject* creatureObject,BString animation);
+	void				sendWeaponIdUpdate(CreatureObject* creatureObject);
+	void				sendIncapTimerUpdate(CreatureObject* creatureObject);
+	bool				sendSkillModUpdateCreo4(PlayerObject* playerObject);
 
     // ham
     void				sendMaxHitpointDeltasCreo6_Single(CreatureObject* creatureObject,uint8 barIndex);
@@ -366,211 +463,217 @@ public:
     bool				sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* targetObject);
     bool				sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* targetObject);
 
-    // deltas
-    bool				sendUpdateCurrentForce(PlayerObject* playerObject);
-    bool				sendUpdateMaxForce(PlayerObject* playerObject);
-    bool				sendMatchPlay3(PlayerObject* playerObject);
-    bool				sendWaypointsUpdate(PlayerObject* playerObject);
-    void				sendTitleUpdate(PlayerObject* playerObject);
-    void				sendUpdatePlayerFlags(PlayerObject* playerObject);
-    bool				sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate updateType,PlayerObject* playerObject);
-    bool				sendSkillCmdDeltasPLAY_9(PlayerObject* playerObject);
-    bool				sendSchematicDeltasPLAY_9(PlayerObject* playerObject);
-    bool				sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,PlayerObject* playerObject);
-    bool				sendXpUpdate(uint32 xpType,PlayerObject* playerObject);
-    bool				sendFriendListPlay9(PlayerObject* playerObject);
-    bool				sendIgnoreListPlay9(PlayerObject* playerObject);
-    bool				sendUpdateCraftingStage(PlayerObject* playerObject);
-    bool				sendUpdateExperimentationFlag(PlayerObject* playerObject);
-    bool				sendUpdateExperimentationPoints(PlayerObject* playerObject);
-    bool				sendUpdateNearestCraftingStation(PlayerObject* playerObject);
-    void				sendLanguagePlay9(PlayerObject* playerObject);
-    void				sendFoodUpdate(PlayerObject* playerObject);
-    void				sendDrinkUpdate(PlayerObject* playerObject);
-    void				sendStationaryFlagUpdate(PlayerObject* playerObject);
+    	// deltas
+	bool				sendUpdateCurrentForce(PlayerObject* playerObject);
+	bool				sendUpdateMaxForce(PlayerObject* playerObject);
+	bool				sendMatchPlay3(PlayerObject* playerObject);
+	bool				sendWaypointsUpdate(PlayerObject* playerObject);
+	void				sendTitleUpdate(PlayerObject* playerObject);
+	void				sendUpdatePlayerFlags(PlayerObject* playerObject);
+	bool				sendUpdateWaypoint(WaypointObject* waypoint,ObjectUpdate updateType,PlayerObject* playerObject);
+	bool				sendSkillCmdDeltasPLAY_9(PlayerObject* playerObject);
+	bool				sendSchematicDeltasPLAY_9(PlayerObject* playerObject);
+	bool				sendUpdateXpTypes(SkillXpTypesList newXpTypes,uint8 remove,PlayerObject* playerObject);
+	bool				sendXpUpdate(uint32 xpType,PlayerObject* playerObject);
+	bool				sendFriendListPlay9(PlayerObject* playerObject);
+	bool				sendIgnoreListPlay9(PlayerObject* playerObject);
+	bool				sendUpdateCraftingStage(PlayerObject* playerObject);
+	bool				sendUpdateExperimentationFlag(PlayerObject* playerObject);
+	bool				sendUpdateExperimentationPoints(PlayerObject* playerObject);
+	bool				sendUpdateNearestCraftingStation(PlayerObject* playerObject);
+	void				sendLanguagePlay9(PlayerObject* playerObject);
+	void				sendFoodUpdate(PlayerObject* playerObject);
+	void				sendDrinkUpdate(PlayerObject* playerObject);
+	void				sendStationaryFlagUpdate(PlayerObject* playerObject);
     
     // static object,	staticomessages.cpp
     bool				sendBaselinesSTAO_3(TangibleObject* staticObject, PlayerObject* targetObject);
     bool				sendBaselinesSTAO_6(TangibleObject* staticObject, PlayerObject* targetObject);
     //crates
-    bool				sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObject);
-    bool				sendBaselinesTYCF_6( FactoryCrate* crate,PlayerObject* targetObject);
-    bool				sendBaselinesTYCF_8(FactoryCrate* crate,PlayerObject* targetObject);
-    bool				sendBaselinesTYCF_9(FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendBaselinesTYCF_3(FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendBaselinesTYCF_6( FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendBaselinesTYCF_8(FactoryCrate* crate,PlayerObject* targetObject);
+	bool				sendBaselinesTYCF_9(FactoryCrate* crate,PlayerObject* targetObject);
 
-    bool				sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* playerObject);
+	bool				sendUpdateCrateContent(FactoryCrate* crate,PlayerObject* playerObject);
 
-    // tangible object, tangiblemessages.cpp
-    bool				sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
-    bool				sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
-    // bool				sendBaselinesTANO_7(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
-    bool				sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
-    bool				sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	// tangible object, tangiblemessages.cpp
+	bool				sendBaselinesTANO_3(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_6(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	// bool				sendBaselinesTANO_7(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_8(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
+	bool				sendBaselinesTANO_9(const TangibleObject* const tangibleObject,const PlayerObject* const targetObject) const;
 
-    bool				sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject);
+	//bool				sendItemChildren(TangibleObject* srcObject,PlayerObject* targetObject);
 
-    // deltas
-    bool				sendUpdateComplexity(TangibleObject* tangibleObject,PlayerObject* playerObject);
-    bool				sendUpdateTimer(TangibleObject* tangibleObject,PlayerObject* playerObject);
-    bool				sendUpdateTypeOption(TangibleObject* tangibleObject,PlayerObject* playerObject);
-    bool				sendUpdateCustomization_InRange(TangibleObject* tangibleObject,PlayerObject* playerObject);
-    bool				sendUpdateUses(TangibleObject* tangibleObject,PlayerObject* playerObject);
+	// deltas
+	bool				sendUpdateComplexity(TangibleObject* tangibleObject,PlayerObject* playerObject);
+	bool				sendUpdateTimer(TangibleObject* tangibleObject,PlayerObject* playerObject);
+	bool				sendUpdateTypeOption(TangibleObject* tangibleObject,PlayerObject* playerObject);
+	bool				sendUpdateCustomization_InRange(TangibleObject* tangibleObject,PlayerObject* playerObject);
+	bool				sendUpdateUses(TangibleObject* tangibleObject,PlayerObject* playerObject);
 
-    // intangible object, intangiblemessages.cpp
-    bool				sendBaselinesITNO_3(IntangibleObject* tangibleObject,PlayerObject* targetObject);
-    bool				sendBaselinesITNO_6(IntangibleObject* tangibleObject,PlayerObject* targetObject);
-    bool				sendBaselinesITNO_8(IntangibleObject* tangibleObject,PlayerObject* targetObject);
-    bool				sendBaselinesITNO_9(IntangibleObject* tangibleObject,PlayerObject* targetObject);
+	// intangible object, intangiblemessages.cpp
+	bool				sendBaselinesITNO_3(IntangibleObject* tangibleObject,PlayerObject* targetObject);
+	bool				sendBaselinesITNO_6(IntangibleObject* tangibleObject,PlayerObject* targetObject);
+	bool				sendBaselinesITNO_8(IntangibleObject* tangibleObject,PlayerObject* targetObject);
+	bool				sendBaselinesITNO_9(IntangibleObject* tangibleObject,PlayerObject* targetObject);
 
-    // mission object, missionmessages.cpp
-    bool				sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* targetObject);
-    bool				sendBaselinesMISO_6(MissionObject* missionObject,PlayerObject* targetObject);
-    bool				sendBaselinesMISO_8(MissionObject* missionObject,PlayerObject* targetObject);
-    bool				sendBaselinesMISO_9(MissionObject* missionObject,PlayerObject* targetObject);
-    bool				sendMISO_Delta(MissionObject* missionObject,PlayerObject* targetObject);
-    bool				sendMissionGenericResponse(MissionObject* missionObject,PlayerObject* targetObject);
-    bool				sendMissionAbort(MissionObject* missionObject,PlayerObject* targetObject);
-    bool				sendMissionComplete(PlayerObject* targetObject);
+	// mission object, missionmessages.cpp
+	bool				sendBaselinesMISO_3(MissionObject* missionObject,PlayerObject* targetObject);
+	bool				sendBaselinesMISO_6(MissionObject* missionObject,PlayerObject* targetObject);
+	bool				sendBaselinesMISO_8(MissionObject* missionObject,PlayerObject* targetObject);
+	bool				sendBaselinesMISO_9(MissionObject* missionObject,PlayerObject* targetObject);
+	bool				sendMISO_Delta(MissionObject* missionObject,PlayerObject* targetObject);
+	bool				sendMissionGenericResponse(MissionObject* missionObject,PlayerObject* targetObject);
+	bool				sendMissionAbort(MissionObject* missionObject,PlayerObject* targetObject);
+	bool				sendMissionComplete(PlayerObject* targetObject);
 
-    // manufacturing schematic object, manschematicmessages.cpp
-    bool				sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool sendAttributes = true);
-    bool				sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-    bool				sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-    bool				sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-    bool				sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	// manufacturing schematic object, manschematicmessages.cpp
+	bool				sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool sendAttributes = true);
+	bool				sendBaselinesMSCO_6(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendBaselinesMSCO_8(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendBaselinesMSCO_9(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendBaselinesMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 
-    // deltas
-    bool				sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-    bool				sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-    bool				sendMSCO_3_ComplexityUpdate(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-
-
-    bool				sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-
-    bool				sendAttributeDeltasMSCO_7_New(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	// deltas
+	bool				sendDeltasMSCO_3(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendMSCO_3_ComplexityUpdate(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 
 
-    bool				sendUpdateFilledManufactureSlots(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
-    bool				sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* playerObject);
-    bool				sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* playerObject);
+	bool				sendAttributeDeltasMSCO_7(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 
-    bool				sendGenericIntResponse(uint32 value,uint8 counter,PlayerObject* playerObject);
-
-    // building / cell object, buildingmessages.cpp
-    bool				sendBaselinesBUIO_3(BuildingObject* buildingObject,PlayerObject* playerObject);
-    bool				sendBaselinesBUIO_6(BuildingObject* buildingObject,PlayerObject* playerObject);
-    bool				sendBaselinesBUIO_3(HouseObject* buildingObject,PlayerObject* playerObject);
-    bool				sendBaselinesBUIO_6(HouseObject* buildingObject,PlayerObject* playerObject);
-    bool				sendBaselinesSCLT_3(CellObject* cellObject,uint64 cellNr,PlayerObject* playerObject);
-    bool				sendBaselinesSCLT_6(CellObject* cellObject,PlayerObject* playerObject);
+	bool				sendAttributeDeltasMSCO_7_New(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
 
 
-    bool				sendBaselinesBUIO_3(TangibleObject* structure,PlayerObject* player);
-    bool				sendBaselinesBUIO_6(TangibleObject* structure,PlayerObject* player);
+	bool				sendUpdateFilledManufactureSlots(ManufacturingSchematic* manSchem,PlayerObject* playerObject);
+	bool				sendManufactureSlotUpdate(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* playerObject);
+	bool				sendManufactureSlotUpdateSmall(ManufacturingSchematic* manSchem,uint8 slotId,PlayerObject* playerObject);
+
+	bool				sendGenericIntResponse(uint32 value,uint8 counter,PlayerObject* playerObject);
+
+	// building / cell object, buildingmessages.cpp
+	bool				sendBaselinesBUIO_3(BuildingObject* buildingObject,PlayerObject* playerObject);
+	bool				sendBaselinesBUIO_6(BuildingObject* buildingObject,PlayerObject* playerObject);
+	bool				sendBaselinesBUIO_3(HouseObject* buildingObject,PlayerObject* playerObject);
+	bool				sendBaselinesBUIO_6(HouseObject* buildingObject,PlayerObject* playerObject);
+	bool				sendBaselinesSCLT_3(CellObject* cellObject,uint64 cellNr,PlayerObject* playerObject);
+	bool				sendBaselinesSCLT_6(CellObject* cellObject,PlayerObject* playerObject);
+
+
+	bool				sendBaselinesBUIO_3(TangibleObject* structure,PlayerObject* player);
+	bool				sendBaselinesBUIO_6(TangibleObject* structure,PlayerObject* player);
 
     // Harvester Messages
-    bool				sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* player);
-    bool				sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* player);
-    bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
-    void				sendNewHarvesterName(PlayerStructure* harvester);
-    void				sendOperateHarvester(PlayerStructure* harvester,PlayerObject* player);
-    void				sendHarvesterResourceData(PlayerStructure* structure,PlayerObject* player);
-    void				sendCurrentResourceUpdate(HarvesterObject* harvester, PlayerObject* player);
-    void				sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObject* player);
-    void				sendHarvesterActive(HarvesterObject* harvester);
-    void				SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObject* player);
-    void				sendResourceEmptyHopperResponse(PlayerStructure* structure,PlayerObject* player, uint32 amount, uint8 b1, uint8 b2);
-    void				sendHarvesterCurrentConditionUpdate(PlayerStructure* structure);
+	bool				sendBaselinesHINO_3(HarvesterObject* harvester,PlayerObject* player);
+	bool				sendBaselinesHINO_6(HarvesterObject* harvester,PlayerObject* player);
+	bool				sendBaselinesHINO_7(HarvesterObject* harvester,PlayerObject* player);
+	
+	void				sendNewHarvesterName(PlayerStructure* harvester);
+	void				sendOperateHarvester(PlayerStructure* harvester,PlayerObject* player);
+	void				sendHarvesterResourceData(PlayerStructure* structure,PlayerObject* player);
+	void				sendCurrentResourceUpdate(HarvesterObject* harvester, PlayerObject* player);
+	void				sendCurrentExtractionRate(HarvesterObject* harvester, PlayerObject* player);
+	void				sendHarvesterActive(HarvesterObject* harvester);
+	void				SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObject* player);
+	void				sendResourceEmptyHopperResponse(PlayerStructure* structure,PlayerObject* player, uint32 amount, uint8 b1, uint8 b2);
+	void				sendHarvesterCurrentConditionUpdate(PlayerStructure* structure);
 
-    void				sendConstructionComplete(PlayerObject* playerObject, PlayerStructure* Structure);
-    void				SendUpdateHarvesterWorkAnimation(HarvesterObject* harvester);
+	void				sendConstructionComplete(PlayerObject* playerObject, PlayerStructure* Structure);
+	void				SendUpdateHarvesterWorkAnimation(HarvesterObject* harvester);
 
-    // Installation Messages
-    bool				sendBaselinesINSO_3(FactoryObject* factory,PlayerObject* player);
-    bool				sendBaselinesINSO_6(FactoryObject* factory,PlayerObject* player);
+	// Installation Messages
+	bool				sendBaselinesINSO_3(FactoryObject* factory,PlayerObject* player);
+	bool				sendBaselinesINSO_6(FactoryObject* factory,PlayerObject* player);
 
-    bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);
-    bool				sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* player);
-    void				SendUpdateFactoryWorkAnimation(FactoryObject* factory);
+	bool				sendBaselinesINSO_3(PlayerStructure* structure,PlayerObject* player);
+	bool				sendBaselinesINSO_6(PlayerStructure* structure,PlayerObject* player);
+	void				SendUpdateFactoryWorkAnimation(FactoryObject* factory);
 
-    // deltas
-    bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);
-    // Structures admin / placement
-    bool				sendEnterStructurePlacement(Object* deed, BString objectString, PlayerObject* playerObject);
-    bool				sendAdminList(PlayerStructure* structure, PlayerObject* playerObject);
-    bool				sendHopperList(PlayerStructure* structure, PlayerObject* playerObject);
-    bool				sendBanList(PlayerStructure* structure, PlayerObject* playerObject);
-    bool				sendEntryList(PlayerStructure* structure, PlayerObject* playerObject);
+	// deltas
+	bool				sendUpdateCellPermissionMessage(CellObject* cellObject,uint8 permission,PlayerObject* playerObject);
+	
+	// Structures admin / placement
+	bool				sendEnterStructurePlacement(Object* deed, BString objectString, PlayerObject* playerObject);
+	bool				sendAdminList(PlayerStructure* structure, PlayerObject* playerObject);
+	bool				sendHopperList(PlayerStructure* structure, PlayerObject* playerObject);
+	bool				sendBanList(PlayerStructure* structure, PlayerObject* playerObject);
+	bool				sendEntryList(PlayerStructure* structure, PlayerObject* playerObject);
 
-    // resource container, resourcecontainermessages.cpp
-    bool				sendBaselinesRCNO_3(ResourceContainer* resourceContainer,PlayerObject* targetObject);
-    bool				sendBaselinesRCNO_6(ResourceContainer* resourceContainer,PlayerObject* targetObject);
-    bool				sendBaselinesRCNO_8(ResourceContainer* resourceContainer,PlayerObject* targetObject);
-    bool				sendBaselinesRCNO_9(ResourceContainer* resourceContainer,PlayerObject* targetObject);
+	// resource container, resourcecontainermessages.cpp
+	bool				sendBaselinesRCNO_3(ResourceContainer* resourceContainer,PlayerObject* targetObject);
+	bool				sendBaselinesRCNO_6(ResourceContainer* resourceContainer,PlayerObject* targetObject);
+	bool				sendBaselinesRCNO_8(ResourceContainer* resourceContainer,PlayerObject* targetObject);
+	bool				sendBaselinesRCNO_9(ResourceContainer* resourceContainer,PlayerObject* targetObject);
 
-    // deltas
-    bool				sendResourceContainerUpdateAmount(ResourceContainer* resourceContainer,PlayerObject* playerObject);
+	// deltas
+	bool				sendResourceContainerUpdateAmount(ResourceContainer* resourceContainer,PlayerObject* playerObject);
 
-    // internal, internalmessages.cpp
-    bool				sendClusterZoneTransferRequestByTicket(PlayerObject* playerObject,uint64 ticketId,uint32 destinationPlanet);
-    bool				sendClusterZoneTransferRequestByPosition(PlayerObject* playerObject, const glm::vec3& position, uint32 destinationPlanet);
-    bool				sendClusterZoneTransferCharacter(PlayerObject* playerObject,uint32 destinationPlanet);
-    bool				sendGroupLootModeResponse(PlayerObject* playerObject,uint32 selection);
-    bool				sendGroupLootMasterResponse(PlayerObject* masterLooter, PlayerObject* playerObject);
+	// internal, internalmessages.cpp
+	bool				sendClusterZoneTransferRequestByTicket(PlayerObject* playerObject,uint64 ticketId,uint32 destinationPlanet);
+	bool				sendClusterZoneTransferRequestByPosition(PlayerObject* playerObject, const glm::vec3& position, uint32 destinationPlanet);
+	bool				sendClusterZoneTransferCharacter(PlayerObject* playerObject,uint32 destinationPlanet);
+	bool				sendGroupLootModeResponse(PlayerObject* playerObject,uint32 selection);
+	bool				sendGroupLootMasterResponse(PlayerObject* masterLooter, PlayerObject* playerObject);
 
-    // friendlist
-    bool				sendFindFriendLocation(PlayerObject* friendPlayer, uint64 friendId,uint64 player, float X, float Z);
+	// friendlist
+	bool				sendFindFriendLocation(PlayerObject* friendPlayer, uint64 friendId,uint64 player, float X, float Z);
 
-    // groups
-    bool				sendIsmGroupBaselineRequest(PlayerObject* targetPlayer);
-    bool				sendIsmGroupPositionNotification(PlayerObject* targetPlayer);
-    bool				sendIsmGroupLeave(PlayerObject* player);
-    bool				sendIsmGroupInviteInRangeResponse(PlayerObject* sender, PlayerObject* target, bool inRange );
+	// groups
+	bool				sendIsmGroupBaselineRequest(PlayerObject* targetPlayer);
+	bool				sendIsmGroupPositionNotification(PlayerObject* targetPlayer);
+	bool				sendIsmGroupLeave(PlayerObject* player);
+	bool				sendIsmGroupInviteInRangeResponse(PlayerObject* sender, PlayerObject* target, bool inRange );
 
-    // trading / bazaar
-    bool				sendAbortTradeMessage(PlayerObject* playerObject);
-    bool				sendBidAuctionResponseMessage(PlayerObject* playerObject, uint64 AuctionId, uint32 error);
-    bool				sendAcceptTradeMessage(PlayerObject* playerObject);
-    bool				sendUnacceptTradeMessage(PlayerObject* playerObject);
-    bool				sendDeleteItemMessage(PlayerObject* playerObject,uint64 ItemId);
-    bool				sendSecureTrade(PlayerObject* targetPlayer,PlayerObject* srcObject,uint32 error);
-    bool				sendBeginTradeMessage(PlayerObject* targetObject,PlayerObject* srcObject);
-    bool				sendVerifyTradeMessage(PlayerObject* targetObject);
-    bool				sendAddItemMessage(PlayerObject* targetPlayer,TangibleObject* object);
-    bool				sendTangibleTrade(TangibleObject* tangibleObject,PlayerObject* targetObject);
-    bool				sendBeginVerificationMessage(PlayerObject* playerObject);
-    bool				sendVerificationMessage(PlayerObject* playerObject);
-    bool				sendTradeCompleteMessage(PlayerObject* playerObject);
-    bool				sendGiveMoneyMessage(PlayerObject* playerObject,uint32 Money);
-    bool				sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer,uint64 AuctionId,uint32 error);
+	// trading / bazaar
+	bool				sendAbortTradeMessage(PlayerObject* playerObject);
+	bool				sendBidAuctionResponseMessage(PlayerObject* playerObject, uint64 AuctionId, uint32 error);
+	bool				sendAcceptTradeMessage(PlayerObject* playerObject);
+	bool				sendUnacceptTradeMessage(PlayerObject* playerObject);
+	bool				sendDeleteItemMessage(PlayerObject* playerObject,uint64 ItemId);
+	bool				sendSecureTrade(PlayerObject* targetPlayer,PlayerObject* srcObject,uint32 error);
+	bool				sendBeginTradeMessage(PlayerObject* targetObject,PlayerObject* srcObject);
+	bool				sendVerifyTradeMessage(PlayerObject* targetObject);
+	bool				sendAddItemMessage(PlayerObject* targetPlayer,TangibleObject* object);
+	bool				sendTangibleTrade(TangibleObject* tangibleObject,PlayerObject* targetObject);
+	bool				sendBeginVerificationMessage(PlayerObject* playerObject);
+	bool				sendVerificationMessage(PlayerObject* playerObject);
+	bool				sendTradeCompleteMessage(PlayerObject* playerObject);
+	bool				sendGiveMoneyMessage(PlayerObject* playerObject,uint32 Money);
+	bool				sendCreateAuctionItemResponseMessage(PlayerObject* targetPlayer,uint64 AuctionId,uint32 error);
     void				sendNewbieMail(PlayerObject* playerObject, BString subject,BString bodyDir, BString bodyStr);
-    void				sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, BString ItemName, uint32 Credits, BString planet, BString region);
-    void				sendBoughtInstantMail(PlayerObject* newOwner, BString ItemName, BString SellerName, uint32 Credits, BString planet, BString region, int32 mX, int32 mY);
-    void				sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount);
-    bool				sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipient, uint32 amount, BString recipientName);
+	void				sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, BString ItemName, uint32 Credits, BString planet, BString region);
+	void				sendBoughtInstantMail(PlayerObject* newOwner, BString ItemName, BString SellerName, uint32 Credits, BString planet, BString region, int32 mX, int32 mY);
+	void				sendBanktipMail(PlayerObject* playerObject, PlayerObject* targetObject, uint32 amount);
+	bool				sendBankTipDustOff(PlayerObject* playerObject, uint64 tipRecipient, uint32 amount, BString recipientName);
 
-    // Buffs
-    void				sendPlayerAddBuff(PlayerObject* target, int32 CRC, float Duration);
-    void				sendPlayerRemoveBuff(PlayerObject* playerObject, int32 CRC);
+	// Buffs
+	void				sendPlayerAddBuff(PlayerObject* target, int32 CRC, float Duration);
+	void				sendPlayerRemoveBuff(PlayerObject* playerObject, int32 CRC);
 
-    void				sendTutorialServerStatusRequest(DispatchClient* client, uint64 playerId, uint32 accountID);
+	void				sendTutorialServerStatusRequest(DispatchClient* client, uint64 playerId, uint32 accountID);
 
     ~MessageLib();
 
 private:
 
     MessageLib();
+    
     bool				_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel);
 
-    bool				_checkPlayer(const PlayerObject* const player) const;
-    bool				_checkPlayer(uint64 playerId) const;
+	bool				_checkPlayer(const PlayerObject* const player) const;
+	bool				_checkPlayer(uint64 playerId) const;
 
-    void				_sendToInRangeUnreliable(Message* message, Object* const object, uint16 priority, bool toSelf = true);
-    void				_sendToInRange(Message* message, Object* const object, uint16 priority, bool toSelf = true);
+	void				_sendToInRangeUnreliable(Message* message, Object* const object, unsigned char priority, bool to_self = true);
+	void				_sendToInRange(Message* message, Object* const object, unsigned char priority, bool to_self = true) const;
 
-    void				_sendToInstancedPlayersUnreliable(Message* message, uint16 priority, const PlayerObject* const player) const ;
-    void				_sendToInstancedPlayers(Message* message, uint16 priority, const PlayerObject* const player) const ;
-    void				_sendToAll(Message* message,uint16 priority,bool unreliable = false) const;
+	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
+	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
+	
+	void				_sendToInstancedPlayersUnreliable(Message* message, unsigned char priority, const PlayerObject* const player) const;
+	void				_sendToInstancedPlayers(Message* message, unsigned char priority, PlayerObject* const player) const;
+	void				_sendToAll(Message* message, unsigned char priority, bool unreliable = false) const;
    
     /**
      * Sends a spatial message to in-range players.
@@ -582,7 +685,7 @@ private:
      * @param object This is the object from whom the message originates (ie., the speaker)
      * @param player_object This is used to send out spatial messages in a player instance.
      */
-    void SendSpatialToInRangeUnreliable_(Message* message, Object* const object, const PlayerObject* const player_object = NULL);
+    void SendSpatialToInRangeUnreliable_(Message* message, Object* const object, PlayerObject* const player_object = NULL);
     /**
      * Sends out a system message.
      *
@@ -611,11 +714,12 @@ private:
      * @param mood_id An ID representing the mood of the speaking object. @todo: Add an ID table here.
      * @param whisper_target_animate If set to 1 the speaker will turn to the target and whisper.
      */
-    void SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const common::OutOfBand& prose_message, const PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate);
+    void SendSpatialChat_(CreatureObject* const speaking_object, const std::wstring& custom_message, const common::OutOfBand& prose_message, PlayerObject* const player_object, uint64_t target_id, uint16_t text_size, SocialChatType chat_type_id, MoodType mood_id, uint8_t whisper_target_animate);
 
+	static MessageLib*	mSingleton;
+	static bool			mInsFlag;
 
-    static MessageLib*	mSingleton;
-    static bool			mInsFlag;
+	zmap*				mGrid;
 
     MessageFactory*		mMessageFactory;
 };

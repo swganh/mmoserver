@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "UITicketSelectListBox.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -587,13 +588,10 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
                         if(dstPlanetId == zoneId)
                         {
                             // only delete the ticket if we are warping on this planet.
-                            gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
-                            gObjectFactory->deleteObjectFromDB(ticket);
+							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+							gContainerManager->deleteObject(ticket, tO);
 
-                            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-                            tO->deleteObject(ticket);
-
-                            gWorldManager->warpPlanet(playerObject,destination,0);
+							gWorldManager->warpPlanet(playerObject,destination,0);
                         }
                         else
                         {
@@ -662,11 +660,10 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
         if(dstPlanetId == zoneId)
         {
             // only delete the ticket if we are warping on this planet.
-            gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
-            gObjectFactory->deleteObjectFromDB(ticket);
-
+			// delete the ticket for all watchers
+	
             TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-            tO->deleteObject(ticket);
+            gContainerManager->deleteObject(ticket, tO);
 
             ticket = NULL;
             gWorldManager->warpPlanet(playerObject,destination,0);

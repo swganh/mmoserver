@@ -25,67 +25,42 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "BadgeRegion.h"
-#include "PlayerObject.h"
-#include "QTRegion.h"
-#include "QuadTree.h"
-#include "WorldManager.h"
-#include "ZoneTree.h"
+#include "ZoneServer/BadgeRegion.h"
 
-//=============================================================================
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/WorldManager.h"
 
-BadgeRegion::BadgeRegion() : RegionObject(),
-    mSI(gWorldManager->getSI()),
-    mQTRegion(NULL)
+
+BadgeRegion::BadgeRegion(uint32_t badge_id)
+    : RegionObject()
+    , badge_id_(badge_id)
 {
-    mActive		= true;
+    mActive = true;
     mRegionType = Region_Badge;
 }
 
-//=============================================================================
 
-BadgeRegion::~BadgeRegion()
-{
+BadgeRegion::~BadgeRegion() {}
+
+
+uint32_t BadgeRegion::badge_id() const {
+    return badge_id_;
 }
 
-//=============================================================================
-//every 2 secs were querying the si for players in our region
 
-void BadgeRegion::update()
-{
-    if(!mSubZoneId)
-    {
-        mQTRegion	= mSI->getQTRegion(mPosition.x, mPosition.z);
-        mSubZoneId	= (uint32)mQTRegion->getId();
-        mQueryRect	= Anh_Math::Rectangle(mPosition.x - mWidth, mPosition.z - mHeight, mWidth * 2, mHeight * 2);
+void BadgeRegion::badge_id(uint32_t badge_id) {
+    badge_id_ = badge_id;
+}
+
+
+void BadgeRegion::onObjectEnter(Object* object) {
+    // Do a quick check to see if the object is in this region and is a player object.
+    if (object->getParentId() != mParentId || object->getType() != ObjType_Player) {
+        return;
     }
 
-    Object*		object;
-    ObjectSet	objList;
-
-    if(mParentId)
-    {
-        mSI->getObjectsInRange(this, &objList, ObjType_Player, mWidth);
-    }
-
-    if(mQTRegion)
-    {
-        mQTRegion->mTree->getObjectsInRange(this, &objList, ObjType_Player, &mQueryRect);
-    }
-
-    ObjectSet::iterator objIt = objList.begin();
-
-    while(objIt != objList.end())
-    {
-        object = *objIt;
-
-        if(object->getParentId() == mParentId)
-        {
-            PlayerObject* player = dynamic_cast<PlayerObject*>((*objIt));
-
-            if(player && !(player->checkBadges(mBadgeId)))
-                player->addBadge(mBadgeId);
-        }
-        ++objIt;
+    PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+    if (player && !player->checkBadges(badge_id_)) {
+        player->addBadge(badge_id_);
     }
 }

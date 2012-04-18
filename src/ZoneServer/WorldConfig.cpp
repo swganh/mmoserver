@@ -51,9 +51,10 @@ WorldConfig::WorldConfig(uint32 zoneId,Database* database, BString zoneName) :
 
     //load globals
     mDatabase->executeSqlAsync(this,NULL,"SELECT csa.attribute,cs.value"
-                               " FROM config_server cs"
-                               " INNER JOIN config_server_attributes csa ON (csa.id = cs.config_attributes_id)"
-                               " WHERE cs.server_name like 'all' ");
+                               " FROM %s.config_server cs"
+                               " INNER JOIN %s.config_server_attributes csa ON (csa.id = cs.config_attributes_id)"
+                               " WHERE cs.server_name like 'all' ",
+                               mDatabase->galaxy(),mDatabase->galaxy());
     
 
 }
@@ -175,7 +176,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     {
         mLoadComplete = true;
         int8 sql[255];
-        sprintf(sql,"SELECT csa.attribute,cs.value FROM config_server cs INNER JOIN config_server_attributes csa ON (csa.id = cs.config_attributes_id) WHERE cs.server_name like '%s'",mZoneName.getAnsi());
+        sprintf(sql,"SELECT csa.attribute,cs.value FROM %s.config_server cs INNER JOIN %s.config_server_attributes csa ON (csa.id = cs.config_attributes_id) WHERE cs.server_name like '%s'",mDatabase->galaxy(),mDatabase->galaxy(),mZoneName.getAnsi());
         mDatabase->executeSqlAsync(this,NULL,sql);
         
     }

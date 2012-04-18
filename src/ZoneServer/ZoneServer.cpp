@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <glog/logging.h>
 
+#include "anh/event_dispatcher/event_dispatcher.h"
+
 #include "CharacterLoginHandler.h"
 #include "CharSheetManager.h"
 //	Managers
@@ -85,8 +87,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/thread/thread.hpp>
 
+using anh::event_dispatcher::EventDispatcher;
+using std::make_shared;
+using std::shared_ptr;
+
 using utils::Singleton;
-using common::EventDispatcher;
 
 #ifdef WIN32
 #undef ERROR
@@ -102,6 +107,7 @@ ZoneServer* gZoneServer = NULL;
 ZoneServer::ZoneServer(int8* zoneName)
     : mZoneName(zoneName)
     , mLastHeartbeat(0)
+    , event_dispatcher_(make_shared<EventDispatcher>())
     , mNetworkManager(0)
     , mDatabaseManager(0)
     , mRouterService(0)
@@ -126,14 +132,14 @@ ZoneServer::ZoneServer(int8* zoneName)
                                           (int8*)(gConfig->read<std::string>("DBName")).c_str());
 
     // increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", zoneName);
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('%s', NULL, NULL, NULL);",mDatabase->galaxy(),zoneName);
     
 
     mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
     // Grab our zoneId out of the DB for this zonename.
     uint32 zoneId = 0;
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName);
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.planet WHERE name=\'%s\';",mDatabase->galaxy(), zoneName);
     
 
     if (!result->getRowCount())
@@ -205,11 +211,11 @@ ZoneServer::ZoneServer(int8* zoneName)
 	// Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
+    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<common::EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
 
-    mCharacterLoginHandler = new CharacterLoginHandler(mDatabase,mMessageDispatch);
+    mCharacterLoginHandler = new CharacterLoginHandler(mDatabase, mMessageDispatch);
 
     mObjectControllerDispatch = new ObjectControllerDispatch(mDatabase,mMessageDispatch);
 }
@@ -284,6 +290,8 @@ void ZoneServer::Process(void)
     gScriptEngine->process();
     mMessageDispatch->Process();
     gEventDispatcher.Tick(current_timestep);
+    
+    event_dispatcher_->tick(0);
 
     //is there stalling ?
     mRouterService->Process();
@@ -305,7 +313,7 @@ void ZoneServer::Process(void)
 void ZoneServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-    mDatabase->executeProcedure("CALL sp_ServerStatusUpdate('%s', %u, '%s', %u)", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
+    mDatabase->executeProcedure("CALL %s.sp_ServerStatusUpdate('%s', %u, '%s', %u)",mDatabase->galaxy(), mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
 }
 
 //======================================================================================================================
@@ -325,7 +333,7 @@ void ZoneServer::_connectToConnectionServer(void)
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
 
     // Execute our statement
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE name='connection';",mDatabase->galaxy());
 	uint32 count = static_cast<uint32>(result->getRowCount());
 
     // If we found them

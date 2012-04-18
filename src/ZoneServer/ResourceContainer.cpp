@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Resource.h"
 #include "ResourceType.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
 #include "NetworkManager/Message.h"
@@ -254,42 +255,13 @@ void ResourceContainer::sendAttributes(PlayerObject* playerObject)
 void ResourceContainer::setParentIdIncDB(uint64 parentId)
 {
     mParentId = parentId;
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.resource_containers SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",gWorldManager->getDatabase()->galaxy(),mParentId,this->getId());
     
 }
 
-void ResourceContainer::upDateFactoryVolume(BString amount)
-{
-    uint32 a = 0;
-    a = boost::lexical_cast<uint32>(amount.getAnsi());
-
-    if(a == this->getAmount())
-    {
-        return;
-    }
-
-    this->setAmount(a);
-
-    TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
-
-    PlayerObjectSet*			knownPlayers	= hopper->getKnownPlayers();
-    PlayerObjectSet::iterator	playerIt		= knownPlayers->begin();
-
-    while(playerIt != knownPlayers->end())
-    {
-        PlayerObject* player = (*playerIt);
-        if(player)
-            gMessageLib->sendResourceContainerUpdateAmount(this,player);
-
-        playerIt++;
-    }
-
-}
-
-
 void ResourceContainer::updateWorldPosition()
 {
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE resource_containers SET parent_id ='%"PRIu64"', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.resource_containers SET parent_id ='%"PRIu64"', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%"PRIu64"'",gWorldManager->getDatabase()->galaxy(),this->getParentId(), this->mDirection.x, this->mDirection.y, this->mDirection.z, this->mDirection.w, this->mPosition.x, this->mPosition.y, this->mPosition.z, this->getId());
     
 }
 
@@ -317,10 +289,23 @@ void ResourceContainer::prepareCustomRadialMenuInCell(CreatureObject* creatureOb
     radial->addItem(i++,0,radId_itemRotate,radAction_Default, "");
     radial->addItem(i++,u,radId_itemRotateRight,radAction_Default, "");
     radial->addItem(i++,u,radId_itemRotateLeft,radAction_Default, "");
+}
+void ResourceContainer::upDateFactoryVolume(BString amount)
+{	
+    uint32 a = 0;
+	a = boost::lexical_cast<uint32>(amount.getAnsi());
+	
+	if(a == this->getAmount())
+	{
+		return;
+	}
 
+	this->setAmount(a);
 
-    RadialMenuPtr radialPtr(radial);
-    mRadialMenu = radialPtr;
+	TangibleObject* hopper = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(this->getParentId()));
 
-
+	gContainerManager->sendToRegisteredWatchers(hopper,[this] (PlayerObject* const player)
+	{
+		gMessageLib->sendResourceContainerUpdateAmount(this,player);
+	});
 }

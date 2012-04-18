@@ -102,10 +102,11 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
             mDatabase->executeSqlAsync(this,asContainer,"SELECT spawn_clone.parentId,spawn_clone.oX,spawn_clone.oY,spawn_clone.oZ,spawn_clone.oW,"
                                        "spawn_clone.cell_x,spawn_clone.cell_y,spawn_clone.cell_z,spawn_clone.city "
-                                       "FROM  spawn_clone "
-                                       "INNER JOIN cells ON spawn_clone.parentid = cells.id "
-                                       "INNER JOIN buildings ON cells.parent_id = buildings.id "
-                                       "WHERE buildings.id = %"PRIu64";",building->getId());
+                                       "FROM  %s.spawn_clone "
+                                       "INNER JOIN %s.cells ON spawn_clone.parentid = cells.id "
+                                       "INNER JOIN %s.buildings ON cells.parent_id = buildings.id "
+                                       "WHERE buildings.id = %"PRIu64";",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),building->getId());
            
         }
         else
@@ -113,7 +114,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,BFQuery_Cells,asyncContainer->mClient);
             asContainer->mObject = building;
 
-            mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRIu64";",building->getId());
+            mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM %s.cells WHERE parent_id = %"PRIu64";",mDatabase->galaxy(),building->getId());
             
         }
     }
@@ -143,7 +144,7 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,BFQuery_Cells,asyncContainer->mClient);
         asContainer->mObject = building;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM cells WHERE parent_id = %"PRIu64";",building->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM %s.cells WHERE parent_id = %"PRIu64";",mDatabase->galaxy(),building->getId());
         
     }
     break;
@@ -190,8 +191,8 @@ void BuildingFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
                                "SELECT buildings.id,buildings.oX,buildings.oY,buildings.oZ,buildings.oW,buildings.x,"
                                "buildings.y,buildings.z,building_types.model,building_types.width,building_types.height,"
                                "building_types.file,building_types.name,building_types.family "
-                               "FROM buildings INNER JOIN building_types ON (buildings.type_id = building_types.id) "
-                               "WHERE (buildings.id = %"PRIu64")",id);
+                               "FROM %s.buildings INNER JOIN %s.building_types ON (buildings.type_id = building_types.id) "
+                               "WHERE (buildings.id = %"PRIu64")",mDatabase->galaxy(),mDatabase->galaxy(),id);
     
 }
 

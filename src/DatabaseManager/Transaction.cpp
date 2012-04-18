@@ -42,7 +42,7 @@ Transaction::Transaction(Database* database, DatabaseCallback* callback, void* r
     , mReference(ref)
 {
     mQueries.flush();
-    mQueries << "CALL sp_MultiTransaction(\"";
+    mQueries << "CALL "<< mDatabase->galaxy()<<".sp_MultiTransaction(\"";
 }
 
 

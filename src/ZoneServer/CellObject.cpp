@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "CellObject.h"
 #include "PlayerObject.h"
 #include "TangibleObject.h"
+#include "WorldManager.h"
 #include "PlayerStructureTerminal.h"
 #include "MessageLib/MessageLib.h"
 
@@ -60,45 +61,33 @@ CellObject::~CellObject()
 // separate this from the destructor as we do not want players in building on server shutdown
 // to be placed in the gameworld
 
-void CellObject::prepareDestruction()
-{
+void CellObject::prepareDestruction() {
     //iterate through contained Objects
-    ObjectIDList* cellObjects		= this->getObjects();
-    ObjectIDList::iterator objIt	= cellObjects->begin();
+    ObjectIDList* cell_objects = getObjects();
 
-    while(objIt != cellObjects->end())
-    {
-        Object* object = gWorldManager->getObjectById((*objIt));
+    std::for_each(cell_objects->begin(), cell_objects->end(), [] (uint64_t object_id) {
+        Object* object = gWorldManager->getObjectById(object_id);
 
-        if(PlayerObject* player = dynamic_cast<PlayerObject*>(object))
-        {
-            //place the player in the world
-            glm::vec3 playerWorldPosition = player->getWorldPosition();
-            playerWorldPosition.x += 2;
-            playerWorldPosition.z += 2;
-            player->updatePosition(0,playerWorldPosition);
-            player->setParentIdIncDB(0);
-            //already removed out of the cell
-            objIt = cellObjects->begin();
+        //we should have gotten rid of them by now!
+        if(object->getType() == ObjType_Player) {
+            assert(false && "Player objects should have already been removed by this point");
+            return;
         }
-        else if(CreatureObject* pet = dynamic_cast<CreatureObject*>(object))
-        {
+
+        if(object->getType() == ObjType_Creature) {
+            CreatureObject* pet = static_cast<CreatureObject*>(object);
+
+            //put the creature into the world
             pet->setParentIdIncDB(0);
             pet->updatePosition(0,pet->getWorldPosition());
-            //already removed out of the cell
-            objIt = cellObjects->begin();
-        }
-        else
-        {
-            gWorldManager->destroyObjectForKnownPlayers(object);
 
-            //Carefull! destroyObject removes the object from the cell!!!
-            //the iterator is invalid afterwards!!!
-            gWorldManager->destroyObject(object);
-            objIt = cellObjects->begin();
+            return;
         }
-        //careful with iterating here!!!
-    }
+
+        gWorldManager->destroyObject(object);
+    });
+
+    cell_objects->erase(cell_objects->begin(), cell_objects->end());
 }
 //=============================================================================
 

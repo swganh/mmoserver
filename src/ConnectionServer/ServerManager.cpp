@@ -133,7 +133,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 
     // Execute our statement
     int8 sql[500];
-    sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
+    sprintf(sql,"SELECT id, address, port, status, active FROM %s.config_process_list WHERE address='%s' AND port=%u;",mDatabase->galaxy(), session->getAddressString(), session->getPortHost());
     DatabaseResult* result = mDatabase->executeSynchSql(sql);
     
 
@@ -168,7 +168,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
             ++mTotalConnectedServers;
             if(mTotalConnectedServers == mTotalActiveServers)
             {
-                mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Set status to online
+                mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 2, mClusterId); // Set status to online
                
             }
         }
@@ -210,7 +210,7 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
     if(mServerAddressMap[connClient->getServerId()].mActive)
     {
         --mTotalConnectedServers;
-        mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
+        mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 1, mClusterId); // Set status to online
         
     }
 
@@ -282,7 +282,7 @@ void ServerManager::_loadProcessAddressMap(void)
     ServerAddress   serverAddress;
 
     // retrieve our list of process addresses.
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE active=1 ORDER BY id;",mDatabase->galaxy());
     
 
     mTotalActiveServers = static_cast<uint32>(result->getRowCount());

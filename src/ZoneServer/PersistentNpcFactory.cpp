@@ -96,9 +96,10 @@ void PersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* r
             asContainer->mObject = npc;
 
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,persistent_npc_attributes.value,attributes.internal"
-                                       " FROM persistent_npc_attributes"
-                                       " INNER JOIN attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
-                                       " WHERE persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY persistent_npc_attributes.order",npc->getId());
+                                       " FROM %s.persistent_npc_attributes"
+                                       " INNER JOIN %s.attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
+                                       " WHERE persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY persistent_npc_attributes.order",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),npc->getId());
 		}
     }
     break;
@@ -128,9 +129,10 @@ void PersistentNpcFactory::requestObject(ObjectFactoryCallback* ofCallback,uint6
                                "persistent_npcs.oX,persistent_npcs.oY,persistent_npcs.oZ,persistent_npcs.oW,persistent_npcs.x,persistent_npcs.y,persistent_npcs.z,"
                                "persistent_npcs.type,persistent_npcs.stf_variable_id,persistent_npcs.stf_file_id,faction.name,"
                                "persistent_npcs.moodId,persistent_npcs.family,persistent_npcs.scale "
-                               "FROM persistent_npcs "
-                               "INNER JOIN faction ON (persistent_npcs.faction = faction.id) "
-                               "WHERE (persistent_npcs.id = %"PRIu64")",id);
+                               "FROM %s.persistent_npcs "
+                               "INNER JOIN %s.faction ON (persistent_npcs.faction = faction.id) "
+                               "WHERE (persistent_npcs.id = %"PRIu64")",
+                               mDatabase->galaxy(),mDatabase->galaxy(),id);
     
 }
 

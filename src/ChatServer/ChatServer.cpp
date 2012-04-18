@@ -81,7 +81,7 @@ ChatServer::ChatServer() : mNetworkManager(0),mDatabaseManager(0),mRouterService
                                           (char*)(gConfig->read<std::string>("DBPass")).c_str(),
                                           (char*)(gConfig->read<std::string>("DBName")).c_str());
 
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', NULL, NULL, NULL);");
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('chat', NULL, NULL, NULL);",mDatabase->galaxy());
 
     mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
 
@@ -188,7 +188,7 @@ void ChatServer::Process()
 void ChatServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('chat', %u, '%s', %u);", status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL - Update server status
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('chat', %u, '%s', %u);", mDatabase->galaxy(),  status, mRouterService->getLocalAddress(), mRouterService->getLocalPort()); // SQL - Update server status
  
 }
 
@@ -209,7 +209,7 @@ void ChatServer::_connectToConnectionServer()
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
 
     // Setup our statement
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE name='connection';",mDatabase->galaxy());
     
     uint64 count = result->getRowCount();
 

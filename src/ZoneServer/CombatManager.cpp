@@ -56,7 +56,7 @@ CombatManager::CombatManager(Database* database) :
 {
     //gLogger->log(LogManager::INFORMATION,"Start loading weapon groups.");
     // load default attack animations
-    mDatabase->executeSqlAsync(this, 0, "SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM weapon_groups ORDER BY id");
+    mDatabase->executeSqlAsync(this, 0, "SELECT id,defaultAttackAnimationCrc,defaultCombatSpam FROM %s.weapon_groups ORDER BY id",mDatabase->galaxy());
     
 }
 

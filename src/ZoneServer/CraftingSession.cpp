@@ -177,11 +177,15 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint32 groupId = mDraftSchematic->getWeightsBatchId();
 
         int8 sql[550];
-        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%asse%%'");
+        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM %s.draft_schematics INNER JOIN %s.skills_schematicsgranted "
+                    "ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN %s.skills_skillmods "
+                    "ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN %s.skillmods "
+                    "ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u "
+                    "AND skillmods.skillmod_name LIKE %s",
+                    mDatabase->galaxy(),mDatabase->galaxy(),
+                    mDatabase->galaxy(),mDatabase->galaxy(),
+                    groupId,"'%%asse%%'");
         mDatabase->executeSqlAsyncNoArguments(this,container,sql);
-        
-        //mDatabase->ExecuteSqlAsync(this,container,sql);
-
 
     }
     break;
@@ -223,7 +227,8 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint32 groupId = mDraftSchematic->getWeightsBatchId();
 
         int8 sql[550];
-        sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM draft_schematic_customization dsc WHERE dsc.batchId = %u",groupId);
+        sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM "
+                    "%s.draft_schematic_customization dsc WHERE dsc.batchId = %u",mDatabase->galaxy(),groupId);
         mDatabase->executeSqlAsync(this,container,sql);
 
 
@@ -255,11 +260,10 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 
         gMessageLib->sendCreateManufacturingSchematic(mManufacturingSchematic,mOwner);
-        gMessageLib->sendCreateTangible(mItem,mOwner);
+        gMessageLib->sendCreateTano(mItem,mOwner);
         gMessageLib->sendManufactureSlots(mManufacturingSchematic,mTool,mItem,mOwner);
         gMessageLib->sendUpdateCraftingStage(mOwner);
         gMessageLib->sendBaselinesMSCO_7(mManufacturingSchematic,mOwner);
-
 
     }
     break;
@@ -401,7 +405,12 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 
 
         int8 sql[550];
-        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%exper%%'");
+        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM %s.draft_schematics "
+                    "INNER JOIN %s.skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id "
+                    "INNER JOIN %s.skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id "
+                    "INNER JOIN %s.skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE "
+                    "draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",
+                    mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),groupId,"'%%exper%%'");
 
         //% just upsets the standard query
         mDatabase->executeSqlAsyncNoArguments(this,container,sql);
@@ -447,9 +456,6 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
             return;
 
         }
-
-        gWorldManager->addObject(item,true);
-        gMessageLib->sendCreateObject(item,mOwner);
 
         //add the necessary information to the slot
         mAsyncManSlot->mUsedComponentStacks.push_back(std::make_pair(item,maxsize));
@@ -703,18 +709,18 @@ void CraftingSession::addComponentAttribute()
                     {
                         // add the attribute (to the schematic) if it doesnt exist already to the relevant list for storage
                         // on sending the msco deltas respective producing the final items the values will be added to the attributes
-                        if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi()))
+                        if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
                         {
                             float attributeValue = filledComponent->getAttribute<float>((*cAPPiT)->getAttributeKey());
-                            float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>((*cAPPiT)->getAffectedAttributeKey().getAnsi());
+                            float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>((*cAPPiT)->getAffectedAttributeKey());
 
-                            mManufacturingSchematic->setPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
+                            mManufacturingSchematic->setPPAttribute((*cAPPiT)->getAffectedAttributeKey(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
                         }
 
-                        if(!mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi()))
+                        if(!mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
                         {
                             std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
-                            mManufacturingSchematic->addPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi(),attributeValue);
+                            mManufacturingSchematic->addPPAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
                         }
 
                     }
@@ -732,7 +738,7 @@ void CraftingSession::addComponentAttribute()
 
                     if(!mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
                     {
-                        std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey().getAnsi());
+                        std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
                         mItem->addAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
                     }
 
@@ -932,7 +938,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 
 
         // update the custom name and parent
-        sprintf(sql,"UPDATE items SET parent_id=%"PRIu64", customName='",mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+        sprintf(sql,"UPDATE %s.items SET parent_id=%"PRIu64", customName='",mDatabase->galaxy(),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
         sprintf(restStr,"' WHERE id=%"PRIu64" ",mItem->getId());
@@ -1252,7 +1258,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder();
     list->clear();
 
-    mDatabase->executeSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId());
+    mDatabase->executeSqlAsync(0,0,"DELETE FROM %s.item_attributes WHERE item_id=%"PRIu64"",mDatabase->galaxy(),mManufacturingSchematic->getId());
 
 
     //save the datapad as the Owner Id in the db
@@ -1269,7 +1275,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     //Now enter the relevant information into the Manufactureschematic table
     std::string serial = mItem->getAttribute<std::string>("serial_number");
 
-    mDatabase->executeSqlAsync(0, 0, "INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
+    mDatabase->executeSqlAsync(0, 0, "INSERT INTO %s.manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mDatabase->galaxy(),mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
 
 
     //save the customization - thats part of the item!!!!

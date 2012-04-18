@@ -38,8 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "VehicleController.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "WorldConfig.h"
-#include "ZoneTree.h"
 #include "ZoneServer/Tutorial.h"
 #include "MessageLib/MessageLib.h"
 // events
@@ -674,10 +674,10 @@ void CreatureObject::updateRaceGenderMask(bool female)
         }
     }
 }
+//gets called by the active Object of the statemanager
 void CreatureObject::creatureActionStateUpdate()
 {
-    gMessageLib->sendPostureAndStateUpdate(this);
-    
+	gMessageLib->sendPostureAndStateUpdate(this);   
 }
 void CreatureObject::creaturePostureUpdate()
 {
@@ -862,7 +862,7 @@ void CreatureObject::die()
         BuildingObject* preDesignatedBuilding = NULL;
 
         // Search for cloning facilities.
-        gWorldManager->getSI()->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192);
+        gSpatialIndexManager->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192, false);
 
         ObjectSet::iterator buildingIt = inRangeBuildings.begin();
 

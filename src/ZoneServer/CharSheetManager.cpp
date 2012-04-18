@@ -65,7 +65,7 @@ CharSheetManager::CharSheetManager(Database* database,MessageDispatch* dispatch)
     _registerCallbacks();
 
     //gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
-    mDatabase->executeSqlAsync(this, new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions), "SELECT * FROM faction ORDER BY id;");
+    mDatabase->executeSqlAsync(this, new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions), "SELECT * FROM %s.faction ORDER BY id;",mDatabase->galaxy());
     
 }
 
@@ -141,7 +141,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
         mDatabase->destroyDataBinding(binding);
 
         // load badge categories
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_BadgeCategories),"SELECT * FROM badge_categories ORDER BY id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_BadgeCategories),"SELECT * FROM %s.badge_categories ORDER BY id",mDatabase->galaxy());
         
     }
     break;
@@ -166,7 +166,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
 
         //gLogger->log(LogManager::DEBUG,"Finished Loading Badge Categories.");
         //gLogger->log(LogManager::NOTICE,"Loading Badges.");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Badges),"SELECT * FROM badges ORDER BY id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Badges),"SELECT * FROM %s.badges ORDER BY id",mDatabase->galaxy());
         
     }
     break;
@@ -264,7 +264,7 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opPlayerMoneyResponse);
-    gMessageFactory->addUint32(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
+    gMessageFactory->addUint32(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits());
     gMessageFactory->addUint32(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 
     Message* newMessage = gMessageFactory->EndMessage();

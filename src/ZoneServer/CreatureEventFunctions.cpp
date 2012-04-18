@@ -48,7 +48,8 @@ void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 	{
 		mCurrentIncapTime = 0;
 		gMessageLib->sendIncapTimerUpdate(this);
-
+        // unblock so we can transition out
+        this->states.unblock();
 		gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
 
 		// reset ham regeneration

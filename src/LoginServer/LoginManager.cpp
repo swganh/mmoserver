@@ -350,7 +350,10 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
         newMessage = gMessageFactory->EndMessage();
 
         client->SendChannelA(newMessage, 3,false);
-        client->Disconnect(6);
+		
+		//This disconnect will cause the client to not show the error message.
+		//The downside is that the user must click "Cancel" on the Connecting to the Login Server window.
+        //client->Disconnect(6);
     }
 
     // Destroy our database object

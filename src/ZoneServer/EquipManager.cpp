@@ -27,11 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/EquipManager.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -277,14 +273,14 @@ bool EquipManager::unEquipItem(Object* object)
     Item* item = dynamic_cast<Item*>(object);
     if(!item)
     {
-        DLOG(WARNING) << "Inventory::unEquipItem : No Item object ID : " << object->getId();
+        DLOG(warning) << "Inventory::unEquipItem : No Item object ID : " << object->getId();
         return false;
     }
 
     PlayerObject*	owner		= dynamic_cast<PlayerObject*> (this->getParent());
     if(!owner)
     {
-        DLOG(WARNING) << "Inventory::unEquipItem : No one has it equipped";
+        DLOG(warning) << "Inventory::unEquipItem : No one has it equipped";
         return false;
     }
 

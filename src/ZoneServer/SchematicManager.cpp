@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "CraftBatch.h"
 #include "DraftSchematic.h"
@@ -148,7 +148,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         mDatabase->destroyDataBinding(binding);
         ScMAsyncContainer* asContainer;
 
-        DLOG(INFO) <<  "Started Loading Schematics";
+        DLOG(info) <<  "Started Loading Schematics";
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_GroupSchematics);
         mDatabase->executeSqlAsync(this,asContainer,"SELECT object_string,weightsbatch_id,complexity,datasize,subCategory,craftEnabled,group_id FROM %s.draft_schematics",mDatabase->galaxy());
     }
@@ -182,7 +182,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
             if(elements < 3)
             {
-            	LOG(ERROR) << "Error in Schematic String";
+            	LOG(error) << "Error in Schematic String";
                 break;
             }
 
@@ -211,7 +211,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         mSchematicCount += static_cast<uint32>(count);
 
-        DLOG(INFO) << "Started Loading Schematic Draft Slots.";
+        DLOG(info) << "Started Loading Schematic Draft Slots.";
         // now query the draftslots
         ScMAsyncContainer* asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicSlots);
         int8 sql[2048];
@@ -225,7 +225,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         
 
 
-        DLOG(INFO) << "Started Loading Schematic Assembly Batches.";
+        DLOG(info) << "Started Loading Schematic Assembly Batches.";
         // assemblybatches
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicAssemblyBatches);
         sprintf(sql,"SELECT draft_assembly_batches.id,draft_assembly_batches.list_id,draft_weights.id"
@@ -236,7 +236,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
-        DLOG(INFO) << "Started Loading Schematic Experimentation Batches.";
+        DLOG(info) << "Started Loading Schematic Experimentation Batches.";
         // experimentbatches
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicExperimentBatches);
         sprintf(sql,"SELECT draft_experiment_batches.id,draft_experiment_batches.list_id,draft_schematics.weightsbatch_id"
@@ -249,7 +249,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         mDatabase->executeSqlAsync(this,asContainer,sql);
         
 
-        DLOG(INFO) << "Started Loading Schematic Crafting Batches.";
+        DLOG(info) << "Started Loading Schematic Crafting Batches.";
         // craftingbatches
         asContainer = new(mDBAsyncPool.ordered_malloc()) ScMAsyncContainer(ScMQuery_SchematicCraftBatches);
         sprintf(sql,"SELECT draft_craft_batches.id,draft_craft_batches.list_id,draft_craft_batches.expGroup,draft_schematics.weightsbatch_id"
@@ -263,7 +263,7 @@ void SchematicManager::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         if(!--mGroupLoadCount)
         {
-            DLOG(INFO) << "Finished Loading " << num << " Groups and Schematics out of " << count;
+            DLOG(info) << "Finished Loading " << num << " Groups and Schematics out of " << count;
 
 
         }

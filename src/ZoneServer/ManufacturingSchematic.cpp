@@ -293,7 +293,7 @@ void ManufacturingSchematic::setPPAttribute(BString key,std::string value)
 
     if(it == mPPAttributeMap.end())
     {
-        DLOG(WARNING) << "ManufacturingSchematic::setPPAttribute: could not find " << key.getAnsi();
+        DLOG(warning) << "ManufacturingSchematic::setPPAttribute: could not find " << key.getAnsi();
         return;
     }
 
@@ -320,7 +320,7 @@ void ManufacturingSchematic::removePPAttribute(BString key)
     if(it != mPPAttributeMap.end())
         mPPAttributeMap.erase(it);
     else
-        DLOG(WARNING) << "ManufacturingSchematic::removePostProcessAttribute: could not find " << key.getAnsi();
+        DLOG(warning) << "ManufacturingSchematic::removePostProcessAttribute: could not find " << key.getAnsi();
 }
 
 //===============================================================

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Deed.h"
 #include "HouseObject.h"
@@ -327,7 +327,7 @@ void HouseFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(house->getLoadCount() == (house->getCellList())->size())
     {
         if(!(_removeFromObjectLoadMap(house->getId())))
-            LOG(WARNING) << "Failed removing object from loadmap";
+            LOG(warning) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(house,ilc->mClient);
 

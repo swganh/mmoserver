@@ -91,7 +91,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         }
     }
     else
-        DLOG(INFO) << "TravelTerminal: Unhandled MenuSelect: " << messageType;
+        DLOG(info) << "TravelTerminal: Unhandled MenuSelect: " << messageType;
 }
 
 //=============================================================================
@@ -200,7 +200,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,BString inputStr
                     }
                     else
                     {
-                        DLOG(INFO) << "TicketCollector: Error getting TravelPoint";
+                        DLOG(info) << "TicketCollector: Error getting TravelPoint";
                     }
                     break;
                 }
@@ -255,7 +255,7 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
             }
             else
             {
-                DLOG(INFO) << "TicketCollector: Error getting TravelPoint";
+                DLOG(info) << "TicketCollector: Error getting TravelPoint";
             }
         }
     }

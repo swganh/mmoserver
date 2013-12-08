@@ -526,7 +526,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
         if(player != 0)
         {
             //gMessageLib->sendSystemMessage(player, "You appear to have attempted to stack Buffs. The server has prevented this");
-            DLOG(INFO) << "Attempt to duplicate buffs prevented.";
+            DLOG(info) << "Attempt to duplicate buffs prevented.";
         }
         SAFE_DELETE(buff);
         return;
@@ -785,7 +785,7 @@ void CreatureObject::incap()
     }
     else
     {
-        LOG(INFO) << "CreatureObject::incap Incapped unsupported type " <<  this->getType();
+        LOG(info) << "CreatureObject::incap Incapped unsupported type " <<  this->getType();
     }
 
 }
@@ -923,7 +923,7 @@ void CreatureObject::die()
         }
         else
         {
-            DLOG(INFO) << "No cloning facility available ";
+            DLOG(info) << "No cloning facility available ";
         }
     }
     else // if(CreatureObject* creature = dynamic_cast<CreatureObject*>(this))

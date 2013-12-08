@@ -97,7 +97,7 @@ void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 	TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
 	if(!tangibleObject)
 	{
-		LOG(FATAL) << "Inventory::handleObjectReady : Not a tangible ???";
+		LOG(fatal) << "Inventory::handleObjectReady : Not a tangible ???";
 		assert(false && "Inventory::handleObjectReady object is not tangible");
 		return;
 	}

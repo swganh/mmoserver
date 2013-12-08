@@ -76,7 +76,7 @@ void UIListBox::handleEvent(Message* message)
         message->getStringUnicode16(selectedDataItemStr);
 
         if(swscanf(selectedDataItemStr.getUnicode16(),L"%i",&selectedItem) != 1)
-            DLOG(INFO) << "UIListBox::handleEvent: item mismatch";
+            DLOG(info) << "UIListBox::handleEvent: item mismatch";
 
         if(items >= 2)
             message->getStringUnicode16(caption);

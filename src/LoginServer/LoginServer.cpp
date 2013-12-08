@@ -27,11 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginServer.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include <iostream>
 #include <fstream>
@@ -61,7 +57,7 @@ LoginServer::LoginServer(int argc, char* argv[])
     , mNetworkManager(0)
 {
     Anh_Utils::Clock::Init();
-    LOG(WARNING) << "Login Server Startup";
+    LOG(warning) << "Login Server Startup";
 
 	// Load Configuration Options
 	std::list<std::string> config_files;
@@ -81,7 +77,7 @@ LoginServer::LoginServer(int argc, char* argv[])
 		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
 		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
 
-    LOG(WARNING) << "Config port set to " << configuration_variables_map_["BindPort"].as<uint16>();
+    LOG(warning) << "Config port set to " << configuration_variables_map_["BindPort"].as<uint16>();
     mService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024,false);
 
 	mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
@@ -115,12 +111,12 @@ LoginServer::LoginServer(int argc, char* argv[])
     // We're done initializing.
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, '%s', %u);",mDatabase->galaxy(), 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
 
-    LOG(WARNING) << "Login Server startup complete";
+    LOG(warning) << "Login Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(WARNING) <<  "Login Server - Build " << GetBuildString().c_str();
-    LOG(WARNING) << "Welcome to your SWGANH Experience!";
+    LOG(warning) <<  "Login Server - Build " << GetBuildString().c_str();
+    LOG(warning) << "Welcome to your SWGANH Experience!";
 }
 
 
@@ -129,7 +125,7 @@ LoginServer::~LoginServer(void)
 {
     mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, NULL, NULL);",mDatabase->galaxy(), 2); // SQL - Update server status
     
-    LOG(WARNING) << "LoginServer shutting down...";
+    LOG(warning) << "LoginServer shutting down...";
 
     delete mLoginManager;
 
@@ -140,7 +136,7 @@ LoginServer::~LoginServer(void)
 
     delete mDatabaseManager;
 
-    LOG(WARNING) << "LoginServer Shutdown complete";
+    LOG(warning) << "LoginServer Shutdown complete";
 }
 
 //======================================================================================================================
@@ -163,18 +159,7 @@ void handleExit(void)
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
-    // Initialize the google logging.
-    google::InitGoogleLogging(argv[0]);
-
-#ifndef _WIN32
-    google::InstallFailureSignalHandler();
-#endif
-
-    FLAGS_log_dir = "./logs";
-    FLAGS_stderrthreshold = 1;
-    
-    //set stdout buffers to 0 to force instant flush
-    setvbuf( stdout, NULL, _IONBF, 0);
+   
 
     bool exit = false;
 

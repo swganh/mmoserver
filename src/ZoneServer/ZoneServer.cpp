@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer.h"
 
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include <iostream>
 #include <fstream>
@@ -89,16 +89,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/thread/thread.hpp>
 
+
 using anh::event_dispatcher::EventDispatcher;
 using std::make_shared;
 using std::shared_ptr;
 
 using utils::Singleton;
-
-#ifdef WIN32
-#undef ERROR
-#endif
-
 
 //======================================================================================================================
 
@@ -144,7 +140,7 @@ ZoneServer::ZoneServer(int argc, char* argv[])
     LoadOptions_(argc, argv, config_files);
 
 
-    LOG(ERROR) << "ZoneServer startup sequence for [" << mZoneName << "]";
+    LOG(error) << "ZoneServer startup sequence for [" << mZoneName << "]";
 
     // Create and startup our core services.
     mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
@@ -180,7 +176,7 @@ ZoneServer::ZoneServer(int argc, char* argv[])
 
     if (!result->getRowCount())
     {
-        LOG(ERROR) << "Map not found for [" << mZoneName << "]";
+        LOG(error) << "Map not found for [" << mZoneName << "]";
 
         abort();
     }
@@ -260,7 +256,7 @@ ZoneServer::ZoneServer(int argc, char* argv[])
 
 ZoneServer::~ZoneServer(void)
 {
-    LOG(INFO) << "ZoneServer shutting down";
+    LOG(info) << "ZoneServer shutting down";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -301,7 +297,7 @@ ZoneServer::~ZoneServer(void)
     // NOW, I can feel that it should be safe to delete the data holding messages.
     gMessageFactory->destroySingleton();
 
-    LOG(INFO) << "ZoneServer shutdown complete";
+    LOG(info) << "ZoneServer shutdown complete";
 }
 
 //======================================================================================================================
@@ -309,7 +305,7 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
     _updateDBServerList(2);
-    LOG(WARNING) << "ZoneServer startup complete";
+    LOG(warning) << "ZoneServer startup complete";
 
     // Connect to the ConnectionServer;
     _connectToConnectionServer();
@@ -400,18 +396,7 @@ void ZoneServer::_connectToConnectionServer(void)
 
 int main(int argc, char* argv[])
 {
-    // Initialize the google logging.
-    google::InitGoogleLogging(argv[0]);
-
-#ifndef _WIN32
-    google::InstallFailureSignalHandler();
-#endif
-
-    FLAGS_log_dir = "./logs";
-    FLAGS_stderrthreshold = 0;
-
-    //set stdout buffers to 0 to force instant flush
-    setvbuf( stdout, NULL, _IONBF, 0);
+    
 
     //try {
 

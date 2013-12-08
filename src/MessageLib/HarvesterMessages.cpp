@@ -40,12 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer/ObjectControllerOpcodes.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -795,7 +790,7 @@ void MessageLib::SendHarvesterHopperUpdate(HarvesterObject* harvester, PlayerObj
     HResourceList*	hRList = harvester->getResourceList();
     harvester->setRListUpdateCounter(harvester->getRListUpdateCounter() + hRList->size());
 
-    DLOG(INFO) << "adding update Counter  ID " << harvester->getRListUpdateCounter();
+    DLOG(info) << "adding update Counter  ID " << harvester->getRListUpdateCounter();
 
     mMessageFactory->addUint32(hRList->size());
     mMessageFactory->addUint32(harvester->getRListUpdateCounter());

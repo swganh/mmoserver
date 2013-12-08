@@ -97,7 +97,7 @@ void	ObjectController::_handleModifyPermissionList(uint64 targetId,Message* mess
 
     if(!player)
     {
-        DLOG(INFO) << " ObjectController::_handleModifyPermissionList Player not found";
+        DLOG(info) << " ObjectController::_handleModifyPermissionList Player not found";
         return;
     }
 
@@ -341,7 +341,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData Structure not in Range";
+        DLOG(info) << " ObjectController::_handleHarvesterGetResourceData Structure not in Range";
         return;
     }
 
@@ -358,7 +358,7 @@ void	ObjectController::_handleHarvesterGetResourceData(uint64 targetId,Message* 
     return;
     gMessageLib->sendHarvesterResourceData(structure,player);
 
-    DLOG(INFO) << " ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline";
+    DLOG(info) << " ObjectController::_handleHarvesterGetResourceData :: hino 7 baseline";
     gMessageLib->sendBaselinesHINO_7(harvester,player);
 
     //add the structure to the timer so the resource amounts are updated while we look at the hopper
@@ -404,7 +404,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
     float fTransferDistance = gWorldConfig->getConfiguration<float>("Player_Structure_Operate_Distance",(float)10.0);
     if(glm::distance(player->mPosition, structure->mPosition) > fTransferDistance)
     {
-        DLOG(INFO) << " ObjectController::_handleHarvesterSelectResource Structure not in Range";
+        DLOG(info) << " ObjectController::_handleHarvesterSelectResource Structure not in Range";
         return;
     }
 
@@ -421,7 +421,7 @@ void	ObjectController::_handleHarvesterSelectResource(uint64 targetId,Message* m
 
     if((!tmpResource)||(!tmpResource->getCurrent()))
     {
-        DLOG(INFO) << " ObjectController::_handleHarvesterSelectResource No valid resource!";
+        DLOG(info) << " ObjectController::_handleHarvesterSelectResource No valid resource!";
         return;
     }
 

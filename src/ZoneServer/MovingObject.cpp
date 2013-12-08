@@ -90,7 +90,7 @@ void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPo
         }
         else
         {
-            LOG(WARNING) << "Error removing " << this->getId() << " from cell " << this->getParentId();
+            LOG(warning) << "Error removing " << this->getId() << " from cell " << this->getParentId();
         }
 
         // now set our new ParentId
@@ -122,7 +122,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
             cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId));
             if(!cell)
             {
-                LOG(WARNING) << "Error removing " << this->getId() << " from cell " << this->getParentId();
+                LOG(warning) << "Error removing " << this->getId() << " from cell " << this->getParentId();
                 assert(false);
                 return;
             }
@@ -137,7 +137,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
                 if (!newCell)
                 {
                     this->setParentId(parentId);
-                    LOG(WARNING) << this->getId() << " Error casting new cell " << this->getParentId();
+                    LOG(warning) << this->getId() << " Error casting new cell " << this->getParentId();
                     assert(false);
                     return;
                 }
@@ -167,7 +167,7 @@ void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPos
         if (!cell)
         {
             this->setParentId(parentId);
-            LOG(WARNING) << "Error adding " << this->getId() << " from cell " << this->getParentId();
+            LOG(warning) << "Error adding " << this->getId() << " from cell " << this->getParentId();
             assert(false);
             return;
         }

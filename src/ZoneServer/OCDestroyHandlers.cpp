@@ -86,7 +86,7 @@ void ObjectController::destroyObject(uint64 objectId)
 	// or something else
 	if(object == NULL)
 	{
-		DLOG(INFO) << "ObjController::destroyObject: could not find object " << objectId;
+		DLOG(info) << "ObjController::destroyObject: could not find object " << objectId;
 		return;
 	}
 

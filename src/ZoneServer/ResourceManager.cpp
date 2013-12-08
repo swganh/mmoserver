@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "CurrentResource.h"
 #include "ResourceCategory.h"
@@ -287,7 +287,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
                 delete(resource);
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " resources";
+        //LOG(info) << "Loaded " << count << " resources";
     }
     break;
 
@@ -309,7 +309,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             (getResourceCategoryById(resource->mType->mCatId))->insertResource(resource);
         }
 
-        LOG_IF(INFO, count) << "Generated " << count << " resource maps";
+        //LOG(info) << "Generated " << count << " resource maps";
 
         // query old and current resources not from this planet
         mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),
@@ -409,7 +409,7 @@ bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
     }
     else
     {
-        LOG(WARNING) << "Resource " << resource->getName().getAnsi() << " was not found or is inactive";
+        LOG(warning) << "Resource " << resource->getName().getAnsi() << " was not found or is inactive";
         return false;
     }
 

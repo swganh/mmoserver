@@ -36,12 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/ZoneOpcodes.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
 
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"
@@ -670,7 +666,7 @@ void MessageLib::sendDefenderUpdate(CreatureObject* creatureObject,uint8 updateT
     {
         // Reset all
         // Not suported yet
-        DLOG(INFO) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
+        DLOG(info) << "MessageLib::sendDefenderUpdate Invalid option = " << updateType;
 
         //NEVER EVER BAIL OUT WITHOUT closing the message and deleting it
         Message* message = mMessageFactory->EndMessage();
@@ -965,7 +961,7 @@ bool MessageLib::sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, 
 
     if(!found)
     {
-        DLOG(INFO) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
+        DLOG(info) << "MessageLib::sendEquippedItemUpdate_InRange : Item not found : " << itemId;
         return false;
     }
 
@@ -1366,12 +1362,12 @@ bool MessageLib::sendSkillModDeltasCREO_4(SkillModsList smList,uint8 remove,Crea
     mMessageFactory->addUint32(smList.size());
 
     mMessageFactory->addUint32(playerObject->getAndIncrementSkillModUpdateCounter(smList.size()));
-    mMessageFactory->addUint8(remove);
+    //mMessageFactory->addUint8(remove);
 
     it = smList.begin();
     while(it != smList.end())
     {
-        mMessageFactory->addUint8(0);
+        mMessageFactory->addUint8(remove);
         mMessageFactory->addString(gSkillManager->getSkillModById((*it).first));
         mMessageFactory->addUint32((*it).second);
         mMessageFactory->addUint32(0);

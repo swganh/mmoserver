@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "ActiveConversation.h"
 #include "Conversation.h"
@@ -116,7 +116,7 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
             
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " conversations";
+        //LOG(info) << "Loaded " << count << " conversations";
 
         mDatabase->destroyDataBinding(binding);
     }
@@ -325,7 +325,7 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
 
     if(!av)
     {
-    	LOG(ERROR) << "Could not find conversation intended for player [" << player->getId() << "]";
+    	LOG(error) << "Could not find conversation intended for player [" << player->getId() << "]";
         return;
     }
 

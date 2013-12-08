@@ -27,10 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "InventoryFactory.h"
 
-#ifdef WIN32
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Inventory.h"
 #include "ObjectFactoryCallback.h"
@@ -248,7 +245,7 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 
     if (! ilc) {
-    	LOG(WARNING) << "Could not locate InLoadingContainer for object with id [" << object->getId() << "]";
+    	LOG(warning) << "Could not locate InLoadingContainer for object with id [" << object->getId() << "]";
         assert(ilc && "InventoryFactory::handleObjectReady unable to find InLoadingContainer");//moved below the return
         return;
     }
@@ -265,7 +262,7 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
         inventory->setLoadState(LoadState_Loaded);
 
         if(!(_removeFromObjectLoadMap(inventory->getId())))
-        	LOG(INFO) << "Failed removing object from loadmap";
+        	LOG(info) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(inventory,ilc->mClient);
 

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Datapad.h"
 #include "IntangibleObject.h"
@@ -174,7 +174,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(!player)
         {
             //factoryPanic!!!!!!!!
-        	LOG(WARNING) << "Failed getting player to create MS";
+        	LOG(warning) << "Failed getting player to create MS";
             return;
         }
 
@@ -183,7 +183,7 @@ void DatapadFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         if(!datapad)
         {
             //factoryPanic!!!!!!!!
-        	LOG(ERROR) << "Failed getting datapad to create MS";
+        	LOG(error) << "Failed getting datapad to create MS";
             return;
         }
         mObjectLoadMap.insert(std::make_pair(datapad->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(datapad,datapad,NULL,1)));
@@ -343,7 +343,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
             if(!mIlc)
             {
-            	LOG(WARNING) << "Failed getting ilc during ObjType_Tangible where ItemType_ManSchematic";
+            	LOG(warning) << "Failed getting ilc during ObjType_Tangible where ItemType_ManSchematic";
                 return;
             }
 
@@ -375,7 +375,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
             InLoadingContainer*mIlcDPad		= _getObject(id);
             if(!mIlcDPad)
             {
-            	LOG(WARNING) << "Failed getting mIlcDPad during ObjType_Tangible";
+            	LOG(warning) << "Failed getting mIlcDPad during ObjType_Tangible";
                 return;
             }
             datapad							= dynamic_cast<Datapad*>(mIlcDPad->mObject);
@@ -388,7 +388,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
 
             if(!mIlc)
             {
-            	LOG(WARNING) << "Failed getting ilc during ObjType_Tangible";
+            	LOG(warning) << "Failed getting ilc during ObjType_Tangible";
                 return;
             }
 
@@ -410,7 +410,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
         mIlc	= _getObject(theID);
         if(!mIlc)//sanity
         {
-            LOG(WARNING) << "Failed getting ilc during ObjType_Intangible";
+            LOG(warning) << "Failed getting ilc during ObjType_Intangible";
             return;
         }
 
@@ -429,7 +429,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
                 }
                 else
                 {
-                	LOG(WARNING) << "Datapad at max Capacity";
+                	LOG(warning) << "Datapad at max Capacity";
                     delete(object);
                 }
             }
@@ -447,7 +447,7 @@ void DatapadFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(!(mIlc->mLoadCounter))
     {
         if(!(_removeFromObjectLoadMap(theID)))
-        	LOG(WARNING) << "Failed removing object from loadmap";
+        	LOG(warning) << "Failed removing object from loadmap";
 
         mIlc->mOfCallback->handleObjectReady(datapad,mIlc->mClient);
 

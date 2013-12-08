@@ -165,7 +165,7 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(DatabaseResult* result)
     default:
     {
         npc = new NPCObject();
-        DLOG(INFO) << "PersistentNpcFactory::createPersistent unknown Family " << npcIdentifier.mFamilyId;
+        DLOG(info) << "PersistentNpcFactory::createPersistent unknown Family " << npcIdentifier.mFamilyId;
     }
     break;
     }

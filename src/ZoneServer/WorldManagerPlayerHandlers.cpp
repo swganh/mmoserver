@@ -92,7 +92,7 @@ void WorldManager::savePlayer(uint32 accId, bool remove, WMLogOut logout_type, C
     // Lookup the requested player and abort if not found
     PlayerObject* player_object = getPlayerByAccId(accId);
     if(!player_object) {
-        DLOG(WARNING) << "WorldManager::savePlayer could not find player with AccId:" << accId << ", save aborted.";
+        DLOG(warning) << "WorldManager::savePlayer could not find player with AccId:" << accId << ", save aborted.";
         return;
     }
 
@@ -105,7 +105,7 @@ void WorldManager::savePlayer(uint32 accId, bool remove, WMLogOut logout_type, C
 
 void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
     if(!player_object) {
-        DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
+        DLOG(warning) << "Trying to save character position with an invalid PlayerObject";
         return;
     }
 
@@ -132,13 +132,13 @@ void WorldManager::storeCharacterPosition_(PlayerObject* player_object, WMLogOut
 
 void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer) {
     if(!player_object) {
-        DLOG(WARNING) << "Trying to save character position with an invalid PlayerObject";
+        DLOG(warning) << "Trying to save character position with an invalid PlayerObject";
         return;
     }
 
     Ham* ham = player_object->getHam();
     if(!ham) {
-        DLOG(WARNING) << "Unable to retrieve Ham for player: [" << player_object->getId() << "]";
+        DLOG(warning) << "Unable to retrieve Ham for player: [" << player_object->getId() << "]";
         return;
     }
 
@@ -348,7 +348,7 @@ void WorldManager::removePlayerFromDisconnectedList(PlayerObject* playerObject)
     it = std::find(mPlayersToRemove.begin(),mPlayersToRemove.end(),playerObject);
     if(it == mPlayersToRemove.end())
     {
-        DLOG(INFO) << "WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: " << playerObject->getId();
+        DLOG(info) << "WorldManager::addReconnectedPlayer: Error removing Player from Disconnected List: " << playerObject->getId();
     }
     else
     {
@@ -426,7 +426,7 @@ bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
 
         ++playerIt;
     }
-    LOG(WARNING) << "Periodic Save of "<< playerSaveCount <<" Players";
+    LOG(warning) << "Periodic Save of "<< playerSaveCount <<" Players";
     return true;
 }
 //======================================================================================================================

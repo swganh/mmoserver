@@ -73,7 +73,7 @@ void CityFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Unable to load city with region id: " << id;
+            LOG(warning) << "Unable to load city with region id: " << id;
             return;
         }
 

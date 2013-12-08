@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 namespace anh {
 namespace event_dispatcher {
-    class IEventDispatcher;
+    class EventDispatcherInterface;
 }}  // namespace anh::event_dispatcher
 
 class NetworkManager;
@@ -98,7 +98,7 @@ private:
     std::string                   mZoneName;
     uint32						  mLastHeartbeat;
 
-    std::shared_ptr<anh::event_dispatcher::IEventDispatcher> event_dispatcher_;
+    std::shared_ptr<anh::event_dispatcher::EventDispatcherInterface> event_dispatcher_;
     NetworkManager*               mNetworkManager;
     DatabaseManager*              mDatabaseManager;
 

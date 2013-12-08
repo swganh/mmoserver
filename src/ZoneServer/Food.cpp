@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Buff.h"
 #include "Inventory.h"
@@ -157,7 +157,7 @@ void Food::handleFoodUse(Object* srcObject)
         mIcon = 0;
         mIcon = this->getInternalAttribute<uint32>("food_icon");
     } else {
-    	LOG(WARNING) << "Food/Drink found with no buff icon";
+    	LOG(warning) << "Food/Drink found with no buff icon";
     }
 
     if(this->hasAttribute("counter_uses_remaining"))

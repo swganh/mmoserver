@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "FactoryCrate.h"
 
@@ -136,7 +136,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             TangibleObject* tangible = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asyncContainer->mId));
             if(!tangible)
             {
-                LOG(WARNING) << "Oject is not tangible";
+                LOG(warning) << "Oject is not tangible";
                 mDatabase->destroyDataBinding(binding);
                 return;
             }
@@ -148,14 +148,14 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         if(!ilc) { //Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627075436-83ca0076fa8abc2a4347e45ee3ede3eb
             mDatabase->destroyDataBinding(binding);
-            LOG(WARNING) << "No InLoadingContainer found for hopper [" << asyncContainer->mId << "]";
+            LOG(warning) << "No InLoadingContainer found for hopper [" << asyncContainer->mId << "]";
             return;
         }
 
         if((--ilc->mLoadCounter)== 0)
         {
             if(!(_removeFromObjectLoadMap(asyncContainer->mHopper)))
-                LOG(WARNING) << "Failed removing object from loadmap";
+                LOG(warning) << "Failed removing object from loadmap";
 
             ilc->mOfCallback->handleObjectReady(asyncContainer->mObject,ilc->mClient,asyncContainer->mHopper);
 
@@ -439,7 +439,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     InLoadingContainer* ilc = _getObject(object->getParentId());
     if(!ilc) { //Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627071644-6c8c2b45ecb37f7914372484cd105bfe
-        LOG(WARNING) << "No InLoadingContainer found for object parent[" << object->getParentId() << "]";
+        LOG(warning) << "No InLoadingContainer found for object parent[" << object->getParentId() << "]";
         return;
     }
     FactoryObject*		factory = dynamic_cast<FactoryObject*>(ilc->mObject);
@@ -456,7 +456,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
     TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
     if(!tangible)
     {
-        LOG(WARNING) << "Not tangible on handleObjectReady!";
+        LOG(warning) << "Not tangible on handleObjectReady!";
         return;
     }
 
@@ -486,7 +486,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
         if(!hopper)
         {
-            LOG(ERROR) << "OutputHopper not found on item load";
+            LOG(error) << "OutputHopper not found on item load";
             assert(false && "FactoryFactory::handleObjectReady WorldManager could not find output hopper");
         }
 
@@ -501,7 +501,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(( --ilc->mLoadCounter) == 0)
     {
         if(!(_removeFromObjectLoadMap(object->getParentId())))
-            LOG(WARNING) << "Failed removing object from loadmap";
+            LOG(warning) << "Failed removing object from loadmap";
 
         factory->setLoadState(LoadState_Loaded);
         if(!parent)			   //factories dont have a parent! main cell is 0!!!

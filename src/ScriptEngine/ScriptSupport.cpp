@@ -40,12 +40,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "MessageLib/MessageLib.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
 
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 
 // const uint64 wompratTemplateId = 47513085687;
@@ -192,7 +188,7 @@ NPCObject* ScriptSupport::npcGetObject(uint64 id)
 
 uint64 ScriptSupport::npcCreate(uint64 templateId) //, uint64 npcPrivateOwnerId, uint64 cellForSpawn, std::string firstname, std::string lastname, float dirY, float dirW, float posX, float posY, float posZ, uint64 respawnDelay)
 {
-    DLOG(INFO) << "ScriptSupport::npcCreate template id " << templateId;
+    DLOG(info) << "ScriptSupport::npcCreate template id " << templateId;
 
     uint64 npcId = gWorldManager->getRandomNpNpcIdSequence();
     if (npcId != 0)
@@ -221,7 +217,7 @@ void ScriptSupport::npcSpawnPersistent(NPCObject* npc, uint64 npcId, uint64 cell
     }
     else
     {
-        LOG(WARNING) << "ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.";
+        LOG(warning) << "ScriptSupport::npcSpawnPersistent: Heightmap is missing, can NOT use dynamic spawned npc's.";
     }
 }
 
@@ -254,7 +250,7 @@ void ScriptSupport::npcSpawnGeneral(uint64 npcId, uint64 npcPrivateOwnerId, uint
     if (!npc)
     {
         // Fallback for running in release mode.
-        LOG(WARNING) << "ScriptSupport::npcSpawnGeneral: Failed to access NPC id " << npcId;
+        LOG(warning) << "ScriptSupport::npcSpawnGeneral: Failed to access NPC id " << npcId;
         return;
     }
 

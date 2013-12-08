@@ -214,7 +214,7 @@ void AttackableStaticNpc::spawn() {
             PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getPrivateOwner()));
             if (playerObject)
             {
-                DLOG(INFO) << "AttackableStaticNpc::spawn: Spawned a private object.";
+                DLOG(info) << "AttackableStaticNpc::spawn: Spawned a private object.";
                 if (this->getParentId())
                 {
                     // We are inside a cell.
@@ -230,13 +230,13 @@ void AttackableStaticNpc::spawn() {
             else
             {
                 assert(false);
-                DLOG(INFO) << "AttackableStaticNpc::spawn: Failed to spawn a private object.";
+                DLOG(info) << "AttackableStaticNpc::spawn: Failed to spawn a private object.";
             }
         }
     }
     else
     {
-        DLOG(INFO) << "AttackableStaticNpc::spawn: Spawned an object.";
+        DLOG(info) << "AttackableStaticNpc::spawn: Spawned an object.";
         if (this->getParentId())
         {
             // We are inside a cell.

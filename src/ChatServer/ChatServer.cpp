@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 #include <fstream>
 
-#include <glog/logging.h>
+#include "utils/logger.h"
 // External references
 #include "ChatManager.h"
 #include "CSRManager.h"
@@ -75,7 +75,7 @@ ChatServer::ChatServer(int argc, char* argv[])
 	, mLastHeartbeat(0)
 {
     Anh_Utils::Clock::Init();
-    LOG(WARNING) << "Chat Server Startup";
+    LOG(warning) << "Chat Server Startup";
 
 	// Load Configuration Options
 	std::list<std::string> config_files;
@@ -142,19 +142,19 @@ ChatServer::ChatServer(int argc, char* argv[])
     // We're done initializing.
     _updateDBServerList(2);
 
-    LOG(WARNING) << "Chat Server startup complete";
+    LOG(warning) << "Chat Server startup complete";
     //gLogger->printLogo();
     // std::string BuildString(GetBuildString());
 
-    LOG(WARNING) << "Chat Server - Build " << GetBuildString().c_str();
-    LOG(WARNING) << "Welcome to your SWGANH Experience!";
+    LOG(warning) << "Chat Server - Build " << GetBuildString().c_str();
+    LOG(warning) << "Welcome to your SWGANH Experience!";
 }
 
 //======================================================================================================================
 
 ChatServer::~ChatServer()
 {
-    LOG(WARNING) << "ChatServer shutting down...";
+    LOG(warning) << "ChatServer shutting down...";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -179,7 +179,7 @@ ChatServer::~ChatServer()
 
     delete mDatabaseManager;
 
-    LOG(WARNING) << "ChatServer Shutdown Complete";
+    LOG(warning) << "ChatServer Shutdown Complete";
 }
 
 //======================================================================================================================
@@ -203,7 +203,7 @@ void ChatServer::Process()
     if (Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat > 180000)//main loop every 10ms
     {
         mLastHeartbeat = static_cast<uint32>(Anh_Utils::Clock::getSingleton()->getLocalTime());
-        DLOG(INFO) << "ChatServer Heartbeat.";
+        DLOG(info) << "ChatServer Heartbeat.";
     }
 }
 
@@ -252,7 +252,7 @@ void ChatServer::_connectToConnectionServer()
     // Now connect to the ConnectionServer
     mClient = new DispatchClient();
 
-	LOG(INFO) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
+	LOG(info) << "New connection to " << processAddress.mAddress.getAnsi() << " on port " << processAddress.mPort;
     mRouterService->Connect(mClient, processAddress.mAddress.getAnsi(), processAddress.mPort);
 }
 
@@ -267,18 +267,7 @@ void handleExit()
 
 int main(int argc, char* argv[])
 {
-    // Initialize the google logging.
-    google::InitGoogleLogging(argv[0]);
-
-#ifndef _WIN32
-    google::InstallFailureSignalHandler();
-#endif
-
-    FLAGS_log_dir = "./logs";
-    FLAGS_stderrthreshold = 1;
-
-    //set stdout buffers to 0 to force instant flush
-    setvbuf( stdout, NULL, _IONBF, 0);
+    
 
     bool exit = false;
 	

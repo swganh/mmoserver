@@ -31,6 +31,9 @@ namespace anh {
  */
 class HashString {
 public:
+	/// Takes a regular std::string and stores a hash of it.
+    HashString(const std::string& std_string); 
+
     /// Takes a human readable string and stores a hash of it.
     HashString(const char* ident_string);
 
@@ -48,6 +51,9 @@ public:
 
     /// Universal assignment operator.
     HashString& operator=(HashString other);
+
+	/// Conversion operator allows a hash string to be cast to a uint32_t
+    operator uint32_t () const;
 
     /*! Uses a less-than comparison on two HashStrings.
      *

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Utils/utils.h"
 
@@ -138,7 +138,7 @@ void ObjectFactory::requestNewDefaultManufactureSchematic(ObjectFactoryCallback*
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
+            LOG(warning) << "Create item failed";
             return;
         }
 
@@ -164,7 +164,7 @@ void ObjectFactory::requestNewClonedItem(ObjectFactoryCallback* ofCallback,uint6
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
+            LOG(warning) << "Create item failed";
             return;
         }
 
@@ -194,7 +194,7 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback, uin
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
+            LOG(warning) << "Create item failed";
             return;
         }
 
@@ -225,7 +225,7 @@ void ObjectFactory::requestNewDefaultItem(ObjectFactoryCallback* ofCallback,uint
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
+            LOG(warning) << "Create item failed";
             return;
         }
 
@@ -260,7 +260,7 @@ void ObjectFactory::requestNewDefaultItemWithUses(ObjectFactoryCallback* ofCallb
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
+            LOG(warning) << "Create item failed";
             return;
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1),TanGroup_Item,0, 0);
@@ -298,7 +298,7 @@ void ObjectFactory::requestNewTravelTicket(ObjectFactoryCallback* ofCallback,Tic
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
+            LOG(warning) << "Create item failed";
             return;
         }
 
@@ -325,7 +325,7 @@ void ObjectFactory::requestNewResourceContainer(ObjectFactoryCallback* ofCallbac
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
+            LOG(warning) << "Create item failed";
             return;
         }
 
@@ -392,7 +392,7 @@ void ObjectFactory::requestnewHarvesterbyDeed(ObjectFactoryCallback* ofCallback,
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Unable to create new default harvester, no result" ;
+            LOG(warning) << "Unable to create new default harvester, no result" ;
             return;
         }
 
@@ -467,7 +467,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
     }
 
 
-    DLOG(INFO) << "New Factory dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
+    DLOG(info) << "New Factory dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
 
     BString newBStr(customName);
     newBStr.convert(BSTRType_ANSI);
@@ -486,7 +486,7 @@ void ObjectFactory::requestnewFactorybyDeed(ObjectFactoryCallback* ofCallback,De
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Unable to create new default factory, no result" ;
+            LOG(warning) << "Unable to create new default factory, no result" ;
             return;
         }
 
@@ -558,7 +558,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
     }
 
 
-    DLOG(INFO) << "New House dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
+    DLOG(info) << "New House dir is "<<dir<<","<<oX<<","<<oY<<","<<oZ<<","<<oW;
     
     BString newBStr(customName);
     newBStr.convert(BSTRType_ANSI);
@@ -577,7 +577,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Unable to create new default house, no result" ;
+            LOG(warning) << "Unable to create new default house, no result" ;
             return;
         }
 
@@ -585,7 +585,7 @@ void ObjectFactory::requestnewHousebyDeed(ObjectFactoryCallback* ofCallback,Deed
 
         if(!requestId)
         {
-            LOG(ERROR) << "Create house failed : result is 0";
+            LOG(error) << "Create house failed : result is 0";
         }
 
         mHouseFactory->requestObject(ofCallback,requestId,0,0,client);
@@ -639,7 +639,7 @@ void ObjectFactory::requestNewWaypoint(ObjectFactoryCallback* ofCallback,BString
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Unable to create waypoint ";
+            LOG(warning) << "Unable to create waypoint ";
             return;
         }
 
@@ -669,12 +669,12 @@ void ObjectFactory::requestUpdatedWaypoint(ObjectFactoryCallback* ofCallback,uin
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Unable to update waypoint ";
+            LOG(warning) << "Unable to update waypoint ";
             return;
         }
         if (result_set->getInt(1) != 0)
         {
-            LOG(WARNING) << "Unable to update waypoint, sql failed with error: " << result_set->getInt(1);
+            LOG(warning) << "Unable to update waypoint, sql failed with error: " << result_set->getInt(1);
         }
         else
         {
@@ -717,7 +717,7 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
     break;
     default:
     {
-        LOG(WARNING) << "No Object could be created of type: " << Group;
+        LOG(warning) << "No Object could be created of type: " << Group;
         return;
         break;
     }
@@ -731,7 +731,7 @@ void ObjectFactory::requestTanoNewParent(ObjectFactoryCallback* ofCallback,uint6
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Create item failed";
+            LOG(warning) << "Create item failed";
             return;
         }
         mTangibleFactory->requestObject(ofCallback,result_set->getUInt64(1), Group, 0, 0);
@@ -1058,7 +1058,7 @@ void ObjectFactory::requestObject(ObjectType objType,uint16 subGroup,uint16 subT
     break;
 
     default:
-        DLOG(INFO) << "ObjectFactory::requestObject Unknown Object type";
+        DLOG(info) << "ObjectFactory::requestObject Unknown Object type";
         break;
     }
 }

@@ -208,7 +208,7 @@ bool Trade::checkTradeListtoInventory()
 
     if(!inventory)
     {
-        DLOG(INFO) << "Trade::checkTradeListtoInventory():: No inventory for " << getPlayerObject()->getId();
+        DLOG(info) << "Trade::checkTradeListtoInventory():: No inventory for " << getPlayerObject()->getId();
         return(false);
     }
 
@@ -344,7 +344,7 @@ bool Trade::ItemTradeCheck(uint64 ItemId)
     {
         if ((*it)->getObject()->getId() == ItemId)
         {
-            DLOG(INFO) << "PlayerObject: Item already on the tradeList";
+            DLOG(info) << "PlayerObject: Item already on the tradeList";
             return(true);
         }
 

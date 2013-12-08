@@ -51,12 +51,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseResult.h"
 #include "MessageLib/MessageLib.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Utils/rand.h"
 #include <cstdio>
@@ -191,7 +186,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
         // not all missions have associated names ...
         if(result->getRowCount())
-            DLOG(WARNING) << "Loaded mission STFs.";
+            DLOG(warning) << "Loaded mission STFs.";
 
     }
     break;
@@ -215,7 +210,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         if(result->getRowCount())
-            DLOG(WARNING) << "Loaded mission names.";
+            DLOG(warning) << "Loaded mission names.";
 
 
     }
@@ -251,7 +246,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                                                                   mDatabase->galaxy(),mDatabase->galaxy());
 
         if(result->getRowCount())
-            DLOG(WARNING) << "Loaded mission types.";
+            DLOG(warning) << "Loaded mission types.";
 
     }
     break;
@@ -390,7 +385,7 @@ void MissionManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         }
 
         if(result->getRowCount())
-            DLOG(WARNING) << "Loading "<< result->getRowCount() <<" mission terminal links...";
+            DLOG(warning) << "Loading "<< result->getRowCount() <<" mission terminal links...";
 
 
     }
@@ -463,7 +458,7 @@ void MissionManager::listRequest(PlayerObject* player, uint64 terminal_id,uint8 
 
 void MissionManager::detailsRequest(PlayerObject* player)
 {
-    DLOG(INFO) << "Player id " << player->getId() << " requested mission details";
+    DLOG(info) << "Player id " << player->getId() << " requested mission details";
 
     // this request likely requires a MissionDetailsResponse (000000F8) packet response
 }
@@ -472,7 +467,7 @@ void MissionManager::detailsRequest(PlayerObject* player)
 
 void MissionManager::createRequest(PlayerObject* player)
 {
-    DLOG(INFO) << "Player id " << player->getId() << " accepted mission ";
+    DLOG(info) << "Player id " << player->getId() << " accepted mission ";
 }
 
 //======================================================================================================================
@@ -489,7 +484,7 @@ void MissionManager::missionRequest(PlayerObject* player, uint64 mission_id)
     MissionObject* mission =  mission_bag->getMissionById(mission_id);
     if(mission == NULL)
     {
-        DLOG(WARNING) << "ERROR: Failed to retrieve mission with id " << mission_id << " Unable to accept mission!";
+        DLOG(warning) << "ERROR: Failed to retrieve mission with id " << mission_id << " Unable to accept mission!";
         return;
     }
 
@@ -652,7 +647,7 @@ void MissionManager::missionAbort(PlayerObject* player, uint64 mission_id)
     }
     else
     {
-        DLOG(WARNING) << "ERROR: Attempt to abort an invalid mission, with id "<<static_cast<int>(mission_id)<< ", from the datapad.";
+        DLOG(warning) << "ERROR: Attempt to abort an invalid mission, with id "<<static_cast<int>(mission_id)<< ", from the datapad.";
     }
 
     return;
@@ -983,7 +978,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     TerminalMap::iterator terminalMapIt = mTerminalMap.find(terminal);
     if(terminalMapIt != mTerminalMap.end())
     {
-        DLOG(INFO) << "MissionManager : found the terminal";
+        DLOG(info) << "MissionManager : found the terminal";
 
         Terminal_Type* terminal = (*terminalMapIt).second;
 
@@ -991,7 +986,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
         uint32 amount = terminal->list.size();
         uint32 chosen = gRandom->getRand() % amount;
 
-        DLOG(INFO) << "MissionManager : random : " <<  chosen;
+        DLOG(info) << "MissionManager : random : " <<  chosen;
 
         bool found = false;
         uint32 counter = 0;
@@ -1047,7 +1042,7 @@ MissionObject* MissionManager::generateDestroyMission(MissionObject* mission, ui
     }
     else
     {
-        DLOG(INFO) << "MissionManager : No mission file associated";
+        DLOG(info) << "MissionManager : No mission file associated";
 
         return NULL;
 

@@ -79,7 +79,7 @@ void WorldManager::_loadWorldObjects()
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_Zone, 0, this, result_set->getUInt64(1));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Zone Regions";
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Zone Regions";
             });
 
         }
@@ -100,7 +100,7 @@ void WorldManager::_loadWorldObjects()
             {
                 mvClientEffects.push_back(result_set->getString("effect"));
             }
-            LOG_IF(INFO, mvClientEffects.size()) << "Loaded " << mvClientEffects.size() << " Client Effects";
+            LOG(info) << "Loaded " << mvClientEffects.size() << " Client Effects";
         });
 
         // load attribute keys
@@ -119,7 +119,7 @@ void WorldManager::_loadWorldObjects()
                 mObjectAttributeKeyMap.insert(std::make_pair(name.getCrc(), name));
                 mObjectAttributeIDMap.insert(std::make_pair(name.getCrc(), result_set->getInt("id")));
             }
-            LOG_IF(INFO, mObjectAttributeKeyMap.size()) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
+            LOG(info) << "Loaded " << mObjectAttributeKeyMap.size() << " Attributes";
         });
 
         // load sounds
@@ -136,7 +136,7 @@ void WorldManager::_loadWorldObjects()
                 mvSounds.push_back(result_set->getString("name"));
             }
 
-            LOG_IF(INFO, mvSounds.size()) << "Loaded " << mvSounds.size() << " Sounds";
+            LOG(info) << "Loaded " << mvSounds.size() << " Sounds";
         });
 
         // load moods
@@ -154,7 +154,7 @@ void WorldManager::_loadWorldObjects()
             {
                 mvMoods.push_back(result_set->getString("name"));
             }
-            LOG_IF(INFO, mvMoods.size()) << "Loaded " << mvMoods.size() << " Moods";
+            LOG(info) << "Loaded " << mvMoods.size() << " Moods";
         });
 
         // load npc converse animations
@@ -172,7 +172,7 @@ void WorldManager::_loadWorldObjects()
             {
                 mvNpcConverseAnimations.push_back(result_set->getString("name"));
             }
-            LOG_IF(INFO, mvNpcConverseAnimations.size()) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
+            LOG(info) << "Loaded " << mvNpcConverseAnimations.size() << " NPC Converse Animations";
         });
         // load npc chatter
         query_stream.str(std::string());
@@ -196,7 +196,7 @@ void WorldManager::_loadWorldObjects()
 
                 mvNpcChatter.push_back(std::make_pair(ws, anim));
             }
-            LOG_IF(INFO, mvNpcChatter.size()) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
+            LOG(info) << "Loaded " << mvNpcChatter.size()<< " NPC Chatter Phrases";
         });
 
         if(mZoneId != 41)
@@ -216,8 +216,11 @@ void WorldManager::_loadWorldObjects()
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_City, 0, this, result_set->getUInt64(1));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " City Regions";
-                LOG_IF(INFO, !result_set->rowsCount()) <<"Unable to load cities with region id: " << mZoneId;
+				if (result_set->rowsCount())	{
+					LOG(info)  << "Loaded " << result_set->rowsCount() << " City Regions";
+				}
+				else
+					LOG(info) <<"Unable to load cities with region id: " << mZoneId;
             });
 
             // load badge regions
@@ -235,8 +238,8 @@ void WorldManager::_loadWorldObjects()
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_Badge, 0, this, result_set->getUInt64(1));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Badge Regions";
-                LOG_IF(INFO, !result_set->rowsCount()) << "Unable to load badges with region id: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Badge Regions";
+                
             });
 
             //load spawn regions
@@ -254,8 +257,8 @@ void WorldManager::_loadWorldObjects()
                 {
                     gObjectFactory->requestObject(ObjType_Region, Region_Spawn, 0, this, result_set->getUInt64(1));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
-                LOG_IF(INFO, !result_set->rowsCount())  << "Unable to load spawn regions with id: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Spawn Regions";
+               
             });
 
             // load world scripts
@@ -276,7 +279,7 @@ void WorldManager::_loadWorldObjects()
                     script->setFileName(result_set->getString("file").c_str());
                     mWorldScripts.push_back(script);
                 }
-                LOG_IF(INFO, mWorldScripts.size()) << "Loaded " << mWorldScripts.size() << " World Scripts";
+                LOG(info) << "Loaded " << mWorldScripts.size() << " World Scripts";
             });
 
             //load creature spawn regions, and optionally heightmaps cache.
@@ -301,8 +304,8 @@ void WorldManager::_loadWorldObjects()
 
                     mCreatureSpawnRegionMap.insert(std::make_pair(creatureSpawnRegion->mId, creatureSpawnRegion));
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
-                LOG_IF(INFO, !result_set->rowsCount()) << "No Creature Spawn Regions Loaded with ID: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Creature Spawn Regions";
+                
             });
 
             // load harvesters
@@ -319,8 +322,8 @@ void WorldManager::_loadWorldObjects()
                 {
                     gHarvesterFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Harvesters";
-                LOG_IF(INFO, !result_set->rowsCount()) << "No Harvesters to Load in Zone: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Player Harvesters";
+                
             });
 
             // load factories
@@ -338,8 +341,8 @@ void WorldManager::_loadWorldObjects()
                 {
                     gFactoryFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Factories";
-                LOG_IF(INFO, !result_set->rowsCount()) << "No Player Factories to Load in Zone: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Player Factories";
+                
             });
 
             // load playerhouses
@@ -357,8 +360,8 @@ void WorldManager::_loadWorldObjects()
                 {
                     gHouseFactory->requestObject(this,result_set->getUInt64(1),0,0,0);
                 }
-                LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Player Houses";
-                LOG_IF(INFO, !result_set->rowsCount()) << "No Player Houses to Load in Zone: " << mZoneId;
+                LOG(info) << "Loaded " << result_set->rowsCount() << " Player Houses";
+                
             });
         }
     }
@@ -383,7 +386,7 @@ void WorldManager::_loadBuildings()
         {
             gObjectFactory->requestObject(ObjType_Building,0,0,this,result_set->getUInt64(1));
         }
-        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Buildings";
+        LOG(info) << "Loaded " << result_set->rowsCount() << " Buildings";
     });
 }
 
@@ -427,7 +430,7 @@ void WorldManager::_loadAllObjects(uint64 parentId)
             else if(strcmp(str.c_str(),"resource_containers") == 0)
                 gObjectFactory->requestObject(ObjType_Tangible,TanGroup_ResourceContainer,0,this,id);
         }
-        LOG_IF(INFO, result_set->rowsCount()) << "Loaded " << result_set->rowsCount() << " Objects";
+        LOG(info) << "Loaded " << result_set->rowsCount() << " Objects";
     });
 }
 void    WorldManager::_loadPlanetNamesAndFiles()

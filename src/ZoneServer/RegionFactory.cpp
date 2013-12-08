@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "BadgeRegionFactory.h"
 #include "CityFactory.h"
@@ -73,7 +73,7 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
         break;
 
     default:
-        LOG(ERROR) << "Unknown group [" << subGroup << "]";
+        LOG(error) << "Unknown group [" << subGroup << "]";
         break;
     }
 }

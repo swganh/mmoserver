@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "ObjectFactoryCallback.h"
 #include "Resource.h"
@@ -151,7 +151,7 @@ ResourceContainer* ResourceContainerFactory::_createResourceContainer(DatabaseRe
         resourceContainer->setResource(resource);
         resourceContainer->setModelString((resource->getType())->getContainerModel().getAnsi());
     } else {
-    	LOG(WARNING) << "Resource not found [" << resourceContainer->mResourceId << "]";
+    	LOG(warning) << "Resource not found [" << resourceContainer->mResourceId << "]";
     }
 
     resourceContainer->mMaxCondition = 100;

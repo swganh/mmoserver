@@ -56,7 +56,7 @@ void StructureManager::handleObjectReady(Object* object,DispatchClient* client)
 	PlayerStructure* structure = dynamic_cast<PlayerStructure*>(object);
 
 	if(!structure)	{
-			DLOG(INFO) << "StructureManager::handleObjectReady: No structure";
+			DLOG(info) << "StructureManager::handleObjectReady: No structure";
 	}
 
 	if(gWorldManager->getWMState() == WMState_Running)
@@ -282,7 +282,7 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 
 	if (!count)
 	{
-		DLOG(INFO) << "StructureManager::create deed no result...";
+		DLOG(info) << "StructureManager::create deed no result...";
 		mDatabase->destroyDataBinding(binding);
 		return;
 	}
@@ -291,14 +291,14 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
 	//return value of 0 means something wasnt found
 	if(!deedId)
 	{
-		DLOG(INFO) << "StructureManager::create deed no valid return value...";
+		DLOG(info) << "StructureManager::create deed no valid return value...";
 		mDatabase->destroyDataBinding(binding);
 		return;
 	}
 	//returnvalue of 1 means that there wasnt enough money on the deed
 	if(deedId == 1)
 	{
-		DLOG(INFO) << "StructureManager::create deed with not enough maintenance...";
+		DLOG(info) << "StructureManager::create deed with not enough maintenance...";
 		gMessageLib->SendSystemMessage(common::OutOfBand("player_structure","structure_destroyed "), player);	
 		mDatabase->destroyDataBinding(binding);
 		return;
@@ -513,7 +513,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
     }
 
     if(result->getRowCount())
-        LOG(INFO) << "Loaded structures.";
+        LOG(info) << "Loaded structures.";
 
     mDatabase->destroyDataBinding(binding);
 }
@@ -755,7 +755,7 @@ void StructureManager::_HandleNonPersistantLoadStructureItem(StructureManagerAsy
     }
 
     if(result->getRowCount())
-        LOG(INFO) << "Loaded structure items.";
+        LOG(info) << "Loaded structure items.";
 
     mDatabase->destroyDataBinding(binding);
 
@@ -1004,7 +1004,7 @@ void StructureManager::_HandleNoBuildRegionData(StructureManagerAsyncContainer* 
     }
 
     if(result->getRowCount())
-        LOG(INFO) << "Loaded " << count << " NoBuildRegions.";
+        LOG(info) << "Loaded " << count << " NoBuildRegions.";
 
     mDatabase->destroyDataBinding(binding);
 }

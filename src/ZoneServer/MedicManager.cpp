@@ -310,7 +310,7 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
             }
             else
             {
-                DLOG(INFO) << "Invalid Medicine Type" ;
+                DLOG(info) << "Invalid Medicine Type" ;
             }
 
             if(medicine)

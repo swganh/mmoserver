@@ -31,10 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <cppconn/resultset.h>
 
-#ifdef WIN32
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Utils/Scheduler.h"
 #include "Utils/VariableTimeScheduler.h"
@@ -109,7 +106,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
     , mZoneId(zoneId)
 	, mHeightmapResolution(heightmapResolution)
 {
-    DLOG(INFO) << "WorldManager initialization";
+    DLOG(info) << "WorldManager initialization";
 
 	SpatialIndexManager::Init(mDatabase);
 
@@ -165,7 +162,7 @@ WorldManager::WorldManager(uint32 zoneId,ZoneServer* zoneServer,Database* databa
         }
         // we got the total objectCount we need to load
         mTotalObjectCount = result_set->getUInt(1);
-        LOG(INFO) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
+        LOG(info) << "Loading " << mTotalObjectCount << " World Manager Objects... ";
 
         _loadWorldObjects();
     } ) ;
@@ -332,7 +329,7 @@ void WorldManager::LoadCurrentGlobalTick()
     mDatabase->destroyResult(temp);
 
 
-    LOG(INFO) << "Current global tick count [" << Tick << "]";
+    LOG(info) << "Current global tick count [" << Tick << "]";
     mTick = Tick;
     mSubsystemScheduler->addTask(fastdelegate::MakeDelegate(this,&WorldManager::_handleTick),7,1000,NULL);
 }
@@ -569,7 +566,7 @@ bool WorldManager::_handleCraftToolTimers(uint64 callTime,void* ref)
         CraftingTool*	tool	=	dynamic_cast<CraftingTool*>(getObjectById((*it)));
         if(!tool)
         {
-            LOG(ERROR) << "Missing crafting tool";
+            LOG(error) << "Missing crafting tool";
             it = mBusyCraftTools.erase(it);
             continue;
         }
@@ -822,7 +819,7 @@ void WorldManager::_handleLoadComplete()
 	// register script hooks
 	_startWorldScripts();
 
-	LOG(INFO) << "World load complete";
+	LOG(info) << "World load complete";
 			
 	if(mZoneId != 41)
 	{
@@ -1106,7 +1103,7 @@ void WorldManager::_startWorldScripts()
 
         ++scriptIt;
     }
-    LOG(ERROR) << "Loaded world scripts";
+    LOG(error) << "Loaded world scripts";
 }
 
 //======================================================================================================================
@@ -1337,16 +1334,16 @@ void WorldManager::removePlayerfromAccountMap(uint64 playerID)
 
         if(playerAccIt != mPlayerAccMap.end())
         {
-            LOG(INFO) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
+            LOG(info) << "Player left [" << player->getId() << "] Total players on zone [" << (getPlayerAccMap()->size() -1) << "]";
             mPlayerAccMap.erase(playerAccIt);
         }
         else
         {
-            LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
+            LOG(error) << "Error removing player from account map [" << player->getAccountId() << "]";
         }
     }
     else
     {
-        LOG(ERROR) << "Error removing player from account map [" << player->getAccountId() << "]";
+        LOG(error) << "Error removing player from account map [" << player->getAccountId() << "]";
     }
 }

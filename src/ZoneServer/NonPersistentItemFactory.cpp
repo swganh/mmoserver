@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Food.h"
 #include "ItemFactory.h"
@@ -181,7 +181,7 @@ Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId
     default:
     {
         item = new Item();
-    	LOG(ERROR) << "Created item for unknown family [" << itemIdentifier.mFamilyId << "]";
+    	LOG(error) << "Created item for unknown family [" << itemIdentifier.mFamilyId << "]";
     }
     break;
     }

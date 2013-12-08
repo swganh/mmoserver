@@ -30,12 +30,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 #include <sstream>
 
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
 
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "Common/BuildInfo.h"
 #include "Utils/rand.h"
@@ -236,14 +232,14 @@ void	CharacterLoginHandler::_processSelectCharacter(Message* message, DispatchCl
 	else if((playerObject = gWorldManager->getPlayerByAccId(client->getAccountId())))
     {
 
-        DLOG(INFO) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
+        DLOG(info) << "CharacterLoginHandler::_processSelectCharacter same account : new character ";
         // remove old char immidiately
         if(playerObject->getId() == playerId)
         {
             //we need to bail out. If a bot tries to rapidly login it can happen that we get here again even before the character
             //did finish loading or even with a properly logged in player ...
             //loading this player a second time and logging it out at the same time will lead to desaster
-            LOG(WARNING) << "CharacterLoginHandler::_processSelectCharacter account " << client->getAccountId() << " is spamming logins";
+            LOG(warning) << "CharacterLoginHandler::_processSelectCharacter account " << client->getAccountId() << " is spamming logins";
             return;
         }
 
@@ -372,7 +368,7 @@ void CharacterLoginHandler::handleObjectReady(Object* object,DispatchClient* cli
     break;
 
     default:
-        DLOG(WARNING) << "CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: " << object->getType();
+        DLOG(warning) << "CharacterLoginHandler::ObjectFactoryCallback: Unhandled object: " << object->getType();
         break;
     }
 }
@@ -388,7 +384,7 @@ void CharacterLoginHandler::_processClusterClientDisconnect(Message* message, Di
 
     if (reason == 1)
     {
-        DLOG(INFO) << "Removed Player: Total Players on zone : " << gWorldManager->getPlayerAccMap()->size();
+        DLOG(info) << "Removed Player: Total Players on zone : " << gWorldManager->getPlayerAccMap()->size();
     }
     else
     {

@@ -32,8 +32,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #ifdef WIN32
 //#define socklen_t int
+//#include <Ws2def.h> //sockaddr_in
+#include <Winsock2.h>
+
 #else
 #define SOCKET unsigned int
+#include <sys/select.h>
+ #include <netinet/in.h>
 
 #endif //WIN32
 

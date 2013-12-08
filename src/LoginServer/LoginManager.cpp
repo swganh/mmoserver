@@ -27,11 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginManager.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "AccountData.h"
 #include "LoginClient.h"
@@ -90,7 +86,7 @@ void LoginManager::Process(void)
     if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat) > 180000)//main loop every 10mins
     {
         mLastHeartbeat = Anh_Utils::Clock::getSingleton()->getLocalTime();
-        LOG(INFO) << "LoginServer Heartbeat. Total clients (non-unique) processed since boot [" << mNumClientsProcessed << "]";
+        LOG(info) << "LoginServer Heartbeat. Total clients (non-unique) processed since boot [" << mNumClientsProcessed << "]";
     }
 }
 
@@ -144,7 +140,7 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     case opLoginClientId:  // sent username and password.
     {
         // Start the login process
-        DLOG(INFO) << "opLoginClientId";
+        DLOG(info) << "opLoginClientId";
 
         _handleLoginClientId(loginClient, message);
         break;
@@ -264,12 +260,12 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
     if(strcmp("20050408-18:00",clientId.getAnsi()) != 0)
     {
-        LOG(WARNING) << "illegal client: " << clientId.getAnsi();
+        LOG(warning) << "illegal client: " << clientId.getAnsi();
         client->Disconnect(0);
         return;
     }
     
-    LOG(INFO) << "Login request for account: [" << username.getAnsi() << "]";
+    LOG(info) << "Login request for account: [" << username.getAnsi() << "]";
 
     client->setUsername(username);
     client->setPassword(password);
@@ -334,7 +330,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
         client->setCharsAllowed(data.mCharsAllowed);
         client->setCsr(data.mCsr);
         
-        LOG(INFO) << "Login: AccountId: " << data.mId << " Name: " << data.mUsername;
+        LOG(info) << "Login: AccountId: " << data.mId << " Name: " << data.mUsername;
 
         _sendAuthSucceeded(client);
     }
@@ -346,7 +342,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
         errType = "@cpt_login_fail";
         errMsg = "@msg_login_fail";
 
-        LOG(WARNING) << " Login failed for username: " <<  client->getUsername().getAnsi() << " password: ********" << client->getPassword().getAnsi();
+        LOG(warning) << " Login failed for username: " <<  client->getUsername().getAnsi() << " password: ********" << client->getPassword().getAnsi();
 
         gMessageFactory->StartMessage();
         gMessageFactory->addUint32(opErrorMessage);
@@ -638,7 +634,7 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
 
     if(strcmp("20090610-18:00",clientId.getAnsi()) != 0)
     {
-        LOG(WARNING) << "illegal launcher: " << clientId.getAnsi();
+        LOG(warning) << "illegal launcher: " << clientId.getAnsi();
         client->Disconnect(0);
         return;
     }
@@ -673,7 +669,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
         client->setAccountId(data.mId);
 
         //log it
-        DLOG(INFO) << "void LoginManager::_sendLauncherSessionKey Login: AccountId: " << data.mId<< " Name: " << client->getUsername().getAnsi();
+        DLOG(info) << "void LoginManager::_sendLauncherSessionKey Login: AccountId: " << data.mId<< " Name: " << client->getUsername().getAnsi();
 
         //get the session_key made and returned
         int8 sql[512];
@@ -691,7 +687,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
         errType = "@cpt_login_fail";
         errMsg = "@msg_login_fail";
 
-        DLOG(INFO) << " Login failed for username: "  << client->getUsername().getAnsi() <<", password: ********" << client->getPassword().getAnsi();
+        DLOG(info) << " Login failed for username: "  << client->getUsername().getAnsi() <<", password: ********" << client->getPassword().getAnsi();
 
         gMessageFactory->StartMessage();
         gMessageFactory->addUint32(opErrorMessage);

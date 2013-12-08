@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "EntertainerManager.h"
 
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "GroupManager.h"
 #include "GroupManagerCallbackContainer.h"
@@ -52,10 +52,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Transaction.h"
 #include "Common/atMacroString.h"
 #include "Utils/utils.h"
-
-#ifdef WIN32
-#undef ERROR
-#endif
 
 bool EntertainerManager::mInsFlag = false;
 EntertainerManager*	EntertainerManager::mSingleton = NULL;
@@ -497,7 +493,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
         }
         else
         {
-            LOG(ERROR) << "Image design transaction failed";
+            LOG(error) << "Image design transaction failed";
             // oh woe we need to rollback :(
             // (ie do nothing)
 
@@ -530,7 +526,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             holo->pCRC = emote.getCrc();
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " holo emotes";
+        //LOG(info) << "Loaded " << count << " holo emotes";
 
     }
     break;
@@ -626,7 +622,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             else
             {
                 //somebodies trying to cheat here
-                LOG(ERROR) << "newHamCount != oldHamCount ";
+                LOG(error) << "newHamCount != oldHamCount ";
             }
 
 
@@ -743,7 +739,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
             mIDList.push_back(idData);
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " image designer attributes";
+        LOG(info) << "Loaded " << count << " image designer attributes";
     }
     break;
 
@@ -774,7 +770,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,DatabaseResult* res
 
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " performances";
+        LOG(info) << "Loaded " << count << " performances";
     }
     break;
 
@@ -1471,7 +1467,7 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 
     if(!entertainer->getAudienceList())
     {
-        DLOG(INFO) << "CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!";
+        DLOG(info) << "CheckDistances(PlayerObject* entertainer) getAudienceList does not exist !!!!!";
         return;
     }
 

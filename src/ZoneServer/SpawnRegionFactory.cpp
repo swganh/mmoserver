@@ -67,7 +67,7 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Unable to load SpawnRegion with region id: " << id;
+            LOG(warning) << "Unable to load SpawnRegion with region id: " << id;
             return;
         }
         std::shared_ptr<SpawnRegion> spawn = std::make_shared<SpawnRegion>();

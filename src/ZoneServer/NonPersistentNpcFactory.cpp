@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "utils/logger.h"
 
 #include "PlayerEnums.h"
 #include "AttackableCreature.h"
@@ -159,7 +159,7 @@ NonPersistentNpcFactory::~NonPersistentNpcFactory()
 void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 {
     if(!result) { //Crash bug; http://paste.swganh.org/viewp.php?id=20100627073558-0930186c997f6dae885bf5b9b0655b8f
-    	LOG(ERROR) << "Database result is invalid";
+    	LOG(error) << "Database result is invalid";
         return;
     }
     QueryNonPersistentNpcFactory* asyncContainer = reinterpret_cast<QueryNonPersistentNpcFactory*>(ref);
@@ -179,7 +179,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         }
         else
         {
-        	LOG(ERROR) << "NonPersistentNpcFactory::handleDatabaseJobComplete Object cannot be found";
+        	LOG(error) << "NonPersistentNpcFactory::handleDatabaseJobComplete Object cannot be found";
         }
     }
     break;
@@ -338,7 +338,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult
         //we can't assert here, as not all npc types are implemented (yet)
         //assert(npc);
         if(!npc) {
-        	LOG(ERROR) << "Unable to create non-persistent npc";
+        	LOG(error) << "Unable to create non-persistent npc";
             break;
         }
 
@@ -447,7 +447,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
         // First time lairs.
 
         //Lairs are not supported here, at least not yet.
-    	LOG(ERROR) << "NaturalLairs family [" << familyId << "] not implemented";
+    	LOG(error) << "NaturalLairs family [" << familyId << "] not implemented";
         return NULL;
         //npc	= new LairObject(templateId);
     }
@@ -455,7 +455,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
 
     default:
     {
-    	LOG(ERROR) << "Unknown family [" << familyId << "]";
+    	LOG(error) << "Unknown family [" << familyId << "]";
         return NULL;
         //npc = new NPCObject();
     }
@@ -508,7 +508,7 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(DatabaseResult* resul
     else if (npc->getNpcFamily() == NpcFamily_NaturalLairs)
     {
         //Lairs are not supported here, at least not yet.
-    	LOG(ERROR) << "NaturalLairs family [" << familyId << "] not implemented";
+    	LOG(error) << "NaturalLairs family [" << familyId << "] not implemented";
         return NULL;
 
         // Dynamic spawned pve-enabled "static" creatures like lairs.

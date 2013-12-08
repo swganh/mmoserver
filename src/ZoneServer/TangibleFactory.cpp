@@ -38,12 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <assert.h>
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "utils/logger.h"
 //=============================================================================
 
 bool					TangibleFactory::mInsFlag    = false;
@@ -110,7 +105,7 @@ void TangibleFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
         break;
 
     default:
-        DLOG(INFO) << "TangibleFactory::requestObject Unknown Group";
+        DLOG(info) << "TangibleFactory::requestObject Unknown Group";
         break;
     }
 }

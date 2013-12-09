@@ -129,9 +129,9 @@ void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
                 bank->credits(bank->credits() + credits);
                 inventory->setCredits(0);
                 // save to the db
-                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),bank->credits(),bank->getId()));
+                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),bank->credits(),bank->getId()));
 
-                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),inventory->getCredits(),inventory->getId()));
+                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),inventory->getCredits(),inventory->getId()));
 
 
                 //send the appropriate deltas.
@@ -167,9 +167,9 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
                 bank->credits(0);
 
                 // save to the db
-                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),bank->credits(),bank->getId()));
+                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),bank->credits(),bank->getId()));
 
-                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),inventory->getCredits(),inventory->getId()));
+                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),inventory->getCredits(),inventory->getId()));
 
 
                 //send the appropriate deltas.
@@ -285,7 +285,7 @@ void TreasuryManager::bankQuit(PlayerObject* playerObject)
         bank->planet(-1);
 
         // save to db
-        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.banks SET planet_id = -1 WHERE id=%"PRIu64"",mDatabase->galaxy(),bank->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.banks SET planet_id = -1 WHERE id=%" PRIu64 "",mDatabase->galaxy(),bank->getId());
 
         //This message has a period added to the end as it was missing from client.
         gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_quit_bank"), playerObject);
@@ -315,7 +315,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
         bank->planet((int8)gWorldManager->getZoneId());
 
         // save to db
-        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.banks SET planet_id=%i WHERE id=%"PRIu64"",mDatabase->galaxy(),bank->planet(),bank->getId());
+        mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.banks SET planet_id=%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),bank->planet(),bank->getId());
 
         //This message period added at the end as its missing from client.
         gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_joined_bank"), playerObject);
@@ -326,7 +326,7 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
 
 void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 {
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1));
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1));
 
     gMessageLib->sendInventoryCreditsUpdate(playerObject);
 }
@@ -335,7 +335,7 @@ void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
 
 void TreasuryManager::saveAndUpdateBankCredits(PlayerObject* playerObject)
 {
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits(), playerObject->getId() + 4));
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits(), playerObject->getId() + 4));
 
     gMessageLib->sendBankCreditsUpdate(playerObject);
 }
@@ -453,9 +453,9 @@ void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContai
 {
     Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
     int8 sql[256];
-    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%"PRIu64"",mDatabase->galaxy(),(asyncContainer->amount + asyncContainer->surcharge), asyncContainer->player->getId() + 4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),(asyncContainer->amount + asyncContainer->surcharge), asyncContainer->player->getId() + 4);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%"PRIu64"",mDatabase->galaxy(),asyncContainer->amount, asyncContainer->targetId + BANK_OFFSET);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),asyncContainer->amount, asyncContainer->targetId + BANK_OFFSET);
     mTransaction->addQuery(sql);
     mTransaction->execute();
 
@@ -568,7 +568,7 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             //CAVE galaxy id is hardcoded!!!!!!1
             int8 galaxyId = 2;
 
-            sprintf(sql, "CALL %s.sp_GalaxyAccountDepositCredits(%u, %u, %"PRIu64",%u", mDatabase->galaxy(), galaxyId, Account_TipSurcharge, asynContainer->player->getId(), asynContainer->surcharge);
+            sprintf(sql, "CALL %s.sp_GalaxyAccountDepositCredits(%u, %u, %" PRIu64 ",%u", mDatabase->galaxy(), galaxyId, Account_TipSurcharge, asynContainer->player->getId(), asynContainer->surcharge);
             TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipUpdateGalaxyAccount,0);
 
             mDatabase->executeProcedureAsync(this,asyncContainer,sql);

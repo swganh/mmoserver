@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 #include <cstring>
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 // TODO: There is no bounds checking on the heap yet.
 //======================================================================================================================

@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MessageLib/MessageLib.h"
 
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageDispatch.h"
@@ -296,7 +296,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
                         }
                     }
                 }
-                sprintf(rawData,"Server shutting down in %"PRId32" %s.", value, unit.getAnsi());
+                sprintf(rawData,"Server shutting down in %" PRId32 " %s.", value, unit.getAnsi());
             }
 
             BString broadcast(rawData);

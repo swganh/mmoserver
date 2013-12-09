@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <iostream>
 #include <fstream>
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 // External references
 #include "ChatManager.h"
 #include "CSRManager.h"

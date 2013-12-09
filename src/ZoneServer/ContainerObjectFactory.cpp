@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "Container.h"
 #include "ContainerManager.h"
@@ -100,7 +100,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,CFQuery_ObjectCount,asyncContainer->mClient);
         asContainer->mObject = container;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%"PRIu64")",mDatabase->galaxy(),container->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%" PRIu64 ")",mDatabase->galaxy(),container->getId());
         
     }
     break;
@@ -129,9 +129,9 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
 
             mDatabase->executeSqlAsync(this,asContainer,
                                        "(SELECT \'containers\',containers.id FROM %s.containers INNER JOIN %s.container_types ON (containers.container_type = container_types.id)"
-                                       " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64"))"
-                                       " UNION (SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%"PRIu64"))"
-                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%"PRIu64"))",
+                                       " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %" PRIu64 "))"
+                                       " UNION (SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%" PRIu64 "))"
+                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%" PRIu64 "))",
                                        mDatabase->galaxy(),mDatabase->galaxy(),
                                        containerId,
                                        mDatabase->galaxy(), containerId,
@@ -196,7 +196,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
                                    "SELECT containers.id,containers.parent_id,containers.oX,containers.oY,containers.oZ,containers.oW,containers.x,"
                                    "containers.y,containers.z,containers.container_type,container_types.object_string,container_types.name,container_types.file,container_types.details_file"
                                    " FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-                                   " WHERE (containers.id = %"PRIu64")",id);
+                                   " WHERE (containers.id = %" PRIu64 ")",id);
        
     }
     else
@@ -221,7 +221,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
                 QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CFQuery_ObjectCount,client);
                 asContainer->mObject = container;
 
-                mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%"PRIu64")",mDatabase->galaxy(),container->getId());
+                mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%" PRIu64 ")",mDatabase->galaxy(),container->getId());
                 
             }
         }

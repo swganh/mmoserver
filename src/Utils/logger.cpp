@@ -10,7 +10,7 @@
 #include <boost/log/sources/global_logger_storage.hpp>
 #include <boost/log/sinks/text_ostream_backend.hpp>
 #include <boost/log/utility/empty_deleter.hpp>
-
+//#include <boost/utility/empty_deleter.hpp>
 //namespace swganh {
 
 logger::logger_type& logger::get()

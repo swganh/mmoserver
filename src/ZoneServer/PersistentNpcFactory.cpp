@@ -98,7 +98,7 @@ void PersistentNpcFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* r
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,persistent_npc_attributes.value,attributes.internal"
                                        " FROM %s.persistent_npc_attributes"
                                        " INNER JOIN %s.attributes ON (persistent_npc_attributes.attribute_id = attributes.id)"
-                                       " WHERE persistent_npc_attributes.npc_id = %"PRIu64" ORDER BY persistent_npc_attributes.order",
+                                       " WHERE persistent_npc_attributes.npc_id = %" PRIu64 " ORDER BY persistent_npc_attributes.order",
                                        mDatabase->galaxy(),mDatabase->galaxy(),npc->getId());
 		}
     }
@@ -131,7 +131,7 @@ void PersistentNpcFactory::requestObject(ObjectFactoryCallback* ofCallback,uint6
                                "persistent_npcs.moodId,persistent_npcs.family,persistent_npcs.scale "
                                "FROM %s.persistent_npcs "
                                "INNER JOIN %s.faction ON (persistent_npcs.faction = faction.id) "
-                               "WHERE (persistent_npcs.id = %"PRIu64")",
+                               "WHERE (persistent_npcs.id = %" PRIu64 ")",
                                mDatabase->galaxy(),mDatabase->galaxy(),id);
     
 }

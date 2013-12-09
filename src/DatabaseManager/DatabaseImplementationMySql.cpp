@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #pragma warning(disable : 4251)
 #endif
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include <mysql_connection.h>
 #include <mysql_driver.h>

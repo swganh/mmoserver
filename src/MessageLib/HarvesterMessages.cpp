@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer/ObjectControllerOpcodes.h"
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "NetworkManager/DispatchClient.h"
 #include "NetworkManager/Message.h"

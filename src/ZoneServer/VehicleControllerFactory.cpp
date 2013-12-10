@@ -88,7 +88,7 @@ void VehicleControllerFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 {
 
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,VehicleControllerFactoryQuery_TypesId,client,id),
-                               "SELECT vehicle_types_id FROM %s.vehicles WHERE id = %"PRIu64"",mDatabase->galaxy(),id);
+                               "SELECT vehicle_types_id FROM %s.vehicles WHERE id = %" PRIu64 "",mDatabase->galaxy(),id);
     
 
 
@@ -164,7 +164,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
         aContainer->mObject = (Object*)(IntangibleObject*)vehicleController;
 
 
-        mDatabase->executeSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss, vehicle_incline_acceleration, vehicle_flat_acceleration FROM %s.vehicles WHERE id = %"PRIu64"",mDatabase->galaxy(),vehicleController->getId());
+        mDatabase->executeSqlAsync(this,aContainer,"SELECT vehicle_types_id, parent, vehicle_hitpoint_loss, vehicle_incline_acceleration, vehicle_flat_acceleration FROM %s.vehicles WHERE id = %" PRIu64 "",mDatabase->galaxy(),vehicleController->getId());
         
     }
     break;
@@ -186,7 +186,7 @@ void VehicleControllerFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
             mDatabase->executeSqlAsync(this,asyncrContainer,"SELECT attributes.name, vehicle_attributes.attribute_value, attributes.internal"
                                        " FROM %s.attributes"
                                        " INNER JOIN %s.vehicle_attributes ON (attributes.id = vehicle_attributes.attribute_id)"
-                                       " WHERE vehicle_attributes.vehicles_id = %"PRIu64" ORDER BY vehicle_attributes.attribute_order",
+                                       " WHERE vehicle_attributes.vehicles_id = %" PRIu64 " ORDER BY vehicle_attributes.attribute_order",
                                        mDatabase->galaxy(),mDatabase->galaxy(),asyncContainer->mId);
                    }
 
@@ -220,7 +220,7 @@ void VehicleControllerFactory::createVehicle(uint32 vehicle_type,PlayerObject* t
 {
     int8 sql[256];
 
-    sprintf(sql, "SELECT %s.sf_DefaultVehicleCreate(%u, %"PRIu64")", mDatabase->galaxy(), vehicle_type,targetPlayer->getId());
+    sprintf(sql, "SELECT %s.sf_DefaultVehicleCreate(%u, %" PRIu64 ")", mDatabase->galaxy(), vehicle_type,targetPlayer->getId());
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(this,VehicleControllerFactoryQuery_Create,targetPlayer->getClient()),sql);
     
 }

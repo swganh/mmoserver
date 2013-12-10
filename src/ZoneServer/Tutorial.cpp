@@ -142,7 +142,7 @@ Tutorial::Tutorial(PlayerObject* player) :
     asContainer->mQueryType = TutorialQuery_MainData;
     asContainer->mId = player->getId();
 
-    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM %s.character_tutorial WHERE character_id = %"PRIu64"",gWorldManager->getDatabase()->galaxy(),player->getId());
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM %s.character_tutorial WHERE character_id = %" PRIu64 "",gWorldManager->getDatabase()->galaxy(),player->getId());
     
 }
 
@@ -150,7 +150,7 @@ Tutorial::~Tutorial()
 {
 
     // Save-update the state.
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
     // clear scripts
@@ -199,7 +199,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             mState = 1;
 
             // Save the state.
-            (gWorldManager->getDatabase())->executeSqlAsync(0,0,"INSERT INTO %s.character_tutorial VALUES (%"PRIu64",%u,%u)",gWorldManager->getDatabase()->galaxy(),asyncContainer->mId,mState, mSubState);
+            (gWorldManager->getDatabase())->executeSqlAsync(0,0,"INSERT INTO %s.character_tutorial VALUES (%" PRIu64 ",%u,%u)",gWorldManager->getDatabase()->galaxy(),asyncContainer->mId,mState, mSubState);
     
         }
         gWorldManager->getDatabase()->destroyDataBinding(binding);
@@ -564,7 +564,7 @@ void Tutorial::setState(uint32 state)
     mState = state;
 
     // Save-update the state.
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
 }
@@ -604,7 +604,7 @@ void Tutorial::setSubState(uint32 subState)
     mSubState = subState;
 
     // Save-update the state.
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
 }

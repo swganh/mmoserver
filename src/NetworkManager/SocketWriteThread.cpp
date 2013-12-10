@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "SocketWriteThread.h"
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "CompCryptor.h"
 #include "Packet.h"

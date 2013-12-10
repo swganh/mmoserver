@@ -33,7 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cstdio>
 #include <algorithm>
 
-#include "utils/logger.h"
+#include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DataBindingFactory.h"

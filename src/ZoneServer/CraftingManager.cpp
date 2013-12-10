@@ -451,7 +451,7 @@ void CraftingManager::handleCraftCustomization(Object* object,Message* message)
     }
 
     int8 sql[550];
-    sprintf(sql, "INSERT INTO %s.item_customization VALUES (%"PRIu64", %u, %u)",mDatabase->galaxy(),session->getItem()->getId(), session->getItem()->getCustomization(1), session->getItem()->getCustomization(2));
+    sprintf(sql, "INSERT INTO %s.item_customization VALUES (%" PRIu64 ", %u, %u)",mDatabase->galaxy(),session->getItem()->getId(), session->getItem()->getCustomization(1), session->getItem()->getCustomization(2));
     mDatabase->executeAsyncSql(sql);
 
     session->setProductionAmount(amount);

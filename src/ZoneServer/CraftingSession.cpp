@@ -938,10 +938,10 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 
 
         // update the custom name and parent
-        sprintf(sql,"UPDATE %s.items SET parent_id=%"PRIu64", customName='",mDatabase->galaxy(),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+        sprintf(sql,"UPDATE %s.items SET parent_id=%" PRIu64 ", customName='",mDatabase->galaxy(),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
-        sprintf(restStr,"' WHERE id=%"PRIu64" ",mItem->getId());
+        sprintf(restStr,"' WHERE id=%" PRIu64 " ",mItem->getId());
         strcat(sql,restStr);
 
         t->addQuery(sql);
@@ -1258,7 +1258,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder();
     list->clear();
 
-    mDatabase->executeSqlAsync(0,0,"DELETE FROM %s.item_attributes WHERE item_id=%"PRIu64"",mDatabase->galaxy(),mManufacturingSchematic->getId());
+    mDatabase->executeSqlAsync(0,0,"DELETE FROM %s.item_attributes WHERE item_id=%" PRIu64 "",mDatabase->galaxy(),mManufacturingSchematic->getId());
 
 
     //save the datapad as the Owner Id in the db
@@ -1275,7 +1275,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     //Now enter the relevant information into the Manufactureschematic table
     std::string serial = mItem->getAttribute<std::string>("serial_number");
 
-    mDatabase->executeSqlAsync(0, 0, "INSERT INTO %s.manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mDatabase->galaxy(),mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
+    mDatabase->executeSqlAsync(0, 0, "INSERT INTO %s.manufactureschematic VALUES (%" PRIu64 ",%u,%u,%" PRIu64 ",'%s',%f)",mDatabase->galaxy(),mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
 
 
     //save the customization - thats part of the item!!!!

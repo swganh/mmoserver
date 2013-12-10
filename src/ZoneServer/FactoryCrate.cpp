@@ -118,7 +118,7 @@ void FactoryCrate::sendAttributes(PlayerObject* playerObject)
     }
 
     gMessageFactory->addString(BString("factory_attribs"));
-    aStr = "\\#"SOE_RED" --------------";
+    aStr = "\\#" SOE_RED " --------------";
     aStr.convert(BSTRType_Unicode16);
     gMessageFactory->addString(aStr);
 
@@ -201,7 +201,7 @@ int32 FactoryCrate::decreaseContent(uint32 amount)
     }
 
     this->setAttribute("factory_count",boost::lexical_cast<std::string>(newAmount));
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%"PRIu64" AND attribute_id=%u",gWorldManager->getDatabase()->galaxy(),newAmount,this->getId(),AttrType_factory_count);
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.item_attributes SET value='%i' WHERE item_id=%" PRIu64 " AND attribute_id=%u",gWorldManager->getDatabase()->galaxy(),newAmount,this->getId(),AttrType_factory_count);
 
 
     return newAmount;

@@ -177,11 +177,15 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint32 groupId = mDraftSchematic->getWeightsBatchId();
 
         int8 sql[550];
-        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%asse%%'");
+        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM %s.draft_schematics INNER JOIN %s.skills_schematicsgranted "
+                    "ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN %s.skills_skillmods "
+                    "ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN %s.skillmods "
+                    "ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u "
+                    "AND skillmods.skillmod_name LIKE %s",
+                    mDatabase->galaxy(),mDatabase->galaxy(),
+                    mDatabase->galaxy(),mDatabase->galaxy(),
+                    groupId,"'%%asse%%'");
         mDatabase->executeSqlAsyncNoArguments(this,container,sql);
-        
-        //mDatabase->ExecuteSqlAsync(this,container,sql);
-
 
     }
     break;
@@ -223,7 +227,8 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint32 groupId = mDraftSchematic->getWeightsBatchId();
 
         int8 sql[550];
-        sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM draft_schematic_customization dsc WHERE dsc.batchId = %u",groupId);
+        sprintf(sql,"SELECT dsc.attribute, dsc.cust_attribute, dsc.palette_size, dsc.default_value FROM "
+                    "%s.draft_schematic_customization dsc WHERE dsc.batchId = %u",mDatabase->galaxy(),groupId);
         mDatabase->executeSqlAsync(this,container,sql);
 
 
@@ -255,11 +260,10 @@ void CraftingSession::handleDatabaseJobComplete(void* ref,DatabaseResult* result
 
 
         gMessageLib->sendCreateManufacturingSchematic(mManufacturingSchematic,mOwner);
-        gMessageLib->sendCreateTangible(mItem,mOwner);
+        gMessageLib->sendCreateTano(mItem,mOwner);
         gMessageLib->sendManufactureSlots(mManufacturingSchematic,mTool,mItem,mOwner);
         gMessageLib->sendUpdateCraftingStage(mOwner);
         gMessageLib->sendBaselinesMSCO_7(mManufacturingSchematic,mOwner);
-
 
     }
     break;
@@ -343,7 +347,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
     Item* item = dynamic_cast<Item*>(object);
     if(!item)
     {   //Manufacturingschematic couldnt be created!!! Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627064849-3d026388be3dc63f7d9706f737e6d510
-        LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt Cast item.";
+        LOG(warning) << "CraftingSession::handleObjectReady: Couldnt Cast item.";
         mManufacturingSchematic = NULL;
 
         gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -360,11 +364,11 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
         mManufacturingSchematic = dynamic_cast<ManufacturingSchematic*>(item);
         if(!mManufacturingSchematic)
         {
-            LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt Cast ManufacturingSchematic.";
+            LOG(warning) << "CraftingSession::handleObjectReady: Couldnt Cast ManufacturingSchematic.";
 
             if(mDraftSchematic)
             {
-                LOG(WARNING) << "CraftingSession::handleObjectReady: DraftSchematic : " << mDraftSchematic->getModel().getAnsi() << " Object " << object->getId();
+                LOG(warning) << "CraftingSession::handleObjectReady: DraftSchematic : " << mDraftSchematic->getModel().getAnsi() << " Object " << object->getId();
             }
             mManufacturingSchematic = NULL;
             gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -401,7 +405,12 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 
 
         int8 sql[550];
-        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM draft_schematics INNER JOIN skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id INNER JOIN skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id INNER JOIN skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",groupId,"'%%exper%%'");
+        sprintf(sql,"SELECT DISTINCT skills_skillmods.skillmod_id FROM %s.draft_schematics "
+                    "INNER JOIN %s.skills_schematicsgranted ON draft_schematics.group_id = skills_schematicsgranted.schem_group_id "
+                    "INNER JOIN %s.skills_skillmods ON skills_schematicsgranted.skill_id = skills_skillmods.skill_id "
+                    "INNER JOIN %s.skillmods ON skills_skillmods.skillmod_id = skillmods.skillmod_id WHERE "
+                    "draft_schematics.weightsbatch_id = %u AND skillmods.skillmod_name LIKE %s",
+                    mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),groupId,"'%%exper%%'");
 
         //% just upsets the standard query
         mDatabase->executeSqlAsyncNoArguments(this,container,sql);
@@ -438,7 +447,7 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
 
         if(!mAsyncManSlot)
         {
-            LOG(WARNING) << "CraftingSession::handleObjectReady: Couldnt find Slot!!!.";
+            LOG(warning) << "CraftingSession::handleObjectReady: Couldnt find Slot!!!.";
 
             mManufacturingSchematic = NULL;
             gMessageLib->sendCraftAcknowledge(opCreatePrototypeResponse,CraftCreate_Failure,this->getCounter(),mOwner);
@@ -447,9 +456,6 @@ void CraftingSession::handleObjectReady(Object* object,DispatchClient* client)
             return;
 
         }
-
-        gWorldManager->addObject(item,true);
-        gMessageLib->sendCreateObject(item,mOwner);
 
         //add the necessary information to the slot
         mAsyncManSlot->mUsedComponentStacks.push_back(std::make_pair(item,maxsize));
@@ -520,14 +526,14 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
 
     if(!mDraftSchematic)
     {
-        LOG(INFO) << "CraftingSession::selectDraftSchematic: not found crc:" << schemCrc;
+        LOG(info) << "CraftingSession::selectDraftSchematic: not found crc:" << schemCrc;
         return(false);
     }
 
     // temporary check until all items are craftable
     if(!mDraftSchematic->isCraftEnabled())
     {
-        LOG(INFO) << "CraftingSession::selectDraftSchematic: schematic not craftable crc:" <<schemCrc;
+        LOG(info) << "CraftingSession::selectDraftSchematic: schematic not craftable crc:" <<schemCrc;
         gMessageLib->SendSystemMessage(L"This item is currently not craftable.", mOwner);
         return(true);
     }
@@ -703,24 +709,24 @@ void CraftingSession::addComponentAttribute()
                     {
                         // add the attribute (to the schematic) if it doesnt exist already to the relevant list for storage
                         // on sending the msco deltas respective producing the final items the values will be added to the attributes
-                        if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi()))
+                        if(mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
                         {
                             float attributeValue = filledComponent->getAttribute<float>((*cAPPiT)->getAttributeKey());
-                            float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>((*cAPPiT)->getAffectedAttributeKey().getAnsi());
+                            float attributeAddValue = mManufacturingSchematic->getPPAttribute<float>((*cAPPiT)->getAffectedAttributeKey());
 
-                            mManufacturingSchematic->setPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
+                            mManufacturingSchematic->setPPAttribute((*cAPPiT)->getAffectedAttributeKey(),boost::lexical_cast<std::string>(attributeValue+attributeAddValue));
                         }
 
-                        if(!mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi()))
+                        if(!mManufacturingSchematic->hasPPAttribute((*cAPPiT)->getAffectedAttributeKey()))
                         {
                             std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
-                            mManufacturingSchematic->addPPAttribute((*cAPPiT)->getAffectedAttributeKey().getAnsi(),attributeValue);
+                            mManufacturingSchematic->addPPAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
                         }
 
                     }
                     else
                     {
-                        DLOG(INFO) << "CraftingSession::addComponentAttribute  : Attribute " << (*cAPPiT)->getAffectedAttributeKey().getAnsi()  << " is not part of the item";
+                        DLOG(info) << "CraftingSession::addComponentAttribute  : Attribute " << (*cAPPiT)->getAffectedAttributeKey().getAnsi()  << " is not part of the item";
                     }
 
                 }
@@ -732,7 +738,7 @@ void CraftingSession::addComponentAttribute()
 
                     if(!mItem->hasAttribute( (*cAPPiT)->getAffectedAttributeKey() ))
                     {
-                        std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey().getAnsi());
+                        std::string attributeValue = filledComponent->getAttribute<std::string>((*cAPPiT)->getAttributeKey());
                         mItem->addAttribute((*cAPPiT)->getAffectedAttributeKey(),attributeValue);
                     }
 
@@ -932,10 +938,10 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 
 
         // update the custom name and parent
-        sprintf(sql,"UPDATE items SET parent_id=%"PRIu64", customName='",mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
+        sprintf(sql,"UPDATE %s.items SET parent_id=%" PRIu64 ", customName='",mDatabase->galaxy(),mOwner->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)->getId());
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,mItem->getCustomName().getAnsi(),mItem->getCustomName().getLength());
-        sprintf(restStr,"' WHERE id=%"PRIu64" ",mItem->getId());
+        sprintf(restStr,"' WHERE id=%" PRIu64 " ",mItem->getId());
         strcat(sql,restStr);
 
         t->addQuery(sql);
@@ -1153,11 +1159,11 @@ float CraftingSession::_calcWeightedResourceValue(CraftWeights* weights)
         if(manSlot->mFilledResources.size() == 0)
         {
             //PANICK - theres no resource filled !!!!!!!!!!!!!!!!!!!!!!!!!!
-            DLOG(INFO) << "CraftingSession::_calcWeightedResourceValue: NO REOURCE IN RESOURCE SLOT :";
+            DLOG(info) << "CraftingSession::_calcWeightedResourceValue: NO REOURCE IN RESOURCE SLOT :";
 
             if(manSlot->mDraftSlot->getOptional())
             {
-                DLOG(INFO) << "CraftingSession::_calcWeightedResourceValue: SLOT WAS OPTIONAL:";
+                DLOG(info) << "CraftingSession::_calcWeightedResourceValue: SLOT WAS OPTIONAL:";
             }
             assert(false&&"CraftingSession::_calcWeightedResourceValue: NO RESSOURCE IN RESOURCE SLOT ");
             ++manIt;
@@ -1252,7 +1258,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     AttributeOrderList*	list = 	mManufacturingSchematic->getAttributeOrder();
     list->clear();
 
-    mDatabase->executeSqlAsync(0,0,"DELETE FROM item_attributes WHERE item_id=%"PRIu64"",mManufacturingSchematic->getId());
+    mDatabase->executeSqlAsync(0,0,"DELETE FROM %s.item_attributes WHERE item_id=%" PRIu64 "",mDatabase->galaxy(),mManufacturingSchematic->getId());
 
 
     //save the datapad as the Owner Id in the db
@@ -1269,7 +1275,7 @@ void CraftingSession::createManufactureSchematic(uint32 counter)
     //Now enter the relevant information into the Manufactureschematic table
     std::string serial = mItem->getAttribute<std::string>("serial_number");
 
-    mDatabase->executeSqlAsync(0, 0, "INSERT INTO manufactureschematic VALUES (%"PRIu64",%u,%u,%"PRIu64",'%s',%f)",mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
+    mDatabase->executeSqlAsync(0, 0, "INSERT INTO %s.manufactureschematic VALUES (%" PRIu64 ",%u,%u,%" PRIu64 ",'%s',%f)",mDatabase->galaxy(),mManufacturingSchematic->getId(),this->getProductionAmount(),this->mSchematicCRC,mItem->getId(),serial.c_str(),mManufacturingSchematic->getComplexity());
 
 
     //save the customization - thats part of the item!!!!

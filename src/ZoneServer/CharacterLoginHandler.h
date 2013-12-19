@@ -31,8 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ObjectFactoryCallback.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
-#include <boost/thread/recursive_mutex.hpp>
 #include <glm/glm.hpp>
+#include <set>
 
 //======================================================================================================================
 
@@ -43,61 +43,63 @@ class PlayerObject;
 
 //======================================================================================================================
 
+
+typedef std::set<uint64>				ObjectIDSet;
+
 enum CLHCallBack
 {
-    CLHCallBack_None				= 0,
-    CLHCallBack_Transfer_Ticket		= 1,
-    CLHCallBack_Transfer_Position	= 2
+	CLHCallBack_None				= 0,
+	CLHCallBack_Transfer_Ticket		= 1,
+	CLHCallBack_Transfer_Position	= 2
 };
 
 class CharacterLoadingContainer
 {
 public:
 
-    DispatchClient*				mClient;
-    ObjectFactoryCallback*		ofCallback;
-    DatabaseCallback*			dbCallback;
-    uint64						mPlayerId;
-    glm::vec3			        destination;
-    uint16						planet;
-    PlayerObject*				player;
-    CLHCallBack					callBack;
+	DispatchClient*				mClient;
+	ObjectFactoryCallback*		ofCallback;
+	DatabaseCallback*			dbCallback;
+	uint64						mPlayerId;
+	glm::vec3			        destination;
+	uint16						planet;
+	PlayerObject*				player;
+	CLHCallBack					callBack;
 };
 
 class CharacterLoginHandler : public ObjectFactoryCallback, public DatabaseCallback
 {
-public:
+	public:
 
-    CharacterLoginHandler(Database* database, MessageDispatch* dispatch);
-    ~CharacterLoginHandler(void);
+        CharacterLoginHandler(Database* database, MessageDispatch* dispatch);
+        ~CharacterLoginHandler(void);
 
-    // DatabaseCallback
-    virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
+		// DatabaseCallback
+		virtual void			handleDatabaseJobComplete(void* ref,DatabaseResult* result);
 
-    // ObjectFactoryCallback
-    virtual void	handleObjectReady(Object* object,DispatchClient* client);
+		  // ObjectFactoryCallback
+		virtual void	handleObjectReady(Object* object,DispatchClient* client);
 
-private:
+	private:
+        void    _processCmdSceneReady(Message* message, DispatchClient* client);
+        void	_processSelectCharacter(Message* message, DispatchClient* client);
+        void	_processNewbieTutorialResponse(Message* message, DispatchClient* client);
+		void    _processClusterClientDisconnect(Message* message, DispatchClient* client);
+		void    _processClusterZoneTransferApprovedByTicket(Message* message, DispatchClient* client);
+		void    _processClusterZoneTransferApprovedByPosition(Message* message, DispatchClient* client);
+		void    _processClusterZoneTransferDenied(Message* message, DispatchClient* client);
 
-    void	_processSelectCharacter(Message* message, DispatchClient* client);
-    void	_processCmdSceneReady(Message* message, DispatchClient* client);
-    void    _processClusterClientDisconnect(Message* message, DispatchClient* client);
-    void    _processClusterZoneTransferApprovedByTicket(Message* message, DispatchClient* client);
-    void    _processClusterZoneTransferApprovedByPosition(Message* message, DispatchClient* client);
-    void    _processClusterZoneTransferDenied(Message* message, DispatchClient* client);
-    void	_processNewbieTutorialResponse(Message* message, DispatchClient* client);
+		Database*					mDatabase;
+		MessageDispatch*			mMessageDispatch;
 
-    Database*					mDatabase;
-    MessageDispatch*			mMessageDispatch;
-
-    uint32						mZoneId;
-    boost::recursive_mutex		mSessionMutex;
+		uint32						mZoneId;
+        
+		ObjectIDSet					playerZoneList;
 };
 
 
 
 
 #endif // ANH_ZONESERVER_CHARACTERLOGINHANDLER_H
-
 
 

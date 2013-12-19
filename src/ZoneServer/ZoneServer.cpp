@@ -27,7 +27,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer.h"
 
-#include <glog/logging.h>
+#include "Utils/logger.h"
+
+#include <iostream>
+#include <fstream>
+#include "anh/event_dispatcher/event_dispatcher.h"
+
 
 #include "CharacterLoginHandler.h"
 #include "CharSheetManager.h"
@@ -76,7 +81,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "NetworkManager/MessageOpcodes.h"
 #include "Common/EventDispatcher.h"
-#include "Common/ConfigManager.h"
 #include "Utils/utils.h"
 #include "Utils/clock.h"
 #include "Utils/Singleton.h"
@@ -85,13 +89,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <boost/thread/thread.hpp>
 
+
+using anh::event_dispatcher::EventDispatcher;
+using std::make_shared;
+using std::shared_ptr;
+
 using utils::Singleton;
-using common::EventDispatcher;
-
-#ifdef WIN32
-#undef ERROR
-#endif
-
 
 //======================================================================================================================
 
@@ -99,9 +102,10 @@ ZoneServer* gZoneServer = NULL;
 
 //======================================================================================================================
 
-ZoneServer::ZoneServer(int8* zoneName)
-    : mZoneName(zoneName)
+ZoneServer::ZoneServer(int argc, char* argv[])
+    : BaseServer()
     , mLastHeartbeat(0)
+    , event_dispatcher_(make_shared<EventDispatcher>())
     , mNetworkManager(0)
     , mDatabaseManager(0)
     , mRouterService(0)
@@ -110,36 +114,70 @@ ZoneServer::ZoneServer(int8* zoneName)
 {
     Anh_Utils::Clock::Init();
 
-    LOG(INFO) << "ZoneServer startup sequence for [" << zoneName << "]";
+    configuration_options_description_.add_options()
+    ("ZoneName", boost::program_options::value<std::string>())
+    ("writeResourceMaps", boost::program_options::value<bool>())
+    ("heightMapResolution", boost::program_options::value<uint16>()->default_value(3))
+    ;
+
+    // This is to retrieve the ZoneName
+    LoadOptions_(argc, argv);
+
+    if(configuration_variables_map_.count("ZoneName") == 0) {
+        std::cout << "Enter a zone: ";
+        std::cin >> mZoneName;
+    } else {
+        mZoneName = configuration_variables_map_["ZoneName"].as<std::string>();
+    }
+
+    std::stringstream config_file_name;
+    config_file_name << "config/" << mZoneName << ".cfg";
+
+    // Load Configuration Options
+    std::list<std::string> config_files;
+    config_files.push_back("config/general.cfg");
+    config_files.push_back(config_file_name.str());
+    LoadOptions_(argc, argv, config_files);
+
+
+    LOG(error) << "ZoneServer startup sequence for [" << mZoneName << "]";
 
     // Create and startup our core services.
-    mDatabaseManager = new DatabaseManager();
+    mDatabaseManager = new DatabaseManager(DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
 
-    mNetworkManager = new NetworkManager();
+    // Startup our core modules
+    MessageFactory::getSingleton(configuration_variables_map_["GlobalMessageHeap"].as<uint32_t>());
+
+    mNetworkManager = new NetworkManager( NetworkConfig(configuration_variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(),
+                                          configuration_variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(),
+                                          configuration_variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(),
+                                          configuration_variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(),
+                                          configuration_variables_map_["ServerPacketWindowSize"].as<uint32_t>(),
+                                          configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
+                                          configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
 
     // Connect to the DB and start listening for the RouterServer.
     mDatabase = mDatabaseManager->connect(DBTYPE_MYSQL,
-                                          (int8*)(gConfig->read<std::string>("DBServer")).c_str(),
-                                          gConfig->read<int>("DBPort"),
-                                          (int8*)(gConfig->read<std::string>("DBUser")).c_str(),
-                                          (int8*)(gConfig->read<std::string>("DBPass")).c_str(),
-                                          (int8*)(gConfig->read<std::string>("DBName")).c_str());
+                                          (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
+                                          configuration_variables_map_["DBPort"].as<uint16_t>(),
+                                          (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBPass"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBName"].as<std::string>()).c_str());
 
     // increase the server start that will help us to organize our logs to the corresponding serverstarts (mostly for errors)
-    mDatabase->executeProcedureAsync(0, 0, "CALL sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", zoneName);
-    
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('%s', NULL, NULL, NULL);", mDatabase->galaxy(), mZoneName.c_str());
 
-    mRouterService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,true);
+    mRouterService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024, true);
 
     // Grab our zoneId out of the DB for this zonename.
     uint32 zoneId = 0;
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM planet WHERE name=\'%s\';", zoneName);
-    
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT planet_id FROM %s.planet WHERE name=\'%s\';", mDatabase->galaxy(), mZoneName.c_str());
+
 
     if (!result->getRowCount())
     {
-        LOG(ERROR) << "Map not found for [" << zoneName << "]";
-        
+        LOG(error) << "Map not found for [" << mZoneName << "]";
+
         abort();
     }
 
@@ -160,25 +198,25 @@ ZoneServer::ZoneServer(int8* zoneName)
     // Place all startup code here.
     mMessageDispatch = new MessageDispatch(mRouterService);
 
-    WorldConfig::Init(zoneId,mDatabase,zoneName);
+    WorldConfig::Init(zoneId,mDatabase,BString(mZoneName.c_str()));
     ObjectControllerCommandMap::Init(mDatabase);
     MessageLib::Init();
     ObjectFactory::Init(mDatabase);
 
-	//attribute commands for food buffs
+    //attribute commands for food buffs
     FoodCommandMapClass::Init();
 
     //structure manager callback functions
     StructureManagerCommandMapClass::Init();
 
-    WorldManager::Init(zoneId,this,mDatabase);
+    WorldManager::Init(zoneId,this,mDatabase, configuration_variables_map_["heightMapResolution"].as<uint16>(), configuration_variables_map_["writeResourceMaps"].as<bool>(), mZoneName);
 
     // Init the non persistent factories. For now we take them one-by-one here, until we have a collection of them.
     // We can NOT create these factories among the already existing ones, if we want to have any kind of "ownership structure",
     // since the existing factories are impossible to delete without crashing the server.
     // NonPersistentContainerFactory::Init(mDatabase);
     (void)NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
-                                                // The object will create itself upon first usage,
+    // The object will create itself upon first usage,
     (void)NonPersistentNpcFactory::Instance();
 
     (void)ForageManager::Instance();
@@ -202,14 +240,14 @@ ZoneServer::ZoneServer(int8* zoneName)
     if(zoneId != 41)
         StructureManager::Init(mDatabase,mMessageDispatch);
 
-	// Invoked when all creature regions for spawning of lairs are loaded
+    // Invoked when all creature regions for spawning of lairs are loaded
     // (void)NpcManager::Instance();
 
-    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
+    ham_service_ = std::unique_ptr<zone::HamService>(new zone::HamService(Singleton<common::EventDispatcher>::Instance(), gObjControllerCmdPropertyMap));
 
     ScriptEngine::Init();
 
-    mCharacterLoginHandler = new CharacterLoginHandler(mDatabase,mMessageDispatch);
+    mCharacterLoginHandler = new CharacterLoginHandler(mDatabase, mMessageDispatch);
 
     mObjectControllerDispatch = new ObjectControllerDispatch(mDatabase,mMessageDispatch);
 }
@@ -218,7 +256,7 @@ ZoneServer::ZoneServer(int8* zoneName)
 
 ZoneServer::~ZoneServer(void)
 {
-    LOG(INFO) << "ZoneServer shutting down";
+    LOG(info) << "ZoneServer shutting down";
 
     // We're shutting down, so update the DB again.
     _updateDBServerList(0);
@@ -259,7 +297,7 @@ ZoneServer::~ZoneServer(void)
     // NOW, I can feel that it should be safe to delete the data holding messages.
     gMessageFactory->destroySingleton();
 
-    LOG(INFO) << "ZoneServer shutdown complete";
+    LOG(info) << "ZoneServer shutdown complete";
 }
 
 //======================================================================================================================
@@ -267,7 +305,7 @@ ZoneServer::~ZoneServer(void)
 void ZoneServer::handleWMReady()
 {
     _updateDBServerList(2);
-    LOG(WARNING) << "ZoneServer startup complete";
+    LOG(warning) << "ZoneServer startup complete";
 
     // Connect to the ConnectionServer;
     _connectToConnectionServer();
@@ -284,6 +322,8 @@ void ZoneServer::Process(void)
     gScriptEngine->process();
     mMessageDispatch->Process();
     gEventDispatcher.Tick(current_timestep);
+
+    event_dispatcher_->tick(0);
 
     //is there stalling ?
     mRouterService->Process();
@@ -305,7 +345,7 @@ void ZoneServer::Process(void)
 void ZoneServer::_updateDBServerList(uint32 status)
 {
     // Update the DB with our status.  This must be synchronous as the connection server relies on this data.
-    mDatabase->executeProcedure("CALL sp_ServerStatusUpdate('%s', %u, '%s', %u)", mZoneName.getAnsi(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
+    mDatabase->executeProcedure("CALL %s.sp_ServerStatusUpdate('%s', %u, '%s', %u)", mDatabase->galaxy(), mZoneName.c_str(), status, mRouterService->getLocalAddress(), mRouterService->getLocalPort());
 }
 
 //======================================================================================================================
@@ -325,8 +365,8 @@ void ZoneServer::_connectToConnectionServer(void)
     binding->addField(DFT_uint32, offsetof(ProcessAddress, mActive), 4);
 
     // Execute our statement
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE name='connection';");
-	uint32 count = static_cast<uint32>(result->getRowCount());
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE name='connection';",mDatabase->galaxy());
+    uint32 count = static_cast<uint32>(result->getRowCount());
 
     // If we found them
     if (count == 1)
@@ -356,52 +396,12 @@ void ZoneServer::_connectToConnectionServer(void)
 
 int main(int argc, char* argv[])
 {
-    // Initialize the google logging.
-    google::InitGoogleLogging(argv[0]);
-
-#ifndef _WIN32
-    google::InstallFailureSignalHandler();
-#endif
     
-    FLAGS_log_dir = "./logs";
-    FLAGS_stderrthreshold = 1;
-    
-    //set stdout buffers to 0 to force instant flush
-    setvbuf( stdout, NULL, _IONBF, 0);
 
-    // The second argument on the command line should be the zone name.
-    //OnlyInstallUnhandeldExceptionFilter(); // Part of stackwalker
-    char zone[50];
-    if(argc < 2)
-    {
-        printf("A list of Zones can be found in ZoneList.txt\n");
-        printf("Enter zone: ");
-        int n = scanf("%s", zone);
-
-        if (n != 1)
-            std::exit(-1);
-
-        // Remove the // if it cause problems, This enables you to just type
-        // inn the zone insted of navigate using comand prompt.
-        //std::exit(-1);
-    }
-    else
-    {
-        sprintf(zone,"%s",argv[1]);
-    }
-
-    int8 configfileName[64];
-    sprintf(configfileName, "%s.cfg", zone);
-
-    try {
-        ConfigManager::Init(configfileName);
-    } catch (file_not_found) {
-        std::cout << "Unable to find configuration file: " << CONFIG_DIR << configfileName << std::endl;
-        exit(-1);
-    }
+    //try {
 
     // Start things up
-    gZoneServer = new ZoneServer((int8*)(gConfig->read<std::string>("ZoneName")).c_str());
+    gZoneServer = new ZoneServer(argc, argv);
 
     // Main loop
     while(1)
@@ -434,6 +434,11 @@ int main(int argc, char* argv[])
 
     delete gZoneServer;
     gZoneServer = NULL;
+    //} catch (std::exception& e) {
+    //	std::cout << e.what() << std::endl;
+    //	std::cin.get();
+    //	return 0;
+    //}
 
     return 0;
 }

@@ -142,7 +142,7 @@ Tutorial::Tutorial(PlayerObject* player) :
     asContainer->mQueryType = TutorialQuery_MainData;
     asContainer->mId = player->getId();
 
-    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM character_tutorial WHERE character_id = %"PRIu64"",player->getId());
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT character_state, character_substate, starting_profession FROM %s.character_tutorial WHERE character_id = %" PRIu64 "",gWorldManager->getDatabase()->galaxy(),player->getId());
     
 }
 
@@ -150,7 +150,7 @@ Tutorial::~Tutorial()
 {
 
     // Save-update the state.
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
     // clear scripts
@@ -169,7 +169,7 @@ void Tutorial::warpToStartingLocation(BString startingLocation)
     asContainer->mQueryType = TutorialQuery_PlanetLocation;
     asContainer->mId = mPlayerObject->getId();
 
-    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM starting_location WHERE location LIKE '%s'", startingLocation.getAnsi());
+    (gWorldManager->getDatabase())->executeSqlAsync(this,asContainer,"SELECT planet_id, x, y, z FROM %s.starting_location WHERE location LIKE '%s'",gWorldManager->getDatabase()->galaxy(), startingLocation.getAnsi());
     
 }
 
@@ -199,7 +199,7 @@ void Tutorial::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             mState = 1;
 
             // Save the state.
-            (gWorldManager->getDatabase())->executeSqlAsync(0,0,"INSERT INTO character_tutorial VALUES (%"PRIu64",%u,%u)",asyncContainer->mId,mState, mSubState);
+            (gWorldManager->getDatabase())->executeSqlAsync(0,0,"INSERT INTO %s.character_tutorial VALUES (%" PRIu64 ",%u,%u)",gWorldManager->getDatabase()->galaxy(),asyncContainer->mId,mState, mSubState);
     
         }
         gWorldManager->getDatabase()->destroyDataBinding(binding);
@@ -564,7 +564,7 @@ void Tutorial::setState(uint32 state)
     mState = state;
 
     // Save-update the state.
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
 }
@@ -604,7 +604,7 @@ void Tutorial::setSubState(uint32 subState)
     mSubState = subState;
 
     // Save-update the state.
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%"PRIu64"",mState, mSubState, mPlayerObject->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.character_tutorial SET character_state=%u,character_substate=%u WHERE character_id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),mState, mSubState, mPlayerObject->getId());
     
 
 }
@@ -802,19 +802,22 @@ bool Tutorial::isContainerEmpty(uint64 containerId)
     bool empty = false;
     if (containerId == mContainerEventId)
     {
-        Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
-        if (container)
-        {
-            uint32 objectCount = 0;
-            ObjectList* objList = container->getObjects();
-            ObjectList::iterator it = objList->begin();
+	    Container* container = dynamic_cast<Container*>(gWorldManager->getObjectById(containerId));
+	    if (container)
+	    {
+		    uint32 objectCount = 0;
+		    ObjectIDList* objList = container->getObjects();
+		    ObjectIDList::iterator it = objList->begin();
 
-            ObjectList::iterator cEnd = objList->end();
+		    ObjectIDList::iterator cEnd = objList->end();
 
-            while(it != cEnd)
-            {
-                if((*it)->getPrivateOwner() == this->getPlayer())
-                    ++objectCount;
+		    while(it != cEnd)
+		    {
+			    TangibleObject* item = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)));
+			    if(item->getPrivateOwner() == this->getPlayer())
+                {
+				    ++objectCount;
+                }
 
                 ++it;
             }
@@ -918,7 +921,7 @@ uint64 Tutorial::getSkillTrainerTypeId(void)
     uint64 typeId = getSkillTrainerTypeId(this->mStartingProfession);
     if (typeId == 0)
     {
-        DLOG(INFO) << "Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.";
+        DLOG(info) << "Tutorial::getSkillTrainerTypeId WARNING: Player have no starting profession set.";
     }
     return typeId;
 }
@@ -1032,7 +1035,7 @@ void Tutorial::makeCreatureAttackable(uint64 npcId)
     }
     else
     {
-        DLOG(INFO) << "Tutorial::makeCreatureAttackable FAILED";
+        DLOG(info) << "Tutorial::makeCreatureAttackable FAILED";
     }
 }
 

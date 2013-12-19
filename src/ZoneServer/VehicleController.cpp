@@ -171,7 +171,7 @@ void VehicleController::Call() {
         float hmapHighest = Heightmap::getSingletonPtr()->getHeight(body_->mPosition.x, body_->mPosition.z) - 0.3f;
         body_->mPosition.y = gHeightmap->compensateForInvalidHeightmap(hmapHighest, body_->mPosition.y, (float)10.0);
         if(hmapHighest != body_->mPosition.y) {
-            DLOG(INFO) << " VehicleController::Call: PlayerID("<<owner_->getId() << ") calling vehicle... Heightmap found inconsistent, compensated height.";
+            DLOG(info) << " VehicleController::Call: PlayerID("<<owner_->getId() << ") calling vehicle... Heightmap found inconsistent, compensated height.";
         }
     }//end TODO
 
@@ -180,12 +180,13 @@ void VehicleController::Call() {
 
     // add to world
     if(!gWorldManager->addObject(body_)) {
-		DLOG(INFO) << "void Vehicle::call() creating vehicle with id "<<body_->getId()<<" failed : couldnt add to world";
+		DLOG(info) << "void Vehicle::call() creating vehicle with id "<<body_->getId()<<" failed : couldnt add to world";
         SAFE_DELETE(body_);
         return;
     }
 
-    gWorldManager->createObjectinWorld(owner_, body_);
+	//currently done by gWorldManager->addObject(body_)
+	//gSpatialIndexManager->createInWorld(body_);
 
     gMessageLib->sendUpdateTransformMessage(body_);
 
@@ -201,13 +202,13 @@ void VehicleController::Store()
 {
     if(!body_)
     {
-        DLOG(INFO) << "Vehicle::store() Error: Store was called for a nonexistant body object!";
+        DLOG(info) << "Vehicle::store() Error: Store was called for a nonexistant body object!";
         return;
     }
 
     if(!owner_ || owner_->isDead() || owner_->isIncapacitated())
     {
-        DLOG(INFO) << "Vehicle::store() couldnt find owner";
+        DLOG(info) << "Vehicle::store() couldnt find owner";
         return;
     }
 
@@ -219,15 +220,14 @@ void VehicleController::Store()
 
     if(!owner_->checkIfMountCalled())
     {
-        DLOG(INFO) << "Vehicle::store() Mount wasnt called !!!";
+        DLOG(info) << "Vehicle::store() Mount wasnt called !!!";
         return;
     }
 
-    //the body is a creature_object!!!
-    gMessageLib->sendDestroyObject_InRangeofObject(body_);
+	//the body is a creature_object!!!
+	gSpatialIndexManager->RemoveObjectFromWorld(body_);
 
     owner_->setMount(NULL);
-
 
     owner_->setMounted(false);
     owner_->setMountCalled(false);
@@ -257,12 +257,14 @@ void VehicleController::DismountPlayer() {
 
     //For safe measures make the player equipped by nothing
     gMessageLib->sendContainmentMessage_InRange(owner_->getId(), 0, 0xffffffff, owner_);
+	gMessageLib->sendUpdateTransformMessage(body_);
 
     // TODO: make this more automatic...
     gStateManager.removeActionState(owner_, CreatureState_RidingMount);   
     gStateManager.removeActionState(body_, CreatureState_MountedCreature);   
 
     owner_->setMounted(false);
+    gMessageLib->sendPostureAndStateUpdate(owner_);  
     gMessageLib->sendUpdateMovementProperties(owner_);
 }
 

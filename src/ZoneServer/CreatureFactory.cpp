@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "CreatureEnums.h"
 #include "ObjectFactoryCallback.h"
@@ -90,7 +90,7 @@ void CreatureFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
         break;
 
     default:
-        LOG(ERROR) << "Unknown Group";
+        LOG(error) << "Unknown Group";
         break;
     }
 }

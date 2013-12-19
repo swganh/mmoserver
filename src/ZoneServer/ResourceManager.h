@@ -86,7 +86,7 @@ class ResourceManager : public DatabaseCallback
 public:
 
     ~ResourceManager();
-    static ResourceManager*		Init(Database* database,uint32 zoneId);
+    static ResourceManager*		Init(Database* database,uint32 zoneId, bool writeResourceMaps, std::string zoneName);
     static ResourceManager*		getSingletonPtr() {
         return mSingleton;
     }
@@ -109,7 +109,7 @@ public:
 
 private:
 
-    ResourceManager(Database* database,uint32 zoneId);
+    ResourceManager(Database* database,uint32 zoneId, bool writeResourceMaps, std::string zoneName);
 
     void						_setupDatabindings();
     void						_destroyDatabindings();
@@ -125,6 +125,8 @@ private:
     ResourceCategoryMap			mResourceCategoryMap;
 
     uint32						mZoneId;
+	std::string					mZoneName;
+	bool						mWriteResourceMaps;
 
     boost::pool<boost::default_user_allocator_malloc_free>				mDBAsyncPool;
 

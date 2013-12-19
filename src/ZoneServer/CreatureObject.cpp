@@ -38,8 +38,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "VehicleController.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "WorldConfig.h"
-#include "ZoneTree.h"
 #include "ZoneServer/Tutorial.h"
 #include "MessageLib/MessageLib.h"
 // events
@@ -526,7 +526,7 @@ void CreatureObject::AddBuff(Buff* buff,  bool stackable, bool overwrite)
         if(player != 0)
         {
             //gMessageLib->sendSystemMessage(player, "You appear to have attempted to stack Buffs. The server has prevented this");
-            DLOG(INFO) << "Attempt to duplicate buffs prevented.";
+            DLOG(info) << "Attempt to duplicate buffs prevented.";
         }
         SAFE_DELETE(buff);
         return;
@@ -674,10 +674,10 @@ void CreatureObject::updateRaceGenderMask(bool female)
         }
     }
 }
+//gets called by the active Object of the statemanager
 void CreatureObject::creatureActionStateUpdate()
 {
-    gMessageLib->sendPostureAndStateUpdate(this);
-    
+	//gMessageLib->sendPostureAndStateUpdate(this);   
 }
 void CreatureObject::creaturePostureUpdate()
 {
@@ -785,7 +785,7 @@ void CreatureObject::incap()
     }
     else
     {
-        LOG(INFO) << "CreatureObject::incap Incapped unsupported type " <<  this->getType();
+        LOG(info) << "CreatureObject::incap Incapped unsupported type " <<  this->getType();
     }
 
 }
@@ -862,7 +862,7 @@ void CreatureObject::die()
         BuildingObject* preDesignatedBuilding = NULL;
 
         // Search for cloning facilities.
-        gWorldManager->getSI()->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192);
+        gSpatialIndexManager->getObjectsInRange(this,&inRangeBuildings,ObjType_Building,8192, false);
 
         ObjectSet::iterator buildingIt = inRangeBuildings.begin();
 
@@ -923,7 +923,7 @@ void CreatureObject::die()
         }
         else
         {
-            DLOG(INFO) << "No cloning facility available ";
+            DLOG(info) << "No cloning facility available ";
         }
     }
     else // if(CreatureObject* creature = dynamic_cast<CreatureObject*>(this))

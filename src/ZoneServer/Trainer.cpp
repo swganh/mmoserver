@@ -32,13 +32,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Conversation.h"
 #include "Inventory.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
 #include "SkillManager.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 #include "UIManager.h"
 #include "WorldConfig.h"
 #include "Tutorial.h"
-#include "ZoneTree.h"
+
 
 #include "Common/OutOfBand.h"
 #include "MessageLib/MessageLib.h"
@@ -391,7 +391,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         if (!skill)
         {
             // This is a system error.
-            DLOG(INFO) << "Trainer::conversationEvent: ERROR: It's no skill option";
+            DLOG(info) << "Trainer::conversationEvent: ERROR: It's no skill option";
         }
         // no skill requirements, Novice Skills have no requirements.
         /*
@@ -405,12 +405,12 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         else if(player->checkSkill(skill->mId))
         {
             // This is a system failure.
-            DLOG(INFO) << "Trainer::conversationEvent: ERROR: Player already have the skill";
+            DLOG(info) << "Trainer::conversationEvent: ERROR: Player already have the skill";
         }
         else if (player->getXpAmount(skill->mXpType) < skill->mXpCost)
         {
             // This is a system failure.
-            DLOG(INFO) << "Trainer::conversationEvent: ERROR: Player need "<<player->getXpAmount(skill->mXpType)<<" XP, but only have "<< skill->mXpCost;
+            DLOG(info) << "Trainer::conversationEvent: ERROR: Player need "<<player->getXpAmount(skill->mXpType)<<" XP, but only have "<< skill->mXpCost;
         }
         // see if we got the required skills
         else
@@ -453,7 +453,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
             pageLink = 15;
         }
         else if ((dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits() < av->getDI())
-                 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits() < av->getDI())
+                 && (dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits() < av->getDI())
                 )
         {
             // Player lack credits in both inventory and bank.
@@ -745,7 +745,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
         }
         else
         {
-            DLOG(INFO) << "Trainer: No skill avaliable";
+            DLOG(info) << "Trainer: No skill avaliable";
         }
     }
     break;
@@ -791,7 +791,7 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
         ::common::ProsePackage prose("base_player", "prose_pay_acct_success");
 
         // System message: You successfully make a payment of %DI credits to %TO.
-        
+
         if (av->getNpc()->getFirstName().getLength())
         {
 
@@ -1189,7 +1189,7 @@ void Trainer::restorePosition(PlayerObject* player)
     }
 }
 
-
+//prepare the spawn event by initialization
 void Trainer::respawn(void)
 {
     // The cell we will spawn in.
@@ -1203,7 +1203,7 @@ void Trainer::respawn(void)
     if (this->hasInternalAttribute("creature_respawn_delay"))
     {
         uint64 respawnDelay = this->getInternalAttribute<uint64>("creature_respawn_delay");
-        // gLogger->log(LogManager::DEBUG,"creature_respawn_delay = %"PRIu64"",  respawnDelay);
+        // gLogger->log(LogManager::DEBUG,"creature_respawn_delay = %" PRIu64 "",  respawnDelay);
         // mRespawnDelay = respawnDelay;
         this->setRespawnDelay(respawnDelay);
     }
@@ -1237,34 +1237,7 @@ void Trainer::respawn(void)
 
 void Trainer::spawn(void)
 {
-    // gLogger->log(LogManager::DEBUG,"AttackableStaticNpc::spawn: Spawning creature %"PRIu64"",  this->getId());
-    // gLogger->log(LogManager::DEBUG,"Spawned static objects # %"PRIu64" (%"PRIu64")",  gCreatureSpawnCounter, gCreatureSpawnCounter - gCreatureDeathCounter);
-
-    // Update the world about my presence.
-
-    if (this->getParentId())
-    {
-        // insert into cell
-        this->setSubZoneId(0);
-
-        if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-        {
-            cell->addObjectSecure(this);
-        }
-        else
-        {
-            // It's a serious isse that we need to investigate.
-            assert(cell && "Trainer::spawn WorldManager unable to find CellObject");
-        }
-    }
-    else
-    {
-        if (std::shared_ptr<QTRegion>region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-        {
-            this->setSubZoneId((uint32)region->getId());
-            region->mTree->addObject(this);
-        }
-    }
+    gSpatialIndexManager->createInWorld(this);
 
     // Add us to the world.
     gMessageLib->broadcastContainmentMessage(this,this->getParentId(),4);

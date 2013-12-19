@@ -1,3 +1,9 @@
 include(MMOServerExecutable)
 
-AddMMOServerExecutable(LoginServer)
+AddMMOServerExecutable(LoginServer
+    MMOSERVER_DEPS 
+        DatabaseManager
+        NetworkManager        
+        Utils
+        Common
+)

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "Inventory.h"
 #include "ObjectFactory.h"
@@ -42,6 +42,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIManager.h"
 #include "UITicketSelectListBox.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "ZoneOpcodes.h"
 
 #include "MessageLib/MessageLib.h"
@@ -85,28 +86,30 @@ TravelMapHandler::TravelMapHandler(Database* database, MessageDispatch* dispatch
                                "SELECT DISTINCT(terminals.dataStr),terminals.x,terminals.y,terminals.z,terminals.dataInt1,"
                                "terminals.dataInt2,terminals.planet_id,"
                                "spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-                               " FROM terminals"
-                               " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
+                               " FROM %s.terminals"
+                               " INNER JOIN %s.spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
                                " WHERE terminals.terminal_type = 16 AND"
                                " terminals.parent_id = 0"
-                               " GROUP BY terminals.dataStr");
+                               " GROUP BY terminals.dataStr",
+                               mDatabase->galaxy(),mDatabase->galaxy());
    
 
     // load travel points in cells
     mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PointsInCells),
                                "SELECT DISTINCT(terminals.dataStr),terminals.planet_id,terminals.dataInt1,terminals.dataInt2,"
                                "buildings.x,buildings.y,buildings.z,spawn_shuttle.X,spawn_shuttle.Y,spawn_shuttle.Z"
-                               " FROM terminals"
-                               " INNER JOIN spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
-                               " INNER JOIN cells ON (terminals.parent_id = cells.id)"
-                               " INNER JOIN buildings ON (cells.parent_id = buildings.id)"
+                               " FROM %s.terminals"
+                               " INNER JOIN %s.spawn_shuttle ON (terminals.dataInt3 = spawn_shuttle.id)"
+                               " INNER JOIN %s.cells ON (terminals.parent_id = cells.id)"
+                               " INNER JOIN %s.buildings ON (cells.parent_id = buildings.id)"
                                " WHERE"
                                " (terminals.terminal_type = 16) AND"
                                " (terminals.parent_id <> 0)"
-                               " GROUP BY terminals.dataStr");
+                               " GROUP BY terminals.dataStr",
+                               mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy());
    
     // load planet routes and base prices
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PlanetRoutes),"SELECT * FROM travel_planet_routes");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) TravelMapAsyncContainer(TMQuery_PlanetRoutes),"SELECT * FROM %s.travel_planet_routes",mDatabase->galaxy());
    
 }
 
@@ -180,7 +183,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " outdoor travel points";
+        LOG(info) << "Loaded " << count << " outdoor travel points";
 
         mPointCount += static_cast<uint32>(count);
         mWorldPointsLoaded = true;
@@ -213,7 +216,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelPoints[travelPoint->planetId].push_back(travelPoint);
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " in-cell travel points";
+        LOG(info)  << "Loaded " << count << " in-cell travel points";
 
         mPointCount += static_cast<uint32>(count);
         mCellPointsLoaded = true;
@@ -240,7 +243,7 @@ void TravelMapHandler::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             mTravelRoutes[route.srcId].push_back(std::make_pair(route.destId,route.price));
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " routes";
+        LOG(info) << "Loaded " << count << " routes";
 
         mRouteCount = static_cast<uint32>(count);
         mRoutesLoaded = true;
@@ -301,7 +304,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
 
         if(terminal == NULL)
         {
-            DLOG(INFO) << "TravelMapHandler::_processTravelListRequest: No TravelPosition set, player "<<playerObject->getId();
+            DLOG(info) << "TravelMapHandler::_processTravelListRequest: No TravelPosition set, player "<<playerObject->getId();
             return;
         }
 
@@ -387,7 +390,7 @@ void TravelMapHandler::_processTravelPointListRequest(Message* message,DispatchC
         playerObject->getClient()->SendChannelA(gMessageFactory->EndMessage(), playerObject->getAccountId(), CR_Client, 5);
     }
     else
-        DLOG(INFO) << "TravelMapHandler::_processTravelListRequest: Couldnt find player for " << client->getAccountId();
+        DLOG(info) << "TravelMapHandler::_processTravelListRequest: Couldnt find player for " << client->getAccountId();
 }
 
 //=======================================================================================================================
@@ -587,13 +590,10 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
                         if(dstPlanetId == zoneId)
                         {
                             // only delete the ticket if we are warping on this planet.
-                            gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
-                            gObjectFactory->deleteObjectFromDB(ticket);
+							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+							gContainerManager->deleteObject(ticket, tO);
 
-                            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-                            tO->deleteObject(ticket);
-
-                            gWorldManager->warpPlanet(playerObject,destination,0);
+							gWorldManager->warpPlanet(playerObject,destination,0);
                         }
                         else
                         {
@@ -662,11 +662,10 @@ void TravelMapHandler::useTicket(PlayerObject* playerObject, TravelTicket* ticke
         if(dstPlanetId == zoneId)
         {
             // only delete the ticket if we are warping on this planet.
-            gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
-            gObjectFactory->deleteObjectFromDB(ticket);
-
+			// delete the ticket for all watchers
+	
             TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-            tO->deleteObject(ticket);
+            gContainerManager->deleteObject(ticket, tO);
 
             ticket = NULL;
             gWorldManager->warpPlanet(playerObject,destination,0);

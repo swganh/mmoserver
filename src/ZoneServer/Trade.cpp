@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TangibleEnums.h"
 #include "Wearable.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 #include "Utils/Scheduler.h"
 
@@ -181,7 +182,7 @@ void Trade::updateBank(uint32 amount)
 {
     Bank* bank = dynamic_cast<Bank*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    bank->setCredits(bank->getCredits() + amount);
+    bank->credits(bank->credits() + amount);
 
     gMessageLib->sendBankCreditsUpdate(getPlayerObject());
 }
@@ -207,7 +208,7 @@ bool Trade::checkTradeListtoInventory()
 
     if(!inventory)
     {
-        DLOG(INFO) << "Trade::checkTradeListtoInventory():: No inventory for " << getPlayerObject()->getId();
+        DLOG(info) << "Trade::checkTradeListtoInventory():: No inventory for " << getPlayerObject()->getId();
         return(false);
     }
 
@@ -243,13 +244,13 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
             {
             case TanGroup_Item:
             {
-                sprintf(sql,"UPDATE items SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
+                sprintf(sql,"UPDATE items SET parent_id = %" PRIu64 " WHERE id = %" PRIu64 "",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
             }
             break;
 
             case TanGroup_ResourceContainer:
             {
-                sprintf(sql,"UPDATE resource_containers SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
+                sprintf(sql,"UPDATE resource_containers SET parent_id = %" PRIu64 " WHERE id = %" PRIu64 "",(*it)->getNewOwner()->getId()+1,(*it)->getObject()->getId());
             }
             break;
 
@@ -261,7 +262,7 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
 
         case ObjType_Waypoint:
         {
-            sprintf(sql,"UPDATE waypoints SET parent_id = %"PRIu64" WHERE id = %"PRIu64"",(*it)->getNewOwner()->getId(),(*it)->getObject()->getId());
+            sprintf(sql,"UPDATE waypoints SET parent_id = %" PRIu64 " WHERE id = %" PRIu64 "",(*it)->getNewOwner()->getId(),(*it)->getObject()->getId());
         }
         break;
 
@@ -270,14 +271,17 @@ void  Trade::processTradeListPreTransaction(Transaction* mTransaction)
         }
 
         mTransaction->addQuery(sql);
-        
+
 
         ++it;
     }
 }
 
 //=============================================================================
-
+//the trade has been approved and we iterate now through the items to be traded.
+//they get removed out of their old owners inventory
+//and will be created newly (via db) in the receivers inventory
+//
 void  Trade::processTradeListPostTransaction()
 {
     //only process our list this will be called by both trade partners
@@ -294,22 +298,17 @@ void  Trade::processTradeListPostTransaction()
         uint64 itemId = (*it)->getObject()->getId();
         TangibleGroup tanGroup = (*it)->getObject()->getTangibleGroup();
 
-        //delete out of our inventory / backpack
-        gMessageLib->sendDestroyObject(itemId,getPlayerObject());
-
         //assign the Bazaar as the new owner to the item
         gObjectFactory->GiveNewOwnerInDB((*it)->getObject(),partnerInventory->getId());
 
-        //the item could be in a backpack or in a different container - get it out
+        //get it out of its container
         TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById((*it)->getObject()->getParentId()));
-
-        container->deleteObject((*it)->getObject());
-
-        (*it)->getObject()->setParentId(partnerInventory->getId());
+        gContainerManager->removeObject((*it)->getObject(), container);
 
         //create in our tradepartners Inventory
         if((*it)->getNewOwner() && (*it)->getNewOwner()->isConnected())
         {
+            //this currently creates the item newly from db
             gObjectFactory->createIteminInventory(partnerInventory,itemId,tanGroup);
         }
 
@@ -345,7 +344,7 @@ bool Trade::ItemTradeCheck(uint64 ItemId)
     {
         if ((*it)->getObject()->getId() == ItemId)
         {
-            DLOG(INFO) << "PlayerObject: Item already on the tradeList";
+            DLOG(info) << "PlayerObject: Item already on the tradeList";
             return(true);
         }
 

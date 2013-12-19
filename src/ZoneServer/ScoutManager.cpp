@@ -60,11 +60,10 @@ ScoutManager::~ScoutManager(void)
 //CAMPS!
 //================================================================================
 bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& position, const BString& customName, PlayerObject* player)
-//gObjectFactory->requestNewDefaultItem
-//(this,11,1320,entertainer->getId(),99,Anh_Math::Vector3(),"");
 {
-
     //get blueprint out of the db
+    if (gStructureManager->checkNoBuildRegion(player))
+        return false;
 
     StructureDeedLink*	deedData = 	gStructureManager->getDeedData(typeId);
     if(!deedData)
@@ -93,130 +92,124 @@ bool ScoutManager::createCamp(uint32 typeId,uint64 parentId, const glm::vec3& po
         gMessageLib->SendSystemMessage(::common::OutOfBand("camp", "sys_already_camping"), player);
     }
 
-    Camp* camp = new (Camp);
-    camp->mPosition = position;
+	Camp* camp = new (Camp);
+	camp->mPosition = position;
 
-    camp->mDirection.x = 0;
-    camp->mDirection.y = 1;
-    camp->mDirection.z = 0;
+	camp->mDirection.x = 0;
+	camp->mDirection.y = 1;
+	camp->mDirection.z = 0;
 
-    camp->mDirection.w = 1;
+	camp->mDirection.w = 1;
 
-    camp->setParentId(parentId);
-    camp->setCustomName(customName.getAnsi());
-    camp->setMaxCondition(100);
+	camp->setParentId(parentId);
+	camp->setCustomName(customName.getAnsi());
+	camp->setMaxCondition(100);
 
-    camp->setPlayerStructureFamily(PlayerStructure_Camp);
-    camp->setTangibleGroup(TanGroup_Structure);
+	camp->setPlayerStructureFamily(PlayerStructure_Camp);
+	camp->setTangibleGroup(TanGroup_Structure);
 
-    camp->setId(gWorldManager->getRandomNpId());
+	camp->setId(gWorldManager->getRandomNpId());
 
-    camp->setOwner(player->getId());
+	camp->setOwner(player->getId());
 
-    camp->setModelString(deedData->structureObjectString);
-    camp->setName(deedData->stf_name.getAnsi());
-    camp->setNameFile(deedData->stf_file.getAnsi());
+	camp->setModelString(deedData->structureObjectString);
+	camp->setName(deedData->stf_name.getAnsi());
+	camp->setNameFile(deedData->stf_file.getAnsi());
 
-    //create it in the world
-    gWorldManager->addObject(camp);
-    gWorldManager->createObjectinWorld(player,camp);
+	//create it in the world
+	gWorldManager->addObject(camp);	
 
+	//now get all the respective templates chairs/fires/torches and stuff
 
-    //now get all the respective templates chairs/fires/torches and stuff
+	StructureItemList*	sIL = gStructureManager->getStructureItemList();
+	StructureItemList::iterator sILIt = sIL->begin();
 
-    StructureItemList*	sIL = gStructureManager->getStructureItemList();
-    StructureItemList::iterator sILIt = sIL->begin();
+	CampTerminal* terminal(0);
 
-    CampTerminal* terminal(0);
+	while(sILIt != sIL->end())
+	{
+		if((*sILIt)->structure_id == deedData->structure_type)
+		{
+			//is this our terminal???
+			TangibleObject* tO;
+			if((*sILIt)->tanType == TanGroup_Terminal)
+			{
+				tO = gNonPersistantObjectFactory->spawnTerminal((*sILIt),0,player->mPosition,"",player,deedData);
+				terminal = dynamic_cast<CampTerminal*>(tO);
+				terminal->setOwner(player->getId());
+				terminal->setCamp(camp->getId());
 
-    while(sILIt != sIL->end())
-    {
-        if((*sILIt)->structure_id == deedData->structure_type)
-        {
-            //is this our terminal???
-            TangibleObject* tO;
-            if((*sILIt)->tanType == TanGroup_Terminal)
-            {
-                tO = gNonPersistantObjectFactory->spawnTerminal((*sILIt),0,player->mPosition,"",player,deedData);
-                terminal = dynamic_cast<CampTerminal*>(tO);
-                terminal->setOwner(player->getId());
-                terminal->setCamp(camp->getId());
+			}
+			else
+				tO = gNonPersistantObjectFactory->spawnTangible((*sILIt),0,player->mPosition,"",player);
 
-            }
-            else
-                tO = gNonPersistantObjectFactory->spawnTangible((*sILIt),0,player->mPosition,"",player);
+			if(tO)
+			{
+				camp->getItemList()->push_back(tO);
+			}
+		}
+		sILIt++;
+	}
 
-            if(tO)
-            {
-                camp->getItemList()->push_back(tO);
-            }
-        }
-        sILIt++;
-    }
+	//add a camp region
+	std::shared_ptr<CampRegion> camp_region = std::make_shared<CampRegion>();
 
-    //add a camp region
-    //RegionObject* region = dynamic_cast<RegionObject*>(object);
-    CampRegion* region = new(CampRegion);
-    region->setId(gWorldManager->getRandomNpId());
+	camp_region->setId(gWorldManager->getRandomNpId());
 
-    if(terminal)
-        terminal->setCampRegion(region->getId());
+	if(terminal)
+		terminal->setCampRegion(camp_region->getId());
 
-    region->mPosition = player->mPosition;
+	camp_region->mPosition = player->mPosition;
 
 
-    //@todo need to update these sizes so they are more accurate.
-    //set the bounds of the camp (so we know when the camp is abandoned
+	//@todo need to update these sizes so they are more accurate.
+	//set the bounds of the camp (so we know when the camp is abandoned
 
-    switch(typeId)
-    {
-    case ItemType_Camp_basic:
-        region->setWidth(15.0); //11 Width + 2 buffer on each side
-        region->setHeight(15.0); //11 Height + 2 buffer on each side
-        break;
-    case ItemType_Camp_elite:
-        region->setWidth(18.0); //14 width + 2 buffer on each side
-        region->setHeight(26.0); //22 height + 2 buffer on each side
-        break;
-    case ItemType_Camp_improved:
-        region->setWidth(21.0); //17 width + 2 buffer on each side
-        region->setHeight(18.0); //14 height + 2 buffer on each side
-        break;
-    case ItemType_Camp_luxury:
-        region->setWidth(46.0); //42 width + 2 buffer on each side
-        region->setHeight(45.0); //41 height + 2 buffer on each side
-        break;
-    case ItemType_Camp_multi:
-        region->setWidth(32.0); //28 height + 2 buffer on each side
-        region->setHeight(34.0); //30 height + 2 buffer on each side
-        break;
-    case ItemType_Camp_quality:
-        region->setWidth(24.0); //20 width + 2 buffer on each side
-        region->setHeight(25.0); //21 height + 2 buffer on each side
-        break;
-    default:
-        region->setWidth(5.0);
-        region->setHeight(5.0);
-    }
+	switch(typeId)
+	{
+	case ItemType_Camp_basic: 
+		camp_region->setWidth(15.0); //11 Width + 2 buffer on each side
+		camp_region->setHeight(15.0); //11 Height + 2 buffer on each side
+		break;
+	case ItemType_Camp_elite:
+		camp_region->setWidth(18.0); //14 width + 2 buffer on each side
+		camp_region->setHeight(26.0); //22 height + 2 buffer on each side
+		break;
+	case ItemType_Camp_improved:
+		camp_region->setWidth(21.0); //17 width + 2 buffer on each side
+		camp_region->setHeight(18.0); //14 height + 2 buffer on each side
+		break;
+	case ItemType_Camp_luxury: 
+		camp_region->setWidth(46.0); //42 width + 2 buffer on each side
+		camp_region->setHeight(45.0); //41 height + 2 buffer on each side
+		break;
+	case ItemType_Camp_multi:
+		camp_region->setWidth(32.0); //28 height + 2 buffer on each side
+		camp_region->setHeight(34.0); //30 height + 2 buffer on each side
+		break;
+	case ItemType_Camp_quality:
+		camp_region->setWidth(24.0); //20 width + 2 buffer on each side
+		camp_region->setHeight(25.0); //21 height + 2 buffer on each side
+		break;
+	default:
+		camp_region->setWidth(5.0);
+		camp_region->setHeight(5.0);
+	}
 
-    //region->setHeight(5.0);
+	camp_region->setOwner(player->getId());
+	camp_region->setCamp(camp->getId());
+	camp_region->setParentId(0);
+	camp_region->setHealingModifier(deedData->healing_modifier);
+	camp_region->setActive(true);
+	gWorldManager->addObject(camp_region);
 
-    //important if !0 it will never get the relevant subzone!
-    region->setSubZoneId(0);
-    region->setOwner(player->getId());
-    region->setCamp(camp->getId());
-    region->setParentId(0);
-    region->setHealingModifier(deedData->healing_modifier);
-    region->setActive(true);
-    gWorldManager->addObject(region);
+	int8 name[64];
+	sprintf(name,"%s %s",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
+	camp_region->setCampOwnerName(name);
 
-    int8 name[64];
-    sprintf(name,"%s %s",player->getFirstName().getAnsi(),player->getLastName().getAnsi());
-    region->setCampOwnerName(BString(name));
+	player->setHasCamp(true);
 
-    player->setHasCamp(true);
-
-    return true;
+	return true;
 }
 
 //================================================================================

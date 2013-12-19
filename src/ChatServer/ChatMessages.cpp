@@ -34,12 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Mail.h"
 #include "Player.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
@@ -767,7 +762,7 @@ void ChatMessageLib::sendChatOnDestroyRoom(DispatchClient* client, Channel* chan
     else
     {
         // For debugging purpose
-        LOG(WARNING) << "ChatMessageLib::sendChatOnDestroyRoom: ERROR: channel is NULL";
+        LOG(warning) << "ChatMessageLib::sendChatOnDestroyRoom: ERROR: channel is NULL";
     }
 }
 
@@ -1330,7 +1325,7 @@ void ChatMessageLib::sendChatRoomMessage(Channel* channel, BString galaxy, BStri
 
             if (client == NULL)
             {
-                LOG(WARNING) << "sendChatRoomMessage: Client not found for channel " <<  channel->getId();
+                LOG(warning) << "sendChatRoomMessage: Client not found for channel " <<  channel->getId();
             }
             else
             {

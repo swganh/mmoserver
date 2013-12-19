@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <queue>
 #include "Utils/concurrent_queue.h"
 #include "Utils/typedefs.h"
+#include "NetworkConfig.h"
 #include "Service.h"
 
 //======================================================================================================================
@@ -50,7 +51,7 @@ class NetworkManager
 {
 public:
 
-    NetworkManager(void);
+    NetworkManager(const NetworkConfig& network_configuration);
     ~NetworkManager(void);
 
     void		Process(void);
@@ -67,6 +68,7 @@ public:
 private:
 
     ServiceQueue		mServiceProcessQueue;
+	NetworkConfig		network_configuration_;
 
     uint32			mServiceIdIndex;
 };

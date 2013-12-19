@@ -31,9 +31,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NonPersistentNpcFactory.h"
 #include "NpcManager.h"
 #include "PlayerObject.h"
-#include "QuadTree.h"
+#include "SpatialIndexManager.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
+
 #include "MessageLib/MessageLib.h"
 #include "Utils/rand.h"
 
@@ -101,26 +101,7 @@ void LairObject::prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 i
 
 
 void LairObject::addKnownObject(Object* object)
-{
-    if(checkKnownObjects(object))
-    {
-        return;
-    }
-
-    if (object->getType() == ObjType_Player)
-    {
-        mKnownPlayers.insert(dynamic_cast<PlayerObject*>(object));
-
-        if ((this->getAiState() == NpcIsDormant))
-        {
-            gWorldManager->forceHandlingOfDormantNpc(this->getId());
-        }
-    }
-    else
-    {
-        mKnownObjects.insert(object);
-    }
-}
+{}
 
 void LairObject::handleEvents(void)
 {
@@ -131,116 +112,8 @@ void LairObject::handleEvents(void)
         return;
     }
 
-    switch (mLairState)
-    {
-    case State_LairUnspawned:
-    {
-        // Are there any reasons for me to be alerted?
-
-        // We may not be alone. Any player in range?
-        if (playerInRange(150.0))
-        {
-            // Yes, we have to spawn, if the initial spawn timer has expired.
-            if (this->mInitialSpawnDelay <= 0)
-            {
-                this->spawn();
-                this->spawnInitialWave();
-                this->mLairState = State_LairAlerted;
-                this->setAiState(NpcIsReady);
-            }
-            else
-            {
-                // We could chose to decrese the period time...
-            }
-        }
-    }
-    break;
-
-    case State_LairIdle:
-    {
-        if (!this->getKnownPlayers()->empty())
-        {
-            mLairState = State_LairAlerted;
-            this->setAiState(NpcIsReady);
-        }
-    }
-    break;
-
-    case State_LairAlerted:
-    {
-        if (this->getKnownPlayers()->empty())
-        {
-            mLairState = State_LairIdle;
-            this->setAiState(NpcIsDormant);
-        }
-        // Any attacked us?
-        else if (this->getDefenders()->size() != 0)
-        {
-            // Request Assistance.
-            if (getLairTarget())
-            {
-                this->requestLairAssistance();
-
-                mLairState = State_LairCombatReady;
-                this->setAiState(NpcIsReady);
-            }
-            else
-            {
-                // We have no target.
-                this->setTarget(0);
-
-            }
-
-
-            // Spawn first wave, if a Mission lair.
-
-        }
-    }
-    break;
-
-    case State_LairCombatReady:
-    {
-        if (this->getKnownPlayers()->empty())
-        {
-            mLairState = State_LairIdle;
-            this->setAiState(NpcIsDormant);
-        }
-        else
-        {
-            // If current lair hitter is "gone", check for new one.
-            // if (gWorldManager->getObjectById(this->getTargetId()))
-            {
-            }
-
-            // Right now, lets attack the defender nearest the lair.
-            // At least it gives us some kind of mechanichs for shifting target.
-            uint64 currentTargetId = this->getTargetId();
-            if (getLairTarget())
-            {
-                if (currentTargetId != this->getTargetId())
-                {
-                    this->requestLairAssistance();
-                }
-            }
-            else
-            {
-                // We have no target.
-                this->setTarget(0);
-
-            }
-            // THE solution...
-            // When a defender have not made any damage of the lair for X seconds, check for next defender.
-
-            // The one doing the MOST damage, and still avaliable as a target should get the aggro...
-        }
-    }
-    break;
-
-    default:
-    {
-    }
-    break;
-    }
+    //switch (mLairState)
+    //    {}
 }
 
 uint64 LairObject::handleState(uint64 timeOverdue)
@@ -445,29 +318,10 @@ void LairObject::makePeaceWithDefendersOutOfRange(void)
 void LairObject::spawn(void)
 {
     gLairSpawnCounter++;
+    DLOG(info) << "Spawned lair # " <<gLairSpawnCounter << "( " <<gLairSpawnCounter - gLairDeathCounter<<")";
 
     // Update the world about my presence.
-    if (this->getParentId())
-    {
-        // insert into cell
-        this->setSubZoneId(0);
-
-        if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
-        {
-            cell->addObjectSecure(this);
-        }
-        else
-        {
-        }
-    }
-    else
-    {
-        if (std::shared_ptr<QTRegion> region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-        {
-            this->setSubZoneId((uint32)region->getId());
-            region->mTree->addObject(this);
-        }
-    }
+    gSpatialIndexManager->createInWorld(this);
 
     // Add us to the world.
     gMessageLib->broadcastContainmentMessage(this,this->getParentId(), -1);
@@ -533,18 +387,12 @@ void LairObject::spawnInitialWave(void)
 
 bool LairObject::playerInRange(float range)
 {
-    ObjectSet inRangeObjects;
-    // ObjectSet::iterator objectSetIt;
+    // to in-range folks
+    ObjectSet resultSet;
 
-    // Make Set ready,
-    // inRangeObjects.clear();
-    // objectSetIt = mInRangeObjects.begin();	// Will point to end of Set
-    if (std::shared_ptr<QTRegion> region = gWorldManager->getSI()->getQTRegion(this->mPosition.x, this->mPosition.z))
-    {
-        Anh_Math::Rectangle qRect = Anh_Math::Rectangle(this->mPosition.x - range, this->mPosition.z - range, range * 2, range * 2);
-        region->mTree->getObjectsInRange(this, &inRangeObjects, ObjType_Player, &qRect);
-    }
-    return !inRangeObjects.empty();
+    gSpatialIndexManager->getObjectsInRange(this,&resultSet,ObjType_Creature,30.0,true);
+
+    return !resultSet.empty();
 }
 
 //=============================================================================

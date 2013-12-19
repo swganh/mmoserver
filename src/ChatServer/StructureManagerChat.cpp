@@ -32,12 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ZoneServer/TangibleEnums.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
@@ -97,7 +92,7 @@ StructureManagerChatHandler::StructureManagerChatHandler(Database* database, Mes
     //implement configmanager in the chatserver
 
     std::tr1::shared_ptr<Timer> factory_timer(new Timer(SRMTimer_CheckFactory,this,8000,NULL));
-    std::tr1::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,1000,NULL));
+    std::tr1::shared_ptr<Timer> hopper_timer(new Timer(SRMTimer_CheckHarvesterHopper,this,60000,NULL));
     std::tr1::shared_ptr<Timer> maintenance_timer(new Timer(SRMTimer_CheckHarvesterMaintenance,this,3600*1000,NULL));
     std::tr1::shared_ptr<Timer> power_timer(new Timer(SRMTimer_CheckHarvesterPower,this,3600*1000,NULL));
     //std::tr1::shared_ptr<Timer> tick_preserve_timer(new Timer(CMTimer_TickPreserve,this,ServerTimeInterval*10000,NULL));
@@ -209,7 +204,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
         int8 sql[250];
         // Now update the time of the last EMail
-        sprintf(sql,"UPDATE structures SET structures.lastMail = %"PRIu64" WHERE ID = %"PRIu64"", gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
+        sprintf(sql,"UPDATE %s.structures SET structures.lastMail = %" PRIu64 " WHERE ID = %" PRIu64 "",mDatabase->galaxy(), gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
 
         mDatabase->executeAsyncSql(sql);
 
@@ -278,7 +273,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
         int8 sql[250];
         // Now update the time of the last EMail
-        sprintf(sql,"UPDATE structures SET structures.lastMail = %"PRIu64" WHERE ID = %"PRIu64"", gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
+        sprintf(sql,"UPDATE %s.structures SET structures.lastMail = %" PRIu64 " WHERE ID = %" PRIu64 "",mDatabase->galaxy(), gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
 
         mDatabase->executeAsyncSql(sql);
 
@@ -345,7 +340,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
         int8 sql[250];
         // Now update the time of the last EMail
-        sprintf(sql,"UPDATE structures SET structures.lastMail = %"PRIu64" WHERE ID = %"PRIu64"", gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
+        sprintf(sql,"UPDATE %s.structures SET structures.lastMail = %" PRIu64 " WHERE ID = %" PRIu64 "",mDatabase->galaxy(), gTradeManagerChat->getGlobalTickCount(), asynContainer->harvesterID);
 
         mDatabase->executeSqlAsync(0 ,0 ,sql);
 
@@ -382,7 +377,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[500];
 
             //inform the owner on the maintenance issue
-            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %"PRIu64"",asynContainer->harvesterID);
+            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, s.lastMail FROM %s.structures s INNER JOIN %s.structure_type_data st ON (s.type = st.type) INNER JOIN %s.planet p ON (p.planet_id = s.zone)WHERE ID = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),asynContainer->harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailOOFMaint,0);
             asyncContainer->harvesterID = asynContainer->harvesterID;
 
@@ -396,7 +391,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[500];
 
             //start by using power
-            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, s.condition, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %"PRIu64"",asynContainer->harvesterID);
+            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, s.condition, s.lastMail FROM %s.structures s INNER JOIN %s.structure_type_data st ON (s.type = st.type) INNER JOIN %s.planet p ON (p.planet_id = s.zone)WHERE ID = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),asynContainer->harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailDamage,0);
             asyncContainer->harvesterID = asynContainer->harvesterID;
 
@@ -410,7 +405,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[500];
 
             //start by using power
-            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, st.maint_cost_wk, s.lastMail FROM structures s INNER JOIN structure_type_data st ON (s.type = st.type) INNER JOIN planet p ON (p.planet_id = s.zone)WHERE ID = %"PRIu64"",asynContainer->harvesterID);
+            sprintf(sql,"SELECT s.owner, st.stf_file, st.stf_name, s.x, s.z, p.name, st.max_condition, st.maint_cost_wk, s.lastMail FROM %s.structures s INNER JOIN %s.structure_type_data st ON (s.type = st.type) INNER JOIN %s.planet p ON (p.planet_id = s.zone)WHERE ID = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),asynContainer->harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_StructureMailCondZero,0);
             asyncContainer->harvesterID = asynContainer->harvesterID;
 
@@ -459,7 +454,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         if(exitCode == 3)
         {
             //unspecified db error
-            LOG(WARNING) << "StructureManagerChat::HarvesterPowerUsage "<< asynContainer->harvesterID <<" unspecified db error" ;
+            LOG(warning) << "StructureManagerChat::HarvesterPowerUsage "<< asynContainer->harvesterID <<" unspecified db error" ;
         }
 
 
@@ -532,17 +527,17 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             if(exitCode == 1)
             {
                 //resource never existed in the first place
-				DLOG(INFO ) << "StructureMabagerChat::Harvester "<<asynContainer->harvesterID << " hopper full";
+				DLOG(info) << "StructureMabagerChat::Harvester "<<asynContainer->harvesterID << " hopper full";
             }
             if(exitCode == 2)
             {
                 //resource never existed in the first place
-                DLOG(INFO) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID << " resourcechange";
+                DLOG(info) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID << " resourcechange";
             }
             if(exitCode == 3)
             {
                 //resource never existed in the first place
-               DLOG(INFO) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID <<" harvested an invalid resource";
+               DLOG(info) << "StructureMabagerChat::Harvester "<< asynContainer->harvesterID <<" harvested an invalid resource";
             }
 
         }
@@ -568,7 +563,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[100];
 
             // then use maintenance
-            sprintf(sql,"SELECT sf_HarvesterUseMaintenance(%"PRIu64")", harvesterID);
+            sprintf(sql, "SELECT %s.sf_HarvesterUseMaintenance(%" PRIu64 ")", mDatabase->galaxy(),  harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneStructureMaintenance,0);
             asyncContainer->harvesterID = harvesterID;
 
@@ -596,7 +591,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[100];
 
             //start by using power
-            sprintf(sql,"SELECT sf_HarvesterUsePower(%"PRIu64")",harvesterID);
+            sprintf(sql, "SELECT %s.sf_HarvesterUsePower(%" PRIu64 ")", mDatabase->galaxy(), harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvesterUsePower,0);
             asyncContainer->harvesterID = harvesterID;
 
@@ -631,7 +626,7 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             int8 sql[100];
 
             //now harvest
-            sprintf(sql,"SELECT sf_FactoryProduce(%"PRIu64")",factoryID);
+            sprintf(sql, "SELECT %s.sf_FactoryProduce(%" PRIu64 ")", mDatabase->galaxy(), factoryID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneFactoryUpdate,0);
             asyncContainer->harvesterID = factoryID;
 
@@ -648,10 +643,11 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
         mDatabase->destroyDataBinding(binding);
 
     }
+    break;
 
     case STRMQuery_HopperUpdate:
     {
-        uint64 harvesterID;
+        
         DataBinding* binding = mDatabase->createDataBinding(1);
         binding->addField(DFT_uint64,0,8);
 
@@ -660,12 +656,17 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
 
         for(uint64 i=0; i <count; i++)
         {
+            // clear out the value
+            uint64 harvesterID = 0;
+
             result->getNextRow(binding,&harvesterID);
+            if (harvesterID == 0)
+                continue;
 
             int8 sql[100];
 
             //now harvest
-            sprintf(sql,"SELECT sf_HarvestResource(%"PRIu64")",harvesterID);
+            sprintf(sql, "SELECT %s.sf_HarvestResource(%" PRIu64 ")", mDatabase->galaxy(), harvesterID);
             StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_DoneHarvestUpdate,0);
             asyncContainer->harvesterID = harvesterID;
 
@@ -676,6 +677,8 @@ void StructureManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseRe
             // 1 hopper full harvester turned of
             // 2 resource isnt active anymore
             // 3 resource doesnt exist in the first place
+
+
 
         }
 
@@ -761,7 +764,7 @@ void StructureManagerChatHandler::handleCheckHarvesterPower()
     StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_PowerUpdate,0);
 
     int8 sql[100];
-    sprintf(sql,"SELECT h.ID FROM harvesters h WHERE h.active > 0 ");
+    sprintf(sql,"SELECT h.ID FROM %s.harvesters h WHERE h.active > 0 ",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
@@ -779,7 +782,7 @@ void StructureManagerChatHandler::handleCheckHarvesterHopper()
     StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_HopperUpdate,0);
 
     int8 sql[100];
-    sprintf(sql,"SELECT h.ID FROM harvesters h WHERE h.active > 0 ");
+    sprintf(sql,"SELECT h.ID FROM %s.harvesters h WHERE h.active > 0 ",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
@@ -796,7 +799,7 @@ void StructureManagerChatHandler::handleFactoryUpdate()
     StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_FactoryUpdate,0);
 
     int8 sql[100];
-    sprintf(sql,"SELECT f.ID FROM factories f WHERE f.active > 0 ");
+    sprintf(sql,"SELECT f.ID FROM %s.factories f WHERE f.active > 0 ",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 
@@ -813,7 +816,7 @@ void StructureManagerChatHandler::handleCheckHarvesterMaintenance()
     StructureManagerAsyncContainer* asyncContainer = new StructureManagerAsyncContainer(STRMQuery_MaintenanceUpdate,0);
 
     int8 sql[100];
-    sprintf(sql,"SELECT s.ID FROM structures s");
+    sprintf(sql,"SELECT s.ID FROM %s.structures s",mDatabase->galaxy());
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 

@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "Food.h"
 #include "ItemFactory.h"
@@ -99,9 +99,10 @@ void NonPersistentItemFactory::handleDatabaseJobComplete(void* ref,DatabaseResul
             asContainer->mObject = item;
 
             mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,item_family_attribute_defaults.attribute_value,attributes.internal"
-                                       " FROM item_family_attribute_defaults"
-                                       " INNER JOIN attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
-                                       " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",item->getItemType());
+                                       " FROM %s.item_family_attribute_defaults"
+                                       " INNER JOIN %s.attributes ON (item_family_attribute_defaults.attribute_id = attributes.id)"
+                                       " WHERE item_family_attribute_defaults.item_type_id = %u ORDER BY item_family_attribute_defaults.attribute_order",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),item->getItemType());
            
         }
         else if (item->getLoadState() == LoadState_Loaded && asyncContainer->mOfCallback)
@@ -139,9 +140,9 @@ void NonPersistentItemFactory::requestObject(ObjectFactoryCallback* ofCallback,u
 {
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryNonPersistentItemFactory(ofCallback,NPQuery_MainData,newId),
                                "SELECT item_family_attribute_defaults.family_id, item_family_attribute_defaults.item_type_id, item_types.object_string, item_types.stf_name, item_types.stf_file, item_types.stf_detail_file"
-                               " FROM item_types"
-                               " INNER JOIN item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
-                               " WHERE (item_types.id = %"PRIu64")",id);
+                               " FROM %.sitem_types"
+                               " INNER JOIN %s.item_family_attribute_defaults ON (item_types.id = item_family_attribute_defaults.item_type_id AND item_family_attribute_defaults.attribute_id = 1)"
+                               " WHERE (item_types.id = %" PRIu64 ")",mDatabase->galaxy(),mDatabase->galaxy(),id);
    
 }
 
@@ -180,7 +181,7 @@ Item* NonPersistentItemFactory::_createItem(DatabaseResult* result, uint64 newId
     default:
     {
         item = new Item();
-    	LOG(ERROR) << "Created item for unknown family [" << itemIdentifier.mFamilyId << "]";
+    	LOG(error) << "Created item for unknown family [" << itemIdentifier.mFamilyId << "]";
     }
     break;
     }

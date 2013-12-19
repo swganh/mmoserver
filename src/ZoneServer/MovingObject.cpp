@@ -25,16 +25,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "CellObject.h"
-#include "Datapad.h"
-#include "MessageLib/MessageLib.h"
-#include "MovingObject.h"
-#include "PlayerObject.h"
-#include "QuadTree.h"
-#include "VehicleController.h"
-#include "WorldManager.h"
-#include "ZoneTree.h"
+#include "ZoneServer/MovingObject.h"
 
+#include "MessageLib/MessageLib.h"
+
+#include "ZoneServer/BuildingObject.h"
+#include "ZoneServer/CellObject.h"
+#include "ZoneServer/ContainerManager.h"
+#include "ZoneServer/Datapad.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/SpatialIndexManager.h"
+#include "ZoneServer/VehicleController.h"
+#include "ZoneServer/WorldManager.h"
 
 //=============================================================================
 
@@ -51,7 +53,6 @@ MovingObject::MovingObject()
     , mCurrentTurnRate(1.0f)
     , mCurrentSpeedMod(1.0f)
     , mBaseSpeedMod(1.0f)
-    , mSubZone(NULL)
 {
 }
 
@@ -72,151 +73,116 @@ MovingObject::~MovingObject()
 
 void MovingObject::updatePositionOutside(uint64 parentId, const glm::vec3& newPosition)
 {
+    this->mPosition = newPosition;
+
     //we have been inside - move us outside
     if (this->getParentId() != 0)
     {
         // if we just left a building we need to update our containment - send a zero to uncontain us from that old cell
-        if (!this->getKnownPlayers()->empty())
-        {
-            gMessageLib->broadcastContainmentMessage(this,this->getParentId(),0);
-        }
+        gMessageLib->broadcastContainmentMessage(this,this->getParentId(),0);
+
 
         // remove us from the last cell we were in
+        // leave building content known - we might enter again
         if (CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(this->getParentId())))
         {
             cell->removeObject(this);
         }
         else
         {
-			LOG(WARNING) << "Error removing " << this->getId() << " from cell " << this->getParentId();
+            LOG(warning) << "Error removing " << this->getId() << " from cell " << this->getParentId();
         }
 
         // now set our new ParentId
         this->setParentId(0);
-        //and update the position
-        this->mPosition = newPosition;
 
-        // Add us to the world and set our new containment for all watchers
-        if (!this->getKnownPlayers()->empty())
-        {
-            gMessageLib->broadcastContainmentMessage(this,0,4);
-        }
+        gMessageLib->broadcastContainmentMessage(this,0,4);
 
-        // add us to the qtree
-
-        if (std::shared_ptr<QTRegion> newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))
-        {
-            this->setSubZoneId((uint32)newRegion->getId());
-            newRegion->mTree->addObject(this);
-        }
-        else
-        {
-            // we should never get here !
-            DLOG(INFO) << "NPCObject::updatePosition: could not find zone region in map";
-        }
-    }
-    else
-    {
-        // We have been outside
-
-        // get the qt of the new position
-        // if (QTRegion* newRegion = gWorldManager->getSI()->getQTRegion((double)this->mPosition.x,(double)this->mPosition.z))
-        if (std::shared_ptr<QTRegion> newRegion = gWorldManager->getSI()->getQTRegion((double)newPosition.x, (double)newPosition.z))
-        {
-            // we didnt change so update the old one
-            if((uint32)newRegion->getId() == this->getSubZoneId())
-            {
-                // this also updates the object (npcs) position
-                newRegion->mTree->updateObject(this, newPosition);
-
-                if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
-                {
-                    if(player->checkIfMounted() && player->getMount())
-                    {
-                        newRegion->mTree->updateObject(player->getMount(),newPosition);
-                    }
-                }
-            }
-            else
-            {
-                // remove from old
-                if (std::shared_ptr<QTRegion> oldRegion = gWorldManager->getQTRegion(this->getSubZoneId()))
-                {
-                    oldRegion->mTree->removeObject(this);
-                }
-
-                // put into new
-                this->mPosition = newPosition;
-                this->setSubZoneId((uint32)newRegion->getId());
-                newRegion->mTree->addObject(this);
-            }
-        }
     }
 }
 
 void MovingObject::updatePositionInCell(uint64 parentId, const glm::vec3& newPosition)
 {
     uint64 oldParentId = this->getParentId();
+
     if (oldParentId != parentId)
     {
         // We changed cell
         CellObject* cell = NULL;
 
         // Remove us.
-        if (!this->getKnownPlayers()->empty())
-        {
-            gMessageLib->broadcastContainmentMessage(this,oldParentId,0);
-        }
+        gMessageLib->broadcastContainmentMessage(this,oldParentId,0);
 
-        // only remove us from si, if we just entered the building
+
         if (oldParentId != 0)
         {
+            //ONLY REMOVE US FROM BUILDING; WHEN WE CHANGED THE BUILDING - we might have been teleporting
+
             // We are still inside.
-            if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId))))
+            cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(oldParentId));
+            if(!cell)
             {
-                cell->removeObject(this);
+                LOG(warning) << "Error removing " << this->getId() << " from cell " << this->getParentId();
+                assert(false);
+                return;
             }
-            else
+
+            //Did we change the building ??? (teleport moving to cloning center etc)
+            if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
             {
-                LOG(WARNING) << "Error removing " << this->getId() << " from cell " << this->getParentId();
-            }
-        }
-        else
-        {
-            // remove us from qt
-            // We just entered a building.
-            if (this->getSubZoneId())
-            {
-                if (std::shared_ptr<QTRegion> region = gWorldManager->getQTRegion(this->getSubZoneId()))
+                BuildingObject* oldBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+
+                CellObject* newCell;
+                newCell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
+                if (!newCell)
                 {
-                    this->setSubZoneId(0);
-                    region->mTree->removeObject(this);
+                    this->setParentId(parentId);
+                    LOG(warning) << this->getId() << " Error casting new cell " << this->getParentId();
+                    assert(false);
+                    return;
                 }
+                BuildingObject* newBuilding = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(newCell->getParentId()));
+
+                if(newBuilding != oldBuilding)
+                {
+                    //unregister player from the old building - either always or only when out of range??
+                    gContainerManager->unRegisterPlayerFromBuilding(oldBuilding,player);
+
+                    //and register player for the new building
+                    gContainerManager->registerPlayerToBuilding(oldBuilding,player);
+
+                }
+
             }
+
+            cell->removeObject(this);
+
         }
 
+
         // put us into new one
-        if (!this->getKnownPlayers()->empty())
+        gMessageLib->broadcastContainmentMessage(this,parentId,4);
+
+        cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId));
+        if (!cell)
         {
-            gMessageLib->broadcastContainmentMessage(this,parentId,4);
+            this->setParentId(parentId);
+            LOG(warning) << "Error adding " << this->getId() << " from cell " << this->getParentId();
+            assert(false);
+            return;
         }
-        if ((cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(parentId))))
-        {
-            cell->addObjectSecure(this);
-        }
-        else
-        {
-            LOG(WARNING) << "Error adding " << this->getId() << " from cell " << this->getParentId();
-        }
+
+        cell->addObjectSecure(this);
+
         // update the player
         this->setParentId(parentId);
     }
 }
 
+//server initiated movement
 void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
 {
-    // Face the direction we are moving.
-    this->facePosition(newPosition);
+    facePosition(newPosition);
 
     if (parentId == 0)
     {
@@ -227,7 +193,12 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
     {
         updatePositionInCell(parentId, newPosition);
     }
+
     this->mPosition = newPosition;
+    this->setParentId(parentId);
+
+    // update grid with world position
+    gSpatialIndexManager->UpdateObject(this);
 
     //TODO do we need to update our known Objects ???
     //answer YES if we are a player
@@ -236,9 +207,9 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
     if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
     {
         isPlayer = true;
+
         //we cannot stop entertaining here, as the entertainermanager uses this code to move us to the placed instrument
 
-        player->getController()->playerWorldUpdate(true);
 
         //dismount us if we were moved inside
         if(player->checkIfMounted() && player->getMount() && parentId)
@@ -256,7 +227,7 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
     }
 
     //check whether updates are necessary before building the packet and then destroying it
-    if ((!isPlayer) && this->getKnownPlayers()->empty())
+    if ((!isPlayer) && this->getRegisteredWatchers()->empty())
     {
         return;
     }
@@ -269,7 +240,6 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
             gMessageLib->sendDataTransformWithParent0B(this);
         else
         {
-            this->incInMoveCount();
             gMessageLib->sendUpdateTransformMessageWithParent(this);
         }
     }
@@ -279,7 +249,6 @@ void MovingObject::updatePosition(uint64 parentId, const glm::vec3& newPosition)
             gMessageLib->sendDataTransform0B(this);
         else
         {
-            this->incInMoveCount();
             gMessageLib->sendUpdateTransformMessage(this);
         }
     }

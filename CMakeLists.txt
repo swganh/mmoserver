@@ -32,6 +32,8 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     ENDIF()
         
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+ 
+    SET(CMAKE_EXE_LINKER_FLAGS "-lm -lrt -lpthread -lboost_filesystem -ldl -lboost_log")
 
     # use, i.e. don't skip the full RPATH for the build tree
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -41,11 +43,15 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
     # the RPATH to be used when installing
-    SET(CMAKE_INSTALL_RPATH "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/glog/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql-connector-cpp/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/noise/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/spatialindex/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/tbb/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib/lib:$ENV{LD_RUN_PATH}")
+    SET(CMAKE_INSTALL_RPATH "/usr/local/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql-connector-cpp/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/noise/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/spatialindex/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/tbb/lib:${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib/lib:${CMAKE_CURRENT_SOURCE_DIR}/src/Utils:${CMAKE_CURRENT_SOURCE_DIR}/src/Common$ENV{LD_RUN_PATH}")
 
     # add the automatically determined parts of the RPATH
     # which point to directories outside the build tree to the install RPATH
     SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+    
+    # On gcc compilers we use an installed directory for locating things.
+    SET(__deps_dir deps)
+    
 ELSE()
     # If not gcc and on WIN32 we're using visual studio, perform related checks here.
     IF(WIN32) 
@@ -71,13 +77,21 @@ ELSE()
           set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /wd4251")
           MESSAGE(STATUS "- MSVC: Disabled generic compiletime warnings")
         ENDIF()
+        
+        # On windows we use the src dir for dep lookups
+        SET(__deps_dir deps/src)
+	
+
     ENDIF()
 ENDIF()
 
 # Use the static/multithreaded libraries.
-SET(Boost_USE_STATIC_LIBS ON)
-SET(Boost_USE_MULTITHREADED ON)
-        
+#add_definitions(-DBOOST_ALL_NO_LIB)
+add_definitions(-DBOOST_ALL_DYN_LINK)
+add_definitions(-DBOOST_LOG_DYN_LINK)
+set(Boost_USE_STATIC_LIBS OFF)
+set(Boost_USE_MULTITHREADED ON)
+
 INCLUDE(CheckCXXCompilerFlag)
 
 CHECK_CXX_COMPILER_FLAG(-Wno-invalid-offsetof HAS_NO_INVALID_OFFSETOF)
@@ -99,76 +113,50 @@ ELSE()
   SET(_generator "${CMAKE_GENERATOR}")
 ENDIF()
 
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost")
+# if the dependencies directory exists, set up some default helpers for the 
+# FIND_PACKAGE function to use to find them.
+IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps")
     IF(WIN32)
-        SET(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost")
+        SET(BOOST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/boost")
     ELSE()
-        SET(BOOST_INCLUDEDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/include")
-        SET(BOOST_LIBRARYDIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/boost/lib")
+        # SET(BOOST_INCLUDEDIR "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/boost/include")
+        # SET(BOOST_LIBRARYDIR "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/boost/lib")
+	SET(BOOST_INCLUDEDIR "/usr/local/include")
+        SET(BOOST_LIBRARYDIR "/usr/local/lib")
     ENDIF()
+    
+    SET(GLM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/glm")
+    
+    SET(GTEST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/gtest")
+    
+    SET(LUA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/lua")
+    
+    SET(ENV{MYSQL_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/mysql-connector-c")
+    
+    SET(MysqlConnectorCpp_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/mysql-connector-cpp")
+    
+    SET(NOISE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/noise")
+    
+    SET(TBB_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/tbb")
+    
+    SET(TOLUAPP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/tolua++")
+    
+    SET(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/${__deps_dir}/zlib")
 ENDIF()
 
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/glm")
-    SET(GLM_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/glm")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/glog")
-    SET(GLOG_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/glog")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest")
-    SET(GTEST_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/gtest")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/lua")
-    SET(LUA_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/lua")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql")
-    SET(ENV{MYSQL_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql-connector-cpp")
-    SET(MysqlConnectorCpp_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/mysql-connector-cpp")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/noise")
-    SET(NOISE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/noise")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/spatialindex")
-    SET(SpatialIndex_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/spatialindex")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/tbb")
-    SET(TBB_INSTALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/tbb")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/tolua++")
-    SET(TOLUAPP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/tolua++")
-ENDIF()
-
-IF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib")
-    SET(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/deps/zlib")
-ENDIF()
-
-FIND_PACKAGE(Boost 1.44.0 COMPONENTS date_time regex thread system REQUIRED)
+FIND_PACKAGE(Boost 1.55.0 COMPONENTS date_time regex thread system program_options log REQUIRED)
 FIND_PACKAGE(GLM REQUIRED)
-FIND_PACKAGE(GLog REQUIRED)
+FIND_PACKAGE(MySQL REQUIRED)
+FIND_PACKAGE(ZLIB REQUIRED)
+FIND_PACKAGE(MysqlConnectorCpp REQUIRED)
 FIND_PACKAGE(GTest REQUIRED)
 FIND_PACKAGE(Lua REQUIRED)
-FIND_PACKAGE(MySQL REQUIRED)
-FIND_PACKAGE(MysqlConnectorCpp REQUIRED)
 FIND_PACKAGE(Noise REQUIRED)
-FIND_PACKAGE(SpatialIndex REQUIRED)
 FIND_PACKAGE(TBB REQUIRED)
 FIND_PACKAGE(ToLuapp REQUIRED)
-FIND_PACKAGE(ZLIB REQUIRED)
-
 # Add boost and tbb to the include and link directories as everything needs it.
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/ ${Boost_INCLUDE_DIRS} ${GLOG_INCLUDE_DIR} ${GLM_INCLUDE_DIR}  ${TBB_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src/ ${Boost_INCLUDE_DIRS} ${GLM_INCLUDE_DIR}/include/ ${TBB_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS} ${TBB_LIBRARY_DIRS})
-
 # Enable testing and add gtest to the include directories.
 ENABLE_TESTING()
 

@@ -31,12 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TradeManagerChat.h"
 #include "TradeManagerHelp.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
@@ -131,14 +126,14 @@ TradeManagerChatHandler::TradeManagerChatHandler(Database* database, MessageDisp
 
     // load our bazaar terminals
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_LoadBazaar, 0);
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_BazaarTerminalsGet();");
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_BazaarTerminalsGet();",mDatabase->galaxy());
     
 
     // load our global tick
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_LoadGlobalTick, 0);
 
     // @todo Hardcoded galaxy at this time, to be changed.
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_ServerGlobalTickGet (%u);", 2);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_ServerGlobalTickGet (%u);", mDatabase->galaxy(),  2);
     
 
     //load the TypeList to properly sort our items in Bazzarcategories
@@ -199,7 +194,7 @@ void TradeManagerChatHandler::Shutdown()
     // save our global tick
 
     // @todo Hardcoded galaxy at this time, to be changed.
-    mDatabase->executeProcedureAsync(this, NULL, "CALL sp_ServerGlobalTickUpdate(%u, '%"PRIu64"');", 2, getGlobalTickCount());
+    mDatabase->executeProcedureAsync(this, NULL, "CALL %s.sp_ServerGlobalTickUpdate(%u, '%" PRIu64 "');", mDatabase->galaxy(),  2, getGlobalTickCount());
     
 
     mMessageDispatch->UnregisterMessageCallback(opIsVendorMessage);
@@ -246,7 +241,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             player = (*accIt).second;
         else
         {
-            LOG(WARNING) << "Error getting player from account map " << asynContainer->mClient->getAccountId();
+            LOG(warning) << "Error getting player from account map " << asynContainer->mClient->getAccountId();
             return;
         }
     }
@@ -269,12 +264,11 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_DeleteAuction,asynContainer->mClient);
 
             // Delete from commerce_auction
-            mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionDelete('%"PRIu64"');", AuctionTemp.ItemID);
+            mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_BazaarAuctionDelete('%" PRIu64 "');", mDatabase->galaxy(),  AuctionTemp.ItemID);
 
             //send relevant info to Zoneserver for Itemcreation
             gChatMessageLib->processSendCreateItem(asynContainer->mClient, player->getCharId(),AuctionTemp.ItemID, AuctionTemp.ItemTyp, player->getPlanetId());
 
-            //gChatMessageLib->SendRetrieveAuctionItemResponseMessage(asynContainer->mClient,AuctionTemp.ItemID, error);
         } else {
             //send error
             error = 1;
@@ -318,7 +312,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             //build our query to get the attributes
             int8 sql[1024];
             //we'll need the quantity and all the attributes
-            sprintf(sql,"SELECT rc.resource_id, rc.amount, r.name, r.er, r.cr,r.cd,r.dr,r.fl,r.hr,r.ma, r.oq, r.sr, r.ut, r.pe FROM swganh.resource_containers rc INNER JOIN swganh.resources r ON r.id = rc.resource_id WHERE rc.id =%"PRIu64"",mItemDescription->ItemID);
+            sprintf(sql,"SELECT rc.resource_id, rc.amount, r.name, r.er, r.cr,r.cd,r.dr,r.fl,r.hr,r.ma, r.oq, r.sr, r.ut, r.pe FROM %s.resource_containers rc INNER JOIN %s.resources r ON r.id = rc.resource_id WHERE rc.id =%" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mItemDescription->ItemID);
             TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetResAttributeDetails, asynContainer->mClient);
             asyncContainer->mItemDescription = mItemDescription;
 
@@ -332,7 +326,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         //build our query to get the attributes
         int8 sql[1024];
         //we'll need all the attributes which are marked as external
-        sprintf(sql,"SELECT name, value FROM swganh.item_attributes ia  INNER JOIN swganh.attributes a ON ia.attribute_id = a.id WHERE ia.item_id =%"PRIu64" and a.internal = 0 ORDER BY ia.order",mItemDescription->ItemID);
+        sprintf(sql,"SELECT name, value FROM %s.item_attributes ia  INNER JOIN %s.attributes a ON ia.attribute_id = a.id WHERE ia.item_id =%" PRIu64 " and a.internal = 0 ORDER BY ia.order",mDatabase->galaxy(),mDatabase->galaxy(),mItemDescription->ItemID);
 
         TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetAttributeDetails, asynContainer->mClient);
         asyncContainer->mItemDescription = mItemDescription;
@@ -379,7 +373,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
 
             resItemDescription = new ItemDescriptionAttributes;
             strcpy(resItemDescription->name,"amount");
-            sprintf(resItemDescription->value,"%"PRIu32"/100000",mItemDescription->amount);
+            sprintf(resItemDescription->value,"%" PRIu32 "/100000",mItemDescription->amount);
             mAtrributesList.push_back(resItemDescription);
 
             resItemDescription = new ItemDescriptionAttributes;
@@ -543,7 +537,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             }
         }
         int8 sql[100];
-        sprintf(sql,"SELECT sf_CancelLiveAuction ('%"PRIu64"')", asynContainer->AuctionID);
+        sprintf(sql, "SELECT %s.sf_CancelLiveAuction ('%" PRIu64 "')", mDatabase->galaxy(),  asynContainer->AuctionID);
 
         TradeManagerAsyncContainer* asyncContainer;
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CancelAuction, asynContainer->mClient);
@@ -575,7 +569,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         else
         {
             gChatMessageLib->sendCanceLiveAuctionResponseMessage(asynContainer->mClient, 1, asynContainer->AuctionID);
-            LOG(INFO) << "TradeManager::TRMQuery_CancelAuction::Aucction not found : " << asynContainer->AuctionID;
+            LOG(info) << "TradeManager::TRMQuery_CancelAuction::Aucction not found : " << asynContainer->AuctionID;
         }
     }
     break;
@@ -641,8 +635,8 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         //Not sure how to properly read this in. We perform a left join, because
         //the data is not existing when nobody has bid on the item yet
 
-        strcpy(AuctionTemp.HighBidRaw,"0          ");
-        strcpy(AuctionTemp.HighProxyRaw,"0          ");
+        strcpy(AuctionTemp.HighBidRaw,"0");
+        strcpy(AuctionTemp.HighProxyRaw,"0");
 
         AuctionTemp.HighBid = 0;
         AuctionTemp.HighProxy = 0;
@@ -872,7 +866,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
                 //refund money to everybody but the winning bidder
 
                 TradeManagerAsyncContainer* asyncContainer;
-                sprintf(sql,"SELECT cbh.proxy_bid, c.id  FROM swganh.characters AS c INNER JOIN swganh.commerce_bidhistory AS cbh ON (c.firstname = cbh.bidder_name) WHERE cbh.auction_id = %"PRIu64"",auctionTemp->ItemID);
+                sprintf(sql,"SELECT cbh.proxy_bid, c.id  FROM %s.characters AS c INNER JOIN %s.commerce_bidhistory AS cbh ON (c.firstname = cbh.bidder_name) WHERE cbh.auction_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),auctionTemp->ItemID);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ProcessAuctionRefund,NULL);
                 asyncContainer->AuctionTemp = auctionTemp;
                 //mDatabase->ExecuteSqlAsync(this,asyncContainer,sql);
@@ -890,7 +884,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
                 //set the new Owner
                 TradeManagerAsyncContainer* asyncContainer;
 
-                sprintf(sql,"UPDATE swganh.commerce_auction SET owner_id = %"PRIu64", bidder_name = '' WHERE auction_id = %"PRIu64" ",auctionTemp->BidderID,auctionTemp->ItemID);
+                sprintf(sql,"UPDATE %s.commerce_auction SET owner_id = %" PRIu64 ", bidder_name = '' WHERE auction_id = %" PRIu64 " ",mDatabase->galaxy(),auctionTemp->BidderID,auctionTemp->ItemID);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
                 mDatabase->executeSqlAsync(this,asyncContainer,sql);
                 
@@ -902,8 +896,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         //now move the auctions in their proper holding areas or delete the ones which have expired their holding date
         TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
 
-        /*sprintf(sql,"CALL sp_CommerceFindExpiredListing()");*/
-        mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_CommerceFindExpiredListing();");
+        mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_CommerceFindExpiredListing();",mDatabase->galaxy());
         
 
     }
@@ -934,7 +927,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             if(AuctionTemp->BidderID != asynContainer->AuctionTemp->OwnerID) {
                 TradeManagerAsyncContainer* asyncContainer;
 
-                sprintf(sql,"UPDATE banks SET credits=credits+%"PRId32" WHERE id=%"PRIu64"",asynContainer->MyProxy, AuctionTemp->BidderID+4);
+                sprintf(sql,"UPDATE %s.banks SET credits=credits+%" PRId32 " WHERE id=%" PRIu64 "",mDatabase->galaxy(),asynContainer->MyProxy, AuctionTemp->BidderID+4);
                 asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
                 mDatabase->executeSqlAsync(this,asyncContainer,sql);
                 
@@ -946,7 +939,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
         //now delete the Auctions Bidhistory
         TradeManagerAsyncContainer* asyncContainer;
 
-        sprintf(sql,"DELETE FROM commerce_bidhistory WHERE auction_id = '%"PRIu64"' ",asynContainer->AuctionTemp->ItemID);
+        sprintf(sql,"DELETE FROM %s.commerce_bidhistory WHERE auction_id = '%" PRIu64 "' ",mDatabase->galaxy(),asynContainer->AuctionTemp->ItemID);
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_NULL,NULL);
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
@@ -993,7 +986,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
             *sqlPointer++ = '\0';
 
             int8 sql[390];
-            sprintf(sql,"SELECT cbh.proxy_bid, cbh.max_bid, c.id FROM swganh.characters AS c INNER JOIN swganh.commerce_bidhistory AS cbh ON c.firstname = '%s' WHERE cbh.auction_id = %"PRIu64" AND cbh.bidder_name = '",name,AuctionTemp->ItemID);
+            sprintf(sql,"SELECT cbh.proxy_bid, cbh.max_bid, c.id FROM %s.characters AS c INNER JOIN %s.commerce_bidhistory AS cbh ON c.firstname = '%s' WHERE cbh.auction_id = %" PRIu64 " AND cbh.bidder_name = '",mDatabase->galaxy(),mDatabase->galaxy(),name,AuctionTemp->ItemID);
 
             sqlPointer = sql + strlen(sql);
             sqlPointer += mDatabase->escapeString(sqlPointer,AuctionTemp->bidder_name, strlen(AuctionTemp->bidder_name));
@@ -1055,7 +1048,7 @@ void TradeManagerChatHandler::handleDatabaseJobComplete(void* ref,DatabaseResult
     if(mBazaarsLoaded)
     {
         mBazaarsLoaded = false;
-        LOG(WARNING) << "Loaded bazaars";
+        LOG(warning) << "Loaded bazaars";
     }
 }
 
@@ -1247,7 +1240,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         {
 
             //just update the high proxy
-            sprintf(sql,"UPDATE commerce_bidhistory SET proxy_bid = '%"PRIu32"'WHERE auction_id = '%"PRIu64"' AND bidder_name = '%s'", asynContainer->MyProxy, asynContainer->AuctionTemp->ItemID, PlayerName);
+            sprintf(sql,"UPDATE %s.commerce_bidhistory SET proxy_bid = '%" PRIu32 "'WHERE auction_id = '%" PRIu64 "' AND bidder_name = '%s'",mDatabase->galaxy(), asynContainer->MyProxy, asynContainer->AuctionTemp->ItemID, PlayerName);
 
             TradeManagerAsyncContainer* asyncContainer;
             asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
@@ -1309,7 +1302,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
         // what do we do if this is our first bid and we are NOT the high bidder?
         // sf_BidAuction only updates the bid of the high bidder
 
-        sprintf(sql,"SELECT sf_BidUpdate ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", asynContainer->AuctionTemp->ItemID, asynContainer->MyBid, asynContainer->MyProxy, PlayerName);
+        sprintf(sql, "SELECT %s.sf_BidUpdate ('%" PRIu64 "','%" PRIu32 "','%" PRIu32 "','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, asynContainer->MyBid, asynContainer->MyProxy, PlayerName);
         TradeManagerAsyncContainer* asyncContainer;
         asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval, asynContainer->mClient);
         mDatabase->executeSqlAsync(this, asyncContainer, sql);
@@ -1317,7 +1310,7 @@ void TradeManagerChatHandler::processAuctionBid(TradeManagerAsyncContainer* asyn
 
     }
 
-    sprintf(sql,"SELECT sf_BidAuction ('%"PRIu64"','%"PRIu32"','%"PRIu32"','%s')", asynContainer->AuctionTemp->ItemID, TheBid, TheProxy, PlayerName);
+    sprintf(sql, "SELECT %s.sf_BidAuction ('%" PRIu64 "','%" PRIu32 "','%" PRIu32 "','%s')", mDatabase->galaxy(),  asynContainer->AuctionTemp->ItemID, TheBid, TheProxy, PlayerName);
     TradeManagerAsyncContainer* asyncContainer;
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ACKRetrieval,asynContainer->mClient);
 
@@ -1353,11 +1346,11 @@ void TradeManagerChatHandler::ProcessCreateAuction(Message* message,DispatchClie
     int8 Query[4096];		//depending on our Auction comments this can become long
     if (category != 0)
     {
-        sprintf(Query," UPDATE commerce_auction SET start = '%"PRIu64"', region_id = '%"PRIu32"', planet_id = '%"PRIu32"',category = '%"PRIu32"' WHERE auction_id = '%"PRIu64"'", time, RegionID, player->getPlanetId(),category,ItemID);
+        sprintf(Query," UPDATE %s.commerce_auction SET start = '%" PRIu64 "', region_id = '%" PRIu32 "', planet_id = '%" PRIu32 "',category = '%" PRIu32 "' WHERE auction_id = '%" PRIu64 "'",mDatabase->galaxy(), time, RegionID, player->getPlanetId(),category,ItemID);
     }
     else
     {
-        sprintf(Query," UPDATE commerce_auction ca inner join swganh.items i ON (i.id = ca.auction_id) inner join swganh.item_types it ON (it.id = i.item_type) SET ca.start = '%"PRIu64"' , ca.region_id = '%"PRIu32"', ca.planet_id = '%"PRIu32"', ca.category = it.bazaar_category  WHERE ca.auction_id = '%"PRIu64"'", time, RegionID, player->getPlanetId(),ItemID);
+        sprintf(Query," UPDATE %s.commerce_auction ca inner join %s.items i ON (i.id = ca.auction_id) inner join %s.item_types it ON (it.id = i.item_type) SET ca.start = '%" PRIu64 "' , ca.region_id = '%" PRIu32 "', ca.planet_id = '%" PRIu32 "', ca.category = it.bazaar_category  WHERE ca.auction_id = '%" PRIu64 "'", mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),time, RegionID, player->getPlanetId(),ItemID);
     }
 
 
@@ -1384,7 +1377,7 @@ void TradeManagerChatHandler::processRetrieveAuctionItemMessage(Message* message
     uint64	TerminalID	= message->getUint64();
 
     int8 sql[200];
-    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM swganh.commerce_auction c  WHERE c.auction_id = %"PRIu64"", ItemID);
+    sprintf(sql,"SELECT auction_id, bazaar_id, itemtype FROM %s.commerce_auction c  WHERE c.auction_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(), ItemID);
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_RetrieveAuction, client);
     asyncContainer->BazaarID = TerminalID;
     mDatabase->executeSqlAsync(this, asyncContainer, sql);
@@ -1417,7 +1410,7 @@ void TradeManagerChatHandler::processBidAuctionMessage(Message* message,Dispatch
     int8 sql[490];
     //auction_bidhistory fields will be NULL when we have no bids
 
-    sprintf(sql,"SELECT ca.auction_id, ca.owner_id, ca.type, ca.category, ca.price, ca.itemtype, ca.name, ca.bazaar_id, ca.bidder_name, c.firstname FROM swganh.characters AS c INNER JOIN swganh.commerce_auction AS ca ON (ca.owner_id = c.id) where ca.auction_id = %"PRIu64"",ItemID);
+    sprintf(sql,"SELECT ca.auction_id, ca.owner_id, ca.type, ca.category, ca.price, ca.itemtype, ca.name, ca.bazaar_id, ca.bidder_name, c.firstname FROM %s.characters AS c INNER JOIN %s.commerce_auction AS ca ON (ca.owner_id = c.id) where ca.auction_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),ItemID);
 
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_BidAuction,client);
     asyncContainer->MyBid = MyBid;
@@ -1456,7 +1449,7 @@ void TradeManagerChatHandler::processCancelLiveAuctionMessage(Message* message,D
     //get all the bids on the auction and refunf the affected players
     //send the EMails
     int8 sql[300];
-    sprintf(sql,"SELECT ch.id, ca.name, cbh.proxy_bid FROM swganh.commerce_auction AS ca INNER JOIN swganh.commerce_bidhistory AS cbh ON (cbh.bidder_name = ca.bidder_name)  INNER JOIN swganh.characters AS ch ON (cbh.bidder_name = ch.firstname)  WHERE ca.auction_id = %"PRIu64"",ItemID);
+    sprintf(sql,"SELECT ch.id, ca.name, cbh.proxy_bid FROM %s.commerce_auction AS ca INNER JOIN %s.commerce_bidhistory AS cbh ON (cbh.bidder_name = ca.bidder_name)  INNER JOIN %s.characters AS ch ON (cbh.bidder_name = ch.firstname)  WHERE ca.auction_id = %" PRIu64 "",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),ItemID);
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_CancelAuction_BidderMail, client);
     asyncContainer->AuctionID = ItemID;
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
@@ -1480,7 +1473,7 @@ void TradeManagerChatHandler::processGetAuctionDetails(Message* message,Dispatch
     //we'll need our item description, the iff data and the rest will be done by the items object
     asyncContainer = new TradeManagerAsyncContainer(TRMQuery_GetDetails,client);
 
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionDetailsGet(%"PRIu64");", AuctionID);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_BazaarAuctionDetailsGet(%" PRIu64 ");", mDatabase->galaxy(),  AuctionID);
     
 }
 
@@ -1492,7 +1485,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     //uint64 time = (getGlobalTickCount()/1000);
 
     int8 sql[2024];
-    sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM swganh.commerce_auction c INNER JOIN swganh.characters ch on (c.owner_id = ch.id) INNER join swganh.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) left join swganh.commerce_bidhistory cbh ON (cbh.bidder_name = c.bidder_name AND cbh.auction_id = c.auction_id) AND c.owner_id = ch.id  WHERE");
+    sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM %s.commerce_auction c INNER JOIN %s.characters ch on (c.owner_id = ch.id) INNER join %s.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) left join %s.commerce_bidhistory cbh ON (cbh.bidder_name = c.bidder_name AND cbh.auction_id = c.auction_id) AND c.owner_id = ch.id  WHERE",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy());
 
     Player* player;
     PlayerAccountMap::iterator accIt = mPlayerAccountMap.find(client->getAccountId());
@@ -1532,7 +1525,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     {
     case TRMVendor:
     {
-        sprintf(query.RegionQuery," (c.bazaar_id = %"PRIu64")",query.vendorID);
+        sprintf(query.RegionQuery," (c.bazaar_id = %" PRIu64 ")",query.vendorID);
 
     }
     break;
@@ -1540,13 +1533,13 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     case TRMRegion:
     {
         //for now Planet
-        sprintf(query.RegionQuery," (c.region_id = %"PRIu32")",TerminalRegionbyID(query.vendorID));
+        sprintf(query.RegionQuery," (c.region_id = %" PRIu32 ")",TerminalRegionbyID(query.vendorID));
     }
     break;
 
     case TRMPlanet:
     {
-        sprintf(query.RegionQuery," (c.planet_id = %"PRIu32")",player->getPlanetId());
+        sprintf(query.RegionQuery," (c.planet_id = %" PRIu32 ")",player->getPlanetId());
 
     }
     break;
@@ -1568,16 +1561,16 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     {
     case TRMVendor_AllAuctions: //open up bazaar and look at it without a category
     {
-        sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32"))", TRMVendor_Auction, TRMVendor_Instant);
+        sprintf(query.WindowQuery," ((c.type = %" PRIu32 ") or (c.type = %" PRIu32 "))", TRMVendor_Auction, TRMVendor_Instant);
 
     }
     break;
 
     case TRMVendor_MySales: //what Im selling at the bazaar
     {
-        sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32"))AND", TRMVendor_Auction, TRMVendor_Instant);
+        sprintf(query.WindowQuery," ((c.type = %" PRIu32 ") or (c.type = %" PRIu32 "))AND", TRMVendor_Auction, TRMVendor_Instant);
         int8 tmp[128];
-        sprintf(tmp," (c.owner_id = %"PRIu64")",player->getCharId());
+        sprintf(tmp," (c.owner_id = %" PRIu64 ")",player->getCharId());
         strcat(query.WindowQuery,tmp);
 
     }
@@ -1585,13 +1578,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
 
     case TRMVendor_MyBids: //auctions Im bidding on currently at the bazaar
     {
-        //sprintf(query.WindowQuery," ((c.type = %u) or (c.type = %u)) AND",TRMVendor_Auction,TRMVendor_Instant);
-        //int8 tmp[128];
-        //sprintf(tmp," (cbh.bidder_name = %s)",player->getName().getAnsi());
-        //strcat(query.WindowQuery,tmp);
-        //sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM swganh.commerce_auction c INNER JOIN swganh.characters ch on (c.owner_id = ch.id) INNER join swganh.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) inner join swganh.commerce_bidhistory cbh ON (cbh.auction_id = c.auction_id) AND c.owner_id = ch.id WHERE");
-
-        sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32")) AND",TRMVendor_Auction,TRMVendor_Instant);
+        sprintf(query.WindowQuery," ((c.type = %" PRIu32 ") or (c.type = %" PRIu32 ")) AND",TRMVendor_Auction,TRMVendor_Instant);
         int8 tmp[128],end[128],*sqlPointer;
         sprintf(tmp," (cbh.bidder_name = '");
         sqlPointer = tmp + strlen(tmp);
@@ -1601,27 +1588,27 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
         strcat(query.WindowQuery,tmp);
         sprintf(end," )");
         strcat(query.WindowQuery,end);
-        sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM swganh.commerce_auction c INNER JOIN swganh.characters ch on (c.owner_id = ch.id) INNER join swganh.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) inner join swganh.commerce_bidhistory cbh ON (cbh.auction_id = c.auction_id) AND c.owner_id = ch.id WHERE");
+        sprintf(sql,"SELECT c.auction_id, owner_id, c.bazaar_id, type, start, premium, category, itemtype, price, name, description, c.region_id, c.bidder_name, c.planet_id, firstname, bazaar_string, cbh.proxy_bid, cbh.max_bid FROM %s.commerce_auction c INNER JOIN %s.characters ch on (c.owner_id = ch.id) INNER join %s.commerce_bazaar cb ON (cb.bazaar_id = c.bazaar_id) inner join %s.commerce_bidhistory cbh ON (cbh.auction_id = c.auction_id) AND c.owner_id = ch.id WHERE",mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy());
 
     }
     break;
     case TRMVendor_AvailableItems:
     {
-        sprintf(query.WindowQuery," (c.type = %"PRIu32") AND (c.owner_id = %"PRIu64") ",TRMVendor_Ended,player->getCharId());
+        sprintf(query.WindowQuery," (c.type = %" PRIu32 ") AND (c.owner_id = %" PRIu64 ") ",TRMVendor_Ended,player->getCharId());
 
 
     }
     break;
     case TRMVendor_Offers:
     {
-        sprintf(query.WindowQuery," (c.type = %"PRIu32") AND (c.bidder_name = %s) AND (c.bazaar_id = %"PRIu64")",TRMVendor_Offer,player->getName().getAnsi(),query.vendorID);
+        sprintf(query.WindowQuery," (c.type = %" PRIu32 ") AND (c.bidder_name = %s) AND (c.bazaar_id = %" PRIu64 ")",TRMVendor_Offer,player->getName().getAnsi(),query.vendorID);
 
 
     }
     break;
     case TRMVendor_ForSale:
     {
-        sprintf(query.WindowQuery," ((c.type = %"PRIu32") or (c.type = %"PRIu32")) AND",TRMVendor_Auction,TRMVendor_Instant);
+        sprintf(query.WindowQuery," ((c.type = %" PRIu32 ") or (c.type = %" PRIu32 ")) AND",TRMVendor_Auction,TRMVendor_Instant);
         int8 tmp[128],end[128],*sqlPointer;
         sprintf(tmp," (c.bidder_name = '");
         sqlPointer = tmp + strlen(tmp);
@@ -1632,7 +1619,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
         sprintf(end," ) AND");
         strcat(query.WindowQuery,end);
 
-        sprintf(tmp," (c.bazaar_id = %"PRIu64")",query.vendorID);
+        sprintf(tmp," (c.bazaar_id = %" PRIu64 ")",query.vendorID);
         strcat(query.WindowQuery,tmp);
     }
     break;
@@ -1648,19 +1635,19 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     {
         if ((category << 24) == 0)
         {
-            sprintf(query.CategoryQuery," ((c.category >> 8) = %"PRIu32")",(query.Category >> 8));
+            sprintf(query.CategoryQuery," ((c.category >> 8) = %" PRIu32 ")",(query.Category >> 8));
 
         }
         else
         {
             //were looking for a subcategory
-            sprintf(query.CategoryQuery," ((c.category) = %"PRIu32")",query.Category );
+            sprintf(query.CategoryQuery," ((c.category) = %" PRIu32 ")",query.Category );
         }
     }
     else sprintf(query.CategoryQuery," ");
 
     if (query.ItemTyp != 0) {
-        sprintf(query.ItemTypQuery," (c.itemtype = %"PRIu32")",query.ItemTyp);
+        sprintf(query.ItemTypQuery," (c.itemtype = %" PRIu32 ")",query.ItemTyp);
     }
     else
         sprintf(query.ItemTypQuery," ");
@@ -1668,7 +1655,7 @@ void TradeManagerChatHandler::processHandleopAuctionQueryHeadersMessage(Message*
     int8 Limit[64];
     uint32 StopTime;
     StopTime = (static_cast<uint32>(getGlobalTickCount()) / 1000);
-    sprintf(Limit," AND (c.start > %"PRIu32") LIMIT %u, %u", StopTime,query.start, query.start+100);
+    sprintf(Limit," AND (c.start > %" PRIu32 ") LIMIT %u, %u", StopTime,query.start, query.start+100);
 
     //region or bazaar id
 
@@ -1819,7 +1806,7 @@ void TradeManagerChatHandler::handleGlobalTickPreserve()
 {
     TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_SaveGlobalTick, 0);
 
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_ServerGlobalTickUpdate (%u, '%"PRIu64"');", 2, getGlobalTickCount());
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_ServerGlobalTickUpdate (%u, '%" PRIu64 "');", mDatabase->galaxy(),  2, getGlobalTickCount());
     
 }
 
@@ -1832,7 +1819,7 @@ void TradeManagerChatHandler::handleCheckAuctions()
 {
     TradeManagerAsyncContainer* asyncContainer = new TradeManagerAsyncContainer(TRMQuery_ExpiredListing, NULL);
     uint32 time = static_cast<uint32>(getGlobalTickCount());
-    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL sp_BazaarAuctionFindExpired(%"PRIu32");", time/1000);
+    mDatabase->executeProcedureAsync(this, asyncContainer, "CALL %s.sp_BazaarAuctionFindExpired(%" PRIu32 ");", mDatabase->galaxy(),  time/1000);
     
 }
 

@@ -30,9 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "Container.h"
+#include "ContainerManager.h"
 #include "CreatureObject.h"
 #include "ObjectFactoryCallback.h"
 #include "PlayerObject.h"
@@ -99,7 +100,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,CFQuery_ObjectCount,asyncContainer->mClient);
         asContainer->mObject = container;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%" PRIu64 ")",mDatabase->galaxy(),container->getId());
         
     }
     break;
@@ -114,7 +115,7 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
         binding->addField(DFT_uint32,0,4);
         result->getNextRow(binding,&objectCount);
 
-        container->setObjectLoadCounter(objectCount);
+        //container->setObjectLoadCounter(objectCount);
 
         if (objectCount != 0)
         {
@@ -127,12 +128,14 @@ void ContainerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult*
             asContainer->mObject = container;
 
             mDatabase->executeSqlAsync(this,asContainer,
-                                       "(SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-                                       " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64"))"
-                                       " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
-                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
-                                       containerId, containerId, containerId);
-           
+                                       "(SELECT \'containers\',containers.id FROM %s.containers INNER JOIN %s.container_types ON (containers.container_type = container_types.id)"
+                                       " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %" PRIu64 "))"
+                                       " UNION (SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%" PRIu64 "))"
+                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%" PRIu64 "))",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),
+                                       containerId,
+                                       mDatabase->galaxy(), containerId,
+                                       mDatabase->galaxy(),containerId);
 
         }
         else
@@ -193,7 +196,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
                                    "SELECT containers.id,containers.parent_id,containers.oX,containers.oY,containers.oZ,containers.oW,containers.x,"
                                    "containers.y,containers.z,containers.container_type,container_types.object_string,container_types.name,container_types.file,container_types.details_file"
                                    " FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-                                   " WHERE (containers.id = %"PRIu64")",id);
+                                   " WHERE (containers.id = %" PRIu64 ")",id);
        
     }
     else
@@ -218,7 +221,7 @@ void ContainerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uin
                 QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,CFQuery_ObjectCount,client);
                 asContainer->mObject = container;
 
-                mDatabase->executeSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",container->getId());
+                mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%" PRIu64 ")",mDatabase->galaxy(),container->getId());
                 
             }
         }
@@ -275,7 +278,7 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
 {
     InLoadingContainer* ilc	= _getObject(object->getParentId());
     if(!ilc) { //Crashbug patch: http://paste.swganh.org/viewp.php?id=20100627024455-d7efda0b4aebaa96b06438b2c42dfe6c
-        LOG(WARNING) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
+        LOG(warning) << "Failed to locate InLoadingContainer for parent id [" << object->getParentId() << "]";
         return;
     }
     ilc->mLoadCounter--;
@@ -287,8 +290,14 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
     // If object with same key already exist in world map, this object will be invalid.
     if (!gWorldManager->existObject(object))
     {
+
+		container->addObject(object);
+
         gWorldManager->addObject(object,true);
-        container->addObject(object);
+		
+		//update watchers
+		gContainerManager->createObjectToRegisteredPlayers(container, object);
+
     }
 
     // if (container->getObjectLoadCounter() == (container->getObjects())->size())
@@ -297,7 +306,7 @@ void ContainerObjectFactory::handleObjectReady(Object* object,DispatchClient* cl
         container->setLoadState(LoadState_Loaded);
 
         if (!(_removeFromObjectLoadMap(container->getId())))
-            LOG(WARNING) << "Failed removing object from loadmap";
+            LOG(warning) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(container,ilc->mClient);
 

@@ -27,10 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PlayerObjectFactory.h"
 
-#ifdef _WIN32
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "Bank.h"
 #include "BuffManager.h"
@@ -108,7 +105,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         PlayerObject* playerObject = _createPlayer(result);
         if(!playerObject)
         {
-        	LOG(ERROR) << "Failed to load player account [" << asyncContainer->mClient->getAccountId() << "]";
+            DLOG(error) << "Failed to load player account [" << asyncContainer->mClient->getAccountId() << "]";
             return;
         }
 
@@ -116,8 +113,8 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Skills,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT skill_id FROM character_skills WHERE character_id=%"PRIu64"",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT skill_id FROM %s.character_skills WHERE character_id=%" PRIu64 "",mDatabase->galaxy(),playerObject->getId());
+
     }
     break;
 
@@ -149,8 +146,8 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Badges,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT badge_id FROM character_badges WHERE character_id=%"PRIu64"",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT badge_id FROM %s.character_badges WHERE character_id=%" PRIu64 "",mDatabase->galaxy(),playerObject->getId());
+
     }
     break;
 
@@ -175,8 +172,8 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Factions,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT faction_id,value FROM character_faction WHERE character_id=%"PRIu64" ORDER BY faction_id",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT faction_id,value FROM %s.character_faction WHERE character_id=%" PRIu64 " ORDER BY faction_id",mDatabase->galaxy(),playerObject->getId());
+
     }
     break;
 
@@ -203,10 +200,11 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Friends,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_friendlist "
-                                   "INNER JOIN characters ON (chat_friendlist.friend_id = characters.id) "
-                                   "WHERE (chat_friendlist.character_id = %"PRIu64")",playerObject->getId());
-      
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT characters.firstname FROM %s.chat_friendlist "
+                                   "INNER JOIN %s.characters ON (chat_friendlist.friend_id = characters.id) "
+                                   "WHERE (chat_friendlist.character_id = %" PRIu64 ")",
+                                   mDatabase->galaxy(),mDatabase->galaxy(),playerObject->getId());
+
     }
     break;
 
@@ -235,10 +233,11 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Ignores,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT characters.firstname FROM chat_ignorelist "
-                                   "INNER JOIN characters ON (chat_ignorelist.ignore_id = characters.id) "
-                                   "WHERE (chat_ignorelist.character_id = %"PRIu64")",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT characters.firstname FROM %s.chat_ignorelist "
+                                   "INNER JOIN %s.characters ON (chat_ignorelist.ignore_id = characters.id) "
+                                   "WHERE (chat_ignorelist.character_id = %" PRIu64 ")",
+                                   mDatabase->galaxy(),mDatabase->galaxy(),playerObject->getId());
+
     }
     break;
 
@@ -264,26 +263,26 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_XP,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT xp_id,value FROM character_xp WHERE character_id=%"PRIu64"",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT xp_id,value FROM %s.character_xp WHERE character_id=%" PRIu64 "",mDatabase->galaxy(),playerObject->getId());
+
 
         QueryContainerBase* outcastContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_DenyService,asyncContainer->mClient);
         outcastContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,outcastContainer,"SELECT outcast_id FROM entertainer_deny_service WHERE entertainer_id=%"PRIu64"",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,outcastContainer,"SELECT outcast_id FROM %s.entertainer_deny_service WHERE entertainer_id=%" PRIu64 "",mDatabase->galaxy(),playerObject->getId());
+
 
         QueryContainerBase* cloneDestIdContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_PreDefCloningFacility,asyncContainer->mClient);
         cloneDestIdContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM character_clone WHERE character_id=%"PRIu64"",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,cloneDestIdContainer,"SELECT spawn_facility_id, x, y, z, planet_id FROM %s.character_clone WHERE character_id=%" PRIu64 "",mDatabase->galaxy(),playerObject->getId());
+
 
         QueryContainerBase* LotsContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Lots,asyncContainer->mClient);
         LotsContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,LotsContainer,"SELECT sf_getLotCount(%"PRIu64")",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,LotsContainer,"SELECT %s.sf_getLotCount(%" PRIu64 ")",mDatabase->galaxy(),playerObject->getId());
+
     }
     break;
 
@@ -310,8 +309,8 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_HoloEmotes,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM character_holoemotes WHERE character_id = %"PRIu64"",playerObject->getId());
-        
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT  emote_id, charges FROM %s.character_holoemotes WHERE character_id = %" PRIu64 "",mDatabase->galaxy(),playerObject->getId());
+
     }
     break;
 
@@ -442,7 +441,7 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* re
         uint64 count = result->getRowCount();
         if(!count)
         {
-            LOG(WARNING) << "sf_getLotCount did not return a value";
+            LOG(warning) << "sf_getLotCount did not return a value";
             //now we have a problem ...
             mDatabase->destroyDataBinding(binding);
             break;
@@ -516,20 +515,21 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
             "banks.planet_id,account.account_csr,character_attributes.group_id,characters.bornyear,"
             "character_matchmaking.match_1, character_matchmaking.match_2, character_matchmaking.match_3, character_matchmaking.match_4,"
             "character_attributes.force_current,character_attributes.force_max,character_attributes.new_player_exemptions"
-            " FROM characters"
-            " INNER JOIN account ON(characters.account_id = account.account_id)"
-            " INNER JOIN banks ON (%"PRIu64" = banks.id)"
-            " INNER JOIN character_appearance ON (characters.id = character_appearance.character_id)"
-            " INNER JOIN race ON (characters.race_id = race.id)"
-            " INNER JOIN character_attributes ON (characters.id = character_attributes.character_id)"
-            " INNER JOIN character_movement ON (characters.id = character_movement.character_id)"
-            " INNER JOIN faction ON (character_attributes.faction_id = faction.id)"
-            " INNER JOIN character_biography ON (characters.id = character_biography.character_id)"
-            " INNER JOIN character_matchmaking ON (characters.id = character_matchmaking.character_id)"
-            " WHERE (characters.id = %"PRIu64");", id + BANK_OFFSET, id);
+            " FROM %s.characters"
+            " INNER JOIN %s.account ON(characters.account_id = account.account_id)"
+            " INNER JOIN %s.banks ON (%" PRIu64 " = banks.id)"
+            " INNER JOIN %s.character_appearance ON (characters.id = character_appearance.character_id)"
+            " INNER JOIN %s.race ON (characters.race_id = race.id)"
+            " INNER JOIN %s.character_attributes ON (characters.id = character_attributes.character_id)"
+            " INNER JOIN %s.character_movement ON (characters.id = character_movement.character_id)"
+            " INNER JOIN %s.faction ON (character_attributes.faction_id = faction.id)"
+            " INNER JOIN %s.character_biography ON (characters.id = character_biography.character_id)"
+            " INNER JOIN %s.character_matchmaking ON (characters.id = character_matchmaking.character_id)"
+            " WHERE (characters.id = %" PRIu64 ");",
+            mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),id + BANK_OFFSET,mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),
+            mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(), id);
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
- 
 }
 
 //=============================================================================
@@ -537,17 +537,14 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
 PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 {
     if (!result->getRowCount()) {
-    	return nullptr;
+        return nullptr;
     }
 
     PlayerObject*	playerObject	= new PlayerObject();
     TangibleObject*	playerHair		= new TangibleObject();
     MissionBag*		playerMissionBag;
-    Bank*			playerBank		= new Bank();
+    Bank*			playerBank		= new Bank(playerObject);
     Weapon*			playerWeapon	= new Weapon();
-
-    playerBank->setId(playerObject->getId()+BANK_OFFSET);
-    playerBank->setParent(playerObject);
 
     //check for 3 rows as we need to call GetNextRow 3 times
     /*if(count < 3)
@@ -569,7 +566,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     if(dataElements.size() > 1) {
         playerObject->setGender(dataElements[1].getCrc() == BString("female.iff").getCrc());
     } else { //couldn't find data, default to male. Is this acceptable? Crash bug patch: http://paste.swganh.org/viewp.php?id=20100627013612-b69ab274646815fb2a9befa4553c93f7
-        LOG(WARNING) << "Player [" << playerObject->getId() << "] Could not determine requested gender, defaulting to male";
+        LOG(warning) << "Player [" << playerObject->getId() << "] Could not determine requested gender, defaulting to male";
         playerObject->setGender(false);
     }
 
@@ -663,20 +660,20 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
     // We may have to take ceratin actions on these, and then this is not the best placce to do the validation etc...
 
     // Todo : which states remain valid after a zone to zone transition ??? in order to transfer zone e need to be out of combat - so ... none ?
-	playerObject->states.toggleActionOff((CreatureState)(
-								 CreatureState_Cover |
-								 CreatureState_Combat |
-								 CreatureState_Aiming |
-								 CreatureState_Berserk |
-								 CreatureState_FeignDeath |
-								 CreatureState_CombatAttitudeEvasive |		// these should be altered on login ???
-								 CreatureState_CombatAttitudeNormal |		// these should be altered on login ???
-								 CreatureState_CombatAttitudeAggressive |	// these should be altered on login ???
-								 CreatureState_Swimming |
-								 CreatureState_Crafting |
-								 CreatureState_RidingMount |
-								 CreatureState_MountedCreature |
-								 CreatureState_Peace ));
+    playerObject->states.toggleActionOff((CreatureState)(
+            CreatureState_Cover |
+            CreatureState_Combat |
+            CreatureState_Aiming |
+            CreatureState_Berserk |
+            CreatureState_FeignDeath |
+            CreatureState_CombatAttitudeEvasive |		// these should be altered on login ???
+            CreatureState_CombatAttitudeNormal |		// these should be altered on login ???
+            CreatureState_CombatAttitudeAggressive |	// these should be altered on login ???
+            CreatureState_Swimming |
+            CreatureState_Crafting |
+            CreatureState_RidingMount |
+            CreatureState_MountedCreature |
+            CreatureState_Peace ));
 
     playerObject->mHam.updateRegenRates();
     playerObject->mHam.checkForRegen();
@@ -704,99 +701,99 @@ PlayerObject* PlayerObjectFactory::_createPlayer(DatabaseResult* result)
 
 void PlayerObjectFactory::_setupDatabindings()
 {
-	//player binding
-	mPlayerBinding = mDatabase->createDataBinding(185);
-	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mId),8,0);
-	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mParentId),8,1);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.x),4,3);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.y),4,4);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.z),4,5);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.w),4,6);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.x),4,7);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.y),4,8);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.z),4,9);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mModel),128,10);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFirstName),64,11);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mLastName),64,12);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFaction),16,165);
-	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,states.posture),1,166);
-	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mMoodId),1,167);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mJediState),4,168);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mTitle),255,169);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mScale),4,170);
+    //player binding
+    mPlayerBinding = mDatabase->createDataBinding(185);
+    mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mId),8,0);
+    mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mParentId),8,1);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mAccountId),4,2);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.x),4,3);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.y),4,4);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.z),4,5);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mDirection.w),4,6);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.x),4,7);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.y),4,8);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mPosition.z),4,9);
+    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mModel),128,10);
+    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFirstName),64,11);
+    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mLastName),64,12);
+    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
+    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mFaction),16,165);
+    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,states.posture),1,166);
+    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mMoodId),1,167);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mJediState),4,168);
+    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mTitle),255,169);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mScale),4,170);
 
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseRunSpeedLimit),4,171);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseAcceleration),4,172);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTurnRate),4,173);
-	mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,174);//24
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseRunSpeedLimit),4,171);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseAcceleration),4,172);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTurnRate),4,173);
+    mPlayerBinding->addField(DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,174);//24
 
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,175);
-	mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mBiography),4096,176);
-	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,states.action),8,177);
-	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mRaceId),1,178);
-	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mLanguage),1,163);
-	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mCsrTag),1,180);
-	mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mGroupId),8,181);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mBornyear),4,182);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[0]),4,183);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[1]),4,184);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[2]),4,185);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,186);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mCurrentForce),4,187);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMaxForce),4,188);
-	mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,189);		 //39
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,175);
+    mPlayerBinding->addField(DFT_bstring,offsetof(PlayerObject,mBiography),4096,176);
+    mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,states.action),8,177);
+    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mRaceId),1,178);
+    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mLanguage),1,163);
+    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mCsrTag),1,180);
+    mPlayerBinding->addField(DFT_uint64,offsetof(PlayerObject,mGroupId),8,181);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mBornyear),4,182);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[0]),4,183);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[1]),4,184);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[2]),4,185);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,186);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mCurrentForce),4,187);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMaxForce),4,188);
+    mPlayerBinding->addField(DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,189);		 //39
 
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mMaxHitPoints),4,132);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mMaxHitPoints),4,133);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mMaxHitPoints),4,134);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mMaxHitPoints),4,135);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mMaxHitPoints),4,136);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mMaxHitPoints),4,137);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mMaxHitPoints),4,138);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mMaxHitPoints),4,139);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mMaxHitPoints),4,140); //48
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mMaxHitPoints),4,132);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mMaxHitPoints),4,133);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mMaxHitPoints),4,134);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mMaxHitPoints),4,135);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mMaxHitPoints),4,136);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mMaxHitPoints),4,137);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mMaxHitPoints),4,138);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mMaxHitPoints),4,139);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mMaxHitPoints),4,140); //48
 
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mCurrentHitPoints),4,141);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mCurrentHitPoints),4,142);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mCurrentHitPoints),4,143);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mCurrentHitPoints),4,144);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mCurrentHitPoints),4,145);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mCurrentHitPoints),4,146);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mCurrentHitPoints),4,147);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mCurrentHitPoints),4,148);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mCurrentHitPoints),4,149);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mWounds),4,150);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mWounds),4,151);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mWounds),4,152);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mWounds),4,153);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mWounds),4,154);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mWounds),4,155);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mWounds),4,156);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mWounds),4,157);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,158);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mEncumbrance),4,159);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mEncumbrance),4,160);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mEncumbrance),4,161);
-	mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);				 //70
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mCurrentHitPoints),4,141);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mCurrentHitPoints),4,142);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mCurrentHitPoints),4,143);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mCurrentHitPoints),4,144);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mCurrentHitPoints),4,145);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mCurrentHitPoints),4,146);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mCurrentHitPoints),4,147);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mCurrentHitPoints),4,148);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mCurrentHitPoints),4,149);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mWounds),4,150);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mWounds),4,151);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mWounds),4,152);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mWounds),4,153);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mWounds),4,154);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mWounds),4,155);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mWounds),4,156);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mWounds),4,157);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,158);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mEncumbrance),4,159);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mAction.mEncumbrance),4,160);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mMind.mEncumbrance),4,161);
+    mPlayerBinding->addField(DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);				 //70
 
-	for(uint16 i = 0;i < 0x71;i++)
-		mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization)+(i*2),2,i + 17);//+113 = 183
+    for(uint16 i = 0; i < 0x71; i++)
+        mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization)+(i*2),2,i + 17);//+113 = 183
 
-	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
-	mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);				   //185
+    mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[171]),2,130);
+    mPlayerBinding->addField(DFT_uint16,offsetof(PlayerObject,mCustomization[172]),2,131);				   //185
 
-	//hair binding
-	mHairBinding = mDatabase->createDataBinding(3);
-	mHairBinding->addField(DFT_bstring,offsetof(TangibleObject,mModel),128,13);
-	mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[1]),2,14);
-	mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[2]),2,15);
+    //hair binding
+    mHairBinding = mDatabase->createDataBinding(3);
+    mHairBinding->addField(DFT_bstring,offsetof(TangibleObject,mModel),128,13);
+    mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[1]),2,14);
+    mHairBinding->addField(DFT_uint16,offsetof(TangibleObject,mCustomization[2]),2,15);
 
-	//bank binding
-	mBankBinding = mDatabase->createDataBinding(2);
-	mBankBinding->addField(DFT_uint32,offsetof(Bank,mCredits),4,164);
-	mBankBinding->addField(DFT_uint8,offsetof(Bank,mPlanet),1,179);
+    //bank binding
+    mBankBinding = mDatabase->createDataBinding(2);
+    mBankBinding->addField(DFT_uint32,offsetof(Bank,credits_),4,164);
+    mBankBinding->addField(DFT_uint8,offsetof(Bank,planet_),1,179);
 }
 
 //=============================================================================
@@ -812,7 +809,6 @@ void PlayerObjectFactory::_destroyDatabindings()
 
 void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* client)
 {
-
     InLoadingContainer*				ilc;
     ilc= _getObject(object->getParentId());
     if(!ilc)
@@ -836,13 +832,12 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 
         playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Inventory,inventory);
         inventory->setParent(playerObject);
+        playerObject->setInventory(inventory);
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(0,POFQuery_EquippedItems,client);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT id  FROM items WHERE parent_id=%"PRIu64"",playerObject->getId());
-        
-
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT id  FROM %s.items WHERE parent_id=%" PRIu64 "",mDatabase->galaxy(),playerObject->getId());
     }
     else if(Datapad* datapad = dynamic_cast<Datapad*>(object))
     {
@@ -862,18 +857,18 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
     }
     else
     {
-    	LOG(WARNING) << "Unable to determine the object type";
+        LOG(warning) << "Unable to determine the object type";
     }
 
     if((!ilc->mLoadCounter) && ((!ilc->mInventory) || (!ilc->mDPad)))
     {
-    	LOG(WARNING) << "mIlc LoadCounter is messed up - we have a race condition";
+        LOG(warning) << "mIlc LoadCounter is messed up - we have a race condition";
     }
 
     if((!ilc->mLoadCounter) && (ilc->mInventory) && (ilc->mDPad))
     {
         if(!(_removeFromObjectLoadMap(playerObject->getId())))
-        	LOG(WARNING) << "Failed removing object from loadmap";
+            LOG(warning) << "Failed removing object from loadmap";
 
         // if weapon slot is empty, equip the unarmed default weapon
         if(!playerObject->mEquipManager.getEquippedObject(CreatureEquipSlot_Hold_Left))
@@ -896,7 +891,6 @@ void PlayerObjectFactory::handleObjectReady(Object* object,DispatchClient* clien
 
         mILCPool.free(ilc);
     }
-    //gBuffManager->InitBuffs(playerObject);
 }
 
 //=============================================================================

@@ -9,15 +9,15 @@ FIND_PATH(ZLIB_INCLUDE_DIR zlib.h
 MARK_AS_ADVANCED(ZLIB_INCLUDE_DIR)
 
 FIND_LIBRARY(ZLIB_LIBRARY_DEBUG
-    NAMES z zlib zlib.lib
+    NAMES z zlibd zlibd.lib
     PATH
         $ENV{ZLIB_ROOT}
         ${ZLIB_ROOT}
     HINTS
 	    $ENV{ZLIB_ROOT}/lib
 	    ${ZLIB_ROOT}/lib
-        $ENV{ZLIB_ROOT}/projects/visualc6/Win32_LIB_Debug
-        ${ZLIB_ROOT}/projects/visualc6/Win32_LIB_Debug
+        $ENV{ZLIB_ROOT}/Debug
+        ${ZLIB_ROOT}/Debug
 )
 
 FIND_LIBRARY(ZLIB_LIBRARY_RELEASE
@@ -28,8 +28,8 @@ FIND_LIBRARY(ZLIB_LIBRARY_RELEASE
     HINTS
 		$ENV{ZLIB_ROOT}/lib
 	    ${ZLIB_ROOT}/lib
-        $ENV{ZLIB_ROOT}/projects/visualc6/Win32_LIB_Release
-        ${ZLIB_ROOT}/projects/visualc6/Win32_LIB_Release
+        $ENV{ZLIB_ROOT}/Release
+        ${ZLIB_ROOT}/Release
 )
         
 IF(ZLIB_INCLUDE_DIR AND ZLIB_LIBRARY_DEBUG AND ZLIB_LIBRARY_RELEASE)

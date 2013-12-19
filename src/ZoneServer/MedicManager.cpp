@@ -46,6 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "UIManager.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "WorldConfig.h"
 #include "ForageManager.h"
 #include "StructureManager.h"
@@ -309,7 +310,7 @@ bool MedicManager::CheckMedicine(PlayerObject* Medic, PlayerObject* Target, Obje
             }
             else
             {
-                DLOG(INFO) << "Invalid Medicine Type" ;
+                DLOG(info) << "Invalid Medicine Type" ;
             }
 
             if(medicine)
@@ -556,9 +557,10 @@ bool MedicManager::HealDamage(PlayerObject* Medic, PlayerObject* Target, uint64 
 
     if((!tendDamage && !quickHeal) && Stim->ConsumeUse(Medic))
     {
-        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(Stim->getParentId()));
-        tO->deleteObject(Stim);
+        TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(Stim->getParentId()));
+		gContainerManager->deleteObject(Stim, container);
     }
+
     return true;
 }
 
@@ -642,8 +644,8 @@ bool MedicManager::HealDamageRanged(PlayerObject* Medic, PlayerObject* Target, u
 
     if(Stim->ConsumeUse(Medic))
     {
-        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(Stim->getParentId()));
-        tO->deleteObject(Stim);
+		TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(Stim->getParentId()));
+		gContainerManager->deleteObject(Stim, container);
     }
 
     //Add XP as Total Heal / 4 if not targetting self
@@ -784,8 +786,8 @@ bool MedicManager::HealWound(PlayerObject* Medic, PlayerObject* Target, uint64 W
 
     if(!tendwound && WoundPack->ConsumeUse(Medic))
     {
-        TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(WoundPack->getParentId()));
-        tO->deleteObject(WoundPack);
+		TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(WoundPack->getParentId()));
+		gContainerManager->deleteObject(WoundPack, container);
     }
     return true;
 }

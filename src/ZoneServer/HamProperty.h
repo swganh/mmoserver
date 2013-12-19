@@ -142,7 +142,7 @@ public:
 private:
 
     ValueTypes	mValues;
-    int32		mBaseHitPoints;    // normally available hitpoints
+    int32		mBaseHitPoints;    // normally available hitpoints creo1
     int32		mCurrentHitPoints; //current available hitpoints
     int32		mEncumbrance;
     int32		mMaxHitPoints;     // maximal available hitpoints

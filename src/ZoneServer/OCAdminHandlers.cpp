@@ -173,12 +173,12 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
         // gMessageLib->sendSystemMessage(player, dataStr, true);
 
         dataStr.convert(BSTRType_ANSI);
-        DLOG(INFO) << "Admin "<< player->getFirstName().getAnsi() <<":" << dataStr.getAnsi();
+        DLOG(info) << "Admin "<< player->getFirstName().getAnsi() <<":" << dataStr.getAnsi();
     }
     else
     {
         dataStr.convert(BSTRType_ANSI);
-        DLOG(INFO) << "Admin (anon): " <<  dataStr.getAnsi();
+        DLOG(info) << "Admin (anon): " <<  dataStr.getAnsi();
     }
 
     int8 rawData[128];
@@ -763,14 +763,14 @@ void ObjectController::sendAdminFeedback(BString reply) const
         }
         else
         {
-            DLOG(INFO) << "Admin :" << player->getFirstName().getAnsi();
+            DLOG(info) << "Admin :" << player->getFirstName().getAnsi();
         }
     }
     else
     {
         if (reply.getDataLength())
         {
-            DLOG(INFO) << "Admin (anon): " << reply.getAnsi();
+            DLOG(info) << "Admin (anon): " << reply.getAnsi();
         }
         else
         {

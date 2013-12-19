@@ -55,9 +55,9 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
     int8 sql[128];
     sprintf(sql,"SELECT spawn_regions.id,spawn_regions.spawn_type,planet_regions.region_name,planet_regions.region_file,planet_regions.x,planet_regions.z,"
             "planet_regions.width,planet_regions.height,spawn_regions.parent_id,spawn_regions.mission"
-            " FROM spawn_regions"
-            " INNER JOIN planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
-            " WHERE (spawn_regions.id = %"PRIu64")",id);
+            " FROM %s.spawn_regions"
+            " INNER JOIN %s.planet_regions ON (spawn_regions.region_id = planet_regions.region_id)"
+            " WHERE (spawn_regions.id = %" PRIu64 ")",mDatabase->galaxy(),mDatabase->galaxy(),id);
 
     mDatabase->executeAsyncSql(sql, [=] (DatabaseResult* result) {
         if (!result) {
@@ -67,7 +67,7 @@ void SpawnRegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 
         std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
 
         if (!result_set->next()) {
-            LOG(WARNING) << "Unable to load SpawnRegion with region id: " << id;
+            LOG(warning) << "Unable to load SpawnRegion with region id: " << id;
             return;
         }
         std::shared_ptr<SpawnRegion> spawn = std::make_shared<SpawnRegion>();

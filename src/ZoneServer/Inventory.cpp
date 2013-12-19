@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "PlayerObject.h"
 #include "ResourceContainer.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "Utils/utils.h"
@@ -83,7 +84,7 @@ bool Inventory::updateCredits(int32 amount)
     if(mParent->getType() == ObjType_Player)
         gMessageLib->sendInventoryCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
 
-    gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE inventories set credits=credits+%i WHERE id=%"PRIu64"",amount,mId);
+    gWorldManager->getDatabase()->executeSqlAsync(NULL,NULL,"UPDATE %s.inventories set credits=credits+%i WHERE id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),amount,mId);
     
 
     return(true);
@@ -93,28 +94,22 @@ bool Inventory::updateCredits(int32 amount)
 
 void Inventory::handleObjectReady(Object* object,DispatchClient* client)
 {
-    TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
-    if(!tangibleObject)
-    {
-        assert(false && "Inventory::handleObjectReady object is not tangible");
-        return;
-    }
+	TangibleObject* tangibleObject = dynamic_cast<TangibleObject*>(object);
+	if(!tangibleObject)
+	{
+		LOG(fatal) << "Inventory::handleObjectReady : Not a tangible ???";
+		assert(false && "Inventory::handleObjectReady object is not tangible");
+		return;
+	}
+	
+	// reminder: objects are owned by the global map, inventory only keeps references
+	addObjectSecure(object);
 
-    // reminder: objects are owned by the global map, inventory only keeps references
+	//initialize the Object and add it to the main Object map
+	gWorldManager->addObject(object);
 
-    //generally we presume that objects are created UNEQUIPPED
-    //equipped objects are handled through the playerfactory on load
-    gWorldManager->addObject(object,true);//true means its not added to the si!!
-
-    // send the creates, if we are owned by a player
-    if(PlayerObject* player = dynamic_cast<PlayerObject*>(mParent))
-    {
-        addObject(object,player);
-    }
-
-    else
-        addObjectSecure(object);
-
+	//let the containermanager take care of creation
+	gContainerManager->createObjectToRegisteredPlayers(this, object);
 }
 
 //=============================================================================

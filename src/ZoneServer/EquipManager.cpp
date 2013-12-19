@@ -25,21 +25,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "EquipManager.h"
-#include "PlayerObject.h"
+#include "ZoneServer/EquipManager.h"
+
+#include "Utils/logger.h"
+
 #include "MessageLib/MessageLib.h"
-#include "Inventory.h"
-#include "Object.h"
-#include "Weapon.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/SpatialIndexManager.h"
+#include "ZoneServer/Inventory.h"
+#include "ZoneServer/Object.h"
+#include "ZoneServer/Weapon.h"
+#include "ZoneServer/WorldManager.h"
 
-#include <glog/logging.h>
-
-//=============================================================================
 
 EquipManager::EquipManager() :
     mDefaultWeapon(NULL)
@@ -173,20 +171,6 @@ Object* EquipManager::getEquippedObject(CreatureEquipSlot slot)
     return(NULL);
 }
 
-/*
-bool EquipManager::checkEquipObject(Object* object)
-{
-	SlotMap::iterator	it;
-	uint32				slotMask	= object->getEquipSlotMask();
-
-	// make sure we have a slot descriptor
-	if(!slotMask)
-	{
-		return(false);
-	}
-	return true;
-}
-  */
 //=============================================================================
 //
 // add an object according to its slot definitions, remove objects with slot conflicts
@@ -269,18 +253,6 @@ bool EquipManager::EquipItem(Object* object)
 
     addEquippedObject(object);
 
-    //equipped objects are always contained by the Player
-    //unequipped ones by the inventory!
-
-    uint64			parentId	= owner->getId();
-
-    //update containment and db
-    object->setParentId(parentId,4,owner,true);
-
-    //create it for all nearby players
-    PlayerObjectSet*	inRangePlayers	= owner->getKnownPlayers();
-    gMessageLib->sendCreateTangible(item,inRangePlayers);
-
     //Update the Equipped List
     gMessageLib->sendEquippedListUpdate_InRange(owner);
 
@@ -297,20 +269,23 @@ bool EquipManager::EquipItem(Object* object)
 
 bool EquipManager::unEquipItem(Object* object)
 {
+
     Item* item = dynamic_cast<Item*>(object);
     if(!item)
     {
+        DLOG(warning) << "Inventory::unEquipItem : No Item object ID : " << object->getId();
         return false;
     }
 
     PlayerObject*	owner		= dynamic_cast<PlayerObject*> (this->getParent());
     if(!owner)
     {
+        DLOG(warning) << "Inventory::unEquipItem : No one has it equipped";
         return false;
     }
 
-    //client forces us to stop performing at this point as he unequips the instrument regardless of what we do
-    if((item->getItemFamily() == ItemFamily_Instrument) && (owner->getPerformingState() != PlayerPerformance_None))
+    //client forces us to stop performing at this point as he unequips the instrument if he is not dancing
+    if((item->getItemFamily() == ItemFamily_Instrument) && (owner->getPerformingState() != PlayerPerformance_Dance))
     {
         gEntertainerManager->stopEntertaining(owner);
     }
@@ -319,13 +294,10 @@ bool EquipManager::unEquipItem(Object* object)
     //unequipped ones by the inventory!
 
     Inventory*		inventory		=	dynamic_cast<Inventory*>(getEquippedObject(CreatureEquipSlot_Inventory));
+    uint64			parentId		=	inventory->getId();
 
-    //the object is now in the inventory
-    //update the containment for owner and db
-    object->setParentId(inventory->getId(), 0xffffffff, owner, true);
 
-    //destroy for everyone in range
-    gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
+    //gMessageLib->sendDestroyObject_InRange(object->getId(),owner,false);
     gMessageLib->sendEquippedListUpdate_InRange(owner);
 
     removeEquippedObject(object);

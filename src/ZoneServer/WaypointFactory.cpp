@@ -101,8 +101,9 @@ void WaypointFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,WaypointFQuery_MainData,client),
                                "SELECT waypoints.waypoint_id,waypoints.owner_id,waypoints.x,waypoints.y,waypoints.z,"
                                "waypoints.name,planet.name,waypoints.active,waypoints.type"
-                               " FROM waypoints INNER JOIN planet ON (waypoints.planet_id = planet.planet_id)"
-                               " WHERE (waypoints.waypoint_id = %"PRIu64")",id);
+                               " FROM %s.waypoints INNER JOIN %s.planet ON (waypoints.planet_id = planet.planet_id)"
+                               " WHERE (waypoints.waypoint_id = %" PRIu64 ")",
+                               mDatabase->galaxy(),mDatabase->galaxy(),id);
   
 }
 

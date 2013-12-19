@@ -31,8 +31,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <memory>
 #include "Utils/bstring.h"
 #include "Utils/typedefs.h"
+#include "Common/Server.h"
 
 //======================================================================================================================
+
+namespace anh {
+namespace event_dispatcher {
+    class EventDispatcherInterface;
+}}  // namespace anh::event_dispatcher
 
 class NetworkManager;
 class Service;
@@ -65,18 +71,18 @@ public:
 
 //======================================================================================================================
 
-class ZoneServer
+class ZoneServer : public common::BaseServer
 {
 public:
 
-    ZoneServer(int8* mapName);
+    ZoneServer(int argc, char* argv[]);
     ~ZoneServer(void);
 
     void	Process(void);
 
     void	handleWMReady();
 
-    BString  getZoneName()  {
+    std::string  getZoneName()  {
         return mZoneName;
     }
 
@@ -89,9 +95,10 @@ private:
     void	_updateDBServerList(uint32 status);
     void	_connectToConnectionServer(void);
 
-    BString                        mZoneName;
+    std::string                   mZoneName;
     uint32						  mLastHeartbeat;
 
+    std::shared_ptr<anh::event_dispatcher::EventDispatcherInterface> event_dispatcher_;
     NetworkManager*               mNetworkManager;
     DatabaseManager*              mDatabaseManager;
 

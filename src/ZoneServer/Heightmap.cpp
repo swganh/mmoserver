@@ -26,12 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "Heightmap.h"
 #include "ZoneServer/WorldManager.h"
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
 
-#include <glog/logging.h>
+#include "Utils/logger.h"
 #include "Utils/utils.h"
 #include <cassert>
 #include <cfloat>
@@ -128,7 +124,7 @@ void Heightmap::fillInIterator(HeightResultMap::iterator it)
         Connect();
         if(!Open())
         {
-            DLOG(WARNING) << "Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!";
+            DLOG(warning) << "Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!";
             return;
         }
     }
@@ -137,7 +133,7 @@ void Heightmap::fillInIterator(HeightResultMap::iterator it)
     fseek(hmp,getOffset(it->first.first,it->first.second),SEEK_SET);
     size_t result = fread(&height,2,1,hmp);
     if (! result) {
-        DLOG(WARNING) << "Heightmap::ERROR: Unable to read height!";
+        DLOG(warning) << "Heightmap::ERROR: Unable to read height!";
         return;
     }
 
@@ -158,16 +154,16 @@ void Heightmap::fillInIterator(HeightResultMap::iterator it)
 void Heightmap::RunThread()
 {
     // create a height-map cashe.
-    DLOG(WARNING) << "Height map resolution = " << mResolution;
+    DLOG(warning) << "Height map resolution = " << mResolution;
 
-    DLOG(WARNING) << "Starting Heightmap Cache Creation. This might take a while!";
+    DLOG(warning) << "Starting Heightmap Cache Creation. This might take a while!";
     if (setupCache(mResolution))
     {
-        DLOG(WARNING) << "Height map cache setup successfully with resolution " << mResolution;
+        DLOG(warning) << "Height map cache setup successfully with resolution " << mResolution;
     }
     else
     {
-        DLOG(WARNING) << "WorldManager::_handleLoadComplete heigthmap cache setup FAILED";
+        DLOG(warning) << "WorldManager::_handleLoadComplete heigthmap cache setup FAILED";
     }
 
     mReadyMutex.lock();
@@ -203,7 +199,7 @@ void Heightmap::RunThread()
             boost::this_thread::sleep(boost::posix_time::milliseconds(20));
         }
     }
-    LOG(WARNING) << "HeightMap Thread Down!";
+    LOG(warning) << "HeightMap Thread Down!";
 }
 
 
@@ -217,19 +213,19 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 {
     if ((x < -(WIDTH - 1)/2) || (x > (WIDTH- 1)/2))
     {
-        LOG(WARNING) << "Heightmap::ERROR: Invalid input: x out of range x = "<< x<< ",  -WIDTH/2 = "<< -WIDTH/2;
+        LOG(warning) << "Heightmap::ERROR: Invalid input: x out of range x = "<< x<< ",  -WIDTH/2 = "<< -WIDTH/2;
         assert(false && "Heightmap::getRow x out of range");
         return false;
     }
     if ((z < -(HEIGHT- 1)/2) || (z > (HEIGHT - 1)/2))
     {
-        LOG(WARNING) << "Heightmap::ERROR: Invalid input: x out of range z = "<< z<< ",  -WIDTH/2 = "<< -WIDTH/2;
+        LOG(warning) << "Heightmap::ERROR: Invalid input: x out of range z = "<< z<< ",  -WIDTH/2 = "<< -WIDTH/2;
         assert(false && "Heightmap::getRow z out of range");
         return false;
     }
     if (length < 0)
     {
-        LOG(WARNING) << "Heightmap::ERROR: Invalid input: length is negative";
+        LOG(warning) << "Heightmap::ERROR: Invalid input: length is negative";
         assert(false && "Heightmap::getRow length is negative");
         return false;
     }
@@ -244,7 +240,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
         Connect();
         if(!Open())
         {
-            LOG(WARNING) << "Heightmap::ERROR: Unable to retrieve height data.";
+            LOG(warning) << "Heightmap::ERROR: Unable to retrieve height data.";
             assert(false && "Heightmap::getRow Missing heightmap, contact a SWG:ANH Developer for info.");
             return false;
         }
@@ -254,7 +250,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 
     if (endOffset > (int32)(2 * WIDTH * HEIGHT))
     {
-        LOG(WARNING) << "Heightmap::ERROR: Invalid input: length out of range endOffset = " << endOffset << ", (2 * WIDTH * HEIGHT) = "<< (int32)(2 * WIDTH * HEIGHT);
+        LOG(warning) << "Heightmap::ERROR: Invalid input: length out of range endOffset = " << endOffset << ", (2 * WIDTH * HEIGHT) = "<< (int32)(2 * WIDTH * HEIGHT);
         assert(false && "Heightmap::getRow length out of range");
         return false;
     }
@@ -266,7 +262,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
 
     if (fseek(hmp,startOffset,SEEK_SET) != 0)
     {
-        DLOG(WARNING) << "Heightmap::ERROR: File seek error";
+        DLOG(warning) << "Heightmap::ERROR: File seek error";
         assert(false);
         return false;
     }
@@ -274,7 +270,7 @@ bool Heightmap::getRow(unsigned char* buffer, int32 x, int32 z, int32 length)
     int32 bytesRead = fread(buffer,1, len, hmp);
     if (bytesRead != len)
     {
-        DLOG(WARNING) << "Heightmap::ERROR: File read error";
+        DLOG(warning) << "Heightmap::ERROR: File read error";
         assert(false);
         return false;
     }
@@ -290,11 +286,11 @@ void Heightmap::Connect(void)
     hmp = fopen(mFilename.c_str(),"r+b");
     if(!hmp)
     {
-        LOG(FATAL) << "Heightmap::Heightmap not found [ "<<mFilename.c_str()<<" ], exiting...";
+        LOG(fatal) << "Heightmap::Heightmap not found [ "<<mFilename.c_str()<<" ], exiting...";
     }
     else
     {
-        LOG(WARNING) << "Heightmap succesfully opened!";
+        LOG(warning) << "Heightmap succesfully opened!";
     }
     return;
 }
@@ -361,7 +357,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
     // static int32 cacheWidth = 7681;
 
     // Allocate memory for the heightmap.
-    mHeightmapCache = new float*[mCacheHeight];
+    mHeightmapCache = new int16*[mCacheHeight];
     if (!mHeightmapCache)
     {
         assert (mHeightmapCache != NULL && "Heightmap::setupCache unable to allocate memory for heightmap");
@@ -370,7 +366,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 
     for (int i = 0; i < mCacheWidth; i++)
     {
-        mHeightmapCache[i] = new float[mCacheWidth];
+        mHeightmapCache[i] = new int16[mCacheWidth];
         if (!mHeightmapCache[i])
         {
             return false;
@@ -403,7 +399,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
             {
                 if (heightMapRow[i] & 0x80000)
                 {
-                    DLOG(INFO) << "Found water, at position " << (-heightMapWidth/2) + i << " " << heightMapLine;
+                    DLOG(info) << "Found water, at position " << (-heightMapWidth/2) + i << " " << heightMapLine;
                 }
 
                 // Let's do this the right way, shall we? Pretend that we have a 15 bits signed value...
@@ -454,7 +450,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
                     }
                 }
 
-                mHeightmapCache[zPos][xPos] = value;
+                mHeightmapCache[zPos][xPos] = signedFix;
                 xPos++;
                 // heightMapCache[z][x/2] = (float)(heightMapRow[x] &= 0x7FFF)/10;
             }
@@ -472,8 +468,8 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 
     if (status)
     {
-        DLOG(INFO) << "Min height = " << min<<" at position "<< xPosMin << ","<< zPosMin;
-        DLOG(INFO) << "Min height = " << max<<" at position "<< xPosMax << ","<< zPosMax;
+        DLOG(info) << "Min height = " << min<<" at position "<< xPosMin << ","<< zPosMin;
+        DLOG(info) << "Max height = " << max<<" at position "<< xPosMax << ","<< zPosMax;
     }
     return status;
 }
@@ -483,7 +479,7 @@ bool Heightmap::setupCache(int16 cacheResoulutionDivider)
 //	Retrieve the height from the cache for a given 2D x,z position.
 //
 
-float Heightmap::getCachedHeightAt2DPosition(float xPos, float zPos) const
+float Heightmap::getCachedHeight(float xPos, float zPos) const
 {
     float yPos = FLT_MIN;
     if (mCacheAvaliable)
@@ -491,7 +487,7 @@ float Heightmap::getCachedHeightAt2DPosition(float xPos, float zPos) const
         int32 x = round_coord(xPos) + (heightMapHeight/2);
         int32 z = round_coord(zPos) + (heightMapWidth/2);
 
-        yPos = mHeightmapCache[z/mCacheResoulutionDivider][x/mCacheResoulutionDivider];
+        yPos = (float)(mHeightmapCache[z/mCacheResoulutionDivider][x/mCacheResoulutionDivider])/20;
     }
     return yPos;
 }
@@ -503,7 +499,7 @@ float Heightmap::getHeight(float x, float y)
         Connect();
         if(!Open())
         {
-            DLOG(WARNING) << "Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!";
+            DLOG(warning) << "Heightmap::ERROR: Unable to retrieve height. A connection to the zone heightmap was not established!";
             return FLT_MIN;
         }
     }
@@ -512,7 +508,7 @@ float Heightmap::getHeight(float x, float y)
     fseek(hmp,getOffset(x,y),SEEK_SET);
     size_t result = fread(&height,2,1,hmp);
     if (! result) {
-        DLOG(WARNING) << "Heightmap::ERROR: Unable to read height!";
+        DLOG(warning) << "Heightmap::ERROR: Unable to read height!";
         return FLT_MIN;
     }
     height &= 0x7FFF;

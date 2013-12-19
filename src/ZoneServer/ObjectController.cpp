@@ -43,15 +43,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "StateManager.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "SpatialIndexManager.h"
 
 #include "MessageLib/MessageLib.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DataBinding.h"
@@ -90,11 +86,7 @@ ObjectController::ObjectController()
     , mInUseCommandQueue(false)
     , mRemoveCommandQueue(false)
     , mUpdatingObjects(false)
-{
-    mSI		= gWorldManager->getSI();
-    // We do have a global clock object, don't use seperate clock and times for every process.
-    // mClock	= new Anh_Utils::Clock();
-}
+{}
 
 //=============================================================================
 //
@@ -118,9 +110,7 @@ ObjectController::ObjectController(Object* object)
     , mInUseCommandQueue(false)
     , mRemoveCommandQueue(false)
     , mUpdatingObjects(false)
-{
-    mSI		= gWorldManager->getSI();
-}
+{}
 
 //=============================================================================
 //
@@ -406,7 +396,7 @@ bool ObjectController::_processCommandQueue()
                             ((*it).second)(this, targetId, message, cmdProperties);
                             //(this->*((*it).second))(targetId,message,cmdProperties);
                         } else {
-                            DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<command<<" for "<<mObject->getId();
+                            DLOG(warning) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<command<<" for "<<mObject->getId();
                             //gLogger->hexDump(message->getData(),message->getSize());
                         }
                     }
@@ -463,7 +453,7 @@ bool ObjectController::_processCommandQueue()
 
                 default:
                 {
-					DLOG(WARNING) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<cmdProperties->mCmdGroup <<" for "<<mObject->getId();
+					DLOG(warning) << "ObjectController::processCommandQueue: ObjControllerCmdGroup_Common Unhandled Cmd 0"<<cmdProperties->mCmdGroup <<" for "<<mObject->getId();
                 }
                 break;
                 }
@@ -757,7 +747,7 @@ void ObjectController::enqueueAutoAttack(uint64 targetId)
             if (player)
             {
                 player->disableAutoAttack();
-                DLOG(INFO) << "ObjectController::enqueueAutoAttack() Error adding command.";
+                DLOG(info) << "ObjectController::enqueueAutoAttack() Error adding command.";
             }
         }
     }
@@ -816,7 +806,7 @@ void ObjectController::removeMsgFromCommandQueueBySequence(uint32 sequence)
     // sanity check
     if (!sequence)
     {
-        DLOG(INFO) << "ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!";
+        DLOG(info) << "ObjectController::removeMsgFromCommandQueueBySequence No sequence!!!!";
         return;
     }
 
@@ -1045,4 +1035,19 @@ uint32 ObjectController::getLocoValidator(uint64 locomotion)
     }
 
     return locoValidator;
+}
+
+//======================================================================
+
+uint32 ObjectController::getPostureValidator(uint64 posture)
+{
+	uint32 postureValidator = 0;
+	switch(posture)
+	{
+		case CreaturePosture_Sitting: postureValidator = kLocoValidSitting; break;
+		case CreaturePosture_Prone: postureValidator = kLocoValidProne; break;
+		case CreaturePosture_Crouched: postureValidator = kLocoValidKneeling; break;
+		case CreaturePosture_Upright: postureValidator = kLocoValidStanding; break;
+	}
+	return postureValidator;
 }

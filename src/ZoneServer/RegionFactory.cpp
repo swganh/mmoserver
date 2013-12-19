@@ -30,12 +30,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "BadgeRegionFactory.h"
 #include "CityFactory.h"
 #include "ObjectFactoryCallback.h"
-#include "QTRegionFactory.h"
 #include "RegionObject.h"
 #include "SpawnRegionFactory.h"
 
@@ -50,7 +49,6 @@ RegionFactory::RegionFactory(Database* database) : FactoryBase(database)
     mCityFactory = make_shared<CityFactory>(mDatabase);
     mBadgeRegionFactory = make_shared<BadgeRegionFactory>(mDatabase);
     mSpawnRegionFactory = make_shared<SpawnRegionFactory>(mDatabase);
-    mQTRegionFactory = make_shared<QTRegionFactory>(mDatabase);
 }
 
 //=============================================================================
@@ -73,12 +71,9 @@ void RegionFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,ui
     case Region_Spawn:
         mSpawnRegionFactory->requestObject(ofCallback,id,subGroup,subType,client);
         break;
-    case Region_Zone:
-        mQTRegionFactory->requestObject(ofCallback,id,subGroup,subType,client);
-        break;
 
     default:
-        LOG(ERROR) << "Unknown group [" << subGroup << "]";
+        LOG(error) << "Unknown group [" << subGroup << "]";
         break;
     }
 }

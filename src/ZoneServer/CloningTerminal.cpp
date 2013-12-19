@@ -90,7 +90,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
                         // TODO: We need to save the current data before creating the clone data.
 
                         int8 sql[128];
-                        sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
+                        sprintf(sql,"call %s.sp_CharacterCreateClone(%" PRIu64 ",%" PRIu64 ")",gWorldManager->getDatabase()->galaxy(), playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
                         (gWorldManager->getDatabase())->executeProcedureAsync(NULL,NULL,sql);
 
                         // Clone location successfully updated
@@ -121,36 +121,36 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 // void CloningTerminal::handleUIEvent(BString strInventoryCash, string strBankCash, UIWindow* window)
 void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-	if(window == NULL)
-	{
-		return;
-	}
+    if(window == NULL)
+    {
+        return;
+    }
 
-	PlayerObject* playerObject = window->getOwner(); // window owner
+    PlayerObject* playerObject = window->getOwner(); // window owner
 
-	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
-	{
-		return;
-	}
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
+    {
+        return;
+    }
 
-	if (this->getParentId() && gWorldManager->getObjectById(this->getParentId())->getParentId())
-	{
-		// We are located inside a building.
+    if (this->getParentId() && gWorldManager->getObjectById(this->getParentId())->getParentId())
+    {
+        // We are located inside a building.
 
-		if (action != 1)
-		{
-			// This is the OK.  (action == 0)
-			// TODO: If the player have the "coupon", they should get a special message.
-			// For now, we skip the "coupon", because of the risk of player deleting them, how do they advance in the Tutorial then?
+        if (action != 1)
+        {
+            // This is the OK.  (action == 0)
+            // TODO: If the player have the "coupon", they should get a special message.
+            // For now, we skip the "coupon", because of the risk of player deleting them, how do they advance in the Tutorial then?
 
-			int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
+            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits());
 
-			// TODO: Some cities have 20% reduction of cloning fee, depending of city status
-			if (creditsAtBank < cloningCost)
-			{
-				if (creditsAtBank == cloningCost - 1)
-				{
-					// nsf_clone1       You lack the 1 additional credit required to cover the cost of cloning.
+            // TODO: Some cities have 20% reduction of cloning fee, depending of city status
+            if (creditsAtBank < cloningCost)
+            {
+                if (creditsAtBank == cloningCost - 1)
+                {
+                    // nsf_clone1       You lack the 1 additional credit required to cover the cost of cloning.
                     gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "nsf_clone1"), playerObject);
                 }
                 else
@@ -180,9 +180,9 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr
                 playerObject->setBindCoords(bindPosition);
 
                 int8 sql[128];
-                sprintf(sql,"call swganh.sp_CharacterCreateClone(%"PRIu64",%"PRIu64")", playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
+                sprintf(sql,"call %s.sp_CharacterCreateClone(%" PRIu64 ",%" PRIu64 ")",gWorldManager->getDatabase(), playerObject->getId(),playerObject->getPreDesignatedCloningFacilityId());
                 (gWorldManager->getDatabase())->executeProcedureAsync(NULL, NULL, sql);
-                
+
 
                 // Clone location successfully updated
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "clone_success"), playerObject);
@@ -200,7 +200,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr
 
                 // You lack the bank funds to complete this transaction request
                 gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "insufficient_funds_bank"), playerObject);
-			}
+            }
         }
     }
 }

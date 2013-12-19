@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "Badge.h"
 #include "Bank.h"
@@ -65,7 +65,7 @@ CharSheetManager::CharSheetManager(Database* database,MessageDispatch* dispatch)
     _registerCallbacks();
 
     //gLogger->log(LogManager::DEBUG,"Started Loading Factions.");
-    mDatabase->executeSqlAsync(this, new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions), "SELECT * FROM faction ORDER BY id;");
+    mDatabase->executeSqlAsync(this, new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Factions), "SELECT * FROM %s.faction ORDER BY id;",mDatabase->galaxy());
     
 }
 
@@ -136,12 +136,12 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             mvFactions.push_back(BString(name.getAnsi()));
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " factions";
+        //LOG(info) << "Loaded " << count << " factions";
 
         mDatabase->destroyDataBinding(binding);
 
         // load badge categories
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_BadgeCategories),"SELECT * FROM badge_categories ORDER BY id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_BadgeCategories),"SELECT * FROM %s.badge_categories ORDER BY id",mDatabase->galaxy());
         
     }
     break;
@@ -160,13 +160,13 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             mvBadgeCategories.push_back(BString(name.getAnsi()));
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " badge categories";
+        //LOG(info) << "Loaded " << count << " badge categories";
 
         mDatabase->destroyDataBinding(binding);
 
         //gLogger->log(LogManager::DEBUG,"Finished Loading Badge Categories.");
         //gLogger->log(LogManager::NOTICE,"Loading Badges.");
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Badges),"SELECT * FROM badges ORDER BY id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CSAsyncContainer(CharSheetQuery_Badges),"SELECT * FROM %s.badges ORDER BY id",mDatabase->galaxy());
         
     }
     break;
@@ -190,7 +190,7 @@ void CharSheetManager::handleDatabaseJobComplete(void* ref, DatabaseResult* resu
             mvBadges.push_back(badge);
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " badges";
+        //LOG(info) << "Loaded " << count << " badges";
 
         mDatabase->destroyDataBinding(binding);
         //gLogger->log(LogManager::DEBUG,"Finished Loading Badges.");
@@ -212,7 +212,7 @@ void CharSheetManager::_processFactionRequest(Message* message,DispatchClient* c
 
     if(player == NULL)
     {
-        DLOG(INFO) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
+        DLOG(info) << "CharSheetManager::_processFactionRequest: could not find player " << client->getAccountId();
         return;
     }
 
@@ -258,13 +258,13 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 
     if(player == NULL)
     {
-        DLOG(INFO) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
+        DLOG(info) << "CharSheetManager::_processPlayerMoneyRequest: could not find player " << client->getAccountId();
         return;
     }
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opPlayerMoneyResponse);
-    gMessageFactory->addUint32(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
+    gMessageFactory->addUint32(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits());
     gMessageFactory->addUint32(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 
     Message* newMessage = gMessageFactory->EndMessage();

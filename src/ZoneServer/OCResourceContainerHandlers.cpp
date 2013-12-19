@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ResourceContainer.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 #include "DatabaseManager/Database.h"
 #include "NetworkManager/Message.h"
@@ -68,7 +69,7 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
         if(!elementCount)
         {
-            DLOG(INFO) << "ObjectController::_handleResourceContainerTransfer: Error in requestStr";
+            DLOG(info) << "ObjectController::_handleResourceContainerTransfer: Error in requestStr";
             return;
         }
 
@@ -89,17 +90,12 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
 
                 gMessageLib->sendResourceContainerUpdateAmount(targetContainer,playerObject);
 
-                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",newAmount,targetContainer->getId());
+                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),newAmount,targetContainer->getId());
 
                 // delete old container
-                gMessageLib->sendDestroyObject(selectedContainer->getId(),playerObject);
-
-                gObjectFactory->deleteObjectFromDB(selectedContainer);
-                TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(selectedContainer->getParentId()));
-                tO->deleteObject(selectedContainer);
-
-
-
+				TangibleObject* container = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(selectedContainer->getParentId()));
+				gContainerManager->deleteObject(selectedContainer, container);
+                
             }
             // target container full, update both contents
             else if(newAmount > maxAmount)
@@ -111,9 +107,9 @@ void ObjectController::_handleResourceContainerTransfer(uint64 targetId,Message*
                 gMessageLib->sendResourceContainerUpdateAmount(targetContainer,playerObject);
                 gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 
-                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",maxAmount,targetContainer->getId());
+                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),maxAmount,targetContainer->getId());
                 
-                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedNewAmount,selectedContainer->getId());
+                mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),selectedNewAmount,selectedContainer->getId());
                 
             }
         }
@@ -132,7 +128,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
 	if(!selectedContainer)
     {
-        DLOG(INFO) << "ObjectController::_handleResourceContainerSplit: Container does not exist!";
+        DLOG(info) << "ObjectController::_handleResourceContainerSplit: Container does not exist!";
         return;
     }
 
@@ -146,7 +142,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
 
     if(!elementCount)
     {
-        DLOG(INFO) << "ObjectController::_handleResourceContainerSplit: Error in requestStr";
+        DLOG(info) << "ObjectController::_handleResourceContainerSplit: Error in requestStr";
         return;
     }
 
@@ -171,7 +167,7 @@ void ObjectController::_handleResourceContainerSplit(uint64 targetId,Message* me
     }
     // update selected container contents
     selectedContainer->setAmount(selectedContainer->getAmount() - splitOffAmount);
-    mDatabase->executeSqlAsync(NULL,NULL,"UPDATE resource_containers SET amount=%u WHERE id=%"PRIu64"",selectedContainer->getAmount(),selectedContainer->getId());
+    mDatabase->executeSqlAsync(NULL,NULL,"UPDATE %s.resource_containers SET amount=%u WHERE id=%" PRIu64 "",mDatabase->galaxy(),selectedContainer->getAmount(),selectedContainer->getId());
 
     gMessageLib->sendResourceContainerUpdateAmount(selectedContainer,playerObject);
 

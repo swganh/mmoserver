@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "FactoryCrate.h"
 
@@ -136,26 +136,26 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
             TangibleObject* tangible = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(asyncContainer->mId));
             if(!tangible)
             {
-            	LOG(WARNING) << "Oject is not tangible";
+                LOG(warning) << "Oject is not tangible";
                 mDatabase->destroyDataBinding(binding);
                 return;
             }
             result->getNextRow(binding,&queryContainer);
-            tangible->upDateFactoryVolume(queryContainer.mString); //virtual function present in tangible, resourceContainer and factoryCrate
+            tangible->upDateFactoryVolume(queryContainer.mString.getAnsi()); //virtual function present in tangible, resourceContainer and factoryCrate
 
         }
         InLoadingContainer* ilc = _getObject(asyncContainer->mHopper);
 
         if(!ilc) { //Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627075436-83ca0076fa8abc2a4347e45ee3ede3eb
             mDatabase->destroyDataBinding(binding);
-            LOG(WARNING) << "No InLoadingContainer found for hopper [" << asyncContainer->mId << "]";
+            LOG(warning) << "No InLoadingContainer found for hopper [" << asyncContainer->mId << "]";
             return;
         }
 
         if((--ilc->mLoadCounter)== 0)
         {
             if(!(_removeFromObjectLoadMap(asyncContainer->mHopper)))
-                LOG(WARNING) << "Failed removing object from loadmap";
+                LOG(warning) << "Failed removing object from loadmap";
 
             ilc->mOfCallback->handleObjectReady(asyncContainer->mObject,ilc->mClient,asyncContainer->mHopper);
 
@@ -211,8 +211,8 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mObject = asyncContainer->mObject;
                     asynContainer->mHopper = asyncContainer->mHopper;
 
-                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT value FROM item_attributes WHERE item_id = %"PRIu64" AND attribute_id = 400", queryContainer.mId);
-                    
+                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT value FROM %s.item_attributes WHERE item_id = %" PRIu64 " AND attribute_id = 400",mDatabase->galaxy(), queryContainer.mId);
+
                 }
             }
 
@@ -231,7 +231,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
                     asynContainer->mObject = asyncContainer->mObject;
                     asynContainer->mHopper = asyncContainer->mHopper;
 
-                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT amount FROM resource_containers WHERE id= %"PRIu64"", queryContainer.mId);
+                    mDatabase->executeSqlAsync(this,asynContainer, "SELECT amount FROM %s.resource_containers WHERE id= %" PRIu64 "",mDatabase->galaxy(), queryContainer.mId);
                 }
             }
         }
@@ -260,7 +260,10 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,FFQuery_Hopper,asyncContainer->mClient);
         asContainer->mObject = factory;
 
-        mDatabase->executeSqlAsync(this,asContainer, "(SELECT \'input\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2773) UNION (SELECT \'output\',id FROM items WHERE parent_id = %"PRIu64" AND item_type = 2774)", factory->getId(), factory->getId());
+        mDatabase->executeSqlAsync(this,asContainer, "(SELECT \'input\',id FROM %s.items WHERE parent_id = %" PRIu64 " AND item_type = 2773) "
+                                                     "UNION (SELECT \'output\',id FROM %s.items WHERE parent_id = %" PRIu64 " AND item_type = 2774)",
+                                                     mDatabase->galaxy(),factory->getId(),
+                                                     mDatabase->galaxy(),factory->getId());
     }
     break;
 
@@ -320,10 +323,11 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 
 
         mDatabase->executeSqlAsync(this,asynContainer,"SELECT attributes.name,sa.value,attributes.internal"
-                                   " FROM structure_attributes sa"
-                                   " INNER JOIN attributes ON (sa.attribute_id = attributes.id)"
-                                   " WHERE sa.structure_id = %"PRIu64" ORDER BY sa.order",factory->getId());
-        
+                                   " FROM %s.structure_attributes sa"
+                                   " INNER JOIN %s.attributes ON (sa.attribute_id = attributes.id)"
+                                   " WHERE sa.structure_id = %" PRIu64 " ORDER BY sa.order",
+                                   mDatabase->galaxy(),mDatabase->galaxy(),factory->getId());
+
 
     }
     break;
@@ -343,7 +347,7 @@ void FactoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
 void FactoryFactory::_createFactory(DatabaseResult* result, FactoryObject* factory)
 {
     if (!result->getRowCount()) {
-       	return;
+        return;
     }
 
     result->getNextRow(mFactoryBinding,factory);
@@ -364,8 +368,9 @@ void FactoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,u
     sprintf(sql,	"SELECT s.id,s.owner,s.oX,s.oY,s.oZ,s.oW,s.x,s.y,s.z,"
             "std.type,std.object_string,std.stf_name, std.stf_file, s.name,"
             "std.lots_used, f.active, std.maint_cost_wk, std.power_used, std.schematicMask, s.condition, std.max_condition, f.ManSchematicId "
-            "FROM structures s INNER JOIN structure_type_data std ON (s.type = std.type) INNER JOIN factories f ON (s.id = f.id) "
-            "WHERE (s.id = %"PRIu64")",id);
+            "FROM %s.structures s INNER JOIN %s.structure_type_data std ON (s.type = std.type) INNER JOIN %s.factories f ON (s.id = f.id) "
+            "WHERE (s.id = %" PRIu64 ")",
+            mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),id);
     QueryContainerBase* asynContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,FFQuery_MainData,client,id);
 
     mDatabase->executeSqlAsync(this,asynContainer,sql);
@@ -378,8 +383,11 @@ void FactoryFactory::upDateHopper(ObjectFactoryCallback* ofCallback,uint64 hoppe
     asynContainer->mObject = factory;
     asynContainer->mHopper = hopperId;
 
-    mDatabase->executeSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM items WHERE parent_id = %"PRIu64") UNION (SELECT \'resource\',id FROM resource_containers WHERE parent_id = %"PRIu64")", hopperId, hopperId);
-    
+    mDatabase->executeSqlAsync(this,asynContainer, "(SELECT \'item\',id FROM %s.items WHERE parent_id = %" PRIu64 ") "
+                                                   "UNION (SELECT \'resource\',id FROM %s.resource_containers WHERE parent_id = %" PRIu64 ")",
+                                                   mDatabase->galaxy(),hopperId,
+                                                   mDatabase->galaxy(),hopperId);
+
 }
 //=============================================================================
 
@@ -431,7 +439,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
     InLoadingContainer* ilc = _getObject(object->getParentId());
     if(!ilc) { //Crashbug patch for: http://paste.swganh.org/viewp.php?id=20100627071644-6c8c2b45ecb37f7914372484cd105bfe
-        LOG(WARNING) << "No InLoadingContainer found for object parent[" << object->getParentId() << "]";
+        LOG(warning) << "No InLoadingContainer found for object parent[" << object->getParentId() << "]";
         return;
     }
     FactoryObject*		factory = dynamic_cast<FactoryObject*>(ilc->mObject);
@@ -448,7 +456,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
     TangibleObject* tangible = dynamic_cast<TangibleObject*>(object);
     if(!tangible)
     {
-        LOG(WARNING) << "Not tangible on handleObjectReady!";
+        LOG(warning) << "Not tangible on handleObjectReady!";
         return;
     }
 
@@ -478,7 +486,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
         if(!hopper)
         {
-            LOG(ERROR) << "OutputHopper not found on item load";
+            LOG(error) << "OutputHopper not found on item load";
             assert(false && "FactoryFactory::handleObjectReady WorldManager could not find output hopper");
         }
 
@@ -493,7 +501,7 @@ void FactoryFactory::handleObjectReady(Object* object,DispatchClient* client)
     if(( --ilc->mLoadCounter) == 0)
     {
         if(!(_removeFromObjectLoadMap(object->getParentId())))
-            LOG(WARNING) << "Failed removing object from loadmap";
+            LOG(warning) << "Failed removing object from loadmap";
 
         factory->setLoadState(LoadState_Loaded);
         if(!parent)			   //factories dont have a parent! main cell is 0!!!

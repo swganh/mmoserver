@@ -1024,7 +1024,7 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
 
     //add it to the db
     int8 sql[400];
-    sprintf(sql,"call sp_CharacterStatMigrationCreate (%"PRIu64",%u,%u,%u,%u,%u,%u,%u,%u,%u,0)",we->getId(),value1,value2,value3,value4,value5,value6,value7,value8,value9);
+    sprintf(sql, "call %s.sp_CharacterStatMigrationCreate (%" PRIu64 ",%u,%u,%u,%u,%u,%u,%u,%u,%u,0)", mDatabase->galaxy(), we->getId(),value1,value2,value3,value4,value5,value6,value7,value8,value9);
     ObjControllerAsyncContainer* asyncContainer;
     asyncContainer = new ObjControllerAsyncContainer(OCQuery_Nope);
     mDatabase->executeProcedureAsync(this,asyncContainer,sql);
@@ -1085,12 +1085,12 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
 
             int8 sql[1024];
             asyncContainer2 = new ObjControllerAsyncContainer(OCQuery_Null);
-            sprintf(sql,"UPDATE swganh.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",pHam->getTargetStatValue(HamBar_Health),pHam->getTargetStatValue(HamBar_Strength),pHam->getTargetStatValue(HamBar_Constitution), pHam->getTargetStatValue(HamBar_Action),pHam->getTargetStatValue(HamBar_Quickness),pHam->getTargetStatValue(HamBar_Stamina),pHam->getTargetStatValue(HamBar_Mind) ,pHam->getTargetStatValue(HamBar_Focus) ,pHam->getTargetStatValue(HamBar_Willpower) ,we->getId());
+            sprintf(sql,"UPDATE %s.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %" PRIu64 "",mDatabase->galaxy(),pHam->getTargetStatValue(HamBar_Health),pHam->getTargetStatValue(HamBar_Strength),pHam->getTargetStatValue(HamBar_Constitution), pHam->getTargetStatValue(HamBar_Action),pHam->getTargetStatValue(HamBar_Quickness),pHam->getTargetStatValue(HamBar_Stamina),pHam->getTargetStatValue(HamBar_Mind) ,pHam->getTargetStatValue(HamBar_Focus) ,pHam->getTargetStatValue(HamBar_Willpower) ,we->getId());
             mDatabase->executeSqlAsync(this,asyncContainer2,sql);
             
 
             asyncContainer2 = new ObjControllerAsyncContainer(OCQuery_Null);
-            sprintf(sql,"UPDATE swganh.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",pHam->getTargetStatValue(HamBar_Health),pHam->getTargetStatValue(HamBar_Strength),pHam->getTargetStatValue(HamBar_Constitution), pHam->getTargetStatValue(HamBar_Action),pHam->getTargetStatValue(HamBar_Quickness),pHam->getTargetStatValue(HamBar_Stamina),pHam->getTargetStatValue(HamBar_Mind) ,pHam->getTargetStatValue(HamBar_Focus) ,pHam->getTargetStatValue(HamBar_Willpower) ,we->getId());
+            sprintf(sql,"UPDATE %s.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %" PRIu64 "",mDatabase->galaxy(),pHam->getTargetStatValue(HamBar_Health),pHam->getTargetStatValue(HamBar_Strength),pHam->getTargetStatValue(HamBar_Constitution), pHam->getTargetStatValue(HamBar_Action),pHam->getTargetStatValue(HamBar_Quickness),pHam->getTargetStatValue(HamBar_Stamina),pHam->getTargetStatValue(HamBar_Mind) ,pHam->getTargetStatValue(HamBar_Focus) ,pHam->getTargetStatValue(HamBar_Willpower) ,we->getId());
             mDatabase->executeSqlAsync(this,asyncContainer2,sql);
             
         }
@@ -1109,7 +1109,7 @@ void ObjectController::_handleStatMigration(uint64 targetId,Message* message,Obj
     asyncContainer = new ObjControllerAsyncContainer(OCQuery_StatRead);
     asyncContainer->playerObject = we;
 
-    sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %"PRIu64, we->getId());
+    sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %" PRIu64,mDatabase->galaxy(), we->getId());
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
     
 }
@@ -1217,7 +1217,7 @@ void ObjectController::_handlePlayHoloEmote(uint64 targetId,Message* message,Obj
             std::string effect = gWorldManager->getClientEffect(requestedEmote->pId);
             gMessageLib->sendPlayClientEffectObjectMessage(effect,"head",we);
             int8 sql[256];
-            sprintf(sql,"update swganh.character_holoemotes set charges = charges-1 where character_id = %"PRIu64"", we->getId());
+            sprintf(sql,"update %s.character_holoemotes set charges = charges-1 where character_id = %" PRIu64 "",mDatabase->galaxy(), we->getId());
             mDatabase->executeSqlAsync(this,new(mDBAsyncContainerPool.malloc()) ObjControllerAsyncContainer(OCQuery_Nope),sql);
             
         }

@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //#endif
 #include "Utils/typedefs.h"
 #include "Session.h"
+#include "NetworkConfig.h"
 #include <boost/pool/singleton_pool.hpp>
 
 
@@ -52,7 +53,7 @@ typedef boost::singleton_pool<Session,sizeof(Session),boost::default_user_alloca
 class SessionFactory
 {
 public:
-    SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice);
+    SessionFactory(SocketWriteThread* writeThread, Service* service, PacketFactory* packetFactory, MessageFactory* messageFactory, bool serverservice, NetworkConfig& network_configuration);
     ~SessionFactory(void);
 
     void                          Process(void);
@@ -72,6 +73,7 @@ private:
     PacketFactory*                mPacketFactory;
     MessageFactory*               mMessageFactory;
     uint32                        mSessionIdNext;
+	NetworkConfig				  network_configuration_;
 };
 
 

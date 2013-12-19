@@ -9,7 +9,6 @@ Copyright (c) 2006 - 2010 The SWG:ANH Team
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
-This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
 License as published by the Free Software Foundation; either
 version 2.1 of the License, or (at your option) any later version.
@@ -29,19 +28,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Database.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-
 #include <cstdarg>
 #include <cstdlib>
 #include <cstdio>
 #include <algorithm>
 
-#include <glog/logging.h>
-
-#include "Common/ConfigManager.h"
+#include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/DataBindingFactory.h"
@@ -54,7 +46,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Transaction.h"
 
 
-Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema) 
+Database::Database(DBType type, const std::string& host, uint16_t port, const std::string& user, const std::string& pass, const std::string& schema, DatabaseConfig& config) 
     : database_impl_(nullptr)
     , job_pool_(sizeof(DatabaseJob))
     , transaction_pool_(sizeof(Transaction))
@@ -66,9 +58,12 @@ Database::Database(DBType type, const std::string& host, uint16_t port, const st
             database_impl_.reset(new DatabaseImplementationMySql(host, port, user, pass, schema));
             break;
     }
-    
-    uint32_t min_threads = gConfig->read<uint32_t>("DBMinThreads");
-    uint32_t max_threads = gConfig->read<uint32_t>("DBMaxThreads");
+
+	uint32_t min_threads = config.getDbMinThreads();
+	uint32_t max_threads = config.getDbMaxThreads();
+	global_ = config.getDbGlobalSchema();
+	galaxy_ = config.getDbGalaxySchema();
+	config_ = config.getDbConfigSchema();
 
     // Create our worker threads and put them in the idle queue
     uint32_t const hardware_threads = boost::thread::hardware_concurrency();
@@ -215,7 +210,7 @@ DatabaseResult* Database::executeSynchSql(const char* sql, ...) {
     char localSql[8192];
     vsnprintf(localSql, sizeof(localSql), sql, args);
     va_end(args);
-       
+
     return executeSql(localSql);
 }
 

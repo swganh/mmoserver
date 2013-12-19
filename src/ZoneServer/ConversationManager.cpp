@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "ActiveConversation.h"
 #include "Conversation.h"
@@ -56,7 +56,7 @@ ConversationManager::ConversationManager(Database* database) :
     mActiveConversationPool(sizeof(ActiveConversation)),
     mDBAsyncPool(sizeof(CVAsyncContainer))
 {
-    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM conversations ORDER BY id");
+    mDatabase->executeSqlAsync(this,new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Conversations),"SELECT id FROM %s.conversations ORDER BY id",mDatabase->galaxy());
     
 }
 
@@ -112,11 +112,11 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, DatabaseResult* r
             asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Pages);
             asCont->mConversation = conv;
 
-            mDatabase->executeSqlAsync(this,asCont,"SELECT * FROM conversation_pages WHERE conversation_id=%u ORDER BY page", insertId);
+            mDatabase->executeSqlAsync(this,asCont,"SELECT * FROM %s.conversation_pages WHERE conversation_id=%u ORDER BY page",mDatabase->galaxy(), insertId);
             
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " conversations";
+        //LOG(info) << "Loaded " << count << " conversations";
 
         mDatabase->destroyDataBinding(binding);
     }
@@ -325,7 +325,7 @@ void ConversationManager::updateConversation(uint32 selectId,PlayerObject* playe
 
     if(!av)
     {
-    	LOG(ERROR) << "Could not find conversation intended for player [" << player->getId() << "]";
+    	LOG(error) << "Could not find conversation intended for player [" << player->getId() << "]";
         return;
     }
 

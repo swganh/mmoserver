@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "CurrentResource.h"
 #include "ResourceCategory.h"
@@ -38,7 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/ConfigManager.h"
 
 //======================================================================================================================
 
@@ -47,9 +46,11 @@ ResourceManager*	ResourceManager::mSingleton = NULL;
 
 //======================================================================================================================
 
-ResourceManager::ResourceManager(Database* database,uint32 zoneId) :
+ResourceManager::ResourceManager(Database* database,uint32 zoneId, bool writeResourceMaps, std::string zoneName) :
     mDatabase(database),
     mZoneId(zoneId),
+	mZoneName(zoneName),
+	mWriteResourceMaps(writeResourceMaps),
     mDBAsyncPool(sizeof(RMAsyncContainer))
 {
     // init our tree with a root
@@ -69,17 +70,17 @@ ResourceManager::ResourceManager(Database* database,uint32 zoneId) :
 
     // load resource types
     mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_ResourceTypes),
-                               "SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM resource_template ORDER BY id");
+                               "SELECT id,category_id,namefile_name,type_name,type_swg,tang,bazaar_catID,type FROM %s.resource_template ORDER BY id",mDatabase->galaxy());
  
 }
 
 //======================================================================================================================
 
-ResourceManager* ResourceManager::Init(Database* database,uint32 zoneId)
+ResourceManager* ResourceManager::Init(Database* database,uint32 zoneId, bool writeResourceMaps, std::string zoneName)
 {
     if(mInsFlag == false)
     {
-        mSingleton = new ResourceManager(database,zoneId);
+        mSingleton = new ResourceManager(database,zoneId, writeResourceMaps, zoneName);
         mInsFlag = true;
         return mSingleton;
     }
@@ -222,7 +223,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         }
 
         // query categories
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_Categories),"SELECT * FROM resource_categories ORDER BY id");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_Categories),"SELECT * FROM %s.resource_categories ORDER BY id",mDatabase->galaxy());
     }
     break;
 
@@ -241,19 +242,6 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
             mResourceCategoryMap.insert(std::make_pair(category->mId,category));
         }
 
-        // query current resources
-        // note: current resources not on this planet are loaded with the old resource query
-        bool mDebug;
-        try
-        {
-            mDebug = gConfig->read<bool>("LoadReduceDebug");
-        }
-        catch (...)
-        {
-            mDebug = false;
-        }
-        if(mDebug)
-            return;
 
         mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_CurrentResources),
                                    "SELECT resources.id,resources.name,resources.type_id,"
@@ -265,11 +253,11 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
                                    "resources_spawn_config.noiseMapPersistence,resources_spawn_config.noiseMapScale,"
                                    "resources_spawn_config.noiseMapBias,"
                                    "resources_spawn_config.unitsTotal,resources_spawn_config.unitsLeft"
-                                   " FROM resources"
-                                   " INNER JOIN resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
+                                   " FROM %s.resources"
+                                   " INNER JOIN %s.resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
                                    " WHERE"
                                    " (resources_spawn_config.planet_id = %u) AND"
-                                   " (resources.active = 1)",mZoneId);
+                                   " (resources.active = 1)",mDatabase->galaxy(),mDatabase->galaxy(),mZoneId);
         
     }
     break;
@@ -299,7 +287,7 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
                 delete(resource);
         }
 
-        LOG_IF(INFO, count) << "Loaded " << count << " resources";
+        //LOG(info) << "Loaded " << count << " resources";
     }
     break;
 
@@ -310,20 +298,27 @@ void ResourceManager::handleDatabaseJobComplete(void* ref,DatabaseResult* result
         uint64 count = result->getRowCount();
         for(uint64 i = 0; i < count; i++)
         {
-            resource = new CurrentResource();
+            resource = new CurrentResource(mWriteResourceMaps, mZoneName);
 
             result->getNextRow(mCurrentResourceBinding,resource);
             resource->mType = getResourceTypeById(resource->mTypeId);
             resource->mCurrent = 1;
             resource->buildDistributionMap();
+			mResourceIdMap.insert(std::make_pair(resource->mId,resource));
             mResourceCRCNameMap.insert(std::make_pair(resource->mName.getCrc(),resource));
             (getResourceCategoryById(resource->mType->mCatId))->insertResource(resource);
         }
 
-        LOG_IF(INFO, count) << "Generated " << count << " resource maps";
+        //LOG(info) << "Generated " << count << " resource maps";
 
         // query old and current resources not from this planet
-        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),"SELECT * FROM resources");
+        mDatabase->executeSqlAsync(this,new(mDBAsyncPool.ordered_malloc()) RMAsyncContainer(RMQuery_OldResources),
+									"SELECT * FROM %s.resources "
+									" INNER JOIN %s.resources_spawn_config ON (resources.id = resources_spawn_config.resource_id)"
+									" WHERE (NOT ("
+									" (resources_spawn_config.planet_id = %u) AND"
+									" (resources.active = 1)))",mDatabase->galaxy(),mDatabase->galaxy(),mZoneId);
+		// dont load the active resources of this zone again!!!
     }
     break;
     case RMQuery_DepleteResources:
@@ -409,12 +404,12 @@ bool ResourceManager::setResourceDepletion(Resource* resource, int32 amt)
     if (it != mResourceIdMap.end() && resource->getCurrent() != 0)
     {
         asyncContainer->mCurrentResource = resource;
-        mDatabase->executeSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u where resource_id = %"PRIu64"",amt ,resource->getId());
+        mDatabase->executeSqlAsync(this,asyncContainer,"update resources_spawn_config set unitsLeft = unitsLeft - %u where resource_id = %" PRIu64 "",amt ,resource->getId());
         
     }
     else
     {
-        LOG(WARNING) << "Resource " << resource->getName().getAnsi() << " was not found or is inactive";
+        LOG(warning) << "Resource " << resource->getName().getAnsi() << " was not found or is inactive";
         return false;
     }
 

@@ -31,12 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "TradeManagerHelp.h"
 #include "StructureManagerChat.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "Common/atMacroString.h"
 #include "NetworkManager/DispatchClient.h"
@@ -184,7 +179,7 @@ void ChatMessageLib::sendBazaarTransactionMessage(DispatchClient* client, Auctio
         x = "";
         y = "";
         region = "";
-        DLOG(WARNING) << "ChatMessageLib :: Bazaar not found";
+        DLOG(warning) << "ChatMessageLib :: Bazaar not found";
     }
     else
     {

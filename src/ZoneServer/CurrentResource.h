@@ -43,7 +43,7 @@ class CurrentResource : public Resource
 
 public:
 
-    CurrentResource();
+    CurrentResource(bool writeResourceMaps, std::string zoneName);
     ~CurrentResource();
 
     void	buildDistributionMap();
@@ -66,6 +66,8 @@ private:
 
     noise::module::Perlin	mNoiseModule;
     noise::utils::NoiseMap	mResourceDistributionMap;
+	bool					mWriteResourceMaps;
+	std::string				mZoneName;
 };
 
 #endif

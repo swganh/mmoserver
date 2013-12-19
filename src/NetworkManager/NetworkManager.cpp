@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "NetworkManager.h"
-#include "NetConfig.h"
 #include "Service.h"
 
 
@@ -40,11 +39,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //======================================================================================================================
 
-NetworkManager::NetworkManager(void) :
-    mServiceIdIndex(1)
+NetworkManager::NetworkManager(const NetworkConfig& network_configuration) 
+	: mServiceIdIndex(1)
+	, network_configuration_(network_configuration)
 {
-    // for safety, in case someone forgot to init previously
-    NetConfig::Init();
+    
 }
 
 //======================================================================================================================
@@ -85,7 +84,7 @@ Service* NetworkManager::GenerateService(int8* address, uint16 port,uint32 mfHea
 {
     Service* newService = 0;
 
-    newService = new Service(this, serverservice, mServiceIdIndex++, address, port,mfHeapSize);
+    newService = new Service(this, serverservice, mServiceIdIndex++, address, port,mfHeapSize, network_configuration_);
 
     return newService;
 }

@@ -25,13 +25,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "BuildingObject.h"
-#include "PlayerObject.h"
-#include "CellObject.h"
-#include "MessageLib/MessageLib.h"
-#include "SpawnPoint.h"
+#include "ZoneServer/BuildingObject.h"
 
 #include "Utils/rand.h"
+
+#include "MessageLib/MessageLib.h"
+
+#include "ZoneServer/CellObject.h"
+#include "ZoneServer/ContainerManager.h"
+#include "ZoneServer/PlayerObject.h"
+#include "ZoneServer/SpatialIndexManager.h"
+#include "ZoneServer/SpawnPoint.h"
 
 //=============================================================================
 
@@ -206,4 +210,40 @@ void BuildingObject::updateCellPermissions(PlayerObject* player, bool access)
         ++cellIt;
     }
 
+}
+
+void BuildingObject::prepareDestruction() {
+    //iterate through all the registered watchers
+    //place players inside into the world and unregister the content
+    //add an option to delete those players we send to ...
+
+    gContainerManager->sendToRegisteredPlayers(this, [=] (PlayerObject* player) {
+
+        gSpatialIndexManager->removeStructureItemsForPlayer(player,this);
+
+        //is the player inside ??? or was he merely still watching??
+        CellObject* cell = dynamic_cast<CellObject*>(gWorldManager->getObjectById(player->getParentId()));
+        if (!cell) {
+            return;
+        }
+
+        BuildingObject* building = dynamic_cast<BuildingObject*>(gWorldManager->getObjectById(cell->getParentId()));
+        if (!building || building->getId() != this->getId()) {
+            return;
+        }
+
+        //No need to update the SI here as we only leave the cell
+        player->updatePosition(0, player->getWorldPosition());
+        player->setParentIdIncDB(0);
+
+        cell->removeObject(player);
+
+        gMessageLib->broadcastContainmentMessage(player, 0, 0xffffffff);
+    });
+
+    //remove items in the building from the world
+    CellObjectList* cell_list = getCellList();
+    std::for_each(cell_list->begin(), cell_list->end(), [] (CellObject* cell) {
+        cell->prepareDestruction();
+    });
 }

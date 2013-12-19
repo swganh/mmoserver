@@ -27,12 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "WorldConfig.h"
 
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
-#include "Common/ConfigManager.h"
 
 //======================================================================================================================
 
@@ -51,9 +50,10 @@ WorldConfig::WorldConfig(uint32 zoneId,Database* database, BString zoneName) :
 
     //load globals
     mDatabase->executeSqlAsync(this,NULL,"SELECT csa.attribute,cs.value"
-                               " FROM config_server cs"
-                               " INNER JOIN config_server_attributes csa ON (csa.id = cs.config_attributes_id)"
-                               " WHERE cs.server_name like 'all' ");
+                               " FROM %s.config_server cs"
+                               " INNER JOIN %s.config_server_attributes csa ON (csa.id = cs.config_attributes_id)"
+                               " WHERE cs.server_name like 'all' ",
+                               mDatabase->galaxy(),mDatabase->galaxy());
     
 
 }
@@ -175,7 +175,7 @@ void WorldConfig::handleDatabaseJobComplete(void* ref,DatabaseResult* result)
     {
         mLoadComplete = true;
         int8 sql[255];
-        sprintf(sql,"SELECT csa.attribute,cs.value FROM config_server cs INNER JOIN config_server_attributes csa ON (csa.id = cs.config_attributes_id) WHERE cs.server_name like '%s'",mZoneName.getAnsi());
+        sprintf(sql,"SELECT csa.attribute,cs.value FROM %s.config_server cs INNER JOIN %s.config_server_attributes csa ON (csa.id = cs.config_attributes_id) WHERE cs.server_name like '%s'",mDatabase->galaxy(),mDatabase->galaxy(),mZoneName.getAnsi());
         mDatabase->executeSqlAsync(this,NULL,sql);
         
     }
@@ -225,7 +225,7 @@ void WorldConfig::buildAttributeMap(DatabaseResult* result)
         }
     }
 
-    LOG_IF(INFO, count > 0) << "Mapped attributes mapped: [" << count << "]";
+    LOG(info)  << "Mapped attributes mapped: [" << count << "]";
 
 }
 
@@ -237,7 +237,7 @@ void WorldConfig::setConfiguration(BString key,std::string value)
 
     if(it == mConfigurationMap.end())
     {
-    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
+    	LOG(warning) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
         return;
     }
 
@@ -270,7 +270,7 @@ void WorldConfig::removeConfiguration(BString key)
     if(it != mConfigurationMap.end())
         mConfigurationMap.erase(it);
     else
-    	LOG(WARNING) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
+    	LOG(warning) << "Could not find configuration setting with key [" << key.getAnsi() << "]";
 }
 
 //=========================================================================

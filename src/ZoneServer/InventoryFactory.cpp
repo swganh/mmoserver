@@ -27,10 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "InventoryFactory.h"
 
-#ifdef WIN32
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "Inventory.h"
 #include "ObjectFactoryCallback.h"
@@ -97,7 +94,7 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,IFQuery_ObjectCount,asyncContainer->mClient);
         asContainer->mObject = inventory;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT sf_getInventoryObjectCount(%"PRIu64")",inventory->getId());
+        mDatabase->executeSqlAsync(this,asContainer,"SELECT %s.sf_getInventoryObjectCount(%" PRIu64 ")",mDatabase->galaxy(),inventory->getId());
         
     }
     break;
@@ -127,11 +124,13 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
             //why would we load the lootcontainers and trashpiles for the inventory ???
             //containers are normal items like furniture, lightsabers and stuff
             mDatabase->executeSqlAsync(this,asContainer,
-                                       "(SELECT \'containers\',containers.id FROM containers INNER JOIN container_types ON (containers.container_type = container_types.id)"
-                                       " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %"PRIu64"))"
-                                       " UNION (SELECT \'items\',items.id FROM items WHERE (parent_id=%"PRIu64"))"
-                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM resource_containers WHERE (parent_id=%"PRIu64"))",
-                                       invId,invId,invId);
+                                       "(SELECT \'containers\',containers.id FROM %s.containers INNER JOIN %s.container_types ON (containers.container_type = container_types.id)"
+                                       " WHERE (container_types.name NOT LIKE 'unknown') AND (containers.parent_id = %" PRIu64 "))"
+                                       " UNION (SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%" PRIu64 "))"
+                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%" PRIu64 "))",
+                                       mDatabase->galaxy(),mDatabase->galaxy(),
+                                       invId,mDatabase->galaxy(),invId,
+                                       mDatabase->galaxy(),invId);
            
         }
         else
@@ -156,9 +155,6 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
 
         uint64 count = result->getRowCount();
 
-        //InLoadingContainer* ilc = new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient);
-        //ilc->mLoadCounter = count;
-
         mObjectLoadMap.insert(std::make_pair(inventory->getId(),new(mILCPool.ordered_malloc()) InLoadingContainer(inventory,asyncContainer->mOfCallback,asyncContainer->mClient,static_cast<uint8>(count))));
 
         for(uint32 i = 0; i < count; i++)
@@ -171,9 +167,6 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,DatabaseResult* resul
                 mTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_Item,0,asyncContainer->mClient);
             else if(strcmp(queryContainer.mString.getAnsi(),"resource_containers") == 0)
                 mTangibleFactory->requestObject(this,queryContainer.mId,TanGroup_ResourceContainer,0,asyncContainer->mClient);
-
-
-
         }
 
         mDatabase->destroyDataBinding(binding);
@@ -194,8 +187,9 @@ void InventoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id
     mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,IFQuery_MainInventoryData,client),
                                "SELECT inventories.id,inventories.credits,inventory_types.object_string,inventory_types.name,inventory_types.file,"
                                "inventory_types.slots"
-                               " FROM inventories INNER JOIN inventory_types ON (inventories.inventory_type = inventory_types.id)"
-                               " WHERE (inventories.id = %"PRIu64")",id);
+                               " FROM %s.inventories INNER JOIN %s.inventory_types ON (inventories.inventory_type = inventory_types.id)"
+                               " WHERE (inventories.id = %" PRIu64 ")",
+                               mDatabase->galaxy(),mDatabase->galaxy(),id);
    
 }
 
@@ -216,7 +210,7 @@ Inventory* InventoryFactory::_createInventory(DatabaseResult* result)
     inventory->setCapacity(inventory->mMaxSlots);
     gWorldManager->addObject(inventory,true);
 
-    return inventory;
+	return inventory;
 }
 
 //=============================================================================
@@ -251,7 +245,7 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
 
 
     if (! ilc) {
-    	LOG(WARNING) << "Could not locate InLoadingContainer for object with id [" << object->getId() << "]";
+    	LOG(warning) << "Could not locate InLoadingContainer for object with id [" << object->getId() << "]";
         assert(ilc && "InventoryFactory::handleObjectReady unable to find InLoadingContainer");//moved below the return
         return;
     }
@@ -268,7 +262,7 @@ void InventoryFactory::handleObjectReady(Object* object,DispatchClient* client)
         inventory->setLoadState(LoadState_Loaded);
 
         if(!(_removeFromObjectLoadMap(inventory->getId())))
-        	LOG(INFO) << "Failed removing object from loadmap";
+        	LOG(info) << "Failed removing object from loadmap";
 
         ilc->mOfCallback->handleObjectReady(inventory,ilc->mClient);
 

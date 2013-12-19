@@ -74,7 +74,7 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType, Object* srcObject)
         gUIManager->createNewTransferBox(this,"handleDepositWithdraw", "@base_player:bank_title"
                                          ,"@base_player:bank_prompt", "Cash", "Bank"
                                          ,dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits()
-                                         ,dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits()
+                                         ,dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits()
                                          ,playerObject);
 
         break;
@@ -113,18 +113,22 @@ void BankTerminal::handleObjectMenuSelect(uint8 messageType, Object* srcObject)
 
 void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, UIWindow* window)
 {
-
+	// if Window is equal to NULL -> Can not open window
     if(window == NULL)
     {
         return;
     }
 
-    PlayerObject* playerObject = window->getOwner(); // window owner
+	PlayerObject* playerObject = window->getOwner(); // window owner
 
-	if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() || playerObject->states.checkState(CreatureState_Combat))
-	{
-		return;
-	}
+	// Check if you can use the bank
+    if(playerObject == NULL || !playerObject->isConnected() || playerObject->getSamplingState() || playerObject->isIncapacitated() || playerObject->isDead() ||
+		playerObject->states.checkState(CreatureState_Combat))
+    {
+		gMessageLib->SendSystemMessage(L"You can not use the bank at your current state", playerObject); // Temp Message
+        return;
+    }
+
 
     // two money movement deltas stands for credits
     // variations into bank & inventory.
@@ -140,7 +144,7 @@ void BankTerminal::handleUIEvent(BString strInventoryCash, BString strBankCash, 
     strBankCash.convert(BSTRType_ANSI);
 
     int32 inventoryMoneyDelta = atoi(strInventoryCash.getAnsi()) - dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
-    int32 bankMoneyDelta = atoi(strBankCash.getAnsi()) - dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits();
+    int32 bankMoneyDelta = atoi(strBankCash.getAnsi()) - dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits();
 
     // the amount transfered must be greater than zero
     if(bankMoneyDelta == 0 || inventoryMoneyDelta == 0)

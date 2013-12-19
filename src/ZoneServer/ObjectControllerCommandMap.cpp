@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifdef _WIN32
 #undef ERROR
 #endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "ObjectController.h"
 #include "ObjectControllerOpcodes.h"
@@ -174,7 +174,7 @@ void ObjectControllerCommandMap::handleDatabaseJobComplete(void* ref,DatabaseRes
 
     mDatabase->destroyDataBinding(binding);
 
-    LOG_IF(INFO, !mCmdPropertyMap.empty()) << "Mapped " << mCmdPropertyMap.size() << " commands";
+    //LOG_IF(INFO, !mCmdPropertyMap.empty()) << "Mapped " << mCmdPropertyMap.size() << " commands";
 }
 
 const CommandMap& ObjectControllerCommandMap::getCommandMap() {

@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "UIListBox.h"
 #include "UIManager.h"
 #include "WorldManager.h"
+#include "ContainerManager.h"
 #include "MessageLib/MessageLib.h"
 
 #include <time.h>
@@ -90,7 +91,7 @@ void TicketCollector::handleObjectMenuSelect(uint8 messageType,Object* srcObject
         }
     }
     else
-        DLOG(INFO) << "TravelTerminal: Unhandled MenuSelect: " << messageType;
+        DLOG(info) << "TravelTerminal: Unhandled MenuSelect: " << messageType;
 }
 
 //=============================================================================
@@ -186,12 +187,9 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,BString inputStr
                         if(dstPlanetId == zoneId)
                         {
                             // only delete the ticket if we are warping on this planet.
-                            gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
-                            gObjectFactory->deleteObjectFromDB(ticket);
-
-                            TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-                            tO->deleteObject(ticket);
-
+							TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+							gContainerManager->deleteObject(ticket, tO);
+                            
                             gWorldManager->warpPlanet(playerObject,destination,0);
                         }
                         else
@@ -202,7 +200,7 @@ void TicketCollector::handleUIEvent(uint32 action,int32 element,BString inputStr
                     }
                     else
                     {
-                        DLOG(INFO) << "TicketCollector: Error getting TravelPoint";
+                        DLOG(info) << "TicketCollector: Error getting TravelPoint";
                     }
                     break;
                 }
@@ -245,12 +243,9 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
                 if(dstPlanetId == zoneId)
                 {
                     // only delete the ticket if we are warping on this planet.
-                    gMessageLib->sendDestroyObject(ticket->getId(),playerObject);
-                    gObjectFactory->deleteObjectFromDB(ticket);
-
-                    TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
-                    tO->deleteObject(ticket);
-
+					TangibleObject* tO = dynamic_cast<TangibleObject*>(gWorldManager->getObjectById(ticket->getParentId()));
+					gContainerManager->deleteObject(ticket, tO);
+                    
                     gWorldManager->warpPlanet(playerObject,destination,0);
                 }
                 else
@@ -260,7 +255,7 @@ void TicketCollector::travelRequest(TravelTicket* ticket,PlayerObject* playerObj
             }
             else
             {
-                DLOG(INFO) << "TicketCollector: Error getting TravelPoint";
+                DLOG(info) << "TicketCollector: Error getting TravelPoint";
             }
         }
     }

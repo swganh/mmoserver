@@ -27,11 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "LoginManager.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef ERROR
-#undef ERROR
-#endif
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "AccountData.h"
 #include "LoginClient.h"
@@ -83,14 +79,14 @@ void LoginManager::Process(void)
     if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastStatusQuery) > 5000)
     {
         mLastStatusQuery = Anh_Utils::Clock::getSingleton()->getLocalTime();
-        mDatabase->executeProcedureAsync(this, (void*)1, "CALL swganh.sp_ReturnGalaxyStatus;");
+        mDatabase->executeProcedureAsync(this, (void*)1, "CALL %s.sp_ReturnGalaxyStatus;",mDatabase->galaxy());
     }
 
     // Heartbeat once in awhile
     if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat) > 180000)//main loop every 10mins
     {
         mLastHeartbeat = Anh_Utils::Clock::getSingleton()->getLocalTime();
-        LOG(INFO) << "LoginServer Heartbeat. Total clients (non-unique) processed since boot [" << mNumClientsProcessed << "]";
+        LOG(info) << "LoginServer Heartbeat. Total clients (non-unique) processed since boot [" << mNumClientsProcessed << "]";
     }
 }
 
@@ -114,7 +110,7 @@ void LoginManager::handleSessionDisconnect(NetworkClient* client)
     LoginClient* loginClient = reinterpret_cast<LoginClient*>(client);
 
     // Client has disconnected.  Update the db to show they are no longer authenticated.
-    mDatabase->executeProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id=%u;", loginClient->getAccountId());
+    mDatabase->executeProcedureAsync(0, 0, "UPDATE %s.account SET account_authenticated = 0 WHERE account_id=%u;",mDatabase->galaxy(), loginClient->getAccountId());
 
     LoginClientList::iterator iter = mLoginClientList.begin();
 
@@ -144,7 +140,7 @@ void LoginManager::handleSessionMessage(NetworkClient* client, Message* message)
     case opLoginClientId:  // sent username and password.
     {
         // Start the login process
-        DLOG(INFO) << "opLoginClientId";
+        DLOG(info) << "opLoginClientId";
 
         _handleLoginClientId(loginClient, message);
         break;
@@ -203,7 +199,7 @@ void LoginManager::handleDatabaseJobComplete(void* ref, DatabaseResult* result)
 
         // Execute our query
         client->setState(LCSTATE_QueryCharacterList);
-        mDatabase->executeProcedureAsync(this, ref, "CALL swganh.sp_ReturnAccountCharacters(%u);", client->getAccountId());
+        mDatabase->executeProcedureAsync(this, ref, "CALL %s.sp_ReturnAccountCharacters(%u);",mDatabase->galaxy(), client->getAccountId());
        
         break;
     }
@@ -264,12 +260,12 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
 
     if(strcmp("20050408-18:00",clientId.getAnsi()) != 0)
     {
-        LOG(WARNING) << "illegal client: " << clientId.getAnsi();
+        LOG(warning) << "illegal client: " << clientId.getAnsi();
         client->Disconnect(0);
         return;
     }
     
-    LOG(INFO) << "Login request for account: [" << username.getAnsi() << "]";
+    LOG(info) << "Login request for account: [" << username.getAnsi() << "]";
 
     client->setUsername(username);
     client->setPassword(password);
@@ -292,7 +288,7 @@ void LoginManager::_handleLoginClientId(LoginClient* client, Message* message)
         //the problem with the marked authentication is, that if a connection drops without a sessiondisconnect packet
         //the connection to the loginserver cannot be established anymore - need to have the sessiontimeout think of that
 
-        sprintf(sql,"CALL swganh.sp_ReturnUserAccount('");
+        sprintf(sql,"CALL %s.sp_ReturnUserAccount('",mDatabase->galaxy());
 
         sqlPointer = sql + strlen(sql);
         sqlPointer += mDatabase->escapeString(sqlPointer,username.getAnsi(),username.getLength());
@@ -334,7 +330,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
         client->setCharsAllowed(data.mCharsAllowed);
         client->setCsr(data.mCsr);
         
-        LOG(INFO) << "Login: AccountId: " << data.mId << " Name: " << data.mUsername;
+        LOG(info) << "Login: AccountId: " << data.mId << " Name: " << data.mUsername;
 
         _sendAuthSucceeded(client);
     }
@@ -346,7 +342,7 @@ void LoginManager::_authenticateClient(LoginClient* client, DatabaseResult* resu
         errType = "@cpt_login_fail";
         errMsg = "@msg_login_fail";
 
-        LOG(WARNING) << " Login failed for username: " <<  client->getUsername().getAnsi() << " password: ********" << client->getPassword().getAnsi();
+        LOG(warning) << " Login failed for username: " <<  client->getUsername().getAnsi() << " password: ********" << client->getPassword().getAnsi();
 
         gMessageFactory->StartMessage();
         gMessageFactory->addUint32(opErrorMessage);
@@ -390,12 +386,11 @@ void LoginManager::_sendAuthSucceeded(LoginClient* client)
     client->SendChannelA(message, 4,false);
 
     // Update the account record so we know they authenticated properly.
-    mDatabase->executeSqlAsync(0, 0, "UPDATE account SET account_authenticated = 1 WHERE account_id = %u;", client->getAccountId());
+    mDatabase->executeSqlAsync(0, 0, "UPDATE %s.account SET account_authenticated = 1 WHERE account_id = %u;",mDatabase->galaxy(), client->getAccountId());
 
     // Execute our query for sending the server list.
     client->setState(LCSTATE_QueryServerList);
-    mDatabase->executeProcedureAsync(this, (void*)client, "CALL swganh.sp_ReturnServerList;");
-    
+    mDatabase->executeProcedureAsync(this, (void*)client, "CALL %s.sp_ReturnServerList;",mDatabase->galaxy());
 }
 
 //======================================================================================================================
@@ -502,7 +497,7 @@ void LoginManager::_processDeleteCharacter(Message* message,LoginClient* client)
     uint64 characterId = message->getUint64();
 
     client->setState(LCSTATE_DeleteCharacter);
-    mDatabase->executeSqlAsync(this,(void*)client,"SELECT sf_CharacterDelete(\'%"PRIu64"\')", characterId);
+    mDatabase->executeSqlAsync(this,(void*)client,"SELECT %s.sf_CharacterDelete(\'%" PRIu64 "\')",mDatabase->galaxy(), characterId);
     
 }
 
@@ -519,7 +514,7 @@ void LoginManager::_sendDeleteCharacterReply(uint32 result,LoginClient* client)
     // Set the account authenticated to 0 (the server will attempt to relogin for any further processing).
     // Set the state to the end state to prevent character deletion infinite loop.
     client->setState(LCSTATE_End);
-    mDatabase->executeProcedureAsync(0, 0, "UPDATE account SET account_authenticated = 0 WHERE account_id = %u;", client->getAccountId());
+    mDatabase->executeProcedureAsync(0, 0, "UPDATE %s.account SET account_authenticated = 0 WHERE account_id = %u;",mDatabase->galaxy(), client->getAccountId());
  
 }
 
@@ -639,7 +634,7 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
 
     if(strcmp("20090610-18:00",clientId.getAnsi()) != 0)
     {
-        LOG(WARNING) << "illegal launcher: " << clientId.getAnsi();
+        LOG(warning) << "illegal launcher: " << clientId.getAnsi();
         client->Disconnect(0);
         return;
     }
@@ -650,7 +645,7 @@ void LoginManager::_handleLauncherSession(LoginClient* client, Message* message)
     int8 sql[512];
 
     //call the session_key creation sproc
-    sprintf(sql,"SELECT account_id FROM account WHERE account_username='%s' AND account_password = SHA1('%s');", client->getUsername().getAnsi(), client->getPassword().getAnsi());
+    sprintf(sql,"SELECT account_id FROM %s.account WHERE account_username='%s' AND account_password = SHA1('%s');",mDatabase->galaxy(), client->getUsername().getAnsi(), client->getPassword().getAnsi());
 
     //set the state
     client->setState(LCSTATE_RetrieveAccountId);
@@ -674,11 +669,11 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
         client->setAccountId(data.mId);
 
         //log it
-        DLOG(INFO) << "void LoginManager::_sendLauncherSessionKey Login: AccountId: " << data.mId<< " Name: " << client->getUsername().getAnsi();
+        DLOG(info) << "void LoginManager::_sendLauncherSessionKey Login: AccountId: " << data.mId<< " Name: " << client->getUsername().getAnsi();
 
         //get the session_key made and returned
         int8 sql[512];
-        sprintf(sql,"CALL swganh.sp_AccountSessionKeyGenerate(%"PRIu64");", data.mId);
+        sprintf(sql,"CALL %s.sp_AccountSessionKeyGenerate(%" PRIu64 ");",mDatabase->galaxy(), data.mId);
 
         client->setState(LCSTATE_RetrieveSessionKey);
         mDatabase->executeProcedureAsync(this, client, sql);
@@ -692,7 +687,7 @@ void LoginManager::_getLauncherSessionKey(LoginClient* client, DatabaseResult* r
         errType = "@cpt_login_fail";
         errMsg = "@msg_login_fail";
 
-        DLOG(INFO) << " Login failed for username: "  << client->getUsername().getAnsi() <<", password: ********" << client->getPassword().getAnsi();
+        DLOG(info) << " Login failed for username: "  << client->getUsername().getAnsi() <<", password: ********" << client->getPassword().getAnsi();
 
         gMessageFactory->StartMessage();
         gMessageFactory->addUint32(opErrorMessage);

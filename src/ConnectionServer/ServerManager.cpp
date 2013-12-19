@@ -35,12 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Session.h"
 #include "NetworkManager/Service.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "DatabaseManager/DataBinding.h"
 #include "DatabaseManager/Database.h"
@@ -49,20 +44,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageOpcodes.h"
 #include "NetworkManager/MessageFactory.h"
-#include "Common/ConfigManager.h"
 
 #include <cstring>
 
 //======================================================================================================================
 
-ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager) :
+ServerManager::ServerManager(Service* service, Database* database, MessageRouter* router, ConnectionDispatch* dispatch,ClientManager* clientManager, uint32 cluster_id) :
     mMessageRouter(router),
     mServerService(service),
     mDatabase(database),
     mConnectionDispatch(dispatch),
     mClientManager(clientManager),
     mTotalActiveServers(0),
-    mTotalConnectedServers(0)
+    mTotalConnectedServers(0),
+	mClusterId(cluster_id)
 {
     memset(&mServerAddressMap, 0, sizeof(mServerAddressMap));
 
@@ -77,9 +72,6 @@ ServerManager::ServerManager(Service* service, Database* database, MessageRouter
     mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByTicket, this);
     mConnectionDispatch->RegisterMessageCallback(opClusterZoneTransferRequestByPosition, this);
     mConnectionDispatch->RegisterMessageCallback(opTutorialServerStatusRequest, this);
-
-    // Update our id
-    mClusterId = gConfig->read<uint32>("ClusterId");
 
     // setup data bindings
     _setupDataBindings();
@@ -119,7 +111,7 @@ void ServerManager::SendMessageToServer(Message* message)
     }
     else
     {
-        LOG(INFO) << "ServerManager: failed routing message to server " << message->getDestinationId();
+        LOG(info) << "ServerManager: failed routing message to server " << message->getDestinationId();
         gMessageFactory->DestroyMessage(message);
     }
 }
@@ -133,7 +125,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
 
     // Execute our statement
     int8 sql[500];
-    sprintf(sql,"SELECT id, address, port, status, active FROM config_process_list WHERE address='%s' AND port=%u;", session->getAddressString(), session->getPortHost());
+    sprintf(sql,"SELECT id, address, port, status, active FROM %s.config_process_list WHERE address='%s' AND port=%u;",mDatabase->galaxy(), session->getAddressString(), session->getPortHost());
     DatabaseResult* result = mDatabase->executeSynchSql(sql);
     
 
@@ -159,7 +151,7 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
         memcpy(&mServerAddressMap[serverAddress.mId], &serverAddress, sizeof(ServerAddress));
         mServerAddressMap[serverAddress.mId].mConnectionClient = connClient;
 
-        DLOG(INFO) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId;
+        DLOG(info) << "*** Backend server connected id: " << mServerAddressMap[serverAddress.mId].mId;
 
         // If this is one of the servers we're waiting for, then update our count
         if(mServerAddressMap[serverAddress.mId].mActive)
@@ -168,14 +160,14 @@ NetworkClient* ServerManager::handleSessionConnect(Session* session, Service* se
             ++mTotalConnectedServers;
             if(mTotalConnectedServers == mTotalActiveServers)
             {
-                mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 2, mClusterId); // Set status to online
+                mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 2, mClusterId); // Set status to online
                
             }
         }
     }
     else
     {
-        LOG(WARNING) << "*** Backend server connect error - Server not found in DB" << sql;
+        LOG(warning) << "*** Backend server connect error - Server not found in DB" << sql;
     }
 
     // Delete our DB objects.
@@ -210,11 +202,11 @@ void ServerManager::handleSessionDisconnect(NetworkClient* client)
     if(mServerAddressMap[connClient->getServerId()].mActive)
     {
         --mTotalConnectedServers;
-        mDatabase->executeProcedureAsync(0, 0, "CALL sp_GalaxyStatusUpdate(%u, %u);", 1, mClusterId); // Set status to online
+        mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_GalaxyStatusUpdate(%u, %u);",mDatabase->galaxy(), 1, mClusterId); // Set status to online
         
     }
 
-    DLOG(INFO) << "Servermanager handle server down";
+    DLOG(info) << "Servermanager handle server down";
     mClientManager->handleServerDown(connClient->getServerId());
 
     connClient->getSession()->setStatus(SSTAT_Destroy);
@@ -282,7 +274,7 @@ void ServerManager::_loadProcessAddressMap(void)
     ServerAddress   serverAddress;
 
     // retrieve our list of process addresses.
-    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM config_process_list WHERE active=1 ORDER BY id;");
+    DatabaseResult* result = mDatabase->executeSynchSql("SELECT id, address, port, status, active FROM %s.config_process_list WHERE active=1 ORDER BY id;",mDatabase->galaxy());
     
 
     mTotalActiveServers = static_cast<uint32>(result->getRowCount());
@@ -350,7 +342,7 @@ void ServerManager::_processClusterZoneTransferRequestByTicket(ConnectionClient*
 
 void ServerManager::_processClusterZoneTutorialTerminal(ConnectionClient* client, Message* message)
 {
-    DLOG(INFO) << "Sending Tutorial Status Reply";
+    DLOG(info) << "Sending Tutorial Status Reply";
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opTutorialServerStatusReply);

@@ -71,7 +71,7 @@ void CampTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         CampRegion* region = dynamic_cast<CampRegion*>(gWorldManager->getObjectById(this->mCampRegionId));
 
         int8 text[64];
-        sprintf(text,"Owner: %s",region->getCampOwnerName().getAnsi());
+        sprintf(text,"Owner: %s",region->getCampOwnerName().c_str());
         mAttributesMenu.push_back(text);
 
         uint32 time = static_cast<uint32>(region->getUpTime());

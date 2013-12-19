@@ -239,7 +239,7 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
         gStructureManager->deductPower(player,harvesterPowerDelta);
         this->setCurrentPower(getCurrentPower()+harvesterPowerDelta);
 
-        gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=384",getCurrentPower(),this->getId());
+        gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.structure_attributes SET value='%u' WHERE structure_id=%" PRIu64 " AND attribute_id=384",gWorldManager->getDatabase()->galaxy(),getCurrentPower(),this->getId());
         
     }
     break;
@@ -251,7 +251,7 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
 
         Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
         Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
-        int32 bankFunds = bank->getCredits();
+        int32 bankFunds = bank->credits();
         int32 inventoryFunds = inventory->getCredits();
 
         int32 funds = inventoryFunds + bankFunds;
@@ -291,11 +291,11 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
             return;
         }
 
-        bank->setCredits(bankFunds);
+        bank->credits(bankFunds);
         inventory->setCredits(inventoryFunds);
 
-        gWorldManager->getDatabase()->destroyResult(gWorldManager->getDatabase()->executeSynchSql("UPDATE banks SET credits=%u WHERE id=%"PRIu64"",bank->getCredits(),bank->getId()));
-        gWorldManager->getDatabase()->destroyResult(gWorldManager->getDatabase()->executeSynchSql("UPDATE inventories SET credits=%u WHERE id=%"PRIu64"",inventory->getCredits(),inventory->getId()));
+        gWorldManager->getDatabase()->destroyResult(gWorldManager->getDatabase()->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),bank->credits(),bank->getId()));
+        gWorldManager->getDatabase()->destroyResult(gWorldManager->getDatabase()->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),inventory->getCredits(),inventory->getId()));
 
         //send the appropriate deltas.
         gMessageLib->sendInventoryCreditsUpdate(player);
@@ -322,7 +322,7 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
             }
 
             //update the remaining damage in the db
-            gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE structures s SET s.condition= %u WHERE s.ID=%"PRIu64"",damage,this->getId());
+            gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.structures s SET s.condition= %u WHERE s.ID=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),damage,this->getId());
             
             this->setDamage(damage);
 
@@ -331,7 +331,7 @@ void PlayerStructure::handleUIEvent(BString strCharacterCash, BString strHarvest
 
         }
 
-        gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=382",maintenance,this->getId());
+        gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.structure_attributes SET value='%u' WHERE structure_id=%" PRIu64 " AND attribute_id=382",gWorldManager->getDatabase()->galaxy(),maintenance,this->getId());
         
 
         this->setCurrentMaintenance(maintenance);
@@ -463,8 +463,8 @@ void PlayerStructure::handleUIEvent(uint32 action,int32 element,BString inputStr
 
         int8	sql[255],end[128],*sqlPointer;
 
-        sprintf(sql,"UPDATE structures SET structures.name = '");
-        sprintf(end,"' WHERE structures.ID = %"PRIu64"",this->getId());
+        sprintf(sql,"UPDATE %s.structures SET structures.name = '",gWorldManager->getDatabase()->galaxy());
+        sprintf(end,"' WHERE structures.ID = %" PRIu64 "",this->getId());
         sqlPointer = sql + strlen(sql);
         sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,inputStr.getAnsi(),inputStr.getLength());
         strcat(sql,end);

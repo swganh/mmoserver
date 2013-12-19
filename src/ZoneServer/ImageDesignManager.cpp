@@ -30,16 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Inventory.h"
 #include "PlayerObject.h"
 #include "UIManager.h"
+#include "WorldManager.h"
 
-
+#include "ContainerManager.h"
+#include "SpatialIndexManager.h"
 #include "MessageLib/MessageLib.h"
 
-// Fix for issues with glog redefining this constant
-#ifdef _WIN32
-#undef ERROR
-#endif
-
-#include <glog/logging.h>
+#include "Utils/logger.h"
 
 #include "DatabaseManager/Database.h"
 
@@ -359,7 +356,7 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
 
             //update hair customization db side seperately
             int8 sql[300];
-            sprintf(sql,"UPDATE character_appearance set %s = %u where character_id = '%"PRIu64"'",iDContainer->Atr1Name, value,customer->getId());
+            sprintf(sql,"UPDATE %s.character_appearance set %s = %u where character_id = '%" PRIu64 "'",mDatabase->galaxy(),iDContainer->Atr1Name, value,customer->getId());
             mDatabase->executeSqlAsync(NULL,NULL,sql);
             
 
@@ -523,94 +520,86 @@ BString EntertainerManager::commitIdAttribute(PlayerObject* customer, BString at
 //
 void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 {
-    int8 sql[1024];
+	int8 sql[1024];
 
-    const PlayerObjectSet* const inRangePlayers	= customer->getKnownPlayers();
-    PlayerObjectSet::const_iterator	itiR			= inRangePlayers->begin();
-    //hark the equiplist might contain a helmet at this spot
-    TangibleObject*				playerHair		= dynamic_cast<TangibleObject*>(customer->getHair());//dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
-    TangibleObject*				playerHairSlot	= dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
+	//the reason the hair is unequipped when wearing a helmet is because otherwise parts of the hair looked out of the helmet, which plainly looks stupid
 
-    bool hairEquipped;
-    //do we need to equip the hair or are we wearing a helmet????
-    if(!playerHairSlot)
-        hairEquipped = true;//not technically equipped BUT were NOT wearing a helmet
-    else
-        hairEquipped = (playerHairSlot->getTangibleType() == TanType_Hair);
+	//hark the equiplist might contain a helmet at this spot
+	TangibleObject*				playerHair		= dynamic_cast<TangibleObject*>(customer->getHair());//dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
+	TangibleObject*				playerHairSlot	= dynamic_cast<TangibleObject*>(customer->getEquipManager()->getEquippedObject(CreatureEquipSlot_Hair));
 
-    BString						customization	= "";
+	bool hairEquipped;
+	//do we need to equip the hair or are we wearing a helmet????
+	if(!playerHairSlot)
+		hairEquipped = true;//not technically equipped BUT were NOT wearing a helmet
+	else
+		hairEquipped = (playerHairSlot->getTangibleType() == TanType_Hair);
 
-    if(playerHair)
-    {
-        //are we wearing a helmet ? if not we need to update the world
-        if(hairEquipped)
-        {
-            customization = playerHair->getCustomizationStr();
+	BString						customization	= "";
 
-            //Udate equiplist
-            customer->getEquipManager()->removeEquippedObject(CreatureEquipSlot_Hair);
-            gMessageLib->sendEquippedListUpdate_InRange(customer);
+	if(playerHair)
+	{
+		//are we wearing a helmet ? if not we need to update the world
+		if(hairEquipped)
+		{
+			customization = playerHair->getCustomizationStr();
 
-            //gMessageLib->sendContainmentMessage(playerHair->getId(),customer->getId(),0xffffffff,customer);
-            //destroy clientside
-            gMessageLib->sendDestroyObject_InRange(playerHair->getId(),customer,true);
-
-            //Update the db only if we remain bald
-            if(!newHairString.getLength())
-            {
-                // update the db
-                sprintf(sql,"UPDATE character_appearance set hair = '' where character_id = '%"PRIu64"'",customer->getId());
-                mDatabase->executeSqlAsync(NULL,NULL,sql);
-                
-            }
-        }
-        //destroy serverside
-        delete(playerHair);
-        customer->setHair(NULL);
-
-    }
-
-    //do we have new hair ??
-    if(newHairString.getLength())
-    {
-        playerHair		= new TangibleObject();
-        customer->setHair(playerHair);
-
-        int8 tmpHair[128];
-        sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",customer->getSpeciesString().getAnsi(),&newHairString.getAnsi()[22 + customer->getSpeciesString().getLength()]);
-        playerHair->setId(customer->getId() + 8);
-        playerHair->setParentId(customer->getId());
-        playerHair->setModelString(tmpHair);
-        playerHair->setTangibleGroup(TanGroup_Hair);
-        playerHair->setTangibleType(TanType_Hair);
-        playerHair->setName("hair");
-        playerHair->setNameFile("hair_name");
-        playerHair->setCustomizationStr((uint8*)customization.getAnsi());
+			//Udate equiplist
+			customer->getEquipManager()->removeEquippedObject(CreatureEquipSlot_Hair);
+			
+			gContainerManager->updateEquipListToRegisteredPlayers(customer);
+		
+			gContainerManager->destroyObjectToRegisteredPlayers(customer,playerHair->getId(), true);
 
 
+			//Update the db only if we remain bald
+			if(!newHairString.getLength())
+			{
+				// update the db
+				sprintf(sql,"UPDATE %s.character_appearance set hair = '' where character_id = '%" PRIu64 "'",mDatabase->galaxy(),customer->getId());
+				mDatabase->executeSqlAsync(NULL,NULL,sql);
+			}
+		}
+		//destroy serverside
+		delete(playerHair);
+		customer->setHair(NULL);
 
-        // update the db
-        sprintf(sql,"UPDATE character_appearance set hair = '%s' where character_id = '%"PRIu64"'",newHairString.getAnsi(),customer->getId());
-        mDatabase->executeSqlAsync(NULL,NULL,sql);
-        
+	}
 
-        // now update the modelstring in the creo6 equipped list and the corresponding tano
-        //are we wearing a helmet ? if not we need to update the world
-        if(hairEquipped)
-        {
-            customer->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,playerHair);
-            gMessageLib->sendCreateTangible(playerHair,customer);
-            gMessageLib->sendEquippedListUpdate_InRange(customer);
+	//do we have new hair ??
+	if(newHairString.getLength())
+	{
+		playerHair		= new TangibleObject();
+		customer->setHair(playerHair);
 
-            while(itiR != inRangePlayers->end())
-            {
+		int8 tmpHair[128];
+		sprintf(tmpHair,"object/tangible/hair/%s/shared_%s",customer->getSpeciesString().getAnsi(),&newHairString.getAnsi()[22 + customer->getSpeciesString().getLength()]);
+		playerHair->setId(customer->getId() + 8);
+		playerHair->setParentId(customer->getId());
+		playerHair->setModelString(tmpHair);
+		playerHair->setTangibleGroup(TanGroup_Hair);
+		playerHair->setTangibleType(TanType_Hair);
+		playerHair->setName("hair");
+		playerHair->setNameFile("hair_name");
+		playerHair->setCustomizationStr((uint8*)customization.getAnsi());
 
-                gMessageLib->sendCreateTangible(playerHair,(*itiR));
 
-                ++itiR;
-            }
-        }
-    }
+
+		// update the db
+		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%" PRIu64 "'",mDatabase->galaxy(),newHairString.getAnsi(),customer->getId());
+		mDatabase->executeSqlAsync(NULL,NULL,sql);
+
+		// now update the modelstring in the creo6 equipped list and the corresponding tano
+		//are we wearing a helmet ? if not we need to update the world
+		if(hairEquipped)
+		{
+			customer->getEquipManager()->addEquippedObject(CreatureEquipSlot_Hair,playerHair);
+			
+			gContainerManager->updateEquipListToRegisteredPlayers(customer);
+			gContainerManager->createObjectToRegisteredPlayers(customer,playerHair);
+
+		}
+	}
 }
 
 //=============================================================================
@@ -641,11 +630,11 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
     asyncContainer->amountbank = amountbank;
 
 
-    sprintf(sql,"UPDATE inventories SET credits=credits-%i WHERE id=%"PRIu64"",amountcash, customer->getId()+1);
+    sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),amountcash, customer->getId()+1);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE banks SET credits=credits-%i WHERE id=%"PRIu64"",amountbank, customer->getId()+4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),amountbank, customer->getId()+4);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE banks SET credits=credits+%i WHERE id=%"PRIu64"",amount, designer->getId()+4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%" PRIu64 "",mDatabase->galaxy(),amount, designer->getId()+4);
     mTransaction->addQuery(sql);
 
     mTransaction->execute();
@@ -737,7 +726,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     BString						data;
     bool						firstUpdate		 = true;
 
-    sprintf(mySQL,"UPDATE character_appearance set ");
+    sprintf(mySQL,"UPDATE %s.character_appearance set ",mDatabase->galaxy());
 
     while(it != aList->end())
     {
@@ -787,14 +776,11 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     //do we have actual data or only the primer ??? "UPDATE character_appearance set "
     if(strlen(mySQL) > 33)
     {
-        sprintf(sql,"%s where character_id = '%"PRIu64"'",mySQL,customer->getId());
+        sprintf(sql,"%s where character_id = '%" PRIu64 "'",mySQL,customer->getId());
         asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
     }
-
-
-
 
     //build plus send customization
     //please note that hair object customizatio is send updated and maintained b ycommitIdColor
@@ -816,7 +802,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
         asyncContainer->customer = customer;
         asyncContainer->performer = designer;
 
-        sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM swganh.character_stat_migration where character_id = %"PRIu64"", customer->getId());
+        sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %" PRIu64 "",mDatabase->galaxy(), customer->getId());
         mDatabase->executeSqlAsync(this,asyncContainer,sql);
         
     }
@@ -865,7 +851,6 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     //empty the attribute lists
     aList->clear();
     cList->clear();
-
 }
 
 //=============================================================================
@@ -890,7 +875,7 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
     asyncContainer->customer = customer;
 
-    sprintf(sql,"call swganh.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)", customer->getId(),myEmote->pCRC,20);
+    sprintf(sql,"call %s.sp_CharacterHoloEmoteCreate(%" PRIu64 ",%u,%u)",mDatabase->galaxy(), customer->getId(),myEmote->pCRC,20);
     mDatabase->executeProcedureAsync(this,asyncContainer,sql);
 
 

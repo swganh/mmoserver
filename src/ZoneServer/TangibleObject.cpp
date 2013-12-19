@@ -34,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //=============================================================================
 
 TangibleObject::TangibleObject()
-    : ObjectContainer()
+    : Object()
     , mComplexity(1.0f)
     , mLastTimerUpdate(0)
     , mTimer(0)
@@ -61,7 +61,12 @@ TangibleObject::TangibleObject()
 //=============================================================================
 
 TangibleObject::TangibleObject(uint64 id,uint64 parentId,BString model,TangibleGroup tanGroup,TangibleType tanType,BString name,BString nameFile,BString detailFile)
-    : ObjectContainer(id,parentId,model,ObjType_Tangible),mName(name),mNameFile(nameFile),mDetailFile(detailFile),mTanGroup(tanGroup),mTanType(tanType)
+    : Object(id,parentId,model,ObjType_Tangible)
+    ,mName(name)
+    ,mNameFile(nameFile)
+    ,mDetailFile(detailFile)
+    ,mTanGroup(tanGroup)
+    ,mTanType(tanType)
 {
     mColorStr			= "";
     mUnknownStr1		= "";
@@ -190,10 +195,10 @@ void TangibleObject::setCustomNameIncDB(const int8* name)
 {
     mCustomName = name;
     int8 sql[1024],restStr[128],*sqlPointer;
-    sprintf(sql,"UPDATE items SET customName='");
+    sprintf(sql,"UPDATE %s.items SET customName='",gWorldManager->getDatabase()->galaxy());
     sqlPointer = sql + strlen(sql);
     sqlPointer += gWorldManager->getDatabase()->escapeString(sqlPointer,mCustomName.getAnsi(),mCustomName.getLength());
-    sprintf(restStr,"' WHERE id=%"PRIu64" ",this->getId());
+    sprintf(restStr,"' WHERE id=%" PRIu64 " ",this->getId());
 
     strcat(sql,restStr);
     gWorldManager->getDatabase()->executeSqlAsync(0,0,sql);
@@ -206,7 +211,7 @@ void TangibleObject::setCustomNameIncDB(const int8* name)
 void TangibleObject::setParentIdIncDB(uint64 parentId)
 {
     mParentId = parentId;
-    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE items SET parent_id=%"PRIu64" WHERE id=%"PRIu64"",mParentId,this->getId());
+    gWorldManager->getDatabase()->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id=%" PRIu64 " WHERE id=%" PRIu64 "",gWorldManager->getDatabase()->galaxy(),mParentId,this->getId());
     
 }
 

@@ -46,7 +46,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Wearable.h"
 #include "WorldConfig.h"
 #include "WorldManager.h"
-#include "ZoneTree.h"
 #include "MessageLib/MessageLib.h"
 
 #include "DatabaseManager/Database.h"
@@ -61,10 +60,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 bool						CraftingManager::mInsFlag    = false;
 CraftingManager*			CraftingManager::mSingleton  = NULL;
 
-CraftingManager::CraftingManager(Database* database) : mDatabase(database)
-{
-    mSI	= gWorldManager->getSI();
-}
+CraftingManager::CraftingManager(Database* database) : mDatabase(database){}
 
 
 CraftingManager::~CraftingManager(void)
@@ -268,7 +264,7 @@ bool CraftingManager::HandleRequestCraftingSession(Object* object,Object* target
     if(!station)
     {
         // get the tangible objects in range
-        gCraftingManager->mSI->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range);
+	    gSpatialIndexManager->getObjectsInRange(playerObject,&inRangeObjects,(ObjType_Tangible),range,true);
         //and see if a fitting crafting station is near
         station = playerObject->getCraftingStation(&inRangeObjects,(ItemType) tool->getItemType());
     }
@@ -455,7 +451,7 @@ void CraftingManager::handleCraftCustomization(Object* object,Message* message)
     }
 
     int8 sql[550];
-    sprintf(sql, "INSERT INTO item_customization VALUES (%"PRIu64", %u, %u)",session->getItem()->getId(), session->getItem()->getCustomization(1), session->getItem()->getCustomization(2));
+    sprintf(sql, "INSERT INTO %s.item_customization VALUES (%" PRIu64 ", %u, %u)",mDatabase->galaxy(),session->getItem()->getId(), session->getItem()->getCustomization(1), session->getItem()->getCustomization(2));
     mDatabase->executeAsyncSql(sql);
 
     session->setProductionAmount(amount);

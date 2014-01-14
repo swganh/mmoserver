@@ -1,6 +1,0 @@
-[submodule "docs"]
-	path = docs
-	url = https://github.com/swganh/documentation.git
-[submodule "mmoserverdb"]
-	path = mmoserverdb
-	url = https://github.com/swganh/mmoserverdb.git

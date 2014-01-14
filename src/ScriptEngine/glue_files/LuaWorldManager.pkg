@@ -1,0 +1,32 @@
+$#include "DatabaseManager/DatabaseCallback.h"
+$#include "ZoneServer/ObjectFactoryCallback.h"
+$#include "Utils/TimerCallback.h"
+$#include "ZoneServer/WorldManager.h"
+$#include "ZoneServer/Object.h"
+$#include "ScriptEngine/Script.h"
+
+typedef char				int8;
+typedef short				int16;
+typedef long				int32;
+typedef long long			int64;
+typedef unsigned int    	uint;
+typedef unsigned char  	 	uint8;
+typedef unsigned short  	uint16;
+typedef unsigned long   	uint32;
+typedef unsigned long long  uint64;
+typedef signed char     	sint8;
+typedef signed short   	 	sint16;
+typedef signed long     	sint32;
+
+class WorldManager
+{
+	public:
+
+		static WorldManager*	getSingletonPtr();
+		uint32					getZoneId();
+
+		void				updateWeather(float cloudX,float cloudY,float cloudZ,uint32 weatherType);
+		void				zoneSystemMessage(std::string message);
+		void				ScriptRegisterEvent(void* script,std::string eventFunction);
+		Object*				getObjectById(uint64 objId);
+};

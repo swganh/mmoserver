@@ -450,13 +450,13 @@ void Session::ProcessWriteThread(void)
         {
             if(this->mServerService)
             {
-                LOG(info) << "Session disconnect last received packet > 60  ("<< diff << ") seconds - session Id : " << this->getId();
-				LOG(info) << "Session lastpacket " << mLastPacketReceived << " now " << now << " diff :" << diff;
+                LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_milliseconds()  << ") seconds - session Id : " << this->getId();
+				LOG(info) << "Session lastpacket " << mLastPacketReceived.time_of_day() << " now " << now.time_of_day() << " diff :" << diff.total_milliseconds() ;
                 mCommand = SCOM_Disconnect;
             }
             else
             {
-                LOG(info) << "Session disconnect last received packet > 60  ("<< diff << ") seconds session Id : " << this->getId();
+                LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_milliseconds()  << ") seconds session Id : " << this->getId();
 
                 mCommand = SCOM_Disconnect;
             }

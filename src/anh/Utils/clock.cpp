@@ -54,6 +54,7 @@ Clock::Clock()
 	mTimeDelta = time.time_of_day().total_milliseconds();
 	
 	mStoredTime = getLocalTime();
+	mBoostTime = time;
     
 	mClockScheduler		= new Anh_Utils::Scheduler(this);
     mClockScheduler->addTask(fastdelegate::MakeDelegate(this,&Clock::_setStoredTime),1,1000,NULL);

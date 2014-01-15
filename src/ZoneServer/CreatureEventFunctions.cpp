@@ -1,20 +1,35 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-#include "CreatureObject.h"
-#include "PlayerObject.h"
-#include "WorldManager.h"
+#include "ZoneServer/Objects/Creature Object/CreatureObject.h"
+#include "ZoneServer/Objects/Player Object/PlayerObject.h"
+#include "ZoneServer/WorldManager.h"
 #include "MessageLib/MessageLib.h"
-#include "LogManager/LogManager.h"
-
+#include "ZoneServer/GameSystemManagers/State Manager/StateManager.h"
 
 //=============================================================================
 //
@@ -23,9 +38,7 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 {
-	// gLogger->logMsg("CreatureObject::onIncapRecovery");
-
-	if (mPosture == CreaturePosture_Dead)
+	if (isDead())
 	{
 		// Forget it, you are dead!
 		return;
@@ -35,32 +48,16 @@ void CreatureObject::onIncapRecovery(const IncapRecoveryEvent* event)
 	{
 		mCurrentIncapTime = 0;
 		gMessageLib->sendIncapTimerUpdate(this);
-
-		// update the posture
-		mPosture = CreaturePosture_Upright;
+        // unblock so we can transition out
+        this->states.unblock();
+		gStateManager.setCurrentPostureState(this, CreaturePosture_Upright);
 
 		// reset ham regeneration
-		mHam.updateRegenRates();
 		if (mHam.getTaskId() == 0)
 		{
 			mHam.setTaskId(gWorldManager->addCreatureHamToProccess(&mHam));
 		}
-
-		updateMovementProperties();
-
-		gMessageLib->sendPostureAndStateUpdate(this);
-
-		if(PlayerObject* player = dynamic_cast<PlayerObject*>(this))
-		{
-			gMessageLib->sendUpdateMovementProperties(player);
-			gMessageLib->sendSelfPostureUpdate(player);
-		}
 	}
-	else if (this->getType() == ObjType_Creature)
-	{
-		// Placeholder for debug purpose only.
-	}
-	
 }
 
 //=============================================================================

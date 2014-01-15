@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2008 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -19,7 +35,7 @@ Copyright (c) 2006 - 2008 The swgANH Team
 template <class T, unsigned int preAlloc = 64>
 class Queue
 {
-public:	
+public:
 	// our internal node class
 	template <class Tp>
 	class Node
@@ -38,7 +54,7 @@ public:
 
 		iterator(void) : mNode(0), mNext(0), mPrev(0) {};
 		iterator(Node<T>* node) : mNode(node), mNext(node->mNext), mPrev(node->mPrev) {};
-			
+
 		void			operator ++(void)					{ if (mNext) mNode = mNext; mNext = mNode->mNext; mPrev = mNode->mPrev; };
 		void			operator ++(int i)				{ if (mNext) mNode = mNext; mNext = mNode->mNext; mPrev = mNode->mPrev; };
 		void			operator --(void)					{ if (mPrev) mNode = mPrev; mNext = mNode->mNext; mPrev = mNode->mPrev; };
@@ -55,7 +71,7 @@ public:
 		Node<T>*														mNext;
 		Node<T>*														mPrev;
 	};
-	
+
 	// The reverse iterator class   This is a test
 	class iterator_reverse : public iterator
 	{
@@ -101,7 +117,7 @@ private:
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline Queue<T, preAlloc>::Queue(void)
 {
 	unsigned int i = 0;
@@ -130,20 +146,20 @@ inline Queue<T, preAlloc>::Queue(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline Queue<T, preAlloc>::~Queue(void)
 {
-	
+
 }
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline void Queue<T, preAlloc>::push(T object)
 {
 	mTemp = GetFreeNode();
 
-	mTemp->mData = object; 
+	mTemp->mData = object;
 	mTemp->mNext = mLast;
 	mTemp->mPrev = mLast->mPrev;
 
@@ -155,7 +171,7 @@ inline void Queue<T, preAlloc>::push(T object)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline void Queue<T, preAlloc>::pop(void)
 {
   if (mSize > 0)
@@ -171,7 +187,7 @@ inline void Queue<T, preAlloc>::pop(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 typename inline T Queue<T, preAlloc>::front(void)
 {
 	return mFirst->mNext->mData;
@@ -179,7 +195,7 @@ typename inline T Queue<T, preAlloc>::front(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 typename inline T Queue<T, preAlloc>::back(void)
 {
 	return mLast->mPrev->mData;
@@ -187,7 +203,7 @@ typename inline T Queue<T, preAlloc>::back(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline void Queue<T, preAlloc>::clear(void)
 {
 	Node<T>* node;
@@ -204,7 +220,7 @@ inline void Queue<T, preAlloc>::clear(void)
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 typename inline Queue<T, preAlloc>::template Node<T>* Queue<T, preAlloc>::GetFreeNode(void)
 {
 	Node<T>* node = mFree;
@@ -225,7 +241,7 @@ typename inline Queue<T, preAlloc>::template Node<T>* Queue<T, preAlloc>::GetFre
 
 
 //==============================================================================================================================
-template <class T, unsigned int preAlloc> 
+template <class T, unsigned int preAlloc>
 inline void Queue<T, preAlloc>::ReleaseFreeNode(Node<T>* node)
 {
 	memset(&node->mData, 0, sizeof(node->mData));

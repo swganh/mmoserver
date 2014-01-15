@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -40,15 +56,17 @@ Copyright (c) 2006 - 2010 The swgANH Team
 // Set the initial compiler
 //
 #if defined(_MSC_VER)
-	#define ANH_COMPILER ANH_COMPILER_MSVC
-	#define ANH_COMP_VER _MSC_VER
+#define ANH_COMPILER ANH_COMPILER_MSVC
+#define ANH_COMP_VER _MSC_VER
+#define snprintf _snprintf
+#define localtime_r(a, b) localtime_s(b, a)
 
 #elif defined(__GNUC__)
-	#define ANH_COMPILER ANH_COMPILER_GNUC
-	#define ANH_COMP_VER (((__GNUC__)*100) + (__GNUC_MINOR__*10) + \
+#define ANH_COMPILER ANH_COMPILER_GNUC
+#define ANH_COMP_VER (((__GNUC__)*100) + (__GNUC_MINOR__*10) + \
 		__GNUC_PATCHLEVEL__)
 #else
-	#pragma error "Compiler not supported!"
+#pragma error "Compiler not supported!"
 #endif
 
 //=====================================================================================
@@ -56,9 +74,9 @@ Copyright (c) 2006 - 2010 The swgANH Team
 // Set the platform we are on
 //
 #if defined(__WIN32__) || defined(_WIN32)
-	#define ANH_PLATFORM ANH_PLATFORM_WIN32
+#define ANH_PLATFORM ANH_PLATFORM_WIN32
 #else
-	#define ANH_PLATFORM ANH_PLATFORM_LINUX
+#define ANH_PLATFORM ANH_PLATFORM_LINUX
 #endif
 
 //=====================================================================================
@@ -67,11 +85,11 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //
 
 //495 client 1024 interserver
-#define MAX_PACKET_SIZE  2048  // TODO:  This needs to be changed to a configuration variable for the network module
+#define MAX_PACKET_SIZE  496  // TODO:  This needs to be changed to a configuration variable for the network module
 
 #define MAX_CLIENT_PACKET_SIZE  496  //
-#define MAX_SERVER_PACKET_SIZE  2048  //
-#define MAX_UNRELIABLE_PACKET_SIZE  1024  //
+#define MAX_SERVER_PACKET_SIZE  1400  //
+#define MAX_UNRELIABLE_PACKET_SIZE  300  //
 
 #if defined(__WIN32__) || defined(_WIN32)
 
@@ -107,15 +125,7 @@ typedef uint64_t  	uint64;
 typedef int64_t		sint64;
 #endif
 
-#include "bstring.h"  // Bad bad bad.  Don't include headers in headers if at all possible.
-// unfotunately, this is needed here for base type funtionality.
-// This is also a circular dependency between bstring.h and typedefs.h
-// do not move the order of this include.  Needs to be after all the standard
-// type definitions.
-
-typedef BString             string;
-
-typedef unsigned int        SOCKET;
+typedef unsigned SOCKET;
 
 // Windows and unix handle their long long specifiers differently since windows doesn't
 // fully support C99. To make everything play nicely across platforms we define our own

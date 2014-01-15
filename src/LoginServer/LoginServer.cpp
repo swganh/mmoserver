@@ -1,174 +1,204 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
 #include "LoginServer.h"
 
+#include "anh/logger.h"
+
+#include <iostream>
+#include <fstream>
+
 #include "LoginManager.h"
+#include "Common/BuildInfo.h"
 
 #include "NetworkManager/NetworkManager.h"
 #include "NetworkManager/Service.h"
 
-#include "LogManager/LogManager.h"
-
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseManager.h"
 
-#include "Common/MessageFactory.h"
-#include "ConfigManager/ConfigManager.h"
+#include "NetworkManager/MessageFactory.h"
 #include "Utils/utils.h"
 
-#if !defined(_DEBUG) && defined(_WIN32)
-#include "Utils/mdump.h"
-#endif
-
 #include <boost/thread/thread.hpp>
-#include "Utils/clock.h"
+#include "anh/Utils/clock.h"
+
+using namespace swganh;
+using namespace loginserver;
 
 //======================================================================================================================
 LoginServer* gLoginServer = 0;
 
 
 //======================================================================================================================
-LoginServer::LoginServer(void) :
-mNetworkManager(0)
+LoginServer::LoginServer(int argc, char* argv[]) 
+	: BaseServer()
+    , mNetworkManager(0)
 {
-	// log msg to default log
+    Anh_Utils::Clock::Init();
+    LOG(warning) << "Login Server Startup";
+
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/loginserver.cfg");
+	LoadOptions_(argc, argv, config_files);
+
+
+	std::stringstream log_file_name;
+	log_file_name << "logs/LoginServer.log";
+	LOG(error) << " ";
+	LOGINIT(log_file_name.str());
+
+    // Initialize our modules.
+
+	MessageFactory::getSingleton(configuration_variables_map_["GlobalMessageHeap"].as<uint32_t>());
+
+	mNetworkManager = new NetworkManager( NetworkConfig(configuration_variables_map_["ReliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToServer"].as<uint16_t>(), 
+		configuration_variables_map_["ReliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["UnreliablePacketSizeServerToClient"].as<uint16_t>(), 
+		configuration_variables_map_["ServerPacketWindowSize"].as<uint32_t>(), 
+		configuration_variables_map_["ClientPacketWindowSize"].as<uint32_t>(),
+		configuration_variables_map_["UdpBufferSize"].as<uint32_t>()));
+
+    LOG(warning) << "Config port set to " << configuration_variables_map_["BindPort"].as<uint16>();
+    mService = mNetworkManager->GenerateService((char*)configuration_variables_map_["BindAddress"].as<std::string>().c_str(), configuration_variables_map_["BindPort"].as<uint16_t>(),configuration_variables_map_["ServiceMessageHeap"].as<uint32_t>()*1024,false);
+
+	mDatabaseManager = new database::DatabaseManager(database::DatabaseConfig(configuration_variables_map_["DBMinThreads"].as<uint32_t>(), configuration_variables_map_["DBMaxThreads"].as<uint32_t>(), configuration_variables_map_["DBGlobalSchema"].as<std::string>(), configuration_variables_map_["DBGalaxySchema"].as<std::string>(), configuration_variables_map_["DBConfigSchema"].as<std::string>()));
+
+    // Connect to our database and pass it off to our modules.
+    mDatabase = mDatabaseManager->connect(database::DBTYPE_MYSQL,
+                                          (char*)(configuration_variables_map_["DBServer"].as<std::string>()).c_str(),
+                                          configuration_variables_map_["DBPort"].as<uint16_t>(),
+                                          (char*)(configuration_variables_map_["DBUser"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBPass"].as<std::string>()).c_str(),
+                                          (char*)(configuration_variables_map_["DBName"].as<std::string>()).c_str());
+
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', NULL, NULL, NULL);",mDatabase->galaxy()); // SQL - Update Server Start ID
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, NULL, NULL);",mDatabase->galaxy(), 1); // SQL - Update Server Status
+    
+    // In case of a crash, we need to cleanup the DB a little.
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.account SET account_authenticated = 0 WHERE account_authenticated = 1;",mDatabase->galaxy()));
+    
+    //and session_key now as well
+    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.account SET account_session_key = '';",mDatabase->galaxy()));
   
-  Anh_Utils::Clock::Init();
-  gLogger->logMsg("LoginServer Startup");
+    // Instant the messageFactory. It will also run the Startup ().
+    (void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced.
+    // The code itself here is not needed, since it will instance itself at first use.
 
-	// Initialize our modules.
+    mLoginManager = new LoginManager(mDatabase);
 
-	mNetworkManager = new NetworkManager();
-	mService = mNetworkManager->GenerateService((char*)gConfig->read<std::string>("BindAddress").c_str(), gConfig->read<uint16>("BindPort"),gConfig->read<uint32>("ServiceMessageHeap")*1024,false);
+    // Let our network Service know about our callbacks
+    mService->AddNetworkCallback(mLoginManager);
 
+    // We're done initializing.
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, '%s', %u);",mDatabase->galaxy(), 2, mService->getLocalAddress(), mService->getLocalPort()); // SQL - Update Server Details
 
-	mDatabaseManager = new DatabaseManager();
+    LOG(warning) << "Login Server startup complete";
+    //gLogger->printLogo();
+    // std::string BuildString(GetBuildString());
 
-	// Connect to our database and pass it off to our modules.
-	mDatabase = mDatabaseManager->Connect(DBTYPE_MYSQL,
-										 (char*)(gConfig->read<std::string>("DBServer")).c_str(),
-										 gConfig->read<int>("DBPort"),
-										 (char*)(gConfig->read<std::string>("DBUser")).c_str(),
-										 (char*)(gConfig->read<std::string>("DBPass")).c_str(),
-										 (char*)(gConfig->read<std::string>("DBName")).c_str());
-
-	gLogger->connecttoDB(mDatabaseManager);
-	gLogger->createErrorLog("LoginServer",(LogLevel)(gConfig->read<int>("LogLevel",2)),
-										(bool)(gConfig->read<bool>("LogToFile", true)),
-										(bool)(gConfig->read<bool>("ConsoleOut",true)),
-										(bool)(gConfig->read<bool>("LogAppend",true)));
-
-
-  mDatabase->ExecuteSqlAsync(0,0,"UPDATE config_process_list SET serverstartID = serverstartID+1 WHERE name like 'login'");
-  mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET status=%u WHERE name='login';", 1));
-
-  // In case of a crash, we need to cleanup the DB a little.
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE account SET authenticated=0 WHERE authenticated=1;"));
-
-	// Instant the messageFactory. It will also run the Startup ().
-	(void)MessageFactory::getSingleton();		// Use this a marker of where the factory is instanced. 
-												// The code itself here is not needed, since it will instance itself at first use.
-
-	mLoginManager = new LoginManager(mDatabase);
-
-	// Let our network Service know about our callbacks
-	mService->AddNetworkCallback(mLoginManager);
-
-	// We're done initializing.
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET address='%s', port=%u, status=%u WHERE name='login';", mService->getLocalAddress(), mService->getLocalPort(), 2));
-
-	gLogger->logMsg("LoginServer Startup complete");
-	//gLogger->printLogo();
-	// std::string BuildString(GetBuildString());	
-
-	gLogger->logMsgF("LoginServer - Build %s",MSG_NORMAL,ConfigManager::getBuildString().c_str());
-	gLogger->logMsg("Welcome to your SWGANH Experience!");
+    LOG(warning) <<  "Login Server - Build " << GetBuildString().c_str();
+    LOG(warning) << "Welcome to your SWGANH Experience!";
 }
 
 
 //======================================================================================================================
 LoginServer::~LoginServer(void)
 {
-	mDatabase->DestroyResult(mDatabase->ExecuteSynchSql("UPDATE config_process_list SET status=%u WHERE name='login';", 0));
-	gLogger->logMsg("LoginServer shutting down...");
+    mDatabase->executeProcedureAsync(0, 0, "CALL %s.sp_ServerStatusUpdate('login', %u, NULL, NULL);",mDatabase->galaxy(), 2); // SQL - Update server status
+    
+    LOG(warning) << "LoginServer shutting down...";
 
-	delete mLoginManager;
+    delete mLoginManager;
 
-	mNetworkManager->DestroyService(mService);
-	delete mNetworkManager;
-	
-	MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
+    mNetworkManager->DestroyService(mService);
+    delete mNetworkManager;
 
-	delete mDatabaseManager;
+    MessageFactory::getSingleton()->destroySingleton();	// Delete message factory and call shutdown();
 
-	gLogger->logMsg("LoginServer Shutdown complete");
+    delete mDatabaseManager;
+
+    LOG(warning) << "LoginServer Shutdown complete";
 }
 
 //======================================================================================================================
 void LoginServer::Process(void)
 {
-	mNetworkManager->Process();
-	mDatabaseManager->Process();
-	mLoginManager->Process();
-	gMessageFactory->Process();
+    mNetworkManager->Process();
+    mDatabaseManager->process();
+    mLoginManager->Process();
+    gMessageFactory->Process();
 }
 
 
 //======================================================================================================================
 void handleExit(void)
 {
-  delete gLoginServer;
+    delete gLoginServer;
 }
 
 
 //======================================================================================================================
 int main(int argc, char* argv[])
 {
-	// In release mode, catch any unhandled exceptions that may cause the program to crash and create a dump report.
-#if !defined(_DEBUG) && defined(_WIN32)
-	SetUnhandledExceptionFilter(CreateMiniDump);
-#endif
+   
 
-  bool exit = false;
+    bool exit = false;
 
-  // init our logmanager singleton,set global level normal, create the default log with normal priority, output to file + console, also truncate
-  LogManager::Init(G_LEVEL_NORMAL,"LoginServer.log", LEVEL_NORMAL, true, true);
+    try {
+		gLoginServer = new LoginServer(argc, argv);
 
-  // init out configmanager singleton (access configvariables with gConfig Macro,like: gConfig->readInto(test,"test");)
-  ConfigManager::Init("LoginServer.cfg");
+		// Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
+		//atexit(handleExit);
 
-  gLoginServer = new LoginServer();
+		// Main loop
+		while (!exit)
+		{
+			gLoginServer->Process();
 
-  // Since startup completed successfully, now set the atexit().  Otherwise we try to gracefully shutdown a failed startup, which usually fails anyway.
-  //atexit(handleExit);
+			if(Anh_Utils::kbhit())
+				if(std::cin.get() == 'q')
+					break;
 
-	// Main loop
-	while (!exit)
-	{
-		gLoginServer->Process();
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+		}
 
-		if(Anh_Utils::kbhit())
-			if(std::cin.get() == 'q')
-				break;
-
-        boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+		// Shutdown things
+		delete gLoginServer;
+	} catch( std::exception& e ) {
+		std::cout << e.what() << std::endl;
+		std::cin.get();
+		return 0;
 	}
 
-	// Shutdown things
-	delete gLoginServer;
-
-	delete LogManager::getSingletonPtr();
-
-  return 0;
+	return 0;
 }
 
 

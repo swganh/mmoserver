@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -13,40 +29,45 @@ Copyright (c) 2006 - 2010 The swgANH Team
 
 #include "PingServer.h"
 
-#include "LogManager/LogManager.h"
 
-#include "ConfigManager/ConfigManager.h"
+#include "anh/logger.h"
+
 #include <boost/thread/thread.hpp>
 
+#include "Common/BuildInfo.h"
 #include "Utils/utils.h"
 
-#if defined(__GNUC__)
-// GCC implements tr1 in the <tr1/*> headers. This does not conform to the TR1
-// spec, which requires the header without the tr1/ prefix.
-#include <tr1/functional>
-#else
+#include <iostream>
+#include <fstream>
 #include <functional>
-#endif
 
 #define RECEIVE_BUFFER 512
 
-PingServer::PingServer(int port)
-    : io_service_()
+PingServer::PingServer(int argc, char* argv[])
+    : BaseServer()
+	, io_service_()
     , socket_(io_service_)
     , receive_buffer_(RECEIVE_BUFFER)
-{
-	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), port);
-	socket_.open(endpoint.protocol());
-	socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
-	socket_.bind(endpoint); 
+{	
+	// Load Configuration Options
+	std::list<std::string> config_files;
+	config_files.push_back("config/general.cfg");
+	config_files.push_back("config/pingserver.cfg");
+	LoadOptions_(argc, argv, config_files);
 
-	AsyncReceive();
+	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), configuration_variables_map_["BindPort"].as<uint16_t>());
+    socket_.open(endpoint.protocol());
+    socket_.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+    socket_.bind(endpoint);
+
+
+    AsyncReceive();
 }
 
 PingServer::~PingServer()
 {}
 
-void PingServer::Poll()
+void PingServer::Process()
 {
     io_service_.poll();
 }
@@ -67,34 +88,34 @@ void PingServer::AsyncReceive()
     socket_.async_receive_from(
         boost::asio::buffer(receive_buffer_),
         remote_endpoint_,
-        std::tr1::bind(
-            &PingServer::HandleReceive, 
-            this, 
-            std::tr1::placeholders::_1, 
-            std::tr1::placeholders::_2
+        std::bind(
+            &PingServer::HandleReceive,
+            this,
+            std::placeholders::_1,
+            std::placeholders::_2
         )
-    );  
+    );
 }
 
 void PingServer::HandleReceive(const boost::system::error_code& error, size_t bytesReceived)
 {
-    bytes_received_ += bytesReceived;  
+    bytes_received_ += bytesReceived;
 
     // Check if an error occurred.
     if (error && error != boost::asio::error::message_size) {
-        gLogger->logMsgF("Error reading from socket: %s", MSG_NORMAL, error.message().c_str());     
+        LOG(warning) << "Error reading from socket: " << error.message().c_str();
 
-    // Otherwise return the ping response to the sender.
+        // Otherwise return the ping response to the sender.
     } else {
         // Send the message that was just received back to the sender.
         socket_.async_send_to(
-            boost::asio::buffer(&receive_buffer_[0], bytesReceived), 
+            boost::asio::buffer(&receive_buffer_[0], bytesReceived),
             remote_endpoint_,
-            std::tr1::bind(
-                &PingServer::HandleSend, 
-                this, 
-                std::tr1::placeholders::_1, 
-                std::tr1::placeholders::_2
+            std::bind(
+                &PingServer::HandleSend,
+                this,
+                std::placeholders::_1,
+                std::placeholders::_2
             )
         );
     }
@@ -110,37 +131,37 @@ void PingServer::HandleSend(const boost::system::error_code& error, size_t bytes
 
 
 //======================================================================================================================
-
-
 int main(int argc, char* argv[])
 {
-	LogManager::Init(G_LEVEL_NORMAL, "PingServer.log", LEVEL_NORMAL, true, true, false);
-	ConfigManager::Init("PingServer.cfg");
-	
-	gLogger->logMsgF("PingServer - Build %s", MSG_NORMAL, ConfigManager::getBuildString().c_str());
 
-	// Read in the address and port to start the ping server on.
-	int port            = gConfig->read<int>("BindPort");
+    //set stdout buffers to 0 to force instant flush
+    setvbuf( stdout, NULL, _IONBF, 0);
+    
+    LOG(warning) <<  "PingServer - Build " << GetBuildString().c_str();
 
-    // Start the ping server.
-	PingServer ping_server(port);
-	gLogger->logMsgF("PingServer listening on port %d", MSG_NORMAL, port);
+    try {
+		PingServer ping_server(argc, argv);
 
-	while (true) {
-		// Check for incoming messages and handle them.
-		ping_server.Poll();
-		boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+		LOG(warning) << "Welcome to your SWGANH Experience!";
 
-		// Stop the ping server if a key is hit.
-		if (Anh_Utils::kbhit()) 
-			if(std::cin.get() == 'q')
-				break;
+		while (true) {
+			// Check for incoming messages and handle them.
+			ping_server.Process();
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1));
+
+			// Stop the ping server if a key is hit.
+			if (Anh_Utils::kbhit())
+				if(std::cin.get() == 'q')
+					break;
+		}
+
+	} catch( std::exception& e ) {
+		LOG(error) << e.what();
+		std::cin.get();
+		return 0;
 	}
 
-	delete LogManager::getSingletonPtr();
-
-	return 0;
+    return 0;
 }
 
 //======================================================================================================================
-

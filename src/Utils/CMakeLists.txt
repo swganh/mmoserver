@@ -1,0 +1,3 @@
+include(MMOServerLibrary)
+
+AddMMOServerLibrary(Utils)

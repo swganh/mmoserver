@@ -1,11 +1,27 @@
 /*
 ---------------------------------------------------------------------------------------
-This source file is part of swgANH (Star Wars Galaxies - A New Hope - Server Emulator)
-For more information, see http://www.swganh.org
+This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
+For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The swgANH Team
+Copyright (c) 2006 - 2010 The SWG:ANH Team
+---------------------------------------------------------------------------------------
+Use of this source code is governed by the GPL v3 license that can be found
+in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
@@ -16,164 +32,164 @@ Copyright (c) 2006 - 2010 The swgANH Team
 //======================================================================================================================
 CompCryptor::CompCryptor(void)
 {
-	mStreamData = new z_stream;
+    mStreamData = new z_stream;
 }
 
 
 //======================================================================================================================
 CompCryptor::~CompCryptor(void)
 {
-	delete mStreamData;
+    delete mStreamData;
 }
 
 //======================================================================================================================
 int CompCryptor::Compress(int8* inData, uint32 inLen, int8* outData, uint32 outLen)
 {
-  // Init our stream
-  mStreamData->zalloc = Z_NULL;
-  mStreamData->zfree = Z_NULL;
-  mStreamData->opaque = Z_NULL;
-  mStreamData->avail_in = 0;
-  mStreamData->next_in = Z_NULL;
-  deflateInit(mStreamData, Z_DEFAULT_COMPRESSION);
+    // Init our stream
+    mStreamData->zalloc = Z_NULL;
+    mStreamData->zfree = Z_NULL;
+    mStreamData->opaque = Z_NULL;
+    mStreamData->avail_in = 0;
+    mStreamData->next_in = Z_NULL;
+    deflateInit(mStreamData, Z_DEFAULT_COMPRESSION);
 
-  // Setup our struct
-  mStreamData->next_in = (Bytef*)inData;
-  mStreamData->avail_in = inLen;
-  mStreamData->next_out = (Bytef*)outData;
-  mStreamData->avail_out = outLen;
+    // Setup our struct
+    mStreamData->next_in = (Bytef*)inData;
+    mStreamData->avail_in = inLen;
+    mStreamData->next_out = (Bytef*)outData;
+    mStreamData->avail_out = outLen;
 
-  // compress our data and get it's final size.
-  deflate(mStreamData, Z_FINISH);
-  uint32 outBytes = mStreamData->total_out;
-  if (outBytes)
-  {
-    // We only call this on a successful decompression.
-    deflateEnd(mStreamData);
-  }
+    // compress our data and get it's final size.
+    deflate(mStreamData, Z_FINISH);
+    uint32 outBytes = mStreamData->total_out;
+    if (outBytes)
+    {
+        // We only call this on a successful decompression.
+        deflateEnd(mStreamData);
+    }
 
-  // May as well not compress it if it's going to be bigger.
-  if (outBytes > inLen)
-  {
-    return 0;
-  }
+    // May as well not compress it if it's going to be bigger.
+    if (outBytes > inLen)
+    {
+        return 0;
+    }
 
-  return outBytes;
+    return outBytes;
 }
 
 
 //======================================================================================================================
 int CompCryptor::Decompress(int8* inData, uint32 inLen, int8* outData, uint32 outLen)
 {
-  // If it's not compressed, don't decompress it.
-  if (inData[0] != 'x')
-    return 0;
+    // If it's not compressed, don't decompress it.
+    if (inData[0] != 'x')
+        return 0;
 
-  // Init our stream
-  mStreamData->zalloc = Z_NULL;
-  mStreamData->zfree = Z_NULL;
-  mStreamData->opaque = Z_NULL;
-  mStreamData->avail_in = 0;
-  mStreamData->next_in = Z_NULL;
-  inflateInit(mStreamData);
+    // Init our stream
+    mStreamData->zalloc = Z_NULL;
+    mStreamData->zfree = Z_NULL;
+    mStreamData->opaque = Z_NULL;
+    mStreamData->avail_in = 0;
+    mStreamData->next_in = Z_NULL;
+    inflateInit(mStreamData);
 
-  // Setup our struct
-  mStreamData->next_in = (Bytef*)inData;
-  mStreamData->avail_in = inLen;
-  mStreamData->next_out = (Bytef*)outData;
-  mStreamData->avail_out = outLen;
+    // Setup our struct
+    mStreamData->next_in = (Bytef*)inData;
+    mStreamData->avail_in = inLen;
+    mStreamData->next_out = (Bytef*)outData;
+    mStreamData->avail_out = outLen;
 
-  // compress our data and get it's final size.
-  inflate(mStreamData, Z_FINISH);
-  uint32 outBytes = mStreamData->total_out;
-  if (outBytes)
-  {
-    // We only call this on a successful decompression.
-    inflateEnd(mStreamData);
-  }
+    // compress our data and get it's final size.
+    inflate(mStreamData, Z_FINISH);
+    uint32 outBytes = mStreamData->total_out;
+    if (outBytes)
+    {
+        // We only call this on a successful decompression.
+        inflateEnd(mStreamData);
+    }
 
-  return outBytes;
+    return outBytes;
 }
 
 
 //======================================================================================================================
 int CompCryptor::Encrypt(int8* data, uint32 len, uint32 seed)
 {
-  seed = seed ^ 0x62491908;
+    //seed = seed ^ 0x62491908;
 
-  int retVal = 0;
+    int retVal = 0;
 
-  //uint32 tempSeed = 0;
-  uint32 blockCount = (len / 4);
-  uint32 byteCount = (len % 4);
+    //uint32 tempSeed = 0;
+    uint32 blockCount = (len / 4);
+    uint32 byteCount = (len % 4);
 
-  for(uint32 count = 0; count < blockCount; count++)
-  {
-    ((uint32*)data)[count] ^= seed;
-    seed = ((uint32*)data)[count];
-  }
+    for(uint32 count = 0; count < blockCount; count++)
+    {
+        ((uint32*)data)[count] ^= seed;
+        seed = ((uint32*)data)[count];
+    }
 
-  for(uint32 count = blockCount * 4; count < blockCount * 4 + byteCount; count++)
-  {
-    data[count] ^= seed;
-  }
+    for(uint32 count = blockCount * 4; count < blockCount * 4 + byteCount; count++)
+    {
+        data[count] ^= seed;
+    }
 
-  return retVal;
+    return retVal;
 }
 
 
 //======================================================================================================================
 int CompCryptor::Decrypt(int8* data, uint32 len, uint32 seed)
 {
-  seed = seed ^ 0x62491908;
+    //seed = seed ^ 0x62491908;
 
-  int retVal = 0;
+    int retVal = 0;
 
-  uint32 tempSeed = 0;
-  uint32 blockCount = (len / 4);
-  uint32 byteCount = (len % 4);
+    uint32 tempSeed = 0;
+    uint32 blockCount = (len / 4);
+    uint32 byteCount = (len % 4);
 
-  for(uint32 count = 0; count < blockCount; count++)
-  {
-    tempSeed = ((uint32*)data)[count];
-    ((uint32*)data)[count] ^= seed;
-    seed = tempSeed;
-  }
+    for(uint32 count = 0; count < blockCount; count++)
+    {
+        tempSeed = ((uint32*)data)[count];
+        ((uint32*)data)[count] ^= seed;
+        seed = tempSeed;
+    }
 
-  for(uint32 count = blockCount * 4; count < blockCount * 4 + byteCount; count++)
-  {
-    data[count] ^= seed;
-  }
+    for(uint32 count = blockCount * 4; count < blockCount * 4 + byteCount; count++)
+    {
+        data[count] ^= seed;
+    }
 
-  return retVal;
+    return retVal;
 }
 
 
 //======================================================================================================================
 uint32 CompCryptor::GenerateCRC(int8* data, uint32 len, uint32 seed)
 {
-  uint32 newCRC = 0, index = 0;
+    uint32 newCRC = 0, index = 0;
 
-  newCRC = mCrcTable[(~seed) & 0xFF];
-  newCRC ^= 0x00FFFFFF;
-  index = (seed >> 8) ^ newCRC;
-  newCRC = (newCRC >> 8) & 0x00FFFFFF;
-  newCRC ^= mCrcTable[index & 0xFF];
-  index = (seed >> 16) ^ newCRC;
-  newCRC = (newCRC >> 8) & 0x00FFFFFF;
-  newCRC ^= mCrcTable[index & 0xFF];
-  index = (seed >> 24) ^ newCRC;
-  newCRC = (newCRC >> 8) &0x00FFFFFF;
-  newCRC ^= mCrcTable[index & 0xFF];
+    newCRC = mCrcTable[(~seed) & 0xFF];
+    newCRC ^= 0x00FFFFFF;
+    index = (seed >> 8) ^ newCRC;
+    newCRC = (newCRC >> 8) & 0x00FFFFFF;
+    newCRC ^= mCrcTable[index & 0xFF];
+    index = (seed >> 16) ^ newCRC;
+    newCRC = (newCRC >> 8) & 0x00FFFFFF;
+    newCRC ^= mCrcTable[index & 0xFF];
+    index = (seed >> 24) ^ newCRC;
+    newCRC = (newCRC >> 8) &0x00FFFFFF;
+    newCRC ^= mCrcTable[index & 0xFF];
 
-  for(uint32 i = 0; i < len; i++ )
-  {
-      index = (data[i]) ^ newCRC;
-      newCRC = (newCRC >> 8) & 0x00FFFFFF;
-      newCRC ^= mCrcTable[index & 0xFF];
-  }
+    for(uint32 i = 0; i < len; i++ )
+    {
+        index = (data[i]) ^ newCRC;
+        newCRC = (newCRC >> 8) & 0x00FFFFFF;
+        newCRC ^= mCrcTable[index & 0xFF];
+    }
 
-  return ~newCRC;
+    return ~newCRC;
 }
 
 

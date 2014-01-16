@@ -63,7 +63,7 @@ void ObjectController::destroyObject(uint64 objectId)
 
 	
 	PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(mObject);
-	Datapad* datapad				= playerObject->getDataPad();
+	Datapad*		datapad			= playerObject->getDataPad();
 	Object*			object			= gWorldManager->getObjectById(objectId);
 
 	//could be a schematic!
@@ -95,13 +95,13 @@ void ObjectController::destroyObject(uint64 objectId)
 	{
 		// delete from db
 		gObjectFactory->deleteObjectFromDB(object);
-		std::shared_ptr<Datapad> pad = std::static_pointer_cast<Datapad>(gWorldManager->getSharedObjectById(object->getParentId()));
-		if(!pad)	{
+		
+		if(!datapad)	{
 			LOG(error) << "ObjectController::destroyObject cant get datapad to destroy waypoint : " << object->getId();
 			return;
 		}
 
-		pad->RemoveWaypoint(object->getId());
+		datapad->RemoveWaypoint(object->getId());
 
 		//remove from grid and/or container
 		gWorldManager->destroyObject(object);

@@ -25,16 +25,16 @@ struct BaseDeltasMessage : public BaseSwgMessage
     void OnSerialize(swganh::ByteBuffer& buffer) const
     {
         buffer.write(object_id);
-        buffer.write(object_type);
-        buffer.write(view_type);
+        buffer.write(object_type);//yalp / creo / weao
+        buffer.write(view_type);//3/6/8/9 etc
         
 		//this is actually hardcoded shit - the size is 
 		//+2 for update count and +2 for every different member descriptor
 		//to their defense with the current setup there can only be one member per delta
 		buffer.write<uint32_t>(data.size() + 4);
 
-        buffer.write<uint16_t>(update_count);
-        buffer.write<uint16_t>(update_type);
+        buffer.write<uint16_t>(update_count);//updated elements
+        buffer.write<uint16_t>(update_type); // nr of the eleement updated
         buffer.write(data.data(), data.size());
     }
 

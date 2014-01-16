@@ -36,6 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer\Objects\object_message_builder.h"
 #include "ZoneServer\Objects\Object.h"
 #include "ZoneServer\Objects\Object_Enums.h"
+#include "ZoneServer\PlayerEnums.h"
 
 
 using namespace swganh::event_dispatcher;
@@ -50,7 +51,13 @@ void ObjectMessageBuilder::RegisterEventHandlers()
 swganh::messages::DeltasMessage BaseMessageBuilder::CreateDeltasMessage(const std::shared_ptr<Object>& object,  uint8_t view_type, uint16_t update_type, uint32_t object_type, uint16_t update_count)
 {
     swganh::messages::DeltasMessage message;
-	message.object_id = object->getId();
+	
+	//ok this is a stupid hack but with our current setup I cannot do much better
+	uint64_t object_id = object->getId();
+	if(object_type == SWG_PLAYER){
+		object_id += PLAYER_OFFSET;
+	}
+	message.object_id = object_id;
 	message.object_type = object_type;
     message.view_type = view_type;
     message.update_count = update_count;

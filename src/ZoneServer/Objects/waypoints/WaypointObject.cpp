@@ -71,6 +71,7 @@ void PlayerWaypointSerializer::SerializeBaseline(swganh::ByteBuffer& data, const
 
 void PlayerWaypointSerializer::SerializeDelta(swganh::ByteBuffer& data, const PlayerWaypointSerializer& t)
 {
+
     data.write<uint64_t>(t.waypoint->getId());
     data.write<uint32_t>(0);
     data.write<float>(t.waypoint->getCoords().x);
@@ -78,7 +79,7 @@ void PlayerWaypointSerializer::SerializeDelta(swganh::ByteBuffer& data, const Pl
     data.write<float>(t.waypoint->getCoords().z);
     data.write<uint64_t>(0);
     data.write<uint32_t>(t.waypoint->getPlanetCRC());
-    data.write<std::u16string>(t.waypoint->getName());
+	data.write<std::u16string>(t.waypoint->getName());
     data.write<uint64_t>(t.waypoint->getId());
     data.write<uint8_t>(t.waypoint->getWPType());
     data.write<uint8_t>(t.waypoint->getActive() ? 1 : 0);

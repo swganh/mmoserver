@@ -383,12 +383,12 @@ void ZoneServer::Process(void)
 
     // Heartbeat once in awhile
 	uint64 time = Anh_Utils::Clock::getSingleton()->getLocalTime();
-    if (time - mLastHeartbeat > 180000)
+    if (time - mLastHeartbeat > 1800000)
     {
         mLastHeartbeat = time;
 		LOG(info) << "Zone : " << kernel_->GetAppConfig().zone_name << " currently serves " << gWorldManager->getPlayerAccMap()->size() << "Players";
 		
-		//tick the db so the connection wont die when were idle to long
+		//tick the db so the connection wont die when we are idle to long
 		_updateDBServerList(2);
     }
 }

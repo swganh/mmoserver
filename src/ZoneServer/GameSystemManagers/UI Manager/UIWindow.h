@@ -44,40 +44,14 @@ typedef std::vector<UIElement*>	Children;
 
 //================================================================================
 
-enum WindowQueryType
-{
-    Window_Query_NULL						=	0,
-    Window_Query_Radioactive_Sample			=	1,
-    Window_Query_Add_Schematic				=	2
 
-};
-
-
-class WindowAsyncContainerCommand
-{
-public:
-
-    WindowAsyncContainerCommand(WindowQueryType qt) {
-        mQueryType = qt;
-    }
-    ~WindowAsyncContainerCommand() {}
-
-    WindowQueryType				mQueryType;
-
-
-    uint64						PlayerId;
-    uint64						ToolId;
-    uint64						SchematicId;
-    void*						CurrentResource;
-    std::vector<uint64 >		SortedList;
-};
 
 
 class UIWindow : public UIElement
 {
 public:
 
-    UIWindow(UICallback* callback,uint32 id,uint8 windowType,const BString windowTypeStr,const int8* eventStr, void* container = nullptr);
+    UIWindow(UICallback* callback,uint32 id,uint8 windowType,const BString windowTypeStr,const int8* eventStr, std::shared_ptr<WindowAsyncContainerCommand>	 container = nullptr);
     virtual ~UIWindow();
 
     uint8			getWindowType() {
@@ -126,8 +100,8 @@ public:
     bool			removeChild(uint32 id);
     bool			removeChild(UIElement* element);
 
-    void*			getAsyncContainer() {
-        return mContainer;
+    std::shared_ptr<WindowAsyncContainerCommand>	getAsyncContainer() {
+        return async_container_;
     }
 
     virtual void	handleEvent(Message* message) = 0;
@@ -155,7 +129,8 @@ protected:
     UICallback*		mUICallback;
     uint64			mTimeOut;
     uint8			mWindowType;
-    void*			mContainer;
+
+	std::shared_ptr<WindowAsyncContainerCommand>	async_container_;
 
     BString			mOption3;
     BString			mOption4;

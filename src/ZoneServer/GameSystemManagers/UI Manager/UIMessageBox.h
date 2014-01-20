@@ -39,7 +39,7 @@ class UIMessageBox : public UIWindow
 {
 public:
 
-    UIMessageBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType = SUI_MB_OK, void* container = nullptr);
+    UIMessageBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType = SUI_MB_OK, std::shared_ptr<WindowAsyncContainerCommand> container = nullptr);
     virtual ~UIMessageBox();
 
     virtual void	handleEvent(Message* message);

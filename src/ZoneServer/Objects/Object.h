@@ -128,7 +128,7 @@ public:
 	MenuItemList*				getMenuList(){ return mMenuItemList; }
 	void						setMenuList(MenuItemList* list){ mMenuItemList = list; }
 
-	virtual void				handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = NULL) {}
+	virtual void				handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr) {}
 
 	virtual void				prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount){}
 	virtual void				prepareCustomRadialMenuInCell(CreatureObject* creatureObject, uint8 itemCount){}

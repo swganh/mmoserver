@@ -214,11 +214,7 @@ public:
     void					sendStructureBanList(uint64 playerId);
     void					sendStructureEntryList(uint64 playerId);
 
-    void					handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
-    void					handleUIEvent(BString strInventoryCash, BString strBankCash, UIWindow* window);
-
-
-    // thats the camps / structures lit of additionally created item like signs and stuff and fires and chairs
+        // thats the camps / structures lit of additionally created item like signs and stuff and fires and chairs
     void					addItem(TangibleObject* tO)	{
         mItemList.push_back(tO);
     }

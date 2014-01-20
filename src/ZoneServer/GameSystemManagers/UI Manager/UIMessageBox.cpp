@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================================
 
-UIMessageBox::UIMessageBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType, void* container)
+UIMessageBox::UIMessageBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,uint8 mbType, std::shared_ptr<WindowAsyncContainerCommand> container)
     : UIWindow(callback,id,windowType,"Script.messageBox",eventStr, container),mMBType(mbType)
 {
     mOwner		= playerObject;
@@ -67,7 +67,7 @@ void UIMessageBox::handleEvent(Message* message)
     // 0 = OK, 1 = Cancel
 
     if(mUICallback  != NULL)
-        mUICallback->handleUIEvent(action,0,"",this);
+        mUICallback->handleUIEvent(action,0,"",this, async_container_);
 
     mOwner->removeUIWindow(mId);
     gUIManager->destroyUIWindow(mId);

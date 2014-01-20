@@ -60,6 +60,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceManager.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceType.h"
+
+#include "ZoneServer\GameSystemManagers\Structure Manager\StructureManagerTypes.h"
 #include "ZoneServer/ProfessionManagers/Artisan Manager/SampleEvent.h"
 #include "ZoneServer/ProfessionManagers/Artisan Manager/SurveyEvent.h"
 #include "Zoneserver/Objects/SurveyTool.h"
@@ -493,31 +495,33 @@ bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* res
     {
         // setup gamble event
         //GAMBLE Event
-        WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Radioactive_Sample);
-        asyncContainer->PlayerId		= player->getId();
-        asyncContainer->ToolId			= tool->getId();
-        asyncContainer->CurrentResource	= resource;
+		std::shared_ptr<WindowAsyncContainerCommand> container = std::make_shared<WindowAsyncContainerCommand>();
+		container->mQueryType		=	Window_Query_Radioactive_Sample;
+        container->PlayerId			=	player->getId();
+        container->ToolId			=	tool->getId();
+        container->CurrentResource	=	resource;
 
         BStringVector items;
         items.push_back("Ignore the concentration and continue working.");
         items.push_back("Attempt to recover the resources. (300 Action)");
-        gUIManager->createNewListBox(this,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,player,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,0,0,asyncContainer);
+        gUIManager->createNewListBox(this,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,player,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,0,0,container);
 
         player->getSampleData()->mPendingSample = false;
         return true;
     }
     else
     {
-        WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Radioactive_Sample);
-        asyncContainer->PlayerId		= player->getId();
-        asyncContainer->ToolId			= tool->getId();
-        asyncContainer->CurrentResource	= resource;
+        std::shared_ptr<WindowAsyncContainerCommand> container = std::make_shared<WindowAsyncContainerCommand>();
+		container->mQueryType		=	Window_Query_Radioactive_Sample;
+        container->PlayerId			= player->getId();
+        container->ToolId			= tool->getId();
+        container->CurrentResource	= resource;
 
         //WAYP CONCENTRATION
         BStringVector items;
         items.push_back("Ignore the concentration and continue working.");
         items.push_back("Focus the device on the concentration");
-        gUIManager->createNewListBox(this,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",items,player,SUI_Window_SmplWaypNode_ListBox,SUI_LB_OKCANCEL,0,0,asyncContainer);
+        gUIManager->createNewListBox(this,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",items,player,SUI_Window_SmplWaypNode_ListBox,SUI_LB_OKCANCEL,0,0,container);
 
         //Pause sampling
         player->getSampleData()->mPendingSample = false;
@@ -567,12 +571,13 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
         {
             //UI Integration
 
-            WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Radioactive_Sample);
+			std::shared_ptr<WindowAsyncContainerCommand> asyncContainer = std::make_shared<WindowAsyncContainerCommand> ();
+			asyncContainer->mQueryType		= Window_Query_Radioactive_Sample;
             asyncContainer->PlayerId		= player->getId();
             asyncContainer->ToolId			= tool->getId();
             asyncContainer->CurrentResource	= resource;
 
-            gUIManager->createNewMessageBox(this,"radioactiveSample","@survey:radioactive_sample_t","@survey:radioactive_sample_d",player,SUI_Window_SmplRadioactive_MsgBox, SUI_MB_YESNO,asyncContainer);
+            gUIManager->createNewMessageBox(this,"radioactiveSample","@survey:radioactive_sample_t","@survey:radioactive_sample_d",player,SUI_Window_SmplRadioactive_MsgBox, SUI_MB_YESNO, asyncContainer);
             //Pause Sampling
             player->getSampleData()->mPendingSample = false;
             return true;
@@ -788,12 +793,13 @@ void ArtisanManager::surveyEvent(PlayerObject* player, CurrentResource* resource
 //
 // handles any UIWindow callbacks for sampling events
 //
-
-void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+				
+void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
     PlayerObject* player = window->getOwner();
     std::shared_ptr<SimpleEvent> sample_UI_event = nullptr;
-    if(!player)
+
+	if(!player)
     {
         return;
     }
@@ -804,8 +810,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
         return;
     }
 
-    WindowAsyncContainerCommand* asyncContainer = (WindowAsyncContainerCommand*)window->getAsyncContainer();
-    if(!asyncContainer)
+    if(!AsyncContainer)
         return;
 
     Ham* ham = player->getHam();
@@ -831,9 +836,9 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
             if(ham->checkMainPools(0,mSampleActionCost*2,0))
             {
 
-                SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-                CurrentResource*	resource				= (CurrentResource*)asyncContainer->CurrentResource;
-                player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getLocalTime() + 4000;
+                SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
+                CurrentResource*	resource				= (CurrentResource*)AsyncContainer->CurrentResource;
+                player->getSampleData()->mNextSampleTime	= Anh_Utils::Clock::getSingleton()->getStoredTime() + 4000;
 
                 sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_radioactive"),0, 4000,
                                   std::bind(&ArtisanManager::sampleEvent,this, player, resource, tool));
@@ -870,8 +875,8 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 player->getSampleData()->mPendingSample = true;
                 player->getSampleData()->mSampleGambleFlag = false;
 
-                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-                CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
+                CurrentResource*	resource	= (CurrentResource*)AsyncContainer->CurrentResource;
                 player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
 
                 sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_gamble"),0, 1000,
@@ -906,8 +911,8 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                     gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "gamble_fail"), player);
                 }
 
-                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-                CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
+                CurrentResource*	resource	= (CurrentResource*)AsyncContainer->CurrentResource;
                 player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 1000;
 
                 sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_gamble"),0, 1000,
@@ -931,7 +936,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 player->getSampleData()->Position.x = player->mPosition.x +(((gRandom->getRand()%50)+1));
                 player->getSampleData()->Position.z = player->mPosition.z +(((gRandom->getRand()%50)+1));
                 player->getSampleData()->zone		= gWorldManager->getZoneId();
-                player->getSampleData()->resource	= (CurrentResource*)asyncContainer->CurrentResource;
+                player->getSampleData()->resource	= (CurrentResource*)AsyncContainer->CurrentResource;
 
 
                 Datapad* datapad			= player->getDataPad();
@@ -950,8 +955,8 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
                 player->getSampleData()->mPendingSample = true;
                 player->getSampleData()->mSampleGambleFlag = false;
 
-                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(asyncContainer->ToolId));
-                CurrentResource*	resource	= (CurrentResource*)asyncContainer->CurrentResource;
+                SurveyTool*			tool		= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
+                CurrentResource*	resource	= (CurrentResource*)AsyncContainer->CurrentResource;
                 player->getSampleData()->mNextSampleTime = Anh_Utils::Clock::getSingleton()->getLocalTime() + 10000;
 
                 sample_UI_event = std::make_shared<SimpleEvent>(EventType("sample_continue"),0, 10000,
@@ -977,5 +982,5 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
     //notify the listeners
     if (sample_UI_event)
         gEventDispatcher.Notify(sample_UI_event);
-    SAFE_DELETE(asyncContainer);
+    
 }

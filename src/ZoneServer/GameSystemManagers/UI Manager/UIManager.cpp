@@ -142,7 +142,7 @@ void UIManager::_processEventNotification(Message* message,DispatchClient* clien
 // create a message box
 //
 
-void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType,uint8 mbType, void* container)
+void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,PlayerObject* playerObject,ui_window_types windowType,uint8 mbType, std::shared_ptr<WindowAsyncContainerCommand> container)
 {
     uint32 mbId = _getFreeId();
 
@@ -159,7 +159,7 @@ void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,co
 // create a listbox
 //
 
-void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, uint64 object, float distance, void* container)
+void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, uint64 object, float distance, std::shared_ptr<WindowAsyncContainerCommand> container)
 {
     if((!distance)&&object)
     {
@@ -181,11 +181,11 @@ void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,BStri
 // create an input box
 //
 
-void UIManager::createNewInputBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements,PlayerObject* playerObject,uint8 ibType,ui_window_types windowType,uint16 maxInputLength)
+void UIManager::createNewInputBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements,PlayerObject* playerObject,uint8 ibType,ui_window_types windowType,uint16 maxInputLength, std::shared_ptr<WindowAsyncContainerCommand> container)
 {
     uint32 ibId = _getFreeId();
 
-    UIInputBox* inputBox =  new UIInputBox(callback,ibId,windowType,eventStr,caption,text,dropdownElements,playerObject,ibType,maxInputLength);
+    UIInputBox* inputBox =  new UIInputBox(callback,ibId,windowType,eventStr,caption,text,dropdownElements,playerObject,ibType,maxInputLength, container);
 
     mUIWindows.insert(ibId,inputBox);
     playerObject->addUIWindow(ibId);
@@ -231,11 +231,11 @@ void UIManager::createNewTicketSelectListBox(UICallback* callback,const int8* ev
 // create a transfer box(trade)
 //
 
-void UIManager::createNewTransferBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject, uint8 windowType)
+void UIManager::createNewTransferBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const int8* leftTitle,const int8* rightTitle,uint32 leftValue, uint32 rightValue,PlayerObject* playerObject, uint8 windowType, std::shared_ptr<WindowAsyncContainerCommand> container)
 {
     uint32 ibId = _getFreeId();
 
-    UITransferBox* transferBox =  new UITransferBox(callback,ibId,eventStr,caption,text,leftTitle,rightTitle,leftValue,rightValue,playerObject,windowType);
+    UITransferBox* transferBox =  new UITransferBox(callback,ibId,eventStr,caption,text,leftTitle,rightTitle,leftValue,rightValue,playerObject,windowType, container);
 
     mUIWindows.insert(ibId,transferBox);
     playerObject->addUIWindow(ibId);

@@ -449,14 +449,30 @@ void TreasuryManager::inventoryTipOnline(int32 amount, PlayerObject* playerObjec
 //======================================================================================================================
 //we confirmed that we are content with the surcharge and go on
 //reuse the asynccontainer
-void TreasuryManager::handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContainer* asyncContainer)
+void TreasuryManager::handleBankTipSurchargeConfirmed(std::shared_ptr<TreasuryManagerAsyncContainer> container )
 {
-    swganh::database::Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
-    int8 sql[256];
-    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%"PRIu64"",mDatabase->galaxy(),(asyncContainer->amount + asyncContainer->surcharge), asyncContainer->player->getId() + 4);
-    mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%"PRIu64"",mDatabase->galaxy(),asyncContainer->amount, asyncContainer->targetId + BANK_OFFSET);
-    mTransaction->addQuery(sql);
+	TreasuryManagerAsyncContainer* cnt = new TreasuryManagerAsyncContainer(container->mQueryType, container->mClient);
+	cnt->amount		= container->amount;
+	cnt->player		= container->player;
+	cnt->PlayerId	= container->PlayerId;
+	cnt->surcharge	= container->surcharge;
+	cnt->target		= container->target;
+	cnt->targetId	= container->targetId;
+	cnt->targetName	= container->targetName;
+	
+	
+    swganh::database::Transaction* mTransaction = mDatabase->startTransaction(this,container.get());
+    
+	std::stringstream sql;
+
+	sql << "UPDATE " << mDatabase->galaxy() 
+		<< ".banks SET credits=credits-" << (container->amount + container->surcharge)
+		<< " WHERE id= " << container->player->getId() + BANK_OFFSET;
+    mTransaction->addQuery(sql.str().c_str());
+
+	int8 sql1[128];
+    sprintf(sql1,"UPDATE %s.banks SET credits=credits+%i WHERE id=%"PRIu64"",mDatabase->galaxy(),container->amount, container->targetId + BANK_OFFSET);
+    mTransaction->addQuery(sql1);
     mTransaction->execute();
 
 
@@ -492,9 +508,9 @@ void TreasuryManager::handleUIEvent(uint32 action,int32 element,BString inputStr
         else
         {
             // This is the OK.  (action == 0)
-
-            TreasuryManagerAsyncContainer* asynContainer = (TreasuryManagerAsyncContainer*) window->getAsyncContainer();
-            handleBankTipSurchargeConfirmed(asynContainer);
+			std::shared_ptr<TreasuryManagerAsyncContainer> container = std::static_pointer_cast<TreasuryManagerAsyncContainer>(window->getAsyncContainer());
+           
+            handleBankTipSurchargeConfirmed(container);
         }
     }
     break;
@@ -527,17 +543,18 @@ void TreasuryManager::handleDatabaseJobComplete(void* ref,swganh::database::Data
 
         //ok we just established that our target exists
         //we now need to update the bank on the db side
-        TreasuryManagerAsyncContainer* asyncContainer = new TreasuryManagerAsyncContainer(TREMQuery_BankTipTransaction,asynContainer->player->getClient());
-
-        asyncContainer->amount		= asynContainer->amount;
-        asyncContainer->surcharge	= asynContainer->surcharge;
-        asyncContainer->player		= asynContainer->player;
-        asyncContainer->targetId	= id;
-        asyncContainer->targetName = asynContainer->targetName;
+		//uint32 enum_ = TREMQuery_BankTipTransaction;
+		std::shared_ptr<TreasuryManagerAsyncContainer> container = std::make_shared<TreasuryManagerAsyncContainer>(TREMQuery_BankTipTransaction, asynContainer->player->getClient());
+        
+        container->amount		= asynContainer->amount;
+        container->surcharge	= asynContainer->surcharge;
+        container->player		= asynContainer->player;
+        container->targetId	= id;
+        container->targetName = asynContainer->targetName;
 
         //=======================================================
         //now remind the other player of the surcharge
-        gUIManager->createNewMessageBox(this,"","@base_player:tip_wire_title","@base_player:tip_wire_prompt",asynContainer->player, SUI_Window_Trade_BankTip_ConfirmSurcharge, SUI_MB_OKCANCEL,asyncContainer);
+        gUIManager->createNewMessageBox(this,"","@base_player:tip_wire_title","@base_player:tip_wire_prompt",asynContainer->player, SUI_Window_Trade_BankTip_ConfirmSurcharge, SUI_MB_OKCANCEL,container);
 
         break;
 

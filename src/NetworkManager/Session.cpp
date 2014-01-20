@@ -112,19 +112,17 @@ Session::Session(void) :
     mConnectStartEvent = lasttime = Anh_Utils::Clock::getSingleton()->getLocalTime();       // For SCOM_Connect commands
     mLastConnectRequestSent = mConnectStartEvent;
 
-	mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getStoredBoostTime();      // General session timeout
+	mLastPingPacketSent = mLastPacketReceived = Anh_Utils::Clock::getSingleton()->getStoredBoostTime();      // General session timeout
     mLastPacketSent = mConnectStartEvent;          // General session timeout
     mLastRemotePacketAckReceived = mConnectStartEvent;          // General session timeout
 
 	//this will be changed by the sessionfactory eventually
-    mServerService = false;
-    mMaxPacketSize = MAX_PACKET_SIZE;
-    mMaxUnreliableSize= MAX_PACKET_SIZE;
+    mServerService		= false;
+    mMaxPacketSize		= MAX_PACKET_SIZE;
+    mMaxUnreliableSize	= MAX_PACKET_SIZE;
 
-    mLastPingPacketSent = 0;
-
-    endCount = 0;
-    mHash = 0;
+    endCount	= 0;
+    mHash		= 0;
 
 	mLastHouseKeepingTimeTime = mLastWriteThreadTime = mConnectStartEvent;
 
@@ -446,11 +444,11 @@ void Session::ProcessWriteThread(void)
 		boost::posix_time::time_duration diff = now - last_packet_received;
 		
         //server timeout after 60secs without communication
-        if (diff.total_milliseconds() > 60000)
+        if (diff.total_seconds() > 60)
         {
             if(this->mServerService)
             {
-                LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_milliseconds()  << ") seconds - session Id : " << this->getId();
+				LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_seconds()  << ") seconds - session Id : " << this->getId();
 				LOG(info) << "Session lastpacket " << mLastPacketReceived.time_of_day() << " now " << now.time_of_day() << " diff :" << diff.total_milliseconds() ;
                 mCommand = SCOM_Disconnect;
             }
@@ -461,9 +459,9 @@ void Session::ProcessWriteThread(void)
                 mCommand = SCOM_Disconnect;
             }
         }
-        else if (this->mServerService && (diff.total_milliseconds() > 10000))
+        else if (this->mServerService && (diff.total_seconds() > 10))
         {
-           _sendPingPacket();
+           _sendPingPacket(true);
         }
 	    
     }
@@ -1776,17 +1774,18 @@ void Session::_processRoutedFragmentedPacket(Packet* packet)
 //======================================================================================================================
 void Session::_processPingPacket(Packet* packet)
 {
-
-    //with the old code *every* ping caused a new ping
-    //so once pinged we kept pinging.
-    //when we then decided to add a ping we just doubled the pinging
-    //as fast as the servers possibly could spam packets
-
-    if((Anh_Utils::Clock::getSingleton()->getStoredTime() - mLastPingPacketSent) < 1000)
+	
+	boost::posix_time::ptime now				=	Anh_Utils::Clock::getSingleton()->getStoredBoostTime();
+		
+	boost::posix_time::time_duration diff		=	now - mLastPingPacketReceived;
+    
+    if (diff.total_seconds() < 1)
     {
         mPacketFactory->DestroyPacket(packet);
         return;
     }
+
+	mLastPingPacketReceived = Anh_Utils::Clock::getSingleton()->getStoredBoostTime();
 
     // Client sends a simple 5 byte ping.
     if (packet->getSize() == 5)
@@ -1800,27 +1799,27 @@ void Session::_processPingPacket(Packet* packet)
 
         // Push the packet on our outgoing queue
         _addOutgoingUnreliablePacket(newPacket);
-        mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
+        
+		mPacketFactory->DestroyPacket(packet);
+		return;
     }
     // Backend servers are larger to incorporate more features, 9 bytes(packet size).
-    else
+    
+    uint32 pingType = packet->getUint32();
+
+    if (pingType == 1) // ping request
     {
-        uint32 pingType = packet->getUint32();
+        // Echo the ping packet back.
+        Packet* newPacket = mPacketFactory->CreatePacket();
+        newPacket->addUint16(SESSIONOP_Ping);
+        newPacket->addUint32(0);    // ping response
 
-        if (pingType == 1) // ping request
-        {
-            // Echo the ping packet back.
-            Packet* newPacket = mPacketFactory->CreatePacket();
-            newPacket->addUint16(SESSIONOP_Ping);
-            newPacket->addUint32(2);    // ping response
+        newPacket->setIsCompressed(false);
+        newPacket->setIsEncrypted(true);
 
-            newPacket->setIsCompressed(false);
-            newPacket->setIsEncrypted(true);
-
-            // Push the packet on our outgoing queue
-            _addOutgoingUnreliablePacket(newPacket);
-            mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getStoredTime();
-        }
+        // Push the packet on our outgoing queue
+        _addOutgoingUnreliablePacket(newPacket);
+   
     }
 
     // Destroy our incoming packet, it's not needed any longer.
@@ -1876,14 +1875,14 @@ void Session::_processNetStatRequestPacket(Packet* packet)
 
 
 //======================================================================================================================
-void Session::_sendPingPacket(void)
+void Session::_sendPingPacket(bool request)
 {
-    mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getLocalTime();
+    mLastPingPacketSent = Anh_Utils::Clock::getSingleton()->getStoredBoostTime();
 
     // Create a new ping packet and send it on.
     Packet* packet = mPacketFactory->CreatePacket();
     packet->addUint16(SESSIONOP_Ping);
-    packet->addUint32(1);       // ping request
+    packet->addUint32(request ? 1:0);       // ping request
 
     // Set our compression and encryption flags
     packet->setIsCompressed(false);

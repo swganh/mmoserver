@@ -108,12 +108,12 @@ enum TREMQueryType
 
 //======================================================================================================================
 
-class TreasuryManagerAsyncContainer
+class TreasuryManagerAsyncContainer  : public WindowAsyncContainerCommand
 {
 
 public:
 
-    TreasuryManagerAsyncContainer(TREMQueryType qt,DispatchClient* client) {
+    TreasuryManagerAsyncContainer(TREMQueryType qt,DispatchClient* client) : WindowAsyncContainerCommand()	 {
         mQueryType = qt;
         mClient = client;
     }
@@ -159,7 +159,7 @@ public:
     void						    saveAndUpdateBankCredits(PlayerObject* playerObject);
 
     //handles bank tip to offline player
-    void							handleBankTipSurchargeConfirmed(TreasuryManagerAsyncContainer* asyncContainer);
+    void							handleBankTipSurchargeConfirmed(std::shared_ptr<TreasuryManagerAsyncContainer> container );
     void						    bankTipOffline(int32 amount, PlayerObject* playerObject, BString targetName);
     void						    inventoryTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
     void						    bankTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );

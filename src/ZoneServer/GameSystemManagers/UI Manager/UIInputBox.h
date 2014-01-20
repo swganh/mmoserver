@@ -39,7 +39,7 @@ class UIInputBox : public UIWindow
 public:
 
     UIInputBox(UICallback* callback,uint32 id,uint8 windowType, const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements
-               ,PlayerObject* playerObject,uint8 ibType = SUI_IB_NODROPDOWN_OKCANCEL,uint16 maxInputLength = 127);
+               ,PlayerObject* playerObject,uint8 ibType = SUI_IB_NODROPDOWN_OKCANCEL,uint16 maxInputLength = 127, std::shared_ptr<WindowAsyncContainerCommand> container = nullptr);
 
     virtual ~UIInputBox();
 

@@ -2589,7 +2589,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
 }
 
 //=============================================================================
-void  CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+void	CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer) 
 {
     PlayerObject* playerObject = window->getOwner();
 

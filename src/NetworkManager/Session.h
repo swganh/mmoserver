@@ -259,7 +259,7 @@ private:
     void                        _addOutgoingReliablePacket(Packet* packet);
     void                        _addOutgoingUnreliablePacket(Packet* packet);
     void                        _resendOutgoingPackets(void);
-    void                        _sendPingPacket(void);
+    void                        _sendPingPacket(bool request);
 
     void						  _handleOutSequenceRollover();
 
@@ -305,7 +305,8 @@ private:
     uint64                      mLastPacketSent;          // General session timeout
 
 
-    uint64                      mLastPingPacketSent;          // General session timeout
+    boost::posix_time::ptime	mLastPingPacketSent;          // General session timeout
+	boost::posix_time::ptime	mLastPingPacketReceived;      // General session timeout
 
     // Netstats
     uint32				      mServerTickCount;

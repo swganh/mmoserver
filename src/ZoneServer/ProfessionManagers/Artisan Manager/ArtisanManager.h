@@ -62,7 +62,10 @@ public:
     ArtisanManager();
     ~ArtisanManager();
 
-    // inherited callbacks
+    /* @brief	handles the inherited UI Manager callback to respond to User Interface Events
+	*	
+	*/
+	virtual void			handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
 
     bool					handleRequestSurvey(Object* player,Object* target, Message* message,ObjectControllerCmdProperties* cmdProperties);
     bool					handleRequestCoreSample(Object* player,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -148,9 +151,10 @@ public:
 
 private:
     ObjectFactoryCallback*					mObjectFactoryCallback;
-    UICallback*								mUICallback;
-    void									handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
-    uint32									mSampleActionCost;
+    
+	UICallback*								mUICallback;
+    
+	uint32									mSampleActionCost;
     uint32									mSurveyMindCost;
 };
 
@@ -159,7 +163,7 @@ class ArtisanEvents : public ::common::BaseEvent
 public:
     explicit ArtisanEvents(::common::ByteBuffer& in);
     explicit ArtisanEvents(uint64_t subject_id = 0, uint64_t delay_ms = 0);
-    ArtisanEvents(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback);
+    ArtisanEvents(uint64_t subject_id, uint64_t delay_ms, ::common::EventCallback callback, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer);
 
     ~ArtisanEvents();
 

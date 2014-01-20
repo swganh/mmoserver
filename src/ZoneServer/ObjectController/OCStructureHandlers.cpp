@@ -1201,7 +1201,7 @@ void ObjectController::HandleRotateFurniture_(
     // If the string has no length the message is ill-formatted, send the
     // proper format to the client.
     if (!tmp.getLength()) {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "formet_rotratefurniture_degrees"), player);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "format_rotatefurniture_degrees"), player);
         return;
     }
 
@@ -1217,7 +1217,7 @@ void ObjectController::HandleRotateFurniture_(
     // If the pattern doesn't match all elements then send the proper format
     // to the client.
     if (result.length() < 2) {
-        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "formet_rotratefurniture_degrees"), player);
+        gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "format_rotatefurniture_degrees"), player);
         return;
     }
 

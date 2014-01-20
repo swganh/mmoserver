@@ -39,8 +39,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //================================================================================
 
 UIInputBox::UIInputBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements
-                       ,PlayerObject* playerObject,uint8 ibType,uint16 maxInputLength)
-    : UIWindow(callback,id,windowType,"Script.inputBox",eventStr),
+                       ,PlayerObject* playerObject,uint8 ibType,uint16 maxInputLength, std::shared_ptr<WindowAsyncContainerCommand> container)
+    : UIWindow(callback,id,windowType,"Script.inputBox",eventStr, container),
       mIbType(ibType),
       mMaxInputLength(maxInputLength)
 {
@@ -74,7 +74,7 @@ void UIInputBox::handleEvent(Message* message)
     }
 
     if(mUICallback != NULL)
-        mUICallback->handleUIEvent(action,0,inputStr,this);
+        mUICallback->handleUIEvent(action,0,inputStr,this, async_container_);
 
     mOwner->removeUIWindow(mId);
     gUIManager->destroyUIWindow(mId);

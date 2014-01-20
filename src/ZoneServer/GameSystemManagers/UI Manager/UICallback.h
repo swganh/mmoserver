@@ -39,8 +39,15 @@ class UIWindow;
 class UICallback
 {
 public:
-    virtual void	handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = nullptr) {};
-    virtual void	handleUIEvent(BString leftValue = "", BString rightValue = "", UIWindow* window = nullptr) {};
+
+	/*	@brief these virtual functions need to be implemented by classes that want to receive callbacks from the UI Manager
+	*	Gould coding practice would be to NOT put them in Objects that might get deleted, because then the callback might access
+	*	invalidated memory.
+	*/
+	virtual void	handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr) {};
+
+    virtual void	handleUIEvent(std::u16string leftValue, std::u16string rightValue, UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr) {};
+
     virtual void	handleAsktoTeachSkill(uint32 action,int32 element,BString inputStr,UIWindow* window, void* pupil, void* skill) {};
     virtual void	handleSelectSkilltoTeach(uint32 action,int32 element,BString inputStr,UIWindow* window, void* pupil, void* skillContainer) {};
 };

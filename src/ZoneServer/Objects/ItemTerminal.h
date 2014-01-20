@@ -39,7 +39,7 @@ public:
     ItemTerminal();
     void	handleObjectMenuSelect(uint8 messageType,Object* srcObject);
     void	prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
-    void	handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+	void	handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer);
     virtual ~ItemTerminal();
 private:
     std::shared_ptr<CharacterBuilderTerminal> cbt_;

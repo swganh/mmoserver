@@ -38,7 +38,7 @@ class UIListBox : public UIWindow
 {
 public:
 
-    UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, float distance = 0, uint64 object = 0, void* container = nullptr);
+    UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, float distance = 0, uint64 object = 0, std::shared_ptr<WindowAsyncContainerCommand> container = nullptr);
     virtual ~UIListBox();
 
     BStringVector*	getDataItems() {

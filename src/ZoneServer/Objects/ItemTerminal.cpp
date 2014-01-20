@@ -49,7 +49,7 @@ void ItemTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 {
     cbt_->handleObjectMenuSelect(messageType, srcObject);
 }
-void ItemTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+void ItemTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
-    cbt_->handleUIEvent(action, element, inputStr, window);
+    cbt_->handleUIEvent(action, element, inputStr, window, AsyncContainer);
 }

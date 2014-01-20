@@ -314,6 +314,14 @@ BString ObjectController::handleBroadcast(BString message) const
     return replyStr;
 }
 
+void ObjectController::_handleKick(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
+{
+	std::u16string raw_message_unicode = message->getStringUnicode16();
+	std::string    raw_message_ansi(raw_message_unicode.begin(), raw_message_unicode.end());
+	LOG(info) << "ObjectController::_handleKick : " << raw_message_ansi;
+
+}
+
 //=============================================================================================================================
 //
 //	Broadcast system message to named planet
@@ -324,7 +332,8 @@ void ObjectController::_handleBroadcastPlanet(uint64 targetId, Message* message,
 {
     int8 rawData[128];
     rawData[0] = 0;
-    BString msgString;
+    
+	BString msgString;
     message->getStringUnicode16(msgString);
     msgString.convert(BSTRType_ANSI);
 
@@ -333,6 +342,7 @@ void ObjectController::_handleBroadcastPlanet(uint64 targetId, Message* message,
     msgString = skipToNextField(msgString);
 
     BString feedback = this->handleBroadcastPlanet(msgString);
+	LOG(info) << "ObjectController::_handleBroadcastPlanet : " << msgString.getAnsi();
     sprintf(rawData,"%s: [%s]", cmdProperties->mCommandStr.getAnsi(), feedback.getAnsi());
     this->sendAdminFeedback(rawData);
 }

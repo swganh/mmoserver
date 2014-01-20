@@ -43,8 +43,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //================================================================================
 
 UITransferBox::UITransferBox(UICallback* callback,uint32 id,const int8* eventStr,const int8* caption,const int8* text
-                             ,const int8* leftTitle,const int8* rightTitle, uint32 leftValue, uint32 rightValue, PlayerObject* playerObject, uint8 windowType)
-    : UIWindow(callback,id,windowType,"Script.transfer",eventStr)
+                             ,const int8* leftTitle,const int8* rightTitle, uint32 leftValue, uint32 rightValue, PlayerObject* playerObject, uint8 windowType, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
+    : UIWindow(callback,id,windowType,"Script.transfer",eventStr, AsyncContainer)
 {
     mOwner		= playerObject;
     mCaption	= caption;
@@ -77,18 +77,18 @@ void UITransferBox::handleEvent(Message* message)
 {
     uint32	action				= message->getUint32();
     uint32	items				= message->getUint32();
-    BString	leftValue;
-    BString	rightValue;
+	std::u16string	leftValue;
+    std::u16string	rightValue;
 
     if(items)
     {
         message->getUint32(); // item count again
-        message->getStringUnicode16(leftValue);  // left side value
-        message->getStringUnicode16(rightValue); // right side value
+        leftValue = message->getStringUnicode16();  // left side value
+        rightValue = message->getStringUnicode16(); // right side value
     }
 
     if(mUICallback != NULL && !action) // also check if OK was pressed
-        mUICallback->handleUIEvent(leftValue,rightValue,this);
+        mUICallback->handleUIEvent(leftValue,rightValue,this, async_container_);
 
     mOwner->removeUIWindow(mId);
     gUIManager->destroyUIWindow(mId);

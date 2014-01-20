@@ -67,7 +67,14 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 
 
     BStringVector attributesMenu;
-    WindowAsyncContainerCommand* asyncContainer = new  WindowAsyncContainerCommand(Window_Query_Add_Schematic);
+	uint32 enum_ = Window_Query_Add_Schematic;
+
+	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
+
+	container->mQueryType = Window_Query_Add_Schematic;
+	//std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>(enum_);
+
+	container->setStructureId(factory->getId());
 
     //now get all man schematics in the players datapad
     Datapad* datapad								= player->getDataPad();
@@ -108,7 +115,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
         }
 
         attributesMenu.push_back(lText);
-        asyncContainer->SortedList.push_back(man->getId());
+        container->SortedList.push_back(man->getId());
 
         mListIt++;
     }
@@ -119,10 +126,10 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
         LBType =  SUI_LB_CANCEL_SCHEMATIC_REMOVEUSE;
 
 
-    asyncContainer->PlayerId		= player->getId();
+    container->PlayerId		= player->getId();
 
 
-    gUIManager->createNewListBox(factory,"handleUpdateSchematic","@sui:swg", wText, attributesMenu, player, SUI_Window_Factory_Schematics,LBType,factory->getId(),0,asyncContainer);
+    gUIManager->createNewListBox(this,"handleUpdateSchematic","@sui:swg", wText, attributesMenu, player, SUI_Window_Factory_Schematics,LBType,factory->getId(),0, container);
 }
 
 //============================================================================================
@@ -131,6 +138,9 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerStructure* structure)
 {
     //player_structure structure_name_prompt
+
+	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
+	container->setStructureId(structure->getId());
 
     BString wText = "Structure Name: ";
     BString name = structure->getCustomName();
@@ -202,7 +212,7 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
 
         if((haFa == HarvesterFamily_Fusion)||(haFa == HarvesterFamily_Solar)||(haFa == HarvesterFamily_Wind))
         {
-            gUIManager->createNewListBox(structure,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());
+            gUIManager->createNewListBox(this,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId(), 32, container);
             return;
         }
 
@@ -211,7 +221,7 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
     //no powerpool for houses :)
     if(structure->getPlayerStructureFamily() == PlayerStructure_House)
     {
-        gUIManager->createNewListBox(structure,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());
+        gUIManager->createNewListBox(this,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId(), 32, container);
         return;
     }
 
@@ -238,7 +248,7 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
     //answer = x*(total/100);
     // total = 100%
 
-    gUIManager->createNewListBox(structure,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId());
+    gUIManager->createNewListBox(this,"structurestatus","@player_structure:structure_status_t", wText, attributesMenu, player, SUI_Window_Structure_Status,SUI_LB_CANCELREFRESH,structure->getId(), 32, container);
 }
 
 
@@ -270,7 +280,10 @@ void StructureManager::createRenameStructureBox(PlayerObject* player, PlayerStru
 
     vector.push_back(sName);
 
-    gUIManager->createNewInputBox(structure,sName,caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Rename,68);
+	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
+	container->setStructureId(structure->getId());
+
+    gUIManager->createNewInputBox(this,sName,caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Rename,68, container);
 
 }
 
@@ -300,7 +313,10 @@ void StructureManager::createPowerTransferBox(PlayerObject* player, PlayerStruct
 
     }
 
-    gUIManager->createNewTransferBox(structure,sName,caption,text,"Total Energy","To Deposit",playerPower,0,player,SUI_Window_Deposit_Power);
+	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
+	container->setStructureId(structure->getId());
+
+    gUIManager->createNewTransferBox(this, sName, caption, text, "Total Energy", "To Deposit", playerPower, 0, player, SUI_Window_Deposit_Power, container);
 
 }
 
@@ -339,7 +355,10 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
         }
     }
 
-    gUIManager->createNewTransferBox(structure,sName,caption,text,"Total Funds","To Pay",funds,structureFunds,player,SUI_Window_Pay_Maintenance);
+	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
+	container->setStructureId(structure->getId());
+
+    gUIManager->createNewTransferBox(this,sName,caption,text,"Total Funds","To Pay",funds,structureFunds,player,SUI_Window_Pay_Maintenance, container);
 
 }
 
@@ -372,7 +391,10 @@ void StructureManager::createNewStructureDeleteConfirmBox(PlayerObject* player, 
 
     BStringVector vector;
 
-    gUIManager->createNewInputBox(structure,"handle Structure Destroy Confirmation",caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Delete_Confirm,6);
+	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
+	container->setStructureId(structure->getId());
+
+    gUIManager->createNewInputBox(this,"handle Structure Destroy Confirmation",caption,text.getAnsi(),vector,player,SUI_IB_NODROPDOWN_OKCANCEL,SUI_Window_Structure_Delete_Confirm,6, container);
 
 }
 
@@ -457,6 +479,9 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
 
     //make sure we can only have one structure destroybox open ...
 
-    gUIManager->createNewListBox(structure,"handle Structure Destroy",sName, text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_YESNO);
+	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
+	container->setStructureId(structure->getId());
+
+    gUIManager->createNewListBox(this,"handle Structure Destroy",sName, text.getAnsi(), attributesMenu, player, SUI_Window_Structure_Delete,SUI_LB_YESNO, 0, 32, container);
 }
 

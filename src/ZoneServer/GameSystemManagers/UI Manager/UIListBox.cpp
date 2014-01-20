@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================================
 
-UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType, float distance, uint64 object, void* container)
+UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType, float distance, uint64 object, std::shared_ptr<WindowAsyncContainerCommand> container)
     : UIWindow(callback,id,windowType,"Script.listBox",eventStr,container),mLbType(lbType)
 {
     mDistance	= distance;
@@ -90,7 +90,7 @@ void UIListBox::handleEvent(Message* message)
     }
 
     if(mUICallback != NULL)
-        mUICallback->handleUIEvent(action,selectedItem,selectedDataItemStr,this);
+        mUICallback->handleUIEvent(action,selectedItem,selectedDataItemStr,this, async_container_);
 
     mOwner->removeUIWindow(mId);
     gUIManager->destroyUIWindow(mId);

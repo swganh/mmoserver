@@ -25,16 +25,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 #include "ZoneServer/WorldConfig.h"
-#include "ZoneServer/Objects/nonPersistantObjectFactory.h"
+
 #include "ZoneServer/GameSystemManagers/Structure Manager/StructureManager.h"
-#include "HarvesterObject.h"
+#include "ZoneServer/GameSystemManagers/Structure Manager/HarvesterObject.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/HouseObject.h"
 #include "ZoneServer/GameSystemManagers/Structure Manager/FactoryObject.h"
-//#include "ZoneServer/GameSystemManagers/Structure Manager/CellObject.h"
+#include "ZoneServer/GameSystemManagers/UI Manager/UICallback.h"
+#include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
+
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/ObjectFactory.h"
-#include "ZoneServer/GameSystemManagers/Structure Manager/HouseObject.h"
+#include "ZoneServer/Objects/Bank.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
+#include "ZoneServer/Objects/nonPersistantObjectFactory.h"
+
 #include "PlayerStructure.h"
 #include "ZoneServer/WorldManager.h"
 
@@ -1025,4 +1029,305 @@ void StructureManager::handleDatabaseJobComplete(void* ref,swganh::database::Dat
     }
 
     SAFE_DELETE(asynContainer);
+}
+
+//void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string rightValue, UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
+void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string rightValue, UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
+{
+	std::u16string char_str = leftValue;
+	std::u16string harv_str = rightValue;
+
+    PlayerObject* player = window->getOwner();
+
+    if(!player)
+    {
+        return;
+    }
+
+	std::shared_ptr<structure_async_container> async_container = std::static_pointer_cast<structure_async_container>(AsyncContainer);
+
+    switch(window->getWindowType())
+    {
+		case SUI_Window_Deposit_Power:
+		{
+			std::string char_power_ansi(char_str.begin(), char_str.end());
+			std::string harv_power_ansi(harv_str.begin(), harv_str.end());
+
+			int32 harvesterPowerDelta = atoi(harv_power_ansi.c_str());
+
+			gStructureManager->deductPower(player,harvesterPowerDelta);
+
+			std::shared_ptr<PlayerStructure> structure = std::dynamic_pointer_cast<PlayerStructure>(gWorldManager->getSharedObjectById(async_container->getStructureId()));
+
+			if(!structure)	{
+				LOG(error) << "StructureManager::handleUIEvent - couldnt find structure : " << async_container->getStructureId();
+			}
+
+			structure->setCurrentPower(structure->getCurrentPower()+harvesterPowerDelta);
+
+			std::stringstream sql;
+			sql << "UPDATE " << gWorldManager->getKernel()->GetDatabase()->galaxy()
+				<< ".structure_attributes SET value='" << structure->getCurrentPower()
+				<< "' WHERE structure_id=" << structure->getId()
+				<< "  AND attribute_id= 384";
+			
+			gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(0,0,sql.str());
+        
+		}
+		break;
+
+    case SUI_Window_Pay_Maintenance:
+    {
+		std::shared_ptr<PlayerStructure> structure = std::dynamic_pointer_cast<PlayerStructure>(gWorldManager->getSharedObjectById(async_container->getStructureId()));
+
+		if(!structure)	{
+			LOG(error) << "StructureManager::handleUIEvent - couldnt find structure : " << async_container->getStructureId();
+		}
+
+        std::string char_cash_ansi(char_str.begin(), char_str.end());
+		std::string harv_cash_ansi(harv_str.begin(), harv_str.end());
+
+        Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+        Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+        
+		int32 bankFunds = bank->credits();
+        int32 inventoryFunds = inventory->getCredits();
+
+        int32 funds = inventoryFunds + bankFunds;
+
+        int32 characterMoneyDelta = atoi(char_cash_ansi.c_str()) - funds;
+        int32 harvesterMoneyDelta = atoi(harv_cash_ansi.c_str()) - structure->getCurrentMaintenance();
+
+        // the amount transfered must be greater than zero
+        if(harvesterMoneyDelta == 0 || characterMoneyDelta == 0)
+        {
+            return;
+        }
+
+        //lets get the money from the bank first
+        if((bankFunds +characterMoneyDelta)< 0)
+        {
+            characterMoneyDelta += bankFunds;
+            bankFunds = 0;
+
+            inventoryFunds += characterMoneyDelta;
+
+        }
+        else
+        {
+            bankFunds += characterMoneyDelta;
+        }
+
+        if(inventoryFunds < 0)
+        {
+            return;
+        }
+
+        int32 maintenance = structure->getCurrentMaintenance() + harvesterMoneyDelta;
+
+        if(maintenance < 0)
+        {
+            return;
+        }
+
+        bank->credits(bankFunds);
+        inventory->setCredits(inventoryFunds);
+
+        gWorldManager->getKernel()->GetDatabase()->destroyResult(gWorldManager->getKernel()->GetDatabase()->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),bank->credits(),bank->getId()));
+        gWorldManager->getKernel()->GetDatabase()->destroyResult(gWorldManager->getKernel()->GetDatabase()->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),inventory->getCredits(),inventory->getId()));
+
+        //send the appropriate deltas.
+        gMessageLib->sendInventoryCreditsUpdate(player);
+        gMessageLib->sendBankCreditsUpdate(player);
+
+        //get the structures conditiondamage and see whether it needs repair
+        uint32 damage = structure->getDamage();
+
+        if(damage)
+        {
+            uint32 cost = structure->getRepairCost();
+            uint32 all = cost*damage;
+            if(maintenance <= (int32)all)
+            {
+                all -= (uint32)maintenance;
+                damage = (uint32)(all/cost);
+                maintenance = 0;
+            }
+
+            if(maintenance > (int32)all)
+            {
+                maintenance -= (int32)all;
+                damage = 0;
+            }
+
+            //update the remaining damage in the db
+            gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(0,0,"UPDATE %s.structures s SET s.condition= %u WHERE s.ID=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),damage,structure->getId());
+            
+            structure->setDamage(damage);
+
+            //Update the structures Condition
+			gMessageLib->sendHarvesterCurrentConditionUpdate(structure.get());
+
+        }
+
+        gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(0,0,"UPDATE %s.structure_attributes SET value='%u' WHERE structure_id=%"PRIu64" AND attribute_id=382",gWorldManager->getKernel()->GetDatabase()->galaxy(),maintenance,structure->getId());
+        
+
+        structure->setCurrentMaintenance(maintenance);
+
+
+    }
+    break;
+
+    }
+}
+
+void StructureManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
+{
+
+    PlayerObject* player = window->getOwner();
+
+    // action is zero for ok !!!
+    if(!player || (action) || player->isIncapacitated() || player->isDead())    {
+        return;
+    }
+
+	std::shared_ptr<structure_async_container> async_container = std::static_pointer_cast<structure_async_container>(AsyncContainer);
+
+	std::shared_ptr<PlayerStructure> structure = std::dynamic_pointer_cast<PlayerStructure>(gWorldManager->getSharedObjectById(async_container->getStructureId()));
+	if(!structure)	{
+		LOG(error) << "StructureManager::handleUIEvent - couldnt find structure : " << async_container->getStructureId();
+	}
+
+    switch(window->getWindowType())
+    {
+		case SUI_Window_Factory_Schematics:
+		{
+			uint64 ManSchemId = 0;
+			//check for use schematic
+			BString b = window->getOption3();
+			b.convert(BSTRType_ANSI);
+			if(strcmp(b.getAnsi(),"false") == 0)
+			{
+				if(!async_container)	{
+					LOG(error) << "StructureManager::handleUIEvent : SUI_Window_Factory_Schematics : No async Container ";
+					return;
+				}
+
+				if(!async_container->SortedList.size())		{
+					gMessageLib->SendSystemMessage(::common::OutOfBand("manf_station", "schematic_not_added"), player);
+					return;
+				}
+
+				ManSchemId = async_container->SortedList.at(element);
+
+				StructureAsyncCommand command;
+				command.Command = Structure_Command_AddSchem;
+				command.PlayerId = player->getId();
+				command.StructureId = structure->getId();
+				command.SchematicId = ManSchemId;
+
+				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+			}
+			else if(strcmp(b.getAnsi(),"true") == 0) //remove schematic pressed
+			{
+
+				StructureAsyncCommand command;
+				command.Command = Structure_Command_RemoveSchem;
+				command.PlayerId = player->getId();
+				command.StructureId = structure->getId();
+				command.SchematicId = ManSchemId;
+
+				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+			}
+		}
+		break;
+
+    case SUI_Window_Structure_Status:
+    {
+        //we want to refresh
+        StructureAsyncCommand command;
+        command.Command = Structure_Command_ViewStatus;
+        command.PlayerId = player->getId();
+        command.StructureId = structure->getId();
+
+        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+
+    }
+    break;
+
+    case SUI_Window_Structure_Delete:
+    {
+        gStructureManager->createNewStructureDeleteConfirmBox(player,structure.get() );
+
+    }
+    break;
+
+    case SUI_Window_Structure_Rename:
+    {
+
+        inputStr.convert(BSTRType_ANSI);
+
+        if(!inputStr.getLength())
+        {
+            //hmmm no answer - remain as it is?
+            return;
+        }
+
+        if(inputStr.getLength() > 68)
+        {
+            //hmmm no answer - remain as it is?
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_valid_name"), player);
+            return;
+
+        }
+
+        //inputStr.convert(BSTRType_Unicode16);
+        structure->setCustomName(inputStr.getAnsi());
+		
+		std::string name_ansi = inputStr.getAnsi();
+
+        gMessageLib->sendNewHarvesterName(structure.get());
+
+        //update db!!!
+        // pull the db query
+
+		std::stringstream sql;
+        sql << "UPDATE " << gWorldManager->getKernel()->GetDatabase()->galaxy()
+			<< ".structures SET structures.name = '"
+			<< gWorldManager->getKernel()->GetDatabase()->escapeString(name_ansi)
+			<< "'  WHERE structures.ID = " << structure->getId();
+
+        gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(0,0,sql.str());
+        
+
+    }
+    break;
+
+    case SUI_Window_Structure_Delete_Confirm:
+    {
+        inputStr.convert(BSTRType_ANSI);
+        if(inputStr.getCrc() == structure->getCode().getCrc())
+        {
+            if((structure->checkStatesEither(PlayerStructureState_Destroy)))
+            {
+                //dont start structure destruction more than once
+                return;
+            }
+            structure->toggleStateOn(PlayerStructureState_Destroy);
+
+            //delete it
+			structure->getTTS()->todo		= ttE_Delete;
+            structure->getTTS()->playerId 	= player->getId();
+            gStructureManager->addStructureforDestruction(structure->getId());
+        }
+        else
+        {
+            int8 text[55];
+            sprintf(text,"@player_structure:incorrect_destroy_code");
+            gUIManager->createNewMessageBox(NULL,"","SWG::ANH",text,player);
+        }
+        //we need to get the input
+    }
+    }
 }

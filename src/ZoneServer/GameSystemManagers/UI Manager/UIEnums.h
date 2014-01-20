@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESEVER_UIENUMS_H
 #define ANH_ZONESEVER_UIENUMS_H
 
+#include <vector>
 
 enum UI_Window_Name
 {
@@ -214,5 +215,30 @@ enum ui_ib_types
 //================================================================================
 
 
+class WindowAsyncContainerCommand
+{
+public:
+
+    WindowAsyncContainerCommand() {
+        mQueryType = 0;
+    }
+    ~WindowAsyncContainerCommand() {}
+
+	void	setQueryType(uint32 type)	{
+		mQueryType = type;
+	}
+
+	uint32	getQueryType()	{return mQueryType;}
+
+    uint32						mQueryType;
+
+    uint64						PlayerId;
+	uint64						modifyable_id;
+	
+	uint64						ToolId;
+    uint64						SchematicId;
+    void*						CurrentResource;
+    std::vector<uint64 >		SortedList;
+};
 #endif
 

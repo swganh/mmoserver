@@ -752,6 +752,10 @@ private:
 		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleDismount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		// admin
+		/*	@brief handles the kick command that will handle the kick of a player by an admin
+		*
+		*/
+		void	_handleKick(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 		void	_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleAdminWarpSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
 		void	_handleBroadcast(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);

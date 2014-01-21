@@ -120,7 +120,7 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
         if(player && !(player->getMotdReceived()) && motd.length())
         {
             player->setMotdReceived(true);
-            gMessageLib->SendSystemMessage(std::wstring(motd.begin(), motd.end()), player);
+            gMessageLib->SendSystemMessage(std::u16string(motd.begin(), motd.end()), player);
         }
 
         // Send newbie info.
@@ -143,9 +143,9 @@ void CharacterLoginHandler::_processCmdSceneReady(Message* message, DispatchClie
         // Some info about the current build
         std::stringstream ss;
         ss << "Running build " << GetBuildNumber() << " created " << GetBuildTime();
-        std::string tmp(ss.str());
+		std::string tmp(ss.str());
 
-        gMessageLib->SendSystemMessage(std::wstring(tmp.begin(), tmp.end()), player);
+        gMessageLib->SendSystemMessage(std::u16string(tmp.begin(), tmp.end()), player);
     }
 }
 
@@ -480,6 +480,7 @@ void CharacterLoginHandler::_processClusterZoneTransferDenied(Message* message, 
     // put it to the disconnected list
     if((playerObject = gWorldManager->getPlayerByAccId(message->getAccountId())) != NULL)
     {
-        gMessageLib->SendSystemMessage(L"The Emperor has restricted travel to this planet at this time.", playerObject);
+		std::string message("The Emperor has restricted travel to this planet at this time.");
+        gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()), playerObject);
     }
 }

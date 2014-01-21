@@ -882,8 +882,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
                         }
                         else
                         {
-
-							std::wstringstream message;
+							std::stringstream message;
                             
 							message << "That resource pocket is too close (" 
 									<< static_cast<uint32>(glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position))
@@ -891,7 +890,7 @@ void MissionManager::checkSurveyMission(PlayerObject* player,CurrentResource* re
 									<< (1024 - (int)glm::distance(mission->getIssuingTerminal()->mPosition, highestDist.position))
 									<< " meters away to complete your survey mission. ";
                                   
-                            gMessageLib->SendSystemMessage(message.str(), player);
+							gMessageLib->SendSystemMessage(std::u16string(message.str().begin(), message.str().end()), player);
                         }
                     }
                 }

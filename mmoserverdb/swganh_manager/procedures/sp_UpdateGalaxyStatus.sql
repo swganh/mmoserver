@@ -1,0 +1,13 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET FOREIGN_KEY_CHECKS=0 */;
+
+DROP PROCEDURE IF EXISTS `sp_UpdateGalaxyStatus`;
+DELIMITER //
+CREATE PROCEDURE `sp_UpdateGalaxyStatus`(IN `in_status` TINYINT, IN `in_id` INT)
+BEGIN
+update galaxy set status = in_status , updated_at = NOW() where id = in_id;
+END//
+DELIMITER ;
+/*!40014 SET FOREIGN_KEY_CHECKS=1 */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -169,7 +169,7 @@ void ObjectController::handleDataTransform(Message* message,bool inRangeUpdate)
         if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
         {
             // Terminate conversation, since we are out of range.
-            gMessageLib->SendSystemMessage(L"",player,"system_msg","out_of_range");
+            gMessageLib->SendSystemMessage(std::u16string(),player,"system_msg","out_of_range");
             gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
         }
     }
@@ -342,7 +342,7 @@ void ObjectController::handleDataTransformWithParent(Message* message,bool inRan
         if (!gWorldManager->objectsInRange(player->getId(), (ac->getNpc())->getId(), 11.0))
         {
             // Terminate conversation, since we are out of range.
-            gMessageLib->SendSystemMessage(L"",player,"system_msg","out_of_range");
+            gMessageLib->SendSystemMessage(std::u16string(),player,"system_msg","out_of_range");
             gConversationManager->stopConversation(player, true);			// We will get the current dialog text in a chat bubble, only seen by me. Impressive :)
         }
     }

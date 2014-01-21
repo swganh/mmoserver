@@ -1,0 +1,13 @@
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!40014 SET FOREIGN_KEY_CHECKS=0 */;
+
+DROP PROCEDURE IF EXISTS `sp_FindAccountBySessionKey`;
+DELIMITER //
+CREATE PROCEDURE `sp_FindAccountBySessionKey`(IN `in_session_key` VARCHAR(255))
+BEGIN
+select account from account_session where session_key = in_session_key;
+END//
+DELIMITER ;
+/*!40014 SET FOREIGN_KEY_CHECKS=1 */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

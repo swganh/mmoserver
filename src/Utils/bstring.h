@@ -83,6 +83,7 @@ public:
     // Accessor Methods
     const char* getAnsi() const;
     const wchar_t* getUnicode16() const;
+	std::u16string BString::getU16() const;
 
     void convert(BStringType type);
     void substring(BString& dest, uint16_t start, uint16_t end);

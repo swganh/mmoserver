@@ -269,9 +269,6 @@ void StructureManager::_HandleStructureRedeedCallBack(StructureManagerAsyncConta
     if(!structure)
     {
 		LOG(error) << "StructureManager::_HandleStructureRedeedCallBack No structure !!!! : " << asynContainer->mStructureId;
-		if (player) {
-			   gMessageLib->SendSystemMessage(L"(Structure couldnt be found, please /bug report this so we can investigate.)", player);
-		}
 		return;
 	}
     
@@ -581,13 +578,12 @@ void StructureManager::_HandleRemovePermission(StructureManagerAsyncContainer* a
 
     if(returnValue == 2)
     {
-        BString name;
-        name = asynContainer->name;
-        //name.convert(BSTRType_Unicode16);
-        name.convert(BSTRType_ANSI);
-        name << " is not on the list";
-        name.convert(BSTRType_Unicode16);
-        gMessageLib->SendSystemMessage(name.getUnicode16(), player);
+        std::string name_ansi(asynContainer->name);
+
+		std::stringstream stream;
+        stream << name_ansi << " is not on the list";
+        
+		gMessageLib->SendSystemMessage(std::u16string(stream.str().begin(),stream.str().end()), player);
     }
 
     if(returnValue == 3)
@@ -701,12 +697,11 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
     //name already on the list
     if(returnValue == 2)
     {
-        BString name;
-        name = asynContainer->name;
-        name.convert(BSTRType_ANSI);
-        name << " is already on the list";
-        name.convert(BSTRType_Unicode16);
-        gMessageLib->SendSystemMessage(name.getUnicode16(), player);
+        std::string name_ansi(asynContainer->name);
+		std::stringstream stream;
+		stream << name_ansi << " is already on the list";
+      
+        gMessageLib->SendSystemMessage(std::u16string(stream.str().begin(), stream.str().end()), player);
     }
 
     //no more than 36 entries on the list
@@ -718,7 +713,8 @@ void StructureManager::_HandleAddPermission(StructureManagerAsyncContainer* asyn
     //dont ban the owner
     if(returnValue == 4)
     {
-        gMessageLib->SendSystemMessage(L"You cannot Ban the structure's Owner", player);
+		std::string message_ansi("You cannot Ban the structure's Owner");
+		gMessageLib->SendSystemMessage(std::u16string(message_ansi.begin(), message_ansi.end()), player);
     }
 
     mDatabase->destroyDataBinding(binding);

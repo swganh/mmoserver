@@ -160,7 +160,7 @@ void AdminManager::unregisterCallbacks(void)
 
 //======================================================================================================================
 
-void AdminManager::addAdminRequest(uint64 requestType, BString message, int32 ttl)
+void AdminManager::addAdminRequest(uint64 requestType, std::u16string message, int32 ttl)
 {
     // We will only handle one request at the time for each type.
     gWorldManager->cancelAdminRequest(static_cast<uint32>(requestType));	// Even though map's fix duplicate issues, the lower level implementation may change.
@@ -196,7 +196,7 @@ void AdminManager::addAdminRequest(uint64 requestType, BString message, int32 tt
     }
     ttl -= timeToFirstEvent;
 
-    AdminRequestObject* requestObject = new AdminRequestObject(requestType, message, ttl);
+	AdminRequestObject* requestObject = new AdminRequestObject(requestType, message.c_str(), ttl);
     if (requestObject)
     {
         if (timeToFirstEvent > 0)
@@ -208,7 +208,7 @@ void AdminManager::addAdminRequest(uint64 requestType, BString message, int32 tt
     }
 }
 
-void AdminManager::cancelAdminRequest(uint64 requestType, BString message)
+void AdminManager::cancelAdminRequest(uint64 requestType, std::u16string message)
 {
     // We will only handle one request at the time for each type.
     gWorldManager->cancelAdminRequest(static_cast<uint8>(requestType));	// Even though map's fix duplicate issues, the lower level implementation may change.
@@ -219,7 +219,6 @@ void AdminManager::cancelAdminRequest(uint64 requestType, BString message)
         delete ((*adminRequestIterator).second);
         mAdminRequests.erase(adminRequestIterator);
 
-        message.convert(BSTRType_Unicode16);
         PlayerAccMap::const_iterator it = gWorldManager->getPlayerAccMap()->begin();
 
         while (it != gWorldManager->getPlayerAccMap()->end())
@@ -227,11 +226,8 @@ void AdminManager::cancelAdminRequest(uint64 requestType, BString message)
             const PlayerObject* const player = (*it).second;
             if (player->isConnected())
             {
-                gMessageLib->SendSystemMessage(L"", player);
-                if (message.getLength())
-                {
-                    gMessageLib->SendSystemMessage(message.getUnicode16(), player);
-                }
+                gMessageLib->SendSystemMessage(message, player);
+             
             }
             ++it;
         }
@@ -266,7 +262,7 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
                 int32 minutes = ((*adminRequestIterator).second)->mTimeToLive/60;
                 int32 seconds = ((*adminRequestIterator).second)->mTimeToLive % 60;
 
-                BString unit("minutes");
+                std::string unit("minutes");
                 int32 value = minutes;
 
                 if (minutes > 1)
@@ -296,38 +292,34 @@ uint64 AdminManager::handleAdminRequest(uint64 requestType, uint64 timeOverdue)
                         }
                     }
                 }
-                sprintf(rawData,"Server shutting down in %"PRId32" %s.", value, unit.getAnsi());
+                sprintf(rawData,"Server shutting down in %"PRId32" %s.", value, unit);
             }
 
-            BString broadcast(rawData);
-            BString optReason(((*adminRequestIterator).second)->mReason);
+            std::string broadcast(rawData);
+            std::string optReason(((*adminRequestIterator).second)->mReason.getAnsi());
 
-            if (optReason.getLength())
-            {
-                LOG(warning) << optReason.getAnsi();
-            }
-            LOG(warning) << broadcast.getAnsi();
+            
+            LOG(warning) << "Admin Scheduled Shutdown" << optReason;
+            LOG(warning) << broadcast;
 
             // For logging, we need ansi versions.
-            BString logOptReason(optReason);
-            BString logBroadcast(broadcast);
+            std::u16string OptReason_u16(optReason.begin(), optReason.end());
+            std::u16string Broadcast_u16(broadcast.begin(), broadcast.end());
 
             // Update players in zone.
-            optReason.convert(BSTRType_Unicode16);
-            broadcast.convert(BSTRType_Unicode16);
-
+            
             PlayerAccMap::const_iterator it = gWorldManager->getPlayerAccMap()->begin();
             while (it != gWorldManager->getPlayerAccMap()->end())
             {
                 const PlayerObject* const player = (*it).second;
                 if (player->isConnected())
                 {
-                    if (optReason.getLength())
+                    if (optReason.length())
                     {
-                        gMessageLib->SendSystemMessage(optReason.getUnicode16(), player);
+                        gMessageLib->SendSystemMessage(OptReason_u16, player);
                     }
 
-                    gMessageLib->SendSystemMessage(broadcast.getUnicode16(), player);
+                    gMessageLib->SendSystemMessage(Broadcast_u16, player);
                 }
                 ++it;
             }
@@ -364,16 +356,13 @@ void AdminManager::_processScheduleShutdown(Message* message, DispatchClient* cl
 {
     message->ResetIndex();
 
-    BString msg;
-    msg.setType(BSTRType_Unicode16);
-    msg.setLength(512);
-
+    std::u16string msg;
+ 
     /* uint32 opCode = */
     message->getUint32();
     uint32 scheduledTime = message->getUint32();
-    message->getStringUnicode16(msg);
+    msg = message->getStringUnicode16();
 
-    msg.convert(BSTRType_ANSI);
     this->addAdminRequest(AdminScheduledShutdown, msg, (int32)scheduledTime);
 }
 
@@ -381,16 +370,11 @@ void AdminManager::_processCancelScheduledShutdown(Message* message, DispatchCli
 {
     message->ResetIndex();
 
-    BString msg;
-    msg.setType(BSTRType_Unicode16);
-    msg.setLength(512);
-
     /* uint32 opCode = */
     message->getUint32();
     /* uint32 option = */
     message->getUint32();
-    message->getStringUnicode16(msg);
+	std::u16string message_u16 = message->getStringUnicode16();
 
-    msg.convert(BSTRType_ANSI);
-    this->cancelAdminRequest(AdminScheduledShutdown, msg);
+    this->cancelAdminRequest(AdminScheduledShutdown, message_u16);
 }

@@ -70,8 +70,8 @@ public:
     void _processCancelScheduledShutdown(Message* message, DispatchClient* client);
 
     uint64 handleAdminRequest(uint64 requestId, uint64 timeOverdue);
-    void addAdminRequest(uint64 type, BString message, int32 ttl);
-    void cancelAdminRequest(uint64 type, BString message);
+    void addAdminRequest(uint64 type, std::u16string message, int32 ttl);
+    void cancelAdminRequest(uint64 type, std::u16string message);
 
     bool shutdownPending(void) {
         return mPendingShutdown;

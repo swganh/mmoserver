@@ -583,6 +583,31 @@ bool MessageLib::sendEnterTicketPurchaseModeMessage(TravelTerminal* terminal,Pla
 // system message
 //
 
+bool MessageLib::SendSystemMessage(const std::u16string& custom_message, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
+
+    // Use regex to check if the chat string matches the stf string format.
+    static const regex pattern("@([a-zA-Z0-9/_]+):([a-zA-Z0-9_]+)");
+    smatch result;
+
+    std::string stf_string(custom_message.begin(), custom_message.end());
+
+    // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
+    // Reroute the call to the appropriate overload.
+    if (regex_search(stf_string, result, pattern))
+    {
+        std::string file(result[1].str());
+        std::string string(result[2].str());
+
+        // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
+        // Remove this in the future as the other const correctness problems are dealt with.
+        return SendSystemMessage_(std::u16string(), OutOfBand(file, string), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+    }
+
+    // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
+    // Remove this in the future as the other const correctness problems are dealt with.
+    return SendSystemMessage_(custom_message, OutOfBand(), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+}
+
 bool MessageLib::SendSystemMessage(const std::wstring& custom_message, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
 
     // Use regex to check if the chat string matches the stf string format.
@@ -600,21 +625,21 @@ bool MessageLib::SendSystemMessage(const std::wstring& custom_message, const Pla
 
         // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
         // Remove this in the future as the other const correctness problems are dealt with.
-        return SendSystemMessage_(L"", OutOfBand(file, string), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+        return SendSystemMessage_(std::u16string(), OutOfBand(file, string), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
     }
 
     // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
-    // Remove this in the future as the other const correctness problems are dealt with.
-    return SendSystemMessage_(custom_message, OutOfBand(), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+    // Remove this in the future as the other const correctness problems are dealt with.;
+	return SendSystemMessage_(std::u16string(custom_message.begin(), custom_message.end()), OutOfBand(), const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
 }
 
 bool MessageLib::SendSystemMessage(const OutOfBand& prose, const PlayerObject* const player, bool chatbox_only, bool send_to_inrange) {
     // @todo: Because of dependency on other non-const functions that should be const we need to cast away the constness here.
     // Remove this in the future as the other const correctness problems are dealt with.
-    return SendSystemMessage_(L"", prose, const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
+	return SendSystemMessage_(std::u16string(), prose, const_cast<PlayerObject*>(player), chatbox_only, send_to_inrange);
 }
 
-bool MessageLib::SendSystemMessage_(const std::wstring& custom_message, const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
+bool MessageLib::SendSystemMessage_(const std::u16string& custom_message, const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
     // If a player was passed in but not connected return false.
     if ((!player) || (!player->isConnected())) {
         return false;

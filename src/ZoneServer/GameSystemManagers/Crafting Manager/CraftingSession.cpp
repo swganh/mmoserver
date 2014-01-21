@@ -535,7 +535,8 @@ bool CraftingSession::selectDraftSchematic(uint32 schematicIndex)
     if(!mDraftSchematic->isCraftEnabled())
     {
         LOG(info) << "CraftingSession::selectDraftSchematic: schematic not craftable crc:" <<schemCrc;
-        gMessageLib->SendSystemMessage(L"This item is currently not craftable.", mOwner);
+		std::string message("This item is currently not craftable.");
+		gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()), mOwner);
         return(true);
     }
 

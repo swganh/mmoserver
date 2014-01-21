@@ -371,7 +371,7 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(!building->hasAdminRights(player->getId()))
 		{
 			//You do not have permission to access that container. 
-			gMessageLib->SendSystemMessage(L"",player,"container_error_message","container08");
+			gMessageLib->SendSystemMessage(std::u16string(),player,"container_error_message","container08");
 			return false;
 		}
 		
@@ -380,7 +380,7 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(!building->checkCapacity(objectSize))
 		{
 			//This building is full. 
-			gMessageLib->SendSystemMessage(L"",player,"container_error_message","container03");
+			gMessageLib->SendSystemMessage(std::u16string(),player,"container_error_message","container03");
 			return false;
 		}
 
@@ -404,7 +404,7 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 		if(!access)
 		{
 			//You do not have permission to access that container. 
-			gMessageLib->SendSystemMessage(L"",player,"container_error_message","container08");
+			gMessageLib->SendSystemMessage(std::u16string(),player,"container_error_message","container08");
 			return false;
 		}
 		
@@ -433,7 +433,7 @@ bool ContainerManager::checkTargetContainer(uint64 targetContainerId, Object* ob
 	if(containedContainersize >= containingContainersize)
 	{
 		//This item is too bulky to fit inside this container.
-		gMessageLib->SendSystemMessage(L"",player,"container_error_message","container12");
+		gMessageLib->SendSystemMessage(std::u16string(),player,"container_error_message","container12");
 		return false;
 	}
 

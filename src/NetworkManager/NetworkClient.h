@@ -67,7 +67,11 @@ public:
 
     virtual void	SendChannelA(Message* message, uint8 priority, bool fastpath);
     virtual void	SendChannelAUnreliable(Message* message, uint8 priority);
-    virtual void	Disconnect(uint8 reason);
+    
+	/*	@brief	Disconnect disconnects the Session. Please note that on the Zoneserver this will 
+	*			disconnect the zoneserver from the Connectionserver!!!
+	*/
+	virtual void	Disconnect(uint8 reason);
 
     Session*		getSession(void) {
         return mSession;

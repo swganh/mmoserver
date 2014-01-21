@@ -850,8 +850,10 @@ void SkillManager::dropSkill(uint32 skillId,CreatureObject* creatureObject, bool
         gMessageLib->sendSkillCmdDeltasPLAY_9(player);
         gMessageLib->sendSchematicDeltasPLAY_9(player);
 
-        if(showMessage)
-            gMessageLib->SendSystemMessage(L"Skill surrendered.", player);
+        if(showMessage)	{
+			std::string message("Skill surrendered.");
+			gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()), player);
+		}
 
         // Update the cap for this type of xp, but do NOT adjust the xp down below cap.
         int32 newXpCap = getXpCap(player, skill->mXpType);

@@ -82,10 +82,16 @@ void LoginManager::Process(void)
     {
         mLastStatusQuery = Anh_Utils::Clock::getSingleton()->getLocalTime();
         mDatabase->executeProcedureAsync(this, (void*)1, "CALL %s.sp_ReturnGalaxyStatus;",mDatabase->galaxy());
+
+		//unban all banned players whose bans have expired
+		std::stringstream sql;
+		sql << "UPDATE " << mDatabase->galaxy() << ".account sa SET sa.account_banned = 0 WHERE NOW() >= sa.banned_until AND account_id > 0;";
+		mDatabase->executeAsyncSql(sql.str());
     }
 
-    // Heartbeat once in awhile
-    if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat) > 1800000)//main loop every 10mins
+    
+
+    if ((Anh_Utils::Clock::getSingleton()->getLocalTime() - mLastHeartbeat) > 1800000)//main loop every 30mins
     {
         mLastHeartbeat = Anh_Utils::Clock::getSingleton()->getLocalTime();
         LOG(info) << "LoginServer Heartbeat. Total clients (non-unique) processed since boot [" << mNumClientsProcessed << "]";
@@ -322,7 +328,8 @@ void LoginManager::_authenticateClient(LoginClient* client, database::DatabaseRe
     }
     else
     {
-		
+		//TODO
+		//we might want at some point deliver a reason for a failed login!
 		//in case of no auto create
         Message* newMessage;
 

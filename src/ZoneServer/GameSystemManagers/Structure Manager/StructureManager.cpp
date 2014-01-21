@@ -528,12 +528,12 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 				Inventory* inventory	= dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 				if(!inventory->checkSlots(1))
 				{
-					gMessageLib->SendSystemMessage(L"",player,"player_structure","inventory_full");
+					gMessageLib->SendSystemMessage(std::u16string(),player,"player_structure","inventory_full");
 					it = objectList->erase(it);
 					continue;
 				}
 
-				gMessageLib->SendSystemMessage(L"",player,"player_structure","deed_reclaimed");
+				gMessageLib->SendSystemMessage(std::u16string(),player,"player_structure","deed_reclaimed");
 
 				//update the deeds attributes and set the new owner id (owners inventory = characterid +1)
 				StructureManagerAsyncContainer* asyncContainer;
@@ -550,7 +550,7 @@ bool StructureManager::_handleStructureObjectTimers(uint64 callTime, void* ref)
 			//delete the deed
 			{
 
-				gMessageLib->SendSystemMessage(L"",player,"player_structure","structure_destroyed");
+				gMessageLib->SendSystemMessage(std::u16string(),player,"player_structure","structure_destroyed");
 				
 				//deletes the deed
 				int8 sql[200];
@@ -936,7 +936,7 @@ void StructureManager::processVerification(StructureAsyncCommand command, bool o
 
 			//finally reset the schem ID in the factory
 			factory->setManSchemID(0);
-			gMessageLib->SendSystemMessage(L"",player,"manf_station","schematic_removed");
+			gMessageLib->SendSystemMessage(std::u16string(),player,"manf_station","schematic_removed");
 			
 		}
 		break;

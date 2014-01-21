@@ -170,7 +170,7 @@ void ObjectController::_handleOpenContainer(uint64 targetId,Message* message,Obj
 	{
 		if(glm::distance(playerObject->getWorldPosition(), itemObject->getWorldPosition()) > 10)
 		{
-			gMessageLib->SendSystemMessage(L"", playerObject, "system_msg", "out_of_range");
+			gMessageLib->SendSystemMessage(std::u16string(), playerObject, "system_msg", "out_of_range");
 			return;
 		}
 

@@ -36,6 +36,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 #include "Utils/utils.h"
 
+#include "DatabaseManager/Database.h"
+//#include "DatabaseManager/DatabaseResult.h"
+//#include "DatabaseManager/DataBinding.h"
+
+#include <boost/regex.hpp>  // NOLINT
+
+using boost::regex;
+using boost::smatch;
+using boost::regex_search;
+using boost::sregex_token_iterator;
+
 //=============================================================================================================================
 //
 // system message
@@ -117,7 +128,8 @@ void ObjectController::_handleAdminWarpSelf(uint64 targetId,Message* message,Obj
         // zone transfer request
         else
         {
-            gMessageLib->SendSystemMessage(L"Requesting zone transfer...", player);
+			std::string message_ansi("Requesting zone transfer...");
+            gMessageLib->SendSystemMessage(std::u16string(message_ansi.begin(), message_ansi.end()), player);
 
             gMessageLib->sendClusterZoneTransferRequestByPosition(player, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
         }
@@ -314,12 +326,125 @@ BString ObjectController::handleBroadcast(BString message) const
     return replyStr;
 }
 
-void ObjectController::_handleKick(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
+
+
+void ObjectController::_handleAdminTeleportTo(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
 	std::u16string raw_message_unicode = message->getStringUnicode16();
 	std::string    raw_message_ansi(raw_message_unicode.begin(), raw_message_unicode.end());
-	LOG(info) << "ObjectController::_handleKick : " << raw_message_ansi;
+	LOG(info) << "ObjectController::_handleAdminTeleportTo : " << raw_message_ansi;
 
+}
+
+void ObjectController::_handleAdminTeleport(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
+{
+	std::u16string raw_message_unicode = message->getStringUnicode16();
+	std::string    raw_message_ansi(raw_message_unicode.begin(), raw_message_unicode.end());
+	LOG(info) << "ObjectController::_handleAdminTeleport : " << raw_message_ansi;
+
+}
+
+void ObjectController::_handleAdminKick(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
+{
+	std::u16string raw_message_unicode = message->getStringUnicode16();
+	std::string    raw_message_ansi(raw_message_unicode.begin(), raw_message_unicode.end());
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
+	
+	//(([a-zA-Z0-9/_]+) ((ban:) ((days:) ([0-9]+) )?((hours:) ([0-9]+) )?((minutes:) ([0-9]+))?)?)([a-zA-Z0-9/_]+)?
+
+	//static const regex pattern("(([a-zA-Z0-9/_]+) ((ban:)([ ]+?(days:)([0-9]+))?([ ]+?(hours:)([0-9]+))?([ ]+?(minutes:)([0-9]+))?)?)([a-zA-Z0-9/_ :]+)?");
+	static const regex pattern("(([a-zA-Z0-9/_]+)? (([ ]+)?(ban:)([ ]+?(days:)([0-9]+))?(([ ]+)?(hours:)([0-9]+))?(([ ]+)?(minutes:)([0-9]+))?)?)([a-zA-Z0-9/_ :]+)?");
+    smatch result;
+
+    std::string text(raw_message_ansi.begin(), raw_message_ansi.end());
+
+    // If it's an exact match (2 sub-patterns + the full string = 3 elements) it's an stf string.
+    // Reroute the call to the appropriate overload.
+    bool is_true = regex_search(text, result, pattern);
+
+	LOG (info) << "Matched : " << is_true;
+	LOG (info) << "string : " << result[0].str();
+	LOG (info) << "1 : " << result[1].str();
+	LOG (info) << "2 : " << result[2].str();
+	LOG (info) << "3 : " << result[3].str();
+	LOG (info) << "4 : " << result[4].str();
+	LOG (info) << "5 : " << result[5].str();
+	LOG (info) << "6 : " << result[6].str();
+	LOG (info) << "7 : " << result[7].str();
+	LOG (info) << "8 : " << result[8].str();
+	LOG (info) << "9 : " << result[9].str();
+	LOG (info) << "10 : " << result[10].str();
+	LOG (info) << "11 : " << result[11].str();
+	LOG (info) << "12 : " << result[12].str();
+	LOG (info) << "13 : " << result[13].str();
+	LOG (info) << "14 : " << result[14].str();
+
+
+	if(!is_true)	{
+		PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+		std::string result("Proper useage : /kick [reason] [ban: days: [n] hours: [n] minutes: [n] ] ");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+
+		result = "Please do only ban in the most dire of events and give proper reasoning to the affected player";
+		std::u16string message2_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message2_u16, admin);
+		return;
+	}
+
+	//if we ban him we need to get the duration
+	if( result[5].str().length() == 4)	{
+
+		std::string days(result[8].str());
+		std::string hours(result[12].str());
+		std::string minutes(result[16].str());
+
+		bool time_provided = false;
+
+		if(!days.length())	{
+			days = "0";
+		} else time_provided = true;
+		
+		if(!hours.length())	{
+			hours = "0";
+		} else time_provided = true;
+		
+		if(!minutes.length())	{
+			minutes = "0";
+		} else time_provided = true;
+
+		if(!time_provided)	{
+		PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+		std::string result("Proper useage : /kick [reason] [ban: days: [n] hours: [n] minutes: [n] ] ");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+
+		result = "Please do only ban in the most dire of events and give proper reasoning to the affected player";
+		std::u16string message2_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message2_u16, admin);
+		return;
+	}
+
+		LOG (info) << "ObjectController::_handleAdminKick Player " << targetId << " received a ban for " << days << " days - " << hours << " hours - and " << minutes << "minutes";
+
+		std::stringstream sql;
+		sql <<"UPDATE " << this->mDatabase->galaxy() << ".account INNER JOIN " << this->mDatabase->galaxy() 
+			<< ".characters ON account.account_id = characters.account_id SET account.account_banned = 1, account.banned_until = (NOW() + INTERVAL "
+			<< minutes << " MINUTE + INTERVAL " << hours << " HOUR + INTERVAL " << days << " DAY) WHERE characters.id = " << targetId << ";";
+
+		LOG(info) << "Query : " << sql.str();
+		this->mDatabase->executeAsyncSql(sql.str());
+	}
+	LOG (info) << "ObjectController::_handleAdminKick Player " << targetId << " reason " << result[3].str();
+	
+	std::string result_ansi = result[3].str();
+	std::u16string message_u16(result_ansi.begin(), result_ansi.end());
+	gMessageLib->SendSystemMessage(message_u16, player);
+
+	gMessageLib->sendLogout(player);
+    player->togglePlayerCustomFlagOff(PlayerCustomFlag_LogOut);
+    gWorldManager->addDisconnectedPlayer(player);
+	
 }
 
 //=============================================================================================================================

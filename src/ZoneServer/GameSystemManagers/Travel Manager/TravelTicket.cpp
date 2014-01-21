@@ -109,8 +109,8 @@ void TravelTicket::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
             ++objIt;
         }
-
-        gMessageLib->SendSystemMessage(L"There is no shuttle nearby", player);
+		std::string message_ansi("There is no shuttle nearby");
+        gMessageLib->SendSystemMessage(std::u16string(message_ansi.begin(), message_ansi.end()), player);
     }
 }
 

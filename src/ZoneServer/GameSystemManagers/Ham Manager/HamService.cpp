@@ -79,7 +79,13 @@ bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {
     uint32 mindcost	  = (*it).second->mMindCost;
 
     if (!object->getHam()->checkMainPools(healthcost, actioncost, mindcost)) {
-        gMessageLib->SendSystemMessage(L"You cannot <insert command> right now.", object); // the stf doesn't work!
+		
+		auto event_ = triggered_event->event_type();
+		std::stringstream message_stream;
+		message_stream << "You cannot " << event_ << " right now.";
+		
+	
+		gMessageLib->SendSystemMessage(std::u16string(message_stream.str().begin(), message_stream.str().end()), object);
         return false;
     }
 

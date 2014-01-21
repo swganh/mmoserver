@@ -452,6 +452,20 @@ const wchar_t* BString::getUnicode16() const
     }
 }
 
+std::u16string  BString::getU16() const
+{
+
+    if (mType == BSTRType_Unicode16)
+    {
+		std::u16string s_u16(reinterpret_cast<char16_t*>(mString));
+		return s_u16;
+    } else {
+		std::string s(mString);
+		std::u16string s_u16(s.begin(), s.end());
+        return s_u16;
+    }
+}
+
 //======================================================================================================================
 
 void BString::convert(BStringType type)

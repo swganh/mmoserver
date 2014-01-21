@@ -145,7 +145,8 @@ void StateManager::setCurrentPostureState(CreatureObject* object, CreaturePostur
         else
         {
             DLOG(warning) << "unable to transition from " << object->states.getPosture() << " to" << newPosture;
-            gMessageLib->SendSystemMessage(L"You cannot transition from this Posture state");
+			std::string message("You cannot transition from this Posture state");
+			gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
         }
         gEventDispatcher.Notify(posture_update_event);
     } 
@@ -173,7 +174,8 @@ void StateManager::setCurrentActionState(CreatureObject* object, CreatureState n
         else
         {
             DLOG(warning) << "unable to transition from " << object->states.getAction() << " to" << static_cast<uint64_t>(newState);
-            gMessageLib->SendSystemMessage(L"You cannot transition from this Action state");
+			std::string message("You cannot transition from this Action state");
+			gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
         }
         gEventDispatcher.Notify(action_update_event);
     }
@@ -196,7 +198,8 @@ void StateManager::setCurrentLocomotionState(CreatureObject* object, CreatureLoc
         else
         {
             DLOG(warning) << "unable to transition from " << object->states.getLocomotion() << " to" << static_cast<uint64_t>(newLocomotion);
-            gMessageLib->SendSystemMessage(L"You cannot transition from this Locomotion state");
+			std::string message("You cannot transition from this Locomotion state");
+            gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
         }
         gEventDispatcher.Notify(locomotion_update_event);
     }
@@ -213,7 +216,8 @@ void StateManager::removeActionState(CreatureObject* obj, CreatureState stateToR
         else
         {
             DLOG(warning) << "unable to remove action state " << static_cast<uint64_t>(stateToRemove);
-            gMessageLib->SendSystemMessage(L"You cannot remove this Action state");
+            std::string message("You cannot remove this Action state");
+            gMessageLib->SendSystemMessage(std::u16string(message.begin(), message.end()));
         }
         gEventDispatcher.Notify(action_update_event);
 }

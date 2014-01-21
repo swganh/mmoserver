@@ -748,28 +748,37 @@ private:
      * @param cmd_properties Contextual information for use during processing this command.
      */
     void HandleRotateFurniture_(uint64 target_id, Message* message, ObjectControllerCmdProperties* cmd_properties);
-		//pets
-		void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleDismount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		// admin
-		/*	@brief handles the kick command that will handle the kick of a player by an admin
-		*
-		*/
-		void	_handleKick(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-		void	_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleAdminWarpSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
-		void	_handleBroadcast(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-		void	_handleBroadcastPlanet(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-		void	_handleBroadcastGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-		void	_handleShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
-		void	_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+
+	//pets	
+	void	_handleMount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+	void	_handleDismount(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+		
+	// admin
+	/*	@brief handles the kick command that will handle the kick of a player by an admin
+	*	\targetId is the id of the player to kick
+	*	\message will contain a message in case one is given by the csr
+	*/
+	void	_handleAdminKick(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	
+	/*	@brief	the admin sys message is designed as a carrier for custom designed admin commands
+	*
+	*/
+	void	_handleAdminSysMsg(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+	void	_handleAdminWarpSelf(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties);
+	void	_handleBroadcast(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	void	_handleBroadcastPlanet(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	void	_handleBroadcastGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	void	_handleShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	void	_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	void	_handleAdminTeleport(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	void	_handleAdminTeleportTo(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 
 
-		BString	handleBroadcast(BString message) const;
-		BString	handleBroadcastPlanet(BString message) const;
-		BString	handleBroadcastGalaxy(BString message) const;
-		BString	handleShutdownGalaxy(BString message) const;
-		BString handleCancelShutdownGalaxy(BString message) const;
+	BString	handleBroadcast(BString message) const;
+	BString	handleBroadcastPlanet(BString message) const;
+	BString	handleBroadcastGalaxy(BString message) const;
+	BString	handleShutdownGalaxy(BString message) const;
+	BString handleCancelShutdownGalaxy(BString message) const;
 
 		// Admin
 		int32	getAdminCommandFunction(BString command) const;

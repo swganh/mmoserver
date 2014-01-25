@@ -190,12 +190,13 @@ void InventoryFactory::handleDatabaseJobComplete(void* ref,swganh::database::Dat
 
 void InventoryFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client)
 {
-    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,IFQuery_MainInventoryData,client),
-                               "SELECT inventories.id,inventories.credits,inventory_types.object_string,inventory_types.name,inventory_types.file,"
-                               "inventory_types.slots"
-                               " FROM %s.inventories INNER JOIN %s.inventory_types ON (inventories.inventory_type = inventory_types.id)"
-                               " WHERE (inventories.id = %"PRIu64")",
-                               mDatabase->galaxy(),mDatabase->galaxy(),id);
+
+	std::stringstream sql;
+	sql << "SELECT inventories.id,inventories.credits,inventory_types.object_string,inventory_types.name,inventory_types.file,"
+		<< "inventory_types.slots FROM " << mDatabase->galaxy() << ".inventories INNER JOIN " << mDatabase->galaxy() << ".inventory_types ON (inventories.inventory_type = inventory_types.id)"
+		<< " WHERE (inventories.id = " << id << ")";
+
+    mDatabase->executeSqlAsync(this,new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(ofCallback,IFQuery_MainInventoryData,client),sql.str());
    
 }
 

@@ -176,8 +176,11 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Factions,asyncContainer->mClient);
         asContainer->mObject = playerObject;
+		
+		std::stringstream sql;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT faction_id,value FROM %s.character_faction WHERE character_id=%"PRIu64" ORDER BY faction_id",mDatabase->galaxy(),playerObject->getId());
+		sql << "SELECT faction_id,value FROM " << mDatabase->galaxy() << ".character_faction WHERE character_id=" << playerObject->getId() << " ORDER BY faction_id";
+        mDatabase->executeSqlAsync(this,asContainer,sql.str());
 
     }
     break;
@@ -205,10 +208,13 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Friends,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT characters.firstname FROM %s.chat_friendlist "
-                                   "INNER JOIN %s.characters ON (chat_friendlist.friend_id = characters.id) "
-                                   "WHERE (chat_friendlist.character_id = %"PRIu64")",
-                                   mDatabase->galaxy(),mDatabase->galaxy(),playerObject->getId());
+        std::stringstream sql;
+
+		sql << "SELECT characters.firstname FROM " << mDatabase->galaxy() << ".chat_friendlist INNER JOIN " << mDatabase->galaxy() << ".characters ON (chat_friendlist.friend_id = characters.id) "
+			<< "WHERE (chat_friendlist.character_id = " << playerObject->getId() << ")";
+                                   
+		
+		mDatabase->executeSqlAsync(this,asContainer, sql.str());
 
     }
     break;
@@ -238,10 +244,12 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Ignores,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 
-        mDatabase->executeSqlAsync(this,asContainer,"SELECT characters.firstname FROM %s.chat_ignorelist "
-                                   "INNER JOIN %s.characters ON (chat_ignorelist.ignore_id = characters.id) "
-                                   "WHERE (chat_ignorelist.character_id = %"PRIu64")",
-                                   mDatabase->galaxy(),mDatabase->galaxy(),playerObject->getId());
+		std::stringstream sql;
+
+		sql << "SELECT characters.firstname FROM " << mDatabase->galaxy() << ".chat_ignorelist INNER JOIN " << mDatabase->galaxy() << ".characters ON (chat_ignorelist.ignore_id = characters.id) "
+			<< "WHERE (chat_ignorelist.character_id = " << playerObject->getId() << ")";
+
+        mDatabase->executeSqlAsync(this,asContainer, sql.str());
 
     }
     break;

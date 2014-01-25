@@ -99,71 +99,62 @@ using std::shared_ptr;
 // adds an object to the world->to cells and the SI only, use manual if adding to containers, or cells on preload
 //
 
-bool WorldManager::addObject(Object* object,bool manual)
+bool WorldManager::addSharedObject(std::shared_ptr<Object> &object, bool manual)
 {
     uint64 key = object->getId();
 
-    //make sure objects arnt added several times!!!!
-    if(getObjectById(key))
+	if(getObjectById(key))
     {
-        LOG(info) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
+        LOG(error) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
         return false;
     }
-
-	object_map_.insert(std::make_pair(key, std::shared_ptr<Object>(object)));
+	object_map_.insert(std::make_pair(key, object));
+	//object_map_.insert(key,object);
     
+	if(manual)
+		return true;
 
-    // if we want to set the parent manually or the object is from the snapshots and not a building, return
-    if(manual)
-    {
-        return true;
-    }
+	initializeObject(object);
+	
+	return true;
+}
 
-#if defined(_MSC_VER)
-    if(object->getId() < 0x0000000100000000 && object->getType() != ObjType_Building)
-#else
-    if(object->getId() < 0x0000000100000000LLU && object->getType() != ObjType_Building)
-#endif
-	{
-		// check if a crafting station - in that case add
-		Item* item = dynamic_cast<Item*> (object);
-
-		if(item)
-		{
-			if(!(item->getItemFamily() == ItemFamily_CraftingStations))
-				return true;
-		}
-		else
-		{
-			return true;
-		}
-	}
-
+void WorldManager::initializeObject(std::shared_ptr <Object> &object)
+{
 	switch(object->getType())
 	{
-		// player, when a player enters a planet
+		//kets add our Region to the zmap
+		case ObjType_Region:
+		{
+
+			//mRegionMap.insert(std::make_pair(key,object));
+			std::shared_ptr<RegionObject> region = std::static_pointer_cast<RegionObject>(object);
+			gSpatialIndexManager->addRegion(region);
+			break;
+		}
+
 		case ObjType_Player:
 		{
 
-			PlayerObject* player = dynamic_cast<PlayerObject*>(object);
+			std::shared_ptr <PlayerObject> player = std::dynamic_pointer_cast<PlayerObject>(object);
 
-			LOG(info) << "New Player: " << player->getId() << ", Total Players on zone " << (getPlayerAccMap())->size() + 1;
 			// insert into the player map
-			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player));			
+			mPlayerAccMap.insert(std::make_pair(player->getAccountId(),player.get()));			
+
+			LOG(info) << "New Player: " << player->getId() << ", Total Players on zone " << (getPlayerAccMap())->size();
 			
 			// not used currently - use with grid regions later ??
 			player->setSubZoneId(0);
 			
-
 			// add ham to regeneration scheduler
 			player->getHam()->updateRegenRates();	
 			player->getHam()->checkForRegen();
 			player->getStomach()->checkForRegen();
 
 			// onPlayerEntered event, notify scripts
-            std::stringstream params;
-			params << getPlanetNameThis() << " " << player->getFirstName() 
-                    << " " << static_cast<uint32>(mPlayerAccMap.size());
+            //std::stringstream params;
+			//params << getPlanetNameThis() << " " << player->getFirstName() 
+                    //<< " " << static_cast<uint32>(mPlayerAccMap.size());
 
 			//mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params.str().c_str());
 
@@ -176,7 +167,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 			mStructureList.push_back(object->getId());
 			
 			//create the building in the world
-			gSpatialIndexManager->createInWorld(object);
+			gSpatialIndexManager->createInWorld(object.get());
 
 		}
 		break;
@@ -184,10 +175,10 @@ bool WorldManager::addObject(Object* object,bool manual)
 		case ObjType_Building:
 		{
 			mStructureList.push_back(object->getId());
-			BuildingObject* building = dynamic_cast<BuildingObject*>(object);
+			std::shared_ptr <BuildingObject> building = std::dynamic_pointer_cast<BuildingObject>(object);
 			
 			//create the building in the world
-			gSpatialIndexManager->createInWorld(object);
+			gSpatialIndexManager->createInWorld(object.get());
 		}
 		break;
 
@@ -201,7 +192,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		{
 
 			//create the tangible in the world
-			gSpatialIndexManager->createInWorld(object);
+			gSpatialIndexManager->createInWorld(object.get());
 			
 		}
 		break;
@@ -210,7 +201,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 		case ObjType_Creature:
 		case ObjType_Lair:
 		{
-			CreatureObject* creature = dynamic_cast<CreatureObject*>(object);
+			CreatureObject* creature = dynamic_cast<CreatureObject*>(object.get());
 
 			if(creature->getCreoGroup() == CreoGroup_Shuttle)
 				mShuttleList.push_back(dynamic_cast<Shuttle*>(creature));
@@ -237,6 +228,31 @@ bool WorldManager::addObject(Object* object,bool manual)
 		break;
 	}
 
+}
+
+bool WorldManager::addObject(Object* object,bool manual)
+{
+    uint64 key = object->getId();
+
+    //make sure objects arnt added several times!!!!
+    if(getObjectById(key))
+    {
+        LOG(info) << "WorldManager::addObject Object(" << key<<") already exists added several times or ID messup ???";
+        return false;
+    }
+
+	std::shared_ptr<Object> object_shared(object);
+
+	object_map_.insert(std::make_pair(key, object_shared));
+    
+
+    // if we want to set the parent manually or the object is from the snapshots and not a building, return
+    if(manual)    {
+        return true;
+    }
+	initializeObject(object_shared);
+
+		
 	return true;
 }
 bool WorldManager::addObject(std::shared_ptr<Object> object, bool manual)
@@ -254,36 +270,20 @@ bool WorldManager::addObject(std::shared_ptr<Object> object, bool manual)
 	if(manual)
 		return true;
 
-	switch(object->getType())
-	{
-		//kets add our Region to the zmap
-		case ObjType_Region:
-		{
-
-			//mRegionMap.insert(std::make_pair(key,object));
-			std::shared_ptr<RegionObject> region = std::static_pointer_cast<RegionObject>(object);
-			gSpatialIndexManager->addRegion(region);
-
-		}
-		break;
-	}
+	initializeObject(object);
 	
 	return true;
 }
 
 void WorldManager::destroyObject(uint64 objId)
 {
-	Object* object = this->getObjectById(objId);
+	std::shared_ptr<Object> object = this->getSharedObjectById(objId);
 	if(!object)	{
-		std::shared_ptr<Object> object = this->getSharedObjectById(objId);
-		if(!object)	{
-			LOG(error) <<"WorldManager::destroyObject : Object : " << objId << "couldnt be found in the Object Map";
-			return;
-		}
-		destroyObject(object);
+		LOG(error) <<"WorldManager::destroyObject : Object : " << objId << "couldnt be found in the Object Map";
+		return;
 	}
-
 	destroyObject(object);
+	
 }
 
 

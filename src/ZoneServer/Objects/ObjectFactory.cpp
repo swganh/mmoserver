@@ -892,6 +892,7 @@ void ObjectFactory::deleteObjectFromDB(Object* object)
         {
         case ItnoGroup_Vehicle:
         {
+
             query_stream << "DELETE FROM "<<mDatabase->galaxy()<<".vehicle_cutomization WHERE vehicles_id =" <<  object->getId();
             mDatabase->executeAsyncSql(query_stream);
 

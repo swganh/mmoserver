@@ -109,7 +109,9 @@ void TerminalFactory::handleDatabaseJobComplete(void* ref,swganh::database::Data
                     QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,TFQuery_ElevatorData,asyncContainer->mClient);
                     asContainer->mObject = elTerminal;
 
-                    mDatabase->executeSqlAsync(this,asContainer,"SELECT * FROM %s.terminal_elevator_data WHERE id=%"PRIu64" ORDER BY direction",mDatabase->galaxy(), elTerminal->getId());
+					std::stringstream sql;
+					sql << "SELECT * FROM " << mDatabase->galaxy() << ".terminal_elevator_data WHERE id=" << elTerminal->getId() <<" ORDER BY direction";
+                    mDatabase->executeSqlAsync(this,asContainer,sql.str());
                     
                 }
                 break;

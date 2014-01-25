@@ -62,7 +62,12 @@ ResourceContainerFactory*	ResourceContainerFactory::Init(swganh::database::Datab
 
 void ResourceContainerFactory::saveLocation(Object* object)
 {
-	mDatabase->executeSqlAsync(0,0,"UPDATE %s.resource_containers SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",mDatabase->galaxy(),object->getParentId(), object->mDirection.x, object->mDirection.y, object->mDirection.z, object->mDirection.w, object->mPosition.x, object->mPosition.y, object->mPosition.z, object->getId());
+	std::stringstream sql;
+	sql << "UPDATE " << mDatabase->galaxy() << ".resource_containers SET parent_id ='" << object->getParentId() << "', "
+		<< "oX='" << object->mDirection.x << "', oY='" << object->mDirection.y << "', oZ='" << object->mDirection.z << "', "
+		<< "oW='" << object->mDirection.w << "', x='" << object->mPosition.x << "', y='" << object->mPosition.x << "', z='" << object->mPosition.x << "' WHERE id='" << object->getId() << "'";
+
+	mDatabase->executeSqlAsync(0,0, sql.str());
 }
 
 //=============================================================================
@@ -102,11 +107,13 @@ void ResourceContainerFactory::handleDatabaseJobComplete(void* ref,swganh::datab
             QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,RCFQuery_Attributes,asyncContainer->mClient);
             asContainer->mObject = container;
 
-            mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,object_attributes.value,attributes.internal"
-                                       " FROM %s.object_attributes"
-                                       " INNER JOIN %s.attributes ON (object_attributes.attribute_id = attributes.id)"
-                                       " WHERE object_attributes.object_id = %"PRIu64" ORDER BY object_attributes.order",
-                                       mDatabase->galaxy(),mDatabase->galaxy(),container->getId());
+			std::stringstream sql;
+
+			sql << "SELECT attributes.name,object_attributes.value,attributes.internal FROM " << mDatabase->galaxy() << ".object_attributes"
+				<< " INNER JOIN " << mDatabase->galaxy() << ".attributes ON (object_attributes.attribute_id = attributes.id)"
+				<< " WHERE object_attributes.object_id = " << container->getId() << " ORDER BY object_attributes.order";                       
+
+            mDatabase->executeSqlAsync(this,asContainer, sql.str());
         }
     }
     break;

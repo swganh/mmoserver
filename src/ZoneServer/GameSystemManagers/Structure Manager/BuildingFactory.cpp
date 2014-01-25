@@ -110,7 +110,11 @@ void BuildingFactory::handleDatabaseJobComplete(void* ref,swganh::database::Data
             asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,BFQuery_Cells,asyncContainer->mClient);
             asContainer->mObject = building;
 
-            mDatabase->executeSqlAsync(this,asContainer,"SELECT id FROM %s.cells WHERE parent_id = %"PRIu64";",mDatabase->galaxy(),building->getId());
+			std::stringstream sql;
+
+			sql << "SELECT id FROM " << mDatabase->galaxy() << ".cells WHERE parent_id = " << building->getId() << ";";
+
+            mDatabase->executeSqlAsync(this,asContainer,sql.str());
             
         }
     }

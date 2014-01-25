@@ -225,8 +225,11 @@ public:
 	*			Initialization happens based on Object type
 	*			ToDo - this should (probably?) be separated
 	*/
-	bool					addObject(Object* object,bool manual = false);
-    bool					addObject(std::shared_ptr<Object> object ,bool manual = false);
+	bool				addObject(Object* object,bool manual = false);
+    bool				addObject(std::shared_ptr<Object> object ,bool manual = false);
+	bool				addSharedObject(std::shared_ptr<Object> &object, bool manual = false);
+
+	void				initializeObject(std::shared_ptr <Object> &object);
 	
 	/*@brief	destroyObject removes an Object given by ObjId out of the world and destroys it
 	*			If no Object with ObjId can be found in the WorldMap we LOG an error and

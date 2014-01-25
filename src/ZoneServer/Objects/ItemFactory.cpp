@@ -99,7 +99,13 @@ ItemFactory::~ItemFactory()
 
 void ItemFactory::saveLocation(Object* object)
 {
-	mDatabase->executeSqlAsync(0,0,"UPDATE %s.items SET parent_id ='%I64u', oX='%f', oY='%f', oZ='%f', oW='%f', x='%f', y='%f', z='%f' WHERE id='%I64u'",mDatabase->galaxy(),object->getParentId(), object->mDirection.x, object->mDirection.y, object->mDirection.z, object->mDirection.w, object->mPosition.x, object->mPosition.y, object->mPosition.z, object->getId());
+
+	std::stringstream sql;
+	sql << "UPDATE " << mDatabase->galaxy() << ".items SET parent_id ='" << object->getParentId() << "', "
+		<< "oX='" << object->mDirection.x << "', oY='" << object->mDirection.y << "', oZ='" << object->mDirection.z << "', "
+		<< "oW='" << object->mDirection.w << "', x='" << object->mPosition.x << "', y='" << object->mPosition.x << "', z='" << object->mPosition.x << "' WHERE id='" << object->getId() << "'";
+
+	mDatabase->executeSqlAsync(0,0,sql.str());
 }
 
 void ItemFactory::handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result)
@@ -122,12 +128,13 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,swganh::database::Database
             asContainer->mObject = item;
             asContainer->mDepth = asyncContainer->mDepth;
 
-            mDatabase->executeSqlAsync(this,asContainer,"SELECT attributes.name,item_attributes.value,attributes.internal"
-                                       " FROM %s.item_attributes"
-                                       " INNER JOIN %s.attributes ON (item_attributes.attribute_id = attributes.id)"
-                                       " WHERE item_attributes.item_id = %"PRIu64" ORDER BY item_attributes.order",
-                                       mDatabase->galaxy(),mDatabase->galaxy(),item->getId());
-               }
+			std::stringstream sql;
+			sql << "SELECT attributes.name,item_attributes.value,attributes.internal FROM " << mDatabase->galaxy() << ".item_attributes"
+                << " INNER JOIN " << mDatabase->galaxy() << ".attributes ON (item_attributes.attribute_id = attributes.id)"
+				<< " WHERE item_attributes.item_id = " << item->getId() << " ORDER BY item_attributes.order";
+
+            mDatabase->executeSqlAsync(this,asContainer, sql.str());
+        }
     }
     break;
 
@@ -151,11 +158,12 @@ void ItemFactory::handleDatabaseJobComplete(void* ref,swganh::database::Database
             asContainer->mDepth = asyncContainer->mDepth;
 
             //containers are normal items like furniture, lightsabers and stuff
-            mDatabase->executeSqlAsync(this,asContainer,
-                                       "(SELECT \'items\',items.id FROM %s.items WHERE (parent_id=%"PRIu64"))"
-                                       " UNION (SELECT \'resource_containers\',resource_containers.id FROM %s.resource_containers WHERE (parent_id=%"PRIu64"))",
-                                       mDatabase->galaxy(),item->getId(),
-                                       mDatabase->galaxy(),item->getId());
+
+			std::stringstream sql;
+			sql << "(SELECT \'items\',items.id FROM " << mDatabase->galaxy() << ".items WHERE (parent_id=" << item->getId() << "))"
+                << " UNION (SELECT \'resource_containers\',resource_containers.id FROM " << mDatabase->galaxy() << ".resource_containers WHERE (parent_id=" << item->getId() <<"))";
+                
+            mDatabase->executeSqlAsync(this,asContainer, sql.str());
             
 
         }

@@ -100,6 +100,35 @@ namespace event_dispatcher {
     private:
         T data_;
     };
+
+	template<typename T>
+    class ChainEvent : public BaseEvent
+    {
+    public:
+        ChainEvent(EventType type)
+            : BaseEvent(type)
+        {chained_ = ""}
+
+        ChainEvent(EventType type, EventType chained_event, T data)
+            : BaseEvent(type)
+			, chained_(chained_event)
+            , data_(std::move(data))
+        {}
+
+        const T& Get() const
+        {
+            return data_;
+        }
+
+        T& Get()
+        {
+            return data_;
+        }
+
+    private:
+        T data_;
+		EventType chained_;
+    };
     
     class EventDispatcherInterface
     {

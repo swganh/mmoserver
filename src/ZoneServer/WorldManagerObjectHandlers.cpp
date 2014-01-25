@@ -222,7 +222,7 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 		default:
 		{
 			// Please, when adding new stufff, at least take the time to add a stub for that type.
-	
+		
 		}
 		break;
 	}

@@ -73,6 +73,7 @@ typedef std::list<uint32>						UIWindowList;
 typedef std::map<uint32,BString>				ContactMap;
 
 typedef swganh::event_dispatcher::ValueEvent<std::shared_ptr<PlayerObject>> PlayerObjectEvent;
+typedef swganh::event_dispatcher::ChainEvent<std::shared_ptr<PlayerObject>> PlayerObjectChainedEvent;
 
 //=============================================================================
 

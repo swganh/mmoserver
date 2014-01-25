@@ -385,7 +385,7 @@ void ObjectController::_handleAdminTeleportTarget(uint64 targetId, Message* mess
 		return;
 	}
 
-	uint32 x,y,z;
+	float x,y,z;
 	x = admin->mPosition.x;
 	y = admin->mPosition.y;
 	z = admin->mPosition.z;
@@ -398,7 +398,7 @@ void ObjectController::_handleAdminTeleportTarget(uint64 targetId, Message* mess
 		return;
 	}*/
 
-    gWorldManager->warpPlanet(target_player, glm::vec3(static_cast<float>(x),static_cast<float>(y),static_cast<float>(z)),0);
+    gWorldManager->warpPlanet(target_player, admin->mPosition, 0 );
 
 }
 
@@ -414,12 +414,14 @@ void ObjectController::_handleAdminTeleport(uint64 targetId, Message* message, O
 
     std::string text(raw_message_ansi.begin(), raw_message_ansi.end());
 
+	LOG (info) << raw_message_ansi;
+
 	bool is_true = regex_search(text, result, pattern);
 
 	PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
 
 	if(!is_true)	{	
-		std::string result("Proper useage : /teleport [optional: planet] [x] [z]");
+		std::string result("Proper usage : /teleport [optional: planet] [x] [z]");
 		std::u16string message_u16(result.begin(), result.end());
 		gMessageLib->SendSystemMessage(message_u16, admin);
 		return;
@@ -438,14 +440,16 @@ void ObjectController::_handleAdminTeleport(uint64 targetId, Message* message, O
 	LOG (info) << "9 : " << result[9].str();
 	LOG (info) << "10 : " << result[10].str();
 
-	uint32 x,z, planetId;
+	int32 x,z, planetId;
 	std::string zone(result[1].str());
 	x = atoi(result[2].str().c_str());
 	z = atoi(result[3].str().c_str());
 
 	//this is hardcoded shit we need a way to determine a zones size at some point
 	if(x < -8192 || x > 8192 || z < -8192 || z > 8192)	{
-        std::string result("Please make sure you enter valid coordinates. At current these are -8192 to 8192 in x and z for planets");
+        std::stringstream result_stream;
+		result_stream << "Please make sure you enter valid coordinates. At current these are -8192 to 8192 in x and z for planets : " << x << " : " << z;
+		std::string result(result_stream.str());
 		std::u16string message_u16(result.begin(), result.end());
 		gMessageLib->SendSystemMessage(message_u16, admin);
 		return;

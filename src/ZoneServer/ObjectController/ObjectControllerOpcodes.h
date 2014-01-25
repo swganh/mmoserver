@@ -244,7 +244,10 @@ enum object_controller_admin_functions
     opOCAdminShutdownGalaxy				= 0xFC96BB5C,
     opOCAdminCancelShutdownGalaxy		= 0x72790D12,
 	opOCAdminKick						= 0x4C5FAF94,
-	opOCAdminTeleport					= 0x530BDAC6
+	opOCAdminTeleport					= 0x530BDAC6,
+	opOCAdminTeleportTo					= 0x8D436395,
+	opOCAdminTeleportTarget				= 0x5C556FF4,
+	opOCAdminSetName					= 0xF5F33C69
 	
 };
 

@@ -187,7 +187,7 @@ void ObjectController::_handleAdminSysMsg(uint64 targetId,Message* message,Objec
         // gMessageLib->sendSystemMessage(player, dataStr, true);
 
         //dataStr.convert(BSTRType_ANSI);
-        DLOG(info) << "Admin "<< player->getFirstName().getAnsi() <<":" << dataStr.getAnsi();
+        DLOG(info) << "Admin "<< player->getFirstName() <<":" << dataStr.getAnsi();
     }
     else
     {
@@ -327,12 +327,78 @@ BString ObjectController::handleBroadcast(BString message) const
 }
 
 
+void ObjectController::_handleAdminSetName(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
+{
+}
+
 
 void ObjectController::_handleAdminTeleportTo(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
 {
-	std::u16string raw_message_unicode = message->getStringUnicode16();
-	std::string    raw_message_ansi(raw_message_unicode.begin(), raw_message_unicode.end());
-	LOG(info) << "ObjectController::_handleAdminTeleportTo : " << raw_message_ansi;
+	PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+
+	if(!admin)	{	
+		LOG(error) << "ObjectController::_handleAdminTeleportTo - No Admin ?? : " << targetId;
+		return;
+	}
+
+	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
+	if(!target_player)	{	
+		LOG(error) << "ObjectController::_handleAdminTeleportTo - the target player couldnt be located : " << targetId;
+		std::string result("the target player couldnt be located");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+		return;
+	}
+
+	uint32 x,y,z;
+	x = target_player->mPosition.x;
+	y = target_player->mPosition.y;
+	z = target_player->mPosition.z;
+
+	//this is hardcoded shit we need a way to determine a zones size at some point
+	/*if(x < -8192 || x > 8192 || z < -8192 || z > 8192)	{
+        std::string result("Please make sure you enter valid coordinates. At current these are -8192 to 8192 in x and z for planets");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+		return;
+	}*/
+
+	
+    gWorldManager->warpPlanet(admin, glm::vec3(static_cast<float>(x),static_cast<float>(y),static_cast<float>(z)),0);
+
+}
+
+void ObjectController::_handleAdminTeleportTarget(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties)
+{
+	PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+	if(!admin)	{	
+		LOG(error) << "ObjectController::_handleAdminTeleportTo - No Admin ?? : " << targetId;
+		return;
+	}
+
+	PlayerObject* target_player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
+	if(!target_player)	{	
+		LOG(error) << "ObjectController::_handleAdminTeleportTo - the target player couldnt be located : " << targetId;
+		std::string result("the target player couldnt be located");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+		return;
+	}
+
+	uint32 x,y,z;
+	x = admin->mPosition.x;
+	y = admin->mPosition.y;
+	z = admin->mPosition.z;
+
+	//this is hardcoded shit we need a way to determine a zones size at some point
+	/*if(x < -8192 || x > 8192 || z < -8192 || z > 8192)	{
+        std::string result("Please make sure you enter valid coordinates. At current these are -8192 to 8192 in x and z for planets");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+		return;
+	}*/
+
+    gWorldManager->warpPlanet(target_player, glm::vec3(static_cast<float>(x),static_cast<float>(y),static_cast<float>(z)),0);
 
 }
 
@@ -340,7 +406,77 @@ void ObjectController::_handleAdminTeleport(uint64 targetId, Message* message, O
 {
 	std::u16string raw_message_unicode = message->getStringUnicode16();
 	std::string    raw_message_ansi(raw_message_unicode.begin(), raw_message_unicode.end());
+	
 	LOG(info) << "ObjectController::_handleAdminTeleport : " << raw_message_ansi;
+
+	static const regex pattern("([a-zA-Z0-9 /_]+)? ([0-9-]+) ([0-9-]+)");
+    smatch result;
+
+    std::string text(raw_message_ansi.begin(), raw_message_ansi.end());
+
+	bool is_true = regex_search(text, result, pattern);
+
+	PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+
+	if(!is_true)	{	
+		std::string result("Proper useage : /teleport [optional: planet] [x] [z]");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+		return;
+	}
+
+	LOG (info) << "Matched : " << is_true;
+	LOG (info) << "string : " << result[0].str();
+	LOG (info) << "1 : " << result[1].str();
+	LOG (info) << "2 : " << result[2].str();
+	LOG (info) << "3 : " << result[3].str();
+	LOG (info) << "4 : " << result[4].str();
+	LOG (info) << "5 : " << result[5].str();
+	LOG (info) << "6 : " << result[6].str();
+	LOG (info) << "7 : " << result[7].str();
+	LOG (info) << "8 : " << result[8].str();
+	LOG (info) << "9 : " << result[9].str();
+	LOG (info) << "10 : " << result[10].str();
+
+	uint32 x,z, planetId;
+	std::string zone(result[1].str());
+	x = atoi(result[2].str().c_str());
+	z = atoi(result[3].str().c_str());
+
+	//this is hardcoded shit we need a way to determine a zones size at some point
+	if(x < -8192 || x > 8192 || z < -8192 || z > 8192)	{
+        std::string result("Please make sure you enter valid coordinates. At current these are -8192 to 8192 in x and z for planets");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+		return;
+	}
+
+	if(zone.length()){
+		planetId = gWorldManager->getPlanetIdByName(zone);
+
+			
+		if(planetId == -1)	{
+			std::string result("Please make sure you enter a valid Zone (Instance).");
+			std::u16string message_u16(result.begin(), result.end());
+			gMessageLib->SendSystemMessage(message_u16, admin);
+			return;
+		}
+	}
+
+    // teleport on this zone
+    if(static_cast<uint32>(planetId) == gWorldManager->getZoneId())
+    {
+            gWorldManager->warpPlanet(admin, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),0);
+    }
+    // zone transfer request
+    else
+    {
+		std::string message_ansi("Requesting zone transfer...");
+        gMessageLib->SendSystemMessage(std::u16string(message_ansi.begin(), message_ansi.end()), admin);
+
+        gMessageLib->sendClusterZoneTransferRequestByPosition(admin, glm::vec3(static_cast<float>(x),0.0f,static_cast<float>(z)),planetId);
+    }
+
 
 }
 
@@ -349,6 +485,13 @@ void ObjectController::_handleAdminKick(uint64 targetId, Message* message, Objec
 	std::u16string raw_message_unicode = message->getStringUnicode16();
 	std::string    raw_message_ansi(raw_message_unicode.begin(), raw_message_unicode.end());
 	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(targetId));
+	if(!player)	{
+		PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
+		std::string result("You must either target the offending player or provide his name in case he is nearby. You cannot /kick offline players or players that are not nearby.");
+		std::u16string message_u16(result.begin(), result.end());
+		gMessageLib->SendSystemMessage(message_u16, admin);
+		return;
+	}
 	
 	//(([a-zA-Z0-9/_]+) ((ban:) ((days:) ([0-9]+) )?((hours:) ([0-9]+) )?((minutes:) ([0-9]+))?)?)([a-zA-Z0-9/_]+)?
 
@@ -378,6 +521,8 @@ void ObjectController::_handleAdminKick(uint64 targetId, Message* message, Objec
 	LOG (info) << "12 : " << result[12].str();
 	LOG (info) << "13 : " << result[13].str();
 	LOG (info) << "14 : " << result[14].str();
+	LOG (info) << "15 : " << result[13].str();
+	LOG (info) << "16 : " << result[14].str();
 
 
 	if(!is_true)	{
@@ -901,7 +1046,7 @@ void ObjectController::sendAdminFeedback(BString reply) const
         }
         else
         {
-            DLOG(info) << "Admin :" << player->getFirstName().getAnsi();
+            DLOG(info) << "Admin :" << player->getFirstName();
         }
     }
     else

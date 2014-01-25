@@ -118,7 +118,7 @@ struct StructureAsyncCommand
     uint8						b1;
     uint8						b2;
     BString						CommandString;
-    BString						PlayerStr;
+    std::string						PlayerStr;
     BString						List;
     BString						Name;
     Structure_Async_CommandEnum	Command;

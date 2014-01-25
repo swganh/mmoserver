@@ -480,7 +480,10 @@ void ObjectControllerCommandMap::_registerCppHooks()
     mCommandMap.insert(std::make_pair(opOCAdminCancelShutdownGalaxy, std::bind(&ObjectController::_handleCancelShutdownGalaxy, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCAdminKick, std::bind(&ObjectController::_handleAdminKick, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 	mCommandMap.insert(std::make_pair(opOCAdminTeleport, std::bind(&ObjectController::_handleAdminTeleport, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-	mCommandMap.insert(std::make_pair(opOCAdminTeleport, std::bind(&ObjectController::_handleAdminTeleportTo, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	mCommandMap.insert(std::make_pair(opOCAdminTeleportTo, std::bind(&ObjectController::_handleAdminTeleportTo, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	mCommandMap.insert(std::make_pair(opOCAdminTeleportTarget, std::bind(&ObjectController::_handleAdminTeleportTarget, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	mCommandMap.insert(std::make_pair(opOCAdminSetName, std::bind(&ObjectController::_handleAdminSetName, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+	
 	
 	
 

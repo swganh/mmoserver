@@ -143,6 +143,7 @@ PlayerObject::PlayerObject()
 {
     mIsForaging			= false;
     mType				= ObjType_Player;
+	object_type_		= SWG_PLAYER;
     mCreoGroup			= CreoGroup_Player;
     mStomach			= new Stomach(this);
     mMarriage			= L"";					// Unmarried
@@ -1397,7 +1398,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
         // its a skill - offer to teach it
         sprintf(text,"@skl_n:%s",skill->mName.getAnsi());
-        sprintf(caption,"%s offers to teach you : %s",mFirstName.getAnsi(),text);
+        sprintf(caption,"%s offers to teach you : %s",first_name,text);
 
         gUIManager->createNewSkillTeachMessageBox(this,"askteach",caption,text,pupilObject,SUI_MB_OKCANCEL,skillSelectBox->getPupil(),skill);
     }
@@ -1418,7 +1419,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
         teachBox->getPupil()->getTrade()->setTeacher(NULL);
 
         //send mission accomplished to teacher
-        BString convName = teachBox->getPupil()->getFirstName().getAnsi();
+        BString convName = teachBox->getPupil()->getFirstName().c_str();
         convName.convert(BSTRType_Unicode16);
 
         ::common::ProsePackage prose("teaching", "teacher_skill_learned");

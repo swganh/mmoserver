@@ -772,6 +772,8 @@ private:
 	void	_handleCancelShutdownGalaxy(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 	void	_handleAdminTeleport(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 	void	_handleAdminTeleportTo(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	void	_handleAdminTeleportTarget(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
+	void	_handleAdminSetName(uint64 targetId, Message* message, ObjectControllerCmdProperties* cmdProperties);
 
 
 	BString	handleBroadcast(BString message) const;

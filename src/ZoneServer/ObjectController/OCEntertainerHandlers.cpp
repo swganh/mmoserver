@@ -333,7 +333,7 @@ void ObjectController::_handleDenyService(uint64 targetId,Message* message,Objec
     else if(outcast)
     {
         //poor sod is near and will now be added to our list (or removed)
-        gEntertainerManager->toggleOutcastId(entertainer,outcast->getId(),outcast->getFirstName());
+        gEntertainerManager->toggleOutcastId(entertainer,outcast->getId(),outcast->getFirstName().c_str());
         return;
     }
 

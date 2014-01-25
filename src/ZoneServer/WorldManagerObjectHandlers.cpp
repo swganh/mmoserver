@@ -162,7 +162,7 @@ bool WorldManager::addObject(Object* object,bool manual)
 
 			// onPlayerEntered event, notify scripts
             std::stringstream params;
-			params << getPlanetNameThis() << " " << player->getFirstName().getAnsi() 
+			params << getPlanetNameThis() << " " << player->getFirstName() 
                     << " " << static_cast<uint32>(mPlayerAccMap.size());
 
 			//mWorldScriptsListener.handleScriptEvent("onPlayerEntered",params.str().c_str());
@@ -362,7 +362,7 @@ void WorldManager::destroyObject(Object* object)
 
 			// onPlayerLeft event, notify scripts
 			std::stringstream params;
-			params << getPlanetNameThis() << " " << player->getFirstName().getAnsi() 
+			params << getPlanetNameThis() << " " << player->getFirstName()
                     << " " << static_cast<uint32>(mPlayerAccMap.size());
 
 			//mWorldScriptsListener.handleScriptEvent("onPlayerLeft",params.str().c_str());

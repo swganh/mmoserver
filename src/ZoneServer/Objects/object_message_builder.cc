@@ -38,14 +38,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer\Objects\Object_Enums.h"
 #include "ZoneServer\PlayerEnums.h"
 
+#include "MessageLib/MessageLib.h"
+
 
 using namespace swganh::event_dispatcher;
 
 void ObjectMessageBuilder::RegisterEventHandlers()
 {
+	event_dispatcher_->Subscribe("Object::CustomName", [this] (const std::shared_ptr<EventInterface>& incoming_event)
+    {
+        auto value_event = std::static_pointer_cast<ObjectEvent>(incoming_event);
+        BuildCustomNameDelta(value_event->Get());
+    });
+
+	
 }
 
-//, CRC_Type object_type
+void ObjectMessageBuilder::BuildCustomNameDelta(const std::shared_ptr<Object>& object)
+{
+ 
+	if(object->getObjectType() == SWG_INVALID)	{
+		LOG(error) << "ObjectMessageBuilder::BuildCustomNameDelta :	invalid Object Type for : " << object->getId();
+		return;
+	}
+
+    swganh::messages::DeltasMessage message = CreateDeltasMessage(object, VIEW_3, 2, object->getObjectType());
+    message.data.write(object->getCustomName());
+
+    gMessageLib->broadcastDelta(message,object.get());
+}
 
 //swganh::messages::DeltasMessage ObjectMessageBuilder::CreateDeltasMessage(const std::shared_ptr<Object>& object,  uint8_t view_type, uint16_t update_type, uint16_t update_count)
 swganh::messages::DeltasMessage BaseMessageBuilder::CreateDeltasMessage(const std::shared_ptr<Object>& object,  uint8_t view_type, uint16_t update_type, uint32_t object_type, uint16_t update_count)

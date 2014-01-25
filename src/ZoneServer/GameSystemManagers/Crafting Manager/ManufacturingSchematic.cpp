@@ -49,6 +49,7 @@ ManufacturingSchematic::ManufacturingSchematic() : Item(),
     mDataPadId					=	0;
     mItem						=	NULL;
     mSerial						=	"";
+	object_type_				=	SWG_MANUFACTURE_SCHEMATIC;
 
 }
 

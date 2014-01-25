@@ -79,10 +79,31 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 
         Ham*				getHam(){ return &mHam; }
 
-        BString				getFirstName() const { return mFirstName; }
-        void				setFirstName(BString name){ mFirstName = name; }
-        BString				getLastName() const { return mLastName; }
-        void				setLastName(BString name){ mLastName = name; }
+        std::string			getFirstName() const { auto lock = AcquireLock(); return getFirstName(lock); }
+		std::string			getFirstName(boost::unique_lock<boost::mutex>& lock) const { return first_name; }
+
+        void				setFirstName(std::string name){ auto lock = AcquireLock(); setFirstName(lock, name); }
+		void				setFirstName(boost::unique_lock<boost::mutex>& lock, std::string name){ first_name = name; 
+			std::stringstream stream;
+			stream << getFirstName() << " " << getLastName();
+			std::string name_ansi = stream.str();
+			std::u16string name_u16(name_ansi.begin(), name_ansi.end());
+			lock.unlock();
+			setCustomName(name_u16);
+		}
+
+        std::string			getLastName() const { auto lock = AcquireLock(); return getLastName(lock); }
+		std::string			getLastName(boost::unique_lock<boost::mutex>& lock) const { return last_name; }
+
+        void				setLastName(std::string name){ auto lock = AcquireLock(); setLastName(name); }
+		void				setLastName(boost::unique_lock<boost::mutex>& lock, std::string name){ last_name = name; 
+			std::stringstream stream;
+			stream << getFirstName() << " " << getLastName();
+			std::string name_ansi = stream.str();
+			std::u16string name_u16(name_ansi.begin(), name_ansi.end());
+			lock.unlock();
+			setCustomName(name_u16);
+		}
 
         //uint32				getPosture() const { return mPosture; }
         // calls setLocomotion as well
@@ -351,8 +372,12 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         BString				mCurrentAnimation;
         BString				mCustomizationStr;
         BString				mFaction;
-        BString				mFirstName;
+        std::string			first_name;
+        std::string			last_name;
+
+		//BString				mFirstName;
         BString				mLastName;
+
         BString				mSpecies;
         BString				mSpeciesGroup;
 

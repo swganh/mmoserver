@@ -614,6 +614,8 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(swganh::database::Dat
     }
     npc->setLoadState(LoadState_Attributes);
 
+	npc->object_type_ = SWG_CREATURE;
+
     // Save default direction, since player can make the npc change heading.
     // Can't apply this to a dynamically created npc.
     // npc->storeDefaultDirection();

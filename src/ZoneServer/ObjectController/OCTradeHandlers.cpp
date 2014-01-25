@@ -133,7 +133,7 @@ void ObjectController::handleSecureTradeInvitation(uint64 targetId,Message* mess
             {
                 // We are not invited, check Ignore.
                 // If receiver have sender ignored, auto decline trade request.
-                BString ignoreName = invitingPlayer->getFirstName();
+                BString ignoreName = invitingPlayer->getFirstName().c_str();
                 ignoreName.toLower();
 
                 // check receivers ignorelist
@@ -217,7 +217,7 @@ void ObjectController::_handleTip(uint64 targetId,Message* message,ObjectControl
         if(target && (target != player))
         {
             havetarget = true;
-            name = target->getFirstName();
+            name = target->getFirstName().c_str();
         }
 
         if(elementCount == 3)

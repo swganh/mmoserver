@@ -90,7 +90,11 @@ StructureManager::StructureManager(swganh::database::Database* database,MessageD
     //todo load buildings from building table and use appropriate stfs there
     //are harvesters on there too
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadDeedData, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost, s_td.fp_length, s_td.fp_width, s_td.planetMask from %s.structure_deed_data sdd INNER JOIN %s.structure_type_data s_td ON sdd.StructureType = s_td.type",mDatabase->galaxy(),mDatabase->galaxy());
+    std::stringstream sql;
+	sql << "SELECT sdd.id, sdd.DeedType, sdd.SkillRequirement, s_td.object_string, s_td.lots_used, s_td.stf_name, s_td.stf_file, s_td.healing_modifier, s_td.repair_cost, s_td.fp_length, s_td.fp_width, s_td.planetMask from "
+		<< mDatabase->galaxy() << ".structure_deed_data sdd INNER JOIN "
+		<< mDatabase->galaxy() << ".structure_type_data s_td ON sdd.StructureType = s_td.type";
+	mDatabase->executeSqlAsync(this,asyncContainer,sql.str());
 
     //items
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
@@ -98,6 +102,7 @@ StructureManager::StructureManager(swganh::database::Database* database,MessageD
 
     //statics
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_LoadstructureItem, 0);
+
     mDatabase->executeSqlAsync(this,asyncContainer,"SELECT sit.structure_id, sit.cell, sit.item_type , sit.relX, sit.relY, sit.relZ, sit.dirX, sit.dirY, sit.dirZ, sit.dirW, sit.tan_type, st.object_string, st.name, st.file from %s.structure_item_template sit INNER JOIN %s.static_types st ON (st.id = sit.item_type) WHERE sit.tan_type = %u",mDatabase->galaxy(),mDatabase->galaxy(),TanGroup_Static);
 
 
@@ -179,28 +184,23 @@ void StructureManager::updateKownPlayerPermissions(PlayerStructure* structure)
 //=======================================================================================================================
 //checks for a name on a permission list
 //=======================================================================================================================
-void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 playerId, BString name, BString list, StructureAsyncCommand command)
+void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 playerId, std::string name_ansi, std::string list, StructureAsyncCommand command)
 {
 
     StructureManagerAsyncContainer* asyncContainer;
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Check_Permission, 0);
 
-    int8 sql[512],*sqlPointer,restStr[128];
-//	int8 sql[1024]
-    sprintf(sql, "select %s.sf_CheckPermissionList(%"PRIu64",'", mDatabase->galaxy(), structureId);
+	std::stringstream sql;
+	sql << "SELECT " << mDatabase->galaxy() << ".sf_CheckPermissionList(" << structureId << ",'" << mDatabase->escapeString(name_ansi)
+		<< "','" << list << "')";
 
-    sqlPointer = sql + strlen(sql);
-    sqlPointer += gWorldManager->getKernel()->GetDatabase()->escapeString(sqlPointer,name.getAnsi(),name.getLength());
-    sprintf(restStr,"','%s')",list.getAnsi());
-    strcat(sql,restStr);
-
-    gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
+    mDatabase->executeSqlAsync(this,asyncContainer,sql.str());
 
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
     asyncContainer->command = command;
-    sprintf(asyncContainer->name,"%s",name.getAnsi());
+    sprintf(asyncContainer->name,"%s",name_ansi);
 
 
     // 0 is Name on list
@@ -213,20 +213,21 @@ void StructureManager::checkNameOnPermissionList(uint64 structureId, uint64 play
 //=======================================================================================================================
 //removes a name from a permission list
 //=======================================================================================================================
-void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId, BString name, BString list)
+void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 playerId,  std::string name_ansi, BString list)
 {
-    int8 playerName[64];
-
-    mDatabase->escapeString(playerName,name.getAnsi(),name.getLength());
-
     StructureManagerAsyncContainer* asyncContainer;
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Remove_Permission, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"select %s.sf_RemovePermissionList(%"PRIu64",'%s','%s')",mDatabase->galaxy(),structureId,playerName,list.getAnsi());
+	
+	std::stringstream sql;
+	sql << "SELECT " << mDatabase->galaxy() << ".sf_RemovePermissionList(" << structureId << ",'" << mDatabase->escapeString(name_ansi)
+		<< "','" << list.getAnsi() << "')";
+
+    mDatabase->executeSqlAsync(this,asyncContainer, sql.str());
 
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
-    sprintf(asyncContainer->name,"%s",name.getAnsi());
+    sprintf(asyncContainer->name,"%s",name_ansi);
 
     // 0 is sucess
     // 1 name doesnt exist
@@ -239,22 +240,22 @@ void StructureManager::removeNamefromPermissionList(uint64 structureId, uint64 p
 //=======================================================================================================================
 //adds a name to a permission list
 //=======================================================================================================================
-void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId, BString name, BString list)
+void StructureManager::addNametoPermissionList(uint64 structureId, uint64 playerId,  std::string name_ansi, BString list)
 {
-    int8 playerName[64];
     //we have shown that we are on the admin list, so the name we proposed now will get added
 
     StructureManagerAsyncContainer* asyncContainer;
 
     asyncContainer = new StructureManagerAsyncContainer(Structure_Query_Add_Permission, 0);
-    
-    mDatabase->escapeString(playerName,name.getAnsi(),name.getLength());
 
     asyncContainer->mStructureId = structureId;
     asyncContainer->mPlayerId = playerId;
-    sprintf(asyncContainer->name,"%s",name.getAnsi());
-
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT %s.sf_AddPermissionList(%"PRIu64",'%s','%s')",mDatabase->galaxy(),structureId,playerName,list.getAnsi());
+    sprintf(asyncContainer->name,"%s",name_ansi.c_str());
+	
+	std::stringstream sql;
+	sql << "SELECT " << mDatabase->galaxy() << ".sf_AddPermissionList(" << structureId << ",'" << mDatabase->escapeString(name_ansi)
+		<< "','" << list.getAnsi() << "')";
+    mDatabase->executeSqlAsync(this,asyncContainer,sql.str());
 
 
     // 0 is sucess
@@ -1645,7 +1646,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 		
 		//todo we need to implement custom names
 		std::string customName = "";
-        gObjectFactory->requestnewHousebyDeed(gStructureManager, deed, player->getClient(),
+        gObjectFactory->requestnewHousebyDeed(this, deed, player->getClient(),
                      pVec.x, pVec.y, pVec.z, dir, customName, player);
 
 		LOG (info) << "building build at : x " << pVec.x << "y " << pVec.y << " z " << pVec.z;

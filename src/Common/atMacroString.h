@@ -38,6 +38,9 @@ public:
     void			addTO(BString TO) {
         mTO = TO;
     }
+	void			addTO(std::string TO) {
+        mTO = TO.c_str();
+    }
     void			addTOId(uint64 toid) {
         mTOId = toid;
     }

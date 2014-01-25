@@ -330,7 +330,7 @@ void GroupManager::_processIsmGroupLootMasterResponse(Message* message, Dispatch
 
     while(it != inRangeMembers.end())
     {
-        namesArray.push_back((*it)->getFirstName().getAnsi());
+        namesArray.push_back((*it)->getFirstName().c_str());
         ++it;
     }
 

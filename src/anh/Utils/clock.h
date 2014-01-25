@@ -70,14 +70,14 @@ public:
     char*			GetCurrentDateTimeChar();
 	std::string		GetCurrentDateTimeString();
 	
-	/*	@brief	getGlobalTime() is used to get the current time with with milisecond (windows)
+	/*	@brief	getGlobalTime() is used to get the current time since midnight with with milisecond (windows)
 	*	or microsecond (*nix) resolution.
 	*	as getting the system time is expensive in terms of processing time. 
 	*	Use this only in non time critical situations 
 	*/
     uint64	getGlobalTime() const;
 
-	/*	@brief	getLocalTime() is used to get the current server up time with milisecond (windows)
+	/*	@brief	getLocalTime() is used to get the time in microseconds since 1.1.2000 in milisecond (windows)
 	*	or microsecond (*nix) resolution.
 	*	as getting the system time is expensive in terms of processing time. 
 	*	Use this only in non time critical situations 
@@ -95,10 +95,10 @@ public:
 	boost::posix_time::ptime 		getBoostTime();
 	boost::posix_time::ptime 		getStoredBoostTime();
 
-	/*	@brief	_setStoredTime() is used by the clocks schedulér to set mStoredTime approx. once per second
+	/*	@brief	_setStoredTime() is used by the clocks schedulér to set mStoredTime . once per 100 miliseconds
 	*/
     bool	_setStoredTime(uint64 callTime, void* ref) {
-        mStoredTime = getLocalTime();
+        mStoredTime += 100;
 		mBoostTime  = getBoostTime();
         return true;
     }
@@ -106,9 +106,7 @@ public:
     void	process();
 
 private:
-
-
-    uint64							mTimeDelta;     
+     
     uint64							mStoredTime;
 	boost::posix_time::ptime 		mBoostTime; 
 
@@ -116,6 +114,9 @@ private:
 
     static Clock*					mSingleton;
     static bool						mInsFlag;
+
+	boost::posix_time::ptime		time_fix;
+	boost::posix_time::ptime		date_fix;
 };
 }
 

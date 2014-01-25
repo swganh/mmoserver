@@ -470,7 +470,7 @@ void StructureManager::_HandleStructureTransferLotsRecipient(StructureManagerAsy
         }
         if(recipient)
         {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "ownership_transferred_in", "", "", "", "", "", donor->getFirstName().getAnsi()), recipient);
+            gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "ownership_transferred_in", "", "", "", "", "", donor->getFirstName()), recipient);
         }
 
 
@@ -517,7 +517,7 @@ void StructureManager::_HandleQueryLoadDeedData(StructureManagerAsyncContainer* 
     }
 
     if(result->getRowCount())
-        LOG(info) << "Loaded structures.";
+        LOG(info) << "Loaded structure Data.";
 
     mDatabase->destroyDataBinding(binding);
 }
@@ -1223,7 +1223,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,BString inputSt
 				command.StructureId = structure->getId();
 				command.SchematicId = ManSchemId;
 
-				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"HOPPER",command);
 			}
 			else if(strcmp(b.getAnsi(),"true") == 0) //remove schematic pressed
 			{
@@ -1234,7 +1234,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,BString inputSt
 				command.StructureId = structure->getId();
 				command.SchematicId = ManSchemId;
 
-				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+				gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"HOPPER",command);
 			}
 		}
 		break;
@@ -1247,7 +1247,7 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,BString inputSt
         command.PlayerId = player->getId();
         command.StructureId = structure->getId();
 
-        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(structure->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
 
     }
     break;

@@ -107,6 +107,7 @@ bool WorldManager::_handleDormantNpcs(uint64 callTime, void* ref)
                 {
                     // Set next execution time.
                     (*it).second = callTime + waitTime;
+					it++;
                 }
                 else
                 {

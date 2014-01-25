@@ -185,7 +185,7 @@ void GroupManagerHandler::_processIsmGroupLootMasterResponse(Message* message, D
 
     while(it != inRangeMembers.end())
     {
-        namesArray.push_back((*it)->getFirstName().getAnsi());
+        namesArray.push_back((*it)->getFirstName().c_str());
         ++it;
     }
 

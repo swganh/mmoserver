@@ -22,8 +22,8 @@
 #define ANH_CONFIG_
 
 #define VERSION_MAJOR 0
-#define VERSION_MINOR 7
+#define VERSION_MINOR 3
 #define VERSION_PATCH 0
-#define SWGANH_VERSION 0.7.0
+#define SWGANH_VERSION 0.3.0
 
 #endif  // ANH_CONFIG_

@@ -454,7 +454,7 @@ void Session::ProcessWriteThread(void)
             }
             else
             {
-                LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_milliseconds()  << ") seconds session Id : " << this->getId();
+                LOG(info) << "Session disconnect last received packet > 60  ("<< diff.total_seconds()  << ") seconds session Id : " << this->getId();
 
                 mCommand = SCOM_Disconnect;
             }
@@ -462,6 +462,7 @@ void Session::ProcessWriteThread(void)
         else if (this->mServerService && (diff.total_seconds() > 10))
         {
            _sendPingPacket(true);
+		   //LOG(info) << "Session::ProcessWriteThread PingPacket send   last packet received ("<< diff.total_seconds()  << ") seconds ago session Id : " << this->getId();
         }
 	    
     }
@@ -681,10 +682,15 @@ void Session::HandleSessionPacket(Packet* packet)
     if (mInSequenceNext == sequence)
     {
         SortSessionPacket(packet,packetType);
+		if(out_of_order)	{
+			out_of_order = false;
+			LOG(info) << "Session::HandleSessionPacket sequence reestablished";
+		}
 
     }
     else if (mInSequenceNext < sequence)
     {
+		out_of_order = true;
         //last line of defense synchronization
         if(sequence > (mInSequenceNext+50))
         {
@@ -1809,6 +1815,7 @@ void Session::_processPingPacket(Packet* packet)
 
     if (pingType == 1) // ping request
     {
+		//LOG(info) << "Session::_processPingPacket Inter server pingpacket received : " << mLastPingPacketReceived;
         // Echo the ping packet back.
         Packet* newPacket = mPacketFactory->CreatePacket();
         newPacket->addUint16(SESSIONOP_Ping);

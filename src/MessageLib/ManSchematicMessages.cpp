@@ -84,8 +84,8 @@ bool MessageLib::sendBaselinesMSCO_3(ManufacturingSchematic* manSchem,PlayerObje
     if(!draftSchematic)
         return(false);
 
-    BString					convPlayerName	= playerObject->getFirstName();
-    BString					convCustomName	= manSchem->getCustomName();
+    BString					convPlayerName	= playerObject->getFirstName().c_str();
+	BString					convCustomName	= manSchem->getCustomName();
 
     convPlayerName.convert(BSTRType_Unicode16);
     convCustomName.convert(BSTRType_Unicode16);

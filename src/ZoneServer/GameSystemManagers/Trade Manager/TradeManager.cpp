@@ -845,11 +845,11 @@ void TradeManager::TradeTransaction(DispatchClient* client,PlayerObject* player1
 
         if (!player1->testCash(asyncContainer->amount1) )
         {
-			DLOG(info) <<"Player : "<<player1->getFirstName().getAnsi()<< "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had only " << dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+			DLOG(info) <<"Player : "<<player1->getFirstName() << "id "<<player1->getId()<< "wanted to trade "<<asyncContainer->amount1<<" credits but had only " << dynamic_cast<Inventory*>(player1->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
         }
         if (!player2->testCash(asyncContainer->amount2) )
         {
-            DLOG(info) <<"Player : "<<player2->getFirstName().getAnsi()<< "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had only " << dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
+            DLOG(info) <<"Player : "<<player2->getFirstName() << "id "<<player2->getId()<< "wanted to trade "<<asyncContainer->amount2<<" credits but had only " << dynamic_cast<Inventory*>(player2->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
         }
     }
 }

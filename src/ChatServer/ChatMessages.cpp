@@ -250,7 +250,7 @@ void ChatMessageLib::sendSoldAuctionMail(DispatchClient* client,uint64 Sender, u
 
     aMS->addMBstf("auction","seller_success_location");
     aMS->addTT(Region);
-    aMS->addTO("");
+    aMS->addTO(std::string(""));
     aMS->addTextModule();
 
     gMessageFactory->StartMessage();

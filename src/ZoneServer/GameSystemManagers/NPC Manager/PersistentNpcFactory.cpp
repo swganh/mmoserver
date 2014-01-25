@@ -197,6 +197,8 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
     // Save default direction, since player can make the npc change heading.
     npc->storeDefaultDirection();
 
+	npc->object_type_ = SWG_CREATURE;
+
     return npc;
 }
 
@@ -207,8 +209,8 @@ void PersistentNpcFactory::_setupDatabindings()
     mPersistentNpcBinding = mDatabase->createDataBinding(20);
     mPersistentNpcBinding->addField(swganh::database::DFT_uint64,offsetof(NPCObject,mId),8,0);
     mPersistentNpcBinding->addField(swganh::database::DFT_uint64,offsetof(NPCObject,mParentId),8,1);
-    mPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mFirstName),64,2);
-    mPersistentNpcBinding->addField(swganh::database::DFT_bstring,offsetof(NPCObject,mLastName),64,3);
+	mPersistentNpcBinding->addField(swganh::database::DFT_stdstring,offsetof(NPCObject,first_name),64,2);
+    mPersistentNpcBinding->addField(swganh::database::DFT_stdstring,offsetof(NPCObject,last_name),64,3);
     mPersistentNpcBinding->addField(swganh::database::DFT_uint8,offsetof(NPCObject,mPosture),1,4);
     mPersistentNpcBinding->addField(swganh::database::DFT_uint64,offsetof(NPCObject,mState),8,5);
     mPersistentNpcBinding->addField(swganh::database::DFT_uint16,offsetof(NPCObject,mCL),2,6);

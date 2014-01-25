@@ -62,6 +62,7 @@ LairObject::LairObject(uint64 templateId) : AttackableStaticNpc()
     , mSpawned(false)
     , mSpawnPositionFixed(true)
 {
+	object_type_ = SWG_CREATURE;
     mNpcFamily	= NpcFamily_NaturalLairs;
     mType = ObjType_Lair;
 

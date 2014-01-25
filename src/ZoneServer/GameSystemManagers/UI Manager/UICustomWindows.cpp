@@ -49,16 +49,23 @@ void UIManager::createNewDiagnoseListBox(UICallback* callback,PlayerObject* Medi
 {
     BStringVector attributesMenu;
 
-    BString FirstName = Patient->getFirstName();
-    FirstName.toUpper();
-    BString LastName = Patient->getLastName();
-    LastName.toUpper();
+    std::string first_name = Patient->getFirstName();
+	
+	uint8	id = 0;
+	std::locale loc;
+	for (std::string::size_type i=0; i < first_name.length(); ++i)
+		first_name[i]= std::toupper(first_name[i],loc);
+
+	
+    std::string last_name = Patient->getLastName();
+    for (std::string::size_type i=0; i < last_name.length(); ++i)
+		last_name[i]= std::toupper(last_name[i],loc);
 
     int8 title[64];
-    sprintf(title,"PATIENT %s %s'S WOUNDS",FirstName.getAnsi(), LastName.getAnsi());
+    sprintf(title,"PATIENT %s %s'S WOUNDS",first_name, last_name);
 
     int8 desc[512];
-    sprintf(desc, "Below is a listing of the Wound and Battle Fatigue levels of %s %s. Wounds are healed through /tendWound or use of Wound Medpacks. High levels of Battle Fatigue can inhibit the healing process, and Battle Fatigue can only be healed by the patient choosing to watch performing entertainers",Patient->getFirstName().getAnsi(), Patient->getLastName().getAnsi());
+    sprintf(desc, "Below is a listing of the Wound and Battle Fatigue levels of %s %s. Wounds are healed through /tendWound or use of Wound Medpacks. High levels of Battle Fatigue can inhibit the healing process, and Battle Fatigue can only be healed by the patient choosing to watch performing entertainers",Patient->getFirstName(), Patient->getLastName());
 
     int8 Health[32];
     sprintf(Health,"Health -- %i",Patient->getHam()->mHealth.getWounds());

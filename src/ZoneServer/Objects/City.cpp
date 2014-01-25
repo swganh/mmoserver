@@ -58,7 +58,7 @@ void City::onObjectEnter(Object* object)
 
 	addVisitor(object);
 
-	DLOG(info) << player->getFirstName().getAnsi() << " entered " 
+	DLOG(info) << player->getFirstName() << " entered " 
         << mCityName << " (" << mVisitingPlayers.size() << " players in city)";
 }
 
@@ -73,7 +73,7 @@ void City::onObjectLeave(Object* object)
 
 	removeVisitor(object);
 
-	DLOG(info) << player->getFirstName().getAnsi() << " left " 
+	DLOG(info) << player->getFirstName() << " left " 
         << mCityName << " (" << mVisitingPlayers.size() << " players in city)";
 }
 

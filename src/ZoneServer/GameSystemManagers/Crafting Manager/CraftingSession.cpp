@@ -783,7 +783,7 @@ void CraftingSession::assemble(uint32 counter)
     mItem->addAttributeIncDB("serial_number",serial.getAnsi());
 
     //add creator
-    mItem->addAttributeIncDB("crafter",mOwner->getFirstName().getAnsi());
+    mItem->addAttributeIncDB("crafter",mOwner->getFirstName());
 
     int8 assRoll = _assembleRoll();
 
@@ -952,7 +952,7 @@ void CraftingSession::createPrototype(uint32 noPractice,uint32 counter)
 
         // add the crafter name attribute
         // adds automatically when necessary
-        mItem->setAttributeIncDB("crafter",mOwner->getFirstName().getAnsi());
+        mItem->setAttributeIncDB("crafter",mOwner->getFirstName());
 
         // now the serial
         BString serial = getSerial();

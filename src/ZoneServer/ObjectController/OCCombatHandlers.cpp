@@ -109,7 +109,7 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
             else
             {
                 // If target have me ignored, auto decline the invitation.
-                BString ignoreName = player->getFirstName();
+                BString ignoreName = player->getFirstName().c_str();
                 ignoreName.toLower();
 
                 // check our ignorelist

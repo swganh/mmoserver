@@ -359,7 +359,7 @@ void ZoneServer::handleWMReady()
 
 void ZoneServer::Process(void)
 {
-    uint64_t current_timestep = Anh_Utils::Clock::getSingleton()->getGlobalTime();
+    uint64_t current_timestep = Anh_Utils::Clock::getSingleton()->getLocalTime();
     // Process our game modules
     mObjectControllerDispatch->Process();
     gWorldManager->Process();

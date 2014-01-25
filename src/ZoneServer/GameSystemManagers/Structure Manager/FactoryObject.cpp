@@ -115,7 +115,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
     }
     break;
 
@@ -126,7 +126,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
     }
     break;
 
@@ -137,7 +137,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"HOPPER",command);
     }
     break;
 
@@ -148,7 +148,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"HOPPER",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"HOPPER",command);
     }
     break;
 
@@ -159,7 +159,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
     }
     break;
 
@@ -170,7 +170,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(), "ADMIN",command);
 
     }
     break;
@@ -182,7 +182,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -194,7 +194,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -208,7 +208,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -219,7 +219,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -231,7 +231,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
 
     }
     break;
@@ -244,7 +244,7 @@ void FactoryObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
         command.PlayerId = player->getId();
         command.StructureId = this->getId();
 
-        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName().getAnsi(),"ADMIN",command);
+        gStructureManager->checkNameOnPermissionList(this->getId(),player->getId(),player->getFirstName(),"ADMIN",command);
 
 
     }

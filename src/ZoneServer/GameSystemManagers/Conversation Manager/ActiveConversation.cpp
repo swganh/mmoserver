@@ -57,7 +57,7 @@ ActiveConversation::ActiveConversation(Conversation* baseConv,PlayerObject* play
         mNpc->setTitle(mCurrentPage->mStfVariable);
     }
 
-    if (mNpc->getFirstName().getLength() == 0)
+    if (mNpc->getFirstName().length() == 0)
     {
         // mNpc->setFirstName("MrRandom Name");
     }

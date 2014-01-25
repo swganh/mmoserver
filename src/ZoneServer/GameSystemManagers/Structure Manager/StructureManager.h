@@ -198,9 +198,9 @@ public:
     //PlayerStructures
     void					getDeleteStructureMaintenanceData(uint64 structureId, uint64 playerId);
 
-    void					addNametoPermissionList(uint64 structureId, uint64 playerId, BString name, BString list);
-    void					removeNamefromPermissionList(uint64 structureId, uint64 playerId, BString name, BString list);
-    void					checkNameOnPermissionList(uint64 structureId, uint64 playerId, BString name, BString list, StructureAsyncCommand command);
+    void					addNametoPermissionList(uint64 structureId, uint64 playerId,  std::string name_ansi, BString list);
+    void					removeNamefromPermissionList(uint64 structureId, uint64 playerId,  std::string name_ansi, BString list);
+    void					checkNameOnPermissionList(uint64 structureId, uint64 playerId,  std::string name_ansi, std::string list, StructureAsyncCommand command);
     void					processVerification(StructureAsyncCommand command, bool owner);
     void					TransferStructureOwnership(StructureAsyncCommand command);
 

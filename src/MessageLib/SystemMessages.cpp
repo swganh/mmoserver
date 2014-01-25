@@ -152,7 +152,7 @@ void MessageLib::sendSoldInstantMail(uint64 oldOwner, PlayerObject* newOwner, BS
 
     aMS->addMBstf("auction","seller_success");
     aMS->addTO(ItemName);
-    aMS->addTT(newOwner->getFirstName());
+    aMS->addTT(newOwner->getFirstName().c_str());
     aMS->addDI(Credits);
     aMS->addTextModule();
 

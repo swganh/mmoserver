@@ -110,7 +110,11 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, swganh::database:
             asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Pages);
             asCont->mConversation = conv;
 
-            mDatabase->executeSqlAsync(this,asCont,"SELECT * FROM %s.conversation_pages WHERE conversation_id=%u ORDER BY page",mDatabase->galaxy(), insertId);
+			std::stringstream sql;
+			sql << "SELECT * FROM "
+				<< mDatabase->galaxy() << ".conversation_pages WHERE conversation_id="
+				<< insertId << " ORDER BY page";
+            mDatabase->executeSqlAsync(this,asCont,sql.str());
             
         }
 
@@ -156,14 +160,13 @@ void ConversationManager::handleDatabaseJobComplete(void* ref, swganh::database:
             asCont = new(mDBAsyncPool.malloc()) CVAsyncContainer(ConvQuery_Page_OptionBatch);
             asCont->mConversationPage = page;
 
-            mDatabase->executeSqlAsync(this,asCont,"SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
-                                       "conversation_options.stf_variable,conversation_options.event,conversation_options.pageLink "
-                                       "FROM "
-                                       "conversation_option_batches "
-                                       "INNER JOIN conversation_options ON (conversation_option_batches.option_id = conversation_options.id) "
-                                       "WHERE "
-                                       "(conversation_option_batches.id = %u) ORDER BY conversation_option_batches.option_id", batchId);
-           
+			std::stringstream sql;
+			sql << "SELECT conversation_options.id,conversation_options.customText,conversation_options.stf_file,"
+				<< "conversation_options.stf_variable,conversation_options.event,conversation_options.pageLink "
+				<< "FROM conversation_option_batches INNER JOIN conversation_options ON (conversation_option_batches.option_id = conversation_options.id) "
+				<< "WHERE (conversation_option_batches.id = " << batchId << ") ORDER BY conversation_option_batches.option_id"
+				;
+            mDatabase->executeSqlAsync(this,asCont, sql.str());
         }
 
         mDatabase->destroyDataBinding(pageBinding);

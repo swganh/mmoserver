@@ -626,6 +626,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     MissionBag*		playerMissionBag;
     Bank*			playerBank		= new Bank(playerObject);
 
+	playerObject->object_type_ = SWG_PLAYER;
+
     // get our results
     result->getNextRow(mPlayerBinding,(void*)playerObject);
     result->resetRowIndex();
@@ -790,8 +792,8 @@ void PlayerObjectFactory::_setupDatabindings()
     mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mPosition.y),4,8);
     mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mPosition.z),4,9);
     mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mModel),128,10);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mFirstName),64,11);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mLastName),64,12);
+	mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,first_name),64,11);
+    mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,last_name),64,12);
     mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
     mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mFaction),16,165);
     mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,states.posture),1,166);

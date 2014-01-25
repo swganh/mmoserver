@@ -207,8 +207,8 @@ void ShuttleFactory::_setupDatabindings()
     mShuttleBinding = mDatabase->createDataBinding(17);
     mShuttleBinding->addField(swganh::database::DFT_uint64,offsetof(Shuttle,mId),8,0);
     mShuttleBinding->addField(swganh::database::DFT_uint64,offsetof(Shuttle,mParentId),8,1);
-    mShuttleBinding->addField(swganh::database::DFT_bstring,offsetof(Shuttle,mFirstName),64,2);
-    mShuttleBinding->addField(swganh::database::DFT_bstring,offsetof(Shuttle,mLastName),64,3);
+	mShuttleBinding->addField(swganh::database::DFT_stdstring,offsetof(Shuttle,first_name),64,2);
+    mShuttleBinding->addField(swganh::database::DFT_stdstring,offsetof(Shuttle,last_name),64,3);
     mShuttleBinding->addField(swganh::database::DFT_float,offsetof(Shuttle,mDirection.x),4,4);
     mShuttleBinding->addField(swganh::database::DFT_float,offsetof(Shuttle,mDirection.y),4,5);
     mShuttleBinding->addField(swganh::database::DFT_float,offsetof(Shuttle,mDirection.z),4,6);

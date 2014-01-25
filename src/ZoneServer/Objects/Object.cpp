@@ -65,6 +65,8 @@ Object::Object()
     mPosition  = glm::vec3();
 
     mObjectController.setObject(this);
+	
+	object_type_ = SWG_INVALID;
 }
 
 //=============================================================================
@@ -817,3 +819,9 @@ bool Object::hasObject(uint64 id) {
 bool Object::checkForObject(Object* object) {
     return hasObject(object->getId());
 }
+
+void Object::setCustomName(boost::unique_lock<boost::mutex>& lock, std::u16string name){ custom_name_= name; 
+	lock.unlock();
+	auto dispatcher = GetEventDispatcher();
+	dispatcher->DispatchMainThread(std::make_shared<ObjectEvent>("Object::CustomName", (this)));
+	}

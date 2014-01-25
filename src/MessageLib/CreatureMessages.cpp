@@ -149,10 +149,9 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
 
     Message*		message;
     Ham*			creatureHam = creatureObject->getHam();
-    BString			firstName = creatureObject->getFirstName().getAnsi();
-    BString			lastName = creatureObject->getLastName().getAnsi();
-    BString			fullName;
-    uint32			creoByteCount;
+	std::u16string custom_name_u16;
+    
+	uint32			creoByteCount;
     uint32			byteCount;
 
     // if its a persistent npc, we don't need all ham bars
@@ -162,21 +161,13 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
         byteCount = 119;
 
     // make sure we got a name
-    if(firstName.getLength() > 1)
-    {
-        fullName << firstName.getAnsi();
-    }
+	std::stringstream stream;
+	stream << creatureObject->getFirstName() << " " << creatureObject->getLastName();
+	std::string s(stream.str());
+	custom_name_u16 += std::u16string(s.begin(), s.end());
 
-    if(lastName.getLength() > 1)
-    {
-        fullName << " ";
-        fullName << lastName.getAnsi();
-    }
 
-    // needs to be send as unicode
-    fullName.convert(BSTRType_Unicode16);
-
-    creoByteCount = byteCount + creatureObject->getSpeciesGroup().getLength() + (fullName.getLength() << 1) + creatureObject->getCustomizationStr().getLength() + creatureObject->getSpeciesString().getLength();
+	creoByteCount = byteCount + creatureObject->getSpeciesGroup().getLength() + (custom_name_u16.length() << 1) + creatureObject->getCustomizationStr().getLength() + creatureObject->getSpeciesString().getLength();
     mMessageFactory->StartMessage();
     mMessageFactory->addUint32(opBaselinesMessage);
     mMessageFactory->addUint64(creatureObject->getId());
@@ -191,7 +182,7 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
     mMessageFactory->addUint32(0);     // unknown
     mMessageFactory->addString(creatureObject->getSpeciesString());
     //2
-    mMessageFactory->addString(fullName);
+    mMessageFactory->addString(custom_name_u16);
     //3
     mMessageFactory->addUint32(1); // unknown
     //4

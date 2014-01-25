@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 namespace pt = boost::posix_time;
 
 
+
 using namespace Anh_Utils;
 
 //======================================================================================================================
@@ -50,14 +51,19 @@ Clock::Clock()
 {
 	
 	pt::ptime time  = pt::second_clock::universal_time();
-	
-	mTimeDelta = time.time_of_day().total_milliseconds();
-	
-	mStoredTime = getLocalTime();
+	time_fix = time;
+
+	mStoredTime = 0;
 	mBoostTime = time;
     
 	mClockScheduler		= new Anh_Utils::Scheduler(this);
-    mClockScheduler->addTask(fastdelegate::MakeDelegate(this,&Clock::_setStoredTime),1,1000,NULL);
+    mClockScheduler->addTask(fastdelegate::MakeDelegate(this,&Clock::_setStoredTime),1,100,NULL);
+	
+	pt::ptime epoch(boost::gregorian::date(1970, 1, 1));
+	date_fix = epoch;
+	//pt::ptime epoch = time;
+
+	
 }
 
 //======================================================================================================================
@@ -127,7 +133,9 @@ pt::ptime 	Clock::getStoredBoostTime()
 uint64 Clock::getGlobalTime() const
 {
     pt::ptime time  = pt::second_clock::universal_time();
-	return time.time_of_day().total_milliseconds();
+	pt::time_duration diff(time - date_fix);
+	return  diff.total_milliseconds();
+	//return time.time_of_day().total_milliseconds();
 }
 
 //==============================================================================================================================
@@ -137,8 +145,9 @@ uint64 Clock::getGlobalTime() const
 
 uint64 Clock::getLocalTime() const
 {
+	//return mStoredTime;
 	pt::ptime time  = pt::second_clock::universal_time();
-	return time.time_of_day().total_milliseconds()- mTimeDelta;
-	//return time.time_of_day().total_milliseconds() - mTimeDelta;
-
+	pt::time_duration diff(time - time_fix);
+	return  diff.total_milliseconds();
+	//return time.time_of_day().total_milliseconds();
 }

@@ -387,10 +387,10 @@ void TreasuryManager::bankTipOnline(int32 amount, PlayerObject* playerObject, Pl
 
     if((amount+surcharge) > dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits())
     {
-        BString s;
+        std::string s;
         s = targetObject->getFirstName();
-        s.convert(BSTRType_Unicode16);
-        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_nsf_cash", L"", s.getUnicode16(), L"", amount), playerObject);
+		std::wstring s_w(s.begin(), s.end());
+        gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_nsf_cash", L"", s_w, L"", amount), playerObject);
         return;
     }
 

@@ -795,10 +795,11 @@ void Trainer::postProcessfilter(ActiveConversation* av, PlayerObject* player, ui
 
         // System message: You successfully make a payment of %DI credits to %TO.
 
-        if (av->getNpc()->getFirstName().getLength())
+        if (av->getNpc()->getFirstName().length())
         {
-
-            prose.to_custom_string = av->getNpc()->getFirstName().getUnicode16();
+			std::string f_name(av->getNpc()->getFirstName());
+			std::u16string f_name_u16(f_name.begin(), f_name.end());
+			prose.to_custom_string = std::wstring(f_name_u16.begin(), f_name_u16.end());
         }
         else
         {

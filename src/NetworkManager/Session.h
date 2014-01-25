@@ -323,6 +323,7 @@ private:
     uint16                      mOutSequenceNext;
     uint16                      mInSequenceNext;
 
+	bool						out_of_order;
     bool						mOutSequenceRollover;
     uint16                      mNextPacketSequenceSent;
     uint64                      mLastRemotePacketAckReceived;

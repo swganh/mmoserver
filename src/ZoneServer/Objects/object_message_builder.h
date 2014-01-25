@@ -35,6 +35,7 @@ public:
 
 	virtual ~BaseMessageBuilder() {}
 
+	static void BuildCustomNameDelta(const std::shared_ptr<Object>& object);
 
 	template<typename SubjectT, typename ReceiverT>
     void SendBaselines(const std::shared_ptr<SubjectT>& subject, const std::shared_ptr<ReceiverT>& receiver)

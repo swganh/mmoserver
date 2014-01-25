@@ -78,6 +78,8 @@ typedef std::set<uint64>				Uint64Set;
 #define DISPATCH(BIG, LITTLE) if(auto dispatcher = GetEventDispatcher()) \
 {dispatcher->Dispatch(std::make_shared<BIG ## Event>(#BIG "::" #LITTLE, std::static_pointer_cast<BIG>(shared_from_this())));}
 
+typedef swganh::event_dispatcher::ValueEvent<Object*> ObjectEvent;
+
 /*
  - Base class for all gameobjects
  */
@@ -112,9 +114,17 @@ public:
     }		
 		
 	BString						getModelString(){ return mModel; }
+	
+	/*@brief	this will get the old fashioned Object type 
+	*			phase out and use the 
+	*/
 	ObjectType					getType() const { return mType; }
 	uint32						getTypeOptions() const { return mTypeOptions; }
-
+	
+	/*@brief	this will get the Objects type-CRC (YALP OERC etc)
+	*			use instead of ObjectType
+	*/
+	CRC_Type					getObjectType() const { return object_type_; }
 		
 	void						setModelString(const BString model){ mModel = model; }
 	void						setType(ObjectType type){ mType = type; }
@@ -350,12 +360,25 @@ public:
 //		void						clearKnownObjects(){ mKnownObjects.clear(); mKnownPlayers.clear(); }
 //		ObjectSet*					getContainerKnownObjects() { return &mKnownObjects; }
 	
+	/*	@brief	gets the Custom (non stf) name of an Object
+	*			For players the Custom Name will be build out of first_name " " and last_name
+	*			For other Objects it will be directly in the db / or set via appropriate functions
+	*/
+	std::u16string		getCustomName() const { auto lock = AcquireLock(); return getCustomName(lock); }
+	std::u16string		getCustomName(boost::unique_lock<boost::mutex>& lock) const { return custom_name_; }
+
+	/*	@brief	sets the Custom (non stf) name of an Object
+	*			For players the Custom Name will be build out of first_name " " and last_name
+	*			For other Objects it will be set directly for example on crafting or when placing a structure
+	*/
+    void				setCustomName(std::u16string name){ auto lock = AcquireLock(); setCustomName(lock, name); }
+	void				setCustomName(boost::unique_lock<boost::mutex>& lock, std::u16string name);
+	
 	
 	boost::unique_lock<boost::mutex> AcquireLock() const
 	{
 		return boost::unique_lock<boost::mutex>(object_mutex_);
 	}
-
 
 protected:
 
@@ -372,11 +395,14 @@ protected:
 	ObjectController			mObjectController;
 	BString						mModel;
 
+	std::u16string			custom_name_;
+
 	MenuItemList*			mMenuItemList;
 	RadialMenuPtr			mRadialMenu;
 
 	ObjectLoadState			mLoadState;
 	ObjectType				mType;
+	CRC_Type				object_type_;
 
 	uint64					mId;
 	uint64					mParentId;

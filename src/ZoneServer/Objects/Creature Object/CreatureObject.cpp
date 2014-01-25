@@ -106,6 +106,7 @@ CreatureObject::CreatureObject()
 , mReady(false)
 {
     mType = ObjType_Creature;
+	object_type_ = SWG_CREATURE;
 
     mSkillMods.reserve(50);
     mSkillCommands.reserve(50);

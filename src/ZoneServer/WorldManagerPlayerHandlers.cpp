@@ -443,7 +443,7 @@ bool	WorldManager::_handlePlayerSaveTimers(uint64 callTime, void* ref)
 
         ++playerIt;
     }
-    LOG(warning) << "Periodic Save of "<< playerSaveCount <<" Players";
+    //LOG(warning) << "Periodic Save of "<< playerSaveCount <<" Players";
     return true;
 }
 //======================================================================================================================

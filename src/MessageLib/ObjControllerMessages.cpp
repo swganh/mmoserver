@@ -995,11 +995,11 @@ bool MessageLib::sendCharacterMatchResults(const PlayerList* const matched_playe
         mMessageFactory->addUint32(0);
         mMessageFactory->addUint32(0);
 
-        std::string player_name(player->getFirstName().getAnsi());
+        std::string player_name(player->getFirstName());
 
-        if(player->getLastName().getLength()) {
+        if(player->getLastName().length()) {
             player_name.append(" ");
-            player_name.append(player->getLastName().getAnsi());
+            player_name.append(player->getLastName());
         }
 
         mMessageFactory->addString(std::wstring(player_name.begin(), player_name.end()));

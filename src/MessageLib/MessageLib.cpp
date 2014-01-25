@@ -266,7 +266,7 @@ void MessageLib::SendSpatialToInRangeUnreliable_(Message* message, Object* const
                 return;
             }
 
-            std::string tmp = source_player->getFirstName().getAnsi();
+            std::string tmp = source_player->getFirstName();
             std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
             senders_name_crc = common::memcrc(tmp);
 

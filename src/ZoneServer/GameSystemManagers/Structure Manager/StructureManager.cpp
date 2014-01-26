@@ -1646,7 +1646,7 @@ bool StructureManager::HandlePlaceStructure(Object* object, Object* target, Mess
 		
 		//todo we need to implement custom names
 		std::string customName = "";
-        gObjectFactory->requestnewHousebyDeed(this, deed, player->getClient(),
+        gObjectFactory->requestnewHousebyDeed(gStructureManager, deed, player->getClient(),
                      pVec.x, pVec.y, pVec.z, dir, customName, player);
 
 		LOG (info) << "building build at : x " << pVec.x << "y " << pVec.y << " z " << pVec.z;

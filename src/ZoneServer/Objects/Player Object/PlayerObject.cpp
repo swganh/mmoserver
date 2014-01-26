@@ -648,7 +648,6 @@ bool PlayerObject::deductCredits(int32 amount)
                 }
 
                 gMessageLib->sendBankCreditsUpdate(this);
-                gMessageLib->sendInventoryCreditsUpdate(this);
 
                 return(true);
             }
@@ -1244,8 +1243,6 @@ void PlayerObject::giveInventoryCredits(uint32 amount)
     if(Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
     {
         inventory->setCredits(inventory->getCredits() + amount);
-
-        gMessageLib->sendInventoryCreditsUpdate(this);
     }
 }
 

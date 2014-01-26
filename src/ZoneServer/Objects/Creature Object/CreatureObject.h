@@ -52,6 +52,7 @@ typedef std::vector<FactionPoints>		FactionList;
 typedef std::vector<CreatureObject*>	CreatureList;
 typedef std::list<Object*>				ObjectList;
 typedef std::list<Buff*>				BuffList;
+typedef swganh::event_dispatcher::ValueEvent<CreatureObject*> CreatureObjectEvent;
 
 //=============================================================================
 
@@ -338,8 +339,6 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		bool SerializeDefender(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
 		//typedef swganh::event_dispatcher::ValueEvent<std::shared_ptr<CreatureObject>> CreatureObjectEvent;
-
-		typedef swganh::event_dispatcher::ValueEvent<CreatureObject*> CreatureObjectEvent;
 
 		bool	checkDefenderList(uint64 defenderId);
 

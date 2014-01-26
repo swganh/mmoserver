@@ -1,4 +1,5 @@
-/*
+/*-------------------------------------------------------------------------------------
+
 ---------------------------------------------------------------------------------------
 This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Emulator)
 
@@ -65,12 +66,30 @@ public:
         mObjectLoadCounter = count;
     }
 
-    int32			getCredits() {
-        return mCredits;
+	/*	@brief returns the amount of credits the creature has in its inventory
+	*	this getter is currently thread safe
+	*/
+    uint32			getCredits() {
+        auto lock = AcquireLock();
+		return getCredits(lock);
     }
-    void			setCredits(int32 credits) {
-        mCredits = credits;
-    }
+	
+	uint32 getCredits(boost::unique_lock<boost::mutex>& lock)	{
+		return mCredits;
+	}
+
+	/*	@brief sets the amount of credits the creature has in its inventory
+	*	this setter is currently thread safe
+	*	It will throw an event to send the appropriate delta and it will throw a db persist event
+	*/
+	void setCredits(uint32 credits);
+	void setCredits(uint32 credits, boost::unique_lock<boost::mutex>& lock);
+
+	/*	@brief updates the amount of credits the creature has in its inventory
+	*	this setter will perform a sanity check and return true if the update was succesfull (deduct not more credits than we own)
+	*	This method is currently thread safe
+	*	It will throw an event to send the appropriate delta and it will throw a db persist event through setCredits()
+	*/
     bool			updateCredits(int32 amount);
 
     //depecrated - use check(get/set) capicity instead

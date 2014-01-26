@@ -426,7 +426,7 @@ public:
 	void				sendPostureUpdate(CreatureObject* creatureObject);
 	void				sendMoodUpdate(CreatureObject* creatureObject);
 	bool				sendBankCreditsUpdate(PlayerObject* playerObject);
-	bool				sendInventoryCreditsUpdate(PlayerObject* playerObject);
+	
 	bool				sendUpdateMovementProperties(PlayerObject* playerObject);
 	void				sendStateUpdate(CreatureObject* creatureObject);
 	void				sendSingleBarUpdate(CreatureObject* creatureObject);

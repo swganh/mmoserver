@@ -131,11 +131,7 @@ void TreasuryManager::bankDepositAll(PlayerObject* playerObject)
                 // save to the db
                 mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),bank->credits(),bank->getId()));
 
-                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),inventory->getCredits(),inventory->getId()));
-
-
                 //send the appropriate deltas.
-                gMessageLib->sendInventoryCreditsUpdate(playerObject);
                 gMessageLib->sendBankCreditsUpdate(playerObject);
 
                 gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_deposit_success", 0, 0, 0, credits), playerObject);
@@ -169,11 +165,7 @@ void TreasuryManager::bankWithdrawAll(PlayerObject* playerObject)
                 // save to the db
                 mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),bank->credits(),bank->getId()));
 
-                mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),inventory->getCredits(),inventory->getId()));
-
-
                 //send the appropriate deltas.
-                gMessageLib->sendInventoryCreditsUpdate(playerObject);
                 gMessageLib->sendBankCreditsUpdate(playerObject);
             }
             else
@@ -256,7 +248,6 @@ void TreasuryManager::bankTransfer(int32 inventoryMoneyDelta, int32 bankMoneyDel
     }
 
     // save to the db
-    saveAndUpdateInventoryCredits(playerObject);
     saveAndUpdateBankCredits(playerObject);
 }
 
@@ -320,15 +311,6 @@ void TreasuryManager::bankJoin(PlayerObject* playerObject)
         //This message period added at the end as its missing from client.
         gMessageLib->SendSystemMessage(::common::OutOfBand("system_msg", "succesfully_joined_bank"), playerObject);
     }
-}
-
-//======================================================================================================================
-
-void TreasuryManager::saveAndUpdateInventoryCredits(PlayerObject* playerObject)
-{
-    mDatabase->destroyResult(mDatabase->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%"PRIu64"",mDatabase->galaxy(),dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits(),playerObject->getId() + 1));
-
-    gMessageLib->sendInventoryCreditsUpdate(playerObject);
 }
 
 //======================================================================================================================
@@ -438,9 +420,6 @@ void TreasuryManager::inventoryTipOnline(int32 amount, PlayerObject* playerObjec
 
     playerInventory->setCredits(playerInventory->getCredits() - amount);
     targetInventory->setCredits(targetInventory->getCredits() + amount);
-
-    saveAndUpdateInventoryCredits(playerObject);
-    saveAndUpdateInventoryCredits(targetObject);
 
     gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_pass_self", 0, targetObject->getId(), 0, amount), playerObject);
     gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "prose_tip_pass_target", 0, playerObject->getId(), 0, amount), targetObject);

@@ -1085,39 +1085,6 @@ bool MessageLib::sendBankCreditsUpdate(PlayerObject* playerObject)
     return(true);
 }
 
-//======================================================================================================================
-//
-// Creature Deltas Type 1
-// update: inventory credits
-//
-
-bool MessageLib::sendInventoryCreditsUpdate(PlayerObject* playerObject)
-{
-    if(!(playerObject->isConnected()))
-        return(false);
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(1);
-    mMessageFactory->addUint32(8);
-    mMessageFactory->addUint16(1);
-    mMessageFactory->addUint16(1);
-
-    if(Inventory* inventory = dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
-    {
-        mMessageFactory->addUint32(inventory->getCredits());
-    }
-    else
-    {
-        mMessageFactory->addUint32(0);
-    }
-
-    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
-
-    return(true);
-}
 
 //======================================================================================================================
 //

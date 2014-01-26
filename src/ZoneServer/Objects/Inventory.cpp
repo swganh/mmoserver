@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/CraftingTool.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
+#include "ZoneServer/Objects/Creature Object/CreatureObject.h"
 #include "ZoneServer/GameSystemManagers/Resource Manager/ResourceContainer.h"
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
@@ -59,6 +60,23 @@ Inventory::~Inventory()
 
 //=============================================================================
 
+void Inventory::setCredits(uint32 credits) 
+{
+	auto lock = AcquireLock();
+	setCredits(credits, lock);
+}
+
+void Inventory::setCredits(uint32 credits, boost::unique_lock<boost::mutex>& lock)
+{
+	mCredits = credits;
+	auto dispatcher = GetEventDispatcher();
+	
+	lock.unlock();
+	
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::InventoryCredits", mParent));
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistInventoryCredits", mParent));
+}
+
 
 //============================================================================
 // checks whether we have enough space in the inventory to accomodate
@@ -83,13 +101,7 @@ bool Inventory::updateCredits(int32 amount)
     if(mCredits + amount < 0)
         return(false);
 
-    mCredits += amount;
-
-    if(mParent->getType() == ObjType_Player)
-        gMessageLib->sendInventoryCreditsUpdate(dynamic_cast<PlayerObject*>(mParent));
-
-    gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(NULL,NULL,"UPDATE %s.inventories set credits=credits+%i WHERE id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),amount,mId);
-    
+    setCredits(mCredits += amount);    
 
     return(true);
 }

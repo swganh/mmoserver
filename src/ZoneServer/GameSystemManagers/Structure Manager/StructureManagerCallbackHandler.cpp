@@ -1130,10 +1130,9 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
         inventory->setCredits(inventoryFunds);
 
         gWorldManager->getKernel()->GetDatabase()->destroyResult(gWorldManager->getKernel()->GetDatabase()->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),bank->credits(),bank->getId()));
-        gWorldManager->getKernel()->GetDatabase()->destroyResult(gWorldManager->getKernel()->GetDatabase()->executeSynchSql("UPDATE %s.inventories SET credits=%u WHERE id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),inventory->getCredits(),inventory->getId()));
+       
 
         //send the appropriate deltas.
-        gMessageLib->sendInventoryCreditsUpdate(player);
         gMessageLib->sendBankCreditsUpdate(player);
 
         //get the structures conditiondamage and see whether it needs repair

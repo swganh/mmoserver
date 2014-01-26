@@ -54,6 +54,7 @@ public:
     virtual void RegisterEventHandlers();
 
     // deltas
+	static void BuildInventoryCreditsDelta(const std::shared_ptr<CreatureObject>& creature);
 	static void BuildStatDefenderDelta(const std::shared_ptr<CreatureObject>& creature);
 
     static void BuildBankCreditsDelta(const std::shared_ptr<CreatureObject>& creature);

@@ -173,8 +173,6 @@ void Trade::updateCash(uint32 amount)
     Inventory* inventory = dynamic_cast<Inventory*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
     inventory->setCredits(inventory->getCredits() + amount);
-
-    gMessageLib->sendInventoryCreditsUpdate(getPlayerObject());
 }
 
 //=============================================================================

@@ -42,6 +42,7 @@ class DispatchClient;
 class ObjectFactoryCallback;
 class PersistentNpcFactory;
 class ShuttleFactory;
+class CreatureObject;
 
 //=============================================================================
 
@@ -55,6 +56,10 @@ public:
     static CreatureFactory*	Init(swganh::database::Database* database);
 
     ~CreatureFactory();
+
+	void					PersistInventoryCredits(CreatureObject* creature);
+
+	void					RegisterEventHandlers();
 
     virtual void			handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result) {}
     void					requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);

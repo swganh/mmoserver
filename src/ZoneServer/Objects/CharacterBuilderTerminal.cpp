@@ -917,8 +917,6 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
         if(window->getWindowType() == SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox)
         {
             dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->setCredits(mInputBoxAmount);
-            gTreasuryManager->saveAndUpdateInventoryCredits(player);
-
         }
         else
         {

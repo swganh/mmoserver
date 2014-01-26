@@ -154,8 +154,6 @@ public:
     void						    bankOpenSafetyDepositContainer(PlayerObject* playerObject);
     void						    bankQuit(PlayerObject* playerObject);
     void						    bankJoin(PlayerObject* playerObject);
-
-    void						    saveAndUpdateInventoryCredits(PlayerObject* playerObject);
     void						    saveAndUpdateBankCredits(PlayerObject* playerObject);
 
     //handles bank tip to offline player

@@ -117,6 +117,13 @@ void DatabaseImplementationMySql::destroyResult(DatabaseResult* result) {
             while(res->next()) {}
         }
     }
+	sql::Statement* statement = result->getStatement().get();
+	result->getStatement().release();
+	delete(statement);
+
+	sql::ResultSet* res = result->getResultSet().get();
+	result->getResultSet().release();
+	delete(res);
 
     ResultPool::ordered_free(result);
 }

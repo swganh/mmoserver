@@ -409,7 +409,7 @@ void ObjectController::_handleAdminTeleport(uint64 targetId, Message* message, O
 	
 	LOG(info) << "ObjectController::_handleAdminTeleport : " << raw_message_ansi;
 
-	static const regex pattern("([a-zA-Z0-9 /_]+)? ([0-9-]+) ([0-9-]+)");
+	static const regex pattern("([a-zA-Z0-9/_]+)? ([0-9-]+) ([0-9-]+)");
     smatch result;
 
     std::string text(raw_message_ansi.begin(), raw_message_ansi.end());

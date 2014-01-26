@@ -95,6 +95,12 @@ public:
 	*/
 	void			storeCharacterAttributes_(PlayerObject* player_object);
 
+	/*	@brief registers the playerfactory related events
+	*	mostly for saving data to db
+	*
+	*/
+	void			RegisterEventHandlers();
+
     void			releaseAllPoolsMemory();
 
 private:

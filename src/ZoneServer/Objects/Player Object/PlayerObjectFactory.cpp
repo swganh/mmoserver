@@ -54,6 +54,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Utils/utils.h"
 
+#include "anh\event_dispatcher\event_dispatcher.h"
+#include "anh/app/swganh_kernel.h"
+
+using namespace swganh::event_dispatcher;
+
 //=============================================================================
 
 bool					PlayerObjectFactory::mInsFlag    = false;
@@ -479,6 +484,28 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 
 //=============================================================================
 
+void PlayerObjectFactory::RegisterEventHandlers()
+{
+	auto dispatcher = gWorldManager->getKernel()->GetEventDispatcher();
+
+dispatcher->Subscribe("PlayerObjectFactory::SaveCharacterAttributes", [this] (std::shared_ptr<EventInterface> incoming_event)
+    {
+		auto value_event = std::static_pointer_cast<PlayerObjectEvent>(incoming_event);
+		LOG(info) << "event_dispatcher_->Subscribe : subscription to : PlayerObjectFactory::SaveCharacterAttributes : " << value_event->Get().get()->getId();
+        
+		storeCharacterAttributes_(value_event->Get().get());
+    });
+
+dispatcher->Subscribe("PlayerObjectFactory::SaveCharacterPosition", [this] (std::shared_ptr<EventInterface> incoming_event)
+    {
+		auto value_event = std::static_pointer_cast<PlayerObjectEvent>(incoming_event);
+		LOG(info) << "event_dispatcher_->Subscribe : subscription to : PlayerObjectFactory::SaveCharacterAttributes : " << value_event->Get().get()->getId();
+        
+		storeCharacterPosition(value_event->Get().get());
+    });
+
+}
+
 
 void PlayerObjectFactory::storeCharacterAttributes_(PlayerObject* player_object) {
     
@@ -629,19 +656,20 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
         return nullptr;
     }
 
-    PlayerObject*	playerObject	= new PlayerObject();
-    TangibleObject*	playerHair		= new TangibleObject();
+	PlayerObject* playerObject = new PlayerObject();
+	std::shared_ptr<TangibleObject> playerHair = std::make_shared<TangibleObject>();
+	
     MissionBag*		playerMissionBag;
-    Bank*			playerBank		= new Bank(playerObject);
-
+	std::shared_ptr<Bank> playerBank = std::make_shared<Bank>(playerObject);
+   
 	playerObject->object_type_ = SWG_PLAYER;
 
     // get our results
     result->getNextRow(mPlayerBinding,(void*)playerObject);
     result->resetRowIndex();
-    result->getNextRow(mHairBinding,(void*)playerHair);
+    result->getNextRow(mHairBinding,(void*)playerHair.get());
     result->resetRowIndex();
-    result->getNextRow(mBankBinding,(void*)playerBank);
+    result->getNextRow(mBankBinding,(void*)playerBank.get());
 
     //male or female ?
     BStringVector				dataElements;
@@ -688,14 +716,13 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
 
         playerHair->buildTanoCustomization(3);
 
-        playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Hair,playerHair);
+        playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Hair,playerHair.get());
 		playerObject->mEquipManager.setDefaultHair(playerHair->getId());
 		gWorldManager->addObject(playerHair,true);
     }
     else
     {
 		playerObject->mEquipManager.setDefaultHair(0);
-        delete playerHair;
     }
 
     // mission bag
@@ -714,7 +741,7 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     playerBank->setTangibleType(TanType_Bank);
     playerBank->setEquipSlotMask(CreatureEquipSlot_Bank);
 
-    playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Bank,playerBank);
+    playerObject->mEquipManager.addEquippedObject(CreatureEquipSlot_Bank,playerBank.get());
     gWorldManager->addObject(playerBank,true);
 
     // default player weapon

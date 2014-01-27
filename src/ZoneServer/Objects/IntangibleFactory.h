@@ -55,7 +55,7 @@ public:
     static	IntangibleFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static	IntangibleFactory*	Init(swganh::database::Database* database);
+    static	IntangibleFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~IntangibleFactory();
 
@@ -66,7 +66,7 @@ public:
 
 
 private:
-    IntangibleFactory(swganh::database::Database* database);
+    IntangibleFactory(swganh::app::SwganhKernel*	kernel);
 
     void				_setupDatabindings();
     void				_destroyDatabindings();

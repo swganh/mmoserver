@@ -41,11 +41,11 @@ TicketCollectorFactory*	TicketCollectorFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-TicketCollectorFactory*	TicketCollectorFactory::Init(swganh::database::Database* database)
+TicketCollectorFactory*	TicketCollectorFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new TicketCollectorFactory(database);
+        mSingleton = new TicketCollectorFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -55,7 +55,7 @@ TicketCollectorFactory*	TicketCollectorFactory::Init(swganh::database::Database*
 
 //=============================================================================
 
-TicketCollectorFactory::TicketCollectorFactory(swganh::database::Database* database) : FactoryBase(database)
+TicketCollectorFactory::TicketCollectorFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

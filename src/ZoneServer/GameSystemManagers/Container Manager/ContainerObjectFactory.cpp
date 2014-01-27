@@ -50,18 +50,18 @@ ContainerObjectFactory*	ContainerObjectFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-ContainerObjectFactory*	ContainerObjectFactory::Init(swganh::database::Database* database)
+ContainerObjectFactory*	ContainerObjectFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mSingleton)
     {
-        mSingleton = new ContainerObjectFactory(database);
+        mSingleton = new ContainerObjectFactory(kernel);
     }
     return mSingleton;
 }
 
 //=============================================================================
 
-ContainerObjectFactory::ContainerObjectFactory(swganh::database::Database* database) : FactoryBase(database)
+ContainerObjectFactory::ContainerObjectFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

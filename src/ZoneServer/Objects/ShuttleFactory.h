@@ -57,7 +57,7 @@ public:
     static ShuttleFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static ShuttleFactory*	Init(swganh::database::Database* database);
+    static ShuttleFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~ShuttleFactory();
 
@@ -66,7 +66,7 @@ public:
 
 private:
 
-    ShuttleFactory(swganh::database::Database* database);
+    ShuttleFactory(swganh::app::SwganhKernel*	kernel);
 
     void				_setupDatabindings();
     void				_destroyDatabindings();

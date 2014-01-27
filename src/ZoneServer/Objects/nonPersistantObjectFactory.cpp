@@ -61,7 +61,7 @@ NonPersistantObjectFactory* NonPersistantObjectFactory::Instance(void)
 {
     if (!mSingleton)
     {
-        mSingleton = new NonPersistantObjectFactory(gWorldManager->getKernel()->GetDatabase());
+        mSingleton = new NonPersistantObjectFactory(gWorldManager->getKernel());
     }
     return mSingleton;
 }
@@ -76,9 +76,9 @@ NonPersistantObjectFactory::NonPersistantObjectFactory() : FactoryBase(NULL)
 
 //=============================================================================
 
-NonPersistantObjectFactory::NonPersistantObjectFactory(swganh::database::Database* database) : FactoryBase(database)
+NonPersistantObjectFactory::NonPersistantObjectFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mDatabase	= database;
+ 
 #if defined(_MSC_VER)
     mId			= 0x0000100000000000;
 #else

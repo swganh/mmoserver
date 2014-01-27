@@ -49,7 +49,7 @@ NonPersistentItemFactory* NonPersistentItemFactory::Instance(void)
 {
     if (!mSingleton)
     {
-        mSingleton = new NonPersistentItemFactory(gWorldManager->getKernel()->GetDatabase());
+        mSingleton = new NonPersistentItemFactory(gWorldManager->getKernel());
     }
     return mSingleton;
 }
@@ -64,7 +64,7 @@ NonPersistentItemFactory::NonPersistentItemFactory() : FactoryBase(NULL)
 //=============================================================================
 
 
-NonPersistentItemFactory::NonPersistentItemFactory(swganh::database::Database* database) : FactoryBase(database)
+NonPersistentItemFactory::NonPersistentItemFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

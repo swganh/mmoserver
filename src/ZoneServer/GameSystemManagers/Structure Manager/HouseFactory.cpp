@@ -51,11 +51,11 @@ HouseFactory*		HouseFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-HouseFactory*	HouseFactory::Init(swganh::database::Database* database)
+HouseFactory*	HouseFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new HouseFactory(database);
+        mSingleton = new HouseFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -65,11 +65,11 @@ HouseFactory*	HouseFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-HouseFactory::HouseFactory(swganh::database::Database* database) : FactoryBase(database)
+HouseFactory::HouseFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
 
     _setupDatabindings();
-    mCellFactory = CellFactory::Init(mDatabase);
+    mCellFactory = CellFactory::Init(kernel);
 }
 
 //=============================================================================

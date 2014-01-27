@@ -73,11 +73,11 @@ FactoryFactory*		FactoryFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-FactoryFactory*	FactoryFactory::Init(swganh::database::Database* database)
+FactoryFactory*	FactoryFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new FactoryFactory(database);
+        mSingleton = new FactoryFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -87,7 +87,7 @@ FactoryFactory*	FactoryFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-FactoryFactory::FactoryFactory(swganh::database::Database* database) : FactoryBase(database)
+FactoryFactory::FactoryFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
 
     _setupDatabindings();

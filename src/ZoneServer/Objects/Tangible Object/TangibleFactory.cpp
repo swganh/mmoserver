@@ -46,11 +46,11 @@ TangibleFactory*		TangibleFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-TangibleFactory*	TangibleFactory::Init(swganh::database::Database* database)
+TangibleFactory*	TangibleFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new TangibleFactory(database);
+        mSingleton = new TangibleFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -60,13 +60,13 @@ TangibleFactory*	TangibleFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-TangibleFactory::TangibleFactory(swganh::database::Database* database) : FactoryBase(database)
+TangibleFactory::TangibleFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mContainerFactory			= ContainerObjectFactory::Init(mDatabase);
-    mTerminalFactory			= TerminalFactory::Init(mDatabase);
-    mTicketCollectorFactory		= TicketCollectorFactory::Init(mDatabase);
-    mItemFactory				= ItemFactory::Init(mDatabase);
-    mResourceContainerFactory	= ResourceContainerFactory::Init(mDatabase);
+    mContainerFactory			= ContainerObjectFactory::Init(kernel);
+    mTerminalFactory			= TerminalFactory::Init(kernel);
+    mTicketCollectorFactory		= TicketCollectorFactory::Init(kernel);
+    mItemFactory				= ItemFactory::Init(kernel);
+    mResourceContainerFactory	= ResourceContainerFactory::Init(kernel);
 }
 
 //=============================================================================

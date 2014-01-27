@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/ObjectFactoryCallback.h"
 
 
-CityFactory::CityFactory(swganh::database::Database* database) : FactoryBase(database)
+CityFactory::CityFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {}
 
 //=============================================================================

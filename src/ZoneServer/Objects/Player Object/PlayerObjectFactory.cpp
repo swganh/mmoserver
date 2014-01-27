@@ -66,11 +66,11 @@ PlayerObjectFactory*	PlayerObjectFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-PlayerObjectFactory*	PlayerObjectFactory::Init(swganh::database::Database* database)
+PlayerObjectFactory*	PlayerObjectFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton	= new PlayerObjectFactory(database);
+        mSingleton	= new PlayerObjectFactory(kernel);
         mInsFlag	= true;
 
         return mSingleton;
@@ -81,10 +81,10 @@ PlayerObjectFactory*	PlayerObjectFactory::Init(swganh::database::Database* datab
 
 //=============================================================================
 
-PlayerObjectFactory::PlayerObjectFactory(swganh::database::Database* database) : FactoryBase(database)
+PlayerObjectFactory::PlayerObjectFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mInventoryFactory	= InventoryFactory::Init(mDatabase);
-    mDatapadFactory		= DatapadFactory::Init(mDatabase);
+    mInventoryFactory	= InventoryFactory::Init(kernel);
+    mDatapadFactory		= DatapadFactory::Init(kernel);
 
     _setupDatabindings();
 }

@@ -48,16 +48,19 @@ public:
 	~Bank();
     
     /// Returns the current credits in this bank account.
-    int credits() const;
+	uint32		getCredits() const;
+    uint32		getCredits(boost::unique_lock<boost::mutex>& lock) const;
 
     /// Sets the current bank credits to a specific amount.
-    void credits(int credits);
+    void		setCredits(uint32 credits);
+	void		setCredits(boost::unique_lock<boost::mutex>& lock, uint32 credits);
 
     /** Updates the current bank credits by a specific amount.
     *
     * Depending on whether the amount passed in is positive or negative, this
     * method provides a means to increase or decrease the amount of credits in
-    * a bank account.
+    * a bank account. This method will use getCredits / setCredits. 
+	* It is threadsafe and it will send auto deltas and db update events
     *
     * \param amount The amount to increase/decrease the bank credits by.
     */
@@ -67,10 +70,14 @@ public:
     void owner(PlayerObject* owner);
 
     /// Returns the planet id that is the owner's home bank.
-    int8_t planet() const;
+    int8_t getPlanet() const;
 
-    /// Sets the planet id for the owner's home bank.
-    void planet(int8_t planet);
+    /*	@brief setPlanet will set the homebank of the player
+	*	/param amount - the planets Id or -1 for  not set
+	*	This methos is thread safe and will send a db persist event
+	*/
+    void setPlanet(int8_t planet);
+	void setPlanet(boost::unique_lock<boost::mutex>& lock, int8_t planet);
 
 private:
     friend class PlayerObjectFactory;
@@ -78,7 +85,7 @@ private:
     Bank();
 
     PlayerObject* owner_;
-    int credits_;
+    uint32 credits_;
     int8_t planet_;
 };
 

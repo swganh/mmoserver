@@ -50,7 +50,7 @@ enum BadgeFQuery
 class BadgeRegionFactory : public FactoryBase
 {
 public:
-    BadgeRegionFactory(swganh::database::Database* database);
+    BadgeRegionFactory(swganh::app::SwganhKernel*	kernel);
     ~BadgeRegionFactory();
     void			handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result);
     void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client);  

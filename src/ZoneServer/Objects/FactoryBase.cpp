@@ -37,12 +37,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Object.h"
 #include "ZoneServer/WorldManager.h"
 
+#include "anh/app/swganh_kernel.h"
+
 //=============================================================================
 
-FactoryBase::FactoryBase(swganh::database::Database* database)
+FactoryBase::FactoryBase(swganh::app::SwganhKernel*	kernel)
     : mILCPool(sizeof(InLoadingContainer))
     , mQueryContainerPool(sizeof(QueryContainerBase))
-    , mDatabase(database)
+    , kernel_(kernel)
+	, mDatabase(kernel->GetDatabase())
 {
     mAttributeBinding = mDatabase->createDataBinding(3);
     mAttributeBinding->addField(swganh::database::DFT_stdstring,offsetof(Attribute_QueryContainer,mKey),64,0);

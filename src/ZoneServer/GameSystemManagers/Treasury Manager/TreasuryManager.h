@@ -154,13 +154,12 @@ public:
     void						    bankOpenSafetyDepositContainer(PlayerObject* playerObject);
     void						    bankQuit(PlayerObject* playerObject);
     void						    bankJoin(PlayerObject* playerObject);
-    void						    saveAndUpdateBankCredits(PlayerObject* playerObject);
 
     //handles bank tip to offline player
     void							handleBankTipSurchargeConfirmed(std::shared_ptr<TreasuryManagerAsyncContainer> container );
-    void						    bankTipOffline(int32 amount, PlayerObject* playerObject, BString targetName);
-    void						    inventoryTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
-    void						    bankTipOnline(int32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
+    void						    bankTipOffline(uint32 amount, PlayerObject* playerObject, BString targetName);
+    void						    inventoryTipOnline(uint32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
+    void						    bankTipOnline(uint32 amount, PlayerObject* playerObject, PlayerObject* targetObject );
 
 private:
 

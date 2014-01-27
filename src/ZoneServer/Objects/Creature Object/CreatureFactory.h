@@ -34,6 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 namespace swganh	{
+namespace app	{
+	class SwganhKernel;
+}
 namespace database	{
 class Database;
 class DataBinding;
@@ -53,11 +56,13 @@ public:
     static CreatureFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static CreatureFactory*	Init(swganh::database::Database* database);
+    static CreatureFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~CreatureFactory();
 
 	void					PersistInventoryCredits(CreatureObject* creature);
+	void					PersistBankCredits(CreatureObject* creature);
+	void					PersistHomeBank(CreatureObject* creature);
 
 	void					RegisterEventHandlers();
 
@@ -68,7 +73,7 @@ public:
 
 private:
 
-    CreatureFactory(swganh::database::Database* database);
+    CreatureFactory(swganh::app::SwganhKernel*	kernel);
 
     static CreatureFactory*		mSingleton;
     static bool					mInsFlag;

@@ -336,18 +336,24 @@ class PlayerObject : public CreatureObject
         uint64				getIDPartner(){ return mIDPartner; }
         void				setIDPartner(uint64 id){ mIDPartner= id; }
 
-        // trade
-        void				giveBankCredits(uint32 amount);
-        void	            giveInventoryCredits(uint32 amount);
+        /*	@brief updates the players bank credits
+		*	/param int32 amount - the amount of credits to update
+		*/
+        void				updateBankCredits(int32 amount);
+		/*	@brief updates the players cash credits
+		*	/param int32 amount - the amount of credits to update
+		*/
+        void	            updateInventoryCredits(int32 amount);
+
         Trade*				getTrade(){return mTrade;}
         void				setTradePartner(uint64 id){mTradePartner = id;}
         uint64				getTradePartner(){return mTradePartner;}
         bool				getTradeStatus(){return mTrading;}
         void				setTradeStatus(bool tradeStatus){mTrading = tradeStatus;}
-        bool				deductCredits(int32 amount);
-        bool				testCash(int32 amount);
-        bool				testBank(int32 amount);
-        bool				checkDeductCredits(int32 amount);
+        bool				deductCredits(uint32 amount);
+        bool				testCash(uint32 amount);
+        bool				testBank(uint32 amount);
+        bool				checkDeductCredits(uint32 amount);
 
         void				setGender(bool gender){mFemale = gender;}
         bool				getGender(){return mFemale;}

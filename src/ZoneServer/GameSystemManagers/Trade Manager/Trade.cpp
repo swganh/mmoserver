@@ -181,9 +181,8 @@ void Trade::updateBank(uint32 amount)
 {
     Bank* bank = dynamic_cast<Bank*>(getPlayerObject()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    bank->credits(bank->credits() + amount);
-
-    gMessageLib->sendBankCreditsUpdate(getPlayerObject());
+	bank->updateCredits(amount);
+ 
 }
 
 //=============================================================================

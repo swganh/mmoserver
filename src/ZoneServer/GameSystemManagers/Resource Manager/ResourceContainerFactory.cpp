@@ -48,11 +48,11 @@ ResourceContainerFactory*	ResourceContainerFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-ResourceContainerFactory*	ResourceContainerFactory::Init(swganh::database::Database* database)
+ResourceContainerFactory*	ResourceContainerFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new ResourceContainerFactory(database);
+        mSingleton = new ResourceContainerFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -72,7 +72,7 @@ void ResourceContainerFactory::saveLocation(Object* object)
 
 //=============================================================================
 
-ResourceContainerFactory::ResourceContainerFactory(swganh::database::Database* database) : FactoryBase(database)
+ResourceContainerFactory::ResourceContainerFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

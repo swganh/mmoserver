@@ -60,7 +60,7 @@ public:
     static ResourceContainerFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static ResourceContainerFactory*	Init(swganh::database::Database* database);
+    static ResourceContainerFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~ResourceContainerFactory();
 
@@ -74,7 +74,7 @@ public:
 
 private:
 
-    ResourceContainerFactory(swganh::database::Database* database);
+    ResourceContainerFactory(swganh::app::SwganhKernel*	kernel);
 
     void				_setupDatabindings();
     void				_destroyDatabindings();

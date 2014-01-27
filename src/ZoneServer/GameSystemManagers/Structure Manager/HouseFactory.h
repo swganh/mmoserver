@@ -67,7 +67,7 @@ public:
     static HouseFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static HouseFactory*	Init(swganh::database::Database* database);
+    static HouseFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~HouseFactory();
 
@@ -79,7 +79,7 @@ public:
 
 private:
 
-    HouseFactory(swganh::database::Database* database);
+    HouseFactory(swganh::app::SwganhKernel*	kernel);
 
     void			_setupDatabindings();
     void			_destroyDatabindings();

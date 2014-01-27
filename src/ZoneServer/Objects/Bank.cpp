@@ -55,14 +55,30 @@ Bank::Bank(PlayerObject* owner)
 
 Bank::~Bank() {LOG (info) << "Bank::~Bank()";}
 
+uint32 Bank::getCredits() const {
+        auto lock = AcquireLock();
+		return getCredits(lock);
+}
 
-int Bank::credits() const {
+uint32 Bank::getCredits(boost::unique_lock<boost::mutex>& lock) const {
     return credits_;
 }
 
 
-void Bank::credits(int credits) {
-    credits_ = credits;
+void Bank::setCredits(uint32 credits)  {
+	auto lock = AcquireLock();
+    setCredits(lock, credits);
+}
+
+void Bank::setCredits(boost::unique_lock<boost::mutex>& lock, uint32 credits) {
+	credits_ = credits;
+	auto dispatcher = GetEventDispatcher();
+
+	lock.unlock();
+	
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::BankCredits", owner_));
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistBankCredits", owner_));
+	
 }
 
 bool Bank::updateCredits(int32_t amount) {
@@ -71,15 +87,7 @@ bool Bank::updateCredits(int32_t amount) {
         return false;
     }
 
-    credits(credits_ + amount);
-
-    gMessageLib->sendBankCreditsUpdate(owner_);
-
-    stringstream query;
-    query << "UPDATE "<<gWorldManager->getKernel()->GetDatabase()->galaxy()<<".banks SET credits=" << credits_ << " WHERE id=" << mId;
-
-    gWorldManager->getKernel()->GetDatabase()->executeAsyncSql(query);
-
+    setCredits(credits_ + amount);
     return true;
 }
 
@@ -89,11 +97,21 @@ void Bank::owner(PlayerObject* owner) {
 }
 
 
-int8_t Bank::planet() const {
+int8_t Bank::getPlanet() const {
     return planet_;
 }
 
+void Bank::setPlanet(int8_t planet) {
+	auto lock = AcquireLock();
+    setPlanet(lock, planet);
+}
 
-void Bank::planet(int8_t planet) {
+void Bank::setPlanet(boost::unique_lock<boost::mutex>& lock, int8_t planet) {
     planet_ = planet;
+	
+	auto dispatcher = GetEventDispatcher();
+
+	lock.unlock();
+	
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistHomeBank", owner_));
 }

@@ -67,7 +67,7 @@ public:
         return mNpc;
     }
 
-    int32					getDI() {
+    uint32					getDI() {
         return mDI;
     }
     BString					getTTStfFile() {
@@ -107,7 +107,7 @@ private:
 
     ConversationOptions	mSelectOptionMap;
 
-    int32				mDI;
+    uint32				mDI;
     BString				mTTStfFile;
     BString				mTTStfVariable;
     BString				mTTCustom;

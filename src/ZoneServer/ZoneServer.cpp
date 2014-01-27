@@ -247,7 +247,7 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 	WorldConfig::Init(zoneId,kernel_,kernel_->GetAppConfig().zone_name);
     ObjectControllerCommandMap::Init(kernel_->GetDatabase());
 	MessageLib::Init(kernel_->GetEventDispatcher());
-    ObjectFactory::Init(kernel_->GetDatabase());
+    ObjectFactory::Init(kernel_);
 
     //attribute commands for food buffs
     FoodCommandMapClass::Init();
@@ -261,7 +261,7 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
     // NonPersistentContainerFactory::Init(mDatabase);
     (void)NonPersistentItemFactory::Instance();	// This call is just for clarity, when matching the deletion of classes.
     // The object will create itself upon first usage,
-    (void)NonPersistentNpcFactory::Instance();
+    (void)NonPersistentNpcFactory::Instance(kernel_);
 
     (void)ForageManager::Instance();
     (void)ScoutManager::Instance();

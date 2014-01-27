@@ -46,11 +46,11 @@ PersistentNpcFactory*	PersistentNpcFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-PersistentNpcFactory*	PersistentNpcFactory::Init(swganh::database::Database* database)
+PersistentNpcFactory*	PersistentNpcFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new PersistentNpcFactory(database);
+        mSingleton = new PersistentNpcFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -60,7 +60,7 @@ PersistentNpcFactory*	PersistentNpcFactory::Init(swganh::database::Database* dat
 
 //=============================================================================
 
-PersistentNpcFactory::PersistentNpcFactory(swganh::database::Database* database) : FactoryBase(database)
+PersistentNpcFactory::PersistentNpcFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

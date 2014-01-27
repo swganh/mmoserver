@@ -75,7 +75,7 @@ public:
     static PlayerObjectFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static PlayerObjectFactory*	Init(swganh::database::Database* database);
+    static PlayerObjectFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~PlayerObjectFactory();
 
@@ -105,7 +105,7 @@ public:
 
 private:
 
-    PlayerObjectFactory(swganh::database::Database* database);
+    PlayerObjectFactory(swganh::app::SwganhKernel*	kernel);
 
     void			_setupDatabindings();
     void			_destroyDatabindings();

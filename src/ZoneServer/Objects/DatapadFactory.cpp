@@ -54,11 +54,11 @@ DatapadFactory*		DatapadFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-DatapadFactory*	DatapadFactory::Init(swganh::database::Database* database)
+DatapadFactory*	DatapadFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new DatapadFactory(database);
+        mSingleton = new DatapadFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -68,9 +68,9 @@ DatapadFactory*	DatapadFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-DatapadFactory::DatapadFactory(swganh::database::Database* database) : FactoryBase(database)
+DatapadFactory::DatapadFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mWaypointFactory = WaypointFactory::Init(mDatabase);
+    mWaypointFactory = WaypointFactory::Init(kernel);
 
     _setupDatabindings();
 }

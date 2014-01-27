@@ -1011,13 +1011,13 @@ bool MessageLib::sendCharacterSheetResponse(PlayerObject* playerObject)
     // bank
     Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    if(!bank || bank->planet() == -1)
+    if(!bank || bank->getPlanet() == -1)
     {
         mMessageFactory->addString(BString("unknown"));
     }
     else
     {
-        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->planet())));
+        mMessageFactory->addString(BString(gWorldManager->getPlanetNameById(bank->getPlanet())));
     }
 
     if(playerObject->getHomePlanet() == -1)

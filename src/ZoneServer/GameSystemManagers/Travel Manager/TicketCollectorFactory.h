@@ -60,7 +60,7 @@ public:
     static TicketCollectorFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static TicketCollectorFactory*	Init(swganh::database::Database* database);
+    static TicketCollectorFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~TicketCollectorFactory();
 
@@ -69,7 +69,7 @@ public:
 
 private:
 
-    TicketCollectorFactory(swganh::database::Database* database);
+    TicketCollectorFactory(swganh::app::SwganhKernel*	kernel);
 
     void				_setupDatabindings();
     void				_destroyDatabindings();

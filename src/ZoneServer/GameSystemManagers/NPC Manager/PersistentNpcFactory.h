@@ -63,7 +63,7 @@ public:
     static PersistentNpcFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static PersistentNpcFactory*	Init(swganh::database::Database* database);
+    static PersistentNpcFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~PersistentNpcFactory();
 
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    PersistentNpcFactory(swganh::database::Database* database);
+    PersistentNpcFactory(swganh::app::SwganhKernel*	kernel);
 
     void				_setupDatabindings();
     void				_destroyDatabindings();

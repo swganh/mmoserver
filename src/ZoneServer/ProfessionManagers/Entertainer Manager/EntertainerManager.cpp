@@ -644,13 +644,13 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
         {
             if(asynContainer->customer != NULL && asynContainer->customer->getConnectionState() == PlayerConnState_Connected)
             {
-                asynContainer->customer->giveInventoryCredits(-asynContainer->amountcash);
-                asynContainer->customer->giveBankCredits(-asynContainer->amountbank);
+                asynContainer->customer->updateInventoryCredits(0-asynContainer->amountcash);
+                asynContainer->customer->updateBankCredits(0-asynContainer->amountbank);
             }
 
             //CAVE player2 does NOT exist if the seller is NOT online
             if(asynContainer->performer != NULL && asynContainer->performer->getConnectionState() == PlayerConnState_Connected)
-                asynContainer->performer->giveBankCredits(asynContainer->amountcash+asynContainer->amountbank);
+                asynContainer->performer->updateBankCredits(asynContainer->amountcash+asynContainer->amountbank);
         }
     }
     break;

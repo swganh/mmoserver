@@ -425,7 +425,6 @@ public:
 	bool				sendEquippedItemUpdate_InRange(CreatureObject* creatureObject, uint64 itemId);
 	void				sendPostureUpdate(CreatureObject* creatureObject);
 	void				sendMoodUpdate(CreatureObject* creatureObject);
-	bool				sendBankCreditsUpdate(PlayerObject* playerObject);
 	
 	bool				sendUpdateMovementProperties(PlayerObject* playerObject);
 	void				sendStateUpdate(CreatureObject* creatureObject);

@@ -32,6 +32,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer\Objects\Creature Object\CreatureObject.h"
 #include "ZoneServer\Objects\Player Object\PlayerObject.h"
 
+#include "ZoneServer/Objects/Bank.h"
+#include "ZoneServer/Objects/Inventory.h"
+
 #include "anh\event_dispatcher\event_dispatcher.h"
 
 #include "NetworkManager/DispatchClient.h"
@@ -61,6 +64,12 @@ event_dispatcher_->Subscribe("CreatureObject::InventoryCredits", [this] (std::sh
         BuildInventoryCreditsDelta(value_event->Get());
     });
 
+event_dispatcher_->Subscribe("CreatureObject::BankCredits", [this] (std::shared_ptr<EventInterface> incoming_event)
+    {
+        auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
+        BuildInventoryCreditsDelta(value_event->Get());
+    });
+
 }
 
 void CreatureMessageBuilder::BuildStatDefenderDelta(const std::shared_ptr<CreatureObject>& creature)
@@ -82,12 +91,31 @@ void CreatureMessageBuilder::BuildInventoryCreditsDelta(const std::shared_ptr<Cr
 		return;
 	}
 
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 1, SWG_CREATURE);
-     
-	//never ever send empty updates!!!!
-	//swganh::messages::DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 1, SWG_CREATURE);
-    message.data.write(creature->getCustomName());
+	Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	if(!inventory)	{
+		return;
+	}
 
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 1, SWG_CREATURE);
+    message.data.write(inventory->getCredits());
+	gMessageLib->sendDelta(message,player.get());
+	 
+}
+
+void CreatureMessageBuilder::BuildBankCreditsDelta(const std::shared_ptr<CreatureObject>& creature)
+{
+    std::shared_ptr<PlayerObject> player = std::dynamic_pointer_cast<PlayerObject>(creature);
+	if(!player)	{
+		return;
+	}
+
+	Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	if(!bank)	{
+		return;
+	}
+
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 0, SWG_CREATURE);
+    message.data.write(bank->getCredits());
 	gMessageLib->sendDelta(message,player.get());
 	 
 }

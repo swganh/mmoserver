@@ -67,7 +67,7 @@ public:
     static FactoryFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static FactoryFactory*	Init(swganh::database::Database* database);
+    static FactoryFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~FactoryFactory();
 
@@ -80,7 +80,7 @@ public:
 
 private:
 
-    FactoryFactory(swganh::database::Database* database);
+    FactoryFactory(swganh::app::SwganhKernel*	kernel);
 
     void			_setupDatabindings();
     void			_destroyDatabindings();

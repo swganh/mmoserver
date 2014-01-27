@@ -60,7 +60,7 @@ public:
     static CellFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static CellFactory*	Init(swganh::database::Database* database);
+    static CellFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~CellFactory();
 
@@ -71,7 +71,7 @@ public:
 
 private:
 
-    CellFactory(swganh::database::Database* database);
+    CellFactory(swganh::app::SwganhKernel*	kernel);
 
     void			_setupDatabindings();
     void			_destroyDatabindings();

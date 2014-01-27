@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/ShuttleFactory.h"
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
 #include "ZoneServer/Objects/Inventory.h"
+#include "ZoneServer/Objects/Bank.h"
 
 #include "ZoneServer/WorldManager.h"
 
@@ -60,11 +61,11 @@ CreatureFactory*		CreatureFactory::mSingleton  = NULL;
 //======================================================================================================================
 
 
-CreatureFactory*	CreatureFactory::Init(swganh::database::Database* database)
+CreatureFactory*	CreatureFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new CreatureFactory(database);
+        mSingleton = new CreatureFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -74,10 +75,11 @@ CreatureFactory*	CreatureFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-CreatureFactory::CreatureFactory(swganh::database::Database* database) : FactoryBase(database)
+CreatureFactory::CreatureFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mPersistentNpcFactory	= PersistentNpcFactory::Init(mDatabase);
-    mShuttleFactory			= ShuttleFactory::Init(mDatabase);
+	mDatabase = kernel->GetDatabase();
+    mPersistentNpcFactory	= PersistentNpcFactory::Init(kernel);
+    mShuttleFactory			= ShuttleFactory::Init(kernel);
 	RegisterEventHandlers();
 }
 
@@ -120,7 +122,7 @@ void CreatureFactory::releaseAllPoolsMemory()
 
 void CreatureFactory::RegisterEventHandlers()
 {
-	auto dispatcher = gWorldManager->getKernel()->GetEventDispatcher();
+	auto dispatcher = kernel_->GetEventDispatcher();
 
 	dispatcher->Subscribe("CreatureObjectFactory::PersistInventoryCredits", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
@@ -129,6 +131,24 @@ void CreatureFactory::RegisterEventHandlers()
         
 		
     });
+
+	dispatcher->Subscribe("CreatureObjectFactory::PersistBankCredits", [this] (std::shared_ptr<EventInterface> incoming_event)
+    {
+		auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
+		PersistBankCredits(value_event->Get());
+    });
+
+	dispatcher->Subscribe("CreatureObjectFactory::PersistHomeBank", [this] (std::shared_ptr<EventInterface> incoming_event)
+    {
+		auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
+		PersistHomeBank(value_event->Get());
+
+		//Bank* bank = dynamic_cast<Bank*>(value_event->Get()->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+		//std::stringstream sql;
+		//sql << "UPDATE " << mDatabase->galaxy() << ".banks SET planet_id=" << bank->planet() << " WHERE id=" << bank->getId() << ";";
+		//mDatabase->executeSqlAsync(NULL, NULL, sql.str());
+    });
+
 }
 
 void CreatureFactory::PersistInventoryCredits(CreatureObject* creature)
@@ -137,6 +157,26 @@ void CreatureFactory::PersistInventoryCredits(CreatureObject* creature)
 	Inventory* inventory = dynamic_cast<Inventory*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
 
 	sql << "UPDATE " << mDatabase->galaxy() << ".inventories set credits=" << inventory->getCredits() << " WHERE id=" << inventory->getId() <<";";
+	
+	gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(NULL, NULL, sql.str());
+}
+
+void CreatureFactory::PersistBankCredits(CreatureObject* creature)
+{
+	std::stringstream sql;
+	Bank* bank = dynamic_cast<Bank*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+
+	sql << "UPDATE " << mDatabase->galaxy() << ".banks set credits=" << bank->getCredits() << " WHERE id=" << bank->getId() <<";";
+	
+	gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(NULL, NULL, sql.str());
+}
+
+void CreatureFactory::PersistHomeBank(CreatureObject* creature)
+{
+	std::stringstream sql;
+	Bank* bank = dynamic_cast<Bank*>(creature->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+
+	sql << "UPDATE " << mDatabase->galaxy() << ".banks SET planet_id=" << bank->getPlanet() << " WHERE id=" << bank->getId() << ";";
 	
 	gWorldManager->getKernel()->GetDatabase()->executeSqlAsync(NULL, NULL, sql.str());
 }

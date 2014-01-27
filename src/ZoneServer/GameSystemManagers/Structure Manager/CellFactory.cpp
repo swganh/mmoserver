@@ -49,11 +49,11 @@ CellFactory*	CellFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-CellFactory*	CellFactory::Init(swganh::database::Database* database)
+CellFactory*	CellFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new CellFactory(database);
+        mSingleton = new CellFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -63,7 +63,7 @@ CellFactory*	CellFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-CellFactory::CellFactory(swganh::database::Database* database) : FactoryBase(database)
+CellFactory::CellFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

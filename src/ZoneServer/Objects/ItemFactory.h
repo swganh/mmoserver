@@ -63,7 +63,7 @@ public:
     static	ItemFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static	ItemFactory*	Init(swganh::database::Database* database);
+    static	ItemFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     virtual ~ItemFactory();
 
@@ -80,7 +80,7 @@ public:
 
 private:
 
-    ItemFactory(swganh::database::Database* database);
+    ItemFactory(swganh::app::SwganhKernel*	kernel);
 
     void					_postProcessAttributes(Object* object);
 

@@ -62,7 +62,7 @@ public:
     static InventoryFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static InventoryFactory*	Init(swganh::database::Database* database);
+    static InventoryFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~InventoryFactory();
 
@@ -72,7 +72,7 @@ public:
 
 private:
 
-    InventoryFactory(swganh::database::Database* database);
+    InventoryFactory(swganh::app::SwganhKernel*	kernel);
 
     void		_setupDatabindings();
     void		_destroyDatabindings();

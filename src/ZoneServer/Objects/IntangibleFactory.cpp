@@ -39,11 +39,11 @@ IntangibleFactory*		IntangibleFactory::mSingleton  = NULL;
 
 //=============================================================================
 
-IntangibleFactory*	IntangibleFactory::Init(swganh::database::Database* database)
+IntangibleFactory*	IntangibleFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new IntangibleFactory(database);
+        mSingleton = new IntangibleFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -53,9 +53,9 @@ IntangibleFactory*	IntangibleFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-IntangibleFactory::IntangibleFactory(swganh::database::Database* database) : FactoryBase(database)
+IntangibleFactory::IntangibleFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mVehicleControllerFactory = VehicleControllerFactory::Init(mDatabase);
+    mVehicleControllerFactory = VehicleControllerFactory::Init(kernel);
 }
 
 

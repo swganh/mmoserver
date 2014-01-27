@@ -59,7 +59,7 @@ public:
     static WaypointFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static WaypointFactory*	Init(swganh::database::Database* database);
+    static WaypointFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~WaypointFactory();
 
@@ -68,7 +68,7 @@ public:
 
 private:
 
-    WaypointFactory(swganh::database::Database* database);
+    WaypointFactory(swganh::app::SwganhKernel*	kernel);
 
     void				_setupDatabindings();
     void				_destroyDatabindings();

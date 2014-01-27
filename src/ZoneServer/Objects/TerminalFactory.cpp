@@ -49,11 +49,11 @@ TerminalFactory*	TerminalFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-TerminalFactory*	TerminalFactory::Init(swganh::database::Database* database)
+TerminalFactory*	TerminalFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new TerminalFactory(database);
+        mSingleton = new TerminalFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -63,7 +63,7 @@ TerminalFactory*	TerminalFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-TerminalFactory::TerminalFactory(swganh::database::Database* database) : FactoryBase(database)
+TerminalFactory::TerminalFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

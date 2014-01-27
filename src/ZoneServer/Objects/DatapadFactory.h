@@ -65,7 +65,7 @@ public:
     static DatapadFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static DatapadFactory*	Init(swganh::database::Database* database);
+    static DatapadFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~DatapadFactory();
 
@@ -78,7 +78,7 @@ public:
 
 private:
 
-    DatapadFactory(swganh::database::Database* database);
+    DatapadFactory(swganh::app::SwganhKernel*	kernel);
 
     void					_setupDatabindings();
     void					_destroyDatabindings();

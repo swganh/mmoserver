@@ -37,7 +37,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //=============================================================================
 namespace swganh	{
+namespace app	{
+	class SwganhKernel;
+}
+
 namespace database	{
+
 class Database;
 class DataBinding;
 }}
@@ -61,7 +66,7 @@ class FactoryBase : public swganh::database::DatabaseCallback
 {
 public:
 
-    FactoryBase(swganh::database::Database* database);
+    FactoryBase(swganh::app::SwganhKernel*	kernel);
 
     virtual void	handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result) = 0;
     virtual void	requestObject(ObjectFactoryCallback* ofCallback,uint64 id,uint16 subGroup,uint16 subType,DispatchClient* client) = 0;
@@ -95,6 +100,7 @@ protected:
 
     swganh::database::DataBinding*			mAttributeBinding;
     swganh::database::Database*				mDatabase;
+	swganh::app::SwganhKernel*				kernel_;
 };
 
 //=============================================================================

@@ -281,7 +281,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
                 return;
 
             int32 creditsInInventory = inventoryObject->getCredits();
-            int32 creditsAtBank = bankObject->credits();
+            int32 creditsAtBank = bankObject->getCredits();
 
             if (mSortedInsuranceList.size() ==  0)
             {
@@ -421,7 +421,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
         case 0: // Yes
         {
             // Insure all insurable items.
-            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits());
+            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
             BString selectedItemm;
             int32 fee = mSortedInsuranceList.size() * mInsuranceFee;
 

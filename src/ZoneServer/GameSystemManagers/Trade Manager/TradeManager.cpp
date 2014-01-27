@@ -214,14 +214,14 @@ void TradeManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
             // no errors : lets move the money
             if(asynContainer->player1 != NULL && asynContainer->player1->getConnectionState() == PlayerConnState_Connected)
             {
-                asynContainer->player1->giveInventoryCredits(-asynContainer->amountcash);
-                asynContainer->player1->giveBankCredits(-asynContainer->amountbank);
+                asynContainer->player1->updateInventoryCredits(0-asynContainer->amountcash);
+                asynContainer->player1->updateBankCredits(0-asynContainer->amountbank);
             }
 
             //CAVE player2 does NOT exist if the seller is NOT online
             if(asynContainer->player2 != NULL && asynContainer->player2->getConnectionState() == PlayerConnState_Connected)
             {
-                asynContainer->player2->giveBankCredits(asynContainer->amount1);
+                asynContainer->player2->updateBankCredits(asynContainer->amount1);
             }
 
             gMessageLib->sendBidAuctionResponseMessage(asynContainer->player1, asynContainer->AuctionID,0);
@@ -305,8 +305,8 @@ void TradeManager::handleDatabaseJobComplete(void* ref,swganh::database::Databas
         }
 
         //sort the money
-        asynContainer->player1->giveInventoryCredits(-asynContainer->amountcash);
-        asynContainer->player1->giveBankCredits(-asynContainer->amountbank);
+        asynContainer->player1->updateInventoryCredits(0-asynContainer->amountcash);
+        asynContainer->player1->updateBankCredits(0-asynContainer->amountbank);
         gMessageLib->sendCreateAuctionItemResponseMessage(asynContainer->player1,itemId,0);
 
         //assign the Bazaar as the new owner to the item
@@ -390,8 +390,8 @@ void TradeManager::_processBankTipDeduct(Message* message,DispatchClient* client
     PlayerObject*	playerObject	= dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
     Bank*			bank			= dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
 
-    bank->credits(bank->credits() + amount);
-    gMessageLib->sendBankCreditsUpdate(playerObject);
+    bank->updateCredits(amount);
+    
 }
 
 //=======================================================================================================================
@@ -403,14 +403,15 @@ void TradeManager::_processBanktipUpdate(Message* message,DispatchClient* client
     uint64	playerId	= message->getUint64();//is on this zone
     uint32	amount		= message->getUint32();
 
-    if(PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId)))
-    {
-        Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-
-        bank->credits(bank->credits() + amount);
-
-        gTreasuryManager->saveAndUpdateBankCredits(playerObject);
-    }
+	PlayerObject* playerObject = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(playerId));
+    if(! playerObject)	{
+		LOG (error) << "TradeManager::_processBanktipUpdate No PlayerObject for : " << playerObject->getId();
+		return;
+	}
+    
+    Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	bank->updateCredits(amount);
+    
 }
 
 //=======================================================================================================================
@@ -479,7 +480,7 @@ void TradeManager::_processDeductMoneyMessage(Message* message,DispatchClient* c
     uint64	buyerID		= message->getUint64();//new owner
     uint64	sellerID	= message->getUint64();//old owner - receives the money
     uint64	itemID		= message->getUint64();
-    int32	amount		= message->getUint32();
+    uint32	amount		= message->getUint32();
     uint32	time		= message->getUint32();
     BString	name;
     message->getStringAnsi(name);
@@ -694,9 +695,9 @@ void TradeManager::_HandleAuctionCreateMessage(Message* message,DispatchClient* 
     //we give the amounts of money to be taken from bank and inventory directly to the
     //transaction in the next async call
 
-    if(bank->credits() < fee)	{
-        asyncContainer->amountbank = bank->credits();
-        asyncContainer->amountcash = fee - bank->credits();
+    if(bank->getCredits() < fee)	{
+        asyncContainer->amountbank = bank->getCredits();
+        asyncContainer->amountcash = fee - bank->getCredits();
     }
     else    {
         asyncContainer->amountbank = fee;

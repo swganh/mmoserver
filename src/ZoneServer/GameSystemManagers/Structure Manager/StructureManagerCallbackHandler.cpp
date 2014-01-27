@@ -1086,7 +1086,7 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
         Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
         Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
         
-		int32 bankFunds = bank->credits();
+		int32 bankFunds = bank->getCredits();
         int32 inventoryFunds = inventory->getCredits();
 
         int32 funds = inventoryFunds + bankFunds;
@@ -1126,14 +1126,8 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
             return;
         }
 
-        bank->credits(bankFunds);
+        bank->setCredits(bankFunds);
         inventory->setCredits(inventoryFunds);
-
-        gWorldManager->getKernel()->GetDatabase()->destroyResult(gWorldManager->getKernel()->GetDatabase()->executeSynchSql("UPDATE %s.banks SET credits=%u WHERE id=%"PRIu64"",gWorldManager->getKernel()->GetDatabase()->galaxy(),bank->credits(),bank->getId()));
-       
-
-        //send the appropriate deltas.
-        gMessageLib->sendBankCreditsUpdate(player);
 
         //get the structures conditiondamage and see whether it needs repair
         uint32 damage = structure->getDamage();

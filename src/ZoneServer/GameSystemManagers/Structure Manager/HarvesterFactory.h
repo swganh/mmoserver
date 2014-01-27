@@ -65,7 +65,7 @@ public:
     static HarvesterFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static HarvesterFactory*	Init(swganh::database::Database* database);
+    static HarvesterFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~HarvesterFactory();
 
@@ -77,7 +77,7 @@ public:
 
 private:
 
-    HarvesterFactory(swganh::database::Database* database);
+    HarvesterFactory(swganh::app::SwganhKernel*	kernel);
 
     void			_setupDatabindings();
     void			_destroyDatabindings();

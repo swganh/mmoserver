@@ -56,7 +56,7 @@ public:
     static TangibleFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static TangibleFactory*	Init(swganh::database::Database* database);
+    static TangibleFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~TangibleFactory();
 
@@ -67,7 +67,7 @@ public:
 
 private:
 
-    TangibleFactory(swganh::database::Database* database);
+    TangibleFactory(swganh::app::SwganhKernel*	kernel);
 
     static TangibleFactory*		mSingleton;
     static bool				mInsFlag;

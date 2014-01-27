@@ -40,6 +40,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #define 	gObjectFactory	ObjectFactory::getSingletonPtr()
 
 namespace swganh	{
+namespace app	{
+	class SwganhKernel;
+}
 namespace database	{
 	class Database;
 }}
@@ -87,7 +90,7 @@ public:
     static ObjectFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static ObjectFactory*	Init(swganh::database::Database* database);
+    static ObjectFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~ObjectFactory();
 
@@ -123,12 +126,13 @@ public:
 
 private:
 
-    ObjectFactory(swganh::database::Database* database);
+    ObjectFactory(swganh::app::SwganhKernel*	kernel);
 
     static ObjectFactory*	mSingleton;
     static bool			mInsFlag;
 
     swganh::database::Database*				mDatabase;
+	swganh::app::SwganhKernel*				kernel_;
 
     PlayerObjectFactory*	mPlayerObjectFactory;
     TangibleFactory*		mTangibleFactory;

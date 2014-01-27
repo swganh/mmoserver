@@ -144,7 +144,7 @@ void CloningTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr
             // TODO: If the player have the "coupon", they should get a special message.
             // For now, we skip the "coupon", because of the risk of player deleting them, how do they advance in the Tutorial then?
 
-            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits());
+            int32 creditsAtBank = (dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
 
             // TODO: Some cities have 20% reduction of cloning fee, depending of city status
             if (creditsAtBank < cloningCost)

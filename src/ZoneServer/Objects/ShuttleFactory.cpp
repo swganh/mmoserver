@@ -43,11 +43,11 @@ ShuttleFactory*	ShuttleFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-ShuttleFactory*	ShuttleFactory::Init(swganh::database::Database* database)
+ShuttleFactory*	ShuttleFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new ShuttleFactory(database);
+        mSingleton = new ShuttleFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -57,7 +57,7 @@ ShuttleFactory*	ShuttleFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-ShuttleFactory::ShuttleFactory(swganh::database::Database* database) : FactoryBase(database)
+ShuttleFactory::ShuttleFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

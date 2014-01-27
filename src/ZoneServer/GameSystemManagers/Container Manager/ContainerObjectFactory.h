@@ -62,7 +62,7 @@ public:
     static ContainerObjectFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static ContainerObjectFactory*	Init(swganh::database::Database* database);
+    static ContainerObjectFactory*	Init(swganh::app::SwganhKernel*	kernel);
     static inline void destroySingleton(void)
     {
         if (mSingleton)
@@ -80,7 +80,7 @@ public:
 
 private:
     ~ContainerObjectFactory();
-    ContainerObjectFactory(swganh::database::Database* database);
+    ContainerObjectFactory(swganh::app::SwganhKernel*	kernel);
 
     void _setupDatabindings();
     void _destroyDatabindings();

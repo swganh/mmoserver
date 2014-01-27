@@ -74,7 +74,8 @@ enum NonPersistentNpcQuery
 class NonPersistentNpcFactory : public FactoryBase
 {
 public:
-    static NonPersistentNpcFactory* Instance(void);
+    static NonPersistentNpcFactory* Instance(swganh::app::SwganhKernel*	kernel);
+	static NonPersistentNpcFactory* Instance();
     /*
     static inline NonPersistentNpcFactory* Instance(void)
     {
@@ -114,7 +115,7 @@ public:
 
 
 protected:
-    NonPersistentNpcFactory(swganh::database::Database* database);
+    NonPersistentNpcFactory(swganh::app::SwganhKernel*	kernel);
     ~NonPersistentNpcFactory();
 
 private:

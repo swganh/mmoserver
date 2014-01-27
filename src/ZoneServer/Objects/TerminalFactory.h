@@ -60,7 +60,7 @@ public:
     static TerminalFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static TerminalFactory*	Init(swganh::database::Database* database);
+    static TerminalFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~TerminalFactory();
 
@@ -69,7 +69,7 @@ public:
 
 private:
 
-    TerminalFactory(swganh::database::Database* database);
+    TerminalFactory(swganh::app::SwganhKernel*	kernel);
 
     void			_setupDatabindings();
     void			_destroyDatabindings();

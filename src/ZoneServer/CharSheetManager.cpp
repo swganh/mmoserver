@@ -272,7 +272,7 @@ void CharSheetManager::_processPlayerMoneyRequest(Message* message,DispatchClien
 
     gMessageFactory->StartMessage();
     gMessageFactory->addUint32(opPlayerMoneyResponse);
-    gMessageFactory->addUint32(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits());
+    gMessageFactory->addUint32(dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->getCredits());
     gMessageFactory->addUint32(dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits());
 
     Message* newMessage = gMessageFactory->EndMessage();

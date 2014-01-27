@@ -68,7 +68,7 @@ public:
     void			requestObject(ObjectFactoryCallback* ofCallback,uint64 id, uint64 newId);
 
 protected:
-    NonPersistentItemFactory(swganh::database::Database* database);
+    NonPersistentItemFactory(swganh::app::SwganhKernel*	kernel);
     ~NonPersistentItemFactory();
 
 private:

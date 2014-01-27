@@ -346,16 +346,21 @@ void StructureManager::createPayMaintenanceTransferBox(PlayerObject* player, Pla
     }
 
 
-    uint32 funds = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getCredits();
-    //safety checks to get to bank. crashbug: http://paste.swganh.org/viewp.php?id=20100627203548-c53f2480c978a48669f668890396560f
-    if(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)) { //we can access the bank
-        Bank* pBank = dynamic_cast<Bank*> (player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
-        if(pBank) {
-            funds += pBank->credits();
-        }
-    }
+	Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory));
+	if(!inventory)	{
+		LOG (error) << "StructureManager::createPayMaintenanceTransferBox : No inventory for " << player->getId();
+		return;
+	}
 
-	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
+	Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank));
+	if(!bank)	{
+		LOG (error) << "StructureManager::createPayMaintenanceTransferBox : No bank for " << player->getId();
+		return;
+	}
+
+    uint32 funds = inventory->getCredits() + bank->getCredits();
+        
+    std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
 	container->setStructureId(structure->getId());
 
     gUIManager->createNewTransferBox(this,sName,caption,text,"Total Funds","To Pay",funds,structureFunds,player,SUI_Window_Pay_Maintenance, container);

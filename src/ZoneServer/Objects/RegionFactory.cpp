@@ -40,11 +40,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 using namespace std;
 
-RegionFactory::RegionFactory(swganh::database::Database* database) : FactoryBase(database)
+RegionFactory::RegionFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mCityFactory = make_shared<CityFactory>(mDatabase);
-    mBadgeRegionFactory = make_shared<BadgeRegionFactory>(mDatabase);
-    mSpawnRegionFactory = make_shared<SpawnRegionFactory>(mDatabase);
+    mCityFactory = make_shared<CityFactory>(kernel);
+    mBadgeRegionFactory = make_shared<BadgeRegionFactory>(kernel);
+    mSpawnRegionFactory = make_shared<SpawnRegionFactory>(kernel);
 }
 
 //=============================================================================

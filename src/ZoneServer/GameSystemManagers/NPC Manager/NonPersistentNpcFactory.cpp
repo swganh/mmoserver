@@ -125,11 +125,20 @@ NonPersistentNpcFactory*	NonPersistentNpcFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-NonPersistentNpcFactory* NonPersistentNpcFactory::Instance(void)
+NonPersistentNpcFactory* NonPersistentNpcFactory::Instance(swganh::app::SwganhKernel*	kernel)
 {
     if (!mSingleton)
     {
-        mSingleton = new NonPersistentNpcFactory(gWorldManager->getKernel()->GetDatabase());
+        mSingleton = new NonPersistentNpcFactory(kernel);
+    }
+    return mSingleton;
+}
+
+NonPersistentNpcFactory* NonPersistentNpcFactory::Instance()
+{
+    if (!mSingleton)
+    {
+		mSingleton = new NonPersistentNpcFactory(gWorldManager->getKernel());
     }
     return mSingleton;
 }
@@ -143,7 +152,7 @@ NonPersistentNpcFactory::NonPersistentNpcFactory() : FactoryBase(NULL)
 }
 
 //=============================================================================
-NonPersistentNpcFactory::NonPersistentNpcFactory(swganh::database::Database* database)  : FactoryBase(database)
+NonPersistentNpcFactory::NonPersistentNpcFactory(swganh::app::SwganhKernel*	kernel)  : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

@@ -65,7 +65,7 @@ public:
     static	VehicleControllerFactory*	getSingletonPtr() {
         return mSingleton;
     }
-    static	VehicleControllerFactory*	Init(swganh::database::Database* database);
+    static	VehicleControllerFactory*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~VehicleControllerFactory();
 
@@ -77,7 +77,7 @@ public:
 
 private:
 
-    VehicleControllerFactory(swganh::database::Database* database);
+    VehicleControllerFactory(swganh::app::SwganhKernel*	kernel);
 
     void						_setupDatabindings();
     void						_destroyDatabindings();

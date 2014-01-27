@@ -50,7 +50,7 @@ class SpawnRegionFactory;
 class RegionFactory : public FactoryBase
 {
 public:
-    RegionFactory(swganh::database::Database* database);
+    RegionFactory(swganh::app::SwganhKernel*	kernel);
     ~RegionFactory();
 
     virtual void			handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result) {}

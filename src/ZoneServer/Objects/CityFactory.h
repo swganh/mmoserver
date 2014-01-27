@@ -50,7 +50,7 @@ enum CityFQuery
 class CityFactory : public FactoryBase
 {
 public:
-     CityFactory(swganh::database::Database* database);
+     CityFactory(swganh::app::SwganhKernel*	kernel);
     ~CityFactory();
 
     void			handleDatabaseJobComplete(void* ref,swganh::database::DatabaseResult* result);

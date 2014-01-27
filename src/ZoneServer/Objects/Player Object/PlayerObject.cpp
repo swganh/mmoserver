@@ -585,14 +585,14 @@ bool PlayerObject::UpdateIdColors(BString attribute,uint16 value)
 
 //=============================================================================
 
-bool PlayerObject::checkDeductCredits(int32 amount)
+bool PlayerObject::checkDeductCredits(uint32 amount)
 {
     Bank*		bank		= dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
     Inventory*	inventory	= dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
 
     if(bank && inventory)
     {
-        return(amount <= bank->credits() + inventory->getCredits());
+        return(amount <= bank->getCredits() + inventory->getCredits());
     }
     else
     {
@@ -602,11 +602,11 @@ bool PlayerObject::checkDeductCredits(int32 amount)
 
 //=============================================================================
 
-bool PlayerObject::testBank(int32 amount)
+bool PlayerObject::testBank(uint32 amount)
 {
     if(Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank)))
     {
-        return(amount <= bank->credits());
+        return(amount <= bank->getCredits());
     }
 
     return(false);
@@ -614,7 +614,7 @@ bool PlayerObject::testBank(int32 amount)
 
 //=============================================================================
 
-bool PlayerObject::testCash(int32 amount)
+bool PlayerObject::testCash(uint32 amount)
 {
     if(Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
     {
@@ -626,28 +626,26 @@ bool PlayerObject::testCash(int32 amount)
 
 //=============================================================================
 
-bool PlayerObject::deductCredits(int32 amount)
+bool PlayerObject::deductCredits(uint32 amount)
 {
     if(Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank)))
     {
         if(Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
         {
-            if(amount <= bank->credits() + inventory->getCredits())
+            if(amount <= bank->getCredits() + inventory->getCredits())
             {
                 // bank first
-                if(amount > bank->credits())
+                if(amount > bank->getCredits())
                 {
                     // first empty bank, then inv.
-                    amount -= bank->credits();
-                    bank->credits(0);
+                    amount -= bank->getCredits();
+                    bank->setCredits(0);
                     inventory->setCredits(inventory->getCredits() - amount);
                 }
                 else
                 {
-                    bank->credits(bank->credits() - amount);
+                    bank->updateCredits(0 - amount);
                 }
-
-                gMessageLib->sendBankCreditsUpdate(this);
 
                 return(true);
             }
@@ -1226,24 +1224,28 @@ void PlayerObject::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
 
 //=============================================================================
 
-void PlayerObject::giveBankCredits(uint32 amount)
+void PlayerObject::updateBankCredits(int32 amount)
 {
-    if(Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank)))
-    {
-        bank->credits(bank->credits() + amount);
-
-        gMessageLib->sendBankCreditsUpdate(this);
-    }
+	Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
+    if(!bank)    {
+		LOG (error) << "PlayerObject::giveBankCredits no bank for " << this->getId();
+		return;
+	}
+    
+	bank->updateCredits(amount);
 }
 
 //=============================================================================
 
-void PlayerObject::giveInventoryCredits(uint32 amount)
+void PlayerObject::updateInventoryCredits(int32 amount)
 {
-    if(Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
-    {
-        inventory->setCredits(inventory->getCredits() + amount);
-    }
+	Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
+    if(! inventory)    {
+		LOG (error) << "PlayerObject::giveBankCredits no inventory for " << this->getId();
+		return;
+	}
+    
+	inventory->updateCredits(amount);
 }
 
 //=============================================================================

@@ -53,11 +53,11 @@ VehicleControllerFactory*		VehicleControllerFactory::mSingleton  = NULL;
 
 //=============================================================================
 
-VehicleControllerFactory*	VehicleControllerFactory::Init(swganh::database::Database* database)
+VehicleControllerFactory*	VehicleControllerFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new VehicleControllerFactory(database);
+        mSingleton = new VehicleControllerFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -67,7 +67,7 @@ VehicleControllerFactory*	VehicleControllerFactory::Init(swganh::database::Datab
 
 //=============================================================================
 
-VehicleControllerFactory::VehicleControllerFactory(swganh::database::Database* database) : FactoryBase(database)
+VehicleControllerFactory::VehicleControllerFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

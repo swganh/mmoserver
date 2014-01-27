@@ -48,11 +48,11 @@ InventoryFactory*		InventoryFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-InventoryFactory*	InventoryFactory::Init(swganh::database::Database* database)
+InventoryFactory*	InventoryFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new InventoryFactory(database);
+        mSingleton = new InventoryFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -62,9 +62,9 @@ InventoryFactory*	InventoryFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-InventoryFactory::InventoryFactory(swganh::database::Database* database) : FactoryBase(database)
+InventoryFactory::InventoryFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
-    mTangibleFactory = TangibleFactory::Init(mDatabase);
+    mTangibleFactory = TangibleFactory::Init(kernel);
 
     _setupDatabindings();
 }

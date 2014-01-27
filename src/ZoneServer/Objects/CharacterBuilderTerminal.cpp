@@ -920,8 +920,7 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
         }
         else
         {
-            dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->credits(mInputBoxAmount);
-            gTreasuryManager->saveAndUpdateBankCredits(player);
+            dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank))->setCredits(mInputBoxAmount);
         }
     }
 }

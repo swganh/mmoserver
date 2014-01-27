@@ -64,42 +64,25 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
     SkillList*	playerSkills	= player->getSkills();
 
     mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opBaselinesMessage);
-    mMessageFactory->addUint64(player->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(1);
-
-    // compute the skill list size
-    uint32				skillByteCount	= 0;
-    SkillList::iterator it				= playerSkills->begin();
-
-    while(it != playerSkills->end())
-    {
-        skillByteCount += ((*it)->mName.getLength() + 2);
-
-        ++it;
-    }
-
-    mMessageFactory->addUint32(62 + skillByteCount);
     mMessageFactory->addUint16(4);
 
     // bank credits
-    if(Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
-    {
-        mMessageFactory->addUint32(bank->credits());
+    if(Bank* bank = dynamic_cast<Bank*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))    {
+        mMessageFactory->addUint32(bank->getCredits());
     }
     else
     {
+		LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Bank Object for " << player->getId();
         mMessageFactory->addUint32(0);
     }
 
     // inventory credits
-    if(Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))
-    {
+    if(Inventory* inventory = dynamic_cast<Inventory*>(player->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory)))    {
         mMessageFactory->addUint32(inventory->getCredits());
     }
     else
     {
+		LOG (error) << "MessageLib::sendBaselinesCREO_1 :: No Inventory Object for " << player->getId();
         mMessageFactory->addUint32(0);
     }
 
@@ -120,7 +103,7 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
     // skills
     mMessageFactory->addUint64(playerSkills->size());
 
-    it = playerSkills->begin();
+    auto it = playerSkills->begin();
 
     while(it != playerSkills->end())
     {
@@ -131,7 +114,17 @@ bool MessageLib::sendBaselinesCREO_1(PlayerObject* player)
 
     message = mMessageFactory->EndMessage();
 
-    (player->getClient())->SendChannelA(message, player->getAccountId(), CR_Client, 3);
+    
+	mMessageFactory->StartMessage();
+    mMessageFactory->addUint32(opBaselinesMessage);
+    mMessageFactory->addUint64(player->getId());
+    mMessageFactory->addUint32(opCREO);
+    mMessageFactory->addUint8(1);
+
+	mMessageFactory->addUint32(message->getSize());
+
+	
+	(player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 3);
 
     return(true);
 }
@@ -1048,41 +1041,6 @@ void MessageLib::sendSingleBarUpdate(CreatureObject* creatureObject)
         mMessageFactory->addUint32(damage);
         _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
     }
-}
-
-
-//======================================================================================================================
-//
-// Creature Deltas Type 1
-// update: bank credits
-//
-
-bool MessageLib::sendBankCreditsUpdate(PlayerObject* playerObject)
-{
-    if(!(playerObject->isConnected()))
-        return(false);
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(1);
-    mMessageFactory->addUint32(8);
-    mMessageFactory->addUint16(1);
-    mMessageFactory->addUint16(0);
-
-    if(Bank* bank = dynamic_cast<Bank*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Bank)))
-    {
-        mMessageFactory->addUint32(bank->credits());
-    }
-    else
-    {
-        mMessageFactory->addUint32(0);
-    }
-
-    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
-
-    return(true);
 }
 
 

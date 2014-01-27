@@ -55,10 +55,9 @@ public:
 
     // deltas
 	static void BuildInventoryCreditsDelta(const std::shared_ptr<CreatureObject>& creature);
+	static void BuildBankCreditsDelta(const std::shared_ptr<CreatureObject>& creature);
 	static void BuildStatDefenderDelta(const std::shared_ptr<CreatureObject>& creature);
 
-    static void BuildBankCreditsDelta(const std::shared_ptr<CreatureObject>& creature);
-    static void BuildCashCreditsDelta(const std::shared_ptr<CreatureObject>& creature);
     static void BuildStatBaseDelta(const std::shared_ptr<CreatureObject>& creature);
     static void BuildSkillDelta(const std::shared_ptr<CreatureObject>& creature);
     static void BuildPostureDelta(const std::shared_ptr<CreatureObject>& creature);

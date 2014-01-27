@@ -46,11 +46,11 @@ HarvesterFactory*	HarvesterFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-HarvesterFactory*	HarvesterFactory::Init(swganh::database::Database* database)
+HarvesterFactory*	HarvesterFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new HarvesterFactory(database);
+        mSingleton = new HarvesterFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -60,7 +60,7 @@ HarvesterFactory*	HarvesterFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-HarvesterFactory::HarvesterFactory(swganh::database::Database* database) : FactoryBase(database)
+HarvesterFactory::HarvesterFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
 
     _setupDatabindings();

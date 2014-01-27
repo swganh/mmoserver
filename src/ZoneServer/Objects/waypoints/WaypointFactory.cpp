@@ -42,11 +42,11 @@ WaypointFactory*	WaypointFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-WaypointFactory*	WaypointFactory::Init(swganh::database::Database* database)
+WaypointFactory*	WaypointFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new WaypointFactory(database);
+        mSingleton = new WaypointFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -56,7 +56,7 @@ WaypointFactory*	WaypointFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-WaypointFactory::WaypointFactory(swganh::database::Database* database) : FactoryBase(database)
+WaypointFactory::WaypointFactory(swganh::app::SwganhKernel*	kernel) : FactoryBase(kernel)
 {
     _setupDatabindings();
 }

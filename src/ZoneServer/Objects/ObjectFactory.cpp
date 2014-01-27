@@ -66,6 +66,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/GameSystemManagers/Travel Manager/TravelMapHandler.h"
 #include "Zoneserver/Objects/waypoints/WaypointFactory.h"
 #include "ZoneServer/WorldManager.h"
+#include "anh/app/swganh_kernel.h"
 
 using std::stringstream;
 using std::string;
@@ -77,11 +78,11 @@ ObjectFactory*		ObjectFactory::mSingleton  = NULL;
 
 //======================================================================================================================
 
-ObjectFactory*	ObjectFactory::Init(swganh::database::Database* database)
+ObjectFactory*	ObjectFactory::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new ObjectFactory(database);
+        mSingleton = new ObjectFactory(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -91,20 +92,21 @@ ObjectFactory*	ObjectFactory::Init(swganh::database::Database* database)
 
 //=============================================================================
 
-ObjectFactory::ObjectFactory(swganh::database::Database* database) :
-    mDatabase(database),
+ObjectFactory::ObjectFactory(swganh::app::SwganhKernel*	kernel) :
+    kernel_(kernel),
     mDbAsyncPool(sizeof(OFAsyncContainer))
 {
-    mPlayerObjectFactory	= PlayerObjectFactory::Init(mDatabase);
-    mTangibleFactory		= TangibleFactory::Init(mDatabase);
-    mIntangibleFactory		= IntangibleFactory::Init(mDatabase);
-    mCreatureFactory		= CreatureFactory::Init(mDatabase);
-    mBuildingFactory		= BuildingFactory::Init(mDatabase);
-    mRegionFactory			= new RegionFactory(mDatabase);
-    mWaypointFactory		= WaypointFactory::Init(mDatabase);
-    mHarvesterFactory		= HarvesterFactory::Init(mDatabase);
-    mFactoryFactory			= FactoryFactory::Init(mDatabase);
-    mHouseFactory			= HouseFactory::Init(mDatabase);
+	mDatabase = kernel_->GetDatabase();
+    mPlayerObjectFactory	= PlayerObjectFactory::Init(kernel);
+    mTangibleFactory		= TangibleFactory::Init(kernel);
+    mIntangibleFactory		= IntangibleFactory::Init(kernel);
+    mCreatureFactory		= CreatureFactory::Init(kernel);
+    mBuildingFactory		= BuildingFactory::Init(kernel);
+    mRegionFactory			= new RegionFactory(kernel);
+    mWaypointFactory		= WaypointFactory::Init(kernel);
+    mHarvesterFactory		= HarvesterFactory::Init(kernel);
+    mFactoryFactory			= FactoryFactory::Init(kernel);
+    mHouseFactory			= HouseFactory::Init(kernel);
 }
 
 //=============================================================================

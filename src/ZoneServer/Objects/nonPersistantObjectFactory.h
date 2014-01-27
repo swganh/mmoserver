@@ -88,7 +88,7 @@ public:
     TangibleObject*			cloneTangible(TangibleObject* theTemplate);
 
 protected:
-    NonPersistantObjectFactory(swganh::database::Database* database);
+    NonPersistantObjectFactory(swganh::app::SwganhKernel*	kernel);
     ~NonPersistantObjectFactory();
 
 private:
@@ -101,7 +101,7 @@ private:
     void					_setupDatabindings();
     void					_destroyDatabindings();
 
-    swganh::database::Database*				mDatabase;
+    
     swganh::database::DataBinding*			mItemBinding;
     swganh::database::DataBinding*			mItemIdentifierBinding;
     uint64					mId;

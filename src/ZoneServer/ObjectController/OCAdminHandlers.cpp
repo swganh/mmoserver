@@ -355,7 +355,7 @@ void ObjectController::_handleAdminTeleportTo(uint64 targetId, Message* message,
 	y = target_player->mPosition.y;
 	z = target_player->mPosition.z;
 
-	//this is hardcoded shit we need a way to determine a zones size at some point
+	//this is hardcoded stuff we need a way to determine a zones size at some point
 	/*if(x < -8192 || x > 8192 || z < -8192 || z > 8192)	{
         std::string result("Please make sure you enter valid coordinates. At current these are -8192 to 8192 in x and z for planets");
 		std::u16string message_u16(result.begin(), result.end());
@@ -445,7 +445,7 @@ void ObjectController::_handleAdminTeleport(uint64 targetId, Message* message, O
 	x = atoi(result[2].str().c_str());
 	z = atoi(result[3].str().c_str());
 
-	//this is hardcoded shit we need a way to determine a zones size at some point
+	//this is hardcoded stuff we need a way to determine a zones size at some point
 	if(x < -8192 || x > 8192 || z < -8192 || z > 8192)	{
         std::stringstream result_stream;
 		result_stream << "Please make sure you enter valid coordinates. At current these are -8192 to 8192 in x and z for planets : " << x << " : " << z;
@@ -531,11 +531,11 @@ void ObjectController::_handleAdminKick(uint64 targetId, Message* message, Objec
 
 	if(!is_true)	{
 		PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
-		std::string result("Proper useage : /kick [reason] [ban: days: [n] hours: [n] minutes: [n] ] ");
+		std::string result("Syntax: /kick <reason> [ban: days: [n] hours: [n] minutes: [n] ] ");
 		std::u16string message_u16(result.begin(), result.end());
 		gMessageLib->SendSystemMessage(message_u16, admin);
 
-		result = "Please do only ban in the most dire of events and give proper reasoning to the affected player";
+		result = "Only ban if it is absolutely necessary. You must include a specific reason for the ban.";
 		std::u16string message2_u16(result.begin(), result.end());
 		gMessageLib->SendSystemMessage(message2_u16, admin);
 		return;
@@ -564,11 +564,11 @@ void ObjectController::_handleAdminKick(uint64 targetId, Message* message, Objec
 
 		if(!time_provided)	{
 		PlayerObject* admin = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getObject()->getId()));
-		std::string result("Proper useage : /kick [reason] [ban: days: [n] hours: [n] minutes: [n] ] ");
+		std::string result("Syntax: /kick <reason> [ban: days: [n] hours: [n] minutes: [n] ] ");
 		std::u16string message_u16(result.begin(), result.end());
 		gMessageLib->SendSystemMessage(message_u16, admin);
 
-		result = "Please do only ban in the most dire of events and give proper reasoning to the affected player";
+		result = "Only ban if it is absolutely necessary. You must include a specific reason for the ban.";
 		std::u16string message2_u16(result.begin(), result.end());
 		gMessageLib->SendSystemMessage(message2_u16, admin);
 		return;
@@ -658,22 +658,22 @@ BString ObjectController::handleBroadcastPlanet(BString message) const
                 }
                 else
                 {
-                    sprintf(rawData,"No broadcast supplied");
+                    sprintf(rawData,"You must include a broadcast message. You did not supply a broadcast message.");
                 }
             }
             else
             {
-                sprintf(rawData,"No valid broadcast supplied");
+                sprintf(rawData,"Supplied broadcast was invalid.");
             }
         }
         else
         {
-            sprintf(rawData,"%s is not valid planet name", planet);
+            sprintf(rawData,"%s is not valid planet name.", planet);
         }
     }
     else
     {
-        sprintf(rawData,"Missing planet name");
+        sprintf(rawData,"You must include a planet name. You did not supply a planet name.");
     }
     return rawData;
 }
@@ -727,12 +727,12 @@ BString ObjectController::handleBroadcastGalaxy(BString message) const
         }
         else
         {
-            replyStr = "No broadcast supplied";
+            replyStr = "You must include a broadcast message. You did not supply a broadcast message.";
         }
     }
     else
     {
-        replyStr = "No valid broadcast supplied";
+        replyStr = "Supplied broadcast was invalid.";
     }
     return replyStr;
 }
@@ -770,7 +770,7 @@ BString ObjectController::handleShutdownGalaxy(BString message) const
 
     if (AdminManager::Instance()->shutdownPending())
     {
-        sprintf(replyData,"Shutdown already in progress");
+        sprintf(replyData,"A Galaxy Shutdown is already in progress. To cancel this shutdown, please use /cancelShutdownGalaxy.");
     }
     else
     {
@@ -810,12 +810,12 @@ BString ObjectController::handleShutdownGalaxy(BString message) const
             }
             else
             {
-                sprintf(replyData,"%d is not valid shutdown time", minutesToShutdown);
+                sprintf(replyData,"%d is not valid shutdown time.", minutesToShutdown);
             }
         }
         else
         {
-            sprintf(replyData,"No shutdown time supplied");
+            sprintf(replyData,"You did not supply a valid Shut Down time. A shut down time is required.");
         }
     }
     return replyData;
@@ -853,7 +853,7 @@ BString ObjectController::handleCancelShutdownGalaxy(BString message) const
 
     if (!AdminManager::Instance()->shutdownPending())
     {
-        sprintf(replyData,"No shutdown in progress");
+        sprintf(replyData,"There is not currently a shut down in progress. To shutdown the server use /ShutdownGalaxy");
     }
     else
     {

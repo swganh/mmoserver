@@ -107,8 +107,8 @@ void CreatureMessageBuilder::BuildStatEncumberanceDelta(const std::shared_ptr<Cr
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatEncumberanceDelta: " << creature->getId();
 	DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_4, 2, SWG_CREATURE);
-	creature->SerializeStatEncumberances(&message);
-	gMessageLib->broadcastDelta(message,creature.get());
+	if(creature->SerializeStatEncumberances(&message))
+		gMessageLib->broadcastDelta(message,creature.get());
 }
 
 
@@ -116,24 +116,24 @@ void CreatureMessageBuilder::BuildStatCurrentDelta(const std::shared_ptr<Creatur
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatCurrentDelta : " << creature->getId();
     DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_6, 13, SWG_CREATURE);
-    creature->SerializeCurrentStats(&message);
-    gMessageLib->broadcastDelta(message,creature.get());
+    if(creature->SerializeCurrentStats(&message))
+		gMessageLib->broadcastDelta(message,creature.get());
 }
 
 void CreatureMessageBuilder::BuildStatMaxDelta(const std::shared_ptr<CreatureObject>& creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatMaxDelta : " << creature->getId();
     DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_6, 14, SWG_CREATURE);
-    creature->SerializeMaxStats(&message);
-    gMessageLib->broadcastDelta(message,creature.get());
+    if(creature->SerializeMaxStats(&message))
+		gMessageLib->broadcastDelta(message,creature.get());
 }
 
 void CreatureMessageBuilder::BuildStatBaseDelta(const std::shared_ptr<CreatureObject>& creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatBaseDelta : " << creature->getId();
     DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_1, 2, SWG_CREATURE);
-    creature->SerializeBaseStats(&message);
-    gMessageLib->broadcastDelta(message,creature.get());
+    if(creature->SerializeBaseStats(&message))
+		gMessageLib->broadcastDelta(message,creature.get());
 }
 
 
@@ -142,8 +142,8 @@ void CreatureMessageBuilder::BuildStatWoundDelta(const std::shared_ptr<CreatureO
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatWoundDelta : " << creature->getId();
     DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_3, 17, SWG_CREATURE);
-    creature->SerializeStatWounds(&message);
-    gMessageLib->broadcastDelta(message,creature.get());
+    if(creature->SerializeStatWounds(&message))
+		gMessageLib->broadcastDelta(message,creature.get());
 }
 
 

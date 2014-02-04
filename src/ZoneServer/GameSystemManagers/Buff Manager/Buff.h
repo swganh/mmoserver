@@ -100,8 +100,11 @@ public:
 
     void AddAttribute(BuffAttribute* Attribute);
     void SetID(uint64 value);
-    void SetChildBuff(Buff* value);
-    void setTarget(CreatureObject* creature);
+    
+	//what is this for ?
+	void SetChildBuff(Buff* value);
+    
+	void setTarget(CreatureObject* creature);
     void EraseAttributes();
     bool GetIsMarkedForDeletion();
     void MarkForDeletion() {

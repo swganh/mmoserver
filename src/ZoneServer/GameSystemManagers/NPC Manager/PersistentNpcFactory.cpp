@@ -176,15 +176,17 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
     break;
     }
 
-	std::string name = npc->getFirstName() + " " + npc->getLastName();
-
-	npc->setCustomName(std::u16string(name.begin(), name.end()));
-
 
     Inventory*		npcInventory	= new Inventory();
     npcInventory->setParent(npc);
 
     result->getNextRow(mPersistentNpcBinding,(void*)npc);
+
+	std::string name = npc->getFirstName() + " " + npc->getLastName();
+	LOG(info) << "" << npc->getFirstName() << " : " << name;
+
+	npc->setCustomName(std::u16string(name.begin(), name.end()));
+	
 
 	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 	

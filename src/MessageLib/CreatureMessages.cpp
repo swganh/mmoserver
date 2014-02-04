@@ -137,14 +137,12 @@ bool MessageLib::sendBaselinesCREO_3(CreatureObject* creatureObject,PlayerObject
         return(false);
 
     Message*		message;
-    
-	std::u16string custom_name_u16;
     	
     // make sure we got a name
 	std::stringstream stream;
 	stream << creatureObject->getFirstName() << " " << creatureObject->getLastName();
 	std::string s(stream.str());
-	custom_name_u16 += std::u16string(s.begin(), s.end());
+	std::u16string custom_name_u16(s.begin(), s.end());
 
 
     mMessageFactory->StartMessage();

@@ -392,8 +392,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		int32_t GetStatMax(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
 
 
-		void SerializeMaxStats(swganh::messages::BaseSwgMessage* message);
-		void SerializeMaxStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+		bool SerializeMaxStats(swganh::messages::BaseSwgMessage* message);
+		bool SerializeMaxStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
 		// Stat Encumberance
 		/**	Initializes the Wound Stat. 
@@ -422,8 +422,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		int32_t GetStatEncumberance(const uint16_t stat_index);
 		int32_t GetStatEncumberance(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
 
-		void SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message);
-		void SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+		bool SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message);
+		bool SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
 
 		 // Wounds
@@ -453,8 +453,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		int32_t GetStatWound(const uint16_t stat_index);
 		int32_t GetStatWound(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
 
-		void SerializeStatWounds(swganh::messages::BaseSwgMessage* message);
-		void SerializeStatWounds(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+		bool SerializeStatWounds(swganh::messages::BaseSwgMessage* message);
+		bool SerializeStatWounds(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
 
 
@@ -497,8 +497,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		int32_t GetStatCurrent(const uint16_t stat_index);
 		int32_t GetStatCurrent(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
 
-		void SerializeCurrentStats(swganh::messages::BaseSwgMessage* message);
-		void SerializeCurrentStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+		bool SerializeCurrentStats(swganh::messages::BaseSwgMessage* message);
+		bool SerializeCurrentStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
 		// Stat Base
 		/**	Max Stats are the maximum we can *currently* have with all buffs and debuffs
@@ -527,8 +527,8 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		int32_t GetStatBase(uint16_t stat_index);
 		int32_t GetStatBase(uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
 
-		void SerializeBaseStats(swganh::messages::BaseSwgMessage* message);
-		void SerializeBaseStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+		bool SerializeBaseStats(swganh::messages::BaseSwgMessage* message);
+		bool SerializeBaseStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
 		// Battle Fatigue
 		void AddBattleFatigue(uint32_t battle_fatigue);

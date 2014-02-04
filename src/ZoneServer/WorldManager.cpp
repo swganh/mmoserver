@@ -1165,15 +1165,14 @@ void WorldManager::removeBuffToProcess(uint64 taskId)
 
 uint64 WorldManager::addBuffToProcess(Buff* buff)
 {
-    //Create a copy of Buff* which can be Destructed when task completes (leaving the original ptr intact)
-    //Buff** pBuff = &buff;
-    Buff* DestructibleBuff = new Buff(*buff);
+    
+    //Buff* DestructibleBuff = new Buff(*buff); //wtf ???
 
     //Create Event
     //BuffEvent* bEvent = new BuffEvent(buff);
 
     //Create Callback
-    VariableTimeCallback callback = fastdelegate::MakeDelegate(DestructibleBuff,&Buff::Update);
+    VariableTimeCallback callback = fastdelegate::MakeDelegate(buff,&Buff::Update);
 
     //Add Callback to Scheduler
     uint64 temp = mBuffScheduler->addTask(callback,1,buff->GetTickLength(),NULL);

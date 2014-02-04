@@ -1407,26 +1407,26 @@ void	CreatureObject::ClearDefender()
     }
 }
 
-void CreatureObject::SerializeCurrentStats(swganh::messages::BaseSwgMessage* message)
+bool CreatureObject::SerializeCurrentStats(swganh::messages::BaseSwgMessage* message)
 {
     auto lock = AcquireLock();
-    SerializeCurrentStats(message, lock);
+    return SerializeCurrentStats(message, lock);
 }
 
-void CreatureObject::SerializeCurrentStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+bool CreatureObject::SerializeCurrentStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
 {
-    stat_current_list_.Serialize(message);
+    return stat_current_list_.Serialize(message);
 }
 
-void CreatureObject::SerializeMaxStats(swganh::messages::BaseSwgMessage* message)
+bool CreatureObject::SerializeMaxStats(swganh::messages::BaseSwgMessage* message)
 {
     auto lock = AcquireLock();
-    SerializeMaxStats(message, lock);
+    return SerializeMaxStats(message, lock);
 }
 
-void CreatureObject::SerializeMaxStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+bool CreatureObject::SerializeMaxStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
 {
-    stat_max_list_.Serialize(message);
+    return stat_max_list_.Serialize(message);
 }
 
 void CreatureObject::setFirstName(std::string name)	{ 
@@ -1470,8 +1470,6 @@ void CreatureObject::SetStatCurrent(uint16_t stat_index, int32_t value)
 void CreatureObject::SetStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
 {
     stat_current_list_.update(stat_index, value);
-	
-	lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
 	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
@@ -1743,15 +1741,15 @@ int32_t CreatureObject::GetStatBase(uint16_t stat_index, boost::unique_lock<boos
     return stat_base_list_[stat_index];
 }
 
-void CreatureObject::SerializeBaseStats(swganh::messages::BaseSwgMessage* message)
+bool  CreatureObject::SerializeBaseStats(swganh::messages::BaseSwgMessage* message)
 {
     auto lock = AcquireLock();
-    SerializeBaseStats(message, lock);
+    return SerializeBaseStats(message, lock);
 }
 
-void CreatureObject::SerializeBaseStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+bool  CreatureObject::SerializeBaseStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
 {
-    stat_base_list_.Serialize(message);
+    return stat_base_list_.Serialize(message);
 }
 
 void CreatureObject::InitStatWound( int32_t value)
@@ -1928,26 +1926,26 @@ int32_t CreatureObject::GetStatEncumberance(uint16_t stat_index, boost::unique_l
     return stat_encumberance_list_[stat_index];
 }
 
-void CreatureObject::SerializeStatWounds(swganh::messages::BaseSwgMessage* message)
+bool CreatureObject::SerializeStatWounds(swganh::messages::BaseSwgMessage* message)
 {
     auto lock = AcquireLock();
-    SerializeStatWounds(message, lock);
+    return SerializeStatWounds(message, lock);
 }
 
-void CreatureObject::SerializeStatWounds(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+bool CreatureObject::SerializeStatWounds(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
 {
-    stat_wound_list_.Serialize(message);
+    return stat_wound_list_.Serialize(message);
 }
 
-void CreatureObject::SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message)
+bool CreatureObject::SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message)
 {
     auto lock = AcquireLock();
-    SerializeStatEncumberances(message, lock);
+    return SerializeStatEncumberances(message, lock);
 }
 
-void CreatureObject::SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+bool CreatureObject::SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
 {
-    stat_encumberance_list_.Serialize(message);
+    return stat_encumberance_list_.Serialize(message);
 }
 
 void CreatureObject::SetBattleFatigue(uint32_t battle_fatigue)

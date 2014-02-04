@@ -93,6 +93,8 @@ void	HamService::SetHam(CreatureObject* creature, const uint16_t statIndex, cons
 
 int32_t	HamService::ModifyMaxHam(CreatureObject* creature, const uint16_t statIndex, const int32_t update)
 {
+	LOG(info) << "HamService::ModifyMaxHam : update : " << update;
+	
 	//make sure we dont get negative hitpoints
 	int32_t update_calculated = update;
     int32_t current_value = creature->GetStatCurrent(statIndex); 
@@ -100,7 +102,7 @@ int32_t	HamService::ModifyMaxHam(CreatureObject* creature, const uint16_t statIn
     if((current_value + update) < 1)
         update_calculated = 1 - current_value;
 
-   
+   LOG(info) << "HamService::ModifyMaxHam : update calculated : " << update_calculated;
 	creature->AddStatMax(statIndex, update_calculated);
 	creature->AddStatCurrent(statIndex, update_calculated);
     
@@ -326,6 +328,7 @@ bool HamService::UpdateBaseHitpoints(CreatureObject* creature, const uint16_t st
 
 int32_t HamService::UpdateCurrentHitpoints(CreatureObject* creature, const uint16_t statIndex, const int32_t update)
 {
+
 	int32_t currentHam = creature->GetStatCurrent(statIndex); 
 	int32_t u = update;
 	int32_t modified_hitpoints_temp = getModifiedHitPoints(creature, statIndex);
@@ -345,7 +348,7 @@ int32_t HamService::UpdateCurrentHitpoints(CreatureObject* creature, const uint1
 	}
 	else
 	// never go higher than maxhitpoints - encumbrance and wounds
-	if((update > 0) && (currentHam += update) > modified_hitpoints_temp)	{
+	if((update > 0) && (creature->GetStatCurrent(statIndex) + update) > modified_hitpoints_temp)	{
 		u = modified_hitpoints_temp - currentHam;
 	}
 
@@ -489,14 +492,14 @@ bool HamService::regenerate_(uint64 id)
 	}
 
 	//regeneration only for health action mind
-	LOG (info) << "HamService::regenerate_ : " << creature->getId();
+	//LOG (info) << "HamService::regenerate_ : " << creature->getId();
 	
 	for(uint16_t mainstatIndex = HamBar_Health; mainstatIndex <= HamBar_Willpower;mainstatIndex++)	{
 		int32_t maxPool = creature->GetStatMax(mainstatIndex);
 		if(creature->GetStatCurrent(mainstatIndex) < maxPool ){
-			LOG (error) << "HamService::regenerate_ : " << creature->getId() << " needs to be healed";
+			//LOG (error) << "HamService::regenerate_ : " << creature->getId() << " needs to be healed";
 			int32_t newPool = UpdateCurrentHitpoints(creature, mainstatIndex, regenerationModifier(creature, mainstatIndex));
-			if (newPool < maxPool)	{
+			if (newPool && creature->GetStatCurrent(mainstatIndex) < maxPool )	{
 				done = false;
 			}
 		}

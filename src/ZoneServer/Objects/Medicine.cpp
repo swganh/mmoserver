@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -65,30 +65,22 @@ void Medicine::handleStimpackMenuSelect(uint8 messageType, PlayerObject* player,
         medpackType = stim;
     switch(messageType)
     {
-    case radId_itemUse:
-    {
-        //get heal target
-        if (PlayerObject* target = dynamic_cast<PlayerObject*>(player->getHealingTarget(player)))
-        {
-            //check Medic has enough Mind
-            if(player->getHam()->checkMainPools(0, 0, 140))
-            {
-                //Try to Heal Damage
-                if(gMedicManager->CheckMedicine(player, target,0, medpackType))
-                {
-                    //Call the event
-                    gMedicManager->startInjuryTreatmentEvent(player);
-                } else {
-
-                }
-            } else {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), player);
-            }
-        } else {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_62"), player);
-        }
-    }
-    }
+		case radId_itemUse:
+		{
+			//get heal target
+			if (PlayerObject* target = dynamic_cast<PlayerObject*>(player->getHealingTarget(player)))
+			{
+				//Try to Heal Damage
+				if(gMedicManager->CheckMedicine(player, target,0, medpackType))
+				{
+					//Call the event
+					gMedicManager->startInjuryTreatmentEvent(player);
+				} 
+            
+				//gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_62"), player);
+			}
+		}
+	}
 }
 
 void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player, std::string medpackType)
@@ -98,29 +90,20 @@ void Medicine::handleWoundPackMenuSelect(uint8 messageType, PlayerObject* player
 
     switch(messageType)
     {
-    case radId_itemUse:
-    {
-        //get wound heal target
-        if (PlayerObject* target = dynamic_cast<PlayerObject*>(player->getHealingTarget(player)))
-        {
-            //check Medic has enough Mind
-            if(player->getHam()->checkMainPools(0, 0, 140))
-            {
-                //Try to Heal Damage
-                if(gMedicManager->CheckMedicine(player, target, 0, medpackType))
-                {
-                    //Call the event
-                    gMedicManager->startWoundTreatmentEvent(player);
-                } else {
-
-                }
-            } else {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), player);
-            }
-        } else {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_62"), player);
-        }
-    }
+		case radId_itemUse:
+		{
+			//get wound heal target
+			if (PlayerObject* target = dynamic_cast<PlayerObject*>(player->getHealingTarget(player)))
+			{
+            
+				//Try to Heal Damage
+				if(gMedicManager->CheckMedicine(player, target, 0, medpackType))
+				{
+					//Call the event
+					gMedicManager->startWoundTreatmentEvent(player);
+				} 
+			}
+		}
     }
 
 }

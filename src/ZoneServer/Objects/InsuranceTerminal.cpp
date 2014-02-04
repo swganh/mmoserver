@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -81,7 +81,7 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
     if (playerObject && playerObject->isConnected())
     {
         // Fetch all items that can be insured.
-        BStringVector insuranceList;
+        StringVector insuranceList;
         this->getUninsuredItems(playerObject, &insuranceList);
 
         if (gWorldConfig->isTutorial())
@@ -218,7 +218,7 @@ void InsuranceTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObje
 
 //=============================================================================
 
-void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
 {
     if(window == NULL)
     {
@@ -243,7 +243,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
             // Player selected to continue with insurance of item even if no need for.
 
             // Build the items list and optional use error-messages if needed.
-            BStringVector insuranceList;
+            StringVector insuranceList;
             this->getUninsuredItems(playerObject, &insuranceList);
 
             // We should display all uninsured items that can be insured, and that are wearing or carrying in our inventory.
@@ -390,7 +390,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
             // Player selected to continue with insurance of item even if no need for.
 
             // Fetch all items that can be insured.
-            BStringVector insuranceList;
+            StringVector insuranceList;
             this->getUninsuredItems(playerObject, &insuranceList);
 
             uint32 insuranceFee = insuranceList.size() * mInsuranceFee;
@@ -561,7 +561,7 @@ void InsuranceTerminal::handleUIEvent(uint32 action,int32 element,BString inputS
 //	Fetch all items, in inventory or equipped, that are un-insured, but can be insured.
 //
 
-void InsuranceTerminal::getUninsuredItems(PlayerObject* playerObject, BStringVector* insuranceList)
+void InsuranceTerminal::getUninsuredItems(PlayerObject* playerObject, StringVector* insuranceList)
 {
     // Fetch all items that can be insured.
     mSortedInsuranceList.clear();
@@ -580,7 +580,7 @@ void InsuranceTerminal::getUninsuredItems(PlayerObject* playerObject, BStringVec
         it = mSortedInsuranceList.begin();
         while (it != mSortedInsuranceList.end())
         {
-            insuranceList->push_back((*it).first);
+			insuranceList->push_back((*it).first.getAnsi());
             it++;
         }
     }
@@ -591,7 +591,7 @@ void InsuranceTerminal::getUninsuredItems(PlayerObject* playerObject, BStringVec
 //	Fetch all items, in inventory or equipped, that are insured.
 //
 
-void InsuranceTerminal::getInsuredItems(PlayerObject* playerObject, BStringVector* insuranceList)
+void InsuranceTerminal::getInsuredItems(PlayerObject* playerObject, StringVector* insuranceList)
 {
     // Fetch all items that can be insured.
     mSortedInsuranceList.clear();
@@ -610,7 +610,7 @@ void InsuranceTerminal::getInsuredItems(PlayerObject* playerObject, BStringVecto
         it = mSortedInsuranceList.begin();
         while (it != mSortedInsuranceList.end())
         {
-            insuranceList->push_back((*it).first);
+			insuranceList->push_back((*it).first.getAnsi());
             it++;
         }
     }

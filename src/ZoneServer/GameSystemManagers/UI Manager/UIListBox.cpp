@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================================
 
-UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType, float distance, uint64 object, std::shared_ptr<WindowAsyncContainerCommand> container)
+UIListBox::UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const StringVector dataItems,PlayerObject* playerObject,uint8 lbType, float distance, uint64 object, std::shared_ptr<WindowAsyncContainerCommand> container)
     : UIWindow(callback,id,windowType,"Script.listBox",eventStr,container),mLbType(lbType)
 {
     mDistance	= distance;
@@ -65,19 +65,16 @@ UIListBox::~UIListBox()
 
 void UIListBox::handleEvent(Message* message)
 {
-    uint32	action				= message->getUint32();
-    uint32	items				= message->getUint32();
-    BString	selectedDataItemStr;
-    BString	caption;
-    int32	selectedItem		= -1;
+    uint32	action			= message->getUint32();
+    uint32	items			= message->getUint32();
+    std::u16string			selectedDataItemStr;
+    BString					caption;
+    int32	selectedItem	= -1;
 
     if(items)
     {
         message->getUint32(); // item count again
-        message->getStringUnicode16(selectedDataItemStr);
-
-        if(swscanf(selectedDataItemStr.getUnicode16(),L"%i",&selectedItem) != 1)
-            DLOG(info) << "UIListBox::handleEvent: item mismatch";
+        selectedDataItemStr = message->getStringUnicode16();
 
         if(items >= 2)
             message->getStringUnicode16(caption);
@@ -192,7 +189,7 @@ void UIListBox::sendCreate()
     gMessageFactory->addUint32(1);
     gMessageFactory->addString(BString("List.dataList"));
 
-    BStringVector::iterator it = mDataItems.begin();
+    StringVector::iterator it = mDataItems.begin();
     uint8 index = 0;
     uint32 count = 0;
     while(it != mDataItems.end())
@@ -206,7 +203,7 @@ void UIListBox::sendCreate()
         std::string itemName("List.dataList.");
         itemName.append(indexStr);
 
-        BString item = (*it).getAnsi();
+        BString item = (*it).c_str();
         item.convert(BSTRType_Unicode16);
 
         gMessageFactory->addUint8(4);

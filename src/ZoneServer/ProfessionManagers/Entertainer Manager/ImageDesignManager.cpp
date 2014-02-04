@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Zoneserver/Objects/Inventory.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/GameSystemManagers/UI Manager/UIManager.h"
+#include "ZoneServer\Services\ham\ham_service.h"
 #include "ZoneServer/WorldManager.h"
 
 #include "ZoneServer/GameSystemManagers/Container Manager/ContainerManager.h"
@@ -355,8 +356,8 @@ BString EntertainerManager::commitIdColor(PlayerObject* customer, BString attrib
 
             //update hair customization db side separately
             int8 sql[300];
-            sprintf(sql,"UPDATE %s.character_appearance set %s = %u where character_id = '%"PRIu64"'",mDatabase->galaxy(),iDContainer->Atr1Name, value,customer->getId());
-            mDatabase->executeSqlAsync(NULL,NULL,sql);
+			sprintf(sql,"UPDATE %s.character_appearance set %s = %u where character_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(),iDContainer->Atr1Name, value,customer->getId());
+            kernel_->GetDatabase()->executeSqlAsync(NULL,NULL,sql);
             
             //update object clientside
             // now update the hair customization string
@@ -555,8 +556,8 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 			if(!newHairString.getLength())
 			{
 				// update the db
-				sprintf(sql,"UPDATE %s.character_appearance set hair = '' where character_id = '%"PRIu64"'",mDatabase->galaxy(),customer->getId());
-				mDatabase->executeSqlAsync(NULL,NULL,sql);
+				sprintf(sql,"UPDATE %s.character_appearance set hair = '' where character_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(),customer->getId());
+				kernel_->GetDatabase()->executeSqlAsync(NULL,NULL,sql);
 			}
 		}
 		//destroy serverside
@@ -582,8 +583,8 @@ void EntertainerManager::applyHair(PlayerObject* customer,BString newHairString)
 		customer->getEquipManager()->setDefaultHair(customer->getId() + HAIR_OFFSET);
 
 		// update the db
-		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",mDatabase->galaxy(),newHairString.getAnsi(),customer->getId());
-		mDatabase->executeSqlAsync(NULL,NULL,sql);
+		sprintf(sql,"UPDATE %s.character_appearance set hair = '%s' where character_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(),newHairString.getAnsi(),customer->getId());
+		kernel_->GetDatabase()->executeSqlAsync(NULL,NULL,sql);
 
 		// now update the modelstring in the creo6 equipped list and the corresponding tano
 		//are we wearing a helmet ? if not we need to update the world
@@ -618,7 +619,7 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
     }
 
     EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_IDFinances,0);
-    swganh::database::Transaction* mTransaction = mDatabase->startTransaction(this,asyncContainer);
+    swganh::database::Transaction* mTransaction = kernel_->GetDatabase()->startTransaction(this,asyncContainer);
 
     asyncContainer->customer = customer;
     asyncContainer->performer = designer;
@@ -626,11 +627,11 @@ void EntertainerManager::applyMoney(PlayerObject* customer,PlayerObject* designe
     asyncContainer->amountbank = amountbank;
 
 
-    sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amountcash, customer->getId()+1);
+    sprintf(sql,"UPDATE %s.inventories SET credits=credits-%i WHERE id=%"PRIu64"",kernel_->GetDatabase()->galaxy(),amountcash, customer->getId()+1);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amountbank, customer->getId()+4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits-%i WHERE id=%"PRIu64"",kernel_->GetDatabase()->galaxy(),amountbank, customer->getId()+4);
     mTransaction->addQuery(sql);
-    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%"PRIu64"",mDatabase->galaxy(),amount, designer->getId()+4);
+    sprintf(sql,"UPDATE %s.banks SET credits=credits+%i WHERE id=%"PRIu64"",kernel_->GetDatabase()->galaxy(),amount, designer->getId()+4);
     mTransaction->addQuery(sql);
 
     mTransaction->execute();
@@ -690,11 +691,12 @@ bool EntertainerManager::handleImagedesignTimeOut(CreatureObject* designer)
 //
 void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* designer, BString hair, uint32 amount,uint8 statMigration, BString holoEmote,uint8 flagHair)
 {
-    Ham* ham = designer->getHam();
-    if(ham->checkMainPools(0,0,66))
+
+	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+			
+    if(!ham->ApplyModifiedHamCosts(designer, 0, 0, 66))
     {
-        //int32 mindCost = 66;
-        designer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-(66));
+        DLOG(error) << "EntertainerManager::commitIdChanges ham wtf";
     }
 
     int8 sql[1024];
@@ -722,7 +724,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     BString						data;
     bool						firstUpdate		 = true;
 
-    sprintf(mySQL,"UPDATE %s.character_appearance set ",mDatabase->galaxy());
+	sprintf(mySQL,"UPDATE %s.character_appearance set ",kernel_->GetDatabase()->galaxy());
 
     while(it != aList->end())
     {
@@ -774,7 +776,7 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
     {
         sprintf(sql,"%s where character_id = '%"PRIu64"'",mySQL,customer->getId());
         asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-        mDatabase->executeSqlAsync(this,asyncContainer,sql);
+        kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
         
     }
 
@@ -798,8 +800,8 @@ void EntertainerManager::commitIdChanges(PlayerObject* customer,PlayerObject* de
         asyncContainer->customer = customer;
         asyncContainer->performer = designer;
 
-        sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %"PRIu64"",mDatabase->galaxy(), customer->getId());
-        mDatabase->executeSqlAsync(this,asyncContainer,sql);
+        sprintf(sql,"SELECT target_health, target_strength, target_constitution, target_action, target_quickness, target_stamina, target_mind, target_focus, target_willpower FROM %s.character_stat_migration where character_id = %"PRIu64"",kernel_->GetDatabase()->galaxy(), customer->getId());
+        kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
         
     }
     else
@@ -871,8 +873,8 @@ void EntertainerManager::applyHoloEmote(PlayerObject* customer,BString holoEmote
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
     asyncContainer->customer = customer;
 
-    sprintf(sql,"call %s.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)",mDatabase->galaxy(), customer->getId(),myEmote->pCRC,20);
-    mDatabase->executeProcedureAsync(this,asyncContainer,sql);
+    sprintf(sql,"call %s.sp_CharacterHoloEmoteCreate(%"PRIu64",%u,%u)",kernel_->GetDatabase()->galaxy(), customer->getId(),myEmote->pCRC,20);
+    kernel_->GetDatabase()->executeProcedureAsync(this,asyncContainer,sql);
 
 
     //send message box holoemote bought

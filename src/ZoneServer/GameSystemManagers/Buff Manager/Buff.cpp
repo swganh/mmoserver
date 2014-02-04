@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,6 +24,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+
+#include "ZoneServer\Services\ham\ham_service.h"
 #include "Zoneserver/GameSystemManagers/Buff Manager/Buff.h"
 
 #include "BuffDBItem.h"
@@ -32,6 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "Zoneserver/GameSystemManagers/Skill Manager/SkillEnums.h"
+
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 #include "MessageLib/MessageLib.h"
 
@@ -438,55 +443,64 @@ int32 Buff::ModifyAttribute(uint64 Type, int32 Value, bool damage, bool debuff)
     {
     case attr_health:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Modifier, Value, damage);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Health, Value);
     }
     break;
 
     case attr_strength:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Modifier, Value);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Strength, Value);
     }
     break;
 
     case attr_constitution:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Modifier, Value);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Constitution, Value);
     }
     break;
 
     case attr_action:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Modifier, Value);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Action, Value);
     }
     break;
 
     case attr_quickness:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Modifier, Value);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Quickness, Value);
     }
     break;
 
     case attr_stamina:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Modifier, Value);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Stamina, Value);
     }
     break;
 
     case attr_mind:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Modifier, Value);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Mind, Value);
     }
     break;
 
     case attr_focus:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Modifier, Value);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Focus, Value);
     }
     break;
 
     case attr_willpower:
     {
-        cV = this->mTarget->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Modifier, Value);
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+		cV = ham->ModifyMaxHam(mTarget,HamBar_Willpower, Value);
     }
     break;
     case bio_comp_mask_scent:

@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -27,9 +27,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "PVHam.h"
 #include "ZoneServer/Objects/Creature Object/CreatureObject.h"
-#include "Zoneserver/GameSystemManagers/Ham Manager/Ham.h"
+
 #include "Zoneserver/ObjectController/ObjectController.h"
 #include "ZoneServer/ObjectController/ObjectControllerCommandMap.h"
+
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
+#include "ZoneServer\WorldManager.h"
 
 PVHam::PVHam(ObjectController* controller)
     : ProcessValidator(controller)
@@ -44,11 +49,12 @@ bool PVHam::validate(uint32 &reply1, uint32 &reply2, uint64 targetId, uint32 opc
     {
         if(!(cmdProperties->mHealthCost == 0 && cmdProperties->mActionCost == 0 && cmdProperties->mMindCost == 0))
         {
-            if(Ham*	ham = creature->getHam())
+			auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+            
             {
                 // checkMainPools will return true is the 0 <= 0 so if a creature is incapacitated or dead
                 // this will return false, when it should not. IE: if the action costs no HAM.
-                if(!ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost))
+				if(! ham->checkMainPools(creature, cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost))
                 {
                     reply1 = 0;
                     reply2 = 0;

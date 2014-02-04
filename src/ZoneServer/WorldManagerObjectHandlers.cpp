@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -89,6 +89,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer/ZoneServer.h"
 
+
+#include "ZoneServer\Services\ham\ham_service.h"
+
 using std::dynamic_pointer_cast;
 using std::shared_ptr;
 
@@ -147,8 +150,9 @@ void WorldManager::initializeObject(std::shared_ptr <Object> &object)
 			player->setSubZoneId(0);
 			
 			// add ham to regeneration scheduler
-			player->getHam()->updateRegenRates();	
-			player->getHam()->checkForRegen();
+			auto ham = getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+			ham->addToRegeneration(player->getId());
+
 			player->getStomach()->checkForRegen();
 
 			// onPlayerEntered event, notify scripts
@@ -355,6 +359,9 @@ void WorldManager::destroyObject(Object* object)
 				*/
 			}
 
+			// make sure we stop entertaining if we are an entertainer
+			gEntertainerManager->stopEntertaining(player);
+
 			LOG(error) << " going to remove Player : " << player->getId() << "from simulation" ;
 			gSpatialIndexManager->RemoveObjectFromWorld(player);
 			LOG(error) << "removed Player : " << player->getId() << "from simulation" ;
@@ -380,9 +387,6 @@ void WorldManager::destroyObject(Object* object)
 		{
 			CreatureObject* creature = dynamic_cast<CreatureObject*>(object);
 			LOG(error) << "remove creature / NPC from world id : " << creature->getId();
-
-			// remove any timers we got running
-			removeCreatureHamToProcess(creature->getHam()->getTaskId());
 
 			// if its a shuttle, remove it from the shuttle list
 			if(creature->getCreoGroup() == CreoGroup_Shuttle)

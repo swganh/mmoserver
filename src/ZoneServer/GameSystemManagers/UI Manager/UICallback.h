@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -41,10 +41,10 @@ class UICallback
 public:
 
 	/*	@brief these virtual functions need to be implemented by classes that want to receive callbacks from the UI Manager
-	*	Gould coding practice would be to NOT put them in Objects that might get deleted, because then the callback might access
+	*	Good coding practice would be to NOT put them in Objects that might get deleted, because then the callback might access
 	*	invalidated memory.
 	*/
-	virtual void	handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr) {};
+	virtual void	handleUIEvent(uint32 action,int32 element,std::u16string inputString, UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr) {};
 
     virtual void	handleUIEvent(std::u16string leftValue, std::u16string rightValue, UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr) {};
 

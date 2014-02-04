@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -56,6 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 
 #include <ZoneServer\Services\terrain\terrain_init.h>
+#include <ZoneServer\Services\ham\ham_init.h>
 
 #include "Zoneserver/Objects/Food.h"
 #include "Zoneserver/Objects/NonPersistentItemFactory.h"
@@ -192,6 +193,7 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 	mRouterService = mNetworkManager->GenerateService((char*)kernel_->GetAppConfig().bind_address.c_str(), kernel_->GetAppConfig().bind_port,kernel_->GetAppConfig().service_message_heap *1024, true);
 
 	swganh::terrain::Initialize(kernel_);
+	swganh::ham::Initialize(kernel_);
 
 	// Load core services
     LoadCoreServices_();
@@ -272,14 +274,18 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
     gStateManager.loadStateMaps();
     UIManager::Init(kernel_->GetDispatch());
     CombatManager::Init(kernel_->GetDatabase());
+	
 	TravelMapHandler::Init(kernel_->GetDatabase(),kernel_->GetDispatch(),zoneId);
     CharSheetManager::Init(kernel_->GetDatabase(),kernel_->GetDispatch());
     TradeManager::Init(kernel_->GetDatabase(),kernel_->GetDispatch());
+	
     BuffManager::Init(kernel_->GetDatabase());
-    MedicManager::Init(kernel_->GetDispatch());
+    MedicManager::Init(kernel_);
     AdminManager::Init(kernel_->GetDispatch());
-    EntertainerManager::Init(kernel_->GetDatabase(),kernel_->GetDispatch());
+    EntertainerManager::Init(kernel_);
     GroupManager::Init(kernel_->GetDatabase(),kernel_->GetDispatch());
+
+	
 
     if(zoneId != 41)
         StructureManager::Init(kernel_->GetDatabase(),kernel_->GetDispatch());

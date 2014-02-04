@@ -104,7 +104,8 @@ void update(const uint16_t index)
     {
         message.data.write<uint8_t>(2);//_update);
         message.data.write<uint16_t>(index);
-        Serializer::SerializeDelta(message.data, data_[index]);
+		serialize_it(message.data, data_[index]);
+        //Serializer::SerializeDelta(message.data, data_[index]);
     });
 }
 

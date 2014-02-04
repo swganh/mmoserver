@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -187,7 +187,7 @@ void SurveyTool::StartUsing(PlayerObject* player)
 //
 // TODO: verify with skillmod
 //
-void SurveyTool::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+void SurveyTool::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
 {
     if(!action && element != -1)
     {
@@ -233,7 +233,7 @@ void SurveyTool::_createRangeMenu(PlayerObject* playerObject, bool sample)
 {
     int32 surveyMod = playerObject->getSkillModValue(SMod_surveying);
 
-    BStringVector availableRanges;
+    StringVector availableRanges;
 
     availableRanges.push_back("64m x 3pts");
 

@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 //================================================================================
 
-UIInputBox::UIInputBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements
+UIInputBox::UIInputBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,const int8* caption,const int8* text,const StringVector dropdownElements
                        ,PlayerObject* playerObject,uint8 ibType,uint16 maxInputLength, std::shared_ptr<WindowAsyncContainerCommand> container)
     : UIWindow(callback,id,windowType,"Script.inputBox",eventStr, container),
       mIbType(ibType),
@@ -65,16 +65,16 @@ void UIInputBox::handleEvent(Message* message)
 {
     uint32	action				= message->getUint32();
     uint32	items				= message->getUint32();
-    BString	inputStr;
+    std::u16string				inputStr_u16;
 
     if(items)
     {
         message->getUint32(); // item count again
-        message->getStringUnicode16(inputStr);
+        inputStr_u16 = message->getStringUnicode16();
     }
 
     if(mUICallback != NULL)
-        mUICallback->handleUIEvent(action,0,inputStr,this, async_container_);
+        mUICallback->handleUIEvent(action,0,inputStr_u16,this, async_container_);
 
     mOwner->removeUIWindow(mId);
     gUIManager->destroyUIWindow(mId);
@@ -162,7 +162,7 @@ void UIInputBox::sendCreate()
 
 //================================================================================
 
-void UIInputBox::_initChildren(BStringVector dropdownElements)
+void UIInputBox::_initChildren(StringVector dropdownElements)
 {
     switch(mIbType)
     {

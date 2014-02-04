@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -74,7 +74,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <anh\app\swganh_kernel.h>
 #include <anh\service/service_manager.h>
 #include <ZoneServer\Services\terrain\terrain_service.h>
-
+#include "ZoneServer\Services\ham\ham_service.h"
 using std::stringstream;
 using common::SimpleEvent;
 using common::EventType;
@@ -145,31 +145,25 @@ bool ArtisanManager::handleRequestSurvey(Object* playerObject,Object* target,Mes
             gMessageLib->sendPlayClientEffectLocMessage(effect, player->mPosition, recipient);
         });
 
-        uint32 mindCost = mSurveyMindCost;
-        Ham* hamz = player->getHam();
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
+
+        uint32 survey_cost = mSurveyMindCost;
+        
         //are we able to sample in the first place ??
-        if(!hamz->checkMainPools(0,0,mindCost))
-        {
-
-            int32 myMind = hamz->mAction.getCurrentHitPoints();
-
-            //return message for sampling cancel based on HAM
-            if(myMind < (int32)mindCost)
-            {
-                gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), player);
-            }
-
+        if(!ham->ApplyModifiedHamCosts(player, 0, 0, survey_cost))        {
+            
+            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), player);
+            
             //message for stop sampling
             gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "sample_cancel"), player);
 
             player->getSampleData()->mPendingSurvey = false;
 
-            hamz->updateRegenRates();
             player->updateMovementProperties();
             return false;
         }
 
-        hamz->performSpecialAction(0,0,(float)mindCost,HamProperty_CurrentHitpoints);
         // send system message
         resourceName.convert(BSTRType_Unicode16);
         gMessageLib->SendSystemMessage(::common::OutOfBand("survey", "start_survey", L"", L"", resourceName.getUnicode16()), player);
@@ -320,8 +314,6 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
 {
     if (!player->isConnected())
         return;
-
-    Ham*				ham			= player->getHam();
 
     //====================================================
     //check whether we are able to sample in the first place
@@ -482,7 +474,8 @@ void ArtisanManager::sampleEvent(PlayerObject* player, CurrentResource* resource
         gEventDispatcher.Notify(start_sample_event);
     }
 
-    player->getHam()->performSpecialAction(0, (float)actionCost, 0, HamProperty_CurrentHitpoints);
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+    ham->ApplyModifiedHamCosts(player, 0, actionCost, 0);
 }
 
 bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
@@ -501,7 +494,7 @@ bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* res
         container->ToolId			=	tool->getId();
         container->CurrentResource	=	resource;
 
-        BStringVector items;
+        StringVector items;
         items.push_back("Ignore the concentration and continue working.");
         items.push_back("Attempt to recover the resources. (300 Action)");
         gUIManager->createNewListBox(this,"gambleSample","@survey:gnode_t","@survey:gnode_d",items,player,SUI_Window_SmplGamble_ListBox,SUI_LB_OKCANCEL,0,0,container);
@@ -518,7 +511,7 @@ bool	ArtisanManager::setupSampleEvent(PlayerObject* player, CurrentResource* res
         container->CurrentResource	= resource;
 
         //WAYP CONCENTRATION
-        BStringVector items;
+        StringVector items;
         items.push_back("Ignore the concentration and continue working.");
         items.push_back("Focus the device on the concentration");
         gUIManager->createNewListBox(this,"waypNodeSample","@survey:cnode_t","@survey:cnode_d",items,player,SUI_Window_SmplWaypNode_ListBox,SUI_LB_OKCANCEL,0,0,container);
@@ -582,8 +575,11 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
             player->getSampleData()->mPendingSample = false;
             return true;
         }
-        Ham* hamz = player->getHam();
-        uint32 playerBF = hamz->getBattleFatigue();
+        
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+    
+
+		uint32 playerBF = player->GetBattleFatigue();
 
         uint32 woundDmg = 50*(1 + (playerBF/100)) + (50*(1 + (resPE/1000)));
         uint32 bfDmg    = static_cast<uint32>(0.075*resPE);
@@ -592,11 +588,13 @@ bool	ArtisanManager::getRadioactiveSample(PlayerObject* player, CurrentResource*
         if(resPE >= 500)
         {
             //wound and BF dmg
-            hamz->updateBattleFatigue(bfDmg);
-            hamz->updatePropertyValue(HamBar_Health,HamProperty_Wounds, woundDmg);
-            hamz->updatePropertyValue(HamBar_Action,HamProperty_Wounds, woundDmg);
-            hamz->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, woundDmg);
-        }
+			ham->UpdateBattleFatigue(player, 0-bfDmg);
+			//ham->ApplyModifiedHamCosts(player, 0, actionCost, 0);
+			ham->UpdateWound(player, HamBar_Health, woundDmg);
+			ham->UpdateWound(player, HamBar_Action, woundDmg);
+			ham->UpdateWound(player, HamBar_Mind, woundDmg);
+            
+		}
 
         //this should be a timed debuff per instance -- Do not cause wounds unless potential energy >= 500
         // each time a radioactive is sampled, there is a 5 minute debuff
@@ -690,7 +688,7 @@ void	ArtisanManager::finishSampling(PlayerObject* player, CurrentResource* resou
 }
 bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resource, SurveyTool* tool)
 {
-    Ham* ham = player->getHam();
+    auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
     bool stop = false;
 
     if(!resource || !tool || !player->isConnected() || !player->getSamplingState()||player->getSurveyState())
@@ -724,14 +722,10 @@ bool	ArtisanManager::stopSampling(PlayerObject* player, CurrentResource* resourc
 
     uint32 actionCost = mSampleActionCost;
 
-    if(!ham->checkMainPools(0,actionCost,0))
+    if(!ham->checkMainPools(player, 0,actionCost,0))
     {
-        //return message for sampling cancel based on HAM
-        if(ham->mAction.getCurrentHitPoints() < (int32)actionCost)
-        {
-            gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), player);
-            stop = true;
-        }
+        gMessageLib->SendSystemMessage(::common::OutOfBand("error_message", "sample_mind"), player);
+        stop = true;
     }
 
     if (stop)
@@ -794,7 +788,7 @@ void ArtisanManager::surveyEvent(PlayerObject* player, CurrentResource* resource
 // handles any UIWindow callbacks for sampling events
 //
 				
-void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
+void ArtisanManager::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
     PlayerObject* player = window->getOwner();
     std::shared_ptr<SimpleEvent> sample_UI_event = nullptr;
@@ -813,13 +807,13 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
     if(!AsyncContainer)
         return;
 
-    Ham* ham = player->getHam();
-
     switch(window->getWindowType())
     {
         // Sampling Radioactive Msg Box
     case SUI_Window_SmplRadioactive_MsgBox:
     {
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
         //we stopped the sampling
         if(action == 1)
         {
@@ -833,7 +827,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
             player->getSampleData()->mPassRadioactive = true;
             player->getSampleData()->mPendingSample = true;
 
-            if(ham->checkMainPools(0,mSampleActionCost*2,0))
+            if(ham->checkMainPool(player, HamBar_Action, mSampleActionCost*2))
             {
 
                 SurveyTool*			tool					= dynamic_cast<SurveyTool*>(inventory->getObjectById(AsyncContainer->ToolId));
@@ -855,6 +849,8 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
 
     case SUI_Window_SmplGamble_ListBox:
     {
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
         //action == 1 is cancel
         if(action == 1)
         {
@@ -886,7 +882,7 @@ void ArtisanManager::handleUIEvent(uint32 action,int32 element,BString inputStr,
             else
             {
                 //action costs
-                if(!ham->checkMainPools(0,mSampleActionCost*2,0))
+                if(!ham->checkMainPool(player, HamBar_Action ,mSampleActionCost*2))
                 {
                     gStateManager.setCurrentPostureState(player, CreaturePosture_Upright);
                     player->getSampleData()->mSampleEventFlag = false;

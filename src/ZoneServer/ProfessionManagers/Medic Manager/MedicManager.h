@@ -5,7 +5,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <string>
 #include <vector>
 #include "Utils/typedefs.h"
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 #define gMedicManager MedicManager::getSingletonPtr()
 
@@ -50,11 +52,11 @@ public:
     static MedicManager*	getSingletonPtr() {
         return mSingleton;
     }
-    static MedicManager*	Init(MessageDispatch* dispatch)
+    static MedicManager*	Init(swganh::app::SwganhKernel*	kernel)
     {
         if(!mInsFlag)
         {
-            mSingleton = new MedicManager(dispatch);
+            mSingleton = new MedicManager(kernel);
             mInsFlag = true;
             return mSingleton;
         } else {
@@ -72,7 +74,7 @@ public:
     void startInjuryTreatmentEvent(PlayerObject* Medic);
     void startQuickHealInjuryTreatmentEvent(PlayerObject* Medic);
     void startWoundTreatmentEvent(PlayerObject* Medic);
-    bool Diagnose(PlayerObject* Medic, PlayerObject* Target);
+    bool Diagnose(PlayerObject* Medic, PlayerObject* Patient);
     void successForage(PlayerObject* player);
     //helpers
     std::string handleMessage(Message* message, std::string regexPattern);
@@ -82,9 +84,9 @@ public:
 
 
 private:
-    static MedicManager*	mSingleton;
-    static bool				mInsFlag;
-    MessageDispatch*		Dispatch;
+    static MedicManager*		mSingleton;
+    static bool					mInsFlag;
+    swganh::app::SwganhKernel*	kernel_;
 
-    MedicManager(MessageDispatch* dispatch);
+    MedicManager(swganh::app::SwganhKernel*	kernel);
 };

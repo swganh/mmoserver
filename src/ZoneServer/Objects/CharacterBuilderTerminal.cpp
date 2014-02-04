@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,6 +24,8 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include "ZoneServer\Services\ham\ham_service.h"
+
 #include "ZoneServer/Objects/CharacterBuilderTerminal.h"
 #include "Zoneserver/Objects/Bank.h"
 
@@ -48,6 +50,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/utils.h"
 
 #include "anh/Utils/rand.h"
+
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 //=============================================================================
 
 CharacterBuilderTerminal::CharacterBuilderTerminal() : Terminal(), mSortedList(NULL)
@@ -591,7 +597,7 @@ void CharacterBuilderTerminal::GiveItem(PlayerObject* playerObject, uint32 input
 }
 void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
-    BStringVector availableXpTypes;
+    StringVector availableXpTypes;
     XPList* xpList = playerObject->getXpList();
     XPList::iterator xpIt = xpList->begin();
 
@@ -624,7 +630,7 @@ void CharacterBuilderTerminal::SendXPMenu(PlayerObject* playerObject, uint32 act
     it = mSortedList->begin();
     while (it != mSortedList->end())
     {
-        availableXpTypes.push_back((*it).first);
+		availableXpTypes.push_back((*it).first.getAnsi());
         it++;
     }
 
@@ -646,7 +652,7 @@ void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uin
         ResourceTypeMap*				rtMap				= gResourceManager->getResourceTypeMap();
         ResourceCategoryMap*			rcMap				= gResourceManager->getResourceCategoryMap();
         ResourceCategoryMap::iterator	rcIt				= rcMap->begin();
-        BStringVector					resourceNameList;
+        StringVector					resourceNameList;
         ResourceIdList					resourceIdList;
         //uint32							counter = 0;
 
@@ -661,7 +667,7 @@ void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uin
                 if(parentId == 1)
                 {
                     resourceIdList.push_back((*rcIt).first);
-                    resourceNameList.push_back((*(*rcIt).second).getName());
+					resourceNameList.push_back((*(*rcIt).second).getName().getAnsi());
                     break;
                 }
 
@@ -755,7 +761,7 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
     case 6://Get Item by ID
         if(playerObject->isConnected())
         {
-            BStringVector dropDowns;
+            StringVector dropDowns;
             gUIManager->createNewInputBox(this, "handleInputItemId", "Get Item", "Enter the item ID", dropDowns, playerObject, SUI_IB_NODROPDOWN_OKCANCEL, SUI_Window_CharacterBuilderItemIdInputBox,8);
         }
         break;
@@ -780,7 +786,7 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
     case 10:
         if (playerObject->isConnected())
         {
-            BStringVector dropDowns;
+            StringVector dropDowns;
             dropDowns.push_back("test");
             gUIManager->createNewInputBox(this,
                                           "handleTeleportMenu",
@@ -868,7 +874,7 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
         {
         case 0: // inventory credits
         {
-            BStringVector dropDowns;
+            StringVector dropDowns;
             dropDowns.push_back("test");
             gUIManager->createNewInputBox(this,
                                           "handleInputInventoryCredits",
@@ -884,7 +890,7 @@ void CharacterBuilderTerminal::_handleCreditMenu(PlayerObject* player, uint32 ac
 
         case 1: // bank credits
         {
-            BStringVector dropDowns;
+            StringVector dropDowns;
             dropDowns.push_back("test");
             gUIManager->createNewInputBox(this,
                                           "handleInputInventoryCredits",
@@ -1115,7 +1121,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
     resourceIdList.clear();
     if(rParent)
     {
-        BStringVector					resourceNameList;
+        StringVector					resourceNameList;
         ResourceIdList					resourceIdList;
 
         //do we have children categories or children resources?
@@ -1132,7 +1138,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
                 if((*(*rcIt)).getChildren()->size())
                 {
                     resourceIdList.push_back((*(*rcIt)).getId());
-                    resourceNameList.push_back((*(*rcIt)).getName());
+					resourceNameList.push_back((*(*rcIt)).getName().getAnsi());
                     rcIt++;
                     continue;
                 }
@@ -1154,7 +1160,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
                     if(rt->getCategoryId() == (*(*rcIt)).getId())
                     {
                         resourceIdList.push_back((*(*rcIt)).getId());
-                        resourceNameList.push_back((*(*rcIt)).getName());
+						resourceNameList.push_back((*(*rcIt)).getName().getAnsi());
                         rtIt++;
                         //only one of each
                         break;
@@ -1164,7 +1170,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
                     if((*(*rcIt)).getParentId() == rParent->getId())
                     {
                         resourceIdList.push_back((*(*rcIt)).getId());
-                        resourceNameList.push_back((*(*rcIt)).getName());
+						resourceNameList.push_back((*(*rcIt)).getName().getAnsi());
                         rtIt++;
                         //only one of each
                         break;
@@ -1195,7 +1201,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
             ResourceTypeMap::iterator		rtIt				= rtMap->begin();
             uint32							catId				= static_cast<uint32>(resourceIdList[element]);
             //ResourceCategory*				rCategory			= gResourceManager->getResourceCategoryById(catId);
-            BStringVector					resourceNameList;
+            StringVector					resourceNameList;
 
             resourceIdList.clear();
 
@@ -1211,7 +1217,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
                     {
                         if((*(*rCrcMapIt).second).getTypeId() == (*(*rtIt).second).getId())
                         {
-                            resourceNameList.push_back((*(*rtIt).second).getName());
+                            resourceNameList.push_back((*(*rtIt).second).getName().getAnsi());
                             resourceIdList.push_back((*rtIt).first);
 
                             break;
@@ -1239,7 +1245,7 @@ void CharacterBuilderTerminal::_handleResourceMenu(PlayerObject* playerObject, u
                 {
                     if((*(*rCrcMapIt).second).getTypeId() == catId)
                     {
-                        resourceNameList.push_back((*(*rCrcMapIt).second).getName());
+                        resourceNameList.push_back((*(*rCrcMapIt).second).getName().getAnsi());
                         resourceIdList.push_back((*rCrcMapIt).first);
                     }
 
@@ -1315,7 +1321,7 @@ void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject,
         //ResourceTypeMap*				rtMap		= gResourceManager->getResourceTypeMap();
         ResourceCRCNameMap*				rCRCMap		= gResourceManager->getResourceCRCNameMap();
         ResourceCRCNameMap::iterator	rCrcNameIt	= rCRCMap->begin();
-        BStringVector					resourceNameList;
+        StringVector					resourceNameList;
 
         resourceIdList.clear();
 
@@ -1323,7 +1329,7 @@ void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject,
         {
             if((*(*rCrcNameIt).second).getTypeId() == typeId)
             {
-                resourceNameList.push_back((*(*rCrcNameIt).second).getName());
+				resourceNameList.push_back((*(*rCrcNameIt).second).getName().getAnsi());
                 resourceIdList.push_back((*rCrcNameIt).first);
             }
 
@@ -1335,79 +1341,84 @@ void CharacterBuilderTerminal::_handleResourcesTypes(PlayerObject* playerObject,
 }
 void CharacterBuilderTerminal::_handleWoundMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
+
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
     switch(element)
     {
     case 0: //Health Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, 100);
+		ham->ApplyWound(playerObject,HamBar_Health,100);
         break;
     case 1: //Strength Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, 100);
+		ham->ApplyWound(playerObject,HamBar_Strength,100);
         break;
     case 2: //Constitution Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, 100);
+		ham->ApplyWound(playerObject,HamBar_Constitution,100);
         break;
     case 3: //Action Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, 100);
+        ham->ApplyWound(playerObject,HamBar_Action,100);
         break;
     case 4: //Stamina Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, 100);
+        ham->ApplyWound(playerObject,HamBar_Stamina,100);
         break;
     case 5: //Quickness Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, 100);
+		ham->ApplyWound(playerObject,HamBar_Quickness,100);
         break;
     case 6: //Mind Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, 100);
+        ham->ApplyWound(playerObject,HamBar_Mind,100);
         break;
     case 7: //Focus Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Wounds, 100);
+        ham->ApplyWound(playerObject,HamBar_Focus,100);
         break;
     case 8: //Willpower Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Wounds, 100);
+		ham->ApplyWound(playerObject,HamBar_Willpower,100);
         break;
     case 9: //BattleFatigue
-        playerObject->getHam()->updateBattleFatigue(100);
+		playerObject->AddBattleFatigue(100);
         break;
     case 10: //Health Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, -100);
+		ham->RemoveWound(playerObject,HamBar_Health,100);
         break;
     case 11: //Strength Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, -100);
+        ham->RemoveWound(playerObject,HamBar_Strength,100);
         break;
     case 12: //Constitution Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, -100);
+        ham->RemoveWound(playerObject,HamBar_Constitution,100);
         break;
     case 13: //Action Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -100);
+        ham->RemoveWound(playerObject,HamBar_Action,100);
         break;
     case 14: //Stamina Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, -100);
+        ham->RemoveWound(playerObject,HamBar_Stamina,100);
         break;
     case 15: //Quickness Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, -100);
+        ham->RemoveWound(playerObject,HamBar_Quickness,100);
         break;
     case 16: //Mind Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, -100);
+        ham->RemoveWound(playerObject,HamBar_Mind,100);
         break;
     case 17: //Focus Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Wounds, -100);
+        ham->RemoveWound(playerObject,HamBar_Focus,100);
         break;
     case 18: //Willpower Wound
-        playerObject->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Wounds, -100);
+        ham->RemoveWound(playerObject,HamBar_Willpower,100);
         break;
     case 19: //BattleFatigue
-        playerObject->getHam()->updateBattleFatigue(-100);
+		playerObject->DeductBattleFatigue(100);
         break;
     case 20: //remove all wounds and battlefatigue
-        playerObject->getHam()->updatePropertyValue(HamBar_Health, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updatePropertyValue(HamBar_Strength, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updatePropertyValue(HamBar_Constitution, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updatePropertyValue(HamBar_Action, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updatePropertyValue(HamBar_Stamina, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updatePropertyValue(HamBar_Quickness, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updatePropertyValue(HamBar_Focus, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updatePropertyValue(HamBar_Willpower, HamProperty_Wounds, -10000);
-        playerObject->getHam()->updateBattleFatigue(-1000);
+        ham->RemoveWound(playerObject,HamBar_Health,10000);
+		ham->RemoveWound(playerObject,HamBar_Strength,10000);
+		ham->RemoveWound(playerObject,HamBar_Constitution,10000);
+		ham->RemoveWound(playerObject,HamBar_Action,10000);
+		ham->RemoveWound(playerObject,HamBar_Stamina,10000);
+		ham->RemoveWound(playerObject,HamBar_Quickness,10000);
+		ham->RemoveWound(playerObject,HamBar_Mind,10000);
+		ham->RemoveWound(playerObject,HamBar_Focus,10000);
+		ham->RemoveWound(playerObject,HamBar_Willpower,10000);
+		playerObject->DeductBattleFatigue(1000);
+		
+        
     default:
         break;
     }
@@ -2558,7 +2569,7 @@ void CharacterBuilderTerminal::_handleCSRItemSelect(PlayerObject* playerObject, 
         GiveItem(playerObject,inputId);
     }
 
-    BStringVector dropDowns;
+    StringVector dropDowns;
     gUIManager->createNewInputBox(this, "handleInputItemId", "Get Item", "Enter the item ID", dropDowns, playerObject, SUI_IB_NODROPDOWN_OKCANCEL, SUI_Window_CharacterBuilderItemIdInputBox,8);
 }
 void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject)
@@ -2586,7 +2597,7 @@ void CharacterBuilderTerminal::handleObjectMenuSelect(uint8 messageType,Object* 
 }
 
 //=============================================================================
-void	CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer) 
+void	CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer) 
 {
     PlayerObject* playerObject = window->getOwner();
 
@@ -2598,81 +2609,81 @@ void	CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BString
     switch(window->getWindowType())
     {
     case SUI_Window_CharacterBuilderMainMenu_ListBox:
-        _handleMainMenu(playerObject, action, element, inputStr, window);
+		_handleMainMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_ExperienceMenu:
-        _handleExperienceMenu(playerObject, action, element, inputStr, window);
+        _handleExperienceMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_CreditMenu:
     case SUI_Window_CharacterBuilderCreditsMenuInventory_InputBox:
     case SUI_Window_CharacterBuilderCreditsMenuBank_InputBox:
-        _handleCreditMenu(playerObject, action, element, inputStr, window);
+        _handleCreditMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_BuffMenu:
-        _handleBuffMenu(playerObject, action, element, inputStr, window);
+        _handleBuffMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_ItemMenu:
-        _handleItemMenu(playerObject, action, element, inputStr, window);
+        _handleItemMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilderResourcesTypesMenu_ListBox:
-        _handleResourcesTypes(playerObject, action, element, inputStr, window);
+        _handleResourcesTypes(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_ResourceMenu:
-        _handleResourceMenu(playerObject, action, element, inputStr, window);
+        _handleResourceMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilderResourcesCRCMenu_ListBox:
-        _handleResourcesCRC(playerObject, action, element, inputStr, window);
+        _handleResourcesCRC(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_StructureMenu:
-        _handleStructureMenu(playerObject, action, element, inputStr, window);
+        _handleStructureMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_FurnitureMenu:
-        _handleFurnitureMenu(playerObject, action, element, inputStr, window);
+        _handleFurnitureMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_VehicleMenu:
         GiveItem(playerObject, 1736+element);
         break;
     case SUI_Window_CharacterBuilder_ListBox_InstrumentMenu:
-        _handleInstrumentMenu(playerObject, action, element, inputStr, window);
+        _handleInstrumentMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_ToolMenu:
-        _handleToolMenu(playerObject, action, element, inputStr, window);
+        _handleToolMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_WeaponMenu:
-        _handleWeaponMenu(playerObject, action, element, inputStr, window);
+        _handleWeaponMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_ArmorMenu:
-        _handleArmorMenu(playerObject, action, element, inputStr, window);
+        _handleArmorMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_FactoryMenu:
         GiveItem(playerObject, 1590+element);
         break;
     case SUI_Window_CharacterBuilder_ListBox_HarvesterMenu:
-        _handleHarvesterMenu(playerObject, action, element, inputStr, window);
+        _handleHarvesterMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_CampMenu:
         GiveItem(playerObject,1970+element);
         break;
     case SUI_Window_CharacterBuilder_ListBox_HouseMenu:
-        _handleHouseMenu(playerObject, action, element, inputStr, window);
+        _handleHouseMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_RugMenu:
-        _handleRugMenu(playerObject, action, element, inputStr, window);
+        _handleRugMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_PlantMenu:
-        _handlePlantMenu(playerObject, action, element, inputStr, window);
+        _handlePlantMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_ElegantMenu:
-        _handleElegantMenu(playerObject, action, element, inputStr, window);
+        _handleElegantMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_ModernMenu:
-        _handleModernMenu(playerObject, action, element, inputStr, window);
+        _handleModernMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_PlainMenu:
-        _handlePlainMenu(playerObject, action, element, inputStr, window);
+        _handlePlainMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_CheapMenu:
-        _handleCheapMenu(playerObject, action, element, inputStr, window);
+        _handleCheapMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_SurveyToolMenu:
         GiveItem(playerObject, 1+element);
@@ -2681,19 +2692,19 @@ void	CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BString
         GiveItem(playerObject, 11+element);
         break;
     case SUI_Window_CharacterBuilder_ListBox_MeleeMenu:
-        _handleMeleeMenu(playerObject, action, element, inputStr, window);
+        _handleMeleeMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_RangedMenu:
-        _handleRangedMenu(playerObject, action, element, inputStr, window);
+        _handleRangedMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_BoneArmorMenu:
-        _handleBoneArmorMenu(playerObject, action, element, inputStr, window);
+        _handleBoneArmorMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_CompositeArmorMenu:
-        _handleCompositeArmorMenu(playerObject, action, element, inputStr, window);
+        _handleCompositeArmorMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_UbeseArmorMenu:
-        _handleUbeseArmorMenu(playerObject, action, element, inputStr, window);
+        _handleUbeseArmorMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_FloraMenu:
         GiveItem(playerObject,1601+element);
@@ -2717,67 +2728,67 @@ void	CharacterBuilderTerminal::handleUIEvent(uint32 action,int32 element,BString
         GiveItem(playerObject, 1732+element);
         break;
     case SUI_Window_CharacterBuilder_ListBox_OneHandSwordMenu:
-        _handleOneHandSwordMenu(playerObject, action, element, inputStr, window);
+        _handleOneHandSwordMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_TwoHandSwordMenu:
-        _handleTwoHandSwordMenu(playerObject, action, element, inputStr, window);
+        _handleTwoHandSwordMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_AxeMenu:
         GiveItem(playerObject,2276+element);
         break;
     case SUI_Window_CharacterBuilder_ListBox_BatonMenu:
-        _handleBatonMenu(playerObject, action, element, inputStr, window);
+        _handleBatonMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_PolearmMenu:
-        _handlePolearmMenu(playerObject, action, element, inputStr, window);
+        _handlePolearmMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_KnifeMenu:
-        _handleKnifeMenu(playerObject, action, element, inputStr, window);
+        _handleKnifeMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_UnarmedMenu:
         GiveItem(playerObject,2294);
         break;
     case SUI_Window_CharacterBuilder_ListBox_CarbineMenu:
-        _handleCarbineMenu(playerObject, action, element, inputStr, window);
+        _handleCarbineMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_ThrownMenu:
-        _handleThrownMenu(playerObject, action, element, inputStr, window);
+        _handleThrownMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_HeavyMenu:
-        _handleHeavyMenu(playerObject, action, element, inputStr, window);
+        _handleHeavyMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_PistolMenu:
-        _handlePistolMenu(playerObject, action, element, inputStr, window);
+        _handlePistolMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_RifleMenu:
-        _handleRifleMenu(playerObject, action, element, inputStr, window);
+        _handleRifleMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilderItemIdInputBox:
-        _handleCSRItemSelect(playerObject, action, element, inputStr, window);
+        _handleCSRItemSelect(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilderTeleportMenu_InputBox:
-        _handleTeleportMenu(playerObject, action, element, inputStr, window);
+        _handleTeleportMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilderProfessionMastery_ListBox:
-        _handleProfessionMenu(playerObject, action, element, inputStr, window);
+        _handleProfessionMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_WoundMenu:
-        _handleWoundMenu(playerObject, action, element, inputStr, window);
+        _handleWoundMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_StateMenu:
-        _handleStateMenu(playerObject, action, element, inputStr, window);
+        _handleStateMenu(playerObject, action, element, inputStr.c_str(), window);
 		break;
     case SUI_Window_CharacterBuilder_ListBox_PersonalFrogMenu:
-        _handleBlueFrogMenu(playerObject, action, element, inputStr, window);
+        _handleBlueFrogMenu(playerObject, action, element, inputStr.c_str(), window);
 		break;
     case SUI_Window_CharacterBuilder_ListBox_CivicMenu:
-        _handleCivicMenu(playerObject, action, element, inputStr, window);
+        _handleCivicMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_GuildHallMenu:
-        _handleGuildMenu(playerObject, action, element, inputStr, window);
+        _handleGuildMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     case SUI_Window_CharacterBuilder_ListBox_CityHallMenu:
-        _handleCityMenu(playerObject, action, element, inputStr, window);
+        _handleCityMenu(playerObject, action, element, inputStr.c_str(), window);
         break;
     default:
         break;

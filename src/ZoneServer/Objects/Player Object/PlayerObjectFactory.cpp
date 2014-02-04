@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -55,7 +55,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/utils.h"
 
 #include "anh\event_dispatcher\event_dispatcher.h"
+#include "ZoneServer\Services\ham\ham_service.h"
 #include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 using namespace swganh::event_dispatcher;
 
@@ -118,7 +120,99 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
         }
 
         playerObject->setClient(asyncContainer->mClient);
-        QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Skills,asyncContainer->mClient);
+
+		QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Ham,asyncContainer->mClient);
+        asContainer->mObject = playerObject;
+		std::stringstream sql;
+		sql << "SELECT 	character_attributes.health_max,character_attributes.strength_max,"//134
+            "character_attributes.constitution_max,character_attributes.action_max,character_attributes.quickness_max,character_attributes.stamina_max,"  //138
+            "character_attributes.mind_max,character_attributes.focus_max,character_attributes.willpower_max,character_attributes.health_current,"//142
+            "character_attributes.strength_current,character_attributes.constitution_current,character_attributes.action_current,"	 //145
+            "character_attributes.quickness_current,character_attributes.stamina_current,character_attributes.mind_current,character_attributes.focus_current,"	//149
+            "character_attributes.willpower_current,character_attributes.health_wounds,character_attributes.strength_wounds,"//152
+            "character_attributes.constitution_wounds,character_attributes.action_wounds,character_attributes.quickness_wounds," //155
+            "character_attributes.stamina_wounds,character_attributes.mind_wounds,character_attributes.focus_wounds,character_attributes.willpower_wounds,"//159
+            "character_attributes.health_encum,character_attributes.action_encum,character_attributes.mind_encum,character_attributes.battlefatigue"
+			" FROM " << mDatabase->galaxy() << ".character_attributes WHERE character_attributes.character_id = " << playerObject->getId() << ";";			
+
+		mDatabase->executeSqlAsync(this, asContainer, sql.str());
+        
+	}
+    break;
+
+	case POFQuery_Ham:
+	{
+	/*	
+    HamBar_Health		=	0,    HamBar_Strength	=	1,    HamBar_Constitution	=	2,
+    HamBar_Action		=	3,    HamBar_Quickness	=	4,    HamBar_Stamina		=	5,
+    HamBar_Mind			=	6,    HamBar_Focus		=	7,    HamBar_Willpower	=	8	*/
+
+		PlayerObject* playerObject = dynamic_cast<PlayerObject*>(asyncContainer->mObject);
+
+		std::unique_ptr<sql::ResultSet>& result_set = result->getResultSet();
+
+        while (result_set->next()) {
+		
+			//recalculate stat max later just initialize it so we have proper place prepared
+			playerObject->InitStatMax(result_set->getUInt(1)); //HamBar_Health
+			playerObject->InitStatMax(result_set->getUInt(2)); //strength
+			playerObject->InitStatMax(result_set->getUInt(3));	//constitution
+
+			playerObject->InitStatMax(result_set->getUInt(4)); //HamBar_Health
+			playerObject->InitStatMax(result_set->getUInt(5)); //strength
+			playerObject->InitStatMax(result_set->getUInt(6));	//constitution
+
+			playerObject->InitStatMax(result_set->getUInt(7)); //HamBar_Health
+			playerObject->InitStatMax(result_set->getUInt(8)); //strength
+			playerObject->InitStatMax(result_set->getUInt(9));	//constitution
+
+			playerObject->InitStatBase(result_set->getUInt(1)); //HamBar_Health
+			playerObject->InitStatBase(result_set->getUInt(2)); //strength
+			playerObject->InitStatBase(result_set->getUInt(3));	//constitution
+
+			playerObject->InitStatBase(result_set->getUInt(4));//HamBar_Action
+			playerObject->InitStatBase(result_set->getUInt(5));//HamBar_Quickness
+			playerObject->InitStatBase(result_set->getUInt(6));//HamBar_Stamina
+
+			playerObject->InitStatBase(result_set->getUInt(7));//HamBar_Mind
+			playerObject->InitStatBase(result_set->getUInt(8));//HamBar_Focus
+			playerObject->InitStatBase(result_set->getUInt(9));//HamBar_Willpower
+
+			playerObject->InitStatCurrent(result_set->getUInt(10)); //HamBar_Health
+			playerObject->InitStatCurrent(result_set->getUInt(11)); //strength
+			playerObject->InitStatCurrent(result_set->getUInt(12)); //constitution
+
+			playerObject->InitStatCurrent(result_set->getUInt(13)); //HamBar_Action
+			playerObject->InitStatCurrent(result_set->getUInt(14)); //
+			playerObject->InitStatCurrent(result_set->getUInt(15)); //
+
+			playerObject->InitStatCurrent(result_set->getUInt(16)); //HamBar_Mind
+			playerObject->InitStatCurrent(result_set->getUInt(17)); //
+			playerObject->InitStatCurrent(result_set->getUInt(18)); //
+
+			playerObject->InitStatWound(result_set->getUInt(19)); //HamBar_Health
+			playerObject->InitStatWound(result_set->getUInt(20)); //
+			playerObject->InitStatWound(result_set->getUInt(21)); //
+
+			playerObject->InitStatWound(result_set->getUInt(22)); //HamBar_Action
+			playerObject->InitStatWound(result_set->getUInt(23)); //
+			playerObject->InitStatWound(result_set->getUInt(24)); //
+
+			playerObject->InitStatWound(result_set->getUInt(25)); //HamBar_Mind
+			playerObject->InitStatWound(result_set->getUInt(26)); //
+			playerObject->InitStatWound(result_set->getUInt(27));
+
+			playerObject->InitStatEncumberance(result_set->getUInt(28));
+			playerObject->InitStatEncumberance(result_set->getUInt(29));
+			playerObject->InitStatEncumberance(result_set->getUInt(30));
+
+			playerObject->InitBattleFatigue(result_set->getUInt(31));
+        }
+		
+		//now call the ham service to initialize max stats
+		//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+			
+		QueryContainerBase* asContainer = new(mQueryContainerPool.ordered_malloc()) QueryContainerBase(asyncContainer->mOfCallback,POFQuery_Skills,asyncContainer->mClient);
         asContainer->mObject = playerObject;
 		std::stringstream sql;
 		sql << "SELECT skill_id FROM "
@@ -126,9 +220,8 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 			<< playerObject->getId() << ";";
 
 		mDatabase->executeSqlAsync(this, asContainer, sql.str());
-
-    }
-    break;
+	}
+	break;
 
     case POFQuery_Skills:
     {
@@ -514,15 +607,13 @@ void PlayerObjectFactory::storeCharacterAttributes_(PlayerObject* player_object)
         return;
     }
 
-    Ham* ham = player_object->getHam();
-    if(!ham) {
-        DLOG(warning) << "Unable to retrieve Ham for player: [" << player_object->getId() << "]";
-        return;
-    }
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
+    
     std::stringstream query_stream;
 
-    query_stream << "UPDATE "<< mDatabase->galaxy()<<".character_attributes SET health_current=" << (ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier()) << ", "
+    query_stream << "UPDATE "<< mDatabase->galaxy()<<".character_attributes SET "
+				 /*<< "health_current=" << (ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier()) << ", "
                  << "action_current=" << (ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier()) << ", "
                  << "mind_current=" << (ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()) << ", "
                  << "health_wounds=" << ham->mHealth.getWounds() << ", "
@@ -534,7 +625,7 @@ void PlayerObjectFactory::storeCharacterAttributes_(PlayerObject* player_object)
                  << "mind_wounds=" << ham->mMind.getWounds() << ", "
                  << "focus_wounds=" << ham->mFocus.getWounds() << ", "
                  << "willpower_wounds=" << ham->mWillpower.getWounds() << ", "
-                 << "battlefatigue=" << ham->getBattleFatigue() << ", "
+                 << "battlefatigue=" << ham->getBattleFatigue() << ", "*/
                  << "posture=" << player_object->states.getPosture() << ", "
                  << "moodId=" << static_cast<uint16_t>(player_object->getMoodId()) << ", "
                  << "title='" << mDatabase->escapeString(player_object->getTitle().getAnsi()) << "', "
@@ -615,7 +706,8 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
             "character_appearance.`64FF`,character_appearance.`65FF`,character_appearance.`66FF`,character_appearance.`67FF`,character_appearance.`68FF`,"	  //122
             "character_appearance.`69FF`,character_appearance.`6AFF`,character_appearance.`6BFF`,character_appearance.`6CFF`,character_appearance.`6DFF`,"	  //127
             "character_appearance.`6EFF`,character_appearance.`6FFF`,character_appearance.`70FF`,character_appearance.`ABFF`,character_appearance.`AB2FF`,"//132
-            "character_attributes.health_max,character_attributes.strength_max,"//134
+         
+			/*"character_attributes.health_max,character_attributes.strength_max,"//134
             "character_attributes.constitution_max,character_attributes.action_max,character_attributes.quickness_max,character_attributes.stamina_max,"  //138
             "character_attributes.mind_max,character_attributes.focus_max,character_attributes.willpower_max,character_attributes.health_current,"//142
             "character_attributes.strength_current,character_attributes.constitution_current,character_attributes.action_current,"	 //145
@@ -623,7 +715,9 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
             "character_attributes.willpower_current,character_attributes.health_wounds,character_attributes.strength_wounds,"//152
             "character_attributes.constitution_wounds,character_attributes.action_wounds,character_attributes.quickness_wounds," //155
             "character_attributes.stamina_wounds,character_attributes.mind_wounds,character_attributes.focus_wounds,character_attributes.willpower_wounds,"//159
-            "character_attributes.health_encum,character_attributes.action_encum,character_attributes.mind_encum,character_attributes.battlefatigue,character_attributes.language,"	//164
+            "character_attributes.health_encum,character_attributes.action_encum,character_attributes.mind_encum,character_attributes.battlefatigue,",
+			*/
+			"character_attributes.language,"	//164
             "banks.credits,faction.name,"//166
             "character_attributes.posture,character_attributes.moodId,characters.jedistate,character_attributes.title,character_appearance.scale,"   //171
             "character_movement.baseSpeed,character_movement.baseAcceleration,character_movement.baseTurnrate,character_movement.baseTerrainNegotiation,"//175 grml off by one it should be 176
@@ -643,7 +737,7 @@ void PlayerObjectFactory::requestObject(ObjectFactoryCallback* ofCallback,uint64
             " INNER JOIN %s.character_matchmaking ON (characters.id = character_matchmaking.character_id)"
             " WHERE (characters.id = %"PRIu64");",
             mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),id + BANK_OFFSET,mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),
-            mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(), id);
+            mDatabase->galaxy(), mDatabase->galaxy(),mDatabase->galaxy(),mDatabase->galaxy(), id);
 
     mDatabase->executeSqlAsync(this,asyncContainer,sql);
 }
@@ -671,6 +765,10 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     result->resetRowIndex();
     result->getNextRow(mBankBinding,(void*)playerBank.get());
 
+	std::string name = playerObject->getFirstName() + " " + playerObject->getLastName();
+
+	playerObject->setCustomName(std::u16string(name.begin(), name.end()));
+
     //male or female ?
     BStringVector				dataElements;
     playerObject->mModel.split(dataElements,'_');
@@ -696,9 +794,6 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
     playerObject->setPlayerObjId(playerObject->mId + PLAYER_OFFSET);
     playerObject->mTypeOptions = 0x80;
     playerObject->mBiography.convert(BSTRType_Unicode16);
-
-    playerObject->mHam.calcAllModifiedHitPoints();
-    playerObject->mHam.updateRegenRates();
 
     // hair
     if((playerHair->mModel).getLength())
@@ -766,11 +861,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
         playerObject->states.setPosture(CreaturePosture_Upright);
     }
 
-    //Just set mStates to Zero on initialization ??????????????????????????????????????????????????????
-    //However states are saved to db -character_attributes.character_flags-
-
-    // We also have quite a lot of state possibilities that we should not let our character have at startup.
-    // We may have to take ceratin actions on these, and then this is not the best placce to do the validation etc...
+    //Concerning states we must realize that some of the states persist when we use a shuttle to transfer to different planets
+	//on a fresh login however these states should be (??? or not ???) reset
 
     // Todo : which states remain valid after a zone to zone transition ??? in order to transfer zone e need to be out of combat - so ... none ?
     playerObject->states.toggleActionOff((CreatureState)(
@@ -787,9 +879,8 @@ PlayerObject* PlayerObjectFactory::_createPlayer(swganh::database::DatabaseResul
             CreatureState_RidingMount |
             CreatureState_MountedCreature |
             CreatureState_Peace ));
-
-    playerObject->mHam.updateRegenRates();
-    playerObject->mHam.checkForRegen();
+	
+    
     playerObject->mStomach->checkForRegen();
 
     // setup controller validators
@@ -830,66 +921,33 @@ void PlayerObjectFactory::_setupDatabindings()
 	mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,first_name),64,11);
     mPlayerBinding->addField(swganh::database::DFT_stdstring,offsetof(PlayerObject,last_name),64,12);
     mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mSpecies),16,16);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mFaction),16,165);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,states.posture),1,166);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mMoodId),1,167);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,168);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,169);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mScale),4,170);
+    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mFaction),16,134);
+    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,states.posture),1,135);
+    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mMoodId),1,136);
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mJediState),4,137);
+    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mTitle),255,138);
+    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mScale),4,139);
 
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseRunSpeedLimit),4,171);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseAcceleration),4,172);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseTurnRate),4,173);
-    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,174);//24
+    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseRunSpeedLimit),4,140);
+    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseAcceleration),4,141);
+    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseTurnRate),4,142);
+    mPlayerBinding->addField(swganh::database::DFT_float,offsetof(PlayerObject,mBaseTerrainNegotiation),4,143);//24
 
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,175);
-    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mBiography),4096,176);
-    mPlayerBinding->addField(swganh::database::DFT_uint64,offsetof(PlayerObject,states.action),8,177);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mRaceId),1,178);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mLanguage),1,163);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mCsrTag),1,180);
-    mPlayerBinding->addField(swganh::database::DFT_uint64,offsetof(PlayerObject,mGroupId),8,181);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mBornyear),4,182);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[0]),4,183);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[1]),4,184);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[2]),4,185);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,186);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mCurrentForce),4,187);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mMaxForce),4,188);
-    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,189);		 //39
-
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mMaxHitPoints),4,132);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mMaxHitPoints),4,133);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mMaxHitPoints),4,134);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mAction.mMaxHitPoints),4,135);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mMaxHitPoints),4,136);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mMaxHitPoints),4,137);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mMind.mMaxHitPoints),4,138);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mMaxHitPoints),4,139);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mMaxHitPoints),4,140); //48
-
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mCurrentHitPoints),4,141);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mCurrentHitPoints),4,142);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mCurrentHitPoints),4,143);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mAction.mCurrentHitPoints),4,144);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mCurrentHitPoints),4,145);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mCurrentHitPoints),4,146);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mMind.mCurrentHitPoints),4,147);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mCurrentHitPoints),4,148);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mCurrentHitPoints),4,149);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mWounds),4,150);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mWounds),4,151);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mWounds),4,152);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mAction.mWounds),4,153);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mWounds),4,154);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mWounds),4,155);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mMind.mWounds),4,156);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mWounds),4,157);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,158);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mEncumbrance),4,159);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mAction.mEncumbrance),4,160);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mMind.mEncumbrance),4,161);
-    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mBattleFatigue),4,162);				 //70
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerFlags),4,144);
+    mPlayerBinding->addField(swganh::database::DFT_bstring,offsetof(PlayerObject,mBiography),4096,145);
+    mPlayerBinding->addField(swganh::database::DFT_uint64,offsetof(PlayerObject,states.action),8,146);
+    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mRaceId),1,147);
+    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mLanguage),1,132);
+    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mCsrTag),1,149);
+    mPlayerBinding->addField(swganh::database::DFT_uint64,offsetof(PlayerObject,mGroupId),8,150);
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mBornyear),4,151);
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[0]),4,152);
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[1]),4,153);
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[2]),4,154);
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mPlayerMatch[3]),4,155);
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,current_force_power_),4,156);
+    mPlayerBinding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,max_force_power_),4,157);
+    mPlayerBinding->addField(swganh::database::DFT_uint8,offsetof(PlayerObject,mNewPlayerExemptions),1,158);//39
 
     for(uint16 i = 0; i < 0x71; i++)
         mPlayerBinding->addField(swganh::database::DFT_uint16,offsetof(PlayerObject,mCustomization)+(i*2),2,i + 17);//+113 = 183
@@ -905,8 +963,8 @@ void PlayerObjectFactory::_setupDatabindings()
 
     //bank binding
     mBankBinding = mDatabase->createDataBinding(2);
-    mBankBinding->addField(swganh::database::DFT_uint32,offsetof(Bank,credits_),4,164);
-    mBankBinding->addField(swganh::database::DFT_uint8,offsetof(Bank,planet_),1,179);
+    mBankBinding->addField(swganh::database::DFT_uint32,offsetof(Bank,credits_),4,133);
+    mBankBinding->addField(swganh::database::DFT_uint8,offsetof(Bank,planet_),1,148);
 }
 
 //=============================================================================

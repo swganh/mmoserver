@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -159,7 +159,7 @@ void UIManager::createNewMessageBox(UICallback* callback,const int8* eventStr,co
 // create a listbox
 //
 
-void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, uint64 object, float distance, std::shared_ptr<WindowAsyncContainerCommand> container)
+void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,BString caption,BString prompt,const StringVector dataItems,PlayerObject* playerObject,ui_window_types windowType,uint8 lbType, uint64 object, float distance, std::shared_ptr<WindowAsyncContainerCommand> container)
 {
     if((!distance)&&object)
     {
@@ -181,7 +181,7 @@ void UIManager::createNewListBox(UICallback* callback,const int8* eventStr,BStri
 // create an input box
 //
 
-void UIManager::createNewInputBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const BStringVector dropdownElements,PlayerObject* playerObject,uint8 ibType,ui_window_types windowType,uint16 maxInputLength, std::shared_ptr<WindowAsyncContainerCommand> container)
+void UIManager::createNewInputBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* text,const StringVector dropdownElements,PlayerObject* playerObject,uint8 ibType,ui_window_types windowType,uint16 maxInputLength, std::shared_ptr<WindowAsyncContainerCommand> container)
 {
     uint32 ibId = _getFreeId();
 
@@ -198,7 +198,7 @@ void UIManager::createNewInputBox(UICallback* callback,const int8* eventStr,cons
 // create a skill select box(teaching)
 //
 
-void UIManager::createNewSkillSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType,PlayerObject* pupil)
+void UIManager::createNewSkillSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const StringVector dataItems,PlayerObject* playerObject,uint8 lbType,PlayerObject* pupil)
 {
     uint32 lbId = _getFreeId();
 
@@ -214,7 +214,7 @@ void UIManager::createNewSkillSelectListBox(UICallback* callback,const int8* eve
 // create a ticket select list box(travel - by command)
 //
 
-void UIManager::createNewTicketSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,PlayerObject* playerObject,BString port,Shuttle* shuttle,uint8 lbType)
+void UIManager::createNewTicketSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const StringVector dataItems,PlayerObject* playerObject,BString port,Shuttle* shuttle,uint8 lbType)
 {
     uint32 lbId = _getFreeId();
 
@@ -265,7 +265,7 @@ void UIManager::createNewSkillTeachMessageBox(UICallback* callback,const int8* e
 // create a player select list box(group loot master)
 //
 
-void UIManager::createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems, std::list<PlayerObject*> playerList,  PlayerObject* playerObject,uint8 lbType)
+void UIManager::createNewPlayerSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const StringVector dataItems, std::list<PlayerObject*> playerList,  PlayerObject* playerObject,uint8 lbType)
 {
     uint32 lbId = _getFreeId();
 
@@ -282,7 +282,7 @@ void UIManager::createNewPlayerSelectListBox(UICallback* callback,const int8* ev
 // create a resource picker list box, used for all types(category,resourceType,resource)
 //
 
-void UIManager::createNewResourceSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,ResourceIdList resourceIdList,PlayerObject* playerObject,uint8 windowType,uint8 lbType)
+void UIManager::createNewResourceSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const StringVector dataItems,ResourceIdList resourceIdList,PlayerObject* playerObject,uint8 windowType,uint8 lbType)
 {
     uint32 lbId = _getFreeId();
 
@@ -299,7 +299,7 @@ void UIManager::createNewResourceSelectListBox(UICallback* callback,const int8* 
 // create a clone location select list box
 //
 
-void UIManager::createNewCloneSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const BStringVector dataItems,std::vector<BuildingObject*> buildingList,PlayerObject* playerObject,uint8 lbType)
+void UIManager::createNewCloneSelectListBox(UICallback* callback,const int8* eventStr,const int8* caption,const int8* prompt,const StringVector dataItems,std::vector<BuildingObject*> buildingList,PlayerObject* playerObject,uint8 lbType)
 {
     uint32 lbId = _getFreeId();
 

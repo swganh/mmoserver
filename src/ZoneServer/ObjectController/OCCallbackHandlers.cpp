@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,6 +24,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include "ZoneServer\Services\ham\ham_service.h"
 
 #include "Zoneserver/ObjectController/ObjectController.h"
 #include "ZoneServer/ObjectController/ObjectControllerOpcodes.h"
@@ -53,7 +54,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,swganh::database::Dat
     {
         if(!asyncContainer->playerObject)
             break;
-
+/*
         Ham* ourHam = asyncContainer->playerObject->getHam();
 
         StatTargets theTargets;
@@ -104,6 +105,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,swganh::database::Dat
 
         mDatabase->destroyDataBinding(binding);
         gMessageLib->sendStatMigrationStartMessage(asyncContainer->playerObject);
+		*/
     }
     break;
 
@@ -190,42 +192,7 @@ void ObjectController::handleDatabaseJobComplete(void* ref,swganh::database::Dat
     }
     break;
 
-    case OCQuery_CloneAtPreDes:
-    {
-        if (!asyncContainer->playerObject)
-            break;
-
-        if (!result->getRowCount()) {
-        	break;
-        }
-
-        swganh::database::DataBinding* binding = mDatabase->createDataBinding(9);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mHealth.mWounds),4,0);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mStrength.mWounds),4,1);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mConstitution.mWounds),4,2);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mAction.mWounds),4,3);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mQuickness.mWounds),4,4);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mStamina.mWounds),4,5);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mMind.mWounds),4,6);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mFocus.mWounds),4,7);
-        binding->addField(swganh::database::DFT_uint32,offsetof(PlayerObject,mHam.mWillpower.mWounds),4,8);
-
-        result->getNextRow(binding,asyncContainer->playerObject);
-
-        // Update HAM
-        // asyncContainer->playerObject->getHam()->calcAllModifiedHitPoints();
-        asyncContainer->playerObject->getHam()->updateAllWounds(0);
-
-        // Invoke the actual cloning process.
-        SpawnPoint* sp = reinterpret_cast<SpawnPoint*>(asyncContainer->anyPtr);
-        if (sp)
-        {
-            asyncContainer->playerObject->clone(sp->mCellId,sp->mDirection,sp->mPosition,true);
-        }
-
-        mDatabase->destroyDataBinding(binding);
-    }
-    break;
+   
 
     default:
     {

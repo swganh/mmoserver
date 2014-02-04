@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -34,9 +34,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "MessageLib/MessageLib.h"
 
+#include "ZoneServer\Services\ham\ham_service.h"
+
 //#include "NetworkManager/MessageFactory.h"
 //#include "NetworkManager/Message.h"
 #include "ZoneServer/GameSystemManagers/Forage Manager/ForageManager.h"
+
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 //consts
 const char* const woundpack = "woundpack";
@@ -104,18 +110,19 @@ void ObjectController::_handleHealWound(uint64 targetId,Message* message,ObjectC
     else
     {
         //check Medic has enough Mind
-        Ham* ham = Medic->getHam();
-        if(ham->checkMainPools(0, 0, 140))
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
+        if(!ham->checkMainPool(Medic, HamBar_Mind, 140))        {
+			gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
+			return;
+		}
+            
+		if (gMedicManager->CheckMedicine(Medic, Target, cmdProperties, messageResponse))
         {
-            if (gMedicManager->CheckMedicine(Medic, Target, cmdProperties, messageResponse))
-            {
-                //call the event
-                gMedicManager->startWoundTreatmentEvent(Medic);
-                return;
-            }
-        }
-        else
-            gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
+            //call the event
+            gMedicManager->startWoundTreatmentEvent(Medic);
+            return;
+        }    
 
     }
 }
@@ -143,21 +150,23 @@ void ObjectController::_handleTendDamage(uint64 targetId,Message* message,Object
     PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
     //check Medic has enough Mind
-    Ham* ham = Medic->getHam();
-    if(ham->checkMainPools(cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost))
+    auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
+    if(!ham->checkMainPools(Medic, cmdProperties->mHealthCost, cmdProperties->mActionCost, cmdProperties->mMindCost)){
+		gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
+		return;
+	}
+
+    if (gMedicManager->HealDamage(Medic, Target, 0, cmdProperties, "tendDamage"))
     {
-        if (gMedicManager->HealDamage(Medic, Target, 0, cmdProperties, "tendDamage"))
-        {
-            ham->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, 5);
-            ham->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, 5);
-            ham->updateBattleFatigue(2, true);
-            //call the event
-            gMedicManager->startInjuryTreatmentEvent(Medic);
-            return;
-        }
+		ham->ApplyWound(Medic, HamBar_Focus, 5);
+        ham->ApplyWound(Medic, HamBar_Willpower, 5);
+		Medic->AddBattleFatigue(2);
+        
+		//call the event
+        gMedicManager->startInjuryTreatmentEvent(Medic);
+        return;
     }
-    else
-        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
 
 }
 
@@ -177,31 +186,28 @@ void ObjectController::_handleTendWound(uint64 targetId,Message* message,ObjectC
         return;
     }*/
     std::string messageResponse = gMedicManager->handleMessage(message,"(action|constitution|health|quickness|stamina|strength)");
-    if (messageResponse.length() == 0)
-    {
+    if (messageResponse.length() == 0)    {
         //you must specify a valid wound type
         gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "healing_response_65"), Medic);
+		return;
     }
-    else
+    
+    //check Medic has enough Mind
+    auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+    if(!ham->checkMainPools(Medic, 0, 0, 500))    {
+		gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
+		return;
+	}
+        
+	if (gMedicManager->HealWound(Medic, Target, 0, cmdProperties, messageResponse + "tendwound"))
     {
-        //check Medic has enough Mind
-        Ham* ham = Medic->getHam();
-        if(ham->checkMainPools(0, 0, 500))
-        {
-            if (gMedicManager->HealWound(Medic, Target, 0, cmdProperties, messageResponse + "tendwound"))
-            {
-                ham->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, 5);
-                ham->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, 5);
-                ham->updateBattleFatigue(2, true);
-                //call the event
-                gMedicManager->startWoundTreatmentEvent(Medic);
-                return;
-            }
-        }
-        else
-            gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
-
-    }
+        ham->ApplyWound(Medic, HamBar_Focus, 5);
+        ham->ApplyWound(Medic, HamBar_Willpower, 5);
+		Medic->AddBattleFatigue(2);
+        //call the event
+        gMedicManager->startWoundTreatmentEvent(Medic);
+        return;
+	}
 
 }
 
@@ -227,21 +233,22 @@ void ObjectController::_handleQuickHeal(uint64 targetId,Message* message,ObjectC
     PlayerObject* Target = dynamic_cast<PlayerObject*>(Medic->getHealingTarget(Medic));
 
     //check Medic has enough Mind
-    Ham* ham = Medic->getHam();
-    if(ham->checkMainPools(0, 0, cmdProperties->mMindCost))
+    auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+    if(!ham->checkMainPools(Medic, 0, 0, cmdProperties->mMindCost))    {
+		gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
+		return;
+	}
+    
+	if (gMedicManager->HealDamage(Medic, Target, 0, cmdProperties, "quickHeal"))
     {
-        if (gMedicManager->HealDamage(Medic, Target, 0, cmdProperties, "quickHeal"))
-        {
-            ham->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, 10);
-            ham->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, 10);
-            ham->updateBattleFatigue(2, true);
-            //call the event
-            gMedicManager->startQuickHealInjuryTreatmentEvent(Medic);
-            return;
-        }
+        ham->ApplyWound(Medic, HamBar_Focus, 5);
+        ham->ApplyWound(Medic, HamBar_Willpower, 5);
+		Medic->AddBattleFatigue(2);
+        //call the event
+        gMedicManager->startQuickHealInjuryTreatmentEvent(Medic);
+        return;
     }
-    else
-        gMessageLib->SendSystemMessage(::common::OutOfBand("healing_response", "not_enough_mind"), Medic);
+       
 }
 
 //=============================================================================================================================

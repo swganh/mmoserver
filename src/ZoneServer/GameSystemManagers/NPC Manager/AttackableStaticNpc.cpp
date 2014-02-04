@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -34,9 +34,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldConfig.h"
 #include "ZoneServer/WorldManager.h"
 
+#include "ZoneServer\Services\ham\ham_service.h"
 #include <ZoneServer\Services\terrain\terrain_service.h>
 #include <anh\app\swganh_kernel.h>
 #include <anh\service/service_manager.h>
+
+
 
 //=============================================================================
 
@@ -123,6 +126,7 @@ void AttackableStaticNpc::respawn(void)
     this->mPosition = this->getSpawnPosition();		// Default spawn position.
 
     // mSpawned = false;
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
     if (this->hasInternalAttribute("creature_xp"))
     {
@@ -131,7 +135,7 @@ void AttackableStaticNpc::respawn(void)
     }
     else
     {
-        LOG(error) << "AttackableStaticNpc::respawn shit";
+        LOG(error) << "AttackableStaticNpc::respawn no creature_xp attribute";
         this->setWeaponXp(0);
     }
 
@@ -139,49 +143,36 @@ void AttackableStaticNpc::respawn(void)
     if (this->hasAttribute("creature_health"))
     {
         int32 health = this->getAttribute<int32>("creature_health");
-        this->mHam.mHealth.setCurrentHitPoints(health);
-        this->mHam.mHealth.setMaxHitPoints(health);
-        this->mHam.mHealth.setBaseHitPoints(health);
+		ham->SetHam(this, HamBar_Health, health);
+		
     }
     else
     {
-        LOG(error) << "AttackableStaticNpc::respawn more shit";
-        this->mHam.mHealth.setCurrentHitPoints(500);
-        this->mHam.mHealth.setMaxHitPoints(500);
-        this->mHam.mHealth.setBaseHitPoints(500);
+        LOG(error) << "AttackableStaticNpc::respawn No health attribute";
+        ham->SetHam(this, HamBar_Health, 500);
     }
 
     if (this->hasAttribute("creature_strength"))
     {
         int32 strength = this->getAttribute<int32>("creature_strength");
-        this->mHam.mStrength.setCurrentHitPoints(strength);
-        this->mHam.mStrength.setMaxHitPoints(strength);
-        this->mHam.mStrength.setBaseHitPoints(strength);
+        ham->SetHam(this, HamBar_Strength, strength);
     }
     else
     {
-        LOG(error) << "AttackableStaticNpc::respawn biggestshit";
-        this->mHam.mStrength.setCurrentHitPoints(500);
-        this->mHam.mStrength.setMaxHitPoints(500);
-        this->mHam.mStrength.setBaseHitPoints(500);
+        LOG(error) << "AttackableStaticNpc::respawn No strength attribute";
+        ham->SetHam(this, HamBar_Strength, 500);
     }
 
     if (this->hasAttribute("creature_constitution"))
     {
         int32 constitution = this->getAttribute<int32>("creature_constitution");
-        this->mHam.mConstitution.setCurrentHitPoints(constitution);
-        this->mHam.mConstitution.setMaxHitPoints(constitution);
-        this->mHam.mConstitution.setBaseHitPoints(constitution);
+        ham->SetHam(this, HamBar_Strength, constitution);
     }
     else
     {
-        LOG(error) << "AttackableStaticNpc::respawn giganticshit";
-        this->mHam.mConstitution.setCurrentHitPoints(500);
-        this->mHam.mConstitution.setMaxHitPoints(500);
-        this->mHam.mConstitution.setBaseHitPoints(500);
+        LOG(error) << "AttackableStaticNpc::respawn No constitution attribute";
+        ham->SetHam(this, HamBar_Strength, 500);
     }
-
-    this->mHam.calcAllModifiedHitPoints();
 
 
     // All init is done, just the spawn in the world is left.

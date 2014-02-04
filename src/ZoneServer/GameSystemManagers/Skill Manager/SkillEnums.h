@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -58,7 +58,10 @@ enum SMSkillType
     SMSkill_EntertainerMusic2		= 18,
     SMSkill_EntertainerMusic3		= 19,
     SMSkill_EntertainerMusic4		= 20,
+	SMSkill_NoviceScout				= 31,
     SMSkill_MasterScout				= 32,
+	SMSkill_ScoutCamp1				= 45,
+	SMSkill_NoviceMedic				= 51,
     SMSkill_MasterMedic				= 52,
     SMSkill_MasterArtisan			= 72,
     SMSkill_MasterBrawler			= 92,

@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -202,6 +202,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,swganh::databa
 
     case NonPersistentNpcQuery_LairTemplate:
     {
+		/*
         NpcLairEntityEx lair;
 
         swganh::database::DataBinding* lairSpawnBinding = mDatabase->createDataBinding(9);
@@ -277,7 +278,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,swganh::databa
         npc->mHam.mHealth.setCurrentHitPoints(500);
         npc->mHam.mAction.setCurrentHitPoints(500);
         npc->mHam.mMind.setCurrentHitPoints(500);
-        npc->mHam.calcAllModifiedHitPoints();
+        npc->mHam.getAllModifiedHitPoints();
 
         // inventory
         npcInventory->setId(npc->mId + INVENTORY_OFFSET);
@@ -302,7 +303,7 @@ void NonPersistentNpcFactory::handleDatabaseJobComplete(void* ref,swganh::databa
         // asContainer->mObject = npc;
 
         mDatabase->executeSqlAsync(this, asContainer, "SELECT creature_groups.creature_id FROM %s.creature_groups WHERE creature_groups.creature_group_id=%u;",mDatabase->galaxy(), lair.mCreatureGroup);
-        
+        */
 
     }
     break;
@@ -415,6 +416,7 @@ NPCObject* NonPersistentNpcFactory::_createNonPersistentNpc(swganh::database::Da
 
 NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(swganh::database::DatabaseResult* result, uint64 templateId, uint64 npcNewId, uint32 familyId, uint64 controllingObject)
 {
+	/*
 	if (!result->getRowCount()) {
 		return nullptr;
 	}
@@ -629,6 +631,8 @@ NPCObject* NonPersistentNpcFactory::createNonPersistentNpc(swganh::database::Dat
     // Can't apply this to a dynamically created npc.
     // npc->storeDefaultDirection();
     return npc;
+	*/
+return nullptr;
 }
 
 //=============================================================================

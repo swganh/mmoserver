@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -39,7 +39,7 @@ class UIDropdownBox : public UIElement
 public:
 
     UIDropdownBox() {}
-    UIDropdownBox(uint32 id,BString name,bool enabled,const BStringVector elements,uint16 maxLength);
+    UIDropdownBox(uint32 id,BString name,bool enabled,const StringVector elements,uint16 maxLength);
     virtual ~UIDropdownBox();
 
     BString			getName() {
@@ -63,7 +63,7 @@ public:
         mMaxLength = maxLength;
     }
 
-    BStringVector*	getElements() {
+    StringVector*	getElements() {
         return &mElements;
     }
 
@@ -75,7 +75,7 @@ private:
 
     BString			mName;
     bool			mEnabled;
-    BStringVector	mElements;
+    StringVector	mElements;
     uint16			mMaxLength;
 };
 

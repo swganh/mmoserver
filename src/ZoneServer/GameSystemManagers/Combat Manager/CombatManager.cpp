@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,8 +24,12 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include "ZoneServer\Services\ham\ham_service.h"
 
 #include "Zoneserver/GameSystemManagers/Combat Manager/CombatManager.h"
+
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 #include "Zoneserver/Objects/AttackableCreature.h"
 #include "Zoneserver/GameSystemManagers/Combat Manager/CMWeaponGroup.h"
@@ -42,6 +46,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/Database.h"
 #include "DatabaseManager/DatabaseResult.h"
 #include "DatabaseManager/DataBinding.h"
+
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 #include "anh/Utils/rand.h"
 //=========================================================================================
@@ -481,12 +488,17 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 			}
 		}
 
+		auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
+		//this is pure idiocy in my eyes. Why for gods sake should an object be a creature ?
+		// is there precedent through SOE???????????
 		if (defender->getCreoGroup() != CreoGroup_AttackableObject)
 		{
 			// random pool attack
 			if(randomHitPool != 100)
 			{
-				defender->getHam()->updatePropertyValue(randomHitPool,HamProperty_CurrentHitpoints,multipliedDamage,true);
+				ham->UpdateCurrentHitpoints(defender,randomHitPool,multipliedDamage);
+				//defender->getHam()->updatePropertyValue(randomHitPool,HamProperty_CurrentHitpoints,multipliedDamage,true);
 			}
 			// direct pool attack
 			else
@@ -494,23 +506,27 @@ uint8 CombatManager::_executeAttack(CreatureObject* attacker,CreatureObject* def
 				// health hit
 				if(cmdProperties->mHealthHitChance)
 				{
-					defender->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,multipliedDamage,true);
+					ham->UpdateCurrentHitpoints(defender,HamBar_Health,multipliedDamage);
+					//defender->getHam()->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,multipliedDamage,true);
 				}
 				// action hit
 				else if(cmdProperties->mActionHitChance)
 				{
-					defender->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,multipliedDamage,true);
+					ham->UpdateCurrentHitpoints(defender,HamBar_Action,multipliedDamage);
+					//defender->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,multipliedDamage,true);
 				}
 				// mind hit
 				else if(cmdProperties->mMindHitChance)
 				{
-					defender->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,multipliedDamage,true);
+					ham->UpdateCurrentHitpoints(defender,HamBar_Mind,multipliedDamage);
+					//defender->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,multipliedDamage,true);
 				}
 			}
 		}
 		else
 		{
-			defender->getHam()->updateSingleHam(multipliedDamage, true);
+			ham->UpdateCurrentHitpoints(defender,HamBar_Health,multipliedDamage);
+			//defender->getHam()->updateSingleHam(multipliedDamage, true);
 		}
 		if (defender->isIncapacitated())
 		{

@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -82,6 +82,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "anh/Utils/clock.h"
 #include "Utils/EventHandler.h"
 
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh\service\service_manager.h"
 
 #include <anh\app\swganh_kernel.h>
 
@@ -182,6 +184,7 @@ PlayerObject::PlayerObject()
 
 PlayerObject::~PlayerObject()
 {
+	//at this point the client is already NULL so do NOT call any functions that might send messages
 	LOG(error) << "player destructor started";
     
 	// store any eventually spawned vehicle
@@ -194,9 +197,6 @@ PlayerObject::~PlayerObject()
             datapad_pet->Store();
         }
     }
-
-    // make sure we stop entertaining if we are an entertainer
-    gEntertainerManager->stopEntertaining(this);
 
 	//LOG(info) << "player destructor removing controllers";
     
@@ -359,10 +359,6 @@ void PlayerObject::resetProperties()
     }
 
     updateMovementProperties();
-
-    // We should not need to mess with HAM here, when doing intra planet (local on planet) travel.
-    // mHam.resetCounters();
-    mHam.updateRegenRates();
 
     // We might have been invited to a duel
     clearDuelList();
@@ -590,14 +586,12 @@ bool PlayerObject::checkDeductCredits(uint32 amount)
     Bank*		bank		= dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
     Inventory*	inventory	= dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
 
-    if(bank && inventory)
-    {
-        return(amount <= bank->getCredits() + inventory->getCredits());
+    if((!bank) || (!inventory))    {
+        LOG(error) << "PlayerObject::updateCredits No Bank / Inventory for : " << this->getId();
+		return false;
     }
-    else
-    {
-        return(false);
-    }
+	return(amount <= bank->getCredits() + inventory->getCredits());
+    
 }
 
 //=============================================================================
@@ -626,37 +620,35 @@ bool PlayerObject::testCash(uint32 amount)
 
 //=============================================================================
 
-bool PlayerObject::deductCredits(uint32 amount)
+bool PlayerObject::updateCredits(int32 amount)
 {
-    if(Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank)))
-    {
-        if(Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory)))
-        {
-            if(amount <= bank->getCredits() + inventory->getCredits())
-            {
-                // bank first
-                if(amount > bank->getCredits())
-                {
-                    // first empty bank, then inv.
-                    amount -= bank->getCredits();
-                    bank->setCredits(0);
-                    inventory->setCredits(inventory->getCredits() - amount);
-                }
-                else
-                {
-                    bank->updateCredits(0 - amount);
-                }
+	Bank* bank = dynamic_cast<Bank*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Bank));
+	Inventory* inventory = dynamic_cast<Inventory*>(mEquipManager.getEquippedObject(CreatureEquipSlot_Inventory));
 
-                return(true);
-            }
-            else
-            {
-                return(false);
-            }
-        }
-    }
+    if(!bank)    {
+		LOG(error) << "PlayerObject::updateCredits No Bank for : " << this->getId();
+		return false;
+	}
+    
+	if(!inventory)    {
+		LOG(error) << "PlayerObject::updateCredits No Inventory for : " << this->getId();
+		return false;
+	}
+    int64 cash = bank->getCredits() + inventory->getCredits();
 
-    return(false);
+	if((cash += amount) < 0)    {
+		return(false);
+	}
+
+    // bank first
+	int64 cash_64 =  bank->getCredits() + amount;
+    bank->setCredits((cash_64 < 0) ? 0 : (uint32) cash_64);
+
+	//int64 cash = ((cash_64 < 0) ? cash_64 : 0);
+	inventory->updateCredits(((cash_64 < 0) ? cash_64 : 0));
+
+	return(true);
+    
 }
 
 //=============================================================================
@@ -1251,8 +1243,8 @@ void PlayerObject::updateInventoryCredits(int32 amount)
 //=============================================================================
 //
 // handles any UIWindow callbacks for this player
-//
-void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+// get these out of the playerobject asap
+void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
 {
     switch(window->getWindowType())
     {
@@ -1282,7 +1274,9 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
                     if (element == 1)
                     {
                         // Clone at the pre-designated facility...
-                        mObjectController.cloneAtPreDesignatedFacility(this, sp);
+                         // Invoke the actual cloning process.
+						this->clone(sp->mCellId,sp->mDirection,sp->mPosition,true);
+        
                     }
                     else //  if (element == 0)  // Handle non-selected response as if closest cloning facility was selected,
                         // until we learn how to restart the dialog when nothing selected.
@@ -1296,18 +1290,19 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
                                 if (preDesignatedBuilding == building)
                                 {
                                     // Clone at the pre-designated facility...
-                                    mObjectController.cloneAtPreDesignatedFacility(this, sp);
+                                    this->clone(sp->mCellId,sp->mDirection,sp->mPosition,true);
                                     break;
                                 }
                             }
                         }
                         if (this->mNewPlayerExemptions == 0)
                         {
+							//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
                             // Add wounds...
-                            this->getHam()->updatePrimaryWounds(100);
+                            //this->getHam()->updatePrimaryWounds(100);
 
                             // .. and some BF
-                            this->getHam()->updateBattleFatigue(100, true);
+                            //this->getHam()->updateBattleFatigue(100, true);
                         }
 
                         // Clone
@@ -1319,39 +1314,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
     }
     break;
 
-    // generic message box
-    case SUI_Window_MessageBox:
-    {
-        // identify by event string, none needed yet
-        if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
-        {
-
-        }
-    }
-    break;
-
-    // generic list box
-    case SUI_Window_ListBox:
-    {
-        // identify by event string, none needed yet
-        if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
-        {
-
-        }
-    }
-    break;
-
-    // generix input box
-    case SUI_Window_InputBox:
-    {
-        // identify by event string, none needed yet
-        if(strcmp(window->getEventStr().getAnsi(),"example") == 0)
-        {
-
-        }
-    }
-    break;
-
+   
     // teaching, skill select box
     case SUI_Window_Teach_SelectSkill_ListBox:
     {
@@ -1365,10 +1328,10 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
         }
 
         // WE are the teacher at this point deciding what to teach
-        BStringVector*		dataItems	= skillSelectBox->getDataItems();
+        StringVector*		dataItems	= skillSelectBox->getDataItems();
         BStringVector		splitSkill;
         BStringVector		splitProf;
-        BString				skillString = dataItems->at(element);
+        BString				skillString = dataItems->at(element).c_str();
 
         if(!skillString.getLength() || skillString.split(splitSkill,':') < 2)
         {
@@ -1440,12 +1403,12 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
             return;
 
         UIListBox*			danceSelectBox	= dynamic_cast<UIListBox*>(window);
-        BStringVector*		dataItems		= danceSelectBox->getDataItems();
+        StringVector*		dataItems		= danceSelectBox->getDataItems();
         BStringVector		splitDance;
 
         if(element > -1)
         {
-            BString	danceString = dataItems->at(element);
+			BString	danceString = dataItems->at(element).c_str();
 
             if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
             {
@@ -1472,18 +1435,18 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
     case SUI_Window_SelectOutcast_Listbox:
     {
         UIListBox*		outcastSelectBox	= dynamic_cast<UIListBox*>(window);
-        BStringVector*	dataItems			= outcastSelectBox->getDataItems();
+        StringVector*	dataItems			= outcastSelectBox->getDataItems();
 
         if(element > -1)
         {
-            BString outcastString = dataItems->at(element);
+            std::string outcastString = dataItems->at(element);
 
-            if(!outcastString.getLength())
+            if(!outcastString.length())
             {
                 return;
             }
 
-            gEntertainerManager->verifyOutcastName(this,outcastString);
+            gEntertainerManager->verifyOutcastName(this,outcastString.c_str());
         }
     }
     break;
@@ -1495,12 +1458,12 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
             return;
 
         UIListBox*		musicSelectBox	= dynamic_cast<UIListBox*>(window);
-        BStringVector*	dataItems		= musicSelectBox->getDataItems();
+        StringVector*	dataItems		= musicSelectBox->getDataItems();
         BStringVector	splitDance;
 
         if(element > -1)
         {
-            BString	danceString = dataItems->at(element);
+			BString	danceString = dataItems->at(element).c_str();
 
             if(!danceString.getLength() || danceString.split(splitDance,'+') < 2)
             {
@@ -1563,7 +1526,7 @@ void PlayerObject::handleUIEvent(uint32 action,int32 element,BString inputStr,UI
 
     default:
     {
-        DLOG(info) << "handleUIEvent:Default: " <<action<<","<<element<<","<<inputStr.getAnsi();
+		LOG(info) << "handleUIEvent:Default: " << action << "," << element << "," << inputStr.c_str();
     }
     break;
     }
@@ -1801,9 +1764,12 @@ void PlayerObject::clone(uint64 parentId, const glm::quat& dir, const glm::vec3&
     }
     this->GetBuffList()->clear();
     this->CleanUpBuffs();
-    this->getHam()->resetModifiers();
-    //TODO reset skillmodifiers
-    gMessageLib->sendCurrentHitpointDeltasCreo6_Full(this);
+    
+	//Im not 100% positive if this is necessary
+	//this->getHam()->resetModifiers();
+
+	//TODO reset skillmodifiers
+    
 
     // Handle free deaths for newbies.
     if (mNewPlayerExemptions > 0)
@@ -1945,9 +1911,10 @@ void PlayerObject::saveNearestCloningFacility(BuildingObject* nearestCloningFaci
 }
 
 //=============================================================================
-
+//get this out here asap
 void PlayerObject::cloneAtNearestCloningFacility(void)
 {
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
     if (mNearestCloningFacility)
     {
         if (SpawnPoint* sp = mNearestCloningFacility->getRandomSpawnPoint())
@@ -1955,10 +1922,12 @@ void PlayerObject::cloneAtNearestCloningFacility(void)
             if (mNewPlayerExemptions == 0)
             {
                 // Add wounds...
-                mHam.updatePrimaryWounds(100);
-
+				ham->UpdateWound(this, HamBar_Health, 100);
+				ham->UpdateWound(this, HamBar_Action, 100);
+				ham->UpdateWound(this, HamBar_Mind, 100);
+               
                 // .. and some BF
-                mHam.updateBattleFatigue(100, true);
+				ham->UpdateBattleFatigue(this, 100);
             }
 
             // Clone
@@ -2314,4 +2283,64 @@ bool PlayerObject::handleLocomotionUpdate(::common::IEventPtr triggered_event)
         return true;
     }
     return false;
+}
+
+int32_t PlayerObject::GetCurrentForcePower()
+{
+    auto lock = AcquireLock();
+    return GetCurrentForcePower(lock);
+}
+
+int32_t PlayerObject::GetCurrentForcePower(boost::unique_lock<boost::mutex>& lock)
+{
+    return current_force_power_;
+}
+
+void PlayerObject::SetCurrentForcePower(int32_t force_power)
+{
+    auto lock = AcquireLock();
+    SetCurrentForcePower(force_power, lock);
+}
+
+void PlayerObject::SetCurrentForcePower(int32_t force_power, boost::unique_lock<boost::mutex>& lock)
+{
+    current_force_power_ = force_power;
+    //DISPATCH(Player, ForcePower);
+}
+
+void PlayerObject::IncrementForcePower(int32_t force_power)
+{
+    auto lock = AcquireLock();
+    IncrementForcePower(force_power, lock);
+}
+
+void PlayerObject::IncrementForcePower(int32_t force_power, boost::unique_lock<boost::mutex>& lock)
+{
+    int32_t new_force_power = current_force_power_ + force_power;
+
+    current_force_power_ = (new_force_power > GetMaxForcePower()) ? GetMaxForcePower() : new_force_power;
+    //DISPATCH(Player, ForcePower);
+}
+
+int32_t PlayerObject::GetMaxForcePower()
+{
+    auto lock = AcquireLock();
+    return GetMaxForcePower(lock);
+}
+
+int32_t PlayerObject::GetMaxForcePower(boost::unique_lock<boost::mutex>& lock)
+{
+    return max_force_power_;
+}
+
+void PlayerObject::SetMaxForcePower(int32_t force_power)
+{
+    auto lock = AcquireLock();
+    SetMaxForcePower(force_power, lock);
+}
+
+void PlayerObject::SetMaxForcePower(int32_t force_power, boost::unique_lock<boost::mutex>& lock)
+{
+    max_force_power_ = force_power;
+    //DISPATCH(Player, MaxForcePower);
 }

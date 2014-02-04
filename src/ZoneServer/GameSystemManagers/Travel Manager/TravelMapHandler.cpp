@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -495,7 +495,7 @@ bool TravelMapHandler::findTicket(PlayerObject* player, BString port)
 
 void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, BString port)
 {
-    BStringVector	availableTickets;
+    StringVector	availableTickets;
     uint32			zoneId = gWorldManager->getZoneId();
 
     ObjectIDList*			invObjects	= dynamic_cast<Inventory*>(playerObject->getEquipManager()->getEquippedObject(CreatureEquipSlot_Inventory))->getObjects();
@@ -524,7 +524,7 @@ void TravelMapHandler::createTicketSelectMenu(PlayerObject* playerObject, Shuttl
 
 //=======================================================================================================================
 
-void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window)
+void TravelMapHandler::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
 {
     if(!action && element != -1 )
     {
@@ -568,11 +568,10 @@ void TravelMapHandler::handleUIEvent(uint32 action,int32 element,BString inputSt
                 uint16 srcPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName(ticket->getAttribute<std::string>("travel_departure_planet")));
                 uint16 dstPlanetId	= static_cast<uint8>(gWorldManager->getPlanetIdByName(ticket->getAttribute<std::string>("travel_arrival_planet")));
 
-                BStringVector* items = (dynamic_cast<UIListBox*>(window))->getDataItems();
-                BString selectedDst = items->at(element);
-                selectedDst.convert(BSTRType_ANSI);
+                StringVector* items = (dynamic_cast<UIListBox*>(window))->getDataItems();
+                std::string selectedDst = items->at(element);
 
-				if(srcPlanetId == zoneId && (strcmp(dstPointStr.c_str(),selectedDst.getAnsi()) == 0)&&(strcmp(srcPoint.getAnsi(),listBox->getPort().getAnsi()) == 0))
+				if(srcPlanetId == zoneId && (strcmp(dstPointStr.c_str(),selectedDst.c_str()) == 0)&&(strcmp(srcPoint.getAnsi(),listBox->getPort().getAnsi()) == 0))
                 {
                     TravelPoint* dstPoint = gTravelMapHandler->getTravelPoint(dstPlanetId,dstPointStr);
 

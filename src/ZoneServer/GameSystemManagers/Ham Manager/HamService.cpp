@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,7 +24,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
-
+#include "ZoneServer\Services\ham\ham_service.h"
 #include "Zoneserver/GameSystemManagers/Ham Manager/HamService.h"
 
 #include "SwgProtocol/ObjectControllerEvents.h"
@@ -78,6 +78,7 @@ bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {
     uint32 healthcost = (*it).second->mHealthCost;
     uint32 mindcost	  = (*it).second->mMindCost;
 
+	/*
     if (!object->getHam()->checkMainPools(healthcost, actioncost, mindcost)) {
 		
 		auto event_ = triggered_event->event_type();
@@ -92,7 +93,7 @@ bool HamService::handlePreCommandExecuteEvent(IEventPtr triggered_event) {
     object->getHam()->updatePropertyValue(HamBar_Action, HamProperty_CurrentHitpoints, -static_cast<int32>(actioncost), true);
     object->getHam()->updatePropertyValue(HamBar_Health, HamProperty_CurrentHitpoints, -static_cast<int32>(healthcost), true);
     object->getHam()->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, -static_cast<int32>(mindcost), true);
-
+	*/
     return true;
 }
 

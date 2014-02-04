@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -53,6 +53,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Common/atMacroString.h"
 #include "Utils/utils.h"
 
+#include "ZoneServer\Services\ham\ham_service.h"
+
 bool EntertainerManager::mInsFlag = false;
 EntertainerManager*	EntertainerManager::mSingleton = NULL;
 
@@ -71,28 +73,30 @@ EntertainerManagerAsyncContainer::~EntertainerManagerAsyncContainer()
 
 //======================================================================================================================
 
-EntertainerManager::EntertainerManager(swganh::database::Database* database,MessageDispatch* dispatch)
+EntertainerManager::EntertainerManager(swganh::app::SwganhKernel*	kernel)
 {
-    mDatabase = database;
-    mMessageDispatch = dispatch;
+    kernel_ = kernel;
     EntertainerManagerAsyncContainer* asyncContainer;
+
+	LOG (info) << "EntertainerManager::EntertainerManager";
 
     // load our performance Data
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadPerformances, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT performanceName, instrumentAudioId, InstrumenType, danceVisualId,	actionPointPerLoop"
+    
+	kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,"SELECT performanceName, instrumentAudioId, InstrumenType, danceVisualId,	actionPointPerLoop"
                                                    ",loopDuration,	florushXpMod,	healMindWound,	healShockWound, MusicVisualId FROM %s.entertainer_performances",
-                                                   mDatabase->galaxy());
+                                                   kernel_->GetDatabase()->galaxy());
 
 
     // load our attribute data for ID
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadIDAttributes, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT CustomizationCRC, SpeciesCRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, XP, Hair, divider FROM %s.id_attributes",
-                                                   mDatabase->galaxy());
+    kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,"SELECT CustomizationCRC, SpeciesCRC, Atr1ID, Atr1Name, Atr2ID, Atr2Name, XP, Hair, divider FROM %s.id_attributes",
+                                                   kernel_->GetDatabase()->galaxy());
 
 
     // load our holoemote Data
     asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_LoadHoloEmotes, 0);
-    mDatabase->executeSqlAsync(this,asyncContainer,"SELECT crc, effect_id, name FROM %s.holoemote",mDatabase->galaxy());
+    kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,"SELECT crc, effect_id, name FROM %s.holoemote",kernel_->GetDatabase()->galaxy());
 
 }
 
@@ -107,11 +111,11 @@ EntertainerManager::~EntertainerManager()
 }
 //======================================================================================================================
 
-EntertainerManager*	EntertainerManager::Init(swganh::database::Database* database, MessageDispatch* dispatch)
+EntertainerManager*	EntertainerManager::Init(swganh::app::SwganhKernel*	kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new EntertainerManager(database,dispatch);
+        mSingleton = new EntertainerManager(kernel);
         mInsFlag = true;
         return mSingleton;
     }
@@ -215,7 +219,7 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
     DenyServiceList*	deniedAudienceList	= entertainer->getDenyAudienceList();
     DenyServiceList::iterator denieIt = deniedAudienceList->begin();
 
-    sprintf(sql,"SELECT firstname FROM %s.characters where id = ",mDatabase->galaxy());
+	sprintf(sql,"SELECT firstname FROM %s.characters where id = ",kernel_->GetDatabase()->galaxy());
 
     BStringVector availableOutCasts;
     uint32 nr = 0;
@@ -242,7 +246,7 @@ void EntertainerManager::showOutcastList(PlayerObject* entertainer)
     {
         EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_DenyServiceListNames,0);
         asyncContainer->performer = entertainer;
-        mDatabase->executeSqlAsync(this,asyncContainer,sql);
+        kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
 
 
         //gUIManager->createNewOutcastSelectBox(entertainer,"handleselectoutcast","select whom to delete from your deny service list","",availableOutCasts,entertainer,SUI_LB_OK);
@@ -292,11 +296,11 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
         }
         //remove it from the db
         int8 sql[150];
-        sprintf(sql,"DELETE FROM %s.entertainer_deny_service WHERE entertainer_id = '%"PRIu64"' and outcast_id = '%"PRIu64"'",mDatabase->galaxy(), entertainer->getId(), outCastId);
+        sprintf(sql,"DELETE FROM %s.entertainer_deny_service WHERE entertainer_id = '%"PRIu64"' and outcast_id = '%"PRIu64"'",kernel_->GetDatabase()->galaxy(), entertainer->getId(), outCastId);
 
 
         EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-        mDatabase->executeSqlAsync(this,asyncContainer,sql);
+        kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
 
         return;
     }
@@ -315,10 +319,10 @@ void EntertainerManager::toggleOutcastId(PlayerObject* entertainer,uint64 outCas
 
     //add it to the db
     int8 sql[100];
-    sprintf(sql,"INSERT INTO %s.entertainer_deny_service VALUES(%"PRIu64",%"PRIu64")",mDatabase->galaxy(),entertainer->getId(),outCastId);
+    sprintf(sql,"INSERT INTO %s.entertainer_deny_service VALUES(%"PRIu64",%"PRIu64")",kernel_->GetDatabase()->galaxy(),entertainer->getId(),outCastId);
 
     EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
 
 
 }
@@ -349,17 +353,17 @@ bool	EntertainerManager::checkDenyServiceList(PlayerObject* audience, PlayerObje
 void EntertainerManager::verifyOutcastName(PlayerObject* entertainer,BString outCastName)
 {
     int8 sql[256], name[50];
-    mDatabase->escapeString(name,outCastName.getAnsi(),outCastName.getLength());
+    kernel_->GetDatabase()->escapeString(name,outCastName.getAnsi(),outCastName.getLength());
 
     //we'll need the id only
-    sprintf(sql,"SELECT id FROM %s.characters c WHERE c.firstname = '%s'",mDatabase->galaxy(),name);
+    sprintf(sql,"SELECT id FROM %s.characters c WHERE c.firstname = '%s'",kernel_->GetDatabase()->galaxy(),name);
 
 
     EntertainerManagerAsyncContainer* asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_DenyServiceFindName,0);
     asyncContainer->performer = entertainer;
     asyncContainer->outCastName = outCastName;
 
-    mDatabase->executeSqlAsync(this,asyncContainer,sql);
+    kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
 
 
 }
@@ -479,7 +483,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
     case EMQuery_IDFinances:
     {
         uint32 error;
-        swganh::database::DataBinding* binding = mDatabase->createDataBinding(1);
+        swganh::database::DataBinding* binding = kernel_->GetDatabase()->createDataBinding(1);
         binding->addField(swganh::database::DFT_uint32,0,4);
         result->getNextRow(binding,&error);
         if (error == 0)
@@ -505,7 +509,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
     {
         HoloStruct* holo;
 
-        swganh::database::DataBinding* binding = mDatabase->createDataBinding(3);
+        swganh::database::DataBinding* binding = kernel_->GetDatabase()->createDataBinding(3);
         binding->addField(swganh::database::DFT_uint32,offsetof(HoloStruct,pCRC),4,0);
         binding->addField(swganh::database::DFT_uint32,offsetof(HoloStruct,pId),4,1);
         binding->addField(swganh::database::DFT_string,offsetof(HoloStruct,pEmoteName),32,2);
@@ -536,7 +540,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
         int8 sql[1024];
         StatTargets theTargets;
 
-        swganh::database::DataBinding* binding = mDatabase->createDataBinding(9);
+        swganh::database::DataBinding* binding = kernel_->GetDatabase()->createDataBinding(9);
         binding->addField(swganh::database::DFT_uint32,offsetof(StatTargets,TargetHealth),4,0);
         binding->addField(swganh::database::DFT_uint32,offsetof(StatTargets,TargetStrength),4,1);
         binding->addField(swganh::database::DFT_uint32,offsetof(StatTargets,TargetConstitution),4,2);
@@ -555,11 +559,16 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
         }
         else
         {
+			auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
             //stats set update ham plus check
             result->getNextRow(binding,&theTargets);
-            Ham* pHam = asynContainer->customer->getHam();
-            uint32 currentAmount = pHam->getTotalHamCount();
+            
+
+            uint32 currentAmount = 0;
+			for(uint32 i = 0; i<9; i++)			{
+				currentAmount += asynContainer->customer->GetStatBase(i);
+			}
 
             uint32 nextAmount = theTargets.TargetHealth;
             nextAmount += theTargets.TargetStrength;
@@ -575,47 +584,46 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
             {
                 int32 value;
 
-                value = theTargets.TargetHealth - pHam->getPropertyValue(HamBar_Health,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Health,HamProperty_BaseHitpoints,value,true);
+				value = theTargets.TargetHealth - asynContainer->customer->GetStatBase(HamBar_Health); 
+				ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Health, value);
 
-                value = theTargets.TargetStrength - pHam->getPropertyValue(HamBar_Strength,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Strength,HamProperty_BaseHitpoints,value,true);
+                value = theTargets.TargetStrength - asynContainer->customer->GetStatBase(HamBar_Strength); 
+                ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Strength, value);				
 
-                value = theTargets.TargetConstitution - pHam->getPropertyValue(HamBar_Constitution,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Constitution,HamProperty_BaseHitpoints,value,true);
-
-
-
-                value = theTargets.TargetAction - pHam->getPropertyValue(HamBar_Action,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Action,HamProperty_BaseHitpoints,value,true);
-
-                value = theTargets.TargetQuickness - pHam->getPropertyValue(HamBar_Quickness,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Quickness,HamProperty_BaseHitpoints,value,true);
-
-                value = theTargets.TargetStamina - pHam->getPropertyValue(HamBar_Stamina,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Stamina,HamProperty_BaseHitpoints,value,true);
+                value = theTargets.TargetConstitution - asynContainer->customer->GetStatBase(HamBar_Constitution);
+                ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Constitution, value);
 
 
+				value = theTargets.TargetHealth - asynContainer->customer->GetStatBase(HamBar_Action); 
+				ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Action, value);
 
-                value = theTargets.TargetMind - pHam->getPropertyValue(HamBar_Mind,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Mind,HamProperty_BaseHitpoints,value,true);
+                value = theTargets.TargetStrength - asynContainer->customer->GetStatBase(HamBar_Quickness); 
+                ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Quickness, value);				
 
-                value = theTargets.TargetFocus - pHam->getPropertyValue(HamBar_Focus,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Focus,HamProperty_BaseHitpoints,value,true);
+                value = theTargets.TargetConstitution - asynContainer->customer->GetStatBase(HamBar_Stamina);
+                ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Stamina, value);
 
-                value = theTargets.TargetWillpower - pHam->getPropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints);
-                pHam->updatePropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints,value,true);
+
+				value = theTargets.TargetHealth - asynContainer->customer->GetStatBase(HamBar_Mind); 
+				ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Mind, value);
+
+                value = theTargets.TargetStrength - asynContainer->customer->GetStatBase(HamBar_Focus); 
+                ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Focus, value);				
+
+                value = theTargets.TargetConstitution - asynContainer->customer->GetStatBase(HamBar_Willpower);
+                ham->UpdateBaseHitpoints(asynContainer->customer,HamBar_Willpower, value);
+
 
                 //now the db
                 EntertainerManagerAsyncContainer* asyncContainer;
 
                 asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-                sprintf(sql,"UPDATE %s.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",mDatabase->galaxy(),theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
-                mDatabase->executeSqlAsync(this,asyncContainer,sql);
+                sprintf(sql,"UPDATE %s.character_attributes SET health_max = %i, strength_max = %i, constitution_max = %i, action_max = %i, quickness_max = %i, stamina_max = %i, mind_max = %i, focus_max = %i, willpower_max = %i where character_id = %"PRIu64"",kernel_->GetDatabase()->galaxy(),theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
+                kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
 
                 asyncContainer = new EntertainerManagerAsyncContainer(EMQuery_NULL,0);
-                sprintf(sql,"UPDATE %s.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",mDatabase->galaxy(),theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
-                mDatabase->executeSqlAsync(this,asyncContainer,sql);
+                sprintf(sql,"UPDATE %s.character_attributes SET health_current = %i, strength_current = %i, constitution_current = %i, action_current = %i, quickness_current = %i, stamina_current = %i, mind_current = %i, focus_current = %i, willpower_current = %i where character_id = %"PRIu64"",kernel_->GetDatabase()->galaxy(),theTargets.TargetHealth,theTargets.TargetStrength,theTargets.TargetConstitution, theTargets.TargetAction,theTargets.TargetQuickness,theTargets.TargetStamina,theTargets.TargetMind ,theTargets.TargetFocus ,theTargets.TargetWillpower ,asynContainer->customer->getId());
+                kernel_->GetDatabase()->executeSqlAsync(this,asyncContainer,sql);
 
                 gSkillManager->addExperience(XpType_imagedesigner,2000,asynContainer->performer);
             }
@@ -628,7 +636,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
 
         }
 
-        mDatabase->destroyDataBinding(binding);
+        kernel_->GetDatabase()->destroyDataBinding(binding);
 
 
     }
@@ -637,7 +645,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
     case EMQuery_IDMoneyTransaction:
     {
         uint32 error;
-        swganh::database::DataBinding* binding = mDatabase->createDataBinding(1);
+        swganh::database::DataBinding* binding = kernel_->GetDatabase()->createDataBinding(1);
         binding->addField(swganh::database::DFT_uint32,0,4);
         result->getNextRow(binding,&error);
         if (error == 0)
@@ -659,10 +667,10 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
     {
         BString outCast;
         outCast.setLength(40);
-        BStringVector availableOutCasts;
+        StringVector availableOutCasts;
 
         swganh::database::DataBinding* binding;
-        binding = mDatabase->createDataBinding(1);
+        binding = kernel_->GetDatabase()->createDataBinding(1);
         binding->addField(swganh::database::DFT_bstring,0,36);
         uint64 count;
         count = result->getRowCount();
@@ -671,7 +679,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
             for(uint64 i = 0; i < count; i++)
             {
                 result->getNextRow(binding,&outCast);
-                availableOutCasts.push_back(outCast);
+				availableOutCasts.push_back(outCast.getAnsi());
             }
 
             gUIManager->createNewListBox(asynContainer->performer,"handleselectoutcast","select whom to delete from your deny service list","",availableOutCasts,asynContainer->performer,SUI_Window_SelectOutcast_Listbox,SUI_LB_OK);
@@ -684,7 +692,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
         outCastId = 0;
 
         swganh::database::DataBinding* binding;
-        binding = mDatabase->createDataBinding(1);
+        binding = kernel_->GetDatabase()->createDataBinding(1);
         binding->addField(swganh::database::DFT_uint64,0,8);
         uint64 count;
         count = result->getRowCount();
@@ -693,7 +701,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
             result->getNextRow(binding,&outCastId);
         }
 
-        mDatabase->destroyDataBinding(binding);
+        kernel_->GetDatabase()->destroyDataBinding(binding);
 
         PlayerObject* entertainer = asynContainer->performer;
         //is it valid?
@@ -719,7 +727,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
     {
 
         swganh::database::DataBinding* binding;
-        binding = mDatabase->createDataBinding(9);
+        binding = kernel_->GetDatabase()->createDataBinding(9);
         binding->addField(swganh::database::DFT_uint32,offsetof(IDStruct,CustomizationCRC),4,0);
         binding->addField(swganh::database::DFT_uint32,offsetof(IDStruct,SpeciesCRC),4,1);
         binding->addField(swganh::database::DFT_uint32,offsetof(IDStruct,Atr1ID),4,2);
@@ -747,7 +755,7 @@ void EntertainerManager::handleDatabaseJobComplete(void* ref,swganh::database::D
     case EMQuery_LoadPerformances:
     {
         swganh::database::DataBinding* binding;
-        binding = mDatabase->createDataBinding(10);
+        binding = kernel_->GetDatabase()->createDataBinding(10);
         binding->addField(swganh::database::DFT_string,offsetof(PerformanceStruct,performanceName),32,0);
         binding->addField(swganh::database::DFT_uint32,offsetof(PerformanceStruct,instrumentAudioId),4,1);
         binding->addField(swganh::database::DFT_uint32,offsetof(PerformanceStruct,requiredInstrument),4,2);
@@ -1290,6 +1298,7 @@ void EntertainerManager::buff(PlayerObject* entertainer)
 //=======================================================================================================================
 void EntertainerManager::heal(PlayerObject* entertainer)
 {
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
     //are we in a group???
     //If yes iterate through groupmembers of our profession (dancer musician or entertainer)
@@ -1358,28 +1367,13 @@ void EntertainerManager::heal(PlayerObject* entertainer)
 
     //heal our own wounds
     //Mind
-    if(entertainer->getHam()->mMind.getWounds() > 0)
-    {
-        entertainer->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
-    }
-    //heal willpower
-    if(entertainer->getHam()->mWillpower.getWounds() > 0)
-    {
-        entertainer->getHam()->updatePropertyValue(HamBar_Willpower,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
-    }
-
-    //heal focus
-    if(entertainer->getHam()->mFocus.getWounds() > 0)
-    {
-        entertainer->getHam()->updatePropertyValue(HamBar_Focus,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
-    }
-
+	ham->UpdateWound(entertainer, HamBar_Mind, static_cast<int32>(-pTotalMindHeal));
+	ham->UpdateWound(entertainer, HamBar_Willpower, static_cast<int32>(-pTotalMindHeal));
+	ham->UpdateWound(entertainer, HamBar_Focus, static_cast<int32>(-pTotalMindHeal));
+    
     //heal bf
-    if(entertainer->getHam()->getBattleFatigue() > 0)
-    {
-        entertainer->getHam()->updateBattleFatigue(static_cast<int32>(-pTotalShockHeal));
-    }
-
+	ham->UpdateBattleFatigue(entertainer,-pTotalShockHeal);
+    
     //iterate through the audience
     AudienceList* mAudienceList = entertainer->getAudienceList();
     AudienceList::iterator it = mAudienceList->begin();
@@ -1394,33 +1388,11 @@ void EntertainerManager::heal(PlayerObject* entertainer)
         PlayerObject* audience = dynamic_cast<PlayerObject*> (gWorldManager->getObjectById(*it));
         if(audience)
         {
-            //heal Mind wound
-            if(audience->getHam()->mMind.getWounds() > 0)
-            {
-                pCompleteMindHealAmount += static_cast<uint32>(pTotalMindHeal);
-                audience->getHam()->updatePropertyValue(HamBar_Mind,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
-            }
+			ham->UpdateWound(audience, HamBar_Mind, static_cast<int32>(-pTotalMindHeal));
+			ham->UpdateWound(audience, HamBar_Willpower, static_cast<int32>(-pTotalMindHeal));
+			ham->UpdateWound(audience, HamBar_Focus, static_cast<int32>(-pTotalMindHeal));
 
-            //heal willpower
-            if(audience->getHam()->mWillpower.getWounds() > 0)
-            {
-                pCompleteSecondaryHealAmount += static_cast<uint32>(pTotalMindHeal);
-                audience->getHam()->updatePropertyValue(HamBar_Willpower,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
-            }
-
-            //heal focus
-            if(audience->getHam()->mFocus.getWounds() > 0)
-            {
-                pCompleteSecondaryHealAmount += static_cast<uint32>(pTotalMindHeal);
-                audience->getHam()->updatePropertyValue(HamBar_Focus,HamProperty_Wounds, static_cast<int32>(-pTotalMindHeal));
-            }
-
-            //heal bf
-            if(audience->getHam()->getBattleFatigue() > 0)
-            {
-                pCompleteBFHealAmount += static_cast<int32>(pTotalShockHeal);
-                audience->getHam()->updateBattleFatigue(static_cast<int32>(-pTotalShockHeal));
-            }
+            ham->UpdateBattleFatigue(audience,-pTotalShockHeal);
 
             ++it;
         }
@@ -1514,6 +1486,8 @@ void EntertainerManager::CheckDistances(PlayerObject* entertainer)
 //=======================================================================================================================
 void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
 {
+	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
     PlayerObject* entertainer = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(audience->getEntertainerWatchToId()));
 
     if(audience->getEntertainerWatchToId()== 0 )
@@ -1577,7 +1551,7 @@ void EntertainerManager::stopWatching(PlayerObject* audience,bool ooRange)
                 uint32	time	    = (*buffIt).second->buffLengthSeconds;
 
                 // apply it
-                int32	mind		= audience->getHam()->getPropertyValue(HamBar_Mind,HamProperty_BaseHitpoints);
+				int32	mind		= audience->GetStatBase(HamBar_Mind);
                 mind				= static_cast<uint32>(mind*percentage);
                 mind				= static_cast<uint32>(mind*buffPercentageDance);
 
@@ -1677,11 +1651,11 @@ void EntertainerManager::stopListening(PlayerObject* audience,bool ooRange)
                 uint32	time	    = (*buffIt).second->buffLengthSeconds;
 
                 // apply it
-                int32	focus		= audience->getHam()->getPropertyValue(HamBar_Focus,HamProperty_BaseHitpoints);
+				int32	focus		= audience->GetStatBase(HamBar_Focus);// >g etHam()->getPropertyValue(HamBar_Focus,HamProperty_BaseHitpoints);
                 focus				= static_cast<uint8>((focus*percentage));
                 focus				= (int)(focus*buffPercentageDance);
 
-                int32	will		= audience->getHam()->getPropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints);
+                int32	will		= audience->GetStatBase(HamBar_Willpower);//audience->getHam()->getPropertyValue(HamBar_Willpower,HamProperty_BaseHitpoints);
                 will				= static_cast<uint32>(will*percentage);
                 will				= static_cast<uint32>(will*buffPercentageDance);
 
@@ -1955,6 +1929,7 @@ void EntertainerManager::handlePerformancePause(CreatureObject* mObject)
 //=======================================================================================================================
 bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
 {
+	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
     //check if we are still performing otherwise delete the tick and
     //stop performing if our state != 9 (dancing)
     PlayerObject*	entertainer	= dynamic_cast<PlayerObject*>(mObject);
@@ -1985,13 +1960,14 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
     grantXP(entertainer);
 
     // check ham costs
-    Ham* ham = entertainer->getHam();
+    
 
-    if(ham->checkMainPools(0,((PerformanceStruct*)entertainer->getPerformance())->actionPointPerLoop,0))
+    if(ham->checkMainPools(entertainer, 0,((PerformanceStruct*)entertainer->getPerformance())->actionPointPerLoop,0))
     {
         PerformanceStruct* pStruct = (PerformanceStruct*)entertainer->getPerformance();
         int32 actionCost = pStruct->actionPointPerLoop;
-        entertainer->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-(actionCost));
+		ham->ApplyHamCost(entertainer, HamBar_Action, -(actionCost));
+		return (true);
     }
     else
     {
@@ -2017,7 +1993,7 @@ bool EntertainerManager::handlePerformanceTick(CreatureObject* mObject)
         return (false);
 
     }
-    return (true);
+
 }
 
 
@@ -2584,7 +2560,7 @@ void EntertainerManager::handlestartmusic(PlayerObject* entertainer)
     SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
 
 
-    BStringVector availableCommands;
+    StringVector availableCommands;
     uint32 nr = 0;
     entertainerIt = entertainerSkillCommands->begin();
     while(entertainerIt != entertainerSkillCommands->end())
@@ -2621,17 +2597,17 @@ void EntertainerManager::flourish(PlayerObject* entertainer, uint32 mFlourishId)
 {
     //check ham
     int32 pActionPoints;
-    Ham* ham = entertainer->getHam();
+    
+	auto ham = kernel_->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
-    if(entertainer->getPerformingState() == PlayerPerformance_Dance)
-    {
+    if(entertainer->getPerformingState() == PlayerPerformance_Dance)    {
         pActionPoints = (((PerformanceStruct*)entertainer->getPerformance())->actionPointPerLoop)*2;
     }
     else
         pActionPoints = (((PerformanceStruct*)entertainer->getPerformance())->actionPointPerLoop)/2;
 
 
-    if(!ham->checkMainPools(0,pActionPoints,0))
+    if(!ham->checkMainPools(entertainer, 0, pActionPoints, 0))
     {
         //not enough action -> no flourish
         gMessageLib->SendSystemMessage(::common::OutOfBand("performance", "flourish_too_tired"), entertainer);
@@ -2651,7 +2627,7 @@ void EntertainerManager::flourish(PlayerObject* entertainer, uint32 mFlourishId)
     //update ham
     if (entertainer->getFlourishCount()<2)
     {
-        ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-pActionPoints);
+		ham->ApplyHamCost(entertainer, HamBar_Action, -pActionPoints);
     }
 
     if(entertainer->getPerformingState() == PlayerPerformance_Dance)
@@ -2792,7 +2768,7 @@ void EntertainerManager::playPlacedInstrument(PlayerObject* entertainer)
     SkillCommandList::iterator entertainerIt = entertainerSkillCommands->begin();
 
 
-    BStringVector availableCommands;
+    StringVector availableCommands;
     uint32 nr = 0;
     entertainerIt = entertainerSkillCommands->begin();
     while(entertainerIt != entertainerSkillCommands->end())

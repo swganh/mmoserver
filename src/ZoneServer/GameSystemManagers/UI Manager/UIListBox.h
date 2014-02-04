@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #ifndef ANH_ZONESERVER_UILISTBOX_H
 #define ANH_ZONESERVER_UILISTBOX_H
 
-#include "Utils/typedefs.h"
 #include "UIWindow.h"
 
 
@@ -37,14 +36,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 class UIListBox : public UIWindow
 {
 public:
-
-    UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const BStringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, float distance = 0, uint64 object = 0, std::shared_ptr<WindowAsyncContainerCommand> container = nullptr);
+	
+	UIListBox(UICallback* callback,uint32 id,uint8 windowType,const int8* eventStr,BString caption,BString prompt,const StringVector dataItems,PlayerObject* playerObject,uint8 lbType = SUI_LB_OK, float distance = 0, uint64 object = 0, std::shared_ptr<WindowAsyncContainerCommand> container = nullptr);
     virtual ~UIListBox();
 
-    BStringVector*	getDataItems() {
+    StringVector*	getDataItems() {
         return &mDataItems;
     }
-    void			addDataItem(BString item) {
+
+    void			addDataItem(std::string item) {
         mDataItems.push_back(item);
     }
 
@@ -59,7 +59,7 @@ protected:
 
     BString			mPrompt;
     uint8			mLbType;
-    BStringVector	mDataItems;
+    StringVector	mDataItems;
     float			mDistance;
     uint64			mObjectID;
 };

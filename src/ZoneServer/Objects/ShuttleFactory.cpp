@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -132,12 +132,15 @@ Shuttle* ShuttleFactory::_createShuttle(swganh::database::DatabaseResult* result
 
     result->getNextRow(mShuttleBinding,(void*)shuttle);
 
-    shuttle->mHam.mBattleFatigue = 0;
-    shuttle->mHam.mHealth.setCurrentHitPoints(500);
-    shuttle->mHam.mAction.setCurrentHitPoints(500);
-    shuttle->mHam.mMind.setCurrentHitPoints(500);
-    shuttle->mHam.calcAllModifiedHitPoints();
+	shuttle->SetBattleFatigue(0);
 
+	for(int8 i = 0; i<9;i++)	{
+		shuttle->InitStatBase(500);
+		shuttle->InitStatCurrent(500);
+		shuttle->InitStatMax(500);
+		shuttle->InitStatWound(0);
+	}
+    
     // inventory
     shuttleInventory->setId(shuttle->mId + INVENTORY_OFFSET);
     shuttleInventory->setParentId(shuttle->mId);

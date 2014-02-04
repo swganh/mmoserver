@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -50,7 +50,7 @@ public:
 
     virtual void		prepareCustomRadialMenu(CreatureObject* creatureObject, uint8 itemCount);
     void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-	void		handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr); 
+	void		handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr); 
 				
 private:
 
@@ -137,84 +137,84 @@ private:
     void _handleProfessionMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window);
 
     int32				mInputBoxAmount;
-    BStringVector		mMainMenu;
-    BStringVector		mMainCsrMenu;
+    StringVector		mMainMenu;
+    StringVector		mMainCsrMenu;
     //BStringVector		mCreditsMenu;
     //BStringVector		mItemsMenu;
     //ItemEntryList		mItemsTypes;
     //BStringVector		mAttributesMenu;
 
     //1st level menus
-    BStringVector			mExperienceMenu;
-    BStringVector			mProfessionMenu;
-    BStringVector			mCreditMenu;
-    BStringVector			mBuffMenu;
-    BStringVector			mItemMenu;
-    BStringVector			mResourceMenu;
-    BStringVector			mWoundMenu;
-    BStringVector           mStatesMenu;
+    StringVector			mExperienceMenu;
+    StringVector			mProfessionMenu;
+    StringVector			mCreditMenu;
+    StringVector			mBuffMenu;
+    StringVector			mItemMenu;
+    StringVector			mResourceMenu;
+    StringVector			mWoundMenu;
+    StringVector           mStatesMenu;
     
 	//2nd level menus
-    BStringVector			mStructureMenu;
-    BStringVector			mFurnitureMenu;
-    BStringVector			mVehicleMenu;
-    BStringVector			mInstrumentMenu;
-    BStringVector			mToolMenu;
-    BStringVector			mWeaponMenu;
-    BStringVector			mArmorMenu;
-
-    //3rd level menus
+    StringVector			mStructureMenu;
+    StringVector			mFurnitureMenu;
+    StringVector			mVehicleMenu;
+    StringVector			mInstrumentMenu;
+    StringVector			mToolMenu;
+    StringVector			mWeaponMenu;
+    StringVector			mArmorMenu;
+	
+	//3rd level menus
     //Structure
-    BStringVector			mFactoryMenu;
-    BStringVector			mHarvesterMenu;
-    BStringVector			mCampMenu;
-    BStringVector			mHouseMenu;
-    BStringVector			mCivicMenu;
+    StringVector			mFactoryMenu;
+    StringVector			mHarvesterMenu;
+    StringVector			mCampMenu;
+    StringVector			mHouseMenu;
+    StringVector			mCivicMenu;
     //Furniture
-    BStringVector			mRugMenu;
-    BStringVector			mPlantMenu;
-    BStringVector			mElegantMenu;
-    BStringVector			mModernMenu;
-    BStringVector			mPlainMenu;
-    BStringVector			mCheapMenu;
+    StringVector			mRugMenu;
+    StringVector			mPlantMenu;
+    StringVector			mElegantMenu;
+    StringVector			mModernMenu;
+    StringVector			mPlainMenu;
+    StringVector			mCheapMenu;
     //Tools
-    BStringVector			mSurveyToolMenu;
-    BStringVector			mCraftingToolMenu;
+    StringVector			mSurveyToolMenu;
+    StringVector			mCraftingToolMenu;
     //Weapons
-    BStringVector			mMeleeMenu;
-    BStringVector			mRangedMenu;
+    StringVector			mMeleeMenu;
+    StringVector			mRangedMenu;
     //Armor
-    BStringVector			mBoneArmorMenu;
-    BStringVector			mCompositeArmorMenu;
-    BStringVector			mUbeseArmorMenu;
+    StringVector			mBoneArmorMenu;
+    StringVector			mCompositeArmorMenu;
+    StringVector			mUbeseArmorMenu;
 
     //4th level menus
     //Harvesters
-    BStringVector			mFloraMenu;
-    BStringVector			mGasMenu;
-    BStringVector			mChemicalMenu;
-    BStringVector			mWaterMenu;
-    BStringVector			mMineralMenu;
+    StringVector			mFloraMenu;
+    StringVector			mGasMenu;
+    StringVector			mChemicalMenu;
+    StringVector			mWaterMenu;
+    StringVector			mMineralMenu;
     //Houses
-    BStringVector			mGenericMenu;
-    BStringVector			mTatooineMenu;
+    StringVector			mGenericMenu;
+    StringVector			mTatooineMenu;
     //Civic Structures
-    BStringVector			mGuildHallMenu;
-    BStringVector			mCityHallMenu;
+    StringVector			mGuildHallMenu;
+    StringVector			mCityHallMenu;
     //Melee Weapon
-    BStringVector			mOneHandSwordMenu;
-    BStringVector			mTwoHandSwordMenu;
-    BStringVector			mAxeMenu;
-    BStringVector			mBatonMenu;
-    BStringVector			mPolearmMenu;
-    BStringVector			mKnifeMenu;
-    BStringVector			mUnarmedMenu;
+    StringVector			mOneHandSwordMenu;
+    StringVector			mTwoHandSwordMenu;
+    StringVector			mAxeMenu;
+    StringVector			mBatonMenu;
+    StringVector			mPolearmMenu;
+    StringVector			mKnifeMenu;
+    StringVector			mUnarmedMenu;
     //Ranged Weapon
-    BStringVector			mCarbineMenu;
-    BStringVector			mThrownMenu;
-    BStringVector			mHeavyMenu;
-    BStringVector			mPistolMenu;
-    BStringVector			mRifleMenu;
+    StringVector			mCarbineMenu;
+    StringVector			mThrownMenu;
+    StringVector			mHeavyMenu;
+    StringVector			mPistolMenu;
+    StringVector			mRifleMenu;
 
 
     SortedList*			mSortedList;

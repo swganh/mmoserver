@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -44,6 +44,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/MessageFactory.h"
 
 #include "DatabaseManager/Database.h"
+
+#include "ZoneServer\Services\ham\ham_service.h"
 
 using ::common::OutOfBand;
 
@@ -269,7 +271,7 @@ void ObjectController::_handleChangeDance(uint64 targetId,Message* message,Objec
 
     if (found == false)
     {
-        BStringVector availableCommands;
+        StringVector availableCommands;
         uint32 nr = 0;
         dancerIt = dancerSkillCommands->begin();
         while(dancerIt != dancerSkillCommands->end())
@@ -389,7 +391,7 @@ void ObjectController::_handleChangeMusic(uint64 targetId,Message* message,Objec
     //show list box with all available dances
     if (found == false)
     {
-        BStringVector availableCommands;
+        StringVector availableCommands;
         uint32 nr = 0;
         entertainerIt = entertainerSkillCommands->begin();
         while(entertainerIt != entertainerSkillCommands->end())
@@ -480,7 +482,7 @@ void ObjectController::_handlestartdance(uint64 targetId,Message* message,Object
 
     if (found == false)
     {
-        BStringVector availableCommands;
+        StringVector availableCommands;
         uint32 nr = 0;
         dancerIt = dancerSkillCommands->begin();
         while(dancerIt != dancerSkillCommands->end())
@@ -566,7 +568,7 @@ void ObjectController::_handlestartmusic(uint64 targetId,Message* message,Object
 
     if (found == false)
     {
-        BStringVector availableCommands;
+        StringVector availableCommands;
         uint32 nr = 0;
         entertainerIt = entertainerSkillCommands->begin();
         while(entertainerIt != entertainerSkillCommands->end())
@@ -998,6 +1000,7 @@ void ObjectController::handleImageDesignStopMessage(Message* message,uint64 targ
 //=============================================================================================================================
 void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* message,ObjectControllerCmdProperties* cmdProperties)
 {
+	/*
     PlayerObject*	we	= dynamic_cast<PlayerObject*>(mObject);
     BString dataStr;
     message->getStringUnicode16(dataStr);
@@ -1091,6 +1094,7 @@ void ObjectController::_handleRequestStatMigrationData(uint64 targetId,Message* 
             
         }
     }
+	*/
 }
 
 //=============================================================================================================================

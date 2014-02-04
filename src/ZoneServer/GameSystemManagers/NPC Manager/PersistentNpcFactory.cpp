@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -38,7 +38,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DataBinding.h"
 #include "Utils/utils.h"
 
+#include "ZoneServer\Services\ham\ham_service.h"
 
+#include <anh\app\swganh_kernel.h>
+#include <anh\service/service_manager.h>
+
+
+#include "ZoneServer\WorldManager.h"
 //=============================================================================
 
 bool					PersistentNpcFactory::mInsFlag    = false;
@@ -175,10 +181,14 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
 
     result->getNextRow(mPersistentNpcBinding,(void*)npc);
 
-    npc->mHam.mHealth.setCurrentHitPoints(500);
-    npc->mHam.mAction.setCurrentHitPoints(500);
-    npc->mHam.mMind.setCurrentHitPoints(500);
-    npc->mHam.calcAllModifiedHitPoints();
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+	
+	for(int8 i = 0; i<9;i++)	{
+		npc->InitStatBase(500);
+		npc->InitStatCurrent(500);
+		npc->InitStatMax(500);
+		npc->InitStatWound(0);
+	}
 
     // inventory
     npcInventory->setId(npc->mId + INVENTORY_OFFSET);

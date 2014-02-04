@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -66,7 +66,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
     }
 
 
-    BStringVector attributesMenu;
+    StringVector attributesMenu;
 	uint32 enum_ = Window_Query_Add_Schematic;
 
 	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
@@ -83,7 +83,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 
     while(mListIt != mList->end())
     {
-        BString lText;
+        std::stringstream lText;
 
         ManufacturingSchematic* man = (*mListIt);
         if(!man)
@@ -106,7 +106,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
 
         //string name = factory->getSchematicCustomName();
         name.convert(BSTRType_ANSI);
-        lText  = "";
+      
         lText << name.getAnsi();
 
         if(!name.getLength())
@@ -114,7 +114,7 @@ void StructureManager::createNewFactorySchematicBox(PlayerObject* player, Factor
             lText <<"@"<<item->getNameFile().getAnsi()<<":"<<item->getName().getAnsi();
         }
 
-        attributesMenu.push_back(lText);
+		attributesMenu.push_back(lText.str());
         container->SortedList.push_back(man->getId());
 
         mListIt++;
@@ -154,7 +154,7 @@ void StructureManager::createNewStructureStatusBox(PlayerObject* player, PlayerS
         wText <<"@"<<structure->getNameFile().getAnsi()<<":"<<structure->getName().getAnsi();
     }
 
-    BStringVector attributesMenu;
+    StringVector attributesMenu;
 
     //Owner
     int8 text[128];
@@ -264,7 +264,7 @@ void StructureManager::createRenameStructureBox(PlayerObject* player, PlayerStru
     int8 caption[32];
     sprintf(caption,"NAME THE OBJECT");
 
-    BStringVector vector;
+    StringVector vector;
 
 
     int8 sName[128];
@@ -394,7 +394,7 @@ void StructureManager::createNewStructureDeleteConfirmBox(PlayerObject* player, 
     int8 caption[32];
     sprintf(caption,"CONFIRM STRUCTURE DESTRUCTION");
 
-    BStringVector vector;
+    StringVector vector;
 
 	std::shared_ptr<structure_async_container> container = std::make_shared<structure_async_container>();
 	container->setStructureId(structure->getId());
@@ -412,7 +412,7 @@ void StructureManager::createNewStructureDestroyBox(PlayerObject* player, Player
         return;
     }
 
-    BStringVector attributesMenu;
+    StringVector attributesMenu;
 
     BString text = "You have elected to destroy a structure. Pertinent structure data can be found in the list below. Please complete the following steps to confirm structure deletion.\xa\xa";
     text <<"If you wish to redeed your structure, all structure data must be \\#"SOE_GREEN" GREEN\\#. To continue with structure deletion, click YES. Otherwise, please click NO.\xa";

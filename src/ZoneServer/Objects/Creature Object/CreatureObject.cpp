@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -111,9 +111,8 @@ CreatureObject::CreatureObject()
     mSkillMods.reserve(50);
     mSkillCommands.reserve(50);
     mFactionList.reserve(50);
-    // mDefenders.reserve(10); // It's a std::list now, for faster insertion at front.
+    
 
-    mHam.setParent(this);
     mEquipManager.setParent(this);
 
     for(uint16 i = 1;i<256;i++)
@@ -694,13 +693,11 @@ void CreatureObject::creatureActionStateUpdate()
 }
 void CreatureObject::creaturePostureUpdate()
 {
-    this->getHam()->updateRegenRates();
     this->updateMovementProperties();
 }
 
 void CreatureObject::creatureLocomotionUpdate()
 {
-    this->getHam()->updateRegenRates();
     this->updateMovementProperties();
 }
 
@@ -771,11 +768,6 @@ void CreatureObject::incap()
             // reset states
             mState = 0;
 
-            // reset ham regeneration
-            mHam.updateRegenRates();
-            gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
-            mHam.setTaskId(0);
-
             //updateMovementProperties();
 
             //gMessageLib->sendPostureAndStateUpdate(this);
@@ -818,11 +810,6 @@ void CreatureObject::die()
         gMessageLib->SendSystemMessage(::common::OutOfBand("base_player", "victim_dead"), player);
         player->disableAutoAttack();
     }
-
-    // reset ham regeneration
-    mHam.updateRegenRates();
-    gWorldManager->removeCreatureHamToProcess(mHam.getTaskId());
-    mHam.setTaskId(0);
 
     updateMovementProperties();
 
@@ -870,7 +857,7 @@ void CreatureObject::die()
 
         // bring up the clone selection window
         ObjectSet inRangeBuildings;
-        BStringVector buildingNames;
+        StringVector buildingNames;
         std::vector<BuildingObject*> buildings;
         BuildingObject*	nearestBuilding = NULL;
         BuildingObject* preDesignatedBuilding = NULL;
@@ -1419,6 +1406,565 @@ void	CreatureObject::ClearDefender()
         ++it;
     }
 }
+
+void CreatureObject::SerializeCurrentStats(swganh::messages::BaseSwgMessage* message)
+{
+    auto lock = AcquireLock();
+    SerializeCurrentStats(message, lock);
+}
+
+void CreatureObject::SerializeCurrentStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_current_list_.Serialize(message);
+}
+
+void CreatureObject::SerializeMaxStats(swganh::messages::BaseSwgMessage* message)
+{
+    auto lock = AcquireLock();
+    SerializeMaxStats(message, lock);
+}
+
+void CreatureObject::SerializeMaxStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_max_list_.Serialize(message);
+}
+
+void CreatureObject::setFirstName(std::string name)	{ 
+	auto lock = AcquireLock(); 
+	setFirstName(lock, name); 
+}
+
+void CreatureObject::setFirstName(boost::unique_lock<boost::mutex>& lock, std::string name)	{ 
+	first_name = name; 
+	std::stringstream stream;
+	stream << getFirstName() << " " << getLastName();
+	std::string name_ansi = stream.str();
+	std::u16string name_u16(name_ansi.begin(), name_ansi.end());
+	lock.unlock();
+	setCustomName(name_u16);
+}
+
+void CreatureObject::setLastName(std::string name)
+{ 
+	auto lock = AcquireLock(); 
+	setLastName(lock, name); 
+}
+
+void CreatureObject::setLastName(boost::unique_lock<boost::mutex>& lock, std::string name)
+{ 
+	last_name = name; 
+	std::stringstream stream;
+	stream << getFirstName() << " " << getLastName();
+	std::string name_ansi = stream.str();
+	std::u16string name_u16(name_ansi.begin(), name_ansi.end());
+	lock.unlock();
+	setCustomName(name_u16);
+}
+
+void CreatureObject::SetStatCurrent(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    SetStatCurrent(stat_index, value, lock);
+}
+
+void CreatureObject::SetStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_current_list_.update(stat_index, value);
+	
+	lock.unlock();
+
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
+	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
+}
+
+void CreatureObject::InitStatCurrent( int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatCurrent(value, lock);
+}
+
+void CreatureObject::InitStatCurrent( int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_current_list_.add_initialize( value);
+}
+
+void CreatureObject::AddStatCurrent(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    AddStatCurrent(stat_index, value, lock);
+}
+
+void CreatureObject::AddStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    int32_t new_value = stat_current_list_[stat_index] + value;
+    stat_current_list_.update(stat_index, new_value);
+	lock.unlock();
+
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
+	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
+}
+
+void CreatureObject::DeductStatCurrent(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    lock.unlock();
+
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
+	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
+}
+
+void CreatureObject::DeductStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    int32_t current = stat_current_list_[stat_index];
+    stat_current_list_.update(stat_index, (current > value) ? (current - value) : 0);
+    lock.unlock();
+
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
+	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
+}
+
+std::vector<int32_t> CreatureObject::GetCurrentStats(void)
+{
+    auto lock = AcquireLock();
+    return GetCurrentStats(lock);
+}
+
+std::vector<int32_t> CreatureObject::GetCurrentStats(boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_current_list_.raw();
+}
+
+int32_t CreatureObject::GetStatCurrent(const uint16_t stat_index)
+{
+    auto lock = AcquireLock();
+    return GetStatCurrent(stat_index, lock);
+}
+
+int32_t CreatureObject::GetStatCurrent(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_current_list_[stat_index];
+}
+
+void CreatureObject::SetStatMax(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    SetStatMax(stat_index, value, lock);
+}
+
+void CreatureObject::SetStatMax(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_max_list_.update(stat_index, value);
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", (this)));
+	//DISPATCH(Creature, StatMax);
+	
+
+}
+
+void CreatureObject::InitStatMax( int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatMax(value, lock);
+}
+
+void CreatureObject::InitStatMax( int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_max_list_.add_initialize( value);
+
+}
+
+void CreatureObject::AddStatMax(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    AddStatMax(stat_index, value, lock);
+}
+
+void CreatureObject::AddStatMax(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_max_list_.update(stat_index, stat_max_list_[stat_index] + value);
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", (this)));
+    //DISPATCH(Creature, StatMax);
+}
+
+void CreatureObject::DeductStatMax(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    DeductStatMax(stat_index, value, lock);
+}
+
+void CreatureObject::DeductStatMax(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    int32_t current = stat_max_list_[stat_index];
+    stat_max_list_.update(stat_index, (current > value) ? (current - value) : 0);
+    
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", (this)));
+}
+
+std::vector<int32_t> CreatureObject::GetMaxStats(void)
+{
+    auto lock = AcquireLock();
+    return GetMaxStats(lock);
+}
+
+std::vector<int32_t> CreatureObject::GetMaxStats(boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_max_list_.raw();
+}
+
+int32_t CreatureObject::GetStatMax(uint16_t stat_index)
+{
+    auto lock = AcquireLock();
+    return GetStatMax(stat_index, lock);
+}
+
+int32_t CreatureObject::GetStatMax(uint16_t stat_index, boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_max_list_[stat_index];
+}
+
+void CreatureObject::InitStatBase( int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatBase(value, lock);
+}
+
+void CreatureObject::InitStatBase( int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_base_list_.add_initialize( value);
+}
+
+void CreatureObject::SetStatBase(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    SetStatBase(stat_index, value, lock);
+}
+
+void CreatureObject::SetStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_base_list_.update(stat_index, value);
+
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", (this)));
+//    DISPATCH(Creature, StatBase);
+}
+
+void CreatureObject::AddStatBase(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    AddStatBase(stat_index, value, lock);
+}
+
+void CreatureObject::AddStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    uint32_t new_stat = stat_base_list_[stat_index] + value;
+    stat_base_list_.update(stat_index, new_stat);
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", (this)));
+}
+
+void CreatureObject::DeductStatBase(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    DeductStatBase(stat_index, value, lock);
+}
+
+void CreatureObject::DeductStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    int32_t current = stat_base_list_[stat_index];
+    stat_base_list_.update(stat_index, (current > value) ? current - value : 0);
+	
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", (this)));
+}
+
+std::vector<int32_t> CreatureObject::GetBaseStats()
+{
+    auto lock = AcquireLock();
+    return GetBaseStats(lock);
+}
+
+std::vector<int32_t> CreatureObject::GetBaseStats(boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_base_list_.raw();
+}
+
+int32_t CreatureObject::GetStatBase(uint16_t stat_index)
+{
+    auto lock = AcquireLock();
+    return GetStatBase(stat_index, lock);
+}
+
+int32_t CreatureObject::GetStatBase(uint16_t stat_index, boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_base_list_[stat_index];
+}
+
+void CreatureObject::SerializeBaseStats(swganh::messages::BaseSwgMessage* message)
+{
+    auto lock = AcquireLock();
+    SerializeBaseStats(message, lock);
+}
+
+void CreatureObject::SerializeBaseStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_base_list_.Serialize(message);
+}
+
+void CreatureObject::InitStatWound( int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatWound(value, lock);
+}
+
+void CreatureObject::InitStatWound( int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_wound_list_.add_initialize( value);
+}
+
+
+void CreatureObject::SetStatWound(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    SetStatWound(stat_index, value, lock);
+}
+
+void CreatureObject::SetStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_wound_list_.update(stat_index, value);
+    
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", (this)));
+	
+}
+
+void CreatureObject::AddStatWound(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    AddStatWound(stat_index, value, lock);
+}
+
+void CreatureObject::AddStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_wound_list_.update(stat_index, stat_wound_list_[stat_index] + value);
+	
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", (this)));
+	
+}
+
+void CreatureObject::DeductStatWound(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    DeductStatWound(stat_index, value, lock);
+}
+
+void CreatureObject::DeductStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    int32_t current = stat_wound_list_[stat_index];
+    stat_wound_list_.update(stat_index, (current > value) ? current - value : 0);
+	
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", (this)));
+}
+
+std::vector<int32_t> CreatureObject::GetStatWounds()
+{
+    auto lock = AcquireLock();
+    return GetStatWounds(lock);
+}
+
+std::vector<int32_t> CreatureObject::GetStatWounds(boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_wound_list_.raw();
+}
+
+int32_t CreatureObject::GetStatWound(uint16_t stat_index)
+{
+    auto lock = AcquireLock();
+    return GetStatWound(stat_index, lock);
+}
+
+int32_t CreatureObject::GetStatWound(uint16_t stat_index, boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_wound_list_[stat_index];
+}
+
+void CreatureObject::InitStatEncumberance( int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatEncumberance(value, lock);
+}
+
+void CreatureObject::InitStatEncumberance( int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_encumberance_list_.add_initialize( value);
+}
+
+
+void CreatureObject::SetStatEncumberance(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    SetStatEncumberance(stat_index, value, lock);
+}
+
+void CreatureObject::SetStatEncumberance(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+	stat_encumberance_list_.update(stat_index, value);
+	
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", (this)));
+	
+}
+
+void CreatureObject::AddStatEncumberance(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    AddStatEncumberance(stat_index, value, lock);
+}
+
+void CreatureObject::AddStatEncumberance(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    int32_t new_stat = stat_encumberance_list_[stat_index] + value;
+    stat_encumberance_list_.update(stat_index, new_stat);
+    
+	auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", (this)));
+}
+
+void CreatureObject::DeductStatEncumberance(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    DeductStatEncumberance(stat_index, value, lock);
+}
+
+void CreatureObject::DeductStatEncumberance(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    int32_t current = stat_encumberance_list_[stat_index];
+    stat_encumberance_list_.update(stat_index, (current > value) ? (current - value) : 0);
+    auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", (this)));
+}
+
+std::vector<int32_t> CreatureObject::GetStatEncumberances()
+{
+    auto lock = AcquireLock();
+    return GetStatEncumberances(lock);
+}
+
+std::vector<int32_t> CreatureObject::GetStatEncumberances(boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_encumberance_list_.raw();
+}
+
+int32_t CreatureObject::GetStatEncumberance(uint16_t stat_index)
+{
+    auto lock = AcquireLock();
+    return GetStatEncumberance(stat_index, lock);
+}
+
+int32_t CreatureObject::GetStatEncumberance(uint16_t stat_index, boost::unique_lock<boost::mutex>& lock)
+{
+    return stat_encumberance_list_[stat_index];
+}
+
+void CreatureObject::SerializeStatWounds(swganh::messages::BaseSwgMessage* message)
+{
+    auto lock = AcquireLock();
+    SerializeStatWounds(message, lock);
+}
+
+void CreatureObject::SerializeStatWounds(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_wound_list_.Serialize(message);
+}
+
+void CreatureObject::SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message)
+{
+    auto lock = AcquireLock();
+    SerializeStatEncumberances(message, lock);
+}
+
+void CreatureObject::SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_encumberance_list_.Serialize(message);
+}
+
+void CreatureObject::SetBattleFatigue(uint32_t battle_fatigue)
+{
+    auto lock = AcquireLock();
+    SetBattleFatigue(battle_fatigue, lock);
+}
+
+void CreatureObject::SetBattleFatigue(uint32_t battle_fatigue, boost::unique_lock<boost::mutex>& lock)
+{
+    battle_fatigue_ = battle_fatigue;
+	lock.unlock();
+	auto dispatcher = GetEventDispatcher();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", (this)));
+}
+
+void CreatureObject::AddBattleFatigue(uint32_t battle_fatigue)
+{
+    auto lock = AcquireLock();
+    AddBattleFatigue(battle_fatigue, lock);
+}
+
+void CreatureObject::AddBattleFatigue(uint32_t battle_fatigue, boost::unique_lock<boost::mutex>& lock)
+{
+    battle_fatigue += battle_fatigue;
+    auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", (this)));
+}
+
+void CreatureObject::DeductBattleFatigue(uint32_t battle_fatigue)
+{
+    auto lock = AcquireLock();
+    DeductBattleFatigue(battle_fatigue, lock);
+}
+
+void CreatureObject::DeductBattleFatigue(uint32_t battle_fatigue, boost::unique_lock<boost::mutex>& lock)
+{
+    battle_fatigue -= battle_fatigue;
+    auto dispatcher = GetEventDispatcher();
+	lock.unlock();
+	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", (this)));
+}
+
+uint32_t CreatureObject::GetBattleFatigue()
+{
+    auto lock = AcquireLock();
+    return GetBattleFatigue(lock);
+}
+
+uint32_t CreatureObject::GetBattleFatigue(boost::unique_lock<boost::mutex>& lock)
+{
+    return battle_fatigue_;
+}
+
+
 
 //=============================================================================
 // maps the incoming posture

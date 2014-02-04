@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -260,7 +260,9 @@ class PlayerObject : public CreatureObject
         bool                handleLocomotionUpdate(::common::IEventPtr triggered_event);
         
         // UI Windows
-        void				handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window);
+		//get this out of here asap
+        void				handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window);
+
         UIWindowList*		getUIWindowList(){ return &mUIWindowList; }
         void				addUIWindow(uint32 id){ mUIWindowList.push_back(id); }
         bool				removeUIWindow(uint32 id);
@@ -344,16 +346,25 @@ class PlayerObject : public CreatureObject
 		*	/param int32 amount - the amount of credits to update
 		*/
         void	            updateInventoryCredits(int32 amount);
+		/*	@brief updates the players credits
+		*	/param int32 amount - the amount of credits to update
+		*	this method will check the available credits and return false if the amount is not sufficient
+		*	it will first deduct bank credits, then cash and call upfateBankCredits resp updateInventoryCredits respectively
+		*	these will send auto deltas and update the db. This method is threadsafe
+		*/
+		bool				updateCredits(int32 amount);
+
+		bool				testCash(uint32 amount);
+        bool				testBank(uint32 amount);
+        bool				checkDeductCredits(uint32 amount);
 
         Trade*				getTrade(){return mTrade;}
         void				setTradePartner(uint64 id){mTradePartner = id;}
         uint64				getTradePartner(){return mTradePartner;}
         bool				getTradeStatus(){return mTrading;}
         void				setTradeStatus(bool tradeStatus){mTrading = tradeStatus;}
-        bool				deductCredits(uint32 amount);
-        bool				testCash(uint32 amount);
-        bool				testBank(uint32 amount);
-        bool				checkDeductCredits(uint32 amount);
+        
+        
 
         void				setGender(bool gender){mFemale = gender;}
         bool				getGender(){return mFemale;}
@@ -475,7 +486,48 @@ class PlayerObject : public CreatureObject
 
         bool				getAcceptBandFlourishes() {return mAcceptsBandFlourishes;}
         void				setAcceptBandFlourishes(bool b) { mAcceptsBandFlourishes = b;}
+
+		/**
+		 * @return the current force power of the player.
+		 */
+		int32_t GetCurrentForcePower() ;
+		int32_t GetCurrentForcePower(boost::unique_lock<boost::mutex>& lock) ;
+
+		/**
+		 * Increments the force power of the player. Can be a negative value.
+		 *
+		 * @param force_power The amount of force to increment.
+		 */
+		void IncrementForcePower(int32_t force_power);
+		void IncrementForcePower(int32_t force_power, boost::unique_lock<boost::mutex>& lock);
+
+		/**
+		 * Sets the current force power.
+		 *
+		 * @param force_power The new force power.
+		 */
+		void SetCurrentForcePower(int32_t force_power);
+		void SetCurrentForcePower(int32_t force_power, boost::unique_lock<boost::mutex>& lock);
+
+		/**
+		 * @return the max force power of the player.
+		 */
+		int32_t GetMaxForcePower() ;
+		int32_t GetMaxForcePower(boost::unique_lock<boost::mutex>& lock) ;
+
+		/**
+		 * Sets the max force power.
+		 *
+		 * @param force_power The new max force power.
+		 */
+		void SetMaxForcePower(int32_t force_power);
+		void SetMaxForcePower(int32_t force_power, boost::unique_lock<boost::mutex>& lock);
+
+
     private:
+
+		int32_t				current_force_power_;
+		int32_t				max_force_power_;
 
         void				_verifyBadges();
         void				_verifyExplorationBadges();

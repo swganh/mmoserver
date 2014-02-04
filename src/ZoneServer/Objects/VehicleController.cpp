@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <anh\app\swganh_kernel.h>
 #include <anh\service/service_manager.h>
 #include <ZoneServer\Services\terrain\terrain_service.h>
+#include "ZoneServer\Services\ham\ham_service.h"
 
 using namespace swganh::terrain;
 
@@ -152,11 +153,19 @@ void VehicleController::Call() {
     body_->states.setPosture(0);
     body_->setScale(1.0f);
 
+	//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
+	for(int8 i = 0; i<9;i++)	{
+		body_->InitStatBase(0);
+		body_->InitStatCurrent(0);
+		body_->InitStatMax(0);
+		body_->InitStatWound(0);
+	}
 
     std::string con = this->getAttribute<std::string>("condition");
-    body_->getHam()->setPropertyValue(HamBar_Health, HamProperty_CurrentHitpoints,atoi(con.substr(0,con.find_first_of("/")).c_str()));
-    body_->getHam()->setPropertyValue(HamBar_Health, HamProperty_MaxHitpoints,atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
-
+	body_->SetStatCurrent(HamBar_Health, atoi(con.substr(0,con.find_first_of("/")).c_str()));
+	body_->SetStatMax(HamBar_Health, atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
+	
     owner_->setMount(body_);
     owner_->setMounted(false);
     owner_->setMountCalled(false);

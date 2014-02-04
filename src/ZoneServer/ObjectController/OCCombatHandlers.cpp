@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -48,7 +48,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "NetworkManager/Message.h"
 #include "NetworkManager/MessageFactory.h"
 
-#include <anh\app\swganh_kernel.h>
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 //=============================================================================================================================
 //
@@ -59,6 +61,8 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
 {
     PlayerObject*		player	= dynamic_cast<PlayerObject*>(mObject);
     Object*				target	= gWorldManager->getObjectById(targetId);
+
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
     // make sure we got a target and that its a player
     if(target && target->getType() == ObjType_Player)
@@ -72,7 +76,7 @@ void ObjectController::_handleDuel(uint64 targetId,Message* message,ObjectContro
 		}
 
         // don't duel ourself
-        if(player == targetPlayer || !targetPlayer->getHam()->checkMainPools(1, 1, 1))
+        if(player == targetPlayer || (!ham->checkMainPools(targetPlayer, 1, 1, 1)))
         {
             return;
         }
@@ -371,39 +375,6 @@ void ObjectController::_handleLoot(uint64 targetId, Message *message, ObjectCont
 
     return;
 }
-//=============================================================================================================================
-//
-// Selected the pre-designated coining facility.
-//
-
-void ObjectController::cloneAtPreDesignatedFacility(PlayerObject* player, SpawnPoint* spawnPoint)
-{
-    if (player)
-    {
-        // Copy wounds data from clone to character-table.
-
-        // There is noo need to do it, we will save the correct in DB when we store the player data.
-        // And... pick a better name for the sp_.. below... like updateWoundsWithCloneData-something....
-        // int8 sql_sp[128];
-        // (gWorldManager->getKernel()->GetDatabase())->ExecuteProcedureAsync(NULL,NULL,sql_sp);
-
-        // Update player objct with new data for wounds.
-        ObjControllerAsyncContainer* asyncContainer;
-        asyncContainer = new ObjControllerAsyncContainer(OCQuery_CloneAtPreDes);
-        asyncContainer->playerObject = player;
-        asyncContainer->anyPtr = (void*)spawnPoint;
-
-        int8 sql[256];
-        sprintf(sql,"SELECT health_wounds,strength_wounds,constitution_wounds,action_wounds,quickness_wounds,"
-                "stamina_wounds,mind_wounds,focus_wounds,willpower_wounds"
-                " FROM %s.character_clone"
-                " WHERE"
-                " (character_id = %"PRIu64");",mDatabase->galaxy(),player->getId());
-
-        mDatabase->executeSqlAsync(this,asyncContainer,sql);
-    }
-}
-
 //=============================================================================================================================
 //
 //	Loot a creature of all items and credits, if possible.

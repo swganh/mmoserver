@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -65,7 +65,7 @@ public:
     /* @brief	handles the inherited UI Manager callback to respond to User Interface Events
 	*	
 	*/
-	virtual void			handleUIEvent(uint32 action,int32 element,BString inputStr = "",UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
+	virtual void			handleUIEvent(uint32 action,int32 element,std::u16string inputStr, UIWindow* window = nullptr, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
 
     bool					handleRequestSurvey(Object* player,Object* target, Message* message,ObjectControllerCmdProperties* cmdProperties);
     bool					handleRequestCoreSample(Object* player,Object* target,Message* message,ObjectControllerCmdProperties* cmdProperties);
@@ -151,6 +151,8 @@ public:
 
 private:
     ObjectFactoryCallback*					mObjectFactoryCallback;
+
+	//swganh::app::SwganhKernel*				kernel
     
 	UICallback*								mUICallback;
     

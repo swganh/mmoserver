@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -262,11 +262,6 @@ public:
     void					removeCreatureStomachToProcess(uint64 taskId);
     bool					checkStomachTask(uint64 id);
 
-    // adds a creatures ham which needs regeneration
-    uint64					addCreatureHamToProccess(Ham* ham);
-    void					removeCreatureHamToProcess(uint64 taskId);
-    bool					checkTask(uint64 id);
-
     // adds a mission that needs checking
     uint64					addMissionToProcess(MissionObject* mission);
     void					removeMissionFromProcess(uint64 taskId);
@@ -444,6 +439,13 @@ public:
 
     void					ScriptRegisterEvent(void* script,std::string eventFunction);
 
+	/*	@brief returns a pointer to the subsystem scheduler
+	*
+	*
+	*/
+	Anh_Utils::Scheduler*	getSubsystemScheduler(){ return mSubsystemScheduler;}
+
+
     // non-persistent ids in use
     uint64					getRandomNpId();
     bool					removeNpId(uint64 id);
@@ -545,6 +547,7 @@ private:
     * \param clContainer Another legacy data variable. This will go away in future commit.
     */
     void storeCharacterAttributes_(PlayerObject* player_object, bool remove, WMLogOut logout_type, CharacterLoadingContainer* clContainer);
+
 
     static WorldManager*		mSingleton;
     static bool					mInsFlag;

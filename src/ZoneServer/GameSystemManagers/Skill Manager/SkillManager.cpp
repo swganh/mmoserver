@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -655,19 +655,35 @@ bool SkillManager::learnSkillLine(uint32 skillId, CreatureObject* creatureObject
 
 void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,BString show)
 {
-    if(pupilObject->isDead() || teacherObject->isDead() || !pupilObject->getHam()->checkMainPools(1, 1, 1)
-            || !teacherObject->getHam()->checkMainPools(1, 1, 1))
-    {
+	if(pupilObject->isIncapacitated())	{
+		std::string str("you cannot do that right now");
+		gMessageLib->SendSystemMessage(std::u16string(str.begin(), str.end()), teacherObject);
+		return;
+	}
+
+	if(teacherObject->isIncapacitated())	{
+		//std::string str("you cannot do that right now");
+		//gMessageLib->SendSystemMessage(std::u16string(str.begin(), str.end()), teacherObject);
+		return;
+	}
+
+    if(pupilObject->isDead() )    {
+		gMessageLib->SendSystemMessage(::common::OutOfBand("teaching", "student_dead"), teacherObject);
         return;
     }
-    // pupil and teacher bozh exist and are grouped
+
+	if(teacherObject->isDead())    {
+        return;
+    }
+
+    // pupil and teacher both exist and are grouped
     // we will now compare the teachers skill list to the pupils skill list
     // and assemble a list with the skills the pupil does not have but were she/he has the prerequesits
 
-    BStringVector availableSkills;
+    StringVector availableSkills;
     SkillList*	teacherSkills = teacherObject->getSkills();
     SkillList::iterator teacherIt = teacherSkills->begin();
-    BStringVector::iterator bStringIt = availableSkills.begin();
+    StringVector::iterator bStringIt = availableSkills.begin();
 
     //SkillTeachContainer* teachContainer = new SkillTeachContainer();
 
@@ -694,8 +710,9 @@ void SkillManager::teach(PlayerObject* pupilObject,PlayerObject* teacherObject,B
                     bool found = false;
                     while (bStringIt != availableSkills.end())
                     {
-                        if(bStringIt->getCrc()==str.getCrc())
+						if(common::memcrc(*bStringIt) == str.getCrc())
                             found = true;
+
                         bStringIt++;
                     }
                     if(!found)

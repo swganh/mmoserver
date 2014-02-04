@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -1171,7 +1171,7 @@ void StructureManager::handleUIEvent(std::u16string leftValue, std::u16string ri
     }
 }
 
-void StructureManager::handleUIEvent(uint32 action,int32 element,BString inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
+void StructureManager::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
 
     PlayerObject* player = window->getOwner();
@@ -1254,16 +1254,15 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,BString inputSt
 
     case SUI_Window_Structure_Rename:
     {
+		std::string inputStr_ansi(inputStr.begin(), inputStr.end());
 
-        inputStr.convert(BSTRType_ANSI);
-
-        if(!inputStr.getLength())
+        if(!inputStr.length())
         {
             //hmmm no answer - remain as it is?
             return;
         }
 
-        if(inputStr.getLength() > 68)
+        if(inputStr.length() > 68)
         {
             //hmmm no answer - remain as it is?
             gMessageLib->SendSystemMessage(::common::OutOfBand("player_structure", "not_valid_name"), player);
@@ -1272,9 +1271,9 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,BString inputSt
         }
 
         //inputStr.convert(BSTRType_Unicode16);
-        structure->setCustomName(inputStr.getAnsi());
+        structure->setCustomName(inputStr_ansi.c_str());
 		
-		std::string name_ansi = inputStr.getAnsi();
+		std::string name_ansi = inputStr_ansi;
 
         gMessageLib->sendNewHarvesterName(structure.get());
 
@@ -1295,8 +1294,9 @@ void StructureManager::handleUIEvent(uint32 action,int32 element,BString inputSt
 
     case SUI_Window_Structure_Delete_Confirm:
     {
-        inputStr.convert(BSTRType_ANSI);
-        if(inputStr.getCrc() == structure->getCode().getCrc())
+		std::string inputStr_ansi(inputStr.begin(), inputStr.end());
+       
+        if(common::memcrc(inputStr_ansi) == structure->getCode().getCrc())
         {
             if((structure->checkStatesEither(PlayerStructureState_Destroy)))
             {

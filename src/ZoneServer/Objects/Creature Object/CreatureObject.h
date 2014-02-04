@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -52,6 +52,7 @@ typedef std::vector<FactionPoints>		FactionList;
 typedef std::vector<CreatureObject*>	CreatureList;
 typedef std::list<Object*>				ObjectList;
 typedef std::list<Buff*>				BuffList;
+typedef std::vector<int32*>			TargetStats;
 typedef swganh::event_dispatcher::ValueEvent<CreatureObject*> CreatureObjectEvent;
 
 //=============================================================================
@@ -78,33 +79,25 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         // inherited from moving object
         virtual void		updateMovementProperties();
 
-        Ham*				getHam(){ return &mHam; }
-
         std::string			getFirstName() const { auto lock = AcquireLock(); return getFirstName(lock); }
 		std::string			getFirstName(boost::unique_lock<boost::mutex>& lock) const { return first_name; }
-
-        void				setFirstName(std::string name){ auto lock = AcquireLock(); setFirstName(lock, name); }
-		void				setFirstName(boost::unique_lock<boost::mutex>& lock, std::string name){ first_name = name; 
-			std::stringstream stream;
-			stream << getFirstName() << " " << getLastName();
-			std::string name_ansi = stream.str();
-			std::u16string name_u16(name_ansi.begin(), name_ansi.end());
-			lock.unlock();
-			setCustomName(name_u16);
-		}
+		/*	@brief	this method will set a new fist name for the creature. The custom name will be generated and set through setCustomName() this function is threadsafe
+		*			
+		*	/param std::string first_name the creatures new first name
+		*/
+        void				setFirstName(std::string name); 
+		void				setFirstName(boost::unique_lock<boost::mutex>& lock, std::string name);
 
         std::string			getLastName() const { auto lock = AcquireLock(); return getLastName(lock); }
 		std::string			getLastName(boost::unique_lock<boost::mutex>& lock) const { return last_name; }
 
-        void				setLastName(std::string name){ auto lock = AcquireLock(); setLastName(name); }
-		void				setLastName(boost::unique_lock<boost::mutex>& lock, std::string name){ last_name = name; 
-			std::stringstream stream;
-			stream << getFirstName() << " " << getLastName();
-			std::string name_ansi = stream.str();
-			std::u16string name_u16(name_ansi.begin(), name_ansi.end());
-			lock.unlock();
-			setCustomName(name_u16);
-		}
+		/*	@brief	this method will set a new last name for the creature. The custom name will be generated 
+		*			and set through setCustomName()
+		*			this function is threadsafe
+		*	/param std::string name the creatures new last name
+		*/
+        void				setLastName(std::string name);
+		void				setLastName(boost::unique_lock<boost::mutex>& lock, std::string name);
 
         //uint32				getPosture() const { return mPosture; }
         // calls setLocomotion as well
@@ -354,11 +347,207 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         uint32				mSkillCmdUpdateCounter;
         uint32				mSkillModUpdateCounter;
 
+		
+		/**	Max Stats are the maximum we can *currently* have with all buffs and debuffs
+		*	@brief	SetStatMax sets the maximum of a stat
+		*	/param uint16_t stat_index is the index of the stat we want to modifie (strength, mind, wisdom, agility etc)
+		*	/param int32_t value is the value we want to set the stat to
+		*/
+		void SetStatMax(const uint16_t stat_index, const int32_t value);
+		void SetStatMax(const uint16_t stat_index, const int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		/**	Max Stats are the maximum we can *currently* have with all buffs and debuffs
+		*	@brief	SetStatMax Initializes the maximum of a stat - This will NOT trigger neither a persist nor a serialization event
+		*	The stats are added to the back of the vector
+		*	/param int32_t value is the value we want to set the stat to
+		*/
+		void InitStatMax(const int32_t value);
+		void InitStatMax(const int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		/*	@brief adds value to the chosen stat max
+		*
+		*/
+		void AddStatMax(const uint16_t stat_index, const int32_t value);
+		void AddStatMax(const uint16_t stat_index, const int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		/*	@brief deducts value from the chosen stat max
+		*
+		*/
+		void DeductStatMax(const uint16_t stat_index, const int32_t value);
+		void DeductStatMax(const uint16_t stat_index, const int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		/*	@brief gets a copy (!) ofthe vector containing all statmaxes
+		*
+		*/
+		std::vector<int32_t> GetMaxStats();
+		std::vector<int32_t> GetMaxStats(boost::unique_lock<boost::mutex>& lock);
+
+		/*	@brief gets the value for the statmax with index stat_index
+		*
+		*/
+		int32_t GetStatMax(const uint16_t stat_index);
+		int32_t GetStatMax(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
+
+
+		void SerializeMaxStats(swganh::messages::BaseSwgMessage* message);
+		void SerializeMaxStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+
+		// Stat Encumberance
+		/**	Initializes the Wound Stat. 
+		*	@brief	InitStatWound Initializes the wound of a stat - This will NOT trigger neither a persist nor a serialization event
+		*	The stats are added to the back of the vector
+		*	/param int32_t value is the value we want to set the stat to
+		*/
+		void InitStatEncumberance(int32_t value);
+		void InitStatEncumberance(int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void AddStatEncumberance(uint16_t stat_index, int32_t value);
+		void AddStatEncumberance(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void DeductStatEncumberance(uint16_t stat_index, int32_t value);
+		void DeductStatEncumberance(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void SetStatEncumberance(uint16_t stat_index, int32_t value);
+		void SetStatEncumberance(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		std::vector<int32_t> GetStatEncumberances();
+		std::vector<int32_t> GetStatEncumberances(boost::unique_lock<boost::mutex>& lock);
+
+		int32_t GetStatEncumberance(const uint16_t stat_index);
+		int32_t GetStatEncumberance(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
+
+		void SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message);
+		void SerializeStatEncumberances(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+
+
+		 // Wounds
+		/**	Initializes the Wound Stat. 
+		*	@brief	InitStatWound Initializes the wound of a stat - This will NOT trigger neither a persist nor a serialization event
+		*	The stats are added to the back of the vector
+		*	/param int32_t value is the value we want to set the stat to
+		*/
+		void InitStatWound(int32_t value);
+		void InitStatWound(int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void DeductStatWound(uint16_t stat_index, int32_t value);
+		void DeductStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void AddStatWound(uint16_t stat_index, int32_t value);
+		void AddStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void SetStatWound(uint16_t stat_index, int32_t value);
+		void SetStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		std::vector<int32_t> GetStatWounds();
+		std::vector<int32_t> GetStatWounds(boost::unique_lock<boost::mutex>& lock);
+
+		int32_t GetStatWound(const uint16_t stat_index);
+		int32_t GetStatWound(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
+
+		void SerializeStatWounds(swganh::messages::BaseSwgMessage* message);
+		void SerializeStatWounds(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+
+
+
+		/*	@brief	Sets the Current Stat. That is the value we currently have after all modifications have been applied
+		*	This setter will trigger a delta as well as a persist event
+		*/
+		void SetStatCurrent(uint16_t stat_index, int32_t value);
+		void SetStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		/**	Initializes the Current Stat. That is the value we currently have after all modifications have been applied
+		*	@brief	InitStatCurrent Initializes the current value of a stat - This will NOT trigger neither a persist nor a serialization event
+		*	The stats are added to the back of the vector
+		*	/param int32_t value is the value we want to set the stat to
+		*/
+		void InitStatCurrent(int32_t value);
+		void InitStatCurrent(int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		/**	adds 'value' to stat 'stat_index'
+		*	
+		*/
+		void AddStatCurrent(uint16_t stat_index, int32_t value);
+		void AddStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void DeductStatCurrent(uint16_t stat_index, int32_t value);
+		void DeductStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		/**	returns  the vector containing all current stats
+		*	use GetStatCurrent to get a discrete current stat
+		*/
+		std::vector<int32_t> GetCurrentStats();
+		std::vector<int32_t> GetCurrentStats(boost::unique_lock<boost::mutex>& lock);
+
+		/**	Get a discrete current stat
+		*	returns int_32_t
+		*	current stat is the stat describing the hitpoints we *currently* have
+		*/
+		int32_t GetStatCurrent(const uint16_t stat_index);
+		int32_t GetStatCurrent(const uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
+
+		void SerializeCurrentStats(swganh::messages::BaseSwgMessage* message);
+		void SerializeCurrentStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+
+		// Stat Base
+		/**	Max Stats are the maximum we can *currently* have with all buffs and debuffs
+		*	@brief	SetStatMax Initializes the maximum of a stat - This will NOT trigger neither a persist nor a serialization event
+		*	The stats are added to the back of the vector
+		*	/param int32_t value is the value we want to set the stat to
+		*/
+		void InitStatBase(int32_t value);
+		void InitStatBase(int32_t value, boost::unique_lock<boost::mutex>& lock);
+		
+		void SetStatBase(uint16_t stat_index, int32_t value);
+		void SetStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void AddStatBase(uint16_t stat_index, int32_t value);
+		void AddStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void DeductStatBase(uint16_t stat_index, int32_t value);
+		void DeductStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		std::vector<int32_t> GetBaseStats();
+		std::vector<int32_t> GetBaseStats(boost::unique_lock<boost::mutex>& lock);
+
+		int32_t GetStatBase(uint16_t stat_index);
+		int32_t GetStatBase(uint16_t stat_index, boost::unique_lock<boost::mutex>& lock);
+
+		void SerializeBaseStats(swganh::messages::BaseSwgMessage* message);
+		void SerializeBaseStats(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
+
+		// Battle Fatigue
+		void AddBattleFatigue(uint32_t battle_fatigue);
+		void AddBattleFatigue(uint32_t battle_fatigue, boost::unique_lock<boost::mutex>& lock);
+
+		void DeductBattleFatigue(uint32_t battle_fatigue);
+		void DeductBattleFatigue(uint32_t battle_fatigue, boost::unique_lock<boost::mutex>& lock);
+
+		void SetBattleFatigue(uint32_t battle_fatigue);
+		void SetBattleFatigue(uint32_t battle_fatigue, boost::unique_lock<boost::mutex>& lock);
+
+		void InitBattleFatigue(uint32_t battle_fatigue) {battle_fatigue_ = battle_fatigue;}
+
+		uint32_t GetBattleFatigue();
+		uint32_t GetBattleFatigue(boost::unique_lock<boost::mutex>& lock);
+
+
 
     protected:
 
-		swganh::containers::NetworkVector<uint64, swganh::containers::DefaultSerializer<uint64>> defender_list_;
+		//HAM
+		TargetStats		mTargetStats; //used for Imagedesign statmigration
+		
+		swganh::containers::NetworkVector<int32_t> stat_base_list_; //plain base hitpoints w/o mods
+		swganh::containers::NetworkVector<int32_t> stat_wound_list_;
+		swganh::containers::NetworkVector<int32_t> stat_current_list_;
+		swganh::containers::NetworkVector<int32_t> stat_max_list_;
+		swganh::containers::NetworkVector<int32_t> stat_encumberance_list_;
 
+		swganh::containers::NetworkVector<uint64, swganh::containers::DefaultSerializer<uint64>> defender_list_;
+		
+		//swganh::containers::NetworkSet<std::string> skills_;
+
+		uint32_t			battle_fatigue_;
 
         BuffList			mBuffList;
         FactionList			mFactionList;
@@ -367,15 +556,12 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
         SkillList			mSkills;
         SkillModsList		mSkillMods;
         EquipManager		mEquipManager;
-        Ham					mHam;
+
         BString				mCurrentAnimation;
         BString				mCustomizationStr;
         BString				mFaction;
         std::string			first_name;
         std::string			last_name;
-
-		//BString				mFirstName;
-        BString				mLastName;
 
         BString				mSpecies;
         BString				mSpeciesGroup;

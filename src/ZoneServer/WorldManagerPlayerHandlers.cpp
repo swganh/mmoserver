@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -86,6 +86,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/ZoneOpcodes.h"
 #include "ZoneServer.h"
 
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
+
 using std::stringstream;
 
 //======================================================================================================================
@@ -145,28 +149,43 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
         return;
     }
 
-    Ham* ham = player_object->getHam();
-    if(!ham) {
-        DLOG(warning) << "Unable to retrieve Ham for player: [" << player_object->getId() << "]";
-		SAFE_DELETE(clContainer);
-        return;
-    }
-
     stringstream query_stream;
 
-    query_stream << "UPDATE "<<getKernel()->GetDatabase()->galaxy()<<".character_attributes SET health_current=" << (ham->mHealth.getCurrentHitPoints() - ham->mHealth.getModifier()) << ", "
-                 << "action_current=" << (ham->mAction.getCurrentHitPoints() - ham->mAction.getModifier()) << ", "
-                 << "mind_current=" << (ham->mMind.getCurrentHitPoints() - ham->mMind.getModifier()) << ", "
-                 << "health_wounds=" << ham->mHealth.getWounds() << ", "
-                 << "strength_wounds=" << ham->mStrength.getWounds() << ", "
-                 << "constitution_wounds=" << ham->mConstitution.getWounds() << ", "
-                 << "action_wounds=" << ham->mAction.getWounds() << ", "
-                 << "quickness_wounds=" << ham->mQuickness.getWounds() << ", "
-                 << "stamina_wounds=" << ham->mStamina.getWounds() << ", "
-                 << "mind_wounds=" << ham->mMind.getWounds() << ", "
-                 << "focus_wounds=" << ham->mFocus.getWounds() << ", "
-                 << "willpower_wounds=" << ham->mWillpower.getWounds() << ", "
-                 << "battlefatigue=" << ham->getBattleFatigue() << ", "
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+
+    query_stream << "UPDATE "<<getKernel()->GetDatabase()->galaxy()<<".character_attributes SET "
+				 << "health_current=" << player_object->GetStatCurrent(HamBar_Health) << ", "
+				 << "strength_current=" << player_object->GetStatCurrent(HamBar_Strength) << ", "
+				 << "constitution_current=" << player_object->GetStatCurrent(HamBar_Constitution) << ", "
+                 << "action_current=" << player_object->GetStatCurrent(HamBar_Action) << ", "
+				 << "quickness_current=" << player_object->GetStatCurrent(HamBar_Quickness) << ", "
+				 << "stamina_current=" << player_object->GetStatCurrent(HamBar_Stamina) << ", "
+                 << "mind_current=" << player_object->GetStatCurrent(HamBar_Mind) << ", "
+				 << "focus_current=" << player_object->GetStatCurrent(HamBar_Focus) << ", "
+				 << "willpower_current=" << player_object->GetStatCurrent(HamBar_Willpower) << ", "
+				 
+				 << "health_wounds=" << player_object->GetStatWound(HamBar_Health) << ", "
+                 << "strength_wounds=" << player_object->GetStatWound(HamBar_Strength) << ", "
+                 << "constitution_wounds=" << player_object->GetStatWound(HamBar_Constitution) << ", "
+                 << "action_wounds=" << player_object->GetStatWound(HamBar_Action) << ", "
+                 << "quickness_wounds=" << player_object->GetStatWound(HamBar_Quickness) << ", "
+                 << "stamina_wounds=" << player_object->GetStatWound(HamBar_Stamina) << ", "
+                 << "mind_wounds=" << player_object->GetStatWound(HamBar_Mind) << ", "
+                 << "focus_wounds=" << player_object->GetStatWound(HamBar_Focus) << ", "
+                 << "willpower_wounds=" << player_object->GetStatWound(HamBar_Willpower) << ", "
+
+				 //need to rename the db fields at some time
+				 << "health_max=" << player_object->GetStatBase(HamBar_Health) << ", "
+                 << "strength_max=" << player_object->GetStatBase(HamBar_Strength) << ", "
+                 << "constitution_max=" << player_object->GetStatBase(HamBar_Constitution) << ", "
+                 << "action_max=" << player_object->GetStatBase(HamBar_Action) << ", "
+                 << "quickness_max=" << player_object->GetStatBase(HamBar_Quickness) << ", "
+                 << "stamina_max=" << player_object->GetStatBase(HamBar_Stamina) << ", "
+                 << "mind_max=" << player_object->GetStatBase(HamBar_Mind) << ", "
+                 << "focus_max=" << player_object->GetStatBase(HamBar_Focus) << ", "
+                 << "willpower_max=" << player_object->GetStatBase(HamBar_Willpower) << ", "
+
+				 << "battlefatigue=" << player_object->GetBattleFatigue() << ", "
                  << "posture=" << player_object->states.getPosture() << ", "
                  << "moodId=" << static_cast<uint16_t>(player_object->getMoodId()) << ", "
                  << "title='" << getKernel()->GetDatabase()->escapeString(player_object->getTitle().getAnsi()) << "', "
@@ -209,7 +228,7 @@ void WorldManager::storeCharacterAttributes_(PlayerObject* player_object, bool r
 void WorldManager::savePlayerSync(uint32 accId,bool remove)
 {
     PlayerObject* playerObject = getPlayerByAccId(accId);
-    Ham* ham = playerObject->getHam();
+ /*   Ham* ham = playerObject->getHam();
 
     getKernel()->GetDatabase()->destroyResult(getKernel()->GetDatabase()->executeSynchSql("UPDATE %s.characters SET parent_id=%"PRIu64",oX=%f,oY=%f,oZ=%f,oW=%f,x=%f,y=%f,z=%f,planet_id=%u WHERE id=%"PRIu64"",
                               getKernel()->GetDatabase()->galaxy(),playerObject->getParentId()
@@ -243,7 +262,7 @@ void WorldManager::savePlayerSync(uint32 accId,bool remove)
                              playerObject->getLanguage(),
                              playerObject->getGroupId(),
                              playerObject->getId()));
-
+*/
     gBuffManager->SaveBuffs(playerObject, GetCurrentGlobalTick());
     if(remove)
         destroyObject(playerObject);
@@ -311,7 +330,6 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
     }
 	*/
     removeObjControllerToProcess(playerObject->getController()->getTaskId());
-    removeCreatureHamToProcess(playerObject->getHam()->getTaskId());
     
 	removeEntertainerToProcess(playerObject->getEntertainerTaskId());
 
@@ -322,7 +340,7 @@ void WorldManager::addDisconnectedPlayer(PlayerObject* playerObject)
     //despawn camps ??? - every reference is over id though
 
     playerObject->getController()->setTaskId(0);
-    playerObject->getHam()->setTaskId(0);
+   
     playerObject->setSurveyState(false);
     playerObject->setSamplingState(false);
     playerObject->togglePlayerFlagOn(PlayerFlag_LinkDead);
@@ -382,9 +400,7 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 {
     // remove from cell if we are in one / SI
 	gSpatialIndexManager->RemoveObjectFromWorld(playerObject);
-	
-	//we've removed the taskId, now lets reset the Id
-	playerObject->getHam()->setTaskId(0);
+
 
     //
 // Handle update of player movements. We need to have a consistent update of the world around us,
@@ -409,7 +425,9 @@ void WorldManager::warpPlanet(PlayerObject* playerObject, const glm::vec3& desti
 	gSpatialIndexManager->sendCreatePlayer(playerObject,playerObject);
 
 	// initialize ham regeneration
-	playerObject->getHam()->checkForRegen();
+	auto ham = getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+	ham->addToRegeneration(playerObject->getId());
+
 	playerObject->getStomach()->checkForRegen();
 }
 //======================================================================================================================

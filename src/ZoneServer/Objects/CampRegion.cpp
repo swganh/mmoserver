@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
 
-
+#include "ZoneServer\Services\ham\ham_service.h"
 
 #include <algorithm>
 #include <list>
@@ -36,6 +36,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
 #include "ZoneServer/WorldManager.h"
 #include "CampRegion.h"
+
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 
 //=============================================================================
@@ -241,62 +245,11 @@ void	CampRegion::applyWoundHealing(Object* object)
     if(player == NULL)
         return;
 
-    Ham* hamz = player->getHam();
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
-    if(hamz->mHealth.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Health ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
-    if(hamz->mStrength.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Strength ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
-    if(hamz->mConstitution.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Constitution ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
-    if(hamz->mAction.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Action ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
-    if(hamz->mQuickness.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Quickness ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
-    if(hamz->mStamina.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Stamina ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
-    if(hamz->mMind.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Mind ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
-    if(hamz->mFocus.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Focus ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
-    if(hamz->mWillpower.getWounds() > 0)
-    {
-        hamz->updatePropertyValue(HamBar_Willpower ,HamProperty_Wounds, -1);
-        mHealingDone++;
-    }
-
+	for(uint8 i = HamBar_Health; i < HamBar_Willpower;i++)	{
+			ham->RemoveWound(player, i, 1);
+	}
 }
 
 void	CampRegion::applyHAMHealing(Object* object)
@@ -307,40 +260,34 @@ void	CampRegion::applyHAMHealing(Object* object)
     if(player == NULL)
         return;
 
-    Ham* hamz = player->getHam();
+    auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
     //Heal the Ham
-    int32 HealthRegenRate = hamz->getHealthRegenRate();
-    int32 ActionRegenRate = hamz->getActionRegenRate();
-    int32 MindRegenRate = hamz->getMindRegenRate();
+	int32 HealthRegenRate = ham->regenerationModifier(player, HamBar_Health);
+    int32 ActionRegenRate = ham->regenerationModifier(player, HamBar_Action);
+    int32 MindRegenRate = ham->regenerationModifier(player, HamBar_Mind);
 
     //Because we tick every 2 seconds, we need to double this.
     HealthRegenRate += (int32)(HealthRegenRate * mHealingModifier) * 2;
     ActionRegenRate += (int32)(ActionRegenRate * mHealingModifier) * 2;
     MindRegenRate	+= (int32)(MindRegenRate * mHealingModifier) * 2;
-
-    if(hamz->mHealth.getModifiedHitPoints() - hamz->mHealth.getCurrentHitPoints() > 0)
+	
+	if(ham->getModifiedHitPoints(player, HamBar_Health) - player->GetStatCurrent(HamBar_Health) > 0)
     {
         //Regen Health
-        int32 oldVal = hamz->mHealth.getCurrentHitPoints();
-        hamz->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints, HealthRegenRate);
-        mHealingDone += hamz->mHealth.getCurrentHitPoints() - oldVal;
+		mHealingDone += ham->UpdateCurrentHitpoints(player, HamBar_Health, HealthRegenRate);
     }
 
-    if(hamz->mAction.getModifiedHitPoints() - hamz->mAction.getCurrentHitPoints() > 0)
+    if(ham->getModifiedHitPoints(player, HamBar_Action) - player->GetStatCurrent(HamBar_Action) > 0)
     {
         //Regen Action
-        int32 oldVal = hamz->mAction.getCurrentHitPoints();
-        hamz->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, ActionRegenRate);
-        mHealingDone += hamz->mAction.getCurrentHitPoints() - oldVal;
+        mHealingDone += ham->UpdateCurrentHitpoints(player, HamBar_Action, HealthRegenRate);
     }
 
-    if(hamz->mMind.getModifiedHitPoints() - hamz->mMind.getCurrentHitPoints() > 0)
+    if(ham->getModifiedHitPoints(player, HamBar_Mind) - player->GetStatCurrent(HamBar_Mind) > 0)
     {
         //Regen Mind
-        int32 oldVal = hamz->mMind.getCurrentHitPoints();
-        hamz->updatePropertyValue(HamBar_Mind, HamProperty_CurrentHitpoints, MindRegenRate);
-        mHealingDone += hamz->mMind.getCurrentHitPoints() - oldVal;
+        mHealingDone += ham->UpdateCurrentHitpoints(player, HamBar_Mind, HealthRegenRate);
     }
 
 }

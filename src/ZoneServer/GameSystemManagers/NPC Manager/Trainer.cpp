@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -685,7 +685,7 @@ uint32 Trainer::handleConversationEvent(ActiveConversation* av,ConversationPage*
 
             int8 str[800];
 
-            BStringVector populatedListBox;
+            StringVector populatedListBox;
             int8 strCaption[128];
             sprintf(strCaption,"@%s:%s","skl_n", skill->mName.getAnsi());
 
@@ -875,7 +875,7 @@ bool Trainer::preProcessfilterConversation(ActiveConversation* av,Conversation* 
         bool noviceSkill = false;
         bool gotAllSkills = true;	// As long as we have not detected any missing skills.
         uint32 skillsToLearn = 0;
-        BStringVector skillsRequired;
+        StringVector skillsRequired;
 
         bool gotRequirementsForSomeSkill = false;
 
@@ -1229,9 +1229,6 @@ void Trainer::respawn(void)
     this->mPosition = this->getSpawnPosition();		// Default spawn position.
 
     // mSpawned = false;
-
-    this->mHam.calcAllModifiedHitPoints();
-
 
     // All init is done, just the spawn in the world is left.
     this->spawn();

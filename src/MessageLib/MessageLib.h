@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -443,15 +443,7 @@ public:
 	void				sendIncapTimerUpdate(CreatureObject* creatureObject);
 	bool				sendSkillModUpdateCreo4(PlayerObject* playerObject);
 
-    // ham
-    void				sendMaxHitpointDeltasCreo6_Single(CreatureObject* creatureObject,uint8 barIndex);
-    void				sendBaseHitpointDeltasCreo1_Single(CreatureObject* creatureObject,uint8 barIndex);
-
-    void				sendCurrentHitpointDeltasCreo6_Single(CreatureObject* creatureObject,uint8 barIndex);
-    void				sendCurrentHitpointDeltasCreo6_Full(CreatureObject* creatureObject);
-    void				sendWoundUpdateCreo3(CreatureObject* creatureObject,uint8 barIndex);
-    void				sendBFUpdateCreo3(CreatureObject* playerObject);
-
+    
     // creature owner
     void				sendOwnerUpdateCreo3(MountObject* mount);
 
@@ -482,8 +474,7 @@ public:
     bool				sendBaselinesPLAY_9(PlayerObject* playerObject,PlayerObject* targetObject);
 
     	// deltas
-	bool				sendUpdateCurrentForce(PlayerObject* playerObject);
-	bool				sendUpdateMaxForce(PlayerObject* playerObject);
+	
 	bool				sendMatchPlay3(PlayerObject* playerObject);
 	
 	void				sendTitleUpdate(PlayerObject* playerObject);

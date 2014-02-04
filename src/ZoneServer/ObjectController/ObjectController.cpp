@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -45,6 +45,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 #include "ZoneServer/GameSystemManagers/Spatial Index Manager/SpatialIndexManager.h"
 
+#include "ZoneServer\Services\ham\ham_service.h"
+
 #include "MessageLib/MessageLib.h"
 
 #include "anh/logger.h"
@@ -62,6 +64,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <cassert>
 
 #include <anh\app\swganh_kernel.h>
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh\service\service_manager.h"
 
 using ::common::IEventPtr;
 using ::swg_protocol::object_controller::PostCommandEvent;
@@ -963,35 +967,31 @@ void ObjectController::initProcessValidators()
 
 bool ObjectController::_consumeHam(ObjectControllerCmdProperties* cmdProperties)
 {
-    if(CreatureObject* creature	= dynamic_cast<CreatureObject*>(mObject))
-    {
-        if(Ham* ham = creature->getHam())
-        {
-            if(cmdProperties->mHealthCost)
-            {
-                ham->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-cmdProperties->mHealthCost);
-            }
+	CreatureObject* creature	= dynamic_cast<CreatureObject*>(mObject);
+    if(!creature)    {
+		return false;
+	}
 
-            if(cmdProperties->mActionCost)
-            {
-                ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-cmdProperties->mActionCost);
-            }
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
 
-            if(cmdProperties->mMindCost)
-            {
-                ham->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-cmdProperties->mMindCost);
-            }
-        }
-        else
-        {
-            return(false);
-        }
-
-        return(true);
+    if(cmdProperties->mHealthCost)     {            
+		//ham->updatePropertyValue(HamBar_Health,HamProperty_CurrentHitpoints,-cmdProperties->mHealthCost);
+		ham->ApplyHamCost(creature, HamBar_Health, -cmdProperties->mHealthCost);
     }
 
-    return(false);
+    if(cmdProperties->mActionCost)    {
+		ham->ApplyHamCost(creature, HamBar_Action, -cmdProperties->mActionCost);
+        //ham->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints,-cmdProperties->mActionCost);
+    }
+
+    if(cmdProperties->mMindCost)        {
+		ham->ApplyHamCost(creature, HamBar_Mind, -cmdProperties->mMindCost);
+        //ham->updatePropertyValue(HamBar_Mind,HamProperty_CurrentHitpoints,-cmdProperties->mMindCost);
+    }
+
+    return(true);
 }
+
 //=============================================================================
 uint32	ObjectController::getLowestCommonBit(uint64 playerMask, uint64 cmdPropertiesMask)
 {

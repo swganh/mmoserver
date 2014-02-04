@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -189,10 +189,10 @@ bool MessageLib::sendBaselinesPLAY_8(PlayerObject* playerObject,PlayerObject* ta
 	mMessageFactory->addData(message.data.data(),message.data.size());
 
     // current force
-    mMessageFactory->addUint32(playerObject->getHam()->getCurrentForce());
+	mMessageFactory->addUint32(playerObject->GetCurrentForcePower());
 
     // max force
-    mMessageFactory->addUint32(playerObject->getHam()->getMaxForce());
+    mMessageFactory->addUint32(playerObject->GetMaxForcePower());
 
     // unknown
     mMessageFactory->addUint32(5);
@@ -934,61 +934,4 @@ void MessageLib::sendLanguagePlay9(PlayerObject* playerObject)
 
     _sendToInRange(mMessageFactory->EndMessage(),playerObject,5);
 }
-
-//======================================================================================================================
-//
-// Player Deltas Type 8
-// update: current force
-//
-
-bool MessageLib::sendUpdateCurrentForce(PlayerObject* playerObject)
-{
-    if(!(playerObject->isConnected()))
-        return(false);
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
-    mMessageFactory->addUint32(opPLAY);
-    mMessageFactory->addUint8(8);
-
-    mMessageFactory->addUint32(8);
-    mMessageFactory->addUint16(1);
-    mMessageFactory->addUint16(2);
-    mMessageFactory->addUint32(playerObject->getHam()->getCurrentForce());
-
-    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
-
-    return(true);
-}
-
-//======================================================================================================================
-//
-// Player Deltas Type 8
-// update: max force
-//
-
-bool MessageLib::sendUpdateMaxForce(PlayerObject* playerObject)
-{
-    if(!(playerObject->isConnected()))
-        return(false);
-
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getPlayerObjId());
-    mMessageFactory->addUint32(opPLAY);
-    mMessageFactory->addUint8(8);
-
-    mMessageFactory->addUint32(8);
-    mMessageFactory->addUint16(1);
-    mMessageFactory->addUint16(3);
-    mMessageFactory->addUint32(playerObject->getHam()->getMaxForce());
-
-    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
-
-    return(true);
-}
-
-//======================================================================================================================
-
 

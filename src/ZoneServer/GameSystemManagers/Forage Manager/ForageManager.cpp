@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -24,6 +24,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ---------------------------------------------------------------------------------------
 */
+#include "ZoneServer\Services\ham\ham_service.h"
 
 #include "ZoneServer/GameSystemManagers/Forage Manager/ForageManager.h"
 
@@ -32,6 +33,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "MathLib/Rectangle.h"
 
 #include "MessageLib/MessageLib.h"
+
+#include "ZoneServer\Services\ham\ham_service.h"
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 #include "ZoneServer/ProfessionManagers/Medic Manager/MedicManager.h"
 #include "ZoneServer/Objects/Player Object/PlayerObject.h"
@@ -131,33 +136,32 @@ private:
 void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
 {
     //Check for Inside building
-    if(player->getParentId() != 0)
-    {
+    if(player->getParentId() != 0)    {
         gForageManager->failForage(player, NOT_OUTSIDE);
         return;
     }
 
     //Check for combat
-    if(player->states.checkState(CreatureState_Combat))
-    {
+    if(player->states.checkState(CreatureState_Combat))    {
         gForageManager->failForage(player, IN_COMBAT);
         return;
     }
 
     //Check for action being too low
-    if(player->getHam()->mAction.getCurrentHitPoints() < 101)
-    {
+	//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+	//ham->checkMainPools();
+	if(player->GetStatCurrent(HamBar_Action) < 101)    {
         gForageManager->failForage(player, ACTION_LOW);
         return;
     }
 
     //Check for skill being too low
-    if(forageClass == ForageClass_Scout && !player->checkSkill(45)) //Scout -> Survival 1
+    if(forageClass == ForageClass_Scout && !player->checkSkill(SMSkill_ScoutCamp1)) //Scout -> Survival 1
     {
         gForageManager->failForage(player, NO_SKILL);
         return;
     }
-    else if(forageClass == ForageClass_Medic && !player->checkSkill(51))
+    else if(forageClass == ForageClass_Medic && !player->checkSkill(SMSkill_NoviceMedic))
     {
         gForageManager->failForage(player, NO_SKILL);
         return;
@@ -176,7 +180,8 @@ void ForageManager::startForage(PlayerObject* player, forageClasses forageClass)
     gMessageLib->sendCreatureAnimation(player, std::string("forage"));
 
     //Use up some action!
-    player->getHam()->updatePropertyValue(HamBar_Action,HamProperty_CurrentHitpoints, -100);
+	auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+	ham->ApplyHamCost(player, HamBar_Action, -100);
 
     //Creates a ForageAttempt object for tracking the forage operation
     ForageAttempt* attempt = new ForageAttempt(player, gWorldManager->GetCurrentGlobalTick(), forageClass);

@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -425,6 +425,7 @@ void LairObject::killEvent(void)
 
 void LairObject::respawn(void)
 {
+	/*
 
     // The data used below ARE taken from DB, not hard coded as the script version above.
 
@@ -586,26 +587,13 @@ void LairObject::respawn(void)
         }
         this->mHam.calcAllModifiedHitPoints();
 
-        /*
-        if (this->hasAttribute("challenge_level"))	// Difficulty Level
-        {
-        	int32 challenge_level = this->getAttribute<int32>("challenge_level");
-        }
-
-        if (this->hasAttribute("consider"))	// Combat Difficulty
-        {
-        	int32 consider = this->getAttribute<int32>("consider");
-        }
-        */
-
-
-
         // Register object with WorldManager.
         // Done when creating the object.
         // gWorldManager->addObject(this, true);
 
         // Put the lair in the Dormant queue.
         // I do not want all lair running at same respawn period to do their initial spawn at the same time.
+
         this->mInitialSpawnDelay = (int64)this->getRespawnDelay() + (int64)(((uint64)gRandom->getRand() * 1000) % (this->getRespawnDelay() + 1));
 
         // When spawning, the lair awaits activation in the dormant queue, so we load the lair instantly and have a wait timer running before the spawn.
@@ -616,6 +604,7 @@ void LairObject::respawn(void)
     {
         assert(false && "LairObject::respawn mNpcFamily != NpcFamily_NaturalLairs");
     }
+	*/
 }
 
 void LairObject::reportedDead(uint64 deadCreatureId)

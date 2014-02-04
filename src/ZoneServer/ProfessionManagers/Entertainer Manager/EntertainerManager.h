@@ -4,7 +4,7 @@ This source file is part of SWG:ANH (Star Wars Galaxies - A New Hope - Server Em
 
 For more information, visit http://www.swganh.com
 
-Copyright (c) 2006 - 2010 The SWG:ANH Team
+Copyright (c) 2006 - 2014 The SWG:ANH Team
 ---------------------------------------------------------------------------------------
 Use of this source code is governed by the GPL v3 license that can be found
 in the COPYING file or at http://www.gnu.org/licenses/gpl-3.0.html
@@ -36,6 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "DatabaseManager/DatabaseCallback.h"
 #include "ZoneServer/Objects/ObjectFactoryCallback.h"
 #include "ZoneServer/GameSystemManagers/Group Manager/GroupManagerCallback.h"
+
+#include "anh/app/swganh_kernel.h"
+#include "anh\service\service_manager.h"
 
 #define gEntertainerManager	EntertainerManager::getSingletonPtr()
 
@@ -175,7 +178,7 @@ public:
     static EntertainerManager*	getSingletonPtr() {
         return mSingleton;
     }
-    static EntertainerManager*	Init(swganh::database::Database* database,MessageDispatch* dispatch);
+    static EntertainerManager*	Init(swganh::app::SwganhKernel*	kernel);
 
     ~EntertainerManager();
 
@@ -271,7 +274,7 @@ public:
 
 private:
 
-    EntertainerManager(swganh::database::Database* database,MessageDispatch* dispatch);
+    EntertainerManager(swganh::app::SwganhKernel*	kernel);
 
     void					playInstrument(PlayerObject* entertainer, Item* instrument);
     uint64					getInstrument(PlayerObject* entertainer);
@@ -285,9 +288,8 @@ private:
     static EntertainerManager*	mSingleton;
     static bool					mInsFlag;
 
-    swganh::database::Database*					mDatabase;
-    MessageDispatch*			mMessageDispatch;
-
+    
+	swganh::app::SwganhKernel*	kernel_;
     PerformanceStruct*			mPerformanceHandler;
     PerformanceList				mPerformanceList;
     IdList						mIDList;

@@ -6,6 +6,7 @@
 #include "ham_service_interface.h"
 #include "anh/app/swganh_kernel.h"
 #include <boost/thread/mutex.hpp>
+#include <boost/asio/deadline_timer.hpp>
 #include <map>
 //#include <list>
 #include <cstdint>
@@ -156,7 +157,7 @@ public:
 	/*	@brief this will handle the regeneration tick.
 	*	We iterate through the map with the Ids and apply regeneration to every creature on it
 	*/
-	bool			handleTick_(uint64 time,void*);
+	void			handleTick_(const boost::system::error_code& e);
 
 	/*	@brief calculates the modified hitpoints. These are calculated from the max possible - wounds - encumbrance
 	*	@param CreatureObject* creature the creature that gets initialized
@@ -215,13 +216,13 @@ private:
 	*/
 	bool			regenerate_(uint64 id);
 	
-	
+	boost::asio::deadline_timer					timer_;
 
 	boost::mutex								mutex_;
     std::map<uint64_t,RegenerationQueueType>	reg_;
     boost::mutex								ham_mutex_;
     swganh::app::SwganhKernel*					kernel_;
-	Anh_Utils::Scheduler*						scheduler_;
+	
 };
 }
 }

@@ -520,7 +520,7 @@ void Datapad::AddWaypoint(const std::shared_ptr<WaypointObject>& waypoint, boost
 	lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->DispatchMainThread(std::make_shared<PlayerObjectEvent>("PlayerObject::Waypoint", player));
+	dispatcher->Dispatch(std::make_shared<PlayerObjectEvent>("PlayerObject::Waypoint", player));
 }
 
 void Datapad::ModifyWaypoint(uint64_t waypoint_id)
@@ -537,7 +537,7 @@ void Datapad::ModifyWaypoint(uint64_t way_object_id, boost::unique_lock<boost::m
 	LOG(info) << "Datapad::ModifyWaypoint : " << way_object_id;
 	std::shared_ptr<PlayerObject> player = std::static_pointer_cast<PlayerObject>(gWorldManager->getSharedObjectById(this->getParentId()));
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->DispatchMainThread(std::make_shared<PlayerObjectEvent>("PlayerObject::Waypoint", (player)));
+	dispatcher->Dispatch(std::make_shared<PlayerObjectEvent>("PlayerObject::Waypoint", (player)));
    
 }
 
@@ -565,7 +565,7 @@ void Datapad::RemoveWaypoint(uint64_t waypoint_id, boost::unique_lock<boost::mut
 
 	std::shared_ptr<PlayerObject> player = std::static_pointer_cast<PlayerObject>(gWorldManager->getSharedObjectById(this->getParentId()));
     auto dispatcher = GetEventDispatcher();
-	dispatcher->DispatchMainThread(std::make_shared<PlayerObjectEvent>("PlayerObject::Waypoint", (player)));
+	dispatcher->Dispatch(std::make_shared<PlayerObjectEvent>("PlayerObject::Waypoint", (player)));
 }
 
 std::vector<std::shared_ptr<WaypointObject>> Datapad::GetWaypoints()

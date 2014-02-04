@@ -43,6 +43,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/SocialChatTypes.h"
 
 #include "MessageLib\messages\deltas_message.h"
+#include "Utils/ConcurrentQueue.h"
 
 #define	 gMessageLib	MessageLib::getSingletonPtr()
 
@@ -92,6 +93,8 @@ typedef std::set<PlayerObject*>			PlayerObjectSetML;
 typedef std::list<PlayerObject*>		PlayerList;
 typedef std::list<Object*>				ObjectList;
 
+typedef utils::ConcurrentQueueLight< MessageFactory*>			ConcurrentMessageFactoryQueue;
+
 enum ObjectUpdate
 {
     ObjectUpdateRewriteAll	= 0,
@@ -100,25 +103,32 @@ enum ObjectUpdate
     ObjectUpdateChange		= 3
 };
 
+namespace swganh	{
+	namespace	app	{
+		class SwganhKernel;
+	}}
+
 //======================================================================================================================
 
 class MessageLib
 {
 public:
     static MessageLib*	getSingletonPtr() { return mSingleton; }
-    static MessageLib*	Init(swganh::event_dispatcher::EventDispatcher* dispatcher);
+    static MessageLib*	Init(swganh::app::SwganhKernel* kernel);
 
     void				setGrid(zmap*	grid){mGrid = grid;}
 
-	/*	@brief Broadcast a delta to all playerentities in range
+	/*	@brief Broadcast a delta to all playerentities in range. This method is threadsafe
 	*
 	*/
 	void				broadcastDelta(swganh::messages::DeltasMessage& message, Object* object);
 	
-	/*	@brief sends a delta to the given player only
-	*
+	/*	@brief sends a delta to the given player only. This method is threadsafe
+	*	
 	*/
 	void				sendDelta(swganh::messages::DeltasMessage& message, PlayerObject* player);
+
+
 
     // multiple messages, messagelib.cpp
     bool				sendCreateManufacturingSchematic(ManufacturingSchematic* manSchem,PlayerObject* playerObject,bool attributes = true);
@@ -666,8 +676,12 @@ public:
     ~MessageLib();
 
 private:
+	/*	@brief	queries the MessageFactoryQueue until a MessageFactory has been popped
+	*	@returns returns the popped MessageFactory
+	*/
+	MessageFactory*		getFactory_();
 
-    MessageLib(swganh::event_dispatcher::EventDispatcher* dispatcher);
+    MessageLib(swganh::app::SwganhKernel* kernel);
     
     bool				_checkDistance(const glm::vec3& mPosition1, Object* object, uint32 heapWarningLevel);
 
@@ -738,6 +752,9 @@ private:
 	zmap*				mGrid;
 
     MessageFactory*								mMessageFactory;
+
+	ConcurrentMessageFactoryQueue					factory_queue_;
+	swganh::app::SwganhKernel*						kernel_;
 	
 	swganh::event_dispatcher::EventDispatcher*		event_dispatcher_;
 	std::shared_ptr<CreatureMessageBuilder>			creature_message_builder_;

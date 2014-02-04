@@ -69,7 +69,7 @@ public:
 
 	//
     //static swganh::messages::DeltasMessage CreateDeltasMessage(const std::shared_ptr<Object>& object, uint8_t view_type, uint16_t update_type, uint16_t update_count = 1) ;
-	static swganh::messages::DeltasMessage CreateDeltasMessage(const std::shared_ptr<Object>& object, uint8_t view_type, uint16_t update_type, uint32_t object_type, uint16_t update_count = 1) ;
+	static swganh::messages::DeltasMessage CreateDeltasMessage(const Object* object, uint8_t view_type, uint16_t update_type, uint32_t object_type, uint16_t update_count = 1) ;
 
     static boost::optional<swganh::messages::BaselinesMessage> BuildBaseline1(const std::shared_ptr<Object>& object, boost::unique_lock<boost::mutex>& lock)
     {

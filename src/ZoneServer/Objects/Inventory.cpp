@@ -73,7 +73,7 @@ void Inventory::setCredits(uint32 credits, boost::unique_lock<boost::mutex>& loc
 	
 	lock.unlock();
 	
-	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::InventoryCredits", mParent));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::InventoryCredits", mParent));
 	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistInventoryCredits", mParent));
 }
 

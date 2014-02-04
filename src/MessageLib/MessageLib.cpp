@@ -77,6 +77,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "ZoneServer/WorldManager.h"
 
 #include "ZoneServer/ZoneOpcodes.h"
+#include "ZoneServer\WorldConfig.h"
+#include "anh/app/swganh_kernel.h"
 
 
 
@@ -87,21 +89,30 @@ MessageLib*	MessageLib::mSingleton  = NULL;
 
 //======================================================================================================================
 
-MessageLib::MessageLib(swganh::event_dispatcher::EventDispatcher* dispatcher)	:
-event_dispatcher_(dispatcher)
+MessageLib::MessageLib(swganh::app::SwganhKernel* kernel)	:
+event_dispatcher_(kernel->GetEventDispatcher())
 {
+	kernel_ = kernel;
+	
+	//singlethread messagelibrary
     mMessageFactory = gMessageFactory;
-	creature_message_builder_	= std::make_shared<CreatureMessageBuilder>(dispatcher);
-	player_message_builder_		= std::make_shared<PlayerMessageBuilder>(dispatcher);
+
+	//threadsafe messagefactories
+	//factory_queue_.push(gMessageFactory);
+	factory_queue_.push(new MessageFactory(kernel_->GetAppConfig().global_message_heap *1024));
+	factory_queue_.push(new MessageFactory(kernel_->GetAppConfig().global_message_heap *1024));
+
+	creature_message_builder_	= std::make_shared<CreatureMessageBuilder>(kernel_->GetEventDispatcher());
+	player_message_builder_		= std::make_shared<PlayerMessageBuilder>(kernel_->GetEventDispatcher());
 }
 
 //======================================================================================================================
 
-MessageLib*	MessageLib::Init(swganh::event_dispatcher::EventDispatcher* dispatcher)
+MessageLib*	MessageLib::Init(swganh::app::SwganhKernel* kernel)
 {
     if(!mInsFlag)
     {
-        mSingleton = new MessageLib(dispatcher);
+        mSingleton = new MessageLib(kernel);
         mInsFlag = true;
 
         return mSingleton;
@@ -861,29 +872,44 @@ bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSch
 
 void MessageLib::broadcastDelta(swganh::messages::DeltasMessage& message, Object* object)
 {
+	MessageFactory* factory = getFactory_();
+
 	swganh::ByteBuffer buffer;
 	message.Serialize(buffer);
 	
 	// at this time this is single threaded only
-	mMessageFactory->StartMessage();
-	mMessageFactory->addData(buffer.data(),buffer.size());
+	factory->StartMessage();
+	factory->addData(buffer.data(),buffer.size());
 	
-	_sendToInRange(mMessageFactory->EndMessage(),object,1);
+	_sendToInRange(factory->EndMessage(),object,1);
 
+	factory_queue_.push(factory);
+
+}
+
+MessageFactory* MessageLib::getFactory_()
+{
+	MessageFactory* factory;
+	while(!factory_queue_.pop(factory))	{}
+	
+	return factory;
 }
 
 void MessageLib::sendDelta(swganh::messages::DeltasMessage& message, PlayerObject* player)
 {
+	
+	MessageFactory* factory = getFactory_();
+
 	swganh::ByteBuffer buffer;
 	message.Serialize(buffer);
 	
 	// at this time this is single threaded only
-	mMessageFactory->StartMessage();
-	mMessageFactory->addData(buffer.data(),buffer.size());
+	factory->StartMessage();
+	factory->addData(buffer.data(),buffer.size());
 	
 	if(_checkPlayer(player)) {
-		player->getClient()->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 1);
+		player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
         }
 	
-
+	factory_queue_.push(factory);
 }

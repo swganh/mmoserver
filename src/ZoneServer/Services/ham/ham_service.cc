@@ -26,8 +26,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "ZoneServer\Services\ham\ham_service.h"
-#include "anh\Utils\clock.h"
-#include "anh/Utils/Scheduler.h"
+
+#include <boost/asio/placeholders.hpp>
+
 #include <map>
 
 #include <ZoneServer\Services\scene_events.h>
@@ -44,7 +45,7 @@ using namespace swganh::tre;
 using namespace boost::posix_time;
 using namespace swganh::event_dispatcher;
 
-HamService::HamService(swganh::app::SwganhKernel* kernel) : kernel_(kernel)
+HamService::HamService(swganh::app::SwganhKernel* kernel) : kernel_(kernel) , timer_(kernel->GetCpuThreadPool())
 {
 	LOG(error) << "HamService::HamService register events";
 	
@@ -57,9 +58,9 @@ HamService::HamService(swganh::app::SwganhKernel* kernel) : kernel_(kernel)
                               0,
                               0));
 
-	scheduler_		= new Anh_Utils::Scheduler();
-
-	scheduler_->addTask(fastdelegate::MakeDelegate(this, &HamService::handleTick_),1,1000,NULL);
+	//Start the timer
+    timer_.expires_from_now(boost::posix_time::seconds(1));
+    timer_.async_wait(boost::bind(&HamService::handleTick_, this, boost::asio::placeholders::error));
 }
 
 HamService::~HamService()
@@ -505,30 +506,26 @@ bool HamService::regenerate_(uint64 id)
 	
 }
 
-bool HamService::handleTick_(uint64 time, void*)
+void HamService::handleTick_(const boost::system::error_code& e)
 {
-    
-    //ptime current_time = second_clock::local_time();
-	ptime current_time =  gClock->getStoredBoostTime();
+    ptime current_time = second_clock::local_time();
 
-    //boost::lock_guard<boost::mutex> lock(mutex_);
-		
+    boost::lock_guard<boost::mutex> lock(mutex_);
 	auto iterator = reg_.begin();
 
-	for(iterator = reg_.begin();iterator != reg_.end();iterator++)
-	{
+	while(iterator != reg_.end())	{
 		if(current_time > iterator->second.first)	{
 			if(regenerate_(iterator->second.second)){
-				reg_.erase(iterator);
-			}else	{
-				iterator->second.first += seconds(1);
+				reg_.erase(iterator++);
 			}
+			else
+				iterator++;
 		}
+		else
+			iterator++;
 	}
 
-	//no multithreading just yet - wait till the messagelib is thread safe
-    //timer_.expires_from_now(boost::posix_time::seconds(1));
-	//timer_.async_wait(boost::bind(&HamService::handleTick_, this, boost::asio::placeholders::error));
-	return true;
+	timer_.expires_from_now(boost::posix_time::seconds(1));
+	timer_.async_wait(boost::bind(&HamService::handleTick_, this, boost::asio::placeholders::error));
 
 }

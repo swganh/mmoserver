@@ -248,7 +248,7 @@ ZoneServer::ZoneServer(int argc, char* argv[], swganh::app::SwganhKernel*	kernel
 
 	WorldConfig::Init(zoneId,kernel_,kernel_->GetAppConfig().zone_name);
     ObjectControllerCommandMap::Init(kernel_->GetDatabase());
-	MessageLib::Init(kernel_->GetEventDispatcher());
+	MessageLib::Init(kernel_);
     ObjectFactory::Init(kernel_);
 
     //attribute commands for food buffs
@@ -369,6 +369,7 @@ void ZoneServer::Process(void)
     // Process our game modules
     mObjectControllerDispatch->Process();
     gWorldManager->Process();
+	gClock->process();
     //gScriptEngine->process();
 	
 	//thats the message Dispatch

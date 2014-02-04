@@ -828,5 +828,5 @@ bool Object::checkForObject(Object* object) {
 void Object::setCustomName(boost::unique_lock<boost::mutex>& lock, std::u16string name){ custom_name_= name; 
 	lock.unlock();
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->DispatchMainThread(std::make_shared<ObjectEvent>("Object::CustomName", (this)));
+	dispatcher->Dispatch(std::make_shared<ObjectEvent>("Object::CustomName", (this)));
 	}

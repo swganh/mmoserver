@@ -176,6 +176,11 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
     break;
     }
 
+	std::string name = npc->getFirstName() + " " + npc->getLastName();
+
+	npc->setCustomName(std::u16string(name.begin(), name.end()));
+
+
     Inventory*		npcInventory	= new Inventory();
     npcInventory->setParent(npc);
 

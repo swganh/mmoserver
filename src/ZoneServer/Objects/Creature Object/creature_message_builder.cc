@@ -106,7 +106,7 @@ void CreatureMessageBuilder::RegisterEventHandlers()
 void CreatureMessageBuilder::BuildStatEncumberanceDelta(const std::shared_ptr<CreatureObject>& creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatEncumberanceDelta: " << creature->getId();
-	DeltasMessage message = CreateDeltasMessage(creature, VIEW_4, 2, SWG_CREATURE);
+	DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_4, 2, SWG_CREATURE);
 	creature->SerializeStatEncumberances(&message);
 	gMessageLib->broadcastDelta(message,creature.get());
 }
@@ -115,7 +115,7 @@ void CreatureMessageBuilder::BuildStatEncumberanceDelta(const std::shared_ptr<Cr
 void CreatureMessageBuilder::BuildStatCurrentDelta(const std::shared_ptr<CreatureObject>& creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatCurrentDelta : " << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_6, 13, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_6, 13, SWG_CREATURE);
     creature->SerializeCurrentStats(&message);
     gMessageLib->broadcastDelta(message,creature.get());
 }
@@ -123,7 +123,7 @@ void CreatureMessageBuilder::BuildStatCurrentDelta(const std::shared_ptr<Creatur
 void CreatureMessageBuilder::BuildStatMaxDelta(const std::shared_ptr<CreatureObject>& creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatMaxDelta : " << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_6, 14, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_6, 14, SWG_CREATURE);
     creature->SerializeMaxStats(&message);
     gMessageLib->broadcastDelta(message,creature.get());
 }
@@ -131,7 +131,7 @@ void CreatureMessageBuilder::BuildStatMaxDelta(const std::shared_ptr<CreatureObj
 void CreatureMessageBuilder::BuildStatBaseDelta(const std::shared_ptr<CreatureObject>& creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatBaseDelta : " << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 2, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_1, 2, SWG_CREATURE);
     creature->SerializeBaseStats(&message);
     gMessageLib->broadcastDelta(message,creature.get());
 }
@@ -141,7 +141,7 @@ void CreatureMessageBuilder::BuildStatBaseDelta(const std::shared_ptr<CreatureOb
 void CreatureMessageBuilder::BuildStatWoundDelta(const std::shared_ptr<CreatureObject>& creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatWoundDelta : " << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_3, 17, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_3, 17, SWG_CREATURE);
     creature->SerializeStatWounds(&message);
     gMessageLib->broadcastDelta(message,creature.get());
 }
@@ -154,7 +154,7 @@ void CreatureMessageBuilder::BuildBattleFatigueDelta(const std::shared_ptr<Creat
 		return;
 	}
 	LOG(info) << "CreatureMessageBuilder::BuildBattleFatigueDelta" << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_3, 15, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_3, 15, SWG_CREATURE);
     message.data.write<uint32_t>(creature->GetBattleFatigue());
     gMessageLib->sendDelta(message,player.get());
 }
@@ -164,7 +164,7 @@ void CreatureMessageBuilder::BuildStatDefenderDelta(const std::shared_ptr<Creatu
 {
     //if (creature->haso)
 	//Defenderlist is item #1
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_6, 1, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_6, 1, SWG_CREATURE);
      
 	//never ever send empty updates!!!!
 	if(creature->SerializeDefender(&message))	{
@@ -184,7 +184,7 @@ void CreatureMessageBuilder::BuildInventoryCreditsDelta(const std::shared_ptr<Cr
 		return;
 	}
 
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 1, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_1, 1, SWG_CREATURE);
     message.data.write(inventory->getCredits());
 	gMessageLib->sendDelta(message,player.get());
 	 
@@ -202,7 +202,7 @@ void CreatureMessageBuilder::BuildBankCreditsDelta(const std::shared_ptr<Creatur
 		return;
 	}
 
-    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 0, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_1, 0, SWG_CREATURE);
     message.data.write(bank->getCredits());
 	gMessageLib->sendDelta(message,player.get());
 	 

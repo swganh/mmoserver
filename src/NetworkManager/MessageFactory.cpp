@@ -99,9 +99,6 @@ void MessageFactory::Process(void)
 {
     // Do some garbage collection if we can.
     _processGarbageCollection();
-
-    //maintain a 1sec resolution clock to timestamp messages
-    gClock->process();
 }
 
 //======================================================================================================================

@@ -364,6 +364,9 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		void InitStatMax(const int32_t value);
 		void InitStatMax(const int32_t value, boost::unique_lock<boost::mutex>& lock);
 
+		void InitStatMax(uint16_t stat_index, int32_t value);
+		void InitStatMax(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
 		/*	@brief adds value to the chosen stat max
 		*
 		*/
@@ -401,6 +404,9 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		void InitStatEncumberance(int32_t value);
 		void InitStatEncumberance(int32_t value, boost::unique_lock<boost::mutex>& lock);
 
+		void InitStatEncumberance(uint16_t stat_index, int32_t value);
+		void InitStatEncumberance(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
 		void AddStatEncumberance(uint16_t stat_index, int32_t value);
 		void AddStatEncumberance(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
 
@@ -428,6 +434,9 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		*/
 		void InitStatWound(int32_t value);
 		void InitStatWound(int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void InitStatWound(uint16_t stat_index, int32_t value);
+		void InitStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
 
 		void DeductStatWound(uint16_t stat_index, int32_t value);
 		void DeductStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
@@ -463,6 +472,9 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		void InitStatCurrent(int32_t value);
 		void InitStatCurrent(int32_t value, boost::unique_lock<boost::mutex>& lock);
 
+		void InitStatCurrent(uint16_t stat_index, int32_t value);
+		void InitStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
+
 		/**	adds 'value' to stat 'stat_index'
 		*	
 		*/
@@ -496,6 +508,9 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		*/
 		void InitStatBase(int32_t value);
 		void InitStatBase(int32_t value, boost::unique_lock<boost::mutex>& lock);
+
+		void InitStatBase(uint16_t stat_index, int32_t value);
+		void InitStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);
 		
 		void SetStatBase(uint16_t stat_index, int32_t value);
 		void SetStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock);

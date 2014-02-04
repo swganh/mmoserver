@@ -153,7 +153,9 @@ void VehicleController::Call() {
     body_->states.setPosture(0);
     body_->setScale(1.0f);
 
-	//auto ham = gWorldManager->getKernel()->GetServiceManager()->GetService<swganh::ham::HamService>("HamService");
+	std::string con = this->getAttribute<std::string>("condition");
+	uint32 health_current = atoi(con.substr(0,con.find_first_of("/")).c_str());
+	uint32 health_max = atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str());
 
 	for(int8 i = 0; i<9;i++)	{
 		body_->InitStatBase(0);
@@ -162,9 +164,8 @@ void VehicleController::Call() {
 		body_->InitStatWound(0);
 	}
 
-    std::string con = this->getAttribute<std::string>("condition");
-	body_->SetStatCurrent(HamBar_Health, atoi(con.substr(0,con.find_first_of("/")).c_str()));
-	body_->SetStatMax(HamBar_Health, atoi(con.substr(con.find_first_of("/")+1,con.find_first_of("/")).c_str()));
+	body_->InitStatCurrent(HamBar_Health, health_current);
+	body_->InitStatMax(HamBar_Health, health_max);
 	
     owner_->setMount(body_);
     owner_->setMounted(false);

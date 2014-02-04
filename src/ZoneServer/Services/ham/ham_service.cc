@@ -139,6 +139,9 @@ int32_t HamService::RemoveWound(CreatureObject* creature, uint16_t statIndex, ui
 
 	creature->DeductStatWound(statIndex, update);
 		
+	//add us to regeneration
+	addToRegeneration(creature->getId());
+
 	//combatspam
 	/*CombatSpamMessage spam;
     spam.damage = update;

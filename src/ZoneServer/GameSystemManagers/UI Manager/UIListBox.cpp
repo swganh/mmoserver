@@ -73,8 +73,11 @@ void UIListBox::handleEvent(Message* message)
 
     if(items)
     {
+		
         message->getUint32(); // item count again
         selectedDataItemStr = message->getStringUnicode16();
+		std::string selection_ansi(selectedDataItemStr.begin(), selectedDataItemStr.end());
+		selectedItem = boost::lexical_cast<int32, std::string>(selection_ansi);
 
         if(items >= 2)
             message->getStringUnicode16(caption);

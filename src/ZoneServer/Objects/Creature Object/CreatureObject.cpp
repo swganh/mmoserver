@@ -1474,7 +1474,6 @@ void CreatureObject::SetStatCurrent(uint16_t stat_index, int32_t value, boost::u
 	lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	lock.unlock();
 	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
 	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
 }
@@ -1490,6 +1489,17 @@ void CreatureObject::InitStatCurrent( int32_t value, boost::unique_lock<boost::m
     stat_current_list_.add_initialize( value);
 }
 
+void CreatureObject::InitStatCurrent(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatCurrent(stat_index, value, lock);
+}
+
+void CreatureObject::InitStatCurrent(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_current_list_.update(stat_index, value, false);
+}
+
 void CreatureObject::AddStatCurrent(uint16_t stat_index, int32_t value)
 {
     auto lock = AcquireLock();
@@ -1503,7 +1513,6 @@ void CreatureObject::AddStatCurrent(uint16_t stat_index, int32_t value, boost::u
 	lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	lock.unlock();
 	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
 	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
 }
@@ -1514,7 +1523,6 @@ void CreatureObject::DeductStatCurrent(uint16_t stat_index, int32_t value)
     lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	lock.unlock();
 	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
 	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
 }
@@ -1526,7 +1534,6 @@ void CreatureObject::DeductStatCurrent(uint16_t stat_index, int32_t value, boost
     lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	lock.unlock();
 	dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
 	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
 }
@@ -1579,7 +1586,17 @@ void CreatureObject::InitStatMax( int32_t value)
 void CreatureObject::InitStatMax( int32_t value, boost::unique_lock<boost::mutex>& lock)
 {
     stat_max_list_.add_initialize( value);
+}
 
+void CreatureObject::InitStatMax(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatMax(stat_index, value, lock);
+}
+
+void CreatureObject::InitStatMax(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_max_list_.update(stat_index, value, false);
 }
 
 void CreatureObject::AddStatMax(uint16_t stat_index, int32_t value)
@@ -1644,6 +1661,17 @@ void CreatureObject::InitStatBase( int32_t value)
 void CreatureObject::InitStatBase( int32_t value, boost::unique_lock<boost::mutex>& lock)
 {
     stat_base_list_.add_initialize( value);
+}
+
+void CreatureObject::InitStatBase(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatBase(stat_index, value, lock);
+}
+
+void CreatureObject::InitStatBase(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_base_list_.update(stat_index, value, false);
 }
 
 void CreatureObject::SetStatBase(uint16_t stat_index, int32_t value)
@@ -1735,6 +1763,17 @@ void CreatureObject::InitStatWound( int32_t value)
 void CreatureObject::InitStatWound( int32_t value, boost::unique_lock<boost::mutex>& lock)
 {
     stat_wound_list_.add_initialize( value);
+}
+
+void CreatureObject::InitStatWound(uint16_t stat_index, int32_t value)
+{
+    auto lock = AcquireLock();
+    InitStatWound(stat_index, value, lock);
+}
+
+void CreatureObject::InitStatWound(uint16_t stat_index, int32_t value, boost::unique_lock<boost::mutex>& lock)
+{
+    stat_wound_list_.update(stat_index, value, false);
 }
 
 

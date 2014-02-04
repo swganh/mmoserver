@@ -76,27 +76,27 @@ void CreatureMessageBuilder::RegisterEventHandlers()
         BuildBattleFatigueDelta(value_event->Get());
     });
 
-	event_dispatcher_->Subscribe("Creature::StatCurrent", [this] (std::shared_ptr<EventInterface> incoming_event)
+	event_dispatcher_->Subscribe("CreatureObject::StatCurrent", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatCurrentDelta(value_event->Get());
     });
-    event_dispatcher_->Subscribe("Creature::StatMax", [this] (std::shared_ptr<EventInterface> incoming_event)
+    event_dispatcher_->Subscribe("CreatureObject::StatMax", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatMaxDelta(value_event->Get());
     });
-	event_dispatcher_->Subscribe("Creature::StatEncumberance", [this] (std::shared_ptr<EventInterface> incoming_event)
+	event_dispatcher_->Subscribe("CreatureObject::StatEncumberance", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatEncumberanceDelta(value_event->Get());
     });
-	event_dispatcher_->Subscribe("Creature::StatWound", [this] (std::shared_ptr<EventInterface> incoming_event)
+	event_dispatcher_->Subscribe("CreatureObject::StatWound", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatWoundDelta(value_event->Get());
     });
-	event_dispatcher_->Subscribe("Creature::StatBase", [this] (std::shared_ptr<EventInterface> incoming_event)
+	event_dispatcher_->Subscribe("CreatureObject::StatBase", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatBaseDelta(value_event->Get());

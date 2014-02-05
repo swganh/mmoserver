@@ -54,51 +54,51 @@ public:
     virtual void RegisterEventHandlers();
 
     // deltas
-	static void BuildInventoryCreditsDelta(const std::shared_ptr<CreatureObject>& creature);
-	static void BuildBankCreditsDelta(const std::shared_ptr<CreatureObject>& creature);
-	static void BuildStatDefenderDelta(const std::shared_ptr<CreatureObject>& creature);
-	static void BuildBattleFatigueDelta(const std::shared_ptr<CreatureObject>& CreatureObject);
+	static void BuildInventoryCreditsDelta(CreatureObject* const  creature);
+	static void BuildBankCreditsDelta(CreatureObject* const  creature);
+	static void BuildStatDefenderDelta(CreatureObject* const  creature);
+	static void BuildBattleFatigueDelta(CreatureObject* const  creature);
     
 	
-	static void BuildStatBaseDelta(const std::shared_ptr<CreatureObject>& creature);
-    static void BuildSkillDelta(const std::shared_ptr<CreatureObject>& creature);
-    static void BuildPostureDelta(const std::shared_ptr<CreatureObject>& creature);
-    static void BuildPostureUpdate(const std::shared_ptr<CreatureObject>& creature);
-    static void BuildFactionRankDelta(const std::shared_ptr<CreatureObject>& creature);
-    static void BuildOwnerIdDelta(const std::shared_ptr<CreatureObject>& CreatureObject);
-    static void BuildScaleDelta(const std::shared_ptr<CreatureObject>& CreatureObject);
+	static void BuildStatBaseDelta(CreatureObject* const  creature);
+    static void BuildSkillDelta(CreatureObject* const  creature);
+    static void BuildPostureDelta(CreatureObject* const  creature);
+    static void BuildPostureUpdate(CreatureObject* const  creature);
+    static void BuildFactionRankDelta(CreatureObject* const  creature);
+    static void BuildOwnerIdDelta(CreatureObject* const  creature);
+    static void BuildScaleDelta(CreatureObject* const  creature);
     
-    static void BuildStateBitmaskDelta(const std::shared_ptr<CreatureObject>& CreatureObject);
-    static void BuildStatWoundDelta(const std::shared_ptr<CreatureObject>& CreatureObject);
-    static void BuildAccelerationMultiplierBaseDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildAccelerationMultiplierModifierDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildStatEncumberanceDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildSkillModDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildSpeedMultiplierBaseDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildSpeedMultiplierModifierDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildListenToIdDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildRunSpeedDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildSlopeModifierAngleDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildSlopeModifierPercentDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildTurnRadiusDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildWalkingSpeedDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildWaterModifierPrecentDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildMissionCriticalObjectDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildCombatLevelDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildAnimationDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildMoodAnimationDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildWeaponIdDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildGroupIdDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildInviteSenderIdDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildGuildIdDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildTargetIdDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildMoodIdDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildPerformanceIdDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildStatCurrentDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildStatMaxDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildEquipmentDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildDisguiseDelta(const std::shared_ptr<CreatureObject>& Creature);
-    static void BuildStationaryDelta(const std::shared_ptr<CreatureObject>& Creature);
+    static void BuildStateBitmaskDelta(CreatureObject* const  creature);
+    static void BuildStatWoundDelta(CreatureObject* const  creature);
+    static void BuildAccelerationMultiplierBaseDelta(CreatureObject* const  creature);
+    static void BuildAccelerationMultiplierModifierDelta(CreatureObject* const  creature);
+    static void BuildStatEncumberanceDelta( CreatureObject* const creature);
+    static void BuildSkillModDelta(CreatureObject* const  creature);
+    static void BuildSpeedMultiplierBaseDelta(CreatureObject* const  creature);
+    static void BuildSpeedMultiplierModifierDelta(CreatureObject* const  creature);
+    static void BuildListenToIdDelta(CreatureObject* const  creature);
+    static void BuildRunSpeedDelta(CreatureObject* const  creature);
+    static void BuildSlopeModifierAngleDelta(CreatureObject* const  creature);
+    static void BuildSlopeModifierPercentDelta(CreatureObject* const  creature);
+    static void BuildTurnRadiusDelta(CreatureObject* const  creature);
+    static void BuildWalkingSpeedDelta(CreatureObject* const  creature);
+    static void BuildWaterModifierPrecentDelta(CreatureObject* const  creature);
+    static void BuildMissionCriticalObjectDelta(CreatureObject* const  creature);
+    static void BuildCombatLevelDelta(CreatureObject* const  creature);
+    static void BuildAnimationDelta(CreatureObject* const  creature);
+    static void BuildMoodAnimationDelta(CreatureObject* const  creature);
+    static void BuildWeaponIdDelta(CreatureObject* const  creature);
+    static void BuildGroupIdDelta(CreatureObject* const  creature);
+    static void BuildInviteSenderIdDelta(CreatureObject* const  creature);
+    static void BuildGuildIdDelta(CreatureObject* const  creature);
+    static void BuildTargetIdDelta(CreatureObject* const  creature);
+    static void BuildMoodIdDelta(CreatureObject* const  creature);
+    static void BuildPerformanceIdDelta(CreatureObject* const  creature);
+    static void BuildStatCurrentDelta(CreatureObject* const  creature);
+    static void BuildStatMaxDelta(CreatureObject* const  creature);
+    static void BuildEquipmentDelta(CreatureObject* const  creature);
+    static void BuildDisguiseDelta(CreatureObject* const  creature);
+    static void BuildStationaryDelta(CreatureObject* const  creature);
     static void BuildUpdatePvpStatusMessage(const std::shared_ptr<CreatureObject>& object);
 
     // baselines
@@ -108,5 +108,5 @@ public:
     static boost::optional<swganh::messages::BaselinesMessage> BuildBaseline6(const std::shared_ptr<CreatureObject>& creature, boost::unique_lock<boost::mutex>& lock);
 
 private:
-    typedef swganh::event_dispatcher::ValueEvent<std::shared_ptr<CreatureObject>> CreatureObjectEvent;
+    typedef swganh::event_dispatcher::ValueEvent<CreatureObject*> CreatureObjectEvent;
 };

@@ -1338,7 +1338,7 @@ void CreatureObject::AddDefender(uint64 defenderId, boost::unique_lock<boost::mu
 	lock.unlock();
 	
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::DefenderList", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::DefenderList", this));
 
 }
 
@@ -1370,7 +1370,7 @@ void CreatureObject::RemoveDefender(uint64 defenderId, boost::unique_lock<boost:
 	lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::DefenderList", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::DefenderList", this));
 }
 
 std::vector<uint64> CreatureObject::GetDefender(void)
@@ -1472,7 +1472,7 @@ void CreatureObject::SetStatCurrent(uint16_t stat_index, int32_t value, boost::u
     stat_current_list_.update(stat_index, value);
 
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", this));
 	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
 }
 
@@ -1511,7 +1511,7 @@ void CreatureObject::AddStatCurrent(uint16_t stat_index, int32_t value, boost::u
 	lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", this));
 	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
 }
 
@@ -1521,7 +1521,7 @@ void CreatureObject::DeductStatCurrent(uint16_t stat_index, int32_t value)
     lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", this));
 	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
 }
 
@@ -1532,7 +1532,7 @@ void CreatureObject::DeductStatCurrent(uint16_t stat_index, int32_t value, boost
     lock.unlock();
 
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatCurrent", this));
 	//dispatcher->DispatchMainThread(std::make_shared<CreatureObjectEvent>("CreatureObject::PersistStatCurrent", (this)));
 }
 
@@ -1569,7 +1569,7 @@ void CreatureObject::SetStatMax(uint16_t stat_index, int32_t value, boost::uniqu
     stat_max_list_.update(stat_index, value);
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", this));
 	//DISPATCH(Creature, StatMax);
 	
 
@@ -1608,7 +1608,7 @@ void CreatureObject::AddStatMax(uint16_t stat_index, int32_t value, boost::uniqu
     stat_max_list_.update(stat_index, stat_max_list_[stat_index] + value);
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", this));
     //DISPATCH(Creature, StatMax);
 }
 
@@ -1625,7 +1625,7 @@ void CreatureObject::DeductStatMax(uint16_t stat_index, int32_t value, boost::un
     
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatMax", this));
 }
 
 std::vector<int32_t> CreatureObject::GetMaxStats(void)
@@ -1684,7 +1684,7 @@ void CreatureObject::SetStatBase(uint16_t stat_index, int32_t value, boost::uniq
 
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", this));
 //    DISPATCH(Creature, StatBase);
 }
 
@@ -1700,7 +1700,7 @@ void CreatureObject::AddStatBase(uint16_t stat_index, int32_t value, boost::uniq
     stat_base_list_.update(stat_index, new_stat);
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", this));
 }
 
 void CreatureObject::DeductStatBase(uint16_t stat_index, int32_t value)
@@ -1716,7 +1716,7 @@ void CreatureObject::DeductStatBase(uint16_t stat_index, int32_t value, boost::u
 	
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatBase", this));
 }
 
 std::vector<int32_t> CreatureObject::GetBaseStats()
@@ -1787,7 +1787,7 @@ void CreatureObject::SetStatWound(uint16_t stat_index, int32_t value, boost::uni
     
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", this));
 	
 }
 
@@ -1803,7 +1803,7 @@ void CreatureObject::AddStatWound(uint16_t stat_index, int32_t value, boost::uni
 	
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", this));
 	
 }
 
@@ -1820,7 +1820,7 @@ void CreatureObject::DeductStatWound(uint16_t stat_index, int32_t value, boost::
 	
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatWound", this));
 }
 
 std::vector<int32_t> CreatureObject::GetStatWounds()
@@ -1869,7 +1869,7 @@ void CreatureObject::SetStatEncumberance(uint16_t stat_index, int32_t value, boo
 	
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", this));
 	
 }
 
@@ -1886,7 +1886,7 @@ void CreatureObject::AddStatEncumberance(uint16_t stat_index, int32_t value, boo
     
 	auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", this));
 }
 
 void CreatureObject::DeductStatEncumberance(uint16_t stat_index, int32_t value)
@@ -1901,7 +1901,7 @@ void CreatureObject::DeductStatEncumberance(uint16_t stat_index, int32_t value, 
     stat_encumberance_list_.update(stat_index, (current > value) ? (current - value) : 0);
     auto dispatcher = GetEventDispatcher();
 	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::StatEncumberance", this));
 }
 
 std::vector<int32_t> CreatureObject::GetStatEncumberances()
@@ -1957,9 +1957,8 @@ void CreatureObject::SetBattleFatigue(uint32_t battle_fatigue)
 void CreatureObject::SetBattleFatigue(uint32_t battle_fatigue, boost::unique_lock<boost::mutex>& lock)
 {
     battle_fatigue_ = battle_fatigue;
-	lock.unlock();
 	auto dispatcher = GetEventDispatcher();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", this));
 }
 
 void CreatureObject::AddBattleFatigue(uint32_t battle_fatigue)
@@ -1972,8 +1971,7 @@ void CreatureObject::AddBattleFatigue(uint32_t battle_fatigue, boost::unique_loc
 {
     battle_fatigue += battle_fatigue;
     auto dispatcher = GetEventDispatcher();
-	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", this));
 }
 
 void CreatureObject::DeductBattleFatigue(uint32_t battle_fatigue)
@@ -1986,8 +1984,7 @@ void CreatureObject::DeductBattleFatigue(uint32_t battle_fatigue, boost::unique_
 {
     battle_fatigue -= battle_fatigue;
     auto dispatcher = GetEventDispatcher();
-	lock.unlock();
-	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", (this)));
+	dispatcher->Dispatch(std::make_shared<CreatureObjectEvent>("CreatureObject::BattleFatigue", this));
 }
 
 uint32_t CreatureObject::GetBattleFatigue()

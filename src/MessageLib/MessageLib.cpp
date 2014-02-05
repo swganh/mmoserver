@@ -361,8 +361,8 @@ void MessageLib::_sendToInRangeUnreliableChatGroup(Message* message, const Creat
 }
 
 //======================================================================================================================
-
-void MessageLib::_sendToInRange(Message* message, Object* const object, unsigned char priority) const {
+                 
+void MessageLib::_sendToInRange(Message* message, const Object* object, unsigned char priority) const {
     glm::vec3 position = object->getWorldPosition();
 
     ObjectListType in_range_players;
@@ -870,7 +870,7 @@ bool MessageLib::sendCreateManufacturingSchematic(ManufacturingSchematic* manSch
     return(true);
 }
 
-void MessageLib::broadcastDelta(swganh::messages::DeltasMessage& message, Object* object)
+void MessageLib::broadcastDelta(swganh::messages::DeltasMessage& message, const Object* object)
 {
 	MessageFactory* factory = getFactory_();
 
@@ -897,7 +897,10 @@ MessageFactory* MessageLib::getFactory_()
 
 void MessageLib::sendDelta(swganh::messages::DeltasMessage& message, PlayerObject* player)
 {
-	
+	if(!_checkPlayer(player)) {
+		return;
+	}
+
 	MessageFactory* factory = getFactory_();
 
 	swganh::ByteBuffer buffer;
@@ -906,10 +909,10 @@ void MessageLib::sendDelta(swganh::messages::DeltasMessage& message, PlayerObjec
 	// at this time this is single threaded only
 	factory->StartMessage();
 	factory->addData(buffer.data(),buffer.size());
+	//Message* new_message = 	factory->EndMessage();
+
 	
-	if(_checkPlayer(player)) {
-		player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
-        }
-	
+	player->getClient()->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 1);
+    
 	factory_queue_.push(factory);
 }

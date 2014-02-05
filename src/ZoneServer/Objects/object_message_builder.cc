@@ -54,7 +54,7 @@ void ObjectMessageBuilder::RegisterEventHandlers()
 	
 }
 
-void ObjectMessageBuilder::BuildCustomNameDelta(const std::shared_ptr<Object>& object)
+void ObjectMessageBuilder::BuildCustomNameDelta(const Object* object)
 {
  
 	if(object->getObjectType() == SWG_INVALID)	{
@@ -62,10 +62,10 @@ void ObjectMessageBuilder::BuildCustomNameDelta(const std::shared_ptr<Object>& o
 		return;
 	}
 
-    swganh::messages::DeltasMessage message = CreateDeltasMessage(object.get(), VIEW_3, 2, object->getObjectType());
+    swganh::messages::DeltasMessage message = CreateDeltasMessage(object, VIEW_3, 2, object->getObjectType());
     message.data.write(object->getCustomName());
 
-    gMessageLib->broadcastDelta(message,object.get());
+    gMessageLib->broadcastDelta(message, object);
 }
 
 //swganh::messages::DeltasMessage ObjectMessageBuilder::CreateDeltasMessage(const std::shared_ptr<Object>& object,  uint8_t view_type, uint16_t update_type, uint16_t update_count)

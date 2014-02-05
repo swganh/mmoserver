@@ -183,7 +183,6 @@ NPCObject* PersistentNpcFactory::_createPersistentNpc(swganh::database::Database
     result->getNextRow(mPersistentNpcBinding,(void*)npc);
 
 	std::string name = npc->getFirstName() + " " + npc->getLastName();
-	LOG(info) << "" << npc->getFirstName() << " : " << name;
 
 	npc->setCustomName(std::u16string(name.begin(), name.end()));
 	

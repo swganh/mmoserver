@@ -54,127 +54,139 @@ void CreatureMessageBuilder::RegisterEventHandlers()
 
 	event_dispatcher_->Subscribe("CreatureObject::DefenderList", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
+		
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatDefenderDelta(value_event->Get());
+
     });
 
 	event_dispatcher_->Subscribe("CreatureObject::InventoryCredits", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildInventoryCreditsDelta(value_event->Get());
+
     });
 
 	event_dispatcher_->Subscribe("CreatureObject::BankCredits", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildInventoryCreditsDelta(value_event->Get());
+
     });
 
 	event_dispatcher_->Subscribe("CreatureObject::BattleFatigue", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildBattleFatigueDelta(value_event->Get());
+
     });
 
 	event_dispatcher_->Subscribe("CreatureObject::StatCurrent", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatCurrentDelta(value_event->Get());
+
     });
     event_dispatcher_->Subscribe("CreatureObject::StatMax", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatMaxDelta(value_event->Get());
+
     });
 	event_dispatcher_->Subscribe("CreatureObject::StatEncumberance", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatEncumberanceDelta(value_event->Get());
+
     });
 	event_dispatcher_->Subscribe("CreatureObject::StatWound", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatWoundDelta(value_event->Get());
+
     });
 	event_dispatcher_->Subscribe("CreatureObject::StatBase", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
         auto value_event = std::static_pointer_cast<CreatureObjectEvent>(incoming_event);
         BuildStatBaseDelta(value_event->Get());
+
     });
+
+
 }
 
-void CreatureMessageBuilder::BuildStatEncumberanceDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildStatEncumberanceDelta(CreatureObject* const creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatEncumberanceDelta: " << creature->getId();
-	DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_4, 2, SWG_CREATURE);
+	DeltasMessage message = CreateDeltasMessage(creature, VIEW_4, 2, SWG_CREATURE);
 	if(creature->SerializeStatEncumberances(&message))
-		gMessageLib->broadcastDelta(message,creature.get());
+		gMessageLib->broadcastDelta(message,creature);
 }
 
 
-void CreatureMessageBuilder::BuildStatCurrentDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildStatCurrentDelta(CreatureObject* const  creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatCurrentDelta : " << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_6, 13, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_6, 13, SWG_CREATURE);
     if(creature->SerializeCurrentStats(&message))
-		gMessageLib->broadcastDelta(message,creature.get());
+		gMessageLib->broadcastDelta(message,creature);
 }
 
-void CreatureMessageBuilder::BuildStatMaxDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildStatMaxDelta(CreatureObject* const  creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatMaxDelta : " << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_6, 14, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_6, 14, SWG_CREATURE);
     if(creature->SerializeMaxStats(&message))
-		gMessageLib->broadcastDelta(message,creature.get());
+		gMessageLib->broadcastDelta(message,creature);
 }
 
-void CreatureMessageBuilder::BuildStatBaseDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildStatBaseDelta(CreatureObject* const  creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatBaseDelta : " << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_1, 2, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 2, SWG_CREATURE);
     if(creature->SerializeBaseStats(&message))
-		gMessageLib->broadcastDelta(message,creature.get());
+		gMessageLib->broadcastDelta(message,creature);
 }
 
 
 
-void CreatureMessageBuilder::BuildStatWoundDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildStatWoundDelta(CreatureObject* const  creature)
 {
 	LOG(info) << "CreatureMessageBuilder::BuildStatWoundDelta : " << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_3, 17, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_3, 17, SWG_CREATURE);
     if(creature->SerializeStatWounds(&message))
-		gMessageLib->broadcastDelta(message,creature.get());
+		gMessageLib->broadcastDelta(message,creature);
 }
 
 
-void CreatureMessageBuilder::BuildBattleFatigueDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildBattleFatigueDelta(CreatureObject* const  creature)
 {
-	std::shared_ptr<PlayerObject> player = std::dynamic_pointer_cast<PlayerObject>(creature);
+	PlayerObject* const  player = dynamic_cast<PlayerObject*>(creature);
 	if(!player)	{
 		return;
 	}
 	LOG(info) << "CreatureMessageBuilder::BuildBattleFatigueDelta" << creature->getId();
-    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_3, 15, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_3, 15, SWG_CREATURE);
     message.data.write<uint32_t>(creature->GetBattleFatigue());
-    gMessageLib->sendDelta(message,player.get());
+    gMessageLib->sendDelta(message,player);
 }
 
 
-void CreatureMessageBuilder::BuildStatDefenderDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildStatDefenderDelta(CreatureObject* const  creature)
 {
     //if (creature->haso)
 	//Defenderlist is item #1
-    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_6, 1, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_6, 1, SWG_CREATURE);
      
 	//never ever send empty updates!!!!
 	if(creature->SerializeDefender(&message))	{
-		gMessageLib->broadcastDelta(message,creature.get());
+		gMessageLib->broadcastDelta(message,creature);
 	}    
 }
 
-void CreatureMessageBuilder::BuildInventoryCreditsDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildInventoryCreditsDelta(CreatureObject* const  creature)
 {
-    std::shared_ptr<PlayerObject> player = std::dynamic_pointer_cast<PlayerObject>(creature);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creature);
 	if(!player)	{
 		return;
 	}
@@ -184,15 +196,15 @@ void CreatureMessageBuilder::BuildInventoryCreditsDelta(const std::shared_ptr<Cr
 		return;
 	}
 
-    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_1, 1, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 1, SWG_CREATURE);
     message.data.write(inventory->getCredits());
-	gMessageLib->sendDelta(message,player.get());
+	gMessageLib->sendDelta(message,player);
 	 
 }
 
-void CreatureMessageBuilder::BuildBankCreditsDelta(const std::shared_ptr<CreatureObject>& creature)
+void CreatureMessageBuilder::BuildBankCreditsDelta(CreatureObject* const  creature)
 {
-    std::shared_ptr<PlayerObject> player = std::dynamic_pointer_cast<PlayerObject>(creature);
+    PlayerObject* player = dynamic_cast<PlayerObject*>(creature);
 	if(!player)	{
 		return;
 	}
@@ -202,8 +214,8 @@ void CreatureMessageBuilder::BuildBankCreditsDelta(const std::shared_ptr<Creatur
 		return;
 	}
 
-    DeltasMessage message = CreateDeltasMessage(creature.get(), VIEW_1, 0, SWG_CREATURE);
+    DeltasMessage message = CreateDeltasMessage(creature, VIEW_1, 0, SWG_CREATURE);
     message.data.write(bank->getCredits());
-	gMessageLib->sendDelta(message,player.get());
+	gMessageLib->sendDelta(message,player);
 	 
 }

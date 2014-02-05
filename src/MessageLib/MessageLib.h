@@ -121,7 +121,7 @@ public:
 	/*	@brief Broadcast a delta to all playerentities in range. This method is threadsafe
 	*
 	*/
-	void				broadcastDelta(swganh::messages::DeltasMessage& message, Object* object);
+	void				broadcastDelta(swganh::messages::DeltasMessage& message, const Object* object);
 	
 	/*	@brief sends a delta to the given player only. This method is threadsafe
 	*	
@@ -696,7 +696,7 @@ private:
 	/*	@brief sends the given reliable Message to all players in range
 	*
 	*/
-	void				_sendToInRange(Message* message, Object* const object, unsigned char priority) const;
+	void				_sendToInRange(Message* message, const Object* object, unsigned char priority) const;
 
 	void				_sendToInRangeUnreliableChat(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);
 	void				_sendToInRangeUnreliableChatGroup(Message* message, const CreatureObject* object, unsigned char priority, uint32_t crc);

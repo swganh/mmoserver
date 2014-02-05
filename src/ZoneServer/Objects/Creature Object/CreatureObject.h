@@ -331,8 +331,6 @@ class CreatureObject : public MovingObject// , public std::enable_shared_from_th
 		bool SerializeDefender(swganh::messages::BaseSwgMessage* message);
 		bool SerializeDefender(swganh::messages::BaseSwgMessage* message, boost::unique_lock<boost::mutex>& lock);
 
-		//typedef swganh::event_dispatcher::ValueEvent<std::shared_ptr<CreatureObject>> CreatureObjectEvent;
-
 		bool	checkDefenderList(uint64 defenderId);
 
 		

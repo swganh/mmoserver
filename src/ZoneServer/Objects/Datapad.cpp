@@ -506,7 +506,7 @@ void Datapad::AddWaypoint(const std::shared_ptr<WaypointObject>& waypoint)
 void Datapad::AddWaypoint(const std::shared_ptr<WaypointObject>& waypoint, boost::unique_lock<boost::mutex>& lock)
 {
 	
-	std::shared_ptr<PlayerObject> player = std::static_pointer_cast<PlayerObject>(gWorldManager->getSharedObjectById(this->getParentId()));
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
 	if(!player)	{
 		//the parent isnt in the main object map as long as its still being loaded
 		//this will suit us well as we dont want to create deltas in this case
@@ -535,7 +535,7 @@ void Datapad::ModifyWaypoint(uint64_t way_object_id, boost::unique_lock<boost::m
 
 	lock.unlock();
 	LOG(info) << "Datapad::ModifyWaypoint : " << way_object_id;
-	std::shared_ptr<PlayerObject> player = std::static_pointer_cast<PlayerObject>(gWorldManager->getSharedObjectById(this->getParentId()));
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
 	auto dispatcher = GetEventDispatcher();
 	dispatcher->Dispatch(std::make_shared<PlayerObjectEvent>("PlayerObject::Waypoint", (player)));
    
@@ -563,7 +563,7 @@ void Datapad::RemoveWaypoint(uint64_t waypoint_id, boost::unique_lock<boost::mut
 
 	lock.unlock();
 
-	std::shared_ptr<PlayerObject> player = std::static_pointer_cast<PlayerObject>(gWorldManager->getSharedObjectById(this->getParentId()));
+	PlayerObject* player = dynamic_cast<PlayerObject*>(gWorldManager->getObjectById(this->getParentId()));
     auto dispatcher = GetEventDispatcher();
 	dispatcher->Dispatch(std::make_shared<PlayerObjectEvent>("PlayerObject::Waypoint", (player)));
 }

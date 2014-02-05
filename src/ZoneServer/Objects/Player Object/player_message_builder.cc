@@ -61,9 +61,9 @@ event_dispatcher_->Subscribe("PlayerObject::Waypoint", [this] (std::shared_ptr<E
 }
 
 
-void PlayerMessageBuilder::BuildWaypointDelta(const std::shared_ptr<PlayerObject>& object)
+void PlayerMessageBuilder::BuildWaypointDelta(PlayerObject* object)
 {
-  DeltasMessage message = CreateDeltasMessage(object.get(), VIEW_8, 1, SWG_PLAYER);
+  DeltasMessage message = CreateDeltasMessage(object, VIEW_8, 1, SWG_PLAYER);
   
   Datapad*		pad = object->getDataPad();
   if(!pad)	{
@@ -73,6 +73,6 @@ void PlayerMessageBuilder::BuildWaypointDelta(const std::shared_ptr<PlayerObject
 
   if(pad->SerializeWaypoints(&message))	{
 	 
-	gMessageLib->sendDelta(message,object.get());
+	gMessageLib->sendDelta(message,object);
   }
 }

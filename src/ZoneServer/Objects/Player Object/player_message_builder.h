@@ -51,9 +51,9 @@ public:
         RegisterEventHandlers();
     }
 
-	static void BuildWaypointDelta(const std::shared_ptr<PlayerObject>& object);
+	static void BuildWaypointDelta(PlayerObject* object);
    
 private:
-    typedef swganh::event_dispatcher::ValueEvent<std::shared_ptr<PlayerObject>> PlayerObjectEvent;
+    typedef swganh::event_dispatcher::ValueEvent<PlayerObject*> PlayerObjectEvent;
 	void RegisterEventHandlers();
 };

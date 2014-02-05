@@ -584,17 +584,17 @@ void PlayerObjectFactory::RegisterEventHandlers()
 dispatcher->Subscribe("PlayerObjectFactory::SaveCharacterAttributes", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
 		auto value_event = std::static_pointer_cast<PlayerObjectEvent>(incoming_event);
-		LOG(info) << "event_dispatcher_->Subscribe : subscription to : PlayerObjectFactory::SaveCharacterAttributes : " << value_event->Get().get()->getId();
+		LOG(info) << "event_dispatcher_->Subscribe : subscription to : PlayerObjectFactory::SaveCharacterAttributes : " << value_event->Get()->getId();
         
-		storeCharacterAttributes_(value_event->Get().get());
+		storeCharacterAttributes_(value_event->Get());
     });
 
 dispatcher->Subscribe("PlayerObjectFactory::SaveCharacterPosition", [this] (std::shared_ptr<EventInterface> incoming_event)
     {
 		auto value_event = std::static_pointer_cast<PlayerObjectEvent>(incoming_event);
-		LOG(info) << "event_dispatcher_->Subscribe : subscription to : PlayerObjectFactory::SaveCharacterAttributes : " << value_event->Get().get()->getId();
+		LOG(info) << "event_dispatcher_->Subscribe : subscription to : PlayerObjectFactory::SaveCharacterAttributes : " << value_event->Get()->getId();
         
-		storeCharacterPosition(value_event->Get().get());
+		storeCharacterPosition(value_event->Get());
     });
 
 }

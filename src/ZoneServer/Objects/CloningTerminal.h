@@ -42,7 +42,7 @@ public:
     ~CloningTerminal();
 
     void		handleObjectMenuSelect(uint8 messageType,Object* srcObject);
-    void		handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window);
+    void		handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
 
 private:
 

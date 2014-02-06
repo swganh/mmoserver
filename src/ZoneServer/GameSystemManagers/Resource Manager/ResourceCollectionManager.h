@@ -35,6 +35,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include "Utils/typedefs.h"
 #include "DatabaseManager/DatabaseCallback.h"
 
+#include "ZoneServer\GameSystemManagers\UI Manager\UICallback.h"
+
 
 #define	 gResourceCollectionManager		ResourceCollectionManager::getSingletonPtr()
 
@@ -105,7 +107,7 @@ private:
 
     ResourceCollectionManager(swganh::database::Database* database);
 
-    void									handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window);
+    void									handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
     void									_setupDatabindings();
     void									_destroyDatabindings();
 

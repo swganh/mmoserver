@@ -120,7 +120,7 @@ void CloningTerminal::handleObjectMenuSelect(uint8 messageType,Object* srcObject
 
 
 // void CloningTerminal::handleUIEvent(BString strInventoryCash, string strBankCash, UIWindow* window)
-void CloningTerminal::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
+void CloningTerminal::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
     if(window == NULL)
     {

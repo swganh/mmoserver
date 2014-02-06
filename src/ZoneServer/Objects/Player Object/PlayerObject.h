@@ -261,7 +261,7 @@ class PlayerObject : public CreatureObject
         
         // UI Windows
 		//get this out of here asap
-        void				handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window);
+        void				handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
 
         UIWindowList*		getUIWindowList(){ return &mUIWindowList; }
         void				addUIWindow(uint32 id){ mUIWindowList.push_back(id); }

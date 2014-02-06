@@ -137,7 +137,7 @@ void TicketCollector::_createTicketSelectMenu(PlayerObject* playerObject)
 
 //=============================================================================
 
-void TicketCollector::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
+void TicketCollector::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
     if (!action && element != -1 && mShuttle != NULL && mShuttle->availableInPort())
     {

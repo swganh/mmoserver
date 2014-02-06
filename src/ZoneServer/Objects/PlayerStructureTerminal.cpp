@@ -206,7 +206,7 @@ void PlayerStructureTerminal::handleObjectMenuSelect(uint8 messageType,Object* s
 
 //=============================================================================
 
-void PlayerStructureTerminal::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
+void PlayerStructureTerminal::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
     // gLogger->log(LogManager::DEBUG,"InsuranceTerminal::handleUIEvent You are here!",MSG_NORMAL);
 

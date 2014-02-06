@@ -1244,7 +1244,7 @@ void PlayerObject::updateInventoryCredits(int32 amount)
 //
 // handles any UIWindow callbacks for this player
 // get these out of the playerobject asap
-void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
+void PlayerObject::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
     switch(window->getWindowType())
     {

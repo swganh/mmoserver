@@ -152,6 +152,6 @@ void ResourceCollectionManager::handleDatabaseJobComplete(void* ref,swganh::data
 // handles any UIWindow callbacks for sampling events
 //
 
-void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
+void ResourceCollectionManager::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
 }

@@ -65,7 +65,7 @@ public:
 
     void			travelRequest(TravelTicket* ticket,PlayerObject* playerObject);
 
-    virtual void	handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window);
+    virtual void	handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
 
 private:
 

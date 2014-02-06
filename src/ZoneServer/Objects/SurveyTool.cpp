@@ -187,7 +187,7 @@ void SurveyTool::StartUsing(PlayerObject* player)
 //
 // TODO: verify with skillmod
 //
-void SurveyTool::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window)
+void SurveyTool::handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer)
 {
     if(!action && element != -1)
     {

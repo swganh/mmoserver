@@ -152,7 +152,7 @@ public:
     void				createTicketSelectMenu(PlayerObject* playerObject, Shuttle* shuttle, BString port);
     void				useTicket(PlayerObject* player, TravelTicket* ticket,Shuttle* shuttle);
 
-    virtual void		handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window);
+    virtual void		handleUIEvent(uint32 action,int32 element,std::u16string inputStr,UIWindow* window, std::shared_ptr<WindowAsyncContainerCommand> AsyncContainer = nullptr);
 
 private:
 

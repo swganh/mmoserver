@@ -54,7 +54,7 @@ Clock::Clock()
 	time_fix = time;
 
 	mStoredTime = 0;
-	mBoostTime = time;
+	mBoostTime = pt::second_clock::local_time();;
     
 	mClockScheduler		= new Anh_Utils::Scheduler(this);
     mClockScheduler->addTask(fastdelegate::MakeDelegate(this,&Clock::_setStoredTime),1,100,NULL);

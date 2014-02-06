@@ -195,6 +195,7 @@ void ConnectionServer::Process(void)
     // Process our core services first.
     //mNetworkManager->Process();
     mDatabaseManager->process();
+	gClock->process();
 
     //we dont want this stalled by the clients!!!
     mServerService->Process();

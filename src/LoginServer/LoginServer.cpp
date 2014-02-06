@@ -151,6 +151,7 @@ LoginServer::~LoginServer(void)
 //======================================================================================================================
 void LoginServer::Process(void)
 {
+	gClock->process();
     mNetworkManager->Process();
     mDatabaseManager->process();
     mLoginManager->Process();

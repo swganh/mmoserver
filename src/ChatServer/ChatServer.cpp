@@ -197,6 +197,8 @@ void ChatServer::Process()
     mMessageDispatch->Process();
     gMessageFactory->Process();
 
+	gClock->process();
+
     //  Process our core services
     mDatabaseManager->process();
     mNetworkManager->Process();

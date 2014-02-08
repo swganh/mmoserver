@@ -132,7 +132,7 @@ pt::ptime 	Clock::getStoredBoostTime()
 
 uint64 Clock::getGlobalTime() const
 {
-    pt::ptime time  = pt::second_clock::universal_time();
+    pt::ptime time  = pt::microsec_clock::universal_time();
 	pt::time_duration diff(time - date_fix);
 	return  diff.total_milliseconds();
 	//return time.time_of_day().total_milliseconds();
@@ -146,7 +146,7 @@ uint64 Clock::getGlobalTime() const
 uint64 Clock::getLocalTime() const
 {
 	//return mStoredTime;
-	pt::ptime time  = pt::second_clock::universal_time();
+	pt::ptime time  = pt::microsec_clock::universal_time();
 	pt::time_duration diff(time - time_fix);
 	return  diff.total_milliseconds();
 	//return time.time_of_day().total_milliseconds();

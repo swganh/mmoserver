@@ -70,14 +70,14 @@ public:
 	*	@param CreatureObject* creature The CreatureObject we will be manipulating
 	*	@param uint32_t update is the amount
 	*/
-	int32_t				UpdateBattleFatigue(CreatureObject* creature, const int32_t update);
+	virtual int32_t		UpdateBattleFatigue(CreatureObject* creature, const int32_t update);
 
 	/**	@brief calculates the hamcost for an action based on the creatures hamstats and applies it to the ham if all costs can be met
 	*	@param CreatureObject* creature The CreatureObject we will be manipulating
 	*	@param int32_t *_cost is the raw cost for the relevant Main Hambar
 	*	@returns whether the calculated costs could be applied
 	*/
-	bool				ApplyModifiedHamCosts(CreatureObject* creature, int32_t healthCost, int32_t actionCost, int32_t mindCost);
+	virtual bool		ApplyModifiedHamCosts(CreatureObject* creature, int32_t healthCost, int32_t actionCost, int32_t mindCost);
 
 	/**	@brief adds a wound to the relevant ham element. Performs sanity checks on wound size and updates the hitpoints if necessary
 	*	@param CreatureObject* creature The CreatureObject we will be manipulating
@@ -99,10 +99,11 @@ public:
 	*/
 	virtual int32_t		ModifyMaxHam(CreatureObject* creature, const uint16_t statIndex, const int32_t update);
 	
-
-	//heals a wound of the relevant ham element
-	//performs sanity checks on wound size and updates the hitpoints if necessary
-	//
+	/**	@brief heals a wound of the relevant ham element This will trigger a persist and serialize event
+	*	@param CreatureObject* creature The CreatureObject we will be manipulating
+	*	@param const uint16_t statIndex desctribes the stat we want to manipulate (will / health action whatever)
+	*	@param const int32_t update is the amount we are going to change the MaxHam for.
+	*/
 	virtual int32_t		RemoveWound(CreatureObject* creature, uint16_t statIndex, uint32_t update);
 
 
@@ -128,7 +129,6 @@ public:
 	virtual	int32_t	UpdateCurrentHitpoints(CreatureObject* creature, const uint16_t statIndex, const int32_t update);
 
 	/*	@brief updates a creatures base hitpoints (eg image design)
-	*
 	*	@param CreatureObject* creature
 	*	@param uint16_t statIndex			the property to access strength or will or whatever
 	*	@param int32_t update				the delta of the value we are going to change
@@ -168,18 +168,13 @@ public:
     /**
      * This method checks the main pools and verifies that each is
      * currently greater than respective value that is passed in.
-     *
 	 * @param  CreatureObject* creature is the creatureobject we want the check being made for
-     *
      * @param health Value that the health pool should be greater than.
-     *
      * @param action Value that the action pool should be greater than.
-	 *
      * @param mind Value that the mind pool should be greater than.
-     *
      * @returns True if the main pools are exceed the specified values, false if not.
      */
-	bool			checkMainPools(CreatureObject* creature, const int32 health,const int32 action, const int32 mind);
+	virtual bool	checkMainPools(CreatureObject* creature, const int32_t health,const int32_t action, const int32_t mind);
 
 	/**
      * @brief This method checks the main pools and verifies that each is currently greater than respective value that is passed in.
@@ -192,7 +187,7 @@ public:
 	 *
      * @returns True if the main pools are exceed the specified values, false if not.
      */
-    bool			checkMainPool(CreatureObject* creature, const uint16_t statIndex, const int32 value);
+    virtual bool	checkMainPool(CreatureObject* creature, const uint16_t statIndex, const int32_t                                           value);
 
 
 	bool			ApplyHamCosts(CreatureObject* creature, uint32_t healthCost, uint32_t actionCost, uint32_t mindCost);

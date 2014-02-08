@@ -1378,6 +1378,7 @@ void Session::_processDataOrderPacket(Packet* packet)
     //The location of the packetsequence out of order has NOBEARING on the question on which list we will find the last properly received Packet!!!
     if(mRolloverWindowPacketList.size()&& (sequence > (65535-mRolloverWindowPacketList.size())))
     {
+		LOG(warning) << "_processDataOrderPacket its the rollover list";
         //jupp its on the rolloverlist
 
         for (iterRoll = mRolloverWindowPacketList.begin(); iterRoll != mRolloverWindowPacketList.end(); iterRoll++)
@@ -1411,16 +1412,18 @@ void Session::_processDataOrderPacket(Packet* packet)
         // Grab our window packet
         windowPacket = (*iter);
         windowPacket->setReadIndex(2);
-        windowPacket->getUint16(); // windowsequence ?
+        uint16 seq = windowPacket->getUint16(); // windowsequence ?
 
         // If it's smaller than the order packet send it, otherwise break;
         // do we want to throttle the amount of packets being send to 10 or 50 or 100 ???
         // if we receive a sequence on the rolloverlist (65530 for example) we will
         // always send ALL packets on the regular list -
-
+		uint64 old =  windowPacket->getTimeOOHSent();
         //make sure we do not spam the connection needlessly with packets
-        if(localTime - windowPacket->getTimeOOHSent() > 10)
-        {
+        if(localTime - windowPacket->getTimeOOHSent() > 10)        {
+			
+			LOG(warning) << "_processDataOrderPacket :: added : " << seq;
+			LOG(warning) << "_processDataOrderPacket :: time  : now : " << localTime << " old :" << old;
             _addOutgoingReliablePacket(windowPacket);
 
             windowPacket->setTimeOOHSent(localTime);
@@ -1431,6 +1434,7 @@ void Session::_processDataOrderPacket(Packet* packet)
         }
         else
         {
+			LOG(warning) << "_processDataOrderPacket :: time spam guard : now : " << localTime << " old :" << old;
             mPacketFactory->DestroyPacket(packet);
             return;
         }

@@ -71,6 +71,8 @@ void CharacterBuilderTerminal::InitMenus()
     mMainMenu.push_back("Manage Items");
     mMainMenu.push_back("Manage Resources");
     mMainMenu.push_back("Manage Professions");
+	mMainMenu.push_back("Manage Wounds");
+
     mMainCsrMenu.push_back("Personal Blue Frog");
     mMainCsrMenu.push_back("Manage Experience");
     mMainCsrMenu.push_back("Manage Credits");
@@ -683,6 +685,9 @@ void CharacterBuilderTerminal::SendResourcesMenu(PlayerObject* playerObject, uin
 
 void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
+	if(!playerObject->isConnected())    {
+		return;
+	}
     // Check if the player is a csr and handle the menu appropriately.
     if (playerObject->getCsrTag())
         return _handleMainCsrMenu(playerObject, action, element, inputStr, window);
@@ -719,18 +724,24 @@ void CharacterBuilderTerminal::_handleMainMenu(PlayerObject* playerObject, uint3
             gUIManager->createNewListBox(this,"handleGetProf","Select Profession to Master","Select from the list below.",mProfessionMenu,playerObject,SUI_Window_CharacterBuilderProfessionMastery_ListBox);
         }
         break;
+	
+	case 6: //wounds
+		
+		gUIManager->createNewListBox(this,"handleWoundMenu","Wounds","Select a Wound.",mWoundMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_WoundMenu);
+        break;
     default:
         break;
     }
 }
 void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, uint32 action,int32 element,BString inputStr,UIWindow* window)
 {
+	if(!playerObject->isConnected())    {
+        return;
+    }
+
     switch(element)
     {
-        if(!playerObject->isConnected())
-        {
-            return;
-        }
+        
     case 0: // personal blue frog
         _handleBlueFrogMenu(playerObject, action, element, inputStr, window);
         break;
@@ -738,10 +749,7 @@ void CharacterBuilderTerminal::_handleMainCsrMenu(PlayerObject* playerObject, ui
         SendXPMenu(playerObject, action, element, inputStr, window);
         break;
     case 2://Credits
-        if(playerObject->isConnected())
-        {
-            gUIManager->createNewListBox(this,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
-        }
+        gUIManager->createNewListBox(this,"handleCreditsMenu","Credits","Select a category.",mCreditMenu,playerObject,SUI_Window_CharacterBuilder_ListBox_CreditMenu);
         break;
     case 3://Buffs
         if(playerObject->isConnected())

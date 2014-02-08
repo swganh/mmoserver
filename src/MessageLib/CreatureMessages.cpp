@@ -849,21 +849,25 @@ void MessageLib::sendPostureUpdate(CreatureObject* creatureObject)
 void MessageLib::sendPostureAndStateUpdate(CreatureObject* creatureObject)
 {
     // Test code for npc combat with objects that can have no states, like debris.
+
+	MessageFactory* factory = getFactory_();
+
     if (creatureObject->getCreoGroup() != CreoGroup_AttackableObject)
     {
-        mMessageFactory->StartMessage();
-        mMessageFactory->addUint32(opDeltasMessage);
-        mMessageFactory->addUint64(creatureObject->getId());
-        mMessageFactory->addUint32(opCREO);
-        mMessageFactory->addUint8(3);
-        mMessageFactory->addUint32(15);
-        mMessageFactory->addUint16(2);
-        mMessageFactory->addUint16(11);
-        mMessageFactory->addUint8(creatureObject->states.getPosture());
-        mMessageFactory->addUint16(16);
-        mMessageFactory->addUint64(creatureObject->states.getAction());
+        factory->StartMessage();
+        factory->addUint32(opDeltasMessage);
+        factory->addUint64(creatureObject->getId());
+        factory->addUint32(opCREO);
+        factory->addUint8(3);
+        factory->addUint32(15);
+        factory->addUint16(2);
+        factory->addUint16(11);
+        factory->addUint8(creatureObject->states.getPosture());
+        factory->addUint16(16);
+        factory->addUint64(creatureObject->states.getAction());
 
-        _sendToInRange(mMessageFactory->EndMessage(),creatureObject,5);
+        _sendToInRange(factory->EndMessage(),creatureObject,5);
+		factory_queue_.push(factory);
     }
 }
 
@@ -929,8 +933,11 @@ void MessageLib::sendSingleBarUpdate(CreatureObject* creatureObject)
 
 bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
 {
-    if(!(playerObject->isConnected()))
-        return(false);
+    if(!_checkPlayer(playerObject)) {
+		return false;
+	}
+
+	MessageFactory* factory = getFactory_();
 
     MovingObject* object = dynamic_cast<MovingObject*>(playerObject);
 
@@ -938,28 +945,30 @@ bool MessageLib::sendUpdateMovementProperties(PlayerObject* playerObject)
         object = dynamic_cast<MovingObject*>(playerObject->getMount());
     }
 
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opDeltasMessage);
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addUint32(opCREO);
-    mMessageFactory->addUint8(4);
-    mMessageFactory->addUint32(26);
+    factory->StartMessage();
+    factory->addUint32(opDeltasMessage);
+    factory->addUint64(playerObject->getId());
+    factory->addUint32(opCREO);
+    factory->addUint8(4);
+    factory->addUint32(26);
 
-    mMessageFactory->addUint16(4);
+    factory->addUint16(4);
 
-    mMessageFactory->addUint16(5);
-    mMessageFactory->addFloat(object->getCurrentSpeedModifier());
+    factory->addUint16(5);
+    factory->addFloat(object->getCurrentSpeedModifier());
 
-    mMessageFactory->addUint16(7);
-    mMessageFactory->addFloat(object->getCurrentRunSpeedLimit());
+    factory->addUint16(7);
+    factory->addFloat(object->getCurrentRunSpeedLimit());
 
-    mMessageFactory->addUint16(10);
-    mMessageFactory->addFloat(object->getCurrentTurnRate());
+    factory->addUint16(10);
+    factory->addFloat(object->getCurrentTurnRate());
 
-    mMessageFactory->addUint16(11);
-    mMessageFactory->addFloat(object->getCurrentAcceleration());
+    factory->addUint16(11);
+    factory->addFloat(object->getCurrentAcceleration());
 
-    (playerObject->getClient())->SendChannelA(mMessageFactory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+    (playerObject->getClient())->SendChannelA(factory->EndMessage(),playerObject->getAccountId(),CR_Client,5);
+
+	factory_queue_.push(factory);
 
     return(true);
 }

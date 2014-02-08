@@ -641,42 +641,45 @@ bool MessageLib::SendSystemMessage(const OutOfBand& prose, const PlayerObject* c
 
 bool MessageLib::SendSystemMessage_(const std::u16string& custom_message, const OutOfBand& prose, PlayerObject* player, bool chatbox_only, bool send_to_inrange) {
     // If a player was passed in but not connected return false.
-    if ((!player) || (!player->isConnected())) {
-        return false;
-    }
+    if(!_checkPlayer(player)) {
+		return false;
+	}
 
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opChatSystemMessage);
+	MessageFactory* factory = getFactory_();
+
+    factory->StartMessage();
+    factory->addUint32(opChatSystemMessage);
 
     // This determines the bitmask switch for where a message is displayed.
     if (chatbox_only) {
-        mMessageFactory->addUint8(2);
+        factory->addUint8(2);
     } else {
-        mMessageFactory->addUint8(0);
+        factory->addUint8(0);
     }
 
     if (custom_message.length()) {
-        mMessageFactory->addString(custom_message);
-        mMessageFactory->addUint32(0);
+        factory->addString(custom_message);
+        factory->addUint32(0);
     } else {
-        mMessageFactory->addUint32(0);
+        factory->addUint32(0);
 
         const ByteBuffer* attachment = prose.Pack();
-        mMessageFactory->addData(attachment->data(), attachment->size());
+        factory->addData(attachment->data(), attachment->size());
     }
 
     // If a player was passed in then only send out the message to the appropriate parties.
     if (player) {
         // If the send_to_inrange flag was set then send out to everyone in-range of the player.
         if (send_to_inrange) {
-            _sendToInRange(mMessageFactory->EndMessage(), player, 8);
+            _sendToInRange(factory->EndMessage(), player, 8);
         } else {
-            (player->getClient())->SendChannelA(mMessageFactory->EndMessage(), player->getAccountId(), CR_Client, 5);
+            (player->getClient())->SendChannelA(factory->EndMessage(), player->getAccountId(), CR_Client, 5);
         }
     } else {
         // If no player was passed send the system message to everyone.
-        _sendToAll(mMessageFactory->EndMessage(), 8, true);
+        _sendToAll(factory->EndMessage(), 8, true);
     }
+	factory_queue_.push(factory);
 
     return true;
 }

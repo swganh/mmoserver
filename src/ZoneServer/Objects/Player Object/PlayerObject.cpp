@@ -2107,9 +2107,6 @@ bool PlayerObject::handlePostureUpdate(IEventPtr triggered_event)
             default:
                 break;
             }
-            // update client
-            if(isConnected())
-                gMessageLib->sendHeartBeat(getClient());
 
             gMessageLib->sendUpdateMovementProperties(player);
             gMessageLib->sendPostureAndStateUpdate(player);
@@ -2176,8 +2173,6 @@ void PlayerObject::setProne()
 
 void PlayerObject::setCrouched()
 {
-    if(this->isConnected())
-        gMessageLib->sendHeartBeat(this->getClient());
 
     //Get whether player is seated on a chair before we toggle it
     bool IsSeatedOnChair = this->states.checkState(CreatureState_SittingOnChair);

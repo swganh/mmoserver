@@ -292,16 +292,25 @@ void MessageLib::sendCreatureAnimation(CreatureObject* srcObject,const std::stri
 
 void MessageLib::sendSelfPostureUpdate(PlayerObject* playerObject)
 {
-    mMessageFactory->StartMessage();
-    mMessageFactory->addUint32(opObjControllerMessage);
-    mMessageFactory->addUint32(0x0000001B);
-    mMessageFactory->addUint32(opPosture);
-    mMessageFactory->addUint64(playerObject->getId());
-    mMessageFactory->addUint32(0);
-    mMessageFactory->addUint8(playerObject->states.getPosture());
-    mMessageFactory->addUint8(1);
+	if(!_checkPlayer(playerObject)) {
+		return;
+	}
 
-    _sendToInRange(mMessageFactory->EndMessage(),playerObject,5);
+	MessageFactory* factory = getFactory_();
+
+    factory->StartMessage();
+    factory->addUint32(opObjControllerMessage);
+    factory->addUint32(0x0000001B);
+    factory->addUint32(opPosture);
+    factory->addUint64(playerObject->getId());
+    factory->addUint32(0);
+    factory->addUint8(playerObject->states.getPosture());
+    factory->addUint8(1);
+
+    _sendToInRange(factory->EndMessage(),playerObject,5);
+
+	factory_queue_.push(factory);
+
 }
 
 //======================================================================================================================

@@ -203,8 +203,15 @@ void PlayerObjectFactory::handleDatabaseJobComplete(void* ref,swganh::database::
 			playerObject->InitStatWound(result_set->getUInt(27));
 
 			playerObject->InitStatEncumberance(result_set->getUInt(28));
+			playerObject->InitStatEncumberance(0);
+			playerObject->InitStatEncumberance(0);
 			playerObject->InitStatEncumberance(result_set->getUInt(29));
+			playerObject->InitStatEncumberance(0);
+			playerObject->InitStatEncumberance(0);
 			playerObject->InitStatEncumberance(result_set->getUInt(30));
+			playerObject->InitStatEncumberance(0);
+			playerObject->InitStatEncumberance(0);
+
 
 			playerObject->InitBattleFatigue(result_set->getUInt(31));
         }
